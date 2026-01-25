@@ -10,6 +10,7 @@ import 'package:p2p_fitness/core/utils/constants/app_sizes.dart';
 import 'package:p2p_fitness/core/utils/constants/image_path.dart';
 import 'package:p2p_fitness/core/utils/validators/app_validator.dart';
 import 'package:p2p_fitness/features/authentication/controllers/login_controller.dart';
+import 'package:p2p_fitness/features/authentication/presentation/screens/sign_up_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -191,6 +192,7 @@ class LoginScreen extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   log("SignUp screen");
+                  Get.to(() => SignUpScreen());
                 },
                 child: CustomText(
                   text: "Sign up",
