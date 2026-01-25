@@ -16,32 +16,33 @@ class CustomText extends StatelessWidget {
   final TextDecoration? decoration;
   final Color? decorationColor;
 
-
-  const CustomText(
-      {super.key,
-      required this.text,
-      this.textAlign,
-        this.decorationThickness,
-      this.maxLines,
-      this.textOverflow,
-      this.fontSize,
-      this.textColor,
-      this.fontWeight,
-      this.decoration,
-      this.decorationColor});
+  const CustomText({
+    super.key,
+    required this.text,
+    this.textAlign,
+    this.decorationThickness,
+    this.maxLines,
+    this.textOverflow,
+    this.fontSize,
+    this.textColor,
+    this.fontWeight,
+    this.decoration,
+    this.decorationColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: textAlign,
-      style: GoogleFonts.inter(
-          decoration: decoration,
-          decorationThickness: decorationThickness,
-          decorationColor: decorationColor ?? const Color(0xff2972FF),
-          fontSize: fontSize ?? getWidth(14),
-          color: textColor ?? AppColors.textPrimary,
-          fontWeight: fontWeight ?? FontWeight.w600),
+      style: GoogleFonts.figtree(
+        decoration: decoration,
+        decorationThickness: decorationThickness,
+        decorationColor: decorationColor ?? const Color(0xff2972FF),
+        fontSize: fontSize ?? getWidth(14),
+        color: textColor ?? AppColors.textPrimary,
+        fontWeight: fontWeight ?? FontWeight.w600,
+      ),
       overflow: textOverflow,
       maxLines: maxLines,
     );

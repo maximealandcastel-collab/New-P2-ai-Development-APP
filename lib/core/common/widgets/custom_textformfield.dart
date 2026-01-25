@@ -81,103 +81,106 @@ class CustomTextFormField extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
       validator: validation,
-      onTapOutside: (PointerDownEvent event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
 
-      style: GoogleFonts.inter(
+      // onTapOutside: (PointerDownEvent event) {
+      //   FocusManager.instance.primaryFocus?.unfocus();
+      // },
+      style: GoogleFonts.figtree(
         fontSize: getWidth(16),
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: containerColor ?? const Color(0xffE9E9E9),
-        contentPadding: EdgeInsets.symmetric(vertical: getHeight(12), horizontal: getWidth(12)),
+        fillColor: containerColor ?? AppColors.textWhite,
+        contentPadding: EdgeInsets.symmetric(
+          vertical: getHeight(16),
+          horizontal: getWidth(16),
+        ),
         hintText: hintText,
         hintStyle:
-        hintTextStyle ??
-            GoogleFonts.inter(
+            hintTextStyle ??
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
-              color: AppColors.hintText,
+              color: Color(0xFFd6d6d6),
             ),
         prefixText: prefixText != null ? '$prefixText  ' : null,
         prefixStyle:
-        prefixTextStyle ??
-            GoogleFonts.inter(
+            prefixTextStyle ??
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
             ),
         prefixIcon:
-        prefixIcon ??
+            prefixIcon ??
             (prefixIconPath != null
                 ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
-              child: Image.asset(prefixIconPath!, width: getWidth(26)),
-            )
+                    padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
+                    child: Image.asset(prefixIconPath!, width: getWidth(26)),
+                  )
                 : null),
         suffixText: suffixText != null ? '  $suffixText' : null,
         suffixStyle:
-        suffixTextStyle ??
-            GoogleFonts.inter(
+            suffixTextStyle ??
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
             ),
         suffixIcon:
-        suffixIcon ??
+            suffixIcon ??
             (suffixIconPath != null
                 ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
-              child: Image.asset(suffixIconPath!, width: getWidth(26)),
-            )
+                    padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
+                    child: Image.asset(suffixIconPath!, width: getWidth(26)),
+                  )
                 : null),
         border:
-        border ??
+            border ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: containerBorderColor ?? AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
               ),
             ),
         enabledBorder:
-        enabledBorder ??
+            enabledBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: containerBorderColor ?? AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
               ),
             ),
         focusedBorder:
-        focusedBorder ??
+            focusedBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
               ),
             ),
         focusedErrorBorder:
-        focusedErrorBorder ??
+            focusedErrorBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: AppColors.error,
                 width: containerBorderWidth ?? 1,
               ),
             ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRedius ?? 50),
+          borderRadius: BorderRadius.circular(borderRedius ?? 16),
           borderSide: BorderSide(
             color: AppColors.error,
             width: containerBorderWidth ?? 1,
           ),
         ),
-        errorStyle: GoogleFonts.inter(
+        errorStyle: GoogleFonts.figtree(
           fontSize: getWidth(14),
           fontWeight: FontWeight.w400,
           color: AppColors.error,
