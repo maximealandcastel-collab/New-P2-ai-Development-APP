@@ -81,10 +81,10 @@ class CustomTextFormField extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
       validator: validation,
-      onTapOutside: (PointerDownEvent event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
 
+      // onTapOutside: (PointerDownEvent event) {
+      //   FocusManager.instance.primaryFocus?.unfocus();
+      // },
       style: GoogleFonts.inter(
         fontSize: getWidth(16),
         fontWeight: FontWeight.w400,
@@ -93,10 +93,13 @@ class CustomTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         filled: true,
         fillColor: containerColor ?? const Color(0xffE9E9E9),
-        contentPadding: EdgeInsets.symmetric(vertical: getHeight(12), horizontal: getWidth(12)),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: getHeight(12),
+          horizontal: getWidth(12),
+        ),
         hintText: hintText,
         hintStyle:
-        hintTextStyle ??
+            hintTextStyle ??
             GoogleFonts.inter(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
@@ -104,38 +107,38 @@ class CustomTextFormField extends StatelessWidget {
             ),
         prefixText: prefixText != null ? '$prefixText  ' : null,
         prefixStyle:
-        prefixTextStyle ??
+            prefixTextStyle ??
             GoogleFonts.inter(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
             ),
         prefixIcon:
-        prefixIcon ??
+            prefixIcon ??
             (prefixIconPath != null
                 ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
-              child: Image.asset(prefixIconPath!, width: getWidth(26)),
-            )
+                    padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
+                    child: Image.asset(prefixIconPath!, width: getWidth(26)),
+                  )
                 : null),
         suffixText: suffixText != null ? '  $suffixText' : null,
         suffixStyle:
-        suffixTextStyle ??
+            suffixTextStyle ??
             GoogleFonts.inter(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
             ),
         suffixIcon:
-        suffixIcon ??
+            suffixIcon ??
             (suffixIconPath != null
                 ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
-              child: Image.asset(suffixIconPath!, width: getWidth(26)),
-            )
+                    padding: EdgeInsets.symmetric(horizontal: getWidth(12)),
+                    child: Image.asset(suffixIconPath!, width: getWidth(26)),
+                  )
                 : null),
         border:
-        border ??
+            border ??
             OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRedius ?? 50),
               borderSide: BorderSide(
@@ -144,7 +147,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
             ),
         enabledBorder:
-        enabledBorder ??
+            enabledBorder ??
             OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRedius ?? 50),
               borderSide: BorderSide(
@@ -153,7 +156,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
             ),
         focusedBorder:
-        focusedBorder ??
+            focusedBorder ??
             OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRedius ?? 50),
               borderSide: BorderSide(
@@ -162,7 +165,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
             ),
         focusedErrorBorder:
-        focusedErrorBorder ??
+            focusedErrorBorder ??
             OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRedius ?? 50),
               borderSide: BorderSide(
