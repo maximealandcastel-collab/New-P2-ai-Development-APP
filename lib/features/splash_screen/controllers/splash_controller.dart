@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:p2p_fitness/features/onboarding/presentation/screens/onboarding_main_screen.dart';
 
 class SplashController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -33,6 +34,7 @@ class SplashController extends GetxController
   void navigateToHomeScreen() {
     Future.delayed(const Duration(milliseconds: 3000), () {
       log("Go to onboarding screen");
+      Get.offAll(() => OnboardingMainScreen());
     });
   }
 

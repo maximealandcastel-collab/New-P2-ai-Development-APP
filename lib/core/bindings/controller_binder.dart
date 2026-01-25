@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:p2p_fitness/features/onboarding/controller/onboarding_controller.dart';
 import 'package:p2p_fitness/features/splash_screen/controllers/splash_controller.dart';
 
 class ControllerBinder extends Bindings {
@@ -6,5 +7,9 @@ class ControllerBinder extends Bindings {
   void dependencies() {
     // splash controllers
     Get.lazyPut<SplashController>(() => SplashController(), fenix: true);
+    Get.lazyPut<OnboardingController>(
+      () => OnboardingController(),
+      fenix: true,
+    );
   }
 }

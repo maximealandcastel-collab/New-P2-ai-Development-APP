@@ -4,30 +4,25 @@ class AppColors {
   AppColors._();
 
   // Brand Colors
-  static const Color primary = Color(0xFF32A4C8);
-  static Color secondary = Color(0xFF1BBFDC);
-
+  static const Color primary = Color(0xFFFD7B00);
+  static Color secondary = Color(0xFFe8e8e8);
 
   // Gradient Colors
   static const Gradient linearGradient = LinearGradient(
     begin: Alignment(0.0, 0.0),
     end: Alignment(0.707, -0.707),
-    colors: [
-      Color(0xfffffa9e),
-      Color(0xFFFAD0C4),
-      Color(0xFFFAD0C4),
-    ],
+    colors: [Color(0xfffffa9e), Color(0xFFFAD0C4), Color(0xFFFAD0C4)],
   );
 
-
   // Text Colors
-  static const Color textPrimary = Color(0xFF111111);
-  static const Color textSecondary = Color(0xFF747474);
+  static const Color textPrimary = Color(0xFF000000);
+  static const Color textSecondary = Color(0xFFd3d3d3);
   static const Color textYellow = Color(0xffFFAB4C);
   static const Color textGrey = Color(0xffA59F92);
   static const Color textWhite = Color(0xFFFFFFFF);
   static const Color hintText = Color(0xFF93969C);
 
+  static const Color containerBg = Color(0xFFe0e0e0);
 
   // Background Colors
   static const Color backgroundLight = Color(0xFFF9FAFB);
@@ -47,6 +42,7 @@ class AppColors {
   static const Color warning = Color(0xFFFFA726);
   static const Color error = Color(0xFFF44336);
   static const Color info = Color(0xFF29B6F6);
+
   /// textformfield border color
 
   static const Color textFormFieldBorder = Color(0xFFD9D9D9);
