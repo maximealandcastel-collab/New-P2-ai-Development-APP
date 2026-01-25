@@ -85,30 +85,30 @@ class CustomTextFormField extends StatelessWidget {
       // onTapOutside: (PointerDownEvent event) {
       //   FocusManager.instance.primaryFocus?.unfocus();
       // },
-      style: GoogleFonts.inter(
+      style: GoogleFonts.figtree(
         fontSize: getWidth(16),
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: containerColor ?? const Color(0xffE9E9E9),
+        fillColor: containerColor ?? AppColors.textWhite,
         contentPadding: EdgeInsets.symmetric(
-          vertical: getHeight(12),
-          horizontal: getWidth(12),
+          vertical: getHeight(16),
+          horizontal: getWidth(16),
         ),
         hintText: hintText,
         hintStyle:
             hintTextStyle ??
-            GoogleFonts.inter(
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
-              color: AppColors.hintText,
+              color: Color(0xFFd6d6d6),
             ),
         prefixText: prefixText != null ? '$prefixText  ' : null,
         prefixStyle:
             prefixTextStyle ??
-            GoogleFonts.inter(
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
@@ -124,7 +124,7 @@ class CustomTextFormField extends StatelessWidget {
         suffixText: suffixText != null ? '  $suffixText' : null,
         suffixStyle:
             suffixTextStyle ??
-            GoogleFonts.inter(
+            GoogleFonts.figtree(
               fontSize: getWidth(15),
               fontWeight: FontWeight.w400,
               color: AppColors.textSecondary,
@@ -140,7 +140,7 @@ class CustomTextFormField extends StatelessWidget {
         border:
             border ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: containerBorderColor ?? AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
@@ -149,7 +149,7 @@ class CustomTextFormField extends StatelessWidget {
         enabledBorder:
             enabledBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: containerBorderColor ?? AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
@@ -158,7 +158,7 @@ class CustomTextFormField extends StatelessWidget {
         focusedBorder:
             focusedBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: AppColors.textFormFieldBorder,
                 width: containerBorderWidth ?? 1,
@@ -167,20 +167,20 @@ class CustomTextFormField extends StatelessWidget {
         focusedErrorBorder:
             focusedErrorBorder ??
             OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRedius ?? 50),
+              borderRadius: BorderRadius.circular(borderRedius ?? 16),
               borderSide: BorderSide(
                 color: AppColors.error,
                 width: containerBorderWidth ?? 1,
               ),
             ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRedius ?? 50),
+          borderRadius: BorderRadius.circular(borderRedius ?? 16),
           borderSide: BorderSide(
             color: AppColors.error,
             width: containerBorderWidth ?? 1,
           ),
         ),
-        errorStyle: GoogleFonts.inter(
+        errorStyle: GoogleFonts.figtree(
           fontSize: getWidth(14),
           fontWeight: FontWeight.w400,
           color: AppColors.error,

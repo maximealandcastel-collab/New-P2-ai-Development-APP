@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:p2p_fitness/features/authentication/controllers/login_controller.dart';
 import 'package:p2p_fitness/features/onboarding/controller/onboarding_controller.dart';
 import 'package:p2p_fitness/features/splash_screen/controllers/splash_controller.dart';
 
@@ -11,5 +12,8 @@ class ControllerBinder extends Bindings {
       () => OnboardingController(),
       fenix: true,
     );
+
+    // auth controllers
+    Get.lazyPut<LoginController>(() => LoginController(), fenix: true);
   }
 }

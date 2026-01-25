@@ -7,6 +7,7 @@ import 'package:p2p_fitness/core/utils/constants/app_colors.dart';
 import 'package:p2p_fitness/core/utils/constants/app_sizer.dart';
 import 'package:p2p_fitness/core/utils/constants/app_sizes.dart';
 import 'package:p2p_fitness/core/utils/constants/image_path.dart';
+import 'package:p2p_fitness/features/authentication/presentation/screens/login_screen.dart';
 import 'package:p2p_fitness/features/onboarding/controller/onboarding_controller.dart';
 
 class OnboardingSelectionScreen extends StatelessWidget {
@@ -50,6 +51,7 @@ class OnboardingSelectionScreen extends StatelessWidget {
                       child: _helperSelection(
                         onTap: () {
                           log("Go to fitness login");
+                          Get.offAll(() => LoginScreen());
                         },
                         imagePath: ImagePath.appLogo,
                         title: 'Fitness',
@@ -62,6 +64,7 @@ class OnboardingSelectionScreen extends StatelessWidget {
                       child: _helperSelection(
                         onTap: () {
                           log("Go to facility login");
+                          Get.offAll(() => LoginScreen());
                         },
                         imagePath: ImagePath.facilityAppLogo,
                         title: 'Facility',
