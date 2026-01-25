@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/common/widgets/custom_text.dart';
+import 'package:p2p_fitness/core/utils/constants/image_path.dart';
+import 'package:p2p_fitness/features/splash_screen/controllers/splash_controller.dart';
 import '../../../../core/utils/constants/app_sizes.dart';
-import '../../../authentication/controllers/login_controller.dart';
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+  SplashScreen({super.key});
+
+  final controller = Get.find<SplashController>();
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(LoginController());
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(getWidth(16)),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomText(text: 'This is Splash Screen'),
-            ],
+          child: AnimatedBuilder(
+            animation: controller.animationController,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: controller.fadeAnimation,
+                child: ScaleTransition(
+                  scale: controller.scaleAnimation,
+                  child: child,
+                ),
+              );
+            },
+            child: Image.asset(
+              ImagePath.appLogo,
+              width: getWidth(200),
+              height: getHeight(200),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),
