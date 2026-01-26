@@ -3,6 +3,7 @@ import 'package:p2p_fitness/features/authentication/controllers/login_controller
 import 'package:p2p_fitness/features/authentication/controllers/sign_up_controller.dart';
 import 'package:p2p_fitness/features/onboarding/controller/onboarding_controller.dart';
 import 'package:p2p_fitness/features/splash_screen/controllers/splash_controller.dart';
+import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/controller/trainer_and_user_set_up_porfile_controller.dart';
 
 class ControllerBinder extends Bindings {
   @override
@@ -17,5 +18,11 @@ class ControllerBinder extends Bindings {
     // auth controllers
     Get.lazyPut<LoginController>(() => LoginController(), fenix: true);
     Get.lazyPut<SignUpController>(() => SignUpController(), fenix: true);
+
+    // profile set up
+    Get.lazyPut<TrainerAndUserSetUpPorfileController>(
+      () => TrainerAndUserSetUpPorfileController(),
+      fenix: true,
+    );
   }
 }

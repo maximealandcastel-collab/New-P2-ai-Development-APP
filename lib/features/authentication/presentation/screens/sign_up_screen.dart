@@ -14,6 +14,7 @@ import 'package:p2p_fitness/core/utils/constants/image_path.dart';
 import 'package:p2p_fitness/core/utils/validators/app_validator.dart';
 import 'package:p2p_fitness/features/authentication/controllers/sign_up_controller.dart';
 import 'package:p2p_fitness/features/authentication/presentation/screens/login_screen.dart';
+import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/screens/trainer_and_user_set_up_profile.dart';
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
@@ -347,8 +348,10 @@ class SignUpScreen extends StatelessWidget {
                             text: "Sign up",
                             onTap: () {
                               if (_formKey.currentState!.validate()) {
+                                Get.offAll(() => TrainerAndUserSetUpProfile());
                                 log("Validate");
                               } else {
+                                Get.offAll(() => TrainerAndUserSetUpProfile());
                                 log("Not validate");
                               }
                             },
