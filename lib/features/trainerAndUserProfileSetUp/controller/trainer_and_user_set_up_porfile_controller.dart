@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/screens/trainer_tax_info_and_paymnet_screen.dart';
 import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/widgets/about_you_input_widget.dart';
 import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/widgets/date_of_brith_input_widget.dart';
 import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/widgets/gender_input_widget.dart';
@@ -24,6 +25,7 @@ class TrainerAndUserSetUpPorfileController extends GetxController {
       log("Index ${currentIndex.value}");
     } else {
       log("Go to next page");
+      Get.offAll(() => TrainerTaxInfoAndPaymnetScreen());
     }
   }
 
@@ -39,7 +41,6 @@ class TrainerAndUserSetUpPorfileController extends GetxController {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final aboutYouController = TextEditingController();
-
 
   // for date of birth
   final months = <String>[

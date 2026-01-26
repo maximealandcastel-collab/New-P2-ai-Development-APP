@@ -7,14 +7,12 @@ import 'package:p2p_fitness/core/common/widgets/custom_text.dart';
 import 'package:p2p_fitness/core/utils/constants/app_colors.dart';
 import 'package:p2p_fitness/core/utils/constants/app_sizer.dart';
 import 'package:p2p_fitness/core/utils/constants/app_sizes.dart';
-import 'package:p2p_fitness/core/utils/constants/image_path.dart';
-import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/controller/trainer_and_user_set_up_porfile_controller.dart';
-import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/presentation/screens/trainer_tax_info_and_paymnet_screen.dart';
+import 'package:p2p_fitness/features/trainerAndUserProfileSetUp/controller/trainer_tax_info_and_paymnet_controller.dart';
 
-class TrainerAndUserSetUpProfile extends StatelessWidget {
-  TrainerAndUserSetUpProfile({super.key});
+class TrainerTaxInfoAndPaymnetScreen extends StatelessWidget {
+  TrainerTaxInfoAndPaymnetScreen({super.key});
 
-  final controller = Get.find<TrainerAndUserSetUpPorfileController>();
+  final controller = Get.find<TrainerTaxInfoAndPaymnetController>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +21,6 @@ class TrainerAndUserSetUpProfile extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(getHeight(20)),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,7 +69,7 @@ class TrainerAndUserSetUpProfile extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       log("Skip all");
-                      Get.offAll(() => TrainerTaxInfoAndPaymnetScreen());
+                      // Get.offAll(() => TrainerTaxInfoAndPaymnetScreen());
                     },
                     child: CustomText(
                       text: "Skip",
@@ -81,38 +78,6 @@ class TrainerAndUserSetUpProfile extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-
-              SizedBox(height: getHeight(36)),
-              Image.asset(
-                ImagePath.appLogo,
-                width: getWidth(84),
-                height: getHeight(84),
-                fit: BoxFit.cover,
-              ),
-              SizedBox(height: getHeight(16)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: "Welcome to ",
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  CustomText(
-                    text: "Pier to Pier",
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w600,
-                    textColor: AppColors.primary,
-                  ),
-                ],
-              ),
-              SizedBox(height: getHeight(8)),
-              CustomText(
-                text: "Let’s start with building your profile",
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                textColor: AppColors.textSecondary,
               ),
               SizedBox(height: getHeight(40)),
               Obx(
@@ -131,30 +96,12 @@ class TrainerAndUserSetUpProfile extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Obx(
-            () => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (controller.currentIndex.value == 3) ...[
-                  CustomSubmitButton(
-                    text: "Maybe later",
-                    onTap: () {
-                      controller.tapNext();
-                    },
-                    color: AppColors.textSecondary.withValues(alpha: 0.3),
-                    textColor: AppColors.textPrimary,
-                  ),
-                  SizedBox(height: getHeight(20)),
-                ],
-                CustomSubmitButton(
-                  text: "Next",
-                  onTap: () {
-                    controller.tapNext();
-                  },
-                ),
-              ],
-            ),
+          padding: EdgeInsets.all(getHeight(20)),
+          child: CustomSubmitButton(
+            text: "Next",
+            onTap: () {
+              controller.tapNext();
+            },
           ),
         ),
       ),
