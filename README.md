@@ -6,6 +6,7 @@ A Flutter-based AI-powered fitness companion app that generates personalized wor
 
 ## Table of Contents
 
+
 - [Project Overview](#project-overview)
 - [App Idea & Core Concept](#app-idea--core-concept)
 - [Key Features](#key-features)
@@ -46,6 +47,7 @@ The platform operates on a **dual-role model**:
 ---
 
 ## Key Features
+
 
 ### User (Fitness)
 - AI-powered workout plan generator (multi-step onboarding flow)
