@@ -74,10 +74,10 @@ class OnboardingMainScreen extends StatelessWidget {
                         onboardingList.length,
                         (index) => Container(
                           margin: EdgeInsets.symmetric(horizontal: 6.w),
-                          height: 10.h,
+                          height: 10.r,
                           width: controller.currentIndex.value == index
-                              ? 40.w
-                              : 8.w,
+                              ? 40.r
+                              : 10.r,
                           decoration: BoxDecoration(
                             color: controller.currentIndex.value == index
                                 ? AppColors.textPrimary
@@ -97,7 +97,7 @@ class OnboardingMainScreen extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 80.h,
+            top: 70.h,
             right: 26.w,
             child: GestureDetector(
               onTap: () {

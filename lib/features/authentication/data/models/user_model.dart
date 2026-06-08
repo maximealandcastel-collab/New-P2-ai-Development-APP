@@ -1,78 +1,91 @@
-import 'package:pler_to_pler_app/features/authentication/domain/entities/user_entity.dart';
-
-/// Data Model - Handles JSON serialization/deserialization
-/// Maps to/from Domain Entity
 class UserModel {
-  final String? id;
-  final String email;
-  final String? name;
-  final String? role;
-  final String? profilePicture;
-  final bool? isEmailVerified;
-  final bool? isActive;
+  String? sId;
+  String? name;
+  String? email;
+  String? image;
+  String? role;
+  String? profileStatus;
+  bool? isPaid;
+  int? phone;
+  String? height;
+  String? weight;
+  String? occupation;
+  String? age;
 
   UserModel({
-    this.id,
-    required this.email,
+    this.sId,
     this.name,
+    this.email,
+    this.image,
     this.role,
-    this.profilePicture,
-    this.isEmailVerified,
-    this.isActive,
+    this.profileStatus,
+    this.isPaid,
+    this.phone,
+    this.height,
+    this.weight,
+    this.occupation,
+    this.age,
   });
 
-  /// Create from JSON (API response)
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'] as String? ?? json['_id'] as String?,
-      email: json['email'] as String? ?? '',
-      name: json['name'] as String? ?? json['fullName'] as String?,
-      role: json['role'] as String?,
-      profilePicture: json['profilePicture'] as String? ?? 
-                      json['avatar'] as String? ?? 
-                      json['image'] as String?,
-      isEmailVerified: json['isEmailVerified'] as bool? ?? 
-                       json['emailVerified'] as bool?,
-      isActive: json['isActive'] as bool? ?? json['active'] as bool?,
-    );
+  UserModel.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    name = json['name'];
+    email = json['email'];
+    image = json['image'];
+    role = json['role'];
+    profileStatus = json['profileStatus'];
+    isPaid = json['isPaid'];
+    phone = json['phone'];
+    height = json['height'];
+    weight = json['weight'];
+    occupation = json['occupation'];
+    age = json['age'];
   }
 
-  /// Convert to JSON (for API requests)
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'name': name,
-      'role': role,
-      'profilePicture': profilePicture,
-      'isEmailVerified': isEmailVerified,
-      'isActive': isActive,
-    };
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['name'] = name;
+    data['email'] = email;
+    data['image'] = image;
+    data['role'] = role;
+    data['profileStatus'] = profileStatus;
+    data['isPaid'] = isPaid;
+    data['phone'] = phone;
+    data['height'] = height;
+    data['weight'] = weight;
+    data['occupation'] = occupation;
+    data['age'] = age;
+    return data;
   }
 
-  /// Convert to Domain Entity
-  UserEntity toEntity() {
-    return UserEntity(
-      id: id,
-      email: email,
-      name: name,
-      role: role,
-      profilePicture: profilePicture,
-      isEmailVerified: isEmailVerified,
-      isActive: isActive,
-    );
-  }
-
-  /// Create from Entity
-  factory UserModel.fromEntity(UserEntity entity) {
+  UserModel copyWith({
+    String? sId,
+    String? name,
+    String? email,
+    String? image,
+    String? role,
+    String? profileStatus,
+    bool? isPaid,
+    int? phone,
+    String? height,
+    String? weight,
+    String? occupation,
+    String? age,
+  }) {
     return UserModel(
-      id: entity.id,
-      email: entity.email,
-      name: entity.name,
-      role: entity.role,
-      profilePicture: entity.profilePicture,
-      isEmailVerified: entity.isEmailVerified,
-      isActive: entity.isActive,
+      sId: sId ?? this.sId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      image: image ?? this.image,
+      role: role ?? this.role,
+      profileStatus: profileStatus ?? this.profileStatus,
+      isPaid: isPaid ?? this.isPaid,
+      phone: phone ?? this.phone,
+      height: height ?? this.height,
+      weight: weight ?? this.weight,
+      occupation: occupation ?? this.occupation,
+      age: age ?? this.age,
     );
   }
 }

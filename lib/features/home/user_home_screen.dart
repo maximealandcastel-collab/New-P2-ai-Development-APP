@@ -2,18 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
-import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_button.dart';
-import 'package:pler_to_pler_app/widgets/custom_container.dart';
-import 'package:pler_to_pler_app/widgets/custom_text.dart';
-
-import '../../widgets/custom_image_avatar.dart';
+import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -15,7 +15,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize controller if not already bound
     final ProfileController controller = Get.find<ProfileController>();
 
     return Scaffold(
@@ -51,23 +50,6 @@ class ProfileScreen extends StatelessWidget {
                   width: 48.r,
                 ),
               ),
-              // Refresh button
-              Obx(() => controller.isLoading
-                  ? Padding(
-                      padding: EdgeInsets.all(8.r),
-                      child: SizedBox(
-                        width: 20.r,
-                        height: 20.r,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      ),
-                    )
-                  : IconButton(
-                      onPressed: () => controller.refreshProfile(),
-                      icon: Icon(Icons.refresh, color: Colors.white, size: 24.r),
-                    )),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: CustomContainer(
@@ -82,8 +64,7 @@ class ProfileScreen extends StatelessWidget {
                           top: 154.h,
                           left: 16.w,
                           child: CustomImageAvatar(
-                            image: controller.currentUser?.profilePicture ??
-                                "https://picsum.photos/300",
+                            image: "https://picsum.photos/300",
                             showBorder: true,
                             radius: 54.r,
                           ),

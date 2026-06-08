@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/theme/theme.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
-import 'core/bindings/controller_binder.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,20 +10,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(390, 844),
+      designSize: const Size(393, 852),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) {
-        return GetMaterialApp(
-          theme: AppTheme.instance.lightTheme,
-          themeMode: ThemeMode.light,
-          debugShowCheckedModeBanner: false,
-          initialRoute: AppRoute.init,
-          getPages: AppRoute.routes,
-          initialBinding: ControllerBinder(),
-
-        );
-      },
+      builder:
+          (context, child) => GetMaterialApp(
+        theme: AppThemeData.themeData,
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppRoute.init,
+        getPages: AppRoute.routes,
+        defaultTransition: Transition.fadeIn,
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
     );
   }
 

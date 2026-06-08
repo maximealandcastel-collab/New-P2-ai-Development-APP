@@ -2,26 +2,27 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/tap_bar_helper.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+  const LoginScreen({super.key});
 
-  final controller = Get.find<LoginController>();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final controller = LoginController.to;
     return CustomScaffold(
       body: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: controller.loginFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -46,15 +47,13 @@ class LoginScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _helperTabBar(
+                      child: TapBarHelper(
                         text: "Trainer",
-                        controller: controller,
                       ),
                     ),
                     Expanded(
-                      child: _helperTabBar(
+                      child: TapBarHelper(
                         text: "User",
-                        controller: controller,
                       ),
                     ),
                   ],
@@ -107,17 +106,11 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 24.h),
               Obx((){
-                String role = controller.selectedTab.value;
+                String role = controller.selectedRole;
                 return  CustomButton(
                   label: "Sign in",
-                  onPressed: controller.isLoading.value ? null
-                      : () async {
-                          log(role);
-                          await PrefsHelper.setString('role', role);
-                          Get.offAll(() => NavBar());
-                          await controller.handleLogin();
-                        },
-                  isLoading: controller.isLoading.value,
+                  onPressed: controller.login,
+                  isLoading: controller.loginState.isLoading,
                 );
                }
               ),
@@ -178,35 +171,4 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _helperTabBar({
-  required String text,
-  required LoginController controller,
-}) {
-  return Obx(
-    () => GestureDetector(
-      onTap: () {
-        controller.changeTab(text);
-      },
-      child: Container(
-        padding: EdgeInsets.all(10.r),
-        decoration: BoxDecoration(
-          color: controller.selectedTab.value == text
-              ? AppColors.textPrimary
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: CustomText(
-          color: controller.selectedTab.value == text ?
-              AppColors.textWhite
-              : AppColors.textSecondary,
-          text: text,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    ),
-  );
 }

@@ -1,91 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
-import 'package:pler_to_pler_app/core/utils/validators/app_validator.dart';
-import 'package:pler_to_pler_app/features/authentication/domain/usecases/login_usecase.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 
 class LoginController extends GetxController {
-  // Dependencies
-  final LoginUseCase loginUseCase;
+  final AuthService _authService;
 
-  LoginController({required this.loginUseCase});
+  static LoginController get to => Get.find();
 
-  // UI State Controllers
+  LoginController({required AuthService authService})
+    : _authService = authService;
+
+  // ─── State ───────────────────────────────
+
+  final _loginState = LoadingState.initial.obs;
+  final RxString _selectedRole = 'Trainer'.obs;
+
+  LoadingState get loginState => _loginState.value;
+  String get selectedRole => _selectedRole.value;
+
+  final loginFormKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Observable States
-  final selectedTab = "Trainer".obs;
-  final passwordNotVisible = true.obs;
-  final isValidate = false.obs;
-  final isLoading = false.obs;
-
-  // Change role tab
-  void changeTab(value) {
-    selectedTab.value = value;
-    validateField();
+  void changeRole(String role) {
+    _selectedRole.value = role;
   }
 
-  // Toggle password visibility
-  void changeVisibility() {
-    passwordNotVisible.value = !passwordNotVisible.value;
-  }
+  Future<void> login() async {
+    if (!loginFormKey.currentState!.validate()) return;
 
-  // Validate form fields
-  void validateField() {
-    if (AppValidator.validateEmail(emailController.text) == null &&
-        AppValidator.validatePassword(passwordController.text) == null) {
-      isValidate.value = true;
-    } else {
-      isValidate.value = false;
-    }
-  }
-
-  // Handle login action
-  Future<void> handleLogin() async {
-    // Validate form first
-    if (AppValidator.validateEmail(emailController.text) != null) {
-      ToastMessageHelper.showError('Invalid email address');
-      return;
-    }
-
-    if (AppValidator.validatePassword(passwordController.text) != null) {
-      ToastMessageHelper.showError('Invalid password');
-      return;
-    }
+    _loginState.value = LoadingState.loading;
 
     try {
-      isLoading.value = true;
-
-      // Execute use case
-      await loginUseCase(
+      final result = await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text,
-        role: selectedTab.value,
       );
-
-      isLoading.value = false;
-
-      // Navigate to home on success
-      ToastMessageHelper.showSuccess('Login successful');
-      Get.offAll(() => NavBar());
+      _loginState.value = LoadingState.loaded;
     } catch (e) {
-      isLoading.value = false;
-      ToastMessageHelper.showError(e.toString().replaceAll('Exception: ', ''));
+      _loginState.value = LoadingState.error;
     }
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    validateField();
-  }
-
-  @override
-  void onClose() {
-    emailController.clear();
-    passwordController.clear();
-    super.onClose();
   }
 }

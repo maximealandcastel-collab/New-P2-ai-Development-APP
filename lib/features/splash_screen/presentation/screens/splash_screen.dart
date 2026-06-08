@@ -8,7 +8,7 @@ import '../../controllers/splash_controller.dart';
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key});
 
-  final controller = Get.find<SplashController>();
+  final controller = SplashController.to;
 
   // List the splash images in order
   final List<String> splashImages = [

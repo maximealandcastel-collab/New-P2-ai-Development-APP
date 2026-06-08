@@ -2,7 +2,6 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import '../services/api_urls.dart';
 import '../widgets/widgets.dart';
 
 
@@ -100,7 +99,7 @@ class ChatBubbleMessage extends StatelessWidget {
                 child: BubbleNormalImage(
                   id: url ?? '',
                   image: Image.network(
-                    '${ApiUrls.imageBaseUrl}$url',
+                    url,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image),
                     loadingBuilder: (context, child, loadingProgress) {

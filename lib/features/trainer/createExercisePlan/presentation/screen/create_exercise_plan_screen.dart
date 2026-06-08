@@ -1,20 +1,9 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/custom_button2.dart';
-
-import '../../../../../widgets/custom_app_bar.dart';
-import '../../../../../widgets/custom_button.dart';
-import '../../../../../widgets/custom_container.dart';
-import '../../../../../widgets/custom_network_image.dart';
-import '../../../../../widgets/custom_scaffold.dart';
-import '../../../../../widgets/custom_text.dart';
-import '../../../../../widgets/custom_text_field.dart';
+import 'package:pler_to_pler_app/widgets/widgets.dart';
 import '../widgets/add_exercise_block.dart';
 
 class CreateExercisePlanScreen extends StatefulWidget {
