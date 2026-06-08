@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/user_profile_screen.dart';

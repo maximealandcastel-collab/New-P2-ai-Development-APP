@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/utils/constants/app_colors.dart';
-import '../../../../../core/utils/helpers/photo_picker_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
+import '../../../../../core/utils/app_colors.dart';
 import '../../../../../widgets/custom_app_bar.dart';
 import '../../../../../widgets/custom_button.dart';
 import '../../../../../widgets/custom_container.dart';

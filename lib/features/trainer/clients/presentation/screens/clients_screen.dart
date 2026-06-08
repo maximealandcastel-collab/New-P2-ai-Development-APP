@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../../../../core/utils/constants/app_colors.dart';
+import '../../../../../core/utils/app_colors.dart';
 import '../../../../../custom_assets/assets.gen.dart';
 import '../../../../../widgets/custom_app_bar.dart';
 import '../../../../../widgets/custom_container.dart';

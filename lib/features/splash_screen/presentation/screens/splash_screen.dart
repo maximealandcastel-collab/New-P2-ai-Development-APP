@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
-
-import '../../controllers/splash_controller.dart';
+import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/features/splash_screen/controllers/splash_controller.dart';
 
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key});
@@ -12,9 +11,9 @@ class SplashScreen extends StatelessWidget {
 
   // List the splash images in order
   final List<String> splashImages = [
-    ImagePath.splash1,
-    ImagePath.splash2,
-    ImagePath.splash3,
+    Assets.images.appIcon.path,
+    Assets.images.appIcon.path,
+    Assets.images.appIcon.path,
   ];
 
   @override

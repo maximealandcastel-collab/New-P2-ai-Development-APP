@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/profile/children/services_screen.dart';
 
-import '../../../core/utils/constants/app_colors.dart';
+import '../../../core/utils/app_colors.dart';
 import '../../../custom_assets/assets.gen.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_container.dart';

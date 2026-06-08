@@ -1,5 +1,5 @@
 
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
 class OnboardingItem {
   final String image;
@@ -15,19 +15,19 @@ class OnboardingItem {
 
 final onboardingList = [
   OnboardingItem(
-    image: ImagePath.onboarding1Bg,
+    image: Assets.images.onboardingOneBgImg.path,
     title: "Your Fitness & Rehab Hub",
     subtitle:
         "Receive real-time notifications about kiosk fill levels & specific waste types plan your routes accordingly and maximize efficiency ",
   ),
   OnboardingItem(
-    image: ImagePath.onboarding2Bg,
+    image: Assets.images.onbordingTwoBgImg.path,
     title: "Smart Insights. Faster Results.",
     subtitle:
         "From body scans to symptom-based routines, P2Bot analyzes your needs and builds the right plan for you.",
   ),
   OnboardingItem(
-    image: ImagePath.onboarding3Bg,
+    image: Assets.images.onboardingThreeBgImg.path,
     title: "Train & improve With Professionals",
     subtitle:
         "Book sessions, follow guided routines, and get support from trainers, clinicians, and therapists anytime, anywhere.",

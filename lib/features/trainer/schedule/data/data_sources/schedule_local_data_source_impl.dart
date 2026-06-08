@@ -1,4 +1,4 @@
-import 'package:pler_to_pler_app/core/utils/helpers/hive_cache_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/hive_cache_helper.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/data/data_sources/schedule_local_data_source.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/data/models/session_model.dart';
 
