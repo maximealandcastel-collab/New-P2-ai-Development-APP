@@ -10,6 +10,8 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/splash_screen/controllers/splash_controller.dart';
 
+import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
+
 class DependencyInjection {
   DependencyInjection._();
 
@@ -55,6 +57,10 @@ class DependencyInjection {
 
     Get.put<SignUpController>(
       SignUpController(authService: Get.find<AuthService>()),
+      permanent: true,
+    );
+    Get.put<ForgetPassController>(
+      ForgetPassController(Get.find<AuthService>()),
       permanent: true,
     );
 

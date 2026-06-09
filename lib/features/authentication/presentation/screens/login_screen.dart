@@ -11,6 +11,8 @@ import 'package:pler_to_pler_app/features/authentication/presentation/screens/wi
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
+import '../../../../core/routes/app_routes.dart';
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -92,7 +94,7 @@ class LoginScreen extends StatelessWidget {
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: () {
-                    log("Forgot password click");
+                    Get.toNamed(AppRoute.emailVerificationScreen);
                   },
                   child: CustomText(
                     text: "Forgot password?",

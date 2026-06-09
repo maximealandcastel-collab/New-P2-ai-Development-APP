@@ -19,6 +19,9 @@ class SignUpController extends GetxController {
   final emailController = TextEditingController(text: kDebugMode ? 'dev.milon923@gmail.com' : '');
   final passwordController = TextEditingController(text: kDebugMode ? '1qazxsw2' : '');
   final confirmPasswordController = TextEditingController();
+  final firstName = TextEditingController();
+  final lastName = TextEditingController();
+  final gender = TextEditingController();
 
   final registerFormKey = GlobalKey<FormState>();
 
