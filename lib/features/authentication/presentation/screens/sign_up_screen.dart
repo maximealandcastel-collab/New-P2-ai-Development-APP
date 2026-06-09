@@ -1,14 +1,11 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/tap_bar_helper.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -117,6 +114,7 @@ class SignUpScreen extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () {
                       Get.back();
                     },
