@@ -21,21 +21,17 @@ dependencies:
   file_picker: ^10.3.10
   flutter_screenutil: ^5.9.3
   pinput: ^6.0.1
-  http: ^1.6.0
-  mime_type: ^1.0.1
   shimmer: ^3.0.0
   shared_preferences: ^2.5.4
-  socket_io_client: ^3.1.4
   image_picker: ^1.2.1
   cached_network_image: ^3.4.1
-  flutter_spinkit: ^5.2.2
-  chat_bubbles: ^1.8.0
   flutter_svg: ^2.2.3
   confetti: ^0.8.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   dio: ^5.9.0
   connectivity_plus: ^7.1.1
+
 
 dev_dependencies:
   flutter_test:

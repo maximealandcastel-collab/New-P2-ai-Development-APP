@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/profile/children/services_screen.dart';
 
 import '../../../core/utils/app_colors.dart';
-import '../../../custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_container.dart';
 import '../../../widgets/custom_image_avatar.dart';

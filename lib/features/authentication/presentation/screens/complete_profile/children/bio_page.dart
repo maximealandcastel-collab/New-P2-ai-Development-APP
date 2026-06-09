@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class BioPage extends StatefulWidget {

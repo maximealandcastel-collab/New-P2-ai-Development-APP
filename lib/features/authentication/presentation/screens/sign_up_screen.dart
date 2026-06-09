@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
@@ -47,7 +48,7 @@ class SignUpScreen extends StatelessWidget {
                       labelText: 'First Name',
                       controller: controller.firstNameController,
                       hintText: "first name",
-                       prefixIcon: Icon(Icons.person, size: 24.sp),
+                      prefixIcon: Icon(Icons.person, size: 24.sp),
                     ),
                   ),
                   SizedBox(width: 16.w),
@@ -61,17 +62,27 @@ class SignUpScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              CustomTextField(
-                labelText: 'Gender',
-                controller: controller.genderController,
-                hintText: "Select gender",
-                prefixIcon: Icon(
-                  Icons.male,
-                  size: 24.sp,
-                ),
-                suffixIcon: Icon(
-                  Icons.arrow_drop_down,
-                  size: 24.sp,
+              GestureDetector(
+                onTapDown: (details) {
+                  final menu = MenuShowHelper.showCustomMenu(
+                    context: context,
+                    details: details,
+                    options: ['Male', 'Female', 'Other'],
+                  );
+                  menu.then((value) {
+                    if (value != null) {
+                      controller.genderController.text = value;
+                    }
+                  });
+                },
+                child: AbsorbPointer(
+                  child: CustomTextField(
+                    labelText: 'Gender',
+                    controller: controller.genderController,
+                    hintText: "Select gender",
+                    prefixIcon: Icon(Icons.male, size: 24.sp),
+                    suffixIcon: Icon(Icons.arrow_drop_down, size: 24.sp),
+                  ),
                 ),
               ),
               CustomTextField(
@@ -133,7 +144,6 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
       ),
-
     );
   }
 }

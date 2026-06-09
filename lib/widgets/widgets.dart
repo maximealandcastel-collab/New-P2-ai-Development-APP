@@ -13,7 +13,6 @@ export 'custom_popup.dart';
 export 'custom_scaffold.dart';
 export 'custom_text.dart';
 export 'custom_text_field.dart';
-export 'custom_tost_message.dart';
 export 'no_inter_net_screen.dart';
 export 'two_button_widget.dart';
 export 'label_title_widget.dart';

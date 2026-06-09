@@ -6,9 +6,9 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 
 class CustomPinCodeTextField extends StatelessWidget {
   const CustomPinCodeTextField(
-      {super.key, this.textEditingController, this.validator, this.focusNode,this.autoFocus=false});
+      {super.key, this.controller, this.validator, this.focusNode,this.autoFocus=false});
 
-  final TextEditingController? textEditingController;
+  final TextEditingController? controller;
   final FormFieldValidator? validator;
   final FocusNode? focusNode;
   final bool autoFocus;
@@ -28,7 +28,7 @@ class CustomPinCodeTextField extends StatelessWidget {
             },
         focusNode: focusNode,
 
-        controller: textEditingController,
+        controller: controller,
         length: 6,
         defaultPinTheme: PinTheme(
           width: 46.w,
@@ -36,9 +36,9 @@ class CustomPinCodeTextField extends StatelessWidget {
           textStyle: TextStyle(color: AppColors.textPrimary, fontSize: 16.sp),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
-            color: AppColors.textPrimary,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.textPrimary),
+            border: Border.all(color: AppColors.textSecondary),
           ),
         ),
         focusedPinTheme: PinTheme(
@@ -47,9 +47,9 @@ class CustomPinCodeTextField extends StatelessWidget {
           textStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 20),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
-            color: AppColors.textPrimary,
+            color: Colors.white,
            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.textPrimary),
+            border: Border.all(color: AppColors.textSecondary),
           ),
         ),
         cursor: Column(
@@ -63,7 +63,6 @@ class CustomPinCodeTextField extends StatelessWidget {
           ],
         ),
         keyboardType: TextInputType.number,
-        //obscureText: true,
         autofocus: true,
         onChanged: (value) {},
         obscuringCharacter: '-');

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/fonts.gen.dart';
+import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
 class MenuShowHelper {
   static final List<String> heightOptions = List.generate(100, (index) {
@@ -56,7 +56,7 @@ class MenuShowHelper {
               alignment: Alignment.centerLeft,
               child: Text(
                 option,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary,fontFamily: FontFamily.figtree,fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary,fontFamily: FontFamily.figtree,fontWeight: FontWeight.w500),
               ),
             ),
           ),

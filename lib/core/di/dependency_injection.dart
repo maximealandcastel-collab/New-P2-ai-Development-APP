@@ -6,6 +6,8 @@ import 'package:pler_to_pler_app/core/services/storage_service.dart';
 import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_repository.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
@@ -57,8 +59,18 @@ class DependencyInjection {
       SignUpController(authService: Get.find<AuthService>()),
       permanent: true,
     );
-    Get.put<ForgetPassController>(
-      ForgetPassController(Get.find<AuthService>()),
+    Get.put<ForgetController>(
+      ForgetController(authService: Get.find<AuthService>()),
+      permanent: true,
+    );
+
+    Get.put<OtpController>(
+      OtpController(authService: Get.find<AuthService>()),
+      permanent: true,
+    );
+
+    Get.put<ResetPassController>(
+      ResetPassController(authService: Get.find<AuthService>()),
       permanent: true,
     );
 

@@ -60,7 +60,7 @@ class LoginScreen extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    Get.toNamed(AppRoute.emailVerificationScreen);
+                    Get.toNamed(AppRoute.forgotScreen);
                   },
                   child: CustomText(
                     text: "Forgot password?",

@@ -1,0 +1,38 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'dart:async';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import '../../domain/services/auth_services.dart';
+
+class OtpController extends GetxController {
+  final AuthService _authService;
+
+  static OtpController get to => Get.find();
+
+  OtpController({required AuthService authService})
+    : _authService = authService;
+
+  final _otpState = LoadingState.initial.obs;
+
+  LoadingState get otpState => _otpState.value;
+
+  final otpFormKey = GlobalKey<FormState>();
+  final otpController = TextEditingController();
+
+  Future<bool> otpVerify() async {
+    if (!otpFormKey.currentState!.validate()) return false;
+
+    _otpState.value = LoadingState.loading;
+    try {
+      await _authService.otpVerify(otp: otpController.text.trim());
+      _otpState.value = LoadingState.loaded;
+      return true;
+    } catch (e) {
+      _otpState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      return false;
+    }
+  }
+}

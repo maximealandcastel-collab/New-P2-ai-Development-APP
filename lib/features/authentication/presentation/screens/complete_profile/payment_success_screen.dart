@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-import '../../../../../custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   const PaymentSuccessScreen({super.key});

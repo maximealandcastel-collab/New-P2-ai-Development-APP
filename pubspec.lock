@@ -129,14 +129,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  chat_bubbles:
-    dependency: "direct main"
-    description:
-      name: chat_bubbles
-      sha256: "821e13d3d3b32d6bb31f98e91f6c1fc525c9e59af4b9f64a6e513933fe0de922"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -430,14 +422,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.9.3"
-  flutter_spinkit:
-    dependency: "direct main"
-    description:
-      name: flutter_spinkit
-      sha256: "77850df57c00dc218bfe96071d576a8babec24cf58b2ed121c83cca4a2fdce7f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.2"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -513,7 +497,7 @@ packages:
     source: hosted
     version: "1.0.0"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -720,14 +704,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mime_type:
-    dependency: "direct main"
-    description:
-      name: mime_type
-      sha256: d652b613e84dac1af28030a9fba82c0999be05b98163f9e18a0849c6e63838bb
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -989,22 +965,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  socket_io_client:
-    dependency: "direct main"
-    description:
-      name: socket_io_client
-      sha256: ef6c989e5eee8d04baf18482ec3d7699b91bc41e279794a99d8e3bef897b074a
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.4"
-  socket_io_common:
-    dependency: transitive
-    description:
-      name: socket_io_common
-      sha256: "162fbaecbf4bf9a9372a62a341b3550b51dcef2f02f3e5830a297fd48203d45b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.1"
   source_span:
     dependency: transitive
     description:

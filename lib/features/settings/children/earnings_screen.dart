@@ -3,8 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
-import 'package:pler_to_pler_app/custom_assets/fonts.gen.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
+
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/transation_history_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';

@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
@@ -16,7 +16,6 @@ import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_tr
 import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_summary_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
-import '../../../trainer/assignedPlan/presentation/screen/assigned_plan_screen.dart';
 import '../../../trainer/clients/presentation/screens/clients_screen.dart';
 import '../../../trainer/contentPost/presentation/screens/content_post_screen.dart';
 import '../../../trainer/contents/presentation/screens/contents_screen.dart';
