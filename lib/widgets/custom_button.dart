@@ -30,6 +30,7 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.loadingIndicatorColor,
     this.borderWidth,
+    this.isDisabled = false,
   });
 
   final Widget? suffixIcon;
@@ -54,6 +55,7 @@ class CustomButton extends StatelessWidget {
   final double? borderWidth;
   final bool elevation;
   final bool isLoading;
+  final bool isDisabled;
   final Color? loadingIndicatorColor;
 
   @override
@@ -61,7 +63,7 @@ class CustomButton extends StatelessWidget {
     return CustomContainer(
       elevation: elevation,
       onTap: isLoading ? null : onPressed,
-      color: backgroundColor ?? AppColors.primary,
+      color: backgroundColor ?? (isDisabled ? Colors.black.withValues(alpha: 0.06) : AppColors.primary),
       height: height ?? 50.h,
       width: width ?? double.infinity,
       radiusAll: radius ?? 100.r,
@@ -112,7 +114,7 @@ class CustomButton extends StatelessWidget {
                   Flexible(
                     child: CustomText(
                       text: label ?? '',
-                      color: foregroundColor ?? Colors.white,
+                      color: foregroundColor ?? (isDisabled ? Colors.black.withValues(alpha: 0.24) : Colors.white),
                       fontName:
                       fontName ?? FontFamily.figtree,
                       fontWeight: fontWeight ?? FontWeight.w600,

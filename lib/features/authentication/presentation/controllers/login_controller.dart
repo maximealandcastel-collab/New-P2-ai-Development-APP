@@ -25,6 +25,7 @@ class LoginController extends GetxController {
 
   void changeRole(String role) {
     _selectedRole.value = role;
+    debugPrint('Selected role: $role');
   }
 
   Future<void> login() async {

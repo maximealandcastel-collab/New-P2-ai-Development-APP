@@ -7,6 +7,8 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/tap_bar_helper.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -15,7 +17,6 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = SignUpController.to;
-
     return CustomScaffold(
       body: SingleChildScrollView(
         child: Form(
@@ -23,265 +24,118 @@ class SignUpScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                Assets.images.appIcon.path,
-                width: 150.w,
-                height: 150.h,
-                fit: BoxFit.cover,
+              AppLogoWidget(
+                topPadding: 28.h,
+                centerLogo: false,
+                title: 'Sign up to  fitness',
               ),
-              SizedBox(height: 6.h),
-              CustomText(
-                text: "Sign up to  fitness",
-                fontSize: 32.sp,
-                fontWeight: FontWeight.w600,
+              Container(
+                padding: EdgeInsets.all(4.r),
+                decoration: BoxDecoration(
+                  color: AppColors.textWhite,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: TapBarHelper(text: "Trainer")),
+                    Expanded(child: TapBarHelper(text: "User")),
+                  ],
+                ),
               ),
-              SizedBox(height: 21.h),
+              SizedBox(height: 16.h),
               Row(
                 children: [
                   Expanded(
-                      flex:25,
-                      child:Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomText(
-                        text: "First name",
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                      ),
-                      SizedBox(height: 4.h),
-                      CustomTextField(
-                        controller: controller.firstName,
-                        hintText: "first name",
-                       // prefixIcon: Icon(Icons.email, size: 24.sp),
-                      ),
-                    ],
-                  )),
-                  Spacer(flex: 5,),
+                    child: CustomTextField(
+                      labelText: 'First Name',
+                      controller: controller.firstNameController,
+                      hintText: "first name",
+                       prefixIcon: Icon(Icons.person, size: 24.sp),
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
                   Expanded(
-                      flex: 25,
-                      child:Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomText(
-                        text: "Last name",
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textSecondary,
-                      ),
-                      SizedBox(height: 4.h),
-                      CustomTextField(
-                        controller: controller.lastName,
-                        hintText: "last name",
-                       // prefixIcon: Icon(Icons.email, size: 24.sp),
-                      ),
-                    ],
-                  )),
+                    child: CustomTextField(
+                      labelText: 'Last Name',
+                      controller: controller.lastNameController,
+                      hintText: "last name",
+                      prefixIcon: Icon(Icons.person, size: 24.sp),
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(height: 2.h),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: "Gender",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(height: 4.h),
-                  DropdownButtonFormField<String>(
-                    value: controller.gender.text.isEmpty
-                        ? null
-                        : controller.gender.text,
-
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select gender';
-                      }
-                      return null;
-                    },
-
-                    decoration: InputDecoration(
-                      hintText: "Select gender",
-
-                      prefixIcon: Icon(
-                        Icons.male,
-                        size: 24.sp,
-                      ),
-
-                      filled: true,
-                      fillColor: Colors.white,
-
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 1.5,
-                        ),
-                      ),
-
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: const BorderSide(
-                          color: Colors.red,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-
-                    icon: const SizedBox.shrink(),
-
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                    ),
-
-                    items: [
-                      DropdownMenuItem(
-                        value: "Male",
-                        child: Text(
-                          "Male",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: "Female",
-                        child: Text(
-                          "Female",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: "Other",
-                        child: Text(
-                          "Other",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.gender.text = value;
-                      }
-                    },
-                  ),
-                  SizedBox(height: 6.h),
-                  CustomText(
-                    text: "Email",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(height: 4.h),
-                  CustomTextField(
-                    controller: controller.emailController,
-                    hintText: "Enter your email address",
-                    prefixIcon: Icon(Icons.email, size: 24.sp),
-                  ),
-                  SizedBox(height: 2.h),
-                  CustomText(
-                    text: "Password",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(height: 4.h),
-                  CustomTextField(
-                    controller: controller.passwordController,
-                    hintText: "Enter your password",
-                    prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
-                    isPassword: true,
-                  ),
-
-                  SizedBox(height: 2.h),
-                  CustomText(
-                    text: "Confirm password",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                  SizedBox(height: 4.h),
-                  CustomTextField(
-                    controller: controller.confirmPasswordController,
-                    hintText: "Enter your password",
-                    prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
-                    isPassword: true,
-                  ),
-                  SizedBox(height: 12.h),
-                  Obx(() {
-                    return CustomButton(
-                      label: "Sign up",
-                      onPressed: controller.register,
-                      isLoading: controller.registerState.isLoading,
-                    );
-                  }),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(8.r),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomText(
-                text: "Don’t have an account? ",
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary,
-              ),
-              GestureDetector(
-                onTap: () {
-                  log("Sign in screen");
-                  Get.to(() => LoginScreen());
-                },
-                child: CustomText(
-                  text: "Sign in",
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+              CustomTextField(
+                labelText: 'Gender',
+                controller: controller.genderController,
+                hintText: "Select gender",
+                prefixIcon: Icon(
+                  Icons.male,
+                  size: 24.sp,
+                ),
+                suffixIcon: Icon(
+                  Icons.arrow_drop_down,
+                  size: 24.sp,
                 ),
               ),
+              CustomTextField(
+                labelText: 'Email',
+                controller: controller.emailController,
+                hintText: "Enter your email address",
+                prefixIcon: Icon(Icons.email, size: 24.sp),
+              ),
+              CustomTextField(
+                labelText: 'Password',
+                controller: controller.passwordController,
+                hintText: "Enter your password",
+                prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
+                isPassword: true,
+              ),
+              CustomTextField(
+                labelText: 'Confirm Password',
+                controller: controller.confirmPasswordController,
+                hintText: "Confirm your password",
+                prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
+                isPassword: true,
+              ),
+              SizedBox(height: 24.h),
+              Obx(() {
+                return CustomButton(
+                  label: "Sign up",
+                  onPressed: controller.register,
+                  isLoading: controller.registerState.isLoading,
+                );
+              }),
+
+              SizedBox(height: 18.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomText(
+                    text: "Don’t have an account? ",
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Get.back();
+                    },
+                    child: CustomText(
+                      text: "Sign in",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 24.h),
             ],
           ),
         ),
       ),
+
     );
   }
 }

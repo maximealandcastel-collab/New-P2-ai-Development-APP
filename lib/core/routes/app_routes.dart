@@ -12,6 +12,7 @@ import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 import '../../features/authentication/presentation/screens/email_verification_screen.dart';
 import '../../features/authentication/presentation/screens/otp_verification_screen.dart';
+
 class AppRoute {
   static String init = "/";
   static String onboardingMainScreen = "/onboardingMainScreen";
@@ -42,13 +43,8 @@ class AppRoute {
     GetPage(
       name: emailVerificationScreen,
       page: () => EmailVerificationScreen(),
-      // ✅ Binding বাদ দাও - ForgetPassController permanent: true আছে
     ),
-    GetPage(
-      name: otpVerificationScreen,
-      page: () => OtpVerificationScreen(),
-      // ✅ Binding বাদ দাও - ForgetPassController permanent: true আছে
-    ),
+    GetPage(name: otpVerificationScreen, page: () => OtpVerificationScreen()),
     GetPage(name: signUpScreen, page: () => SignUpScreen()),
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),

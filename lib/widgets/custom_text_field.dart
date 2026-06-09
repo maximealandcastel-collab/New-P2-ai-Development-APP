@@ -97,11 +97,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if (widget.labelText != null)
           CustomText(
             text: widget.labelText ?? '',
-            fontName:'Figtree',
-            color: Color(0xFF0B0D10),
-            bottom: 4.h,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
+            bottom: 4.h,
           ),
         SizedBox(
           height: 4.h,
@@ -191,7 +190,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               errorStyle:
                   TextStyle(fontSize: 12.h, fontWeight: FontWeight.w400)),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 10.h),
       ],
     );
   }
