@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/payment_success_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/payment_success_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerUpgradeScreen extends StatefulWidget {

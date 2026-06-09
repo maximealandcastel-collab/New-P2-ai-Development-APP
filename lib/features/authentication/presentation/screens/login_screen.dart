@@ -73,10 +73,12 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 24.h),
               Obx(() {
-                String role = controller.selectedRole;
                 return CustomButton(
                   label: "Sign in",
-                  onPressed: controller.login,
+                 // onPressed: controller.login,
+                  onPressed: () {
+                    Get.toNamed(AppRoute.trainerCompleteProfileScreen);
+                  },
                   isLoading: controller.loginState.isLoading,
                 );
               }),

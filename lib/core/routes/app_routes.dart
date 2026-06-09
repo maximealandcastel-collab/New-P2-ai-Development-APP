@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/otp_verification_screen.dart';
@@ -20,6 +22,8 @@ class AppRoute {
   static String otpVerificationScreen = "/otpVerificationScreen";
   static String signUpScreen = "/signUpScreen";
   static String resetPasswordScreen = "/resetPasswordScreen";
+  static String userCompleteProfileScreen = "/completeProfileScreen";
+  static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
   static String workoutFinderFlow = "/workoutFinderFlow";
   static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
@@ -44,6 +48,8 @@ class AppRoute {
     GetPage(name: forgotScreen, page: () => ForgotScreen()),
     GetPage(name: otpVerificationScreen, page: () => OtpVerificationScreen()),
     GetPage(name: resetPasswordScreen, page: () => ResetPasswordScreen()),
+    GetPage(name: userCompleteProfileScreen, page: () => UserCompleteProfileScreen()),
+    GetPage(name: trainerCompleteProfileScreen, page: () => TrainerCompleteProfileScreen()),
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
     GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
