@@ -7,8 +7,6 @@ import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
-import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
-import 'package:pler_to_pler_app/features/splash_screen/controllers/splash_controller.dart';
 
 class DependencyInjection {
   DependencyInjection._();
