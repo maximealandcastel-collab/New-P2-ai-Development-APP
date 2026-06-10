@@ -73,18 +73,7 @@ class _TrainerCompleteProfileScreenState
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Get.to(() => const CompletePaymentScreen());
-              // Handle skip action - navigate to next screen
-            },
-            child: CustomText(
-              text: 'Skip',
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
+         SizedBox(width: 24.w),
         ],
       ),
       body: PageView.builder(
