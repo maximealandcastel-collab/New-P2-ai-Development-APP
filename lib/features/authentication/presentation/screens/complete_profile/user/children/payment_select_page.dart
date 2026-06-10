@@ -26,10 +26,8 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
       'label': 'PayPal',
       'icon': Assets.icons.paypal.path,
     },
+
     {
-      'label': 'Stripe',
-      'icon': Assets.icons.stripe.path,
-    },{
       'label': 'Wire transfer',
       'icon': Assets.icons.transfer.path,
     },

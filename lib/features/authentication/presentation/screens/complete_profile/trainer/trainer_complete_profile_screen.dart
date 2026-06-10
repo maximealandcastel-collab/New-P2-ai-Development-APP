@@ -85,27 +85,29 @@ class _TrainerCompleteProfileScreenState
           ),
         ],
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 24.h),
-          AppLogoWidget(subtitle: 'Let\'s start with building your profile'),
-          SizedBox(height: 40.h),
-          Expanded(
-            child: PageView.builder(
-              controller: pageController,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                return pages[index];
-              },
-              onPageChanged: (index) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
+      body: PageView.builder(
+        controller: pageController,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: pages.length,
+        itemBuilder: (context, index) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 24.h),
+                AppLogoWidget(
+                  subtitle: 'Let\'s start with building your profile',
+                ),
+                SizedBox(height: 40.h),
+                pages[index],
+              ],
             ),
-          ),
-        ],
+          );
+        },
+        onPageChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -116,8 +118,6 @@ class _TrainerCompleteProfileScreenState
                 _navigateToPage(currentIndex + 1);
               } else {
                 Get.to(() => const CompletePaymentScreen());
-                // Handle completion - navigate to next screen
-                // Navigator.pushReplacement(context, ...);
               }
             },
             label: 'Next',

@@ -166,7 +166,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               prefixIcon: widget.prefixIcon != null ? Padding(
                 padding:  EdgeInsets.symmetric(horizontal: 10.w),
                 child: widget.prefixIcon,
-              ) : null,
+              ) : SizedBox(width: 8.w),
               suffixIcon: widget.isPassword
                   ? GestureDetector(
                       onTap: toggle,

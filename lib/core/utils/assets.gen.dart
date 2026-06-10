@@ -29,9 +29,6 @@ class $AssetsIconsGen {
   /// File path: assets/icons/Schedules.svg
   SvgGenImage get schedules => const SvgGenImage('assets/icons/Schedules.svg');
 
-  /// File path: assets/icons/Stripe.svg
-  SvgGenImage get stripe => const SvgGenImage('assets/icons/Stripe.svg');
-
   /// File path: assets/icons/add_button.svg
   SvgGenImage get addButton => const SvgGenImage('assets/icons/add_button.svg');
 
@@ -50,8 +47,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/camera.svg
   SvgGenImage get camera => const SvgGenImage('assets/icons/camera.svg');
 
+  /// File path: assets/icons/check.svg
+  SvgGenImage get check => const SvgGenImage('assets/icons/check.svg');
+
   /// File path: assets/icons/clean.svg
   SvgGenImage get clean => const SvgGenImage('assets/icons/clean.svg');
+
+  /// File path: assets/icons/delete.svg
+  SvgGenImage get delete => const SvgGenImage('assets/icons/delete.svg');
 
   /// File path: assets/icons/edit.svg
   SvgGenImage get edit => const SvgGenImage('assets/icons/edit.svg');
@@ -116,14 +119,15 @@ class $AssetsIconsGen {
     contents,
     payoneer,
     schedules,
-    stripe,
     addButton,
     ai,
     arrowBack,
     attention,
     calender,
     camera,
+    check,
     clean,
+    delete,
     edit,
     email,
     emailIcon,
