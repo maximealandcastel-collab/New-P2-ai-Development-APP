@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -17,8 +19,6 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
   final TextEditingController primaryGoalController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   DateTime selectedDate = DateTime.now();
-
-
 
   @override
   void dispose() {
@@ -40,7 +40,7 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
         SizedBox(height: 16.h),
         GestureDetector(
           onTapDown: (details) {
-            MenuShowHelper.showCustomMenu(
+            final menu = MenuShowHelper.showCustomMenu(
               context: context,
               details: details,
               options: [
@@ -56,6 +56,9 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
                 'Rehabilitation & Recovery',
               ],
             );
+            menu.then((value) {
+              if (value != null) primaryGoalController.text = value;
+            });
           },
           child: AbsorbPointer(
             child: CustomTextField(
@@ -68,38 +71,43 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
         ),
         GestureDetector(
           onTap: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return SizedBox(
-                  height: 196.h,
-                  child: CupertinoTheme(
-                    data: CupertinoThemeData(
-                      textTheme: CupertinoTextThemeData(
-                        dateTimePickerTextStyle: TextStyle(
-                          fontSize: 28.sp,
-                          fontWeight: FontWeight.w600,
-                          color: CupertinoColors.black,
-                        ),
+            DateTime tempDate = selectedDate;
+
+            DialogShowHelper.showBottomSheet(
+              context,
+              title: 'Date of birth',
+              content: SizedBox(
+                height: 186.h,
+                child: CupertinoTheme(
+                  data: CupertinoThemeData(
+                    textTheme: CupertinoTextThemeData(
+                      dateTimePickerTextStyle: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w600,
+                        color: CupertinoColors.black,
                       ),
                     ),
-                    child: CupertinoDatePicker(
-                      itemExtent: 42.0,
-                      onDateTimeChanged: (DateTime newDate) {
-                        setState(() {
-                          selectedDate = newDate;
-                          dateController.text = TimeFormatHelper.formatDate(newDate);
-                        });
-                      },
-                      initialDateTime: selectedDate,
-                      mode: CupertinoDatePickerMode.date,
-                      minimumYear: 1900,
-                      maximumYear: DateTime.now().year,
-                      backgroundColor: const Color(0xffF0F0F0),
-                    ),
                   ),
-                );
+                  child: CupertinoDatePicker(
+                    itemExtent: 32.0,
+                    onDateTimeChanged: (DateTime newDate) {
+                      tempDate = newDate;
+                    },
+                    initialDateTime: selectedDate,
+                    mode: CupertinoDatePickerMode.date,
+                    minimumYear: 1900,
+                    maximumYear: DateTime.now().year,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              onTapConfirm: () {
+                setState(() {
+                  selectedDate = tempDate;
+                  dateController.text = TimeFormatHelper.formatDate(selectedDate);
+                });
               },
+
             );
           },
           child: AbsorbPointer(
@@ -113,8 +121,7 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               controller: dateController,
             ),
           ),
-        ),
-      ],
+        ),      ],
     );
   }
 }
