@@ -9,7 +9,7 @@ import '../../../../../widgets/custom_image_avatar.dart';
 import '../../../../../widgets/custom_scaffold.dart';
 import '../../../../../widgets/custom_text.dart';
 import '../../../../common/notification/presentation/screen/notification_screen.dart';
-import '../../../../profile/profile_screen.dart';
+import '../../../../profile/presentation/screens/profile_screen.dart';
 import 'content_details_screen.dart';
 
 class ContentsScreen extends StatefulWidget {

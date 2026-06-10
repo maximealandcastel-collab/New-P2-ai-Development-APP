@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_model.dart';
-import '../../../core/helpers/hive_cache_helper.dart';
+import '../../../../core/helpers/hive_cache_helper.dart';
 
 class ProfileController extends GetxController {
   final ImagePicker _imagePicker = ImagePicker();

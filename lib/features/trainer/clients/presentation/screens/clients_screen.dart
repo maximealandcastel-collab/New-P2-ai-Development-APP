@@ -10,7 +10,7 @@ import '../../../../../widgets/custom_scaffold.dart';
 import '../../../../../widgets/custom_text.dart';
 import '../../../../../widgets/custom_text_field.dart';
 import '../../../../common/notification/presentation/screen/notification_screen.dart';
-import '../../../../profile/profile_screen.dart';
+import '../../../../profile/presentation/screens/profile_screen.dart';
 import '../widgets/client_card_widget.dart';
 import 'clients_details_screen.dart';
 

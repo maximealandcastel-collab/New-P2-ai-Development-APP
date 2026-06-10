@@ -21,7 +21,7 @@ class CustomScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.backgroundLight,
+       backgroundColor: AppColors.backgroundLight,
       appBar: appBar,
       body: SafeArea(
           child: Padding(

@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction_screen.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
@@ -24,6 +26,8 @@ class AppRoute {
   static String resetPasswordScreen = "/resetPasswordScreen";
   static String userCompleteProfileScreen = "/completeProfileScreen";
   static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
+  static String aiInstructionScreen = "/aiInstructionScreen";
+  static String trainAiScreen = "/trainAiScreen";
   static String workoutFinderFlow = "/workoutFinderFlow";
   static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
@@ -50,6 +54,9 @@ class AppRoute {
     GetPage(name: resetPasswordScreen, page: () => ResetPasswordScreen()),
     GetPage(name: userCompleteProfileScreen, page: () => UserCompleteProfileScreen()),
     GetPage(name: trainerCompleteProfileScreen, page: () => TrainerCompleteProfileScreen()),
+    GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
+    GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
+
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
     GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),

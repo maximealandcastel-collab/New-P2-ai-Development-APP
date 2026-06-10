@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/certifications_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/speciality_page.dart';
@@ -23,7 +24,12 @@ class _TrainerCompleteProfileScreenState
   int currentIndex = 0;
   late PageController pageController;
 
-  final List<Widget> pages = [BioPage(), CertificationsPage(),SpecialityPage(),TrainerTagsPage()];
+  final List<Widget> pages = [
+    BioPage(),
+    CertificationsPage(),
+    SpecialityPage(),
+    TrainerTagsPage(),
+  ];
 
   @override
   void initState() {
@@ -47,7 +53,7 @@ class _TrainerCompleteProfileScreenState
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
+    return Scaffold(
       appBar: CustomAppBar(
         backAction: () {
           if (currentIndex > 0) {
@@ -72,9 +78,7 @@ class _TrainerCompleteProfileScreenState
             ),
           ),
         ),
-        actions: [
-         SizedBox(width: 24.w),
-        ],
+        actions: [SizedBox(width: 24.w)],
       ),
       body: PageView.builder(
         controller: pageController,
@@ -82,15 +86,18 @@ class _TrainerCompleteProfileScreenState
         itemCount: pages.length,
         itemBuilder: (context, index) {
           return SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 24.h),
-                AppLogoWidget(
-                  subtitle: 'Let\'s start with building your profile',
-                ),
-                SizedBox(height: 40.h),
-                pages[index],
-              ],
+            child: Padding(
+              padding:  EdgeInsets.symmetric(horizontal: 16.w),
+              child: Column(
+                children: [
+                  SizedBox(height: 24.h),
+                  AppLogoWidget(
+                    subtitle: 'Let\'s start with building your profile',
+                  ),
+                  SizedBox(height: 40.h),
+                  pages[index],
+                ],
+              ),
             ),
           );
         },
@@ -108,13 +115,14 @@ class _TrainerCompleteProfileScreenState
               if (currentIndex < pages.length - 1) {
                 _navigateToPage(currentIndex + 1);
               } else {
-                Get.to(() => const CompletePaymentScreen());
+                Get.offAllNamed(AppRoute.aiInstructionScreen);
               }
             },
-            label: 'Next',
+            label: currentIndex == pages.length - 1 ? 'Submit' : 'Next',
           ),
         ),
       ),
+
     );
   }
 }

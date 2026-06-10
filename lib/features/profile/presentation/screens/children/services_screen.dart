@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../../core/utils/app_colors.dart';
-
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -14,8 +13,7 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  // Dummy list to simulate added services
-  // In a real app, this would come from your BeauticianStoreService
+
   final List<Map<String, String>> services = [
     {
       'title': 'AME',

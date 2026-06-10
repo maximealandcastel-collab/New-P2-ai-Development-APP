@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/profile/children/edit_profile_screen.dart';
-import 'package:pler_to_pler_app/features/profile/controller/profile_controller.dart';
-import 'package:pler_to_pler_app/features/profile/widgets/services_card_widget.dart';
-import 'package:pler_to_pler_app/features/profile/widgets/exercise_card_widget.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/children/edit_profile_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/exercise_card_widget.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/services_card_widget.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 

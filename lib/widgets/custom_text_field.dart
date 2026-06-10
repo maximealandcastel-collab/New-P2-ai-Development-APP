@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 
 class CustomTextField extends StatefulWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final TextInputType? keyboardType;
   final bool? isObscureText;
   final String? obscure;
@@ -27,7 +27,9 @@ class CustomTextField extends StatefulWidget {
   final double? borderRadio;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onFieldSubmitted;
   final Color? cursorColor;
+  final Color? labelColor;
   final int? maxLength;
   final int? maxLines;
   final bool? enabled;
@@ -51,7 +53,7 @@ class CustomTextField extends StatefulWidget {
       this.hintextColor,
       this.borderColor,
       this.isEmail = false,
-      required this.controller,
+       this.controller,
       this.keyboardType = TextInputType.text,
       this.isObscureText = false,
       this.obscure = '*',
@@ -72,7 +74,7 @@ class CustomTextField extends StatefulWidget {
       this.fontFamily,
       this.textInputAction,
       this.inputFormatter,
-      this.minLines, this.maxLines, this.border});
+      this.minLines, this.maxLines, this.border, this.labelColor, this.onFieldSubmitted});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -96,16 +98,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         if (widget.labelText != null)
           CustomText(
-            text: widget.labelText ?? '',
+            text: widget.labelText!,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: widget.labelColor ?? AppColors.textSecondary,
             bottom: 4.h,
           ),
         SizedBox(
           height: 4.h,
         ),
         TextFormField(
+          onFieldSubmitted: widget.onFieldSubmitted,
           autofocus: widget.autofocus,
           enabled: widget.enabled,
           maxLength: widget.maxLength,
