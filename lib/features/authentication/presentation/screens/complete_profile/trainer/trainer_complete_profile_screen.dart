@@ -6,7 +6,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/certifications_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/speciality_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/trainer_tags_page.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/complete_payment_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/children/bio_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';

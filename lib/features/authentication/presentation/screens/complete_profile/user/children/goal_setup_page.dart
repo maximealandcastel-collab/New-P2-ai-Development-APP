@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -72,7 +71,6 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
         GestureDetector(
           onTap: () {
             DateTime tempDate = selectedDate;
-
             DialogShowHelper.showBottomSheet(
               context,
               title: 'Date of birth',
@@ -104,10 +102,11 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               onTapConfirm: () {
                 setState(() {
                   selectedDate = tempDate;
-                  dateController.text = TimeFormatHelper.formatDate(selectedDate);
+                  dateController.text = TimeFormatHelper.formatDate(
+                    selectedDate,
+                  );
                 });
               },
-
             );
           },
           child: AbsorbPointer(
@@ -121,7 +120,8 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               controller: dateController,
             ),
           ),
-        ),      ],
+        ),
+      ],
     );
   }
 }

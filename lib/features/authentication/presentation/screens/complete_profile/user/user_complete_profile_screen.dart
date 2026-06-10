@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/names_page.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/complete_payment_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/physical_info_page.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/goal_setup_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -21,7 +20,7 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
   final List<Widget> pages = [
     GoalSetupPage(),
     // DatePage(),
-    // GenderPage(),
+     PhysicalInfoPage(),
     // ProfilePicturePage(),
     // BioPage(),
   ];
@@ -48,7 +47,7 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
+    return Scaffold(
       appBar: CustomAppBar(
         backAction: () {
           if (currentIndex > 0) {
@@ -73,44 +72,34 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
             ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.to(() => const CompletePaymentScreen());
-              // Handle skip action - navigate to next screen
-            },
-            child: CustomText(
-              text: 'Skip',
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
+        actions: [SizedBox(width: 24.w)],
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 24.h),
-          AppLogoWidget(
-              subtitle: 'Let\'s start with building your profile',
-          ),
-          SizedBox(height: 40.h),
-          Expanded(
-            child: PageView.builder(
-              controller: pageController,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                return pages[index];
-              },
-              onPageChanged: (index) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
+      body: PageView.builder(
+        controller: pageController,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: pages.length,
+        itemBuilder: (context, index) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding:  EdgeInsets.symmetric(horizontal: 16.w),
+              child: Column(
+                children: [
+                  SizedBox(height: 24.h),
+                  AppLogoWidget(
+                    subtitle: 'Let\'s start with building your profile',
+                  ),
+                  SizedBox(height: 32.h),
+                  pages[index],
+                ],
+              ),
             ),
-          )
-        ],
+          );
+        },
+        onPageChanged: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -120,15 +109,13 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
               if (currentIndex < pages.length - 1) {
                 _navigateToPage(currentIndex + 1);
               } else {
-                Get.to(() => const CompletePaymentScreen());
-                // Handle completion - navigate to next screen
-                // Navigator.pushReplacement(context, ...);
               }
             },
-            label: 'Next',
+            label: currentIndex == pages.length - 1 ? 'Submit' : 'Next',
           ),
         ),
       ),
+
     );
   }
 }
