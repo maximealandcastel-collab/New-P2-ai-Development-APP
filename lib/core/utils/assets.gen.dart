@@ -53,6 +53,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/clean.svg
   SvgGenImage get clean => const SvgGenImage('assets/icons/clean.svg');
 
+  /// File path: assets/icons/date.svg
+  SvgGenImage get date => const SvgGenImage('assets/icons/date.svg');
+
   /// File path: assets/icons/delete.svg
   SvgGenImage get delete => const SvgGenImage('assets/icons/delete.svg');
 
@@ -127,6 +130,7 @@ class $AssetsIconsGen {
     camera,
     check,
     clean,
+    date,
     delete,
     edit,
     email,
