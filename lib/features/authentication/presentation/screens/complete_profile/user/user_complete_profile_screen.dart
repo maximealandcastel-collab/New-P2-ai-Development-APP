@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/gym_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/physical_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/goal_setup_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
@@ -19,10 +20,8 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
 
   final List<Widget> pages = [
     GoalSetupPage(),
-    // DatePage(),
      PhysicalInfoPage(),
-    // ProfilePicturePage(),
-    // BioPage(),
+    GymInfoPage(),
   ];
 
   @override

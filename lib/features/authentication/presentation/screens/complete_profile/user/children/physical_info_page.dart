@@ -74,7 +74,7 @@ class _PhysicalInfoPageState extends State<PhysicalInfoPage> {
             final menu = MenuShowHelper.showCustomMenu(
               context: context,
               details: details,
-              options: [],
+              options: MenuShowHelper.fitnessLevelOptions,
             );
             menu.then((value) {
               if (value != null) fitnessLevelController.text = value;

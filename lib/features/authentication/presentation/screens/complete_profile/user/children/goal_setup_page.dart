@@ -42,18 +42,7 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
             final menu = MenuShowHelper.showCustomMenu(
               context: context,
               details: details,
-              options: [
-                'Lose Weight',
-                'Build Muscle',
-                'Improve Endurance',
-                'Increase Strength',
-                'Improve Flexibility',
-                'Enhance Athletic Performance',
-                'Maintain Fitness',
-                'Stress Relief & Mental Health',
-                'Improve Posture',
-                'Rehabilitation & Recovery',
-              ],
+              options: MenuShowHelper.goalOptions,
             );
             menu.then((value) {
               if (value != null) primaryGoalController.text = value;

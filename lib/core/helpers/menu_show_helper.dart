@@ -5,25 +5,43 @@ import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
 class MenuShowHelper {
   static final List<String> heightOptions = List.generate(100, (index) {
-    return "${(index ~/ 12) + 4}'${(index % 12)}\" cm";
+    final feet = (index ~/ 12) + 4;
+    final inches = index % 12;
+
+    final totalInches = (feet * 12) + inches;
+    final cm = (totalInches * 2.54).round();
+
+    return "$feet'$inches\" ($cm cm)";
   });
 
   static final List<String> weightOptions = List.generate(66, (index) {
     return "${35 + index} kg";
   });
 
-  static final List<String> genderOptions = ["Male", "Female"];
-  static final List<String> subjects = [
-    "French",
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "English",
-    "Computer Science",
+  static const List<String> fitnessLevelOptions = [
+    'Beginner',
+    'Intermediate',
+    'Advanced',
+    'Professional',
+    'Athlete',
   ];
-  /// Shows a popup menu at the tap position from TapDownDetails.
-  /// Returns the selected value or null if none selected.
+
+
+  static const List<String> goalOptions = [
+    'Lose Weight',
+    'Build Muscle',
+    'Improve Endurance',
+    'Increase Strength',
+    'Improve Flexibility',
+    'Enhance Athletic Performance',
+    'Maintain Fitness',
+    'Stress Relief & Mental Health',
+    'Improve Posture',
+    'Rehabilitation & Recovery',
+  ];
+
+  static final List<String> genderOptions = ["Male", "Female"];
+
   static Future<String?> showCustomMenu({
     required BuildContext context,
     required TapDownDetails details,
