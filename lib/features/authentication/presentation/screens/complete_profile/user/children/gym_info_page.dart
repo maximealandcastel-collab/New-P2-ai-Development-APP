@@ -22,7 +22,7 @@ class _GymInfoPageState extends State<GymInfoPage> {
       children: [
         Center(
           child: CustomText(
-            text: 'Add your certifications',
+            text: 'Add your gym info?',
             fontSize: 24.sp,
             fontWeight: FontWeight.w600,
           ),

@@ -40,6 +40,15 @@ class MenuShowHelper {
     'Rehabilitation & Recovery',
   ];
 
+  static const List<String> motivationStyleOptions = [
+    'Friendly Coach',
+    'Goal Driven',
+    'Daily Challenges',
+    'Progress Tracking',
+    'Competitive',
+    'Health Focused',
+  ];
+
   static final List<String> genderOptions = ["Male", "Female"];
 
   static Future<String?> showCustomMenu({

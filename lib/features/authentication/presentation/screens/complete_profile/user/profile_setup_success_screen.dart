@@ -2,28 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:confetti/confetti.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
-
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
-class PaymentSuccessScreen extends StatefulWidget {
-  const PaymentSuccessScreen({super.key});
+class ProfileSetupSuccessScreen extends StatefulWidget {
+  const ProfileSetupSuccessScreen({super.key});
 
   @override
-  State<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
+  State<ProfileSetupSuccessScreen> createState() => _ProfileSetupSuccessScreenState();
 }
 
-class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
+class _ProfileSetupSuccessScreenState extends State<ProfileSetupSuccessScreen> {
   late ConfettiController _confettiController;
 
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 4));
-
-    // Start the confetti animation when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _confettiController.play();
     });
@@ -64,16 +61,14 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 ),
                 const Spacer(),
                 CustomButton(
-                  label: 'Take me to home page',
+                  label: 'Next',
                   onPressed: () {
-                    Get.offAll(() => NavBar());
+                    Get.offAllNamed(AppRoute.trainerUpgradeScreen);
                   },
                 ),
                 const SizedBox(height: 20),
               ],
             ),
-
-            // Confetti widget - positioned at top center
             Align(
               alignment: Alignment.topCenter,
               child: ConfettiWidget(

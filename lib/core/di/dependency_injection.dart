@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 
@@ -74,7 +75,9 @@ class DependencyInjection {
       permanent: true,
     );
 
-
+    Get.lazyPut<SubscribeController>(
+          () => SubscribeController(service: Get.find()),
+    );
   }
 
   static void clear() {

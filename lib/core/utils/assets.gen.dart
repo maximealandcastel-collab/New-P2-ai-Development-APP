@@ -56,6 +56,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/date.svg
   SvgGenImage get date => const SvgGenImage('assets/icons/date.svg');
 
+  /// File path: assets/icons/defult_trainer.svg
+  SvgGenImage get defultTrainer =>
+      const SvgGenImage('assets/icons/defult_trainer.svg');
+
   /// File path: assets/icons/delete.svg
   SvgGenImage get delete => const SvgGenImage('assets/icons/delete.svg');
 
@@ -98,6 +102,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/person.svg
   SvgGenImage get person => const SvgGenImage('assets/icons/person.svg');
 
+  /// File path: assets/icons/personal_trainer.svg
+  SvgGenImage get personalTrainer =>
+      const SvgGenImage('assets/icons/personal_trainer.svg');
+
   /// File path: assets/icons/progress.svg
   SvgGenImage get progress => const SvgGenImage('assets/icons/progress.svg');
 
@@ -131,6 +139,7 @@ class $AssetsIconsGen {
     check,
     clean,
     date,
+    defultTrainer,
     delete,
     edit,
     email,
@@ -144,6 +153,7 @@ class $AssetsIconsGen {
     passwordIcon,
     paypal,
     person,
+    personalTrainer,
     progress,
     recieved,
     setting,

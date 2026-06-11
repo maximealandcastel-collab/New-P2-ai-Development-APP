@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/additional_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/gym_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/physical_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/goal_setup_page.dart';
@@ -11,7 +14,8 @@ class UserCompleteProfileScreen extends StatefulWidget {
   const UserCompleteProfileScreen({super.key});
 
   @override
-  State<UserCompleteProfileScreen> createState() => _UserCompleteProfileScreenState();
+  State<UserCompleteProfileScreen> createState() =>
+      _UserCompleteProfileScreenState();
 }
 
 class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
@@ -20,8 +24,9 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
 
   final List<Widget> pages = [
     GoalSetupPage(),
-     PhysicalInfoPage(),
+    PhysicalInfoPage(),
     GymInfoPage(),
+    AdditionalInfoPage(),
   ];
 
   @override
@@ -59,7 +64,7 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             pages.length,
-                (index) => Expanded(
+            (index) => Expanded(
               child: CustomContainer(
                 marginLeft: 4.w,
                 height: 6.h,
@@ -80,7 +85,7 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
         itemBuilder: (context, index) {
           return SingleChildScrollView(
             child: Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 16.w),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Column(
                 children: [
                   SizedBox(height: 24.h),
@@ -108,13 +113,13 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
               if (currentIndex < pages.length - 1) {
                 _navigateToPage(currentIndex + 1);
               } else {
+                Get.offAllNamed(AppRoute.subscribeSelectScreen);
               }
             },
             label: currentIndex == pages.length - 1 ? 'Submit' : 'Next',
           ),
         ),
       ),
-
     );
   }
 }
