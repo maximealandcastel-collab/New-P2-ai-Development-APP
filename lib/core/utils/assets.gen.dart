@@ -125,6 +125,10 @@ class $AssetsIconsGen {
   SvgGenImage get subscribeIcons =>
       const SvgGenImage('assets/icons/subscribe_icons.svg');
 
+  /// File path: assets/icons/trainer_sub_icons.svg
+  SvgGenImage get trainerSubIcons =>
+      const SvgGenImage('assets/icons/trainer_sub_icons.svg');
+
   /// File path: assets/icons/transfer.svg
   SvgGenImage get transfer => const SvgGenImage('assets/icons/transfer.svg');
 
@@ -167,6 +171,7 @@ class $AssetsIconsGen {
     star,
     subButton,
     subscribeIcons,
+    trainerSubIcons,
     transfer,
     videoCall,
   ];

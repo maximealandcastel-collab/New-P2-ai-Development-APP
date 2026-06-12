@@ -130,57 +130,56 @@ class SliverScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: safeArea ?  SafeArea(
-        child: _body(leadingWidget, titleW, context),
-      ) : _body(leadingWidget, titleW, context),
+      body: _body(leadingWidget, titleW, context),
     );
   }
 
   Widget _body(Widget? leadingWidget, Widget? titleW, BuildContext context) {
     return CustomScrollView(
-        physics:
-            scrollPhysics ??
-            const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-        slivers: [
-          // ── SliverAppBar ──────────────────────────────
-          SliverAppBar(
-            backgroundColor:
-                appBarBackgroundColor ?? AppColors.backgroundLight,
-            foregroundColor: appBarForegroundColor ?? Colors.white,
-            pinned: pinned,
-            floating: floating,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            toolbarHeight: _toolbarH,
-            expandedHeight: _hasFlexible ? _expandedH : null,
-            automaticallyImplyLeading: false,
-            titleSpacing: 0,
-            centerTitle: centerTitle,
-            leading: leadingWidget,
-            title: titleW,
-            actions: actions,
-            shape: appBarBorderColor != null
-                ? Border(
-                    bottom: BorderSide(
-                      color: appBarBorderColor!,
-                      width: appBarBorderWidth ?? 1,
-                    ),
-                  )
-                : null,
-            flexibleSpace: _hasFlexible
-                ? FlexibleSpaceBar(
-                    background: _flexibleWidget,
-                    collapseMode: CollapseMode.pin,
-                  )
-                : null,
-          ),
+      physics:
+          scrollPhysics ??
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      slivers: [
+        // ── SliverAppBar ──────────────────────────────
+        SliverAppBar(
+          backgroundColor:
+              appBarBackgroundColor?.withValues(alpha: 0.7) ??
+              AppColors.backgroundLight.withValues(alpha: 0.7),
+          foregroundColor: appBarForegroundColor ?? Colors.white,
+          pinned: pinned,
+          floating: floating,
+          elevation: 0,
+          scrolledUnderElevation: 10,
+          shadowColor: AppColors.backgroundLight.withValues(alpha: 0.2),
+          surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
+          toolbarHeight: _toolbarH,
+          expandedHeight: _hasFlexible ? _expandedH : null,
+          automaticallyImplyLeading: false,
+          titleSpacing: 0,
+          centerTitle: centerTitle,
+          leading: leadingWidget,
+          title: titleW,
+          actions: actions,
+          shape: appBarBorderColor != null
+              ? Border(
+                  bottom: BorderSide(
+                    color: appBarBorderColor!,
+                    width: appBarBorderWidth ?? 1,
+                  ),
+                )
+              : null,
+          flexibleSpace: _hasFlexible
+              ? FlexibleSpaceBar(
+                  background: _flexibleWidget,
+                  collapseMode: CollapseMode.pin,
+                )
+              : null,
+        ),
 
-          // ── User slivers ──────────────────────────────
-          if (slivers != null) ...slivers!(context),
-        ],
-      );
+        // ── User slivers ──────────────────────────────
+        if (slivers != null) ...slivers!(context),
+      ],
+    );
   }
 }
 

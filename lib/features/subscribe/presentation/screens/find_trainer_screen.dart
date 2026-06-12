@@ -49,7 +49,7 @@ class FindTrainerScreen extends StatelessWidget {
           },
         ).asPaddedSliver(horizontal: 16.w),
 
-        SizedBox(height: 24.h).asSliver,
+        SizedBox(height: 70.h).asSliver,
       ],
     );
   }
