@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
@@ -16,6 +17,7 @@ import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboar
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
@@ -39,6 +41,8 @@ class AppRoute {
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
   static String userButtonNavBar = "/userButtonNavBar";
+  static String findTrainerScreen = "/findTrainerScreen";
+  static String trainerProfileScreen = "/trainerProfileScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -69,6 +73,8 @@ class AppRoute {
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: userButtonNavBar, page: () => NavBar()),
+    GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
+    GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
 
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),

@@ -23,4 +23,8 @@ class ApiConstants {
   /// USER ──────────────────────────────────────────────
   static const String userProfile = '/api/v1/users/me';
   static const String userProfileUpdate = '/api/v1/users/edit-profile';
+
+
+  ///
+  static const String searchHistoryKey = '/searchHistoryKey';
 }

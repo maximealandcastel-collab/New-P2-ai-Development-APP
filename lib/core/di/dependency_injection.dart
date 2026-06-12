@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/search/controller/search_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
@@ -82,6 +83,11 @@ class DependencyInjection {
 
     );  Get.lazyPut<NavBarController>(
           () => NavBarController(),fenix: true
+    ); 
+    
+    
+    Get.lazyPut<SearchHistoryController>(
+          () => SearchHistoryController(cacheService:  Get.find<CacheService>()),fenix: true
     );
   }
 

@@ -7,8 +7,8 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/sub
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_option_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class SubscribeSelectScreen extends StatelessWidget {
-  const SubscribeSelectScreen({super.key});
+class TrainerProfileScreen extends StatelessWidget {
+  const TrainerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +57,7 @@ class SubscribeSelectScreen extends StatelessWidget {
           padding: EdgeInsetsGeometry.all(16.r),
           child: CustomButton(
             onPressed: () {
-              if(SubscribeController.to.selected == 0){
-                Get.toNamed(AppRoute.trainerUpgradeScreen);
-              }else{
-                Get.toNamed(AppRoute.findTrainerScreen);
-              }
+              Get.toNamed(AppRoute.trainerUpgradeScreen);
             },
             label: 'Continue',
           ),

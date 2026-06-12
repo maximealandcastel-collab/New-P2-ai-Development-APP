@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CustomNetworkImage extends StatelessWidget {
-  final String imageUrl;
+  final String? imageUrl;
+  final File? imageFile;
+  final Widget? fallbackAsset;
   final double? height;
   final double? width;
   final Border? border;
@@ -18,15 +21,17 @@ class CustomNetworkImage extends StatelessWidget {
 
   const CustomNetworkImage({
     super.key,
-    required this.imageUrl,
+    this.child,
+    this.colorFilter,
+    this.imageUrl,
+    this.imageFile,
+    this.fallbackAsset,
+    this.backgroundColor,
     this.height,
     this.width,
     this.border,
     this.borderRadius,
     this.boxShape = BoxShape.rectangle,
-    this.backgroundColor,
-    this.child,
-    this.colorFilter,
     this.boxShadow,
     this.elevation = false,
     this.fit,
@@ -34,100 +39,106 @@ class CustomNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl.trim().isEmpty) {
-      return _buildPlaceholder();
+    if (imageFile != null) {
+      return _buildContainer(
+        null,
+        fileChild: Image.file(imageFile!, fit: fit ?? BoxFit.cover),
+      );
     }
 
-    return CachedNetworkImage(
-      imageUrl: imageUrl.trim(),
-      imageBuilder: (context, imageProvider) => Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          border: border,
-          borderRadius: borderRadius != null
-              ? BorderRadius.circular(borderRadius!)
-              : null,
-          shape: boxShape,
-          boxShadow:
-              boxShadow ??
-              (elevation
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 20,
-                        spreadRadius: 6,
-                      ),
-                    ]
-                  : null),
-          image: DecorationImage(
-            image: imageProvider,
-            fit: fit ?? BoxFit.cover,
-            colorFilter: colorFilter,
-          ),
+    if ((imageUrl ?? '').trim().isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: imageUrl!, // ✅ non-null assert
+        imageBuilder: (context, imageProvider) =>
+            _buildContainer(imageProvider),
+        placeholder: (context, url) => Shimmer.fromColors(
+          baseColor: Colors.grey.shade200,
+          highlightColor: Colors.grey.shade50,
+          child: _buildContainer(null, shimmer: true),
         ),
-        child: child,
-      ),
-      placeholder: (context, url) => Shimmer.fromColors(
-        baseColor: Colors.grey.withOpacity(0.6),
-        highlightColor: Colors.grey.withOpacity(0.3),
-        child: Container(
-          height: height,
-          width: width,
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.6),
-            border: border,
-            borderRadius: borderRadius != null
-                ? BorderRadius.circular(borderRadius!)
-                : null,
-            shape: boxShape,
-            boxShadow:
-                boxShadow ??
-                (elevation
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 20,
-                          spreadRadius: 6,
-                        ),
-                      ]
-                    : null),
-          ),
-        ),
-      ),
-      errorWidget: (context, url, error) => _buildPlaceholder(),
-    );
+        errorWidget: (context, url, error) {
+          debugPrint('❌ Image load error: $error');
+          return _buildFallback();
+        },
+      );
+    }
+
+    return _buildFallback();
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildContainer(
+      ImageProvider? imageProvider, {
+        bool shimmer = false,
+        Widget? fileChild,
+      }) {
     return Container(
       height: height,
       width: width,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.grey[300],
-        border: border,
-        borderRadius: borderRadius != null
+      decoration: _buildDecoration(
+        imageProvider: imageProvider,
+        shimmer: shimmer,
+      ),
+      child: fileChild != null
+          ? ClipRRect(
+        borderRadius: boxShape == BoxShape.circle
+            ? BorderRadius.circular(9999)
+            : borderRadius != null
             ? BorderRadius.circular(borderRadius!)
-            : null,
-        shape: boxShape,
-        boxShadow:
-            boxShadow ??
-            (elevation
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 20,
-                      spreadRadius: 6,
-                    ),
-                  ]
-                : null),
-      ),
-      child: const Icon(
-        Icons.broken_image_outlined,
-        color: Colors.grey,
-        size: 24,
-      ),
+            : BorderRadius.zero,
+        child: fileChild,
+      )
+          : child,
+    );
+  }
+
+  BoxDecoration _buildDecoration({
+    ImageProvider? imageProvider,
+    bool shimmer = false,
+  }) {
+    return BoxDecoration(
+      color: shimmer
+          ? Colors.grey.withValues(alpha: 0.4)
+          : (backgroundColor ?? Colors.grey.shade300),
+      boxShadow:
+      boxShadow ??
+          (elevation
+              ? [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 20,
+              spreadRadius: 6,
+            ),
+          ]
+              : null),
+      border: border,
+      borderRadius: boxShape == BoxShape.circle
+          ? null
+          : borderRadius != null
+          ? BorderRadius.circular(borderRadius!)
+          : null,
+      shape: boxShape,
+      image: imageProvider != null
+          ? DecorationImage(
+        image: imageProvider,
+        fit: fit ?? BoxFit.cover,
+        colorFilter: colorFilter,
+      )
+          : null,
+    );
+  }
+
+  Widget _buildFallback() {
+    return Container(
+      height: height,
+      width: width,
+      decoration: _buildDecoration(imageProvider: null, shimmer: false),
+      child:
+      fallbackAsset ??
+          Icon(
+            Icons.person,
+            color: Colors.grey.shade500,
+            size: height ?? width,
+          ),
     );
   }
 }
