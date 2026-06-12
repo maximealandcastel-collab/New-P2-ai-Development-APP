@@ -4,7 +4,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
-class SliverScaffold extends StatelessWidget {
+class SliverScaffold extends StatefulWidget {
   const SliverScaffold({
     super.key,
     this.slivers,
@@ -13,7 +13,6 @@ class SliverScaffold extends StatelessWidget {
     this.endDrawer,
     this.resizeToAvoidBottomInset,
     this.scrollPhysics,
-    // AppBar
     this.appBarTitle,
     this.appBarTitleSize = 20,
     this.centerTitle = true,
@@ -27,7 +26,6 @@ class SliverScaffold extends StatelessWidget {
     this.appBarBorderColor,
     this.appBarBorderWidth,
     this.toolbarHeight,
-    // Flexible
     this.flexibleBackground,
     this.flexibleChild,
     this.flexiblePaddingTop,
@@ -36,17 +34,16 @@ class SliverScaffold extends StatelessWidget {
     this.expandedHeight,
     this.pinned = true,
     this.floating = false,
+    this.collapsedTitle,
+    this.collapsedTitleColor,
   });
 
-  // ── Scaffold ──────────────────────────────────────────────
   final List<Widget> Function(BuildContext context)? slivers;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
   final Widget? endDrawer;
   final bool? resizeToAvoidBottomInset;
   final ScrollPhysics? scrollPhysics;
-
-  // ── AppBar ────────────────────────────────────────────────
   final String? appBarTitle;
   final double appBarTitleSize;
   final bool centerTitle;
@@ -57,11 +54,10 @@ class SliverScaffold extends StatelessWidget {
   final Widget? leading;
   final Color? appBarBackgroundColor;
   final Color? appBarForegroundColor;
+  final Color? collapsedTitleColor;
   final Color? appBarBorderColor;
   final double? appBarBorderWidth;
   final double? toolbarHeight;
-
-  // ── Flexible ──────────────────────────────────────────────
   final Widget? flexibleBackground;
   final Widget? flexibleChild;
   final double? flexiblePaddingTop;
@@ -70,30 +66,61 @@ class SliverScaffold extends StatelessWidget {
   final double? expandedHeight;
   final bool pinned;
   final bool floating;
+  final String? collapsedTitle;
 
-  // ── Helpers ───────────────────────────────────────────────
-  double get _toolbarH => toolbarHeight ?? 60;
+  @override
+  State<SliverScaffold> createState() => _SliverScaffoldState();
+}
 
-  double get _expandedH => expandedHeight?.h ?? _toolbarH;
+class _SliverScaffoldState extends State<SliverScaffold> {
+  late ScrollController _scrollController;
+  bool _isCollapsed = false;
 
-  bool get _hasFlexible => flexibleBackground != null || flexibleChild != null;
+  double get _toolbarH => widget.toolbarHeight ?? 60;
+
+  double get _expandedH => widget.expandedHeight ?? _toolbarH;
+
+  bool get _hasFlexible =>
+      widget.flexibleBackground != null || widget.flexibleChild != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+
+    if (widget.collapsedTitle != null && _hasFlexible) {
+      final collapseAt = _expandedH - _toolbarH;
+      _scrollController.addListener(() {
+        final collapsed = _scrollController.offset >= collapseAt;
+        if (collapsed != _isCollapsed) {
+          setState(() => _isCollapsed = collapsed);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Widget? get _flexibleWidget {
-    if (flexibleBackground != null) return flexibleBackground;
+    if (widget.flexibleBackground != null) return widget.flexibleBackground;
 
-    if (flexibleChild != null) {
+    if (widget.flexibleChild != null) {
       Widget content = Align(
-        alignment: flexibleAlignment,
+        alignment: widget.flexibleAlignment,
         child: Padding(
           padding: EdgeInsets.only(
             left: 16.w,
             right: 16.w,
-            top: kToolbarHeight + (flexiblePaddingTop ?? 0),
+            top: kToolbarHeight + (widget.flexiblePaddingTop ?? 0),
           ),
-          child: flexibleChild,
+          child: widget.flexibleChild,
         ),
       );
-      return safeArea ? SafeArea(child: content) : content;
+      return widget.safeArea ? SafeArea(child: content) : content;
     }
 
     return null;
@@ -104,81 +131,100 @@ class SliverScaffold extends StatelessWidget {
     final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
 
     final Widget? leadingWidget =
-        leading ??
-        ((showLeading && (parentRoute?.canPop ?? false))
+        widget.leading ??
+        ((widget.showLeading && (parentRoute?.canPop ?? false))
             ? IconButton(
                 icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
-                onPressed: backAction ?? () => Navigator.maybePop(context),
+                onPressed:
+                    widget.backAction ?? () => Navigator.maybePop(context),
               )
             : null);
 
-    final Widget? titleW = (appBarTitle != null && appBarTitle!.isNotEmpty)
-        ? Text(
-            appBarTitle!,
-            style: TextStyle(
-              fontFamily: FontFamily.figtree,
-              fontWeight: FontWeight.w600,
-              fontSize: appBarTitleSize.sp,
-              color: appBarForegroundColor ?? AppColors.textPrimary,
-            ),
-          )
-        : titleWidget;
+    final Widget titleW = Text(
+      _isCollapsed
+          ? (widget.collapsedTitle ?? widget.appBarTitle ?? '')
+          : (widget.appBarTitle ?? ''),
+      style: TextStyle(
+        fontFamily: FontFamily.figtree,
+        fontWeight: FontWeight.w600,
+        fontSize: widget.appBarTitleSize.sp,
+        color: _isCollapsed
+            ? (widget.collapsedTitleColor ?? AppColors.textPrimary)
+            : (widget.appBarForegroundColor ?? AppColors.textPrimary),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      endDrawer: endDrawer,
-      floatingActionButton: floatingActionButton,
-      bottomNavigationBar: bottomNavigationBar,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: _body(leadingWidget, titleW, context),
-    );
-  }
+      endDrawer: widget.endDrawer,
+      floatingActionButton: widget.floatingActionButton,
+      bottomNavigationBar: widget.bottomNavigationBar,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      body: CustomScrollView(
+        controller: _scrollController,
+        physics:
+            widget.scrollPhysics ??
+            const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+        slivers: [
+          SliverAppBar(
+            backgroundColor:
+                widget.appBarBackgroundColor?.withValues(alpha: 0.7) ??
+                AppColors.backgroundLight.withValues(alpha: 0.7),
+            foregroundColor: widget.appBarForegroundColor ?? Colors.white,
+            pinned: widget.pinned,
+            floating: widget.floating,
+            elevation: 0,
+            scrolledUnderElevation: 10,
+            shadowColor: AppColors.backgroundLight.withValues(alpha: 0.2),
+            surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
+            toolbarHeight: _toolbarH,
+            expandedHeight: _hasFlexible ? _expandedH : null,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            centerTitle: widget.centerTitle,
+            leading: leadingWidget,
+            title: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                final offsetAnimation =
+                    Tween<Offset>(
+                      begin: const Offset(0, -0.5),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    );
 
-  Widget _body(Widget? leadingWidget, Widget? titleW, BuildContext context) {
-    return CustomScrollView(
-      physics:
-          scrollPhysics ??
-          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      slivers: [
-        // ── SliverAppBar ──────────────────────────────
-        SliverAppBar(
-          backgroundColor:
-              appBarBackgroundColor?.withValues(alpha: 0.7) ??
-              AppColors.backgroundLight.withValues(alpha: 0.7),
-          foregroundColor: appBarForegroundColor ?? Colors.white,
-          pinned: pinned,
-          floating: floating,
-          elevation: 0,
-          scrolledUnderElevation: 10,
-          shadowColor: AppColors.backgroundLight.withValues(alpha: 0.2),
-          surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
-          toolbarHeight: _toolbarH,
-          expandedHeight: _hasFlexible ? _expandedH : null,
-          automaticallyImplyLeading: false,
-          titleSpacing: 0,
-          centerTitle: centerTitle,
-          leading: leadingWidget,
-          title: titleW,
-          actions: actions,
-          shape: appBarBorderColor != null
-              ? Border(
-                  bottom: BorderSide(
-                    color: appBarBorderColor!,
-                    width: appBarBorderWidth ?? 1,
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
                   ),
-                )
-              : null,
-          flexibleSpace: _hasFlexible
-              ? FlexibleSpaceBar(
-                  background: _flexibleWidget,
-                  collapseMode: CollapseMode.pin,
-                )
-              : null,
-        ),
-
-        // ── User slivers ──────────────────────────────
-        if (slivers != null) ...slivers!(context),
-      ],
+                );
+              },
+              child: KeyedSubtree(key: ValueKey(_isCollapsed), child: titleW),
+            ),
+            actions: widget.actions,
+            shape: widget.appBarBorderColor != null
+                ? Border(
+                    bottom: BorderSide(
+                      color: widget.appBarBorderColor!,
+                      width: widget.appBarBorderWidth ?? 1,
+                    ),
+                  )
+                : null,
+            flexibleSpace: _hasFlexible
+                ? FlexibleSpaceBar(
+                    background: _flexibleWidget,
+                    collapseMode: CollapseMode.pin,
+                  )
+                : null,
+          ),
+          if (widget.slivers != null) ...widget.slivers!(context),
+        ],
+      ),
     );
   }
 }

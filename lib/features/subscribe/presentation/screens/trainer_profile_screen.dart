@@ -12,31 +12,43 @@ class TrainerProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverScaffold(
       safeArea: false,
-      expandedHeight: 258.h,
-      appBarTitle: 'Profile',
+      expandedHeight: 270.h,
+      //appBarTitle: 'Profile',
+      collapsedTitle: 'Noah Sinclair',
       appBarForegroundColor: Colors.white,
       flexibleBackground: CustomContainer(
         child: Stack(
           children: [
             CustomNetworkImage(
-              height: 221.h,
+              height: 210.h,
               fit: BoxFit.cover,
               width: double.infinity,
               imageUrl: "https://picsum.photos/300",
             ),
             Positioned(
-              top: 142.h,
+              top: 132.h,
               left: 16.w,
-              child: CustomContainer(
-                shape: BoxShape.circle,
-                paddingAll: 6.r,
-                bordersColor: AppColors.primary,
-                child: CustomNetworkImage(
-                  height: 124.r,
-                  width: 124.r,
-                  boxShape: BoxShape.circle,
-                  imageUrl: "https://picsum.photos/300",
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomContainer(
+                    shape: BoxShape.circle,
+                    paddingAll: 6.r,
+                    bordersColor: AppColors.primary,
+                    child: CustomNetworkImage(
+                      height: 124.r,
+                      width: 124.r,
+                      boxShape: BoxShape.circle,
+                      imageUrl: "https://picsum.photos/300",
+                    ),
+                  ),
+                  CustomText(
+                    top: 6.h,
+                    text: 'Noah Sinclair',
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ],
               ),
             ),
           ],
@@ -44,14 +56,7 @@ class TrainerProfileScreen extends StatelessWidget {
       ),
 
       slivers: (context) => [
-        CustomText(
-          text: 'Noah Sinclair',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w700,
-          textAlign: TextAlign.start,
-        ).asSliverWithPadding(horizontal: 16.w),
-
-        SizedBox(height: 24.h).asSliver,
+        SizedBox(height: 20.h).asSliver,
         CustomButton(
           backgroundColor: Colors.white,
           foregroundColor: AppColors.primary,
