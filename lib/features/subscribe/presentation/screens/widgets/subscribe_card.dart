@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/widgets/custom_container.dart';
-import 'package:pler_to_pler_app/widgets/custom_text.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/plan_model.dart';
 
-class SubscribeOptionCard extends StatelessWidget {
-  final Widget icon;
-  final String title;
-  final String description;
+class SubscribeCard extends StatelessWidget {
+  final PlanModel plan;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const SubscribeOptionCard({super.key,
-    required this.icon,
-    required this.title,
-    required this.description,
+  const SubscribeCard({
+    super.key,
+    required this.plan,
     required this.isSelected,
     required this.onTap,
   });
@@ -23,61 +19,86 @@ class SubscribeOptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(16.r),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18.r),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            width: 2,
+            color: AppColors.primary,
+            width: isSelected ? 2 : 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                icon,
-                CustomContainer(
-                  width: 32.w,
-                  height: 32.w,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary :  Colors.white,
-                      width: 2,
-                  ),
-                  child: Center(
-                    child: CustomContainer(
-                      width: 20.w,
-                      height: 20.w,
-                        shape: BoxShape.circle,
-                        color: isSelected ? AppColors.primary : Color(0xffE6E6E6),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color: AppColors.primary,
+              size: 24.sp,
+            ),
+
+            SizedBox(width: 12.w),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    plan.title,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
                     ),
-                  )
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    plan.billingText,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '\$${plan.price.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+
+                if (plan.saveText != null) ...[
+                  SizedBox(height: 4.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 3.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Text(
+                      plan.saveText!,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
-
-            SizedBox(height: 10.h),
-            CustomText(text:
-              title,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              textAlign: TextAlign.start,
-            ),
-            SizedBox(height: 6.h),
-            CustomText(text:
-              description,
-                fontSize: 10.sp,
-                color: AppColors.textSecondary,
-              textAlign: TextAlign.start,
-
-            ),
-
           ],
         ),
       ),

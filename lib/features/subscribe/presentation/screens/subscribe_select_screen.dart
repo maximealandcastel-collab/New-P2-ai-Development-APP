@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
-import 'package:pler_to_pler_app/widgets/custom_app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_button.dart';
-import 'package:pler_to_pler_app/widgets/custom_scaffold.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_option_card.dart';
+import 'package:pler_to_pler_app/widgets/widgets.dart';
+
 
 class SubscribeSelectScreen extends StatelessWidget {
   const SubscribeSelectScreen({super.key});
@@ -46,7 +46,9 @@ class SubscribeSelectScreen extends StatelessWidget {
       ),
 
       bottomNavigationBar: SafeArea(child: Padding(padding: EdgeInsetsGeometry.all(16.r),
-          child: CustomButton(onPressed: (){},label: 'Continue',),
+          child: CustomButton(onPressed: (){
+            Get.toNamed(AppRoute.trainerUpgradeScreen);
+          },label: 'Continue',),
       )
       ),
     );

@@ -2,8 +2,9 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction_screen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/payment_details_screen.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/profile_setup_success_screen.dart';
+import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
@@ -37,6 +38,7 @@ class AppRoute {
   static String paymentSuccessScreen = "/paymentSuccessScreen";
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
+  static String userButtonNavBar = "/userButtonNavBar";
 
   static List<GetPage> routes = [
     GetPage(
@@ -62,9 +64,11 @@ class AppRoute {
     GetPage(name: trainerCompleteProfileScreen, page: () => TrainerCompleteProfileScreen()),
     GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
-    GetPage(name: paymentSuccessScreen, page: () => ProfileSetupSuccessScreen()),
+    GetPage(name: paymentSuccessScreen, page: () => PaymentSuccessScreen()),
     GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
+    GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
+    GetPage(name: userButtonNavBar, page: () => NavBar()),
 
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),

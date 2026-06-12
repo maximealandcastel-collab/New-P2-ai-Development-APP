@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
+import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
@@ -76,7 +77,11 @@ class DependencyInjection {
     );
 
     Get.lazyPut<SubscribeController>(
-          () => SubscribeController(service: Get.find()),
+          () => SubscribeController(service: Get.find()),fenix: true
+
+
+    );  Get.lazyPut<NavBarController>(
+          () => NavBarController(),fenix: true
     );
   }
 

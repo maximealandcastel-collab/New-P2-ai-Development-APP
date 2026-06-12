@@ -7,14 +7,14 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
-class ProfileSetupSuccessScreen extends StatefulWidget {
-  const ProfileSetupSuccessScreen({super.key});
+class PaymentSuccessScreen extends StatefulWidget {
+  const PaymentSuccessScreen({super.key});
 
   @override
-  State<ProfileSetupSuccessScreen> createState() => _ProfileSetupSuccessScreenState();
+  State<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
 }
 
-class _ProfileSetupSuccessScreenState extends State<ProfileSetupSuccessScreen> {
+class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   late ConfettiController _confettiController;
 
   @override
@@ -61,9 +61,9 @@ class _ProfileSetupSuccessScreenState extends State<ProfileSetupSuccessScreen> {
                 ),
                 const Spacer(),
                 CustomButton(
-                  label: 'Next',
+                  label: 'Go to home',
                   onPressed: () {
-                    Get.offAllNamed(AppRoute.trainerUpgradeScreen);
+                    Get.toNamed(AppRoute.userButtonNavBar);
                   },
                 ),
                 const SizedBox(height: 20),

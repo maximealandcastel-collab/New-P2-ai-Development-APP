@@ -118,6 +118,10 @@ class $AssetsIconsGen {
   /// File path: assets/icons/star.svg
   SvgGenImage get star => const SvgGenImage('assets/icons/star.svg');
 
+  /// File path: assets/icons/subscribe_icons.svg
+  SvgGenImage get subscribeIcons =>
+      const SvgGenImage('assets/icons/subscribe_icons.svg');
+
   /// File path: assets/icons/transfer.svg
   SvgGenImage get transfer => const SvgGenImage('assets/icons/transfer.svg');
 
@@ -158,6 +162,7 @@ class $AssetsIconsGen {
     recieved,
     setting,
     star,
+    subscribeIcons,
     transfer,
     videoCall,
   ];
@@ -218,6 +223,10 @@ class $AssetsImagesGen {
   AssetGenImage get profileImg =>
       const AssetGenImage('assets/images/profile_img.png');
 
+  /// File path: assets/images/subscribe_logo.png
+  AssetGenImage get subscribeLogo =>
+      const AssetGenImage('assets/images/subscribe_logo.png');
+
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
@@ -237,6 +246,7 @@ class $AssetsImagesGen {
     onboardingThreeBgImg,
     onbordingTwoBgImg,
     profileImg,
+    subscribeLogo,
     success,
   ];
 }
