@@ -1,0 +1,69 @@
+import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/home/home_screen.dart';
+import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/contents_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/trainer_home_schedule_screen.dart';
+import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
+import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_summary_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
+
+class NavItemModel {
+  final String icon;
+  final String label;
+  final Widget screen;
+
+  const NavItemModel({
+    required this.icon,
+    required this.label,
+    required this.screen,
+  });
+
+
+  static List<NavItemModel> trainerNavItems = [
+    NavItemModel(
+      label: 'Home',
+      icon: Assets.icons.home.path,
+      screen: const HomeScreen(),
+    ),
+    NavItemModel(
+      label: 'Clients',
+      icon: Assets.icons.clients.path,
+      screen: const ClientsScreen(),
+    ),
+    NavItemModel(
+      label: 'Contents',
+      icon: Assets.icons.contents.path,
+      screen: const ContentsScreen(),
+    ),
+    NavItemModel(
+      label: 'Schedules',
+      icon: Assets.icons.request.path,
+      screen: const ScheduleScreen(),
+    ),
+  ];
+
+  static List<NavItemModel> userNavItems = [
+    NavItemModel(
+      label: 'Home',
+      icon: Assets.icons.home.path,
+      screen: const UserHomeScreen(),
+    ),
+    NavItemModel(
+      label: 'Plans',
+      icon: Assets.icons.request.path,
+      screen: const WorkoutPlansScreen(),
+    ),
+    NavItemModel(
+      label: 'Contents',
+      icon: Assets.icons.contents.path,
+      screen: const FeedScreen(),
+    ),
+    NavItemModel(
+      label: 'Progress',
+      icon: Assets.icons.progress.path,
+      screen: const ExerciseSummaryScreen(),
+    ),
+  ];
+}

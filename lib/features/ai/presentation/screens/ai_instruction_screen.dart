@@ -14,34 +14,51 @@ class AiInstructionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      appBar: CustomAppBar(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Assets.images.appLogo.image(height: 84.h,width: 84.w),
-          SizedBox(height: 24.h),
-          CustomText(text: 'Instruction',fontWeight: FontWeight.w600,fontSize: 24.sp,),
+    return PopScope(
+      canPop: false,
+      child: CustomScaffold(
+        appBar: CustomAppBar(
+          actions: [
+            IconButton(
+              onPressed: () {
+                Get.offAllNamed(AppRoute.bottonNavBar);
+              },
+              icon: CustomText(
+                right: 6.w,
+                text: "Skip",
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          ],
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Assets.images.appLogo.image(height: 84.h,width: 84.w),
+            SizedBox(height: 24.h),
+            CustomText(text: 'Instruction',fontWeight: FontWeight.w600,fontSize: 24.sp,),
 
-          CustomText(
-            top: 16.h,
-            color: AppColors.textSecondary,
-            text: 'Please provide your information carefully.'
-              ' We are collecting this data to train your personalized '
-              'AI model, ensuring it can deliver accurate responses '
-              'that closely reflect your style and preferences.',
-           ),
-          SizedBox(height: 200.h)
-        ],
+            CustomText(
+              top: 16.h,
+              color: AppColors.textSecondary,
+              text: 'Please provide your information carefully.'
+                ' We are collecting this data to train your personalized '
+                'AI model, ensuring it can deliver accurate responses '
+                'that closely reflect your style and preferences.',
+             ),
+            SizedBox(height: 200.h)
+          ],
+        ),
+
+        bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding:  EdgeInsets.all(16.r),
+              child: CustomButton(onPressed: (){
+                Get.toNamed(AppRoute.trainAiScreen);
+              },label: 'Train your personal AI',),
+            )),
       ),
-      
-      bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding:  EdgeInsets.all(16.r),
-            child: CustomButton(onPressed: (){
-              Get.toNamed(AppRoute.trainAiScreen);
-            },label: 'Train your personal AI',),
-          )),
     );
   }
 }

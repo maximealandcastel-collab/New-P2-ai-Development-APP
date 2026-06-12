@@ -77,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                   label: "Sign in",
                  // onPressed: controller.login,
                   onPressed: () {
-                    Get.toNamed(AppRoute.userCompleteProfileScreen);
+                    Get.toNamed(AppRoute.trainerCompleteProfileScreen);
                   },
                   isLoading: controller.loginState.isLoading,
                 );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/dynamic_field_list_widget.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
@@ -225,7 +227,9 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.r),
-          child: CustomButton(onPressed: () {}, label: 'Submit'),
+          child: CustomButton(onPressed: () {
+            Get.offAllNamed(AppRoute.bottonNavBar);
+          }, label: 'Submit'),
         ),
       ),
     );

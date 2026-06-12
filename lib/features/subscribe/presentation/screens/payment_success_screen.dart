@@ -63,7 +63,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 CustomButton(
                   label: 'Go to home',
                   onPressed: () {
-                    Get.toNamed(AppRoute.userButtonNavBar);
+                    Get.offAllNamed(AppRoute.bottonNavBar);
                   },
                 ),
                 const SizedBox(height: 20),

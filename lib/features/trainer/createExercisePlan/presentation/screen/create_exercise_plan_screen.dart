@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/custom_button2.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import '../widgets/add_exercise_block.dart';
@@ -201,7 +201,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
           SizedBox(height: 40.h),
           CustomButton(
             onPressed: () {
-              Get.offAll(() => const NavBar());
+              Get.offAllNamed(AppRoute.bottonNavBar);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +235,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
           CustomButton2(
               onTap: () {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Get.offAll(() => const NavBar());
+                  Get.offAllNamed(AppRoute.bottonNavBar);
                 });
           }, text: "Assign to client",color: Colors.orange,),
           SizedBox(height: 12.h),

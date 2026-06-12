@@ -26,9 +26,6 @@ class $AssetsIconsGen {
   /// File path: assets/icons/Payoneer.svg
   SvgGenImage get payoneer => const SvgGenImage('assets/icons/Payoneer.svg');
 
-  /// File path: assets/icons/Schedules.svg
-  SvgGenImage get schedules => const SvgGenImage('assets/icons/Schedules.svg');
-
   /// File path: assets/icons/add_button.svg
   SvgGenImage get addButton => const SvgGenImage('assets/icons/add_button.svg');
 
@@ -112,6 +109,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/recieved.svg
   SvgGenImage get recieved => const SvgGenImage('assets/icons/recieved.svg');
 
+  /// File path: assets/icons/request.svg
+  SvgGenImage get request => const SvgGenImage('assets/icons/request.svg');
+
   /// File path: assets/icons/setting.svg
   SvgGenImage get setting => const SvgGenImage('assets/icons/setting.svg');
 
@@ -140,7 +140,6 @@ class $AssetsIconsGen {
     clients,
     contents,
     payoneer,
-    schedules,
     addButton,
     ai,
     arrowBack,
@@ -167,6 +166,7 @@ class $AssetsIconsGen {
     personalTrainer,
     progress,
     recieved,
+    request,
     setting,
     star,
     subButton,

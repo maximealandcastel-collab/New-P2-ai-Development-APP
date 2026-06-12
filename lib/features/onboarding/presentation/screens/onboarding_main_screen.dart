@@ -100,6 +100,7 @@ class OnboardingMainScreen extends StatelessWidget {
             top: 70.h,
             right: 26.w,
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 log("Skip");
                 Get.offAll(() => LoginScreen());

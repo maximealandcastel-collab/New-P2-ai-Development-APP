@@ -13,7 +13,6 @@ class TrainerProfileScreen extends StatelessWidget {
     return SliverScaffold(
       safeArea: false,
       expandedHeight: 270.h,
-      //appBarTitle: 'Profile',
       collapsedTitle: 'Noah Sinclair',
       appBarForegroundColor: Colors.white,
       flexibleBackground: CustomContainer(

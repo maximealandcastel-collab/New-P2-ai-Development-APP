@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction_screen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
@@ -40,7 +40,7 @@ class AppRoute {
   static String paymentSuccessScreen = "/paymentSuccessScreen";
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
-  static String userButtonNavBar = "/userButtonNavBar";
+  static String bottonNavBar = "/bottonNavBar";
   static String findTrainerScreen = "/findTrainerScreen";
   static String trainerProfileScreen = "/trainerProfileScreen";
 
@@ -72,7 +72,7 @@ class AppRoute {
     GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
-    GetPage(name: userButtonNavBar, page: () => NavBar()),
+    GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
 
