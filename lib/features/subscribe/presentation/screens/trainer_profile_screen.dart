@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_option_card.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/children/edit_profile_screen.dart';
+import 'package:pler_to_pler_app/widgets/sliver_scaffold.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerProfileScreen extends StatelessWidget {
@@ -12,57 +12,59 @@ class TrainerProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = SubscribeController.to;
-
-    return CustomScaffold(
-      paddingSide: 0,
-      appBar: CustomAppBar(title: 'Subscribe'),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
+    return SliverScaffold(
+      safeArea: false,
+      expandedHeight: 248.h,
+      appBarTitle: 'Profile',
+      appBarForegroundColor: Colors.white,
+      flexibleBackground: CustomContainer(
+        child: Stack(
           children: [
-            SizedBox(height: 24.h),
-            Obx(
-              () => SubscribeOptionCard(
-                icon: Assets.icons.defultTrainer.svg(),
-                title: 'Use app default trainer \$19.99',
-                description:
-                    'Get access to a certified trainer assigned by the app.'
-                    ' Enjoy personalized workout guidance and continuous'
-                    ' support at an affordable monthly price.',
-                isSelected: controller.selected == 0,
-                onTap: () => controller.selected = 0,
+            CustomNetworkImage(
+              height: 221.h,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              imageUrl: "https://picsum.photos/300",
+            ),
+            Positioned(
+              top: 142.h,
+              left: 16.w,
+              child: CustomContainer(
+                shape: BoxShape.circle,
+                paddingAll: 6.r,
+                bordersColor: AppColors.primary,
+                child: CustomNetworkImage(
+                  height: 124.r,
+                  width: 124.r,
+                  boxShape: BoxShape.circle,
+                  imageUrl: "https://picsum.photos/300",
+                ),
               ),
             ),
-            SizedBox(height: 14.h),
-            Obx(
-              () => SubscribeOptionCard(
-                icon: Assets.icons.personalTrainer.svg(),
-                title: 'Choose personal trainer',
-                description:
-                    'Select your preferred trainer and receive a customized '
-                    'fitness plan tailored to your goals, schedule, and '
-                    'training preferences.',
-                isSelected: controller.selected == 1,
-                onTap: () => controller.selected = 1,
-              ),
-            ),
-            SizedBox(height: 32.h),
           ],
         ),
       ),
+    );
+  }
 
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsetsGeometry.all(16.r),
-          child: CustomButton(
-            onPressed: () {
-              Get.toNamed(AppRoute.trainerUpgradeScreen);
-            },
-            label: 'Continue',
-          ),
+  Widget _buildBioCardWidget({required String label, required String value}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          text: label,
+          color: AppColors.textSecondary,
+          bottom: 6.h,
         ),
-      ),
+        CustomText(
+          text: value,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w500,
+          maxline: 1,
+          textOverflow: TextOverflow.ellipsis,
+          bottom: 10.h,
+        ),
+      ],
     );
   }
 }

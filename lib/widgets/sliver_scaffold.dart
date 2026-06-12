@@ -32,7 +32,7 @@ class SliverScaffold extends StatelessWidget {
     this.flexibleChild,
     this.flexiblePaddingTop,
     this.flexibleAlignment = Alignment.topCenter,
-    this.flexibleSafeArea = true,
+    this.safeArea = true,
     this.expandedHeight,
     this.pinned = true,
     this.floating = false,
@@ -66,7 +66,7 @@ class SliverScaffold extends StatelessWidget {
   final Widget? flexibleChild;
   final double? flexiblePaddingTop;
   final AlignmentGeometry flexibleAlignment;
-  final bool flexibleSafeArea;
+  final bool safeArea;
   final double? expandedHeight;
   final bool pinned;
   final bool floating;
@@ -93,7 +93,7 @@ class SliverScaffold extends StatelessWidget {
           child: flexibleChild,
         ),
       );
-      return flexibleSafeArea ? SafeArea(child: content) : content;
+      return safeArea ? SafeArea(child: content) : content;
     }
 
     return null;
@@ -130,53 +130,57 @@ class SliverScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: SafeArea(
-        child: CustomScrollView(
-          physics:
-              scrollPhysics ??
-              const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-          slivers: [
-            // ── SliverAppBar ──────────────────────────────
-            SliverAppBar(
-              backgroundColor:
-                  appBarBackgroundColor ?? AppColors.backgroundLight,
-              foregroundColor: appBarForegroundColor ?? Colors.white,
-              pinned: pinned,
-              floating: floating,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              toolbarHeight: _toolbarH,
-              expandedHeight: _hasFlexible ? _expandedH : null,
-              automaticallyImplyLeading: false,
-              titleSpacing: 0,
-              centerTitle: centerTitle,
-              leading: leadingWidget,
-              title: titleW,
-              actions: actions,
-              shape: appBarBorderColor != null
-                  ? Border(
-                      bottom: BorderSide(
-                        color: appBarBorderColor!,
-                        width: appBarBorderWidth ?? 1,
-                      ),
-                    )
-                  : null,
-              flexibleSpace: _hasFlexible
-                  ? FlexibleSpaceBar(
-                      background: _flexibleWidget,
-                      collapseMode: CollapseMode.pin,
-                    )
-                  : null,
-            ),
-
-            // ── User slivers ──────────────────────────────
-            if (slivers != null) ...slivers!(context),
-          ],
-        ),
-      ),
+      body: safeArea ?  SafeArea(
+        child: _body(leadingWidget, titleW, context),
+      ) : _body(leadingWidget, titleW, context),
     );
+  }
+
+  Widget _body(Widget? leadingWidget, Widget? titleW, BuildContext context) {
+    return CustomScrollView(
+        physics:
+            scrollPhysics ??
+            const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+        slivers: [
+          // ── SliverAppBar ──────────────────────────────
+          SliverAppBar(
+            backgroundColor:
+                appBarBackgroundColor ?? AppColors.backgroundLight,
+            foregroundColor: appBarForegroundColor ?? Colors.white,
+            pinned: pinned,
+            floating: floating,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            toolbarHeight: _toolbarH,
+            expandedHeight: _hasFlexible ? _expandedH : null,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            centerTitle: centerTitle,
+            leading: leadingWidget,
+            title: titleW,
+            actions: actions,
+            shape: appBarBorderColor != null
+                ? Border(
+                    bottom: BorderSide(
+                      color: appBarBorderColor!,
+                      width: appBarBorderWidth ?? 1,
+                    ),
+                  )
+                : null,
+            flexibleSpace: _hasFlexible
+                ? FlexibleSpaceBar(
+                    background: _flexibleWidget,
+                    collapseMode: CollapseMode.pin,
+                  )
+                : null,
+          ),
+
+          // ── User slivers ──────────────────────────────
+          if (slivers != null) ...slivers!(context),
+        ],
+      );
   }
 }
 

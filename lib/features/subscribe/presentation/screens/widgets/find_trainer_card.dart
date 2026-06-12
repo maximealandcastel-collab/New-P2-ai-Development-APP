@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -74,7 +76,9 @@ class FindTrainerCard extends StatelessWidget {
                   foregroundColor: AppColors.textPrimary,
                   fontSize: 14.sp,
                   height: 32.h,
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed(AppRoute.trainerProfileScreen);
+                  },
                   label: 'View profile',
                 ),
               ),
