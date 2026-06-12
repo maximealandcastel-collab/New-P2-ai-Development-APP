@@ -118,7 +118,7 @@ class CustomButton extends StatelessWidget {
                       fontName:
                       fontName ?? FontFamily.figtree,
                       fontWeight: fontWeight ?? FontWeight.w600,
-                      fontSize: fontSize ?? 20.sp,
+                      fontSize: fontSize ?? 16.sp,
                     ),
                   ),
 

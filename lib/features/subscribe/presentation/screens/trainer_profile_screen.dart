@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/children/edit_profile_screen.dart';
-import 'package:pler_to_pler_app/widgets/sliver_scaffold.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerProfileScreen extends StatelessWidget {
@@ -14,7 +11,7 @@ class TrainerProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverScaffold(
       safeArea: false,
-      expandedHeight: 248.h,
+      expandedHeight: 258.h,
       appBarTitle: 'Profile',
       appBarForegroundColor: Colors.white,
       flexibleBackground: CustomContainer(
@@ -44,6 +41,29 @@ class TrainerProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+
+      slivers: (context) => [
+        CustomText(
+          text: 'Noah Sinclair',
+          fontSize: 24.sp,
+          fontWeight: FontWeight.w700,
+          textAlign: TextAlign.start,
+        ).asSliverWithPadding(horizontal: 16.w),
+
+        SizedBox(height: 24.h).asSliver,
+        CustomButton(
+          backgroundColor: Colors.white,
+          foregroundColor: AppColors.primary,
+          onPressed: () {},
+          label: 'Already subscribed 23',
+          prefixIcon: Assets.icons.subButton.svg(),
+        ).asSliverWithPadding(horizontal: 16.w),
+        SizedBox(height: 16.h).asSliver,
+        CustomButton(
+          onPressed: () {},
+          label: 'Request trainer',
+        ).asSliverWithPadding(horizontal: 16.w),
+      ],
     );
   }
 
@@ -51,11 +71,7 @@ class TrainerProfileScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(
-          text: label,
-          color: AppColors.textSecondary,
-          bottom: 6.h,
-        ),
+        CustomText(text: label, color: AppColors.textSecondary, bottom: 6.h),
         CustomText(
           text: value,
           fontSize: 16.sp,
