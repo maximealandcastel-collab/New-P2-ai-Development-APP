@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 
 class LoginController extends GetxController {
@@ -20,8 +22,8 @@ class LoginController extends GetxController {
   String get selectedRole => _selectedRole.value;
 
   final loginFormKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailController = TextEditingController(text: kDebugMode ? 'gabriel@trainer.com' : '');
+  final passwordController = TextEditingController(text: kDebugMode ? 'Password123!' : '');
 
   void changeRole(String role) {
     _selectedRole.value = role;
@@ -34,13 +36,32 @@ class LoginController extends GetxController {
     _loginState.value = LoadingState.loading;
 
     try {
-      final result = await _authService.login(
+       await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
+       Get.offAllNamed(AppRoute.bottonNavBar);
     } catch (e) {
       _loginState.value = LoadingState.error;
     }
   }
+
+  bool isTrainer() {
+    final role = _authService.getCachedUser();
+    if (role != null) {
+      return role == 'trainer';
+    }
+    return false;
+  }
+
+  /// ─── LOGOUT ────────────────────────────
+  Future<void> logout() async {
+    await _authService.logout();
+    Get.offAllNamed(AppRoute.loginScreen);
+  }
+
+  /// ─── IS LOGGED IN ──────────────────────
+  bool isLoggedIn() => _authService.isLoggedIn();
+
 }

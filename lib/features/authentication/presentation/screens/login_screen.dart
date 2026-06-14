@@ -75,10 +75,10 @@ class LoginScreen extends StatelessWidget {
               Obx(() {
                 return CustomButton(
                   label: "Sign in",
-                 // onPressed: controller.login,
-                  onPressed: () {
-                    Get.toNamed(AppRoute.trainerCompleteProfileScreen);
-                  },
+                  onPressed: controller.login,
+                  // onPressed: () {
+                  //   Get.toNamed(AppRoute.trainerCompleteProfileScreen);
+                  // },
                   isLoading: controller.loginState.isLoading,
                 );
               }),

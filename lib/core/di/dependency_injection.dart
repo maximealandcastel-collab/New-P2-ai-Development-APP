@@ -10,6 +10,9 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/profile/data/repositories/profile_repository.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/search/controller/search_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
@@ -77,16 +80,37 @@ class DependencyInjection {
     );
 
     Get.lazyPut<SubscribeController>(
-          () => SubscribeController(service: Get.find()),fenix: true
+      () => SubscribeController(service: Get.find()),
+      fenix: true,
+    );
+    Get.lazyPut<BottomNavBarController>(
+      () => BottomNavBarController(),
+      fenix: true,
+    );
 
-
-    );  Get.lazyPut<BottomNavBarController>(
-          () => BottomNavBarController(),fenix: true
-    ); 
-    
-    
     Get.lazyPut<SearchHistoryController>(
-          () => SearchHistoryController(cacheService:  Get.find<CacheService>()),fenix: true
+      () => SearchHistoryController(cacheService: Get.find<CacheService>()),
+      fenix: true,
+    );
+
+    /// profile
+    Get.lazyPut<ProfileRepository>(
+      () => ProfileRepository(
+        cacheService: Get.find<CacheService>(),
+        apiService: Get.find<ApiService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ProfileService>(
+      () => ProfileService(repository: Get.find<ProfileRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ProfileController>(
+      () => ProfileController(
+        service: Get.find<ProfileService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
     );
   }
 

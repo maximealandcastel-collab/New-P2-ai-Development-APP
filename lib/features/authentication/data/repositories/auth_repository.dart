@@ -4,7 +4,6 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
-import 'package:pler_to_pler_app/features/authentication/data/models/user_model.dart';
 
 class AuthRepository {
   final ApiService _apiService;
@@ -28,10 +27,12 @@ class AuthRepository {
       final response = await _apiService.post(
         ApiConstants.register,
         data: {
-          'name': name,
+          'firstName': name,
+          'lastName': name,
           'email': email,
           'password': password,
-          'phone': phone,
+          'gender': phone,
+          'role': phone,
         },
       );
 
@@ -49,7 +50,7 @@ class AuthRepository {
 
   // ─── Login ───────────────────────────────
 
-  Future<UserModel> login({
+  Future<String> login({
     required String email,
     required String password,
   }) async {
@@ -60,22 +61,20 @@ class AuthRepository {
       );
 
       final responseData = response.data?['data'];
-      final userJson = responseData?['user'];
-      final accessToken = responseData?['token'];
+      final accessToken = responseData?['token']?.toString();
+      final userRole = responseData?['user']?['role']?.toString();
 
-      final model = UserModel.fromJson(
-        userJson is Map<String, dynamic> ? userJson : {},
-      );
-
-      if (accessToken != null) {
-        await _cacheService.put(
-          AppConstants.accessToken,
-          accessToken.toString(),
-        );
+      if (accessToken == null) {
+        throw  UnknownException('Access token not found');
       }
-      await _cacheService.put(AppConstants.cacheUser, model.toJson());
 
-      return model;
+      await Future.wait([
+        _cacheService.put(AppConstants.accessToken, accessToken),
+        if (userRole != null)
+          _cacheService.put(AppConstants.cacheUserRole, userRole),
+      ]);
+
+      return accessToken;
     } on AppException {
       rethrow;
     } catch (e) {
@@ -102,21 +101,25 @@ class AuthRepository {
       final token = await _cacheService.get(AppConstants.otpToken);
       final response = await _apiService.post(
         ApiConstants.otpVerify,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
         data: {'otp': otp},
       );
 
       final responseData = response.data?['data'];
       final accessToken = responseData?['token'];
+      final userRole = responseData?['user']['role'];
 
       if (accessToken != null) {
         await _cacheService.put(
           AppConstants.accessToken,
           accessToken.toString(),
+        );
+      }
+
+      if (userRole != null) {
+        await _cacheService.put(
+          AppConstants.cacheUserRole,
+          userRole.toString(),
         );
       }
       return true;
@@ -133,20 +136,14 @@ class AuthRepository {
       final token = await _cacheService.get(AppConstants.otpToken);
       await _apiService.post(
         ApiConstants.resendOtp,
-        queryParameters: {
-          'email': email,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        queryParameters: {'email': email},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } on AppException {
-       rethrow;
-     } catch (e) {
-       throw UnknownException(e.toString());
-     }
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 
   // ─── Reset Password ──────────────────────
@@ -197,19 +194,8 @@ class AuthRepository {
     return _cacheService.get<String>(AppConstants.accessToken);
   }
 
-  UserModel? getCachedUser() {
-    try {
-      final json = _cacheService.get<Map<String, dynamic>>(
-        AppConstants.cacheUser,
-        defaultValue: null,
-      );
-
-      if (json == null) return null;
-
-      return UserModel.fromJson(json);
-    } catch (e) {
-      return null;
-    }
+  String? getRole() {
+    return _cacheService.get<String>(AppConstants.cacheUserRole);
   }
 
   bool isLoggedIn() {

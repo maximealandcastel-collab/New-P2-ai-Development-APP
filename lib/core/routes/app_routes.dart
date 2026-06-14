@@ -54,7 +54,7 @@ class AppRoute {
     ),
     GetPage(
       name: onboardingMainScreen,
-      page: () => BottomNavBarMain(),
+      page: () => OnboardingMainScreen(),
       binding: BindingsBuilder(() {
         Get.put(OnboardingController());
       }),

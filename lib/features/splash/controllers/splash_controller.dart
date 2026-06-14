@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 
 class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
 
@@ -54,8 +55,11 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 1000));
 
-    // Final Navigation
-    Get.offAllNamed(AppRoute.onboardingMainScreen);
+    if(LoginController.to.isLoggedIn()){
+      Get.offAllNamed(AppRoute.bottonNavBar);
+    }else{
+      Get.offAllNamed(AppRoute.onboardingMainScreen);
+    }
   }
 
   @override

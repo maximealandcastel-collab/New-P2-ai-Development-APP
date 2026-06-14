@@ -39,19 +39,31 @@ class CacheService {
   T? get<T>(String key, {T? defaultValue}) {
     try {
       final value = box.get(key, defaultValue: defaultValue);
-
       if (value == null) return defaultValue;
-      if (value is Map && T == Map<String, dynamic>) {
-        return value.map(
-              (k, v) => MapEntry(k.toString(), v),
-        ) as T;
+      if (T == Map<String, dynamic>) {
+        return _deepCastMap(value) as T?;
       }
-
       return value as T?;
     } catch (_) {
       return defaultValue;
     }
   }
+
+  Map<String, dynamic> _deepCastMap(dynamic value) {
+    if (value is Map) {
+      return value.map((k, v) {
+        final castedValue = v is Map ? _deepCastMap(v) : (v is List ? _deepCastList(v) : v);
+        return MapEntry(k.toString(), castedValue);
+      });
+    }
+    return {};
+  }
+
+  List<dynamic> _deepCastList(List value) {
+    return value.map((e) => e is Map ? _deepCastMap(e) : e).toList();
+  }
+
+
 
   bool containsKey(String key) {
     return box.containsKey(key);

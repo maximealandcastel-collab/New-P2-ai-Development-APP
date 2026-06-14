@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:pler_to_pler_app/widgets/custom_container.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
@@ -15,6 +15,7 @@ class FeedAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = ProfileController.to;
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16.w,
@@ -43,13 +44,17 @@ class FeedAppBar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  textAlign: TextAlign.start,
-                  maxline: 1,
-                  textOverflow: TextOverflow.ellipsis,
-                  text: 'Hi Ethen!',
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
+                Obx(
+                  () {
+                    return CustomText(
+                      textAlign: TextAlign.start,
+                      maxline: 1,
+                      textOverflow: TextOverflow.ellipsis,
+                      text: 'Hi ${controller.userData?.firstName}!',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w500,
+                    );
+                  }
                 ),
                 CustomText(
                   top: 2.h,
@@ -70,11 +75,10 @@ class FeedAppBar extends StatelessWidget {
               Get.to(() => NotificationsScreen());
             },
             child: CustomContainer(
-              width: 48.w,
-              height: 48.h,
+              paddingAll: 10.r,
               color: Colors.white,
               shape: BoxShape.circle,
-              child: Assets.icons.notification.svg(),
+              child: Assets.icons.notification.svg(height: 24.h,width: 24.w),
             ),
           ),
         ],

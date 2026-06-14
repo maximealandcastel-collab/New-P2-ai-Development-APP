@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/children/edit_profile_screen.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/exercise_card_widget.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/services_card_widget.dart';
-import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -15,258 +12,157 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ProfileController controller = Get.find<ProfileController>();
-
-    return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 232.h,
-            floating: true,
-            pinned: true,
-            backgroundColor: AppColors.backgroundLight,
-            foregroundColor: Colors.black,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            centerTitle: true,
-            leading: IconButton(
-              icon: Assets.icons.arrowBack.svg(),
-              onPressed: () => Navigator.pop(context),
-            ),
-            title: Obx(() => CustomText(
-                  text: controller.isLoading ? 'Loading...' : 'Profile',
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.backgroundLight,
-                )),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  Get.to(() => SettingsScreen());
-                },
-                icon: Assets.icons.setting.svg(
-                  height: 48.r,
-                  width: 48.r,
+    final controller = ProfileController.to;
+    return SliverScaffold(
+      floating: false,
+      safeArea: false,
+      expandedHeight: 270.h,
+      collapsedTitle: 'Noah Sinclair',
+      appBarForegroundColor: Colors.white,
+      flexibleBackground: CustomContainer(
+        child: Obx(
+           () {
+             final user = controller.userData;
+            return Stack(
+              children: [
+                CustomNetworkImage(
+                  height: 210.h,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  imageUrl: "https://picsum.photos/300",
                 ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: CustomContainer(
-                child: Stack(
-                  children: [
-                    Assets.images.img2.image(
-                      height: 221.h,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
-                    Obx(() => Positioned(
-                          top: 154.h,
-                          left: 16.w,
-                          child: CustomImageAvatar(
-                            image: "https://picsum.photos/300",
-                            showBorder: true,
-                            radius: 54.r,
-                          ),
-                        )),
-                    Positioned(
-                      bottom: 0.h,
-                      right: 16.w,
-                      child: CustomButton(
-                        prefixIcon: Assets.icons.edit.svg(
-                          height: 16.r,
-                          width: 16.r,
-                        ),
-                        fontSize: 14.sp,
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
-                        radius: 12.r,
-                        height: 32.h,
-                        width: 119.w,
-                        onPressed: () {
-                          Get.to(() => EditProfileScreen());
-                        },
-                        label: 'Edit Profile',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          /// ======================>>>  Profile content =========================>>>
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Obx(() => Column(
+                Positioned(
+                  top: 132.h,
+                  left: 16.w,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Show user name from API/cache or fallback
+                      CustomContainer(
+                        shape: BoxShape.circle,
+                        paddingAll: 6.r,
+                        bordersColor: AppColors.primary,
+                        child: CustomNetworkImage(
+                          height: 124.r,
+                          width: 124.r,
+                          boxShape: BoxShape.circle,
+                          imageUrl: "https://picsum.photos/300",
+                        ),
+                      ),
                       CustomText(
-                        text: controller.userName,
+                        top: 6.h,
+                        text: user?.fullName ?? '',
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w700,
                       ),
-
-                      SizedBox(height: 16.h),
-
-                      TwoButtonWidget(
-                        buttons: [
-                          {'label': 'About me', 'value': 'about'},
-                          {'label': 'Exercise plans', 'value': 'exercise'},
-                        ],
-                        selectedValue: controller.selectedButtonValue.value,
-                        onTap: (String value) {
-                          controller.selectedButtonValue.value = value;
-                        },
-                      ),
-
-                      SizedBox(height: 16.h),
-
-                      if (controller.selectedButtonValue.value == 'about') ...[
-                        _buildBioCardWidget(
-                          label: 'Bio',
-                          value: controller.userEmail.isNotEmpty
-                              ? controller.userEmail
-                              : 'Welcome to the CEO\'s Channel ....',
-                        ),
-                        _buildBioCardWidget(
-                          label: 'Specialties',
-                          value: 'Strength, Rehab, Post-Op Recovery',
-                        ),
-                        _buildBioCardWidget(
-                          label: 'Certifications',
-                          value: 'ACE, NASM, PT Licences',
-                        ),
-
-                        CustomButton(
-                          prefixIcon: Assets.icons.edit.svg(
-                            height: 16.r,
-                            width: 16.r,
-                          ),
-                          fontSize: 14.sp,
-                          foregroundColor: Colors.black,
-                          backgroundColor: Colors.white,
-                          radius: 12.r,
-                          height: 32.h,
-                          width: 175.w,
-                          onPressed: () {
-                            /// TODO: Upload certification
-                          },
-                          label: 'Upload certification',
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        _buildBioCardWidget(
-                          label: 'Trainer Experience',
-                          value: '8 years',
-                        ),
-
-                        SizedBox(height: 16.h),
-                        CustomContainer(
-                          radiusAll: 16.r,
-                          width: double.infinity,
-                          color: Colors.white,
-                          paddingAll: 16.r,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                text: 'Availability',
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                bottom: 16.h,
-                              ),
-
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: controller.availabilityDays.map((day) {
-                                  return _buildAvailabilityDay(
-                                    day['day'],
-                                    day['isAvailable'],
-                                  );
-                                }).toList(),
-                              ),
-
-                              SizedBox(height: 16.h),
-                              CustomButton(
-                                bordersColor: Colors.black.withValues(alpha: 0.08),
-                                prefixIcon: Assets.icons.edit.svg(
-                                  height: 20.r,
-                                  width: 20.r,
-                                ),
-                                fontSize: 14.sp,
-                                foregroundColor: Colors.black,
-                                backgroundColor: Colors.white,
-                                radius: 16.r,
-                                onPressed: () {
-                                  /// TODO: Edit availability
-                                },
-                                label: 'Edit Availability',
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Services section
-                        CustomText(
-                          text: 'Services',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          top: 16.h,
-                        ),
-                        ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: 2,
-                          itemBuilder: (context, index) {
-                            return ServicesCardWidget();
-                          },
-                        ),
-                      ],
-
-                      if (controller.selectedButtonValue.value == 'exercise')
-                        ListView.builder(
-                          itemCount: 4,
-                          shrinkWrap: true,
-                          padding: EdgeInsets.zero,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ExerciseCardWidget();
-                          },
-                        ),
-
-                      SizedBox(height: 32.h),
                     ],
-                  )),
-            ),
+                  ),
+                ),
+              ],
+            );
+          }
+        ),
+      ),
+
+      slivers: (context) => [
+        SizedBox(height: 20.h).asSliver,
+        _buildBioCardWidget(
+          fontSize: 12.sp,
+          label: 'Bio',
+          value:
+          'NASM CPT | Functional Strength'
+              ' Coach | Precision Nutrition L1. Specializing in physique'
+              ' maintenance and sustainable training. NASM CPT | Functional '
+              'Strength Coach | Precision Nutrition L1. Specializing in physique '
+              'maintenance and sustainable training',
+        ).asSliver,
+
+        _buildBioCardWidget(
+          label: 'Specialty',
+          value: 'Post-Op Recovery',
+        ).asSliver,
+        _buildBioCardWidget(
+          label: 'Certifications',
+          value: 'ACE, NASM, PT Licences',
+        ).asSliver,
+        _buildBioCardWidget(
+          label: 'Trainer style tags',
+          value: ' PT Licences',
+        ).asSliver,
+
+        CustomContainer(
+          horizontalMargin: 16.h,
+          verticalMargin: 24.h,
+          paddingAll: 20.r,
+          radiusAll: 20.r,
+          width: double.infinity,
+          color: Colors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomText(
+                top: 10.h,
+                bottom: 4.h,
+                text: 'monthly',
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
+              CustomText(
+                bottom: 16.h,
+                text: '\$ 12.99',
+                fontSize: 36.sp,
+                fontWeight: FontWeight.w800,
+              ),
+              Assets.icons.trainerSubIcons.svg(),
+
+              SizedBox(height: 16.h),
+              ...HelperData.trainerGuidance.map((e) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 12.h),
+                  child: Row(
+                    children: [
+                      Icon(Icons.lock_rounded, size: 16.r),
+                      SizedBox(width: 6.w),
+                      CustomText(
+                        text: e,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ).asSliver,
+
+        SizedBox(height: 60.h).asSliver,
+      ],
+    );
+
+
+  }
+
+  Widget _buildBioCardWidget({
+    required String label,
+    required String value,
+    double? fontSize,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(text: label, color: AppColors.textSecondary, bottom: 6.h),
+          CustomText(
+            textAlign: TextAlign.start,
+            text: value,
+            fontSize: fontSize ?? 16.sp,
+            fontWeight: FontWeight.w500,
+            bottom: 10.h,
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBioCardWidget({required String label, required String value}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomText(
-          text: label,
-          color: AppColors.textSecondary,
-          bottom: 6.h,
-        ),
-        CustomText(
-          text: value,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w500,
-          maxline: 1,
-          textOverflow: TextOverflow.ellipsis,
-          bottom: 10.h,
-        ),
-      ],
     );
   }
 

@@ -9,7 +9,7 @@ class AuthService {
   AuthService({required AuthRepository repository}) : _repository = repository;
 
   /// ─── LOGIN ─────────────────────────────
-  Future<UserModel> login({
+  Future<String> login({
     required String email,
     required String password,
   }) async {
@@ -74,5 +74,5 @@ class AuthService {
 
   Future<void> logout() => _repository.logout();
 
-  UserModel? getCachedUser() => _repository.getCachedUser();
+  String? getCachedUser() => _repository.getRole();
 }
