@@ -17,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
       floating: false,
       safeArea: false,
       expandedHeight: 270.h,
-      collapsedTitle: 'Noah Sinclair',
+      collapsedTitle: controller.userData?.fullName ?? '',
       appBarForegroundColor: Colors.white,
       flexibleBackground: CustomContainer(
         child: Obx(
