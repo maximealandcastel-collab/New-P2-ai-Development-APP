@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -33,7 +35,7 @@ class SliverScaffold extends StatefulWidget {
     this.safeArea = true,
     this.expandedHeight,
     this.pinned = true,
-    this.floating = false,
+    this.floating = true,
     this.collapsedTitle,
     this.collapsedTitleColor,
   });
@@ -155,10 +157,10 @@ class _SliverScaffoldState extends State<SliverScaffold> {
     );
 
     return Scaffold(
+      extendBody: true,
       backgroundColor: AppColors.backgroundLight,
       endDrawer: widget.endDrawer,
       floatingActionButton: widget.floatingActionButton,
-      bottomNavigationBar: widget.bottomNavigationBar,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       body: CustomScrollView(
         controller: _scrollController,
@@ -169,15 +171,16 @@ class _SliverScaffoldState extends State<SliverScaffold> {
             ),
         slivers: [
           SliverAppBar(
+            snap: widget.floating,
             backgroundColor:
-                widget.appBarBackgroundColor?.withValues(alpha: 0.7) ??
-                AppColors.backgroundLight.withValues(alpha: 0.7),
+                widget.appBarBackgroundColor?.withValues(alpha: 0.6) ??
+                AppColors.backgroundLight.withValues(alpha: 0.6),
             foregroundColor: widget.appBarForegroundColor ?? Colors.white,
             pinned: widget.pinned,
             floating: widget.floating,
             elevation: 0,
             scrolledUnderElevation: 10,
-            shadowColor: AppColors.backgroundLight.withValues(alpha: 0.2),
+            shadowColor: AppColors.backgroundLight.withValues(alpha: 0.1),
             surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
             toolbarHeight: _toolbarH,
             expandedHeight: _hasFlexible ? _expandedH : null,
@@ -223,8 +226,22 @@ class _SliverScaffoldState extends State<SliverScaffold> {
                 : null,
           ),
           if (widget.slivers != null) ...widget.slivers!(context),
+
+          widget.bottomNavigationBar != null ? SizedBox(height: 120.h).asSliver : SizedBox.shrink(),
         ],
       ),
+      bottomNavigationBar: widget.bottomNavigationBar != null
+          ? Container(
+            color: AppColors.backgroundLight.withValues(alpha: 0.6),
+            padding: EdgeInsets.only(
+              left: 16.w,
+              right: 16.w,
+              top: 10.h,
+              bottom: MediaQuery.of(context).padding.bottom + 10.h,
+            ),
+            child: widget.bottomNavigationBar!,
+          )
+          : null,
     );
   }
 }

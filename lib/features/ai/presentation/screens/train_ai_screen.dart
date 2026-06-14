@@ -25,212 +25,211 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      appBar: CustomAppBar(title: 'Train your personal AI'),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 16.h),
-            CustomTextField(
-              keyboardType: TextInputType.number,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Days per week',
-              hintText: 'eg : 4 days',
-            ),
+    return SliverScaffold(
+      appBarTitle: 'Train your personal AI',
+      slivers: (context) => [
+        Padding(
+          padding:  EdgeInsets.symmetric(horizontal:  16.w),
+          child: Column(
+            children: [
+              SizedBox(height: 16.h),
+              CustomTextField(
+                keyboardType: TextInputType.number,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Days per week',
+                hintText: 'eg : 4 days',
+              ),
 
-            TagAddWidget(
-              labelText: 'Preferred Splits',
-              hintText: 'Write here ...',
-              onTagsChanged: (updatedTags) =>
-                  _preferredTags.addAll(updatedTags),
-            ),
+              TagAddWidget(
+                labelText: 'Preferred Splits',
+                hintText: 'Write here ...',
+                onTagsChanged: (updatedTags) =>
+                    _preferredTags.addAll(updatedTags),
+              ),
 
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.number,
-                    borderColor: Colors.transparent,
-                    labelColor: AppColors.textPrimary,
-                    labelText: 'Raps range',
-                    hintText: 'min : 8',
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.number,
+                      borderColor: Colors.transparent,
+                      labelColor: AppColors.textPrimary,
+                      labelText: 'Raps range',
+                      hintText: 'min : 8',
+                    ),
                   ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.number,
-                    borderColor: Colors.transparent,
-                    labelColor: AppColors.textPrimary,
-                    labelText: '',
-                    hintText: 'max : 20',
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.number,
+                      borderColor: Colors.transparent,
+                      labelColor: AppColors.textPrimary,
+                      labelText: '',
+                      hintText: 'max : 20',
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.number,
-                    borderColor: Colors.transparent,
-                    labelColor: AppColors.textPrimary,
-                    labelText: 'Rest times',
-                    hintText: 'eg : 30 sec',
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.number,
+                      borderColor: Colors.transparent,
+                      labelColor: AppColors.textPrimary,
+                      labelText: 'Rest times',
+                      hintText: 'eg : 30 sec',
+                    ),
                   ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: CustomTextField(
-                    keyboardType: TextInputType.number,
-                    borderColor: Colors.transparent,
-                    labelColor: AppColors.textPrimary,
-                    labelText: '',
-                    hintText: 'eg : 30 sec',
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: CustomTextField(
+                      keyboardType: TextInputType.number,
+                      borderColor: Colors.transparent,
+                      labelColor: AppColors.textPrimary,
+                      labelText: '',
+                      hintText: 'eg : 30 sec',
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            DynamicFieldListWidget(
-              onChanged: (value) => _intensity.addAll(value),
-              title: 'Intensity measure',
-            ),
+              DynamicFieldListWidget(
+                onChanged: (value) => _intensity.addAll(value),
+                title: 'Intensity measure',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.number,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Deload frequency',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.number,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Deload frequency',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Cardio philosophy',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Cardio philosophy',
+                hintText: 'Write here  . . .',
+              ),
 
-            TagAddWidget(
-              labelText: 'Must use exercise',
-              hintText: 'Write here ...',
-              onTagsChanged: (updatedTags) => _exerciseTags.addAll(updatedTags),
-            ),
+              TagAddWidget(
+                labelText: 'Must use exercise',
+                hintText: 'Write here ...',
+                onTagsChanged: (updatedTags) => _exerciseTags.addAll(updatedTags),
+              ),
 
-            TagAddWidget(
-              labelText: 'Avoid exercises',
-              hintText: 'Write here ...',
-              onTagsChanged: (updatedTags) =>
-                  _avoidExercisesTags.addAll(updatedTags),
-            ),
+              TagAddWidget(
+                labelText: 'Avoid exercises',
+                hintText: 'Write here ...',
+                onTagsChanged: (updatedTags) =>
+                    _avoidExercisesTags.addAll(updatedTags),
+              ),
 
-            TagAddWidget(
-              labelText: 'Accessory favorites',
-              hintText: 'Write here ...',
-              onTagsChanged: (updatedTags) =>
-                  _accessoryTags.addAll(updatedTags),
-            ),
+              TagAddWidget(
+                labelText: 'Accessory favorites',
+                hintText: 'Write here ...',
+                onTagsChanged: (updatedTags) =>
+                    _accessoryTags.addAll(updatedTags),
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Protein target',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Protein target',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Hydration rule',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Hydration rule',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Maintenance plate',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Maintenance plate',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Weekend strategy',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Weekend strategy',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Consistency method',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Consistency method',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Motivation drop response',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Motivation drop response',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Plateau protocol',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Plateau protocol',
+                hintText: 'Write here  . . .',
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Deload rules',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Deload rules',
+                hintText: 'Write here  . . .',
+              ),
 
-            TagAddWidget(
-              onTagsChanged: (value) => _naturalPhrases.addAll(value),
-              labelText: 'Natural phrases',
-            ),
+              TagAddWidget(
+                onTagsChanged: (value) => _naturalPhrases.addAll(value),
+                labelText: 'Natural phrases',
+              ),
 
-            TagAddWidget(
-              labelText: 'Never say phrases',
-              hintText: 'Write here ...',
-              onTagsChanged: (updatedTags) =>
-                  _neverSayPhrases.addAll(updatedTags),
-            ),
+              TagAddWidget(
+                labelText: 'Never say phrases',
+                hintText: 'Write here ...',
+                onTagsChanged: (updatedTags) =>
+                    _neverSayPhrases.addAll(updatedTags),
+              ),
 
-            CustomTextField(
-              keyboardType: TextInputType.text,
-              borderColor: Colors.transparent,
-              labelColor: AppColors.textPrimary,
-              labelText: 'Coaching style',
-              hintText: 'Write here  . . .',
-            ),
+              CustomTextField(
+                keyboardType: TextInputType.text,
+                borderColor: Colors.transparent,
+                labelColor: AppColors.textPrimary,
+                labelText: 'Coaching style',
+                hintText: 'Write here  . . .',
+              ),
+            ],
+          ),
+        ).asSliver,
+      ],
 
-            SizedBox(height: 16.h),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.r),
-          child: CustomButton(onPressed: () {
-            Get.offAllNamed(AppRoute.bottonNavBar);
-          }, label: 'Submit'),
-        ),
+      bottomNavigationBar: CustomButton(
+        onPressed: () {
+          Get.offAllNamed(AppRoute.bottonNavBar);
+        },
+        label: 'Submit',
       ),
     );
   }

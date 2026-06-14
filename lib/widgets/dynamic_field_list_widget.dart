@@ -63,6 +63,7 @@ class DynamicFieldListWidget extends StatelessWidget {
           ),
         ],
         Obx(() => ListView.builder(
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: controllers.length,

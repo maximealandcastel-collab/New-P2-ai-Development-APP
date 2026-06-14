@@ -1,10 +1,9 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/onboarding/model/onboarding_item_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -103,7 +102,7 @@ class OnboardingMainScreen extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 log("Skip");
-                Get.offAll(() => LoginScreen());
+                Get.offAllNamed(AppRoute.loginScreen);
               },
               child: CustomText(
                 text: "Skip",

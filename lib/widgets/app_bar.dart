@@ -32,7 +32,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(16.w, MediaQuery.of(context).padding.top, 16.w, 0),
       child: Row(
         children: [
           // Avatar

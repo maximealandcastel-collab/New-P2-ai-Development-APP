@@ -12,12 +12,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
+    return CustomScrollView(
+      slivers: [
+        Column(
           children: [
-            FeedAppBar(),
             SizedBox(height: 24.h),
             CustomContainer(
               radiusAll: 16.r,
@@ -107,10 +105,10 @@ class HomeScreen extends StatelessWidget {
 
             // AiInsightWidget(),
 
-            SizedBox(height: 100.h),
+            SizedBox(height: 140.h),
           ],
-        ),
-      ),
+        ).asSliverWithPadding(horizontal: 16.w)
+      ],
     );
   }
 
