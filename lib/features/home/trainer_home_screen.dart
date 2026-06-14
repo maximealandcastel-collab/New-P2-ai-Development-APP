@@ -3,12 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/home/widgets/ai_insight_widget.dart';
 import 'package:pler_to_pler_app/features/home/widgets/session_card_widget.dart';
-import 'package:pler_to_pler_app/widgets/app_bar.dart';
+import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class TrainerHomeScreen extends StatelessWidget {
+  const TrainerHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +17,10 @@ class HomeScreen extends StatelessWidget {
       slivers: [
         Column(
           children: [
-            SizedBox(height: 24.h),
+            SizedBox(height: 18.h),
             CustomContainer(
               radiusAll: 16.r,
-              paddingAll: 16.r,
+              paddingAll: 14.r,
               width: double.infinity,
               color: Colors.white,
               alignment: Alignment.center,
@@ -33,9 +34,14 @@ class HomeScreen extends StatelessWidget {
                     text: 'Client Overview',
                   ),
 
-                  Wrap(
-                    spacing: 16.w,
-                    runSpacing: 16.h,
+                  GridView.count(
+                    padding: EdgeInsets.zero,
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.w,
+                    mainAxisSpacing: 10.h,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 151.w / 112.h,
                     children: [
                       _buildClientOverviewCard(
                         icon: Assets.icons.clients.path,
@@ -58,8 +64,7 @@ class HomeScreen extends StatelessWidget {
                         point: '4',
                       ),
                     ],
-                  ),
-                ],
+                  ),                ],
               ),
             ),
 
@@ -90,6 +95,7 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   ListView.builder(
+                    padding: EdgeInsets.zero,
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: 2,
@@ -103,7 +109,7 @@ class HomeScreen extends StatelessWidget {
 
             SizedBox(height: 8.h),
 
-            // AiInsightWidget(),
+             AiInsightWidget(),
 
             SizedBox(height: 140.h),
           ],
@@ -119,12 +125,11 @@ class HomeScreen extends StatelessWidget {
   }) {
     return CustomContainer(
       radiusAll: 12.r,
-      paddingAll: 12.r,
+      paddingAll: 10.r,
       alignment: Alignment.centerLeft,
       color: Colors.black.withOpacity(0.08),
-      height: 112.h,
-      width: 151.w,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

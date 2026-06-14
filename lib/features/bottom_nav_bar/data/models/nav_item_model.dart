@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/home/home_screen.dart';
+import 'package:pler_to_pler_app/features/home/trainer_home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/contents_screen.dart';
@@ -25,7 +25,7 @@ class NavItemModel {
     NavItemModel(
       label: 'Home',
       icon: Assets.icons.home.path,
-      screen: const HomeScreen(),
+      screen: const TrainerHomeScreen(),
     ),
     NavItemModel(
       label: 'Clients',
@@ -40,7 +40,7 @@ class NavItemModel {
     NavItemModel(
       label: 'Schedules',
       icon: Assets.icons.request.path,
-      screen: const ScheduleScreen(),
+      screen: const ContentsScreen(),
     ),
   ];
 

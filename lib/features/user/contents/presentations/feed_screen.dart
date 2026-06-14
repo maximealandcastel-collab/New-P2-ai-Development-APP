@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/contents/data/models.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
-import 'package:pler_to_pler_app/widgets/app_bar.dart';
+import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 
 
 
