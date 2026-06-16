@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/features/settings/children/account_details_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
@@ -113,9 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.logout,
                       title: 'You really want to logout',
                       confirmLabel: 'Logout',
-                      onConfirm: () {
-                        Get.back();
-                      },
+                      onConfirm: LoginController.to.logout,
                     ),
                   );
                 }, // Triggering the UI dialog

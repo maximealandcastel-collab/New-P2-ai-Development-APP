@@ -25,10 +25,7 @@ class LoginController extends GetxController {
   final emailController = TextEditingController(text: kDebugMode ? 'gabriel@trainer.com' : '');
   final passwordController = TextEditingController(text: kDebugMode ? 'Password123!' : '');
 
-  void changeRole(String role) {
-    _selectedRole.value = role;
-    debugPrint('Selected role: $role');
-  }
+
 
   Future<void> login() async {
     if (!loginFormKey.currentState!.validate()) return;
@@ -48,7 +45,7 @@ class LoginController extends GetxController {
   }
 
   bool isTrainer() {
-    final role = _authService.getCachedUser();
+    final role = _authService.getRole();
     if (role != null) {
       return role == 'trainer';
     }
@@ -57,11 +54,20 @@ class LoginController extends GetxController {
 
   /// ─── LOGOUT ────────────────────────────
   Future<void> logout() async {
+    Get.back();
     await _authService.logout();
     Get.offAllNamed(AppRoute.loginScreen);
   }
 
   /// ─── IS LOGGED IN ──────────────────────
   bool isLoggedIn() => _authService.isLoggedIn();
+
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
 }

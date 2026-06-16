@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
 
 class ResetPassController extends GetxController {
   final AuthService _authService;
@@ -27,12 +29,21 @@ class ResetPassController extends GetxController {
     _resetState.value = LoadingState.loading;
 
     try {
-      final result = await _authService.resetPassword(
-      newPassword: confirmPasswordController.text,
+      await _authService.resetPassword(
+        email: ForgetController.to.emailController.text.trim(),
+        newPassword: confirmPasswordController.text,
       );
       _resetState.value = LoadingState.loaded;
+      Get.offAllNamed(AppRoute.loginScreen);
     } catch (e) {
       _resetState.value = LoadingState.error;
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    confirmPasswordController.dispose();
+    ForgetController.to.emailController.dispose();
   }
 }

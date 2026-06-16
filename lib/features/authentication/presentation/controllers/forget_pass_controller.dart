@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import '../../domain/services/auth_services.dart';
 
@@ -26,17 +28,17 @@ class ForgetController extends GetxController {
     try {
       _forgotState.value = LoadingState.loading;
 
-      final result = await _authService.forgotPassword(
+      await _authService.forgotPassword(
         emailController.text.trim(),
       );
       _forgotState.value = LoadingState.loaded;
+      Get.toNamed(AppRoute.otpVerificationScreen,arguments: 'forgot');
     } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
       _forgotState.value = LoadingState.error;
     }
   }
 
-
-  // ??? Timer (OTP Resend) ????????????????????????????
   Timer? _resendTimer;
   final _resendSeconds = 0.obs;
 

@@ -1,4 +1,4 @@
-
+import 'dart:math';
 
 import 'package:pler_to_pler_app/features/authentication/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_repository.dart';
@@ -20,21 +20,25 @@ class AuthService {
 
   /// ─── REGISTER ──────────────────────────
   Future<String> register({
-    required String name,
+    required String firstName,
+    required String lastName,
     required String email,
     required String gender,
-    required String confirmPassword,
+    required String role,
+    required String password,
   }) async {
     return await _repository.register(
-      name: name,
+      firstName: firstName,
+      lastName: lastName,
       email: email,
-      phone: gender,
-      password: confirmPassword,
+      gender: gender,
+      role: role,
+      password: password,
     );
   }
 
   /// ─── FORGOT PASSWORD ───────────────────
-  Future<void> forgotPassword(String email) async {
+  Future<String> forgotPassword(String email) async {
     return await _repository.forgotPassword(email: email);
   }
 
@@ -49,12 +53,8 @@ class AuthService {
   }
 
   /// ─── OTP VERIFY ───────────────────
-  Future<void> resetPassword({
-    required String newPassword,
-  }) async {
-    return await _repository.resetPassword(
-      newPassword: newPassword,
-    );
+  Future<void> resetPassword({required String newPassword,required String email}) async {
+    return await _repository.resetPassword(newPassword: newPassword,email: email);
   }
 
   Future<void> changePassword({
@@ -74,5 +74,5 @@ class AuthService {
 
   Future<void> logout() => _repository.logout();
 
-  String? getCachedUser() => _repository.getRole();
+  String? getRole() => _repository.getRole();
 }

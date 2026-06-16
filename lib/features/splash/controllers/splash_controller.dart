@@ -41,19 +41,19 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     // 1. First Image
     currentImageIndex.value = 0;
     await animationController.forward();
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 200));
 
     // 2. Second Image
     await animationController.reverse(); // Smooth transition out
     currentImageIndex.value = 1;
     await animationController.forward(); // Smooth transition in
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 200));
 
     // 3. Third Image
     await animationController.reverse();
     currentImageIndex.value = 2;
     await animationController.forward();
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if(LoginController.to.isLoggedIn()){
       Get.offAllNamed(AppRoute.bottonNavBar);

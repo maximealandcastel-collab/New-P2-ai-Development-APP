@@ -21,6 +21,17 @@ class OtpController extends GetxController {
   final otpFormKey = GlobalKey<FormState>();
   final otpController = TextEditingController();
 
+
+  bool isTrainer() {
+    final role = _authService.getRole();
+    if (role != null) {
+      return role == 'trainer';
+    }
+    return false;
+  }
+
+
+
   Future<bool> otpVerify() async {
     if (!otpFormKey.currentState!.validate()) return false;
 
@@ -34,5 +45,11 @@ class OtpController extends GetxController {
       ToastMessageHelper.show(e.errorMessage);
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    otpController.dispose();
+    super.dispose();
   }
 }

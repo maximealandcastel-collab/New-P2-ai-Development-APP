@@ -18,21 +18,23 @@ class AuthRepository {
   // ─── Register ────────────────────────────
 
   Future<String> register({
-    required String name,
+    required String firstName,
+    required String lastName,
     required String email,
-    required String phone,
+    required String gender,
+    required String role,
     required String password,
   }) async {
     try {
       final response = await _apiService.post(
         ApiConstants.register,
         data: {
-          'firstName': name,
-          'lastName': name,
+          'firstName': firstName,
+          'lastName': lastName,
           'email': email,
           'password': password,
-          'gender': phone,
-          'role': phone,
+          'gender': gender,
+          'role': role,
         },
       );
 
@@ -65,7 +67,7 @@ class AuthRepository {
       final userRole = responseData?['user']?['role']?.toString();
 
       if (accessToken == null) {
-        throw  UnknownException('Access token not found');
+        throw UnknownException('Access token not found');
       }
 
       await Future.wait([
@@ -84,9 +86,15 @@ class AuthRepository {
 
   // ─── Forgot Password ─────────────────────
 
-  Future<void> forgotPassword({required String email}) async {
+  Future<String> forgotPassword({required String email}) async {
     try {
-      await _apiService.post(ApiConstants.forgot, data: {'email': email});
+      final response = await _apiService.post(ApiConstants.forgot, data: {'email': email});
+
+      final token = response.data?['data']['token'];
+
+      await _cacheService.put(AppConstants.otpToken, token);
+
+      return token;
     } on AppException {
       rethrow;
     } catch (e) {
@@ -106,22 +114,19 @@ class AuthRepository {
       );
 
       final responseData = response.data?['data'];
-      final accessToken = responseData?['token'];
-      final userRole = responseData?['user']['role'];
+      final accessToken = responseData?['token']?.toString();
+      final userRole = responseData?['role']?.toString();
 
-      if (accessToken != null) {
-        await _cacheService.put(
-          AppConstants.accessToken,
-          accessToken.toString(),
-        );
+      if (accessToken == null) {
+        throw UnknownException('Access token not found');
       }
 
-      if (userRole != null) {
-        await _cacheService.put(
-          AppConstants.cacheUserRole,
-          userRole.toString(),
-        );
-      }
+      await Future.wait([
+        _cacheService.put(AppConstants.accessToken, accessToken),
+        if (userRole != null)
+          _cacheService.put(AppConstants.cacheUserRole, userRole),
+      ]);
+
       return true;
     } on AppException {
       rethrow;
@@ -148,11 +153,14 @@ class AuthRepository {
 
   // ─── Reset Password ──────────────────────
 
-  Future<void> resetPassword({required String newPassword}) async {
+  Future<void> resetPassword({required String newPassword,required String email}) async {
     try {
       await _apiService.post(
         ApiConstants.resetPassword,
-        data: {'newPassword': newPassword},
+        data: {
+          "email": email,
+          "password": newPassword
+        },
       );
     } on AppException {
       rethrow;

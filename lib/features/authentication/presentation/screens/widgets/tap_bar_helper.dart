@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TapBarHelper extends StatelessWidget {
@@ -12,7 +12,7 @@ class TapBarHelper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = LoginController.to;
+    final controller = SignUpController.to;
     return Obx(
           () => GestureDetector(
         onTap: () => controller.changeRole(text),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
@@ -86,9 +87,13 @@ class OtpVerificationScreen extends StatelessWidget {
     final success = await OtpController.to.otpVerify();
     if (success) {
       if((Get.arguments ?? '') == 'signup') {
-        //Get.offNamed(AppRoute.completeProfileFirstScreen);
+        if(OtpController.to.isTrainer()){
+          Get.toNamed(AppRoute.trainerCompleteProfileScreen);
+        }else{
+          Get.toNamed(AppRoute.userCompleteProfileScreen);
+        }
       } else {
-        //Get.offNamed(AppRoute.resetPasswordScreen);
+        Get.offNamed(AppRoute.resetPasswordScreen);
       }
     }
   }

@@ -104,6 +104,15 @@ class SignUpScreen extends StatelessWidget {
                 hintText: "Confirm your password",
                 prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
                 isPassword: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != controller.passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 24.h),
               Obx(() {
