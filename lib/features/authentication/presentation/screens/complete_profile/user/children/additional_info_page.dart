@@ -1,33 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
-import 'package:pler_to_pler_app/core/helpers/time_format.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class AdditionalInfoPage extends StatefulWidget {
+class AdditionalInfoPage extends StatelessWidget {
   const AdditionalInfoPage({super.key});
 
   @override
-  State<AdditionalInfoPage> createState() => _AdditionalInfoPageState();
-}
-
-class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
-  final TextEditingController primaryGoalController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  DateTime selectedDate = DateTime.now();
-
-  @override
-  void dispose() {
-    primaryGoalController.dispose();
-    dateController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = ProfileCompleteController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -40,6 +23,13 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
         CustomTextField(
           labelText: 'Preferred name',
           hintText: 'Eg : john',
+          controller: controller.preferredNameController,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter your preferred name';
+            }
+            return null;
+          },
         ),
         GestureDetector(
           onTapDown: (details) {
@@ -49,7 +39,9 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
               options: MenuShowHelper.motivationStyleOptions,
             );
             menu.then((value) {
-              if (value != null) primaryGoalController.text = value;
+              if (value != null) {
+                controller.motivationStyleController.text = value;
+              }
             });
           },
           child: AbsorbPointer(
@@ -57,7 +49,13 @@ class _AdditionalInfoPageState extends State<AdditionalInfoPage> {
               suffixIcon: Icon(Icons.arrow_drop_down_outlined),
               labelText: 'Motivation style',
               hintText: 'Select motivation',
-              controller: primaryGoalController,
+              controller: controller.motivationStyleController,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please select your motivation style';
+                }
+                return null;
+              },
             ),
           ),
         ),

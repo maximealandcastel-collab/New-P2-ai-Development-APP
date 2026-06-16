@@ -4,6 +4,8 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
+import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
 
 class AuthRepository {
   final ApiService _apiService;
@@ -189,6 +191,37 @@ class AuthRepository {
           accessToken.toString(),
         );
       }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+
+
+  // ─── Trainer Profile  ────────────────────────────
+  Future<void> registerTrainer(TrainerProfileModel data) async {
+    try {
+      await _apiService.post(
+        ApiConstants.trainerProfile,
+        data: data.toJson(),
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+
+  // ─── User Profile  ────────────────────────────
+  Future<void> registerUser(UserProfileModel data) async {
+    try {
+      await _apiService.post(
+        ApiConstants.userOnboarding,
+        data: data.toJson(),
+      );
     } on AppException {
       rethrow;
     } catch (e) {

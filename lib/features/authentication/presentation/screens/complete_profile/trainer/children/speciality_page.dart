@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class SpecialityPage extends StatefulWidget {
+class SpecialityPage extends StatelessWidget {
   const SpecialityPage({super.key});
 
   @override
-  State<SpecialityPage> createState() => _SpecialityPageState();
-}
-
-class _SpecialityPageState extends State<SpecialityPage> {
-
-  final TextEditingController specialityController = TextEditingController();
-  @override
   Widget build(BuildContext context) {
+    final controller = ProfileCompleteController.to;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -24,9 +19,15 @@ class _SpecialityPageState extends State<SpecialityPage> {
         ),
         SizedBox(height: 16.h),
         CustomTextField(
-          hintText: 'Write here', controller: specialityController,
+          hintText: 'e.g. Maintain physique',
+          controller: controller.specialityController,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter your speciality';
+            }
+            return null;
+          },
         ),
-
       ],
     );
   }

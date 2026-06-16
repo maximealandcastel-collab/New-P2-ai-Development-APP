@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
+import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
+import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+
+class ProfileCompleteController extends GetxController {
+  final AuthService _authService;
+
+  static ProfileCompleteController get to => Get.find();
+
+  ProfileCompleteController({required AuthService authService})
+    : _authService = authService;
+
+  // ─── State ───────────────────────────────
+
+  final _trainerState = LoadingState.initial.obs;
+  final _userState = LoadingState.initial.obs;
+
+  LoadingState get trainerState => _trainerState.value;
+
+  LoadingState get userState => _userState.value;
+
+  // ─── Trainer fields ───────────────────────
+  final usernameController = TextEditingController();
+  final bioController = TextEditingController();
+  final specialityController = TextEditingController();
+  final premiumPriceController = TextEditingController();
+  List<String> _certifications = [];
+  List<String> _trainingStyleTags = [];
+
+  // ─── User fields ───────────────────────
+  final primaryGoalController = TextEditingController();
+  final dateOfBirthController = TextEditingController();
+  final heightController = TextEditingController();
+  final weightController = TextEditingController();
+  final fitnessLevelController = TextEditingController();
+  final equipmentController = TextEditingController();
+  final trainingDaysController = TextEditingController();
+  final preferredNameController = TextEditingController();
+  final motivationStyleController = TextEditingController();
+  List<String> _injuries = [];
+  DateTime selectedDateOfBirth = DateTime(1995, 6, 15);
+
+  void setCertifications(List<String> values) =>
+      _certifications = values.where((e) => e.trim().isNotEmpty).toList();
+
+  void setTrainingStyleTags(List<String> values) => _trainingStyleTags = values;
+
+  void setInjuries(List<String> values) =>
+      _injuries = values.where((e) => e.trim().isNotEmpty).toList();
+
+  bool validateTrainerStep(int step) {
+    switch (step) {
+      case 0:
+        if (usernameController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your username');
+          return false;
+        }
+        if (bioController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your bio description');
+          return false;
+        }
+        return true;
+      case 1:
+        if (_certifications.isEmpty) {
+          ToastMessageHelper.show('Please add at least one certification');
+          return false;
+        }
+        return true;
+      case 2:
+        if (specialityController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your speciality');
+          return false;
+        }
+        return true;
+      case 3:
+        if (_trainingStyleTags.isEmpty) {
+          ToastMessageHelper.show('Please add at least one trainer tag');
+          return false;
+        }
+        return true;
+      case 4:
+        final premiumPrice = int.tryParse(premiumPriceController.text.trim());
+        if (premiumPrice == null || premiumPrice <= 0) {
+          ToastMessageHelper.show('Please enter a valid subscription price');
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  }
+
+  bool validateUserStep(int step) {
+    switch (step) {
+      case 0:
+        if (primaryGoalController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your primary goal');
+          return false;
+        }
+        if (dateOfBirthController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your date of birth');
+          return false;
+        }
+        return true;
+      case 1:
+        if (heightController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your height');
+          return false;
+        }
+        if (weightController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your weight');
+          return false;
+        }
+        if (fitnessLevelController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your fitness level');
+          return false;
+        }
+        return true;
+      case 2:
+        if (equipmentController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your available equipment');
+          return false;
+        }
+        if (trainingDaysController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your weekly training days');
+          return false;
+        }
+        return true;
+      case 3:
+        if (preferredNameController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please enter your preferred name');
+          return false;
+        }
+        if (motivationStyleController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select your motivation style');
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  }
+
+  int? _parseHeight(String value) {
+    final cmMatch = RegExp(r'\((\d+)\s*cm\)').firstMatch(value.trim());
+    if (cmMatch != null) {
+      return int.tryParse(cmMatch.group(1)!);
+    }
+    return int.tryParse(value.trim());
+  }
+
+  int? _parseWeight(String value) {
+    final match = RegExp(r'(\d+)').firstMatch(value.trim());
+    return match != null ? int.tryParse(match.group(1)!) : null;
+  }
+
+  final trainerFormKey = GlobalKey<FormState>();
+  final userFormKey = GlobalKey<FormState>();
+
+  Future<void> registerTrainer() async {
+    try {
+      _trainerState.value = LoadingState.loading;
+      await _authService.registerTrainer(
+        TrainerProfileModel(
+          name: usernameController.text.trim(),
+          bio: bioController.text.trim(),
+          certifications: _certifications,
+          specialty: specialityController.text.trim(),
+          trainingStyleTags: _trainingStyleTags,
+          subscriptionPrice: SubscriptionPrice(
+            premium: int.parse(premiumPriceController.text.trim()),
+          ),
+        ),
+      );
+      _trainerState.value = LoadingState.loaded;
+      Get.offAllNamed(AppRoute.bottonNavBar);
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      _trainerState.value = LoadingState.error;
+    }
+  }
+
+  Future<void> registerUser() async {
+    _userState.value = LoadingState.loading;
+
+    try {
+      await _authService.registerUser(
+        UserProfileModel(
+          primaryGoal: primaryGoalController.text.trim(),
+          dateOfBirth: selectedDateOfBirth.toIso8601String().split('T').first,
+          height: _parseHeight(heightController.text),
+          weight: _parseWeight(weightController.text),
+          fitnessLevel: fitnessLevelController.text.trim(),
+          availableEquipment: equipmentController.text.trim(),
+          trainingDaysPerWeek: int.tryParse(trainingDaysController.text.trim()),
+          injuries: _injuries,
+          preferredName: preferredNameController.text.trim(),
+          motivationStyle: motivationStyleController.text.trim(),
+        ),
+      );
+      _userState.value = LoadingState.loaded;
+      Get.offAllNamed(AppRoute.aiInstructionScreen);
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      _userState.value = LoadingState.error;
+    }
+  }
+
+  bool isTrainer() {
+    final role = _authService.getRole();
+    if (role != null) {
+      return role == 'trainer';
+    }
+    return false;
+  }
+
+  @override
+  void onClose() {
+    usernameController.dispose();
+    bioController.dispose();
+    specialityController.dispose();
+    premiumPriceController.dispose();
+    primaryGoalController.dispose();
+    dateOfBirthController.dispose();
+    heightController.dispose();
+    weightController.dispose();
+    fitnessLevelController.dispose();
+    equipmentController.dispose();
+    trainingDaysController.dispose();
+    preferredNameController.dispose();
+    motivationStyleController.dispose();
+    super.onClose();
+  }
+}

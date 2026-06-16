@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/dynamic_field_list_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class GymInfoPage extends StatefulWidget {
+class GymInfoPage extends StatelessWidget {
   const GymInfoPage({super.key});
 
   @override
-  State<GymInfoPage> createState() => _GymInfoPageState();
-}
-
-class _GymInfoPageState extends State<GymInfoPage> {
-
-  final List<String> _injuries = [];
-
-  @override
   Widget build(BuildContext context) {
+    final controller = ProfileCompleteController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,18 +26,36 @@ class _GymInfoPageState extends State<GymInfoPage> {
         SizedBox(height: 16.h),
         CustomTextField(
           labelText: 'Available equipment',
-          hintText: 'Eg : 5 feet 10 inch',
+          hintText: 'Eg : Dumbbells, bench press',
+          controller: controller.equipmentController,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter your available equipment';
+            }
+            return null;
+          },
         ),
-
         CustomTextField(
           labelText: 'Weekly training days',
-          hintText: 'Eg : 64 kg',
+          hintText: 'Eg : 4',
+          keyboardType: TextInputType.number,
+          controller: controller.trainingDaysController,
+          inputFormatter: [FilteringTextInputFormatter.digitsOnly],
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter your weekly training days';
+            }
+            final days = int.tryParse(value.trim());
+            if (days == null || days <= 0 || days > 7) {
+              return 'Please enter a valid number of days (1-7)';
+            }
+            return null;
+          },
         ),
-
         DynamicFieldListWidget(
           title: 'Injuries',
-          onChanged: (value) => _injuries.addAll(value),
-        )
+          onChanged: controller.setInjuries,
+        ),
       ],
     );
   }

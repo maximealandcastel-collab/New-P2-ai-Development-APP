@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/additional_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/gym_info_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/physical_info_page.dart';
@@ -49,24 +51,47 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
     );
   }
 
+  void _onNextPressed(ProfileCompleteController controller) {
+    final formValid =
+        controller.userFormKey.currentState?.validate() ?? false;
+    final stepValid = controller.validateUserStep(currentIndex);
+
+    if (!formValid || !stepValid) return;
+
+    if (currentIndex < pages.length - 1) {
+      _navigateToPage(currentIndex + 1);
+      return;
+    }
+
+    for (var step = 0; step < pages.length; step++) {
+      if (!controller.validateUserStep(step)) {
+        _navigateToPage(step);
+        return;
+      }
+    }
+
+    controller.registerUser();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        backAction: () {
-          if (currentIndex > 0) {
-            _navigateToPage(currentIndex - 1);
-          } else {
-            Navigator.pop(context);
-          }
-        },
+        leading: currentIndex > 0 ?  IconButton(
+          icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
+          onPressed: (){
+            if (currentIndex > 0) {
+              _navigateToPage(currentIndex - 1);
+            }
+          },
+        ) : null,
         titleWidget: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             pages.length,
             (index) => Expanded(
               child: CustomContainer(
-                marginLeft: 4.w,
+                marginLeft: (index == 0 && currentIndex == 0) ? 16.w : 4.w,
                 height: 6.h,
                 color: currentIndex == index
                     ? AppColors.textPrimary
@@ -78,46 +103,47 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
         ),
         actions: [SizedBox(width: 24.w)],
       ),
-      body: PageView.builder(
-        controller: pageController,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: pages.length,
-        itemBuilder: (context, index) {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 24.h),
-                  AppLogoWidget(
-                    subtitle: 'Let\'s start with building your profile',
-                  ),
-                  SizedBox(height: 32.h),
-                  pages[index],
-                ],
+      body: Form(
+        key: ProfileCompleteController.to.userFormKey,
+        child: PageView.builder(
+          controller: pageController,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: pages.length,
+          itemBuilder: (context, index) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  children: [
+                    SizedBox(height: 24.h),
+                    AppLogoWidget(
+                      subtitle: 'Let\'s start with building your profile',
+                    ),
+                    SizedBox(height: 32.h),
+                    pages[index],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-        onPageChanged: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
+            );
+          },
+          onPageChanged: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.w),
-          child: CustomButton(
-            onPressed: () {
-              if (currentIndex < pages.length - 1) {
-                _navigateToPage(currentIndex + 1);
-              } else {
-                Get.offAllNamed(AppRoute.subscribeSelectScreen);
-              }
-            },
-            label: currentIndex == pages.length - 1 ? 'Submit' : 'Next',
-          ),
+          child: Obx(() {
+            final controller = ProfileCompleteController.to;
+            return CustomButton(
+              onPressed: () => _onNextPressed(controller),
+              isLoading: controller.userState.isLoading,
+              label: currentIndex == pages.length - 1 ? 'Submit' : 'Next',
+            );
+          }),
         ),
       ),
     );

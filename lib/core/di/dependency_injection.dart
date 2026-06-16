@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -109,6 +110,13 @@ class DependencyInjection {
       () => ProfileController(
         service: Get.find<ProfileService>(),
         connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut<ProfileCompleteController>(
+      () => ProfileCompleteController(
+        authService: Get.find<AuthService>(),
       ),
       fenix: true,
     );

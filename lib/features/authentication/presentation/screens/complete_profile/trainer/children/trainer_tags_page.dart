@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TrainerTagsPage extends StatefulWidget {
+class TrainerTagsPage extends StatelessWidget {
   const TrainerTagsPage({super.key});
 
   @override
-  State<TrainerTagsPage> createState() => _TrainerTagsPageState();
-}
-
-class _TrainerTagsPageState extends State<TrainerTagsPage> {
-  final List<String> _tags = [];
-
-  @override
   Widget build(BuildContext context) {
+    final controller = ProfileCompleteController.to;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +26,7 @@ class _TrainerTagsPageState extends State<TrainerTagsPage> {
           labelText: '',
           maxTags: 5,
           hintText: 'Write here ...',
-          onTagsChanged: (updatedTags) => _tags.addAll(updatedTags),
+          onTagsChanged: controller.setTrainingStyleTags,
         ),
       ],
     );

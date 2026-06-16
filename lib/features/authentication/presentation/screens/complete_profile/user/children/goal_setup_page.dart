@@ -5,29 +5,16 @@ import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class GoalSetupPage extends StatefulWidget {
+class GoalSetupPage extends StatelessWidget {
   const GoalSetupPage({super.key});
 
   @override
-  State<GoalSetupPage> createState() => _GoalSetupPageState();
-}
-
-class _GoalSetupPageState extends State<GoalSetupPage> {
-  final TextEditingController primaryGoalController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  DateTime selectedDate = DateTime.now();
-
-  @override
-  void dispose() {
-    primaryGoalController.dispose();
-    dateController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = ProfileCompleteController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -45,7 +32,9 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               options: MenuShowHelper.goalOptions,
             );
             menu.then((value) {
-              if (value != null) primaryGoalController.text = value;
+              if (value != null) {
+                controller.primaryGoalController.text = value;
+              }
             });
           },
           child: AbsorbPointer(
@@ -53,13 +42,19 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               suffixIcon: Icon(Icons.arrow_drop_down_outlined),
               labelText: 'Primary goal',
               hintText: 'Select primary goal',
-              controller: primaryGoalController,
+              controller: controller.primaryGoalController,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please select your primary goal';
+                }
+                return null;
+              },
             ),
           ),
         ),
         GestureDetector(
           onTap: () {
-            DateTime tempDate = selectedDate;
+            DateTime tempDate = controller.selectedDateOfBirth;
             DialogShowHelper.showBottomSheet(
               context,
               title: 'Date of birth',
@@ -80,7 +75,7 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
                     onDateTimeChanged: (DateTime newDate) {
                       tempDate = newDate;
                     },
-                    initialDateTime: selectedDate,
+                    initialDateTime: controller.selectedDateOfBirth,
                     mode: CupertinoDatePickerMode.date,
                     minimumYear: 1900,
                     maximumYear: DateTime.now().year,
@@ -89,12 +84,9 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
                 ),
               ),
               onTapConfirm: () {
-                setState(() {
-                  selectedDate = tempDate;
-                  dateController.text = TimeFormatHelper.formatDate(
-                    selectedDate,
-                  );
-                });
+                controller.selectedDateOfBirth = tempDate;
+                controller.dateOfBirthController.text =
+                    TimeFormatHelper.formatDate(tempDate);
               },
             );
           },
@@ -106,7 +98,13 @@ class _GoalSetupPageState extends State<GoalSetupPage> {
               ),
               labelText: 'Date of birth',
               hintText: 'Select date of birth',
-              controller: dateController,
+              controller: controller.dateOfBirthController,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please select your date of birth';
+                }
+                return null;
+              },
             ),
           ),
         ),
