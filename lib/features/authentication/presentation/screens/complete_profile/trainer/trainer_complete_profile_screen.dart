@@ -55,22 +55,36 @@ class _TrainerCompleteProfileScreenState
     );
   }
 
+  void _validateFormAfterNavigation(ProfileCompleteController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.trainerFormKey.currentState?.validate();
+    });
+  }
+
   void _onNextPressed(ProfileCompleteController controller) {
     final formValid =
         controller.trainerFormKey.currentState?.validate() ?? false;
-    final stepValid = controller.validateTrainerStep(currentIndex);
+    if (!formValid) return;
 
-    if (!formValid || !stepValid) return;
+    if (!controller.validateTrainerStep(currentIndex)) return;
+
     if (currentIndex < pages.length - 1) {
       _navigateToPage(currentIndex + 1);
       return;
     }
+
     for (var step = 0; step < pages.length; step++) {
       if (!controller.validateTrainerStep(step)) {
         _navigateToPage(step);
         return;
       }
+      if (!controller.isTrainerTextStepValid(step)) {
+        _navigateToPage(step);
+        _validateFormAfterNavigation(controller);
+        return;
+      }
     }
+
     controller.registerTrainer();
   }
 

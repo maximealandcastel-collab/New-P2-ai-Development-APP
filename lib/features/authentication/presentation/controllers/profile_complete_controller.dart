@@ -56,25 +56,9 @@ class ProfileCompleteController extends GetxController {
 
   bool validateTrainerStep(int step) {
     switch (step) {
-      case 0:
-        if (usernameController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your username');
-          return false;
-        }
-        if (bioController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your bio description');
-          return false;
-        }
-        return true;
       case 1:
         if (_certifications.isEmpty) {
           ToastMessageHelper.show('Please add at least one certification');
-          return false;
-        }
-        return true;
-      case 2:
-        if (specialityController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your speciality');
           return false;
         }
         return true;
@@ -84,64 +68,44 @@ class ProfileCompleteController extends GetxController {
           return false;
         }
         return true;
-      case 4:
-        final premiumPrice = int.tryParse(premiumPriceController.text.trim());
-        if (premiumPrice == null || premiumPrice <= 0) {
-          ToastMessageHelper.show('Please enter a valid subscription price');
-          return false;
-        }
-        return true;
       default:
         return true;
     }
   }
 
-  bool validateUserStep(int step) {
+  bool isTrainerTextStepValid(int step) {
     switch (step) {
       case 0:
-        if (primaryGoalController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your primary goal');
-          return false;
-        }
-        if (dateOfBirthController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your date of birth');
-          return false;
-        }
-        return true;
-      case 1:
-        if (heightController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your height');
-          return false;
-        }
-        if (weightController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your weight');
-          return false;
-        }
-        if (fitnessLevelController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your fitness level');
-          return false;
-        }
-        return true;
+        return usernameController.text.trim().isNotEmpty &&
+            bioController.text.trim().isNotEmpty;
       case 2:
-        if (equipmentController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your available equipment');
-          return false;
-        }
-        if (trainingDaysController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your weekly training days');
-          return false;
-        }
+        return specialityController.text.trim().isNotEmpty;
+      case 4:
+        final premiumPrice = int.tryParse(premiumPriceController.text.trim());
+        return premiumPrice != null && premiumPrice > 0;
+      default:
         return true;
+    }
+  }
+
+  bool isUserTextStepValid(int step) {
+    switch (step) {
+      case 0:
+        return primaryGoalController.text.trim().isNotEmpty &&
+            dateOfBirthController.text.trim().isNotEmpty;
+      case 1:
+        return heightController.text.trim().isNotEmpty &&
+            weightController.text.trim().isNotEmpty &&
+            fitnessLevelController.text.trim().isNotEmpty;
+      case 2:
+        final days = int.tryParse(trainingDaysController.text.trim());
+        return equipmentController.text.trim().isNotEmpty &&
+            days != null &&
+            days > 0 &&
+            days <= 7;
       case 3:
-        if (preferredNameController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please enter your preferred name');
-          return false;
-        }
-        if (motivationStyleController.text.trim().isEmpty) {
-          ToastMessageHelper.show('Please select your motivation style');
-          return false;
-        }
-        return true;
+        return preferredNameController.text.trim().isNotEmpty &&
+            motivationStyleController.text.trim().isNotEmpty;
       default:
         return true;
     }

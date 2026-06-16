@@ -58,7 +58,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     if(LoginController.to.isLoggedIn()){
       Get.offAllNamed(AppRoute.bottonNavBar);
     }else{
-      Get.offAllNamed(AppRoute.trainerCompleteProfileScreen);
+      Get.offAllNamed(AppRoute.onboardingMainScreen);
     }
   }
 

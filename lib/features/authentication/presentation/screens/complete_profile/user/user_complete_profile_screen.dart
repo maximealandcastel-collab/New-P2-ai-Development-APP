@@ -51,12 +51,16 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
     );
   }
 
+  void _validateFormAfterNavigation(ProfileCompleteController controller) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.userFormKey.currentState?.validate();
+    });
+  }
+
   void _onNextPressed(ProfileCompleteController controller) {
     final formValid =
         controller.userFormKey.currentState?.validate() ?? false;
-    final stepValid = controller.validateUserStep(currentIndex);
-
-    if (!formValid || !stepValid) return;
+    if (!formValid) return;
 
     if (currentIndex < pages.length - 1) {
       _navigateToPage(currentIndex + 1);
@@ -64,8 +68,9 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
     }
 
     for (var step = 0; step < pages.length; step++) {
-      if (!controller.validateUserStep(step)) {
+      if (!controller.isUserTextStepValid(step)) {
         _navigateToPage(step);
+        _validateFormAfterNavigation(controller);
         return;
       }
     }
