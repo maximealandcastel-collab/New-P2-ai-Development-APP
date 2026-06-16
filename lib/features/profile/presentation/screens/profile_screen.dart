@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -90,53 +90,16 @@ class ProfileScreen extends StatelessWidget {
           value: ' PT Licences',
         ).asSliver,
 
-        CustomContainer(
-          horizontalMargin: 16.h,
-          verticalMargin: 24.h,
-          paddingAll: 20.r,
-          radiusAll: 20.r,
-          width: double.infinity,
-          color: Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomText(
-                top: 10.h,
-                bottom: 4.h,
-                text: 'monthly',
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-              ),
-              CustomText(
-                bottom: 16.h,
-                text: '\$ 12.99',
-                fontSize: 36.sp,
-                fontWeight: FontWeight.w800,
-              ),
-              Assets.icons.trainerSubIcons.svg(),
+        ContainerCard(label: 'App', children: [
+          ListTileWidget(label: 'My prompt', onTap: () {  },),
+          ListTileWidget(label: 'Personal information', onTap: () {  },),
+          ListTileWidget(label: 'Admin support', onTap: () {  },),
+          ListTileWidget(label: 'Settings', onTap: () {
+            Get.toNamed(AppRoute.settingsScreen);
+          },),
+        ],
 
-              SizedBox(height: 16.h),
-              ...HelperData.trainerGuidance.map((e) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 12.h),
-                  child: Row(
-                    children: [
-                      Icon(Icons.lock_rounded, size: 16.r),
-                      SizedBox(width: 6.w),
-                      CustomText(
-                        text: e,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
-        ).asSliver,
-
-        SizedBox(height: 60.h).asSliver,
+        ).asSliverWithPadding(horizontal: 16.w),
       ],
     );
 

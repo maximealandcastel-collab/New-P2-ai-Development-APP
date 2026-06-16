@@ -20,143 +20,128 @@ class EarningsScreen extends StatefulWidget {
 class _EarningsScreenState extends State<EarningsScreen> {
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      appBar: CustomAppBar(
-        title: 'Earnings',
-        actions: [
-          GestureDetector(
-            onTapDown: (details) async {
-              final selected = await MenuShowHelper.showCustomMenu(
-                context: context,
-                details: details,
-                options: ['Payout method', 'Invoices'],
-              );
+    return SliverScaffold(
+      floating: false,
+      appBarTitle: 'Earnings',
+      actions: [
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (details) async {
+            final selected = await MenuShowHelper.showCustomMenu(
+              context: context,
+              details: details,
+              options: ['Payout method', 'Invoices'],
+            );
 
-              if (selected == 'Payout method') {
-                debugPrint('Payout method selected');
-              } else if (selected == 'Invoices') {
-                Get.to(() => const InvoicesScreen());
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.0.r),
-              child: Assets.icons.more.svg(),
-            ),
+            if (selected == 'Payout method') {
+              debugPrint('Payout method selected');
+            } else if (selected == 'Invoices') {
+              Get.to(() => const InvoicesScreen());
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.only(right: 12.w),
+            child: Assets.icons.more.svg(height: 44.r,width: 44.r),
           ),
-        ],
-      ),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: CustomText(
-                      text: 'Available balance',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16.sp,
-                      color: AppColors.textSecondary,
-                      bottom: 8.h,
-                      top: 24.h,
-                    ),
-                  ),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 40.sp,
-                          fontFamily: FontFamily.figtree,
-                        ),
-                        text: '48.54',
-                        children: [
-                          TextSpan(
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20.sp,
-                            ),
-                            text: ' USD',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  CustomContainer(
-                    width: double.infinity,
-                    radiusAll: 16.r,
-                    color: Colors.white,
-                    paddingAll: 18.r,
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontFamily: FontFamily.figtree,
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.sp,
-                        ),
-                        text: 'Pending balance ',
-                        children: [
-                          TextSpan(
-                            style: TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            text: ' 48.54',
-                          ),
-                          TextSpan(text: ' USD'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  CustomText(
-                    text: 'Transaction history',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.sp,
-                    bottom: 12.h,
-                    top: 24.h,
-                  ),
-                ],
+        ),
+      ],
+      expandedHeight: 240.h,
+      flexibleChild: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: CustomText(
+                text: 'Available balance',
+                fontWeight: FontWeight.w500,
+                fontSize: 16.sp,
+                color: AppColors.textSecondary,
+                bottom: 8.h,
+                top: 8.h,
               ),
             ),
-          ),
+            Center(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 40.sp,
+                    fontFamily: FontFamily.figtree,
+                  ),
+                  text: '48.54',
+                  children: [
+                    TextSpan(
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 20.sp,
+                      ),
+                      text: ' USD',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 24.h),
+            CustomContainer(
+              width: double.infinity,
+              radiusAll: 16.r,
+              color: Colors.white,
+              paddingAll: 18.r,
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontFamily: FontFamily.figtree,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16.sp,
+                  ),
+                  text: 'Pending balance ',
+                  children: [
+                    TextSpan(
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      text: ' 48.54',
+                    ),
+                    TextSpan(text: ' USD'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
 
+        slivers: (c) => [
+          CustomText(
+            left: 16.w,
+            bottom: 4.h,
+            textAlign: TextAlign.start,
+            text: 'Transaction history',
+            fontWeight: FontWeight.w600,
+            fontSize: 18.sp,
+          ).asSliver,
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                    (context, index) => const TransationHistoryWidget(),
+                (context, index) => const TransationHistoryWidget(),
                 childCount: 10,
               ),
             ),
           ),
-
-          // FIXED HERE: Wrapped in SliverToBoxAdapter
-          SliverToBoxAdapter(
-            child: SizedBox(height: 30.h),
-          ),
         ],
-      ),
 
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.r),
-          child: CustomButton(
-            onPressed: () {},
-            label: 'Withdraw',
-            width: double.infinity,
-          ),
-        ),
+      bottomNavigationBar: CustomButton(
+        onPressed: () {},
+        label: 'Withdraw',
+        width: double.infinity,
       ),
     );
   }
 }
-
-
-
