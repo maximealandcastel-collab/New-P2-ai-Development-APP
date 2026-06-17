@@ -42,7 +42,10 @@ class AuthRepository {
 
       final token = response.data?['data']['token'];
 
-      await _cacheService.put(AppConstants.otpToken, token);
+      await Future.wait([
+        _cacheService.put(AppConstants.otpToken, token),
+        _cacheService.put(AppConstants.cacheUserGender, gender.toLowerCase()),
+      ]);
 
       return token;
     } on AppException {
@@ -237,6 +240,10 @@ class AuthRepository {
 
   String? getRole() {
     return _cacheService.get<String>(AppConstants.cacheUserRole);
+  }
+
+  String? getGender() {
+    return _cacheService.get<String>(AppConstants.cacheUserGender);
   }
 
   bool isLoggedIn() {

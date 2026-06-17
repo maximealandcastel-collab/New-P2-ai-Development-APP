@@ -36,7 +36,7 @@ class AdditionalInfoPage extends StatelessWidget {
             final menu = MenuShowHelper.showCustomMenu(
               context: context,
               details: details,
-              options: MenuShowHelper.motivationStyleOptions,
+              options: MenuShowHelper.motivationStyleDisplayOptions,
             );
             menu.then((value) {
               if (value != null) {
@@ -48,7 +48,7 @@ class AdditionalInfoPage extends StatelessWidget {
             child: CustomTextField(
               suffixIcon: Icon(Icons.arrow_drop_down_outlined),
               labelText: 'Motivation style',
-              hintText: 'Select motivation',
+              hintText: 'Select motivation (e.g. balanced)',
               controller: controller.motivationStyleController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {

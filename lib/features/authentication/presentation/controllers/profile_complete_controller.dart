@@ -8,14 +8,19 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
 class ProfileCompleteController extends GetxController {
   final AuthService _authService;
+  final ProfileService _profileService;
 
   static ProfileCompleteController get to => Get.find();
 
-  ProfileCompleteController({required AuthService authService})
-    : _authService = authService;
+  ProfileCompleteController({
+    required AuthService authService,
+    required ProfileService profileService,
+  }) : _authService = authService,
+       _profileService = profileService;
 
   // ─── State ───────────────────────────────
 
@@ -154,22 +159,61 @@ class ProfileCompleteController extends GetxController {
     }
   }
 
+  Future<String?> _resolveGender() async {
+    final cachedProfileGender = _profileService.getCachedUserData()?.gender;
+    if (cachedProfileGender != null && cachedProfileGender.isNotEmpty) {
+      return MenuShowHelper.genderBackendValue(cachedProfileGender);
+    }
+
+    final cachedGender = _authService.getGender();
+    if (cachedGender != null && cachedGender.isNotEmpty) return cachedGender;
+
+    try {
+      await _profileService.fetchUserProfile();
+      final fetchedGender = _profileService.getCachedUserData()?.gender;
+      if (fetchedGender != null && fetchedGender.isNotEmpty) {
+        return MenuShowHelper.genderBackendValue(fetchedGender);
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
   Future<void> registerUser() async {
     _userState.value = LoadingState.loading;
 
     try {
+      final gender = await _resolveGender();
+      if (gender == null || gender.isEmpty) {
+        ToastMessageHelper.show('Gender not found. Please sign up again.');
+        _userState.value = LoadingState.error;
+        return;
+      }
+
       await _authService.registerUser(
         UserProfileModel(
-          primaryGoal: primaryGoalController.text.trim(),
+          primaryGoal: MenuShowHelper.goalBackendValue(
+                primaryGoalController.text.trim(),
+              ) ??
+              primaryGoalController.text.trim(),
+          gender: gender,
           dateOfBirth: selectedDateOfBirth.toIso8601String().split('T').first,
           height: _parseHeight(heightController.text),
           weight: _parseWeight(weightController.text),
-          fitnessLevel: fitnessLevelController.text.trim(),
-          availableEquipment: equipmentController.text.trim(),
+          fitnessLevel: MenuShowHelper.fitnessLevelBackendValue(
+            fitnessLevelController.text.trim(),
+          ),
+          availableEquipment: MenuShowHelper.equipmentBackendValue(
+                equipmentController.text.trim(),
+              ) ??
+              equipmentController.text.trim(),
           trainingDaysPerWeek: int.tryParse(trainingDaysController.text.trim()),
           injuries: _injuries,
           preferredName: preferredNameController.text.trim(),
-          motivationStyle: motivationStyleController.text.trim(),
+          motivationStyle: MenuShowHelper.motivationStyleBackendValue(
+                motivationStyleController.text.trim(),
+              ) ??
+              motivationStyleController.text.trim(),
         ),
       );
       _userState.value = LoadingState.loaded;

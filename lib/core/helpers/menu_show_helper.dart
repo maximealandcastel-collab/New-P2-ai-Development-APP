@@ -34,20 +34,74 @@ class MenuShowHelper {
     'Increase Strength',
     'Improve Flexibility',
     'Enhance Athletic Performance',
-    'Maintain Fitness',
+    'Maintain Physique',
     'Stress Relief & Mental Health',
     'Improve Posture',
     'Rehabilitation & Recovery',
   ];
 
-  static const List<String> motivationStyleOptions = [
-    'Friendly Coach',
-    'Goal Driven',
-    'Daily Challenges',
-    'Progress Tracking',
-    'Competitive',
-    'Health Focused',
+  static const List<String> _goalBackendOptions = [
+    'weight_loss',
+    'muscle_gain',
+    'improve_endurance',
+    'increase_strength',
+    'improve_flexibility',
+    'enhance_athletic_performance',
+    'maintain_physique',
+    'stress_relief',
+    'improve_posture',
+    'rehabilitation_recovery',
   ];
+
+  static const List<String> equipmentDisplayOptions = [
+    'Full Gym',
+    'Home Gym',
+    'Minimal Equipment',
+    'Bodyweight Only',
+  ];
+
+  static const List<String> _equipmentBackendOptions = [
+    'full_gym',
+    'home_gym',
+    'minimal_equipment',
+    'bodyweight_only',
+  ];
+
+  static const List<String> motivationStyleDisplayOptions = [
+    'Strict',
+    'Chill',
+    'Balanced',
+  ];
+
+  static const List<String> _motivationStyleBackendOptions = [
+    'strict',
+    'chill',
+    'balanced',
+  ];
+
+  static String? goalBackendValue(String display) {
+    final index = goalOptions.indexOf(display);
+    if (index == -1) return null;
+    return _goalBackendOptions[index];
+  }
+
+  static String? equipmentBackendValue(String display) {
+    final index = equipmentDisplayOptions.indexOf(display);
+    if (index == -1) return null;
+    return _equipmentBackendOptions[index];
+  }
+
+  static String? motivationStyleBackendValue(String display) {
+    final index = motivationStyleDisplayOptions.indexOf(display);
+    if (index == -1) return null;
+    return _motivationStyleBackendOptions[index];
+  }
+
+  static String fitnessLevelBackendValue(String display) =>
+      display.trim().toLowerCase();
+
+  static String genderBackendValue(String display) =>
+      display.trim().toLowerCase();
 
   static const List<String> coachingStyleOptions = ["strict", "chill", "balanced"];
   static const List<String> intensityMeasureOptions = ["RPE", "RIR", "%1RM"];

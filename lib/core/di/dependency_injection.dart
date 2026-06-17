@@ -59,8 +59,31 @@ class DependencyInjection {
       permanent: true,
     );
 
+    /// profile
+    Get.lazyPut<ProfileRepository>(
+      () => ProfileRepository(
+        cacheService: Get.find<CacheService>(),
+        apiService: Get.find<ApiService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ProfileService>(
+      () => ProfileService(repository: Get.find<ProfileRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ProfileController>(
+      () => ProfileController(
+        service: Get.find<ProfileService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
     Get.put<LoginController>(
-      LoginController(authService: Get.find<AuthService>()),
+      LoginController(
+        authService: Get.find<AuthService>(),
+        profileService: Get.find<ProfileService>(),
+      ),
       permanent: true,
     );
 
@@ -97,29 +120,10 @@ class DependencyInjection {
       fenix: true,
     );
 
-    /// profile
-    Get.lazyPut<ProfileRepository>(
-      () => ProfileRepository(
-        cacheService: Get.find<CacheService>(),
-        apiService: Get.find<ApiService>(),
-      ),
-      fenix: true,
-    );
-    Get.lazyPut<ProfileService>(
-      () => ProfileService(repository: Get.find<ProfileRepository>()),
-      fenix: true,
-    );
-    Get.lazyPut<ProfileController>(
-      () => ProfileController(
-        service: Get.find<ProfileService>(),
-        connectivityService: Get.find<ConnectivityService>(),
-      ),
-      fenix: true,
-    );
-
     Get.lazyPut<ProfileCompleteController>(
       () => ProfileCompleteController(
         authService: Get.find<AuthService>(),
+        profileService: Get.find<ProfileService>(),
       ),
       fenix: true,
     );

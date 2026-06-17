@@ -3,6 +3,7 @@ class AppConstants{
   static const String accessToken = "accessToken";
   static const String otpToken = "otpToken";
   static const String cacheUserRole = "cacheUserRole";
+  static const String cacheUserGender = "cacheUserGender";
   static const String cacheUserProfile = "cacheUserProfile";
 
 

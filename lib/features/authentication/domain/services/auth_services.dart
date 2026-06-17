@@ -89,4 +89,6 @@ class AuthService {
   Future<void> logout() => _repository.logout();
 
   String? getRole() => _repository.getRole();
+
+  String? getGender() => _repository.getGender();
 }

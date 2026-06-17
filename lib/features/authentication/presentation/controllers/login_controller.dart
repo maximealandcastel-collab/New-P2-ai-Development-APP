@@ -4,14 +4,19 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
+  final ProfileService _profileService;
 
   static LoginController get to => Get.find();
 
-  LoginController({required AuthService authService})
-    : _authService = authService;
+  LoginController({
+    required AuthService authService,
+    required ProfileService profileService,
+  }) : _authService = authService,
+       _profileService = profileService;
 
   // ─── State ───────────────────────────────
 
@@ -38,7 +43,8 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
-       Get.offAllNamed(AppRoute.bottonNavBar);
+      final route = await _profileService.resolveInitialRoute();
+      Get.offAllNamed(route);
     } catch (e) {
       _loginState.value = LoadingState.error;
     }

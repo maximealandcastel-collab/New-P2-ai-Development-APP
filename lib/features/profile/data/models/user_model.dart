@@ -7,7 +7,7 @@ class UserModel {
   String? role;
   bool? isVerified;
   bool? isDeleted;
-  List<dynamic>? injuries;
+  List<String>? injuries;
   String? subscriptionTier;
   bool? onboardingCompleted;
   List<dynamic>? memory;
@@ -50,8 +50,8 @@ class UserModel {
     isDeleted = json['isDeleted'];
 
     injuries = json['injuries'] != null
-        ? List<dynamic>.from(json['injuries'])
-        : [];
+        ? List<String>.from(json['injuries'])
+        : <String>[];
 
     subscriptionTier = json['subscriptionTier'];
     onboardingCompleted = json['onboardingCompleted'];
