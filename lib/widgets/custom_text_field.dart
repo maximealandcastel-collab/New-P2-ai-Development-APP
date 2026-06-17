@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-
 class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -44,37 +43,37 @@ class CustomTextField extends StatefulWidget {
 
   const CustomTextField(
       {super.key,
-      this.contentPaddingHorizontal,
-      this.contentPaddingVertical,
-      this.hintText,
-      this.prefixIcon,
-      this.suffixIcon,
-      this.validator,
-      this.hintextColor,
-      this.borderColor,
-      this.isEmail = false,
-       this.controller,
-      this.keyboardType = TextInputType.text,
-      this.isObscureText = false,
-      this.obscure = '*',
-      this.filColor,
-      this.hintextSize,
-      this.labelText,
-      this.isPassword = false,
-      this.readOnly = false,
-      this.borderRadio,
-      this.onTap,
-      this.onChanged,
-      this.cursorColor,
-      this.maxLength,
-      this.enabled,
-      this.focusNode,
-      this.autofocus = false,
-      this.isDatePicker = false,
-      this.fontFamily,
-      this.textInputAction,
-      this.inputFormatter,
-      this.minLines, this.maxLines, this.border, this.labelColor, this.onFieldSubmitted});
+        this.contentPaddingHorizontal,
+        this.contentPaddingVertical,
+        this.hintText,
+        this.prefixIcon,
+        this.suffixIcon,
+        this.validator,
+        this.hintextColor,
+        this.borderColor,
+        this.isEmail = false,
+        this.controller,
+        this.keyboardType = TextInputType.text,
+        this.isObscureText = false,
+        this.obscure = '*',
+        this.filColor,
+        this.hintextSize,
+        this.labelText,
+        this.isPassword = false,
+        this.readOnly = false,
+        this.borderRadio,
+        this.onTap,
+        this.onChanged,
+        this.cursorColor,
+        this.maxLength,
+        this.enabled,
+        this.focusNode,
+        this.autofocus = false,
+        this.isDatePicker = false,
+        this.fontFamily,
+        this.textInputAction,
+        this.inputFormatter,
+        this.minLines, this.maxLines, this.border, this.labelColor, this.onFieldSubmitted});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -82,6 +81,56 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   bool obscureText = true;
+  TextEditingController? _fallbackController;
+  late OutlineInputBorder _focusedBorder;
+  late OutlineInputBorder _enabledBorder;
+  late OutlineInputBorder _errorBorder;
+
+  TextEditingController get _controller =>
+      widget.controller ?? _fallbackController!;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.controller == null) {
+      _fallbackController = TextEditingController();
+    }
+    _buildBorders();
+  }
+
+  @override
+  void didUpdateWidget(CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.borderRadio != widget.borderRadio ||
+        oldWidget.borderColor != widget.borderColor) {
+      _buildBorders();
+    }
+  }
+
+  void _buildBorders() {
+    final radius = BorderRadius.circular(widget.borderRadio?.r ?? 16.r);
+    _focusedBorder = OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide(
+          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
+    );
+    _enabledBorder = OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide(
+          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
+    );
+    _errorBorder = OutlineInputBorder(
+      borderRadius: radius,
+      borderSide:
+      BorderSide(color: widget.borderColor ?? Colors.red, width: 1),
+    );
+  }
+
+  @override
+  void dispose() {
+    _fallbackController?.dispose();
+    super.dispose();
+  }
 
   void toggle() {
     setState(() {
@@ -89,11 +138,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
-
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.labelText != null)
@@ -115,24 +162,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
           onChanged: widget.onChanged,
           onTap: () {
             if (widget.isDatePicker) {
-             // _selectDate(context);
+              // _selectDate(context);
             } else {
               widget.onTap?.call();
             }
           },
           readOnly: widget.readOnly!,
-          controller: widget.controller ?? TextEditingController(),
+          controller: _controller,
           keyboardType: widget.keyboardType,
           inputFormatters: widget.inputFormatter,
           textInputAction: widget.textInputAction,
           obscuringCharacter: widget.obscure!,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: AutovalidateMode.onUnfocus,
           minLines: widget.isPassword ? 1 : (widget.minLines ?? 1),
           maxLines: widget.isPassword ? 1 : (widget.maxLines ?? 8),
 
 
           validator: widget.validator ??
-              (value) {
+                  (value) {
                 if (widget.isEmail == false) {
                   if (value!.isEmpty) {
                     return "Please  ${widget.hintText!.toLowerCase()}";
@@ -172,26 +219,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
               ) : SizedBox(width: 8.w),
               suffixIcon: widget.isPassword
                   ? GestureDetector(
-                      onTap: toggle,
-                      child: _suffixIcon(obscureText
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined),
-                    )
+                onTap: toggle,
+                child: _suffixIcon(obscureText
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined),
+              )
                   : widget.suffixIcon,
               prefixIconConstraints: BoxConstraints(minHeight: 24.w, minWidth: 24.w),
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                fontFamily: widget.fontFamily ?? 'Figtree',
+                  fontFamily: widget.fontFamily ?? 'Figtree',
                   color: widget.hintextColor ?? Colors.black.withOpacity(0.16),
                   fontSize: widget.hintextSize ?? 14.h,
                   fontWeight: FontWeight.w400),
-              focusedBorder: widget.border ?? focusedBorder(),
-              enabledBorder: widget.border ?? enabledBorder(),
-              errorBorder: widget.border ?? errorBorder(),
-              border: widget.border ??  focusedBorder(),
-              focusedErrorBorder: widget.border ?? errorBorder(),
+              focusedBorder: widget.border ?? _focusedBorder,
+              enabledBorder: widget.border ?? _enabledBorder,
+              errorBorder: widget.border ?? _errorBorder,
+              border: widget.border ??  _focusedBorder,
+              focusedErrorBorder: widget.border ?? _errorBorder,
               errorStyle:
-                  TextStyle(fontSize: 12.h, fontWeight: FontWeight.w400)),
+              TextStyle(fontSize: 12.h, fontWeight: FontWeight.w400)),
         ),
         SizedBox(height: 10.h),
       ],
@@ -202,29 +249,5 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
         padding: const EdgeInsets.all(0),
         child: Icon(icon, color: AppColors.textSecondary,size: 20.r));
-  }
-
-  OutlineInputBorder focusedBorder() {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(widget.borderRadio?.r ?? 16.r),
-      borderSide: BorderSide(
-          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
-    );
-  }
-
-  OutlineInputBorder enabledBorder() {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(widget.borderRadio?.r ?? 16.r),
-      borderSide: BorderSide(
-          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
-    );
-  }
-
-  OutlineInputBorder errorBorder() {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(widget.borderRadio?.r ?? 16.r),
-      borderSide:
-      BorderSide(color: widget.borderColor ?? Colors.red, width: 1),
-    );
   }
 }

@@ -16,6 +16,9 @@ import 'package:pler_to_pler_app/features/profile/domain/services/profile_servic
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/search/controller/search_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
+import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 
 class DependencyInjection {
@@ -117,6 +120,23 @@ class DependencyInjection {
     Get.lazyPut<ProfileCompleteController>(
       () => ProfileCompleteController(
         authService: Get.find<AuthService>(),
+      ),
+      fenix: true,
+    );
+
+    /// AI
+    Get.lazyPut<AiRepository>(
+      () => AiRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<AiService>(
+      () => AiService(repository: Get.find<AiRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<TrainAiController>(
+      () => TrainAiController(
+        aiService: Get.find<AiService>(),
+        profileService: Get.find<ProfileService>(),
       ),
       fenix: true,
     );

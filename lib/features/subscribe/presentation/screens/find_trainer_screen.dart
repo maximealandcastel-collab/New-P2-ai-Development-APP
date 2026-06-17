@@ -12,6 +12,7 @@ class FindTrainerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
+      floating: false,
       appBarTitle: 'Find trainer',
       expandedHeight: 140.h,
       flexiblePaddingTop: 20.h,
@@ -37,7 +38,11 @@ class FindTrainerScreen extends StatelessWidget {
         hintText: 'Search trainer by name or needs',
       ),
 
-      slivers: (context) => [
+      slivers: _buildSlivers,
+    );
+  }
+
+  List<Widget> _buildSlivers(BuildContext context) => [
         SliverList.separated(
           itemCount: FindTrainerModel.trainers.length,
           itemBuilder: (_, i) {
@@ -50,7 +55,5 @@ class FindTrainerScreen extends StatelessWidget {
         ).asPaddedSliver(horizontal: 16.w),
 
         SizedBox(height: 70.h).asSliver,
-      ],
-    );
-  }
+      ];
 }

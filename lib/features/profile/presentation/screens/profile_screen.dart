@@ -64,7 +64,11 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
 
-      slivers: (context) => [
+      slivers: _buildSlivers,
+    );
+  }
+
+  List<Widget> _buildSlivers(BuildContext context) => [
         SizedBox(height: 20.h).asSliver,
         _buildBioCardWidget(
           fontSize: 12.sp,
@@ -100,11 +104,7 @@ class ProfileScreen extends StatelessWidget {
         ],
 
         ).asSliverWithPadding(horizontal: 16.w),
-      ],
-    );
-
-
-  }
+      ];
 
   Widget _buildBioCardWidget({
     required String label,

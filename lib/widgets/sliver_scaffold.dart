@@ -4,6 +4,12 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
+/// Shared scaffold for scrollable screens.
+///
+/// Scroll modes (auto-selected):
+/// - **Simple** (`slivers` only, no flexible header): single [CustomScrollView]
+/// - **Collapsing** (flexible header / collapsed title): [NestedScrollView]
+/// - **Body** (`body` with simple app bar): [NestedScrollView] with pinned header
 class SliverScaffold extends StatefulWidget {
   const SliverScaffold({
     super.key,
@@ -76,14 +82,23 @@ class SliverScaffold extends StatefulWidget {
 }
 
 class _SliverScaffoldState extends State<SliverScaffold> {
-  bool _isCollapsed = false;
-
   double get _toolbarH => widget.toolbarHeight ?? 60;
 
   double get _expandedH => widget.expandedHeight ?? _toolbarH;
 
   bool get _hasFlexible =>
       widget.flexibleBackground != null || widget.flexibleChild != null;
+
+  bool get _hasCollapsingHeader =>
+      _hasFlexible || widget.collapsedTitle != null;
+
+  bool get _usesBodyMode => widget.body != null;
+
+  bool get _effectiveFloating => widget.floating && _hasCollapsingHeader;
+
+  ScrollPhysics get _scrollPhysics =>
+      widget.scrollPhysics ??
+      const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics());
 
   Widget? get _flexibleWidget {
     if (widget.flexibleBackground != null) return widget.flexibleBackground;
@@ -106,7 +121,22 @@ class _SliverScaffoldState extends State<SliverScaffold> {
     return null;
   }
 
-  SliverAppBar _buildSliverAppBar(BuildContext context) {
+  List<Widget> _contentSlivers(BuildContext context) {
+    if (widget.slivers == null) return const [];
+    return widget.slivers!(context);
+  }
+
+  Widget get _bottomSpacerSliver {
+    if (widget.bottomNavigationBar == null) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+    return SliverToBoxAdapter(child: SizedBox(height: 120.h));
+  }
+
+  SliverAppBar _buildSliverAppBar(
+    BuildContext context, {
+    bool innerBoxIsScrolled = false,
+  }) {
     final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
 
     final Widget? leadingWidget =
@@ -119,28 +149,33 @@ class _SliverScaffoldState extends State<SliverScaffold> {
               )
             : null);
 
-    final Widget titleW = Text(
-      _isCollapsed
-          ? (widget.collapsedTitle ?? widget.appBarTitle ?? '')
-          : (widget.appBarTitle ?? ''),
-      style: TextStyle(
-        fontFamily: FontFamily.figtree,
-        fontWeight: FontWeight.w600,
-        fontSize: widget.appBarTitleSize.sp,
-        color: _isCollapsed
-            ? (widget.collapsedTitleColor ?? AppColors.textPrimary)
-            : (widget.appBarForegroundColor ?? AppColors.textPrimary),
-      ),
-    );
+    final showCollapsedTitle =
+        innerBoxIsScrolled && widget.collapsedTitle != null;
+    final titleText = showCollapsedTitle
+        ? widget.collapsedTitle!
+        : (widget.appBarTitle ?? '');
+
+    final titleW = widget.titleWidget ??
+        Text(
+          titleText,
+          style: TextStyle(
+            fontFamily: FontFamily.figtree,
+            fontWeight: FontWeight.w600,
+            fontSize: widget.appBarTitleSize.sp,
+            color: showCollapsedTitle
+                ? (widget.collapsedTitleColor ?? AppColors.textPrimary)
+                : (widget.appBarForegroundColor ?? AppColors.textPrimary),
+          ),
+        );
 
     return SliverAppBar(
-      snap: widget.floating,
+      snap: _effectiveFloating,
       backgroundColor:
           widget.appBarBackgroundColor?.withValues(alpha: 0.6) ??
           AppColors.backgroundLight.withValues(alpha: 0.6),
       foregroundColor: widget.appBarForegroundColor ?? Colors.white,
       pinned: widget.pinned,
-      floating: widget.floating,
+      floating: _effectiveFloating,
       elevation: 0,
       scrolledUnderElevation: 10,
       shadowColor: AppColors.backgroundLight.withValues(alpha: 0.1),
@@ -151,21 +186,31 @@ class _SliverScaffoldState extends State<SliverScaffold> {
       titleSpacing: 0,
       centerTitle: widget.centerTitle,
       leading: leadingWidget,
-      title: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        transitionBuilder: (child, animation) {
-          final offsetAnimation = Tween<Offset>(
-            begin: const Offset(0, -0.5),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+      title: widget.collapsedTitle != null
+          ? AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) {
+                final offsetAnimation = Tween<Offset>(
+                  begin: const Offset(0, -0.5),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                );
 
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(position: offsetAnimation, child: child),
-          );
-        },
-        child: KeyedSubtree(key: ValueKey(_isCollapsed), child: titleW),
-      ),
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  ),
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey(showCollapsedTitle),
+                child: titleW,
+              ),
+            )
+          : titleW,
       actions: widget.actions,
       shape: widget.appBarBorderColor != null
           ? Border(
@@ -184,6 +229,49 @@ class _SliverScaffoldState extends State<SliverScaffold> {
     );
   }
 
+  Widget _buildSingleScrollView(BuildContext context) {
+    return CustomScrollView(
+      physics: _scrollPhysics,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: [
+        _buildSliverAppBar(context),
+        ..._contentSlivers(context),
+        _bottomSpacerSliver,
+      ],
+    );
+  }
+
+  Widget _buildNestedScrollView(BuildContext context) {
+    return NestedScrollView(
+      physics: _scrollPhysics,
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        _buildSliverAppBar(
+          context,
+          innerBoxIsScrolled: innerBoxIsScrolled,
+        ),
+      ],
+      body: widget.body ?? _buildNestedSliverBody(context),
+    );
+  }
+
+  Widget _buildNestedSliverBody(BuildContext context) {
+    return CustomScrollView(
+      physics: _scrollPhysics,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: [
+        ..._contentSlivers(context),
+        _bottomSpacerSliver,
+      ],
+    );
+  }
+
+  Widget _buildScrollBody(BuildContext context) {
+    if (_hasCollapsingHeader || _usesBodyMode) {
+      return _buildNestedScrollView(context);
+    }
+    return _buildSingleScrollView(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,62 +279,25 @@ class _SliverScaffoldState extends State<SliverScaffold> {
       backgroundColor: AppColors.backgroundLight,
       endDrawer: widget.endDrawer,
       floatingActionButton: widget.floatingActionButton,
-      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset ?? true,
       bottomNavigationBar: widget.bottomNavigationBar != null
-          ? Container(
-              color: AppColors.backgroundLight.withValues(alpha: 0.6),
-              padding: EdgeInsets.only(
-                left: 16.w,
-                right: 16.w,
-                top: 10.h,
-                bottom: MediaQuery.of(context).padding.bottom + 10.h,
+          ? RepaintBoundary(
+              child: Container(
+                color: AppColors.backgroundLight.withValues(alpha: 0.6),
+                padding: EdgeInsets.only(
+                  left: 16.w,
+                  right: 16.w,
+                  top: 10.h,
+                  bottom: MediaQuery.of(context).padding.bottom + 10.h,
+                ),
+                child: widget.bottomNavigationBar!,
               ),
-              child: widget.bottomNavigationBar!,
             )
           : null,
-      body: NestedScrollView(
-        physics:
-            widget.scrollPhysics ??
-            const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          if (widget.collapsedTitle != null && _hasFlexible) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (innerBoxIsScrolled != _isCollapsed) {
-                setState(() => _isCollapsed = innerBoxIsScrolled);
-              }
-            });
-          }
-          return [_buildSliverAppBar(context)];
-        },
-        body: widget.body != null
-            ? _buildBodyFromWidget(context)
-            : _buildBodyFromSlivers(context),
-      ),
-    );
-  }
-
-  Widget _buildBodyFromWidget(BuildContext context) {
-    return widget.body!;
-  }
-
-  Widget _buildBodyFromSlivers(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        if (widget.slivers != null) ...widget.slivers!(context),
-        if (widget.bottomNavigationBar != null)
-          SizedBox(height: 120.h).asSliver
-        else
-          const SliverToBoxAdapter(child: SizedBox.shrink()),
-      ],
+      body: _buildScrollBody(context),
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Extensions
-// ---------------------------------------------------------------------------
 
 extension WidgetSliverX on Widget {
   Widget get asSliver => SliverToBoxAdapter(child: this);

@@ -22,9 +22,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return SliverScaffold(
       appBarTitle: 'Settings',
-      body: CustomScrollView(
-        slivers: [
-          SizedBox(height: 16.h).asSliver,
+      slivers: _buildSlivers,
+    );
+  }
+
+  List<Widget> _buildSlivers(BuildContext context) => [
+        SizedBox(height: 16.h).asSliver,
           ContainerCard(
             label: 'Account',
             children: [
@@ -143,8 +146,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ).asSliverWithPadding(horizontal: 16.w),
           SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h).asSliver,
-        ],
-      ),
-    );
-  }
+      ];
 }

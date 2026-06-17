@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class DynamicFieldListWidget extends StatelessWidget {
+class DynamicFieldListWidget extends StatefulWidget {
   final String title;
   final String hintText;
   final void Function(List<String> values)? onChanged;
@@ -20,83 +19,126 @@ class DynamicFieldListWidget extends StatelessWidget {
   });
 
   @override
+  State<DynamicFieldListWidget> createState() => _DynamicFieldListWidgetState();
+}
+
+class _DynamicFieldListWidgetState extends State<DynamicFieldListWidget> {
+  late final TextEditingController _inputController;
+  final List<TextEditingController> _fieldControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _inputController = TextEditingController();
+    _fieldControllers.addAll(
+      widget.initialValues.map(
+        (value) => TextEditingController(text: value),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _inputController.dispose();
+    for (final controller in _fieldControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _notifyParent() {
+    widget.onChanged?.call(
+      _fieldControllers.map((controller) => controller.text.trim()).toList(),
+    );
+  }
+
+  void _addField() {
+    final text = _inputController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _inputController.clear();
+      _fieldControllers.add(TextEditingController(text: text));
+    });
+    _notifyParent();
+  }
+
+  void _removeField(int index) {
+    setState(() {
+      _fieldControllers[index].dispose();
+      _fieldControllers.removeAt(index);
+    });
+    _notifyParent();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final RxList<TextEditingController> controllers = [
-      TextEditingController(),
-      ...initialValues.map((e) => TextEditingController(text: e)),
-    ].obs;
-
-    void notifyParent() {
-      onChanged?.call(
-        controllers.skip(1).map((c) => c.text.trim()).toList(),
-      );
-    }
-
-    void addField() {
-      final text = controllers[0].text.trim();
-      if (text.isEmpty) return;
-      final moved = controllers[0].text;
-      controllers[0].clear();
-      controllers.insert(1, TextEditingController(text: moved));
-      notifyParent();
-    }
-
-    void removeField(int index) {
-      if (index == 0) return;
-      controllers[index].dispose();
-      controllers.removeAt(index);
-      notifyParent();
-    }
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (title.isNotEmpty) ...[
+        if (widget.title.isNotEmpty) ...[
           CustomText(
             textAlign: TextAlign.start,
-            text: title,
+            text: widget.title,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
             color: AppColors.textPrimary,
             bottom: 4.h,
           ),
         ],
-        Obx(() => ListView.builder(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: controllers.length,
-          itemBuilder: (context, index) {
-            final isFirst = index == 0;
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: CustomTextField(
-                    validator: (_) => null,
-                    controller: controllers[index],
-                    hintText: hintText,
-                  ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: CustomTextField(
+                validator: (_) => null,
+                controller: _inputController,
+                hintText: widget.hintText,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            GestureDetector(
+              onTap: _addField,
+              child: CustomContainer(
+                marginBottom: 6.h,
+                color: AppColors.colorE6E6E6,
+                radiusAll: 16.r,
+                paddingHorizontal: 10.w,
+                paddingVertical: 12.h,
+                child: Assets.icons.check.svg(),
+              ),
+            ),
+          ],
+        ),
+        ...List.generate(_fieldControllers.length, (index) {
+          return Row(
+            key: ObjectKey(_fieldControllers[index]),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  validator: (_) => null,
+                  controller: _fieldControllers[index],
+                  hintText: widget.hintText,
+                  onChanged: (_) => _notifyParent(),
                 ),
-                SizedBox(width: 8.w),
-                GestureDetector(
-                  onTap: isFirst ? addField : () => removeField(index),
-                  child: CustomContainer(
-                    marginBottom: 6.h,
-                    color: AppColors.colorE6E6E6,
-                    radiusAll: 16.r,
-                    paddingHorizontal: 10.w,
-                    paddingVertical: 12.h,
-                    child: isFirst
-                        ? Assets.icons.check.svg()
-                        : Assets.icons.delete.svg(),
-                  ),
+              ),
+              SizedBox(width: 8.w),
+              GestureDetector(
+                onTap: () => _removeField(index),
+                child: CustomContainer(
+                  marginBottom: 6.h,
+                  color: AppColors.colorE6E6E6,
+                  radiusAll: 16.r,
+                  paddingHorizontal: 10.w,
+                  paddingVertical: 12.h,
+                  child: Assets.icons.delete.svg(),
                 ),
-              ],
-            );
-          },
-        )),
+              ),
+            ],
+          );
+        }),
       ],
     );
   }

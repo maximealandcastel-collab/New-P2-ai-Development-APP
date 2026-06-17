@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
@@ -135,7 +136,10 @@ class ProfileCompleteController extends GetxController {
           name: usernameController.text.trim(),
           bio: bioController.text.trim(),
           certifications: _certifications,
-          specialty: specialityController.text.trim(),
+          specialty: MenuShowHelper.specialityBackendValue(
+                specialityController.text.trim(),
+              ) ??
+              specialityController.text.trim(),
           trainingStyleTags: _trainingStyleTags,
           subscriptionPrice: SubscriptionPrice(
             premium: int.parse(premiumPriceController.text.trim()),
@@ -143,7 +147,7 @@ class ProfileCompleteController extends GetxController {
         ),
       );
       _trainerState.value = LoadingState.loaded;
-      Get.offAllNamed(AppRoute.bottonNavBar);
+      Get.offAllNamed(AppRoute.aiInstructionScreen);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _trainerState.value = LoadingState.error;
@@ -169,7 +173,7 @@ class ProfileCompleteController extends GetxController {
         ),
       );
       _userState.value = LoadingState.loaded;
-      Get.offAllNamed(AppRoute.aiInstructionScreen);
+      Get.offAllNamed(AppRoute.bottonNavBar);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _userState.value = LoadingState.error;

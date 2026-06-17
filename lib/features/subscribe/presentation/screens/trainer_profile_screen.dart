@@ -11,6 +11,7 @@ class TrainerProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
+      floating: false,
       safeArea: false,
       expandedHeight: 270.h,
       collapsedTitle: 'Noah Sinclair',
@@ -54,7 +55,11 @@ class TrainerProfileScreen extends StatelessWidget {
         ),
       ),
 
-      slivers: (context) => [
+      slivers: _buildSlivers,
+    );
+  }
+
+  List<Widget> _buildSlivers(BuildContext context) => [
         SizedBox(height: 20.h).asSliver,
         CustomButton(
           backgroundColor: Colors.white,
@@ -142,8 +147,7 @@ class TrainerProfileScreen extends StatelessWidget {
         ).asSliver,
 
         SizedBox(height: 60.h).asSliver,
-      ],
-    );
+      ];
   }
 
   Widget _buildBioCardWidget({
@@ -168,4 +172,3 @@ class TrainerProfileScreen extends StatelessWidget {
       ),
     );
   }
-}

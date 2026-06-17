@@ -117,26 +117,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
         ),
       ),
 
-        slivers: (c) => [
-          CustomText(
-            left: 16.w,
-            bottom: 4.h,
-            textAlign: TextAlign.start,
-            text: 'Transaction history',
-            fontWeight: FontWeight.w600,
-            fontSize: 18.sp,
-          ).asSliver,
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => const TransationHistoryWidget(),
-                childCount: 10,
-              ),
-            ),
-          ),
-        ],
-
+        slivers: _buildSlivers,
       bottomNavigationBar: CustomButton(
         onPressed: () {},
         label: 'Withdraw',
@@ -144,4 +125,24 @@ class _EarningsScreenState extends State<EarningsScreen> {
       ),
     );
   }
+
+  List<Widget> _buildSlivers(BuildContext context) => [
+        CustomText(
+          left: 16.w,
+          bottom: 4.h,
+          textAlign: TextAlign.start,
+          text: 'Transaction history',
+          fontWeight: FontWeight.w600,
+          fontSize: 18.sp,
+        ).asSliver,
+        SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => const TransationHistoryWidget(),
+              childCount: 10,
+            ),
+          ),
+        ),
+      ];
 }

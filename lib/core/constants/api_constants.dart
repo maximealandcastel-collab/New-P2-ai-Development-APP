@@ -25,6 +25,8 @@ class ApiConstants {
   static const String userProfileUpdate = '/api/v1/users/edit-profile';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
+  static String trainerKnowledgePack(String trainerId) =>
+      '/api/v1/trainer/$trainerId/knowledge-pack';
 
 
   ///

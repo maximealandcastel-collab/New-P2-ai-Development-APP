@@ -56,7 +56,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     await Future.delayed(const Duration(milliseconds: 500));
 
     if(LoginController.to.isLoggedIn()){
-      Get.offAllNamed(AppRoute.bottonNavBar);
+      Get.offAllNamed(AppRoute.trainAiScreen);
     }else{
       Get.offAllNamed(AppRoute.onboardingMainScreen);
     }

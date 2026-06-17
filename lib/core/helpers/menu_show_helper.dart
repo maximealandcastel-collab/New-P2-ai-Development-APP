@@ -49,6 +49,31 @@ class MenuShowHelper {
     'Health Focused',
   ];
 
+  static const List<String> coachingStyleOptions = ["strict", "chill", "balanced"];
+  static const List<String> intensityMeasureOptions = ["RPE", "RIR", "%1RM"];
+
+  static const List<String> specialityDisplayOptions = [
+    'Maintain Physique',
+    'Muscle Gain',
+    'Weight Loss',
+    'Nutrition',
+    'Boxing',
+  ];
+
+  static const List<String> _specialityBackendOptions = [
+    'maintain_physique',
+    'muscle_gain',
+    'weight_loss',
+    'nutrition',
+    'boxing',
+  ];
+
+  static String? specialityBackendValue(String display) {
+    final index = specialityDisplayOptions.indexOf(display);
+    if (index == -1) return null;
+    return _specialityBackendOptions[index];
+  }
+
   static final List<String> genderOptions = ["Male", "Female"];
 
   static Future<String?> showCustomMenu({
