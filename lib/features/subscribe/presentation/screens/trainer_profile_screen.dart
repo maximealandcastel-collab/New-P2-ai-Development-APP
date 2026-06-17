@@ -61,15 +61,7 @@ class TrainerProfileScreen extends StatelessWidget {
 
   List<Widget> _buildSlivers(BuildContext context) => [
         SizedBox(height: 20.h).asSliver,
-        CustomButton(
-          backgroundColor: Colors.white,
-          foregroundColor: AppColors.primary,
-          onPressed: () {},
-          label: 'Already subscribed 23',
-          prefixIcon: Assets.icons.subButton.svg(),
-        ).asSliverWithPadding(horizontal: 16.w),
-        SizedBox(height: 16.h).asSliver,
-        CustomButton(
+             CustomButton(
           onPressed: () {},
           label: 'Request trainer',
         ).asSliverWithPadding(horizontal: 16.w),
