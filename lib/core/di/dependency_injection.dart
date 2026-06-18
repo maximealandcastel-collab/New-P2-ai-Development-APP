@@ -15,6 +15,8 @@ import 'package:pler_to_pler_app/features/profile/data/repositories/profile_repo
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/search/controller/search_controller.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/repositories/subscribe_repository.dart';
+import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
 import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
@@ -106,10 +108,6 @@ class DependencyInjection {
       permanent: true,
     );
 
-    Get.lazyPut<SubscribeController>(
-      () => SubscribeController(service: Get.find()),
-      fenix: true,
-    );
     Get.lazyPut<BottomNavBarController>(
       () => BottomNavBarController(),
       fenix: true,
@@ -141,6 +139,26 @@ class DependencyInjection {
       () => TrainAiController(
         aiService: Get.find<AiService>(),
         profileService: Get.find<ProfileService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Subscribe
+    Get.lazyPut<SubscribeRepository>(
+      () => SubscribeRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<SubscribeServices>(
+      () => SubscribeServices(repository: Get.find<SubscribeRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<SubscribeController>(
+      () => SubscribeController(
+        service: Get.find<SubscribeServices>(),
+        connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
     );

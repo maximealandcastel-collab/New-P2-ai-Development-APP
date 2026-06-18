@@ -7,6 +7,7 @@ export 'custom_dialog.dart';
 export 'custom_image_avatar.dart';
 export 'custom_list_tile.dart';
 export 'custom_loader.dart';
+export 'empty_data_widget.dart';
 export 'custom_network_image.dart';
 export 'custom_pin_code_text_field.dart';
 export 'custom_popup.dart';

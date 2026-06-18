@@ -56,7 +56,7 @@ class ProfileService {
 
     final user = getCachedUserData();
     if (user?.onboardingCompleted == true) {
-      return AppRoute.bottonNavBar;
+      return AppRoute.findTrainerScreen;
     }
 
     if (user?.role == 'trainer') {

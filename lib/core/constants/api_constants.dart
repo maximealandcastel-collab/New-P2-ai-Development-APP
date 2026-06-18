@@ -25,8 +25,10 @@ class ApiConstants {
   static const String userProfileUpdate = '/api/v1/users/edit-profile';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
-  static String trainerKnowledgePack(String trainerId) =>
-      '/api/v1/trainer/$trainerId/knowledge-pack';
+  static const String trainerRequest = '/api/v1/trainer-request';
+  static String trainerKnowledgePack(String trainerId) => '/api/v1/trainer/$trainerId/knowledge-pack';
+  static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
+  static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
 
 
   ///

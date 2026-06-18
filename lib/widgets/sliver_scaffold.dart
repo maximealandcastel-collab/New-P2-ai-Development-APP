@@ -8,7 +8,8 @@ import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 ///
 /// Scroll modes (auto-selected):
 /// - **Simple** (`slivers` only, no flexible header): single [CustomScrollView]
-/// - **Collapsing** (flexible header / collapsed title): [NestedScrollView]
+/// - **Unified** (`slivers` + flexible header, no collapsed title): single [CustomScrollView]
+/// - **Collapsing** (collapsed title or `body` mode): [NestedScrollView]
 /// - **Body** (`body` with simple app bar): [NestedScrollView] with pinned header
 class SliverScaffold extends StatefulWidget {
   const SliverScaffold({
@@ -43,6 +44,8 @@ class SliverScaffold extends StatefulWidget {
     this.floating = true,
     this.collapsedTitle,
     this.collapsedTitleColor,
+    this.scrollController,
+    this.onRefresh,
   }) : assert(slivers == null || body == null);
 
   final List<Widget> Function(BuildContext context)? slivers;
@@ -76,6 +79,8 @@ class SliverScaffold extends StatefulWidget {
   final bool pinned;
   final bool floating;
   final String? collapsedTitle;
+  final ScrollController? scrollController;
+  final Future<void> Function()? onRefresh;
 
   @override
   State<SliverScaffold> createState() => _SliverScaffoldState();
@@ -93,6 +98,11 @@ class _SliverScaffoldState extends State<SliverScaffold> {
       _hasFlexible || widget.collapsedTitle != null;
 
   bool get _usesBodyMode => widget.body != null;
+
+  bool get _useUnifiedScroll =>
+      widget.slivers != null &&
+      widget.collapsedTitle == null &&
+      !_usesBodyMode;
 
   bool get _effectiveFloating => widget.floating && _hasCollapsingHeader;
 
@@ -229,15 +239,30 @@ class _SliverScaffoldState extends State<SliverScaffold> {
     );
   }
 
+  ScrollPhysics get _refreshablePhysics => widget.onRefresh != null
+      ? const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics())
+      : _scrollPhysics;
+
+  Widget _wrapRefreshable(Widget child) {
+    if (widget.onRefresh == null) return child;
+    return RefreshIndicator(
+      onRefresh: widget.onRefresh!,
+      child: child,
+    );
+  }
+
   Widget _buildSingleScrollView(BuildContext context) {
-    return CustomScrollView(
-      physics: _scrollPhysics,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      slivers: [
-        _buildSliverAppBar(context),
-        ..._contentSlivers(context),
-        _bottomSpacerSliver,
-      ],
+    return _wrapRefreshable(
+      CustomScrollView(
+        controller: widget.scrollController,
+        physics: _refreshablePhysics,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        slivers: [
+          _buildSliverAppBar(context),
+          ..._contentSlivers(context),
+          _bottomSpacerSliver,
+        ],
+      ),
     );
   }
 
@@ -255,21 +280,24 @@ class _SliverScaffoldState extends State<SliverScaffold> {
   }
 
   Widget _buildNestedSliverBody(BuildContext context) {
-    return CustomScrollView(
-      physics: _scrollPhysics,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      slivers: [
-        ..._contentSlivers(context),
-        _bottomSpacerSliver,
-      ],
+    return _wrapRefreshable(
+      CustomScrollView(
+        controller: widget.scrollController,
+        physics: _refreshablePhysics,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        slivers: [
+          ..._contentSlivers(context),
+          _bottomSpacerSliver,
+        ],
+      ),
     );
   }
 
   Widget _buildScrollBody(BuildContext context) {
-    if (_hasCollapsingHeader || _usesBodyMode) {
-      return _buildNestedScrollView(context);
+    if (_useUnifiedScroll || (!_hasCollapsingHeader && !_usesBodyMode)) {
+      return _buildSingleScrollView(context);
     }
-    return _buildSingleScrollView(context);
+    return _buildNestedScrollView(context);
   }
 
   @override
