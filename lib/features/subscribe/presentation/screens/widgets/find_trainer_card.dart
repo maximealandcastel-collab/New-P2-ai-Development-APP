@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class FindTrainerCard extends StatelessWidget {
@@ -15,7 +17,7 @@ class FindTrainerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    final controller = SubscribeController.to;
     return CustomContainer(
       color: Colors.white,
       radiusAll: 16.r,
@@ -96,19 +98,26 @@ class FindTrainerCard extends StatelessWidget {
                   fontSize: 14.sp,
                   height: 32.h,
                   onPressed: () {
-                    DialogShowHelper.showBottomSheet(
-                      context,
-                      title: 'Trainer request',
-                      content: CustomTextField(
-                        contentPaddingVertical: 10.h,
-                        labelText: 'Note :',
-                        hintText: 'Write a short message ',
-                        maxLines: 5,
-                        minLines: 5,
-                      ),
-                      buttonLabel: 'Request trainer',
-                      onTapConfirm: () {
-                        /// todo:
+                    showModalBottomSheet(
+                      backgroundColor: Colors.white,
+                      elevation: 2,
+                      context: context,
+                      builder: (context) {
+                        return Obx(() => DialogShowHelper.showBottomSheet(
+                          context,
+                          title: 'Trainer request',
+                          content: CustomTextField(
+                            controller: controller.noteTEController,
+                            contentPaddingVertical: 10.h,
+                            labelText: 'Note :',
+                            hintText: 'Write a short message ',
+                            maxLines: 5,
+                            minLines: 5,
+                          ),
+                          buttonLabel: 'Request trainer',
+                          isLoading: controller.requestLoadingState.isLoading,
+                          onTapConfirm: () => controller.requestTrainer(trainer?.sId ?? ''),
+                        ));
                       },
                     );
                   },

@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
@@ -216,14 +217,19 @@ class SubscribeController extends GetxController {
   }
 
   // ─── Submit Answer ────────────────────────────────────────────────────────
-  Future<void> requestTrainer() async {
+  Future<void> requestTrainer(String trainerId) async {
+    if(noteTEController.text.isEmpty){
+      return ;
+    }
     try {
       _requestLoadingState.value = LoadingState.loading;
       await _service.trainerRequest(
-        trainerId: '',
+        trainerId: trainerId,
         note: noteTEController.text.trim(),
       );
       _requestLoadingState.value = LoadingState.loaded;
+      Get.back(canPop: true);
+      Get.offAllNamed(AppRoute.bottonNavBar);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _requestLoadingState.value = LoadingState.error;
