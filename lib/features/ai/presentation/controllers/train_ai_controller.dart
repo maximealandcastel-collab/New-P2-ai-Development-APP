@@ -47,6 +47,8 @@ class TrainAiController extends GetxController {
   List<String> naturalPhrases = [];
   List<String> neverSayPhrases = [];
 
+  static const int pageCount = 5;
+
   final _submitState = LoadingState.initial.obs;
 
   LoadingState get submitState => _submitState.value;
@@ -83,57 +85,79 @@ class TrainAiController extends GetxController {
     return _profileService.getCachedUserData()?.sId;
   }
 
-  bool _validateRequiredFields() {
-    final daysPerWeek = int.tryParse(daysPerWeekController.text.trim());
-    if (daysPerWeek == null || daysPerWeek < 1 || daysPerWeek > 7) {
-      ToastMessageHelper.show('Enter days per week between 1 and 7');
-      return false;
-    }
-    if (preferredSplits.isEmpty) {
-      ToastMessageHelper.show('Please add at least one preferred split');
-      return false;
-    }
+  bool validateStep(int step) {
+    switch (step) {
+      case 0:
+        final daysPerWeek = int.tryParse(daysPerWeekController.text.trim());
+        if (daysPerWeek == null || daysPerWeek < 1 || daysPerWeek > 7) {
+          ToastMessageHelper.show('Enter days per week between 1 and 7');
+          return false;
+        }
+        if (preferredSplits.isEmpty) {
+          ToastMessageHelper.show('Please add at least one preferred split');
+          return false;
+        }
 
-    final repMin = int.tryParse(repRangeMinController.text.trim());
-    final repMax = int.tryParse(repRangeMaxController.text.trim());
-    if (repMin == null || repMin < 1) {
-      ToastMessageHelper.show('Enter valid min reps (e.g. 8)');
-      return false;
-    }
-    if (repMax == null || repMax < 1 || repMax <= repMin) {
-      ToastMessageHelper.show('Enter valid max reps greater than min (e.g. 20)');
-      return false;
-    }
+        final repMin = int.tryParse(repRangeMinController.text.trim());
+        final repMax = int.tryParse(repRangeMaxController.text.trim());
+        if (repMin == null || repMin < 1) {
+          ToastMessageHelper.show('Enter valid min reps (e.g. 8)');
+          return false;
+        }
+        if (repMax == null || repMax < 1 || repMax <= repMin) {
+          ToastMessageHelper.show(
+            'Enter valid max reps greater than min (e.g. 20)',
+          );
+          return false;
+        }
 
-    final restMin = int.tryParse(restTimeMinController.text.trim());
-    final restMax = int.tryParse(restTimeMaxController.text.trim());
-    if (restMin == null || restMin < 1) {
-      ToastMessageHelper.show('Enter valid min rest time in seconds (e.g. 60)');
-      return false;
-    }
-    if (restMax == null || restMax < 1 || restMax <= restMin) {
-      ToastMessageHelper.show('Enter valid max rest time greater than min (e.g. 90)');
-      return false;
-    }
+        final restMin = int.tryParse(restTimeMinController.text.trim());
+        final restMax = int.tryParse(restTimeMaxController.text.trim());
+        if (restMin == null || restMin < 1) {
+          ToastMessageHelper.show(
+            'Enter valid min rest time in seconds (e.g. 60)',
+          );
+          return false;
+        }
+        if (restMax == null || restMax < 1 || restMax <= restMin) {
+          ToastMessageHelper.show(
+            'Enter valid max rest time greater than min (e.g. 90)',
+          );
+          return false;
+        }
 
-    if (intensityMeasureController.text.trim().isEmpty) {
-      ToastMessageHelper.show('Please select intensity measure');
-      return false;
+        if (intensityMeasureController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select intensity measure');
+          return false;
+        }
+        return true;
+      case 1:
+        if (mustUseExercises.isEmpty) {
+          ToastMessageHelper.show('Please add at least one must use exercise');
+          return false;
+        }
+        return true;
+      case 4:
+        if (coachingStyleController.text.trim().isEmpty) {
+          ToastMessageHelper.show('Please select coaching style');
+          return false;
+        }
+        return true;
+      default:
+        return true;
     }
-    if (mustUseExercises.isEmpty) {
-      ToastMessageHelper.show('Please add at least one must use exercise');
-      return false;
-    }
-    if (coachingStyleController.text.trim().isEmpty) {
-      ToastMessageHelper.show('Please select coaching style');
-      return false;
+  }
+
+  bool validateAllSteps() {
+    for (var step = 0; step < pageCount; step++) {
+      if (!validateStep(step)) return false;
     }
     return true;
   }
 
   Future<void> submitKnowledgePack() async {
     if (!(formKey.currentState?.validate() ?? false)) return;
-    if (!_validateRequiredFields()) return;
+    if (!validateAllSteps()) return;
 
     try {
       _submitState.value = LoadingState.loading;
