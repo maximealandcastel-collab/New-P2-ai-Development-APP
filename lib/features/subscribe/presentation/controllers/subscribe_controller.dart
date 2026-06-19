@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:pler_to_pler_app/core/services/pagination_service.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
@@ -61,14 +62,11 @@ class SubscribeController extends GetxController {
   TrainerDetailsModel? get trainerDetails => _trainerDetails.value;
 
   // ─── Pagination ───────────────────────────────────────────────────────────
-  int _currentPage = 1;
-  final int _limit = 10;
-  final RxBool _isLoadingMore = false.obs;
-  final RxBool _hasMore = true.obs;
+  final pagination = PaginationService(limit: 10);
 
-  bool get isLoadingMore => _isLoadingMore.value;
+  bool get isLoadingMore => pagination.isLoadingMore.value;
 
-  bool get hasMore => _hasMore.value && !_isLoadingMore.value;
+  bool get hasMore => pagination.hasMore.value;
 
   // ─── Scroll Controller ────────────────────────────────────────────────────
   ScrollController? _scrollController;
@@ -96,13 +94,7 @@ class SubscribeController extends GetxController {
   }
 
   void _onScroll() {
-    if (_scrollController == null) return;
-    final position = _scrollController!.position;
-    if (position.pixels >= position.maxScrollExtent - 200 &&
-        !_isLoadingMore.value &&
-        hasMore) {
-      _loadMore();
-    }
+    pagination.handleScroll(_scrollController, _loadMore);
   }
 
   // ─── Poll List ────────────────────────────────────────────────────────────
@@ -126,7 +118,8 @@ class SubscribeController extends GetxController {
       }
 
       try {
-        await _service.fetchPolls(1, _limit, search: searchController.text);
+        await _service.fetchPolls(1, pagination.limit, search: searchController.text);
+        pagination.markFirstPageLoaded();
         _loadFromCache();
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
@@ -145,28 +138,22 @@ class SubscribeController extends GetxController {
   }
 
   Future<void> _loadMore() async {
-    if (_isLoadingMore.value || !hasMore) return;
+    final page = pagination.startLoadMore();
+    if (page == null) return;
 
     try {
-      _isLoadingMore.value = true;
-      _currentPage++;
-
-      final newPolls = await _service.fetchMorePolls(_currentPage, _limit);
+      final newPolls = await _service.fetchMorePolls(page, pagination.limit);
 
       if (newPolls.isNotEmpty) {
         _trainers.addAll(newPolls);
-        if (newPolls.length < _limit) _hasMore.value = false;
-      } else {
-        _hasMore.value = false;
       }
+      pagination.finishLoadMore(newPolls.length);
     } on AppException catch (e) {
-      _currentPage--;
+      pagination.failLoadMore();
       if (kDebugMode) debugPrint('Load more error: $e');
     } catch (e) {
-      _currentPage--;
+      pagination.failLoadMore();
       if (kDebugMode) debugPrint('Unexpected error: ${e.toString()}');
-    } finally {
-      _isLoadingMore.value = false;
     }
   }
 
@@ -195,7 +182,13 @@ class SubscribeController extends GetxController {
   // ─── Refresh  ──────────────────────────────────────────────────────
   @override
   Future<void> refresh() async {
-    await _loadData();
+    pagination.beginRefresh();
+    pagination.scrollToTop(_scrollController);
+    try {
+      await _loadData();
+    } finally {
+      pagination.endRefresh();
+    }
   }
 
   // ─── Poll Details ─────────────────────────────────────────────────────────
