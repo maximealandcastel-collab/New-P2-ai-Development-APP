@@ -56,7 +56,7 @@ class CustomSearchField extends StatelessWidget {
               TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
             ),
             hintStyle: WidgetStateProperty.all(
-              TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
+              TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
             ),
 
             onChanged: (value) {},

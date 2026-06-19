@@ -194,8 +194,6 @@ class SubscribeController extends GetxController {
   // ─── Refresh  ──────────────────────────────────────────────────────
   @override
   Future<void> refresh() async {
-    _currentPage = 1;
-    _hasMore.value = true;
     await _loadData();
   }
 

@@ -246,6 +246,9 @@ class _SliverScaffoldState extends State<SliverScaffold> {
   Widget _wrapRefreshable(Widget child) {
     if (widget.onRefresh == null) return child;
     return RefreshIndicator(
+      backgroundColor: AppColors.backgroundLight,
+      color: AppColors.primary,
+      edgeOffset: (widget.expandedHeight  ?? 0) + 16.h,
       onRefresh: widget.onRefresh!,
       child: child,
     );
