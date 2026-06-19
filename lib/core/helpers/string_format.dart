@@ -26,7 +26,6 @@ class StringFormat {
   }
 
   static String formatPrice(SubscriptionPrice? price) {
-    if (price?.free == true) return 'Free';
     final premium = price?.premium;
     if (premium == null) return 'N/A';
     return '\$ $premium';
