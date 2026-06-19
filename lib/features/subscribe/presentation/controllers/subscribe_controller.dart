@@ -7,7 +7,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
-import 'package:pler_to_pler_app/core/services/pagination_service.dart';
+import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
@@ -29,13 +29,10 @@ class SubscribeController extends GetxController {
   final searchController = TextEditingController();
 
   final RxInt _selected = 0.obs;
-
   final RxInt _selectedIndex = 0.obs;
 
   int get selected => _selected.value;
-
   int get selectedIndex => _selectedIndex.value;
-
   set selected(int val) => _selected.value = val;
 
   void onChange(int index) {
@@ -48,30 +45,18 @@ class SubscribeController extends GetxController {
   final Rx<LoadingState> _requestLoadingState = LoadingState.initial.obs;
 
   LoadingState get loadingState => _loadingState.value;
-
   LoadingState get detailsLoadingState => _detailsLoadingState.value;
-
   LoadingState get requestLoadingState => _requestLoadingState.value;
 
   // ─── Data ─────────────────────────────────────────────────────────────────
-  final RxList<FindTrainerModel> _trainers = <FindTrainerModel>[].obs;
   final _trainerDetails = Rxn<TrainerDetailsModel>();
-
-  List<FindTrainerModel> get trainers => _trainers;
-
   TrainerDetailsModel? get trainerDetails => _trainerDetails.value;
 
-  // ─── Pagination ───────────────────────────────────────────────────────────
-  final pagination = PaginationService(limit: 10);
+  late final PaginatedList<FindTrainerModel> trainersList;
 
-  bool get isLoadingMore => pagination.isLoadingMore.value;
-
-  bool get hasMore => pagination.hasMore.value;
-
-  // ─── Scroll Controller ────────────────────────────────────────────────────
-  ScrollController? _scrollController;
-
-  ScrollController? get scrollController => _scrollController;
+  List<FindTrainerModel> get trainers => trainersList.items;
+  bool get isLoadingMore => trainersList.isLoadingMore.value;
+  ScrollController? get scrollController => trainersList.scrollController;
 
   late final SearchService<FindTrainerModel> search;
 
@@ -79,22 +64,24 @@ class SubscribeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    trainersList = PaginatedList<FindTrainerModel>(
+      limit: 10,
+      fetchPage: _fetchTrainersPage,
+    );
+    trainersList.initScroll();
     search = SearchService(fetcher: _fetchSearch);
-    _initScrollController();
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();
     });
     _loadData();
   }
 
-  // ─── Scroll ───────────────────────────────────────────────────────────────
-  void _initScrollController() {
-    _scrollController = ScrollController();
-    _scrollController!.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    pagination.handleScroll(_scrollController, _loadMore);
+  Future<List<FindTrainerModel>> _fetchTrainersPage(int page, int limit) async {
+    if (page == 1) {
+      await _service.fetchPolls(page, limit, search: searchController.text);
+      return _service.getCachedTrainers();
+    }
+    return _service.fetchMorePolls(page, limit);
   }
 
   // ─── Poll List ────────────────────────────────────────────────────────────
@@ -104,23 +91,19 @@ class SubscribeController extends GetxController {
       final isOnline = _connectivityService.isConnected.value;
 
       if (hasCache) {
-        _loadFromCache();
+        trainersList.items.value = _service.getCachedTrainers();
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.loading;
       }
 
       if (!isOnline) {
-        if (!hasCache) {
-          _loadingState.value = LoadingState.offline;
-        }
+        if (!hasCache) _loadingState.value = LoadingState.offline;
         return;
       }
 
       try {
-        await _service.fetchPolls(1, pagination.limit, search: searchController.text);
-        pagination.markFirstPageLoaded();
-        _loadFromCache();
+        await trainersList.loadFirst();
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
         if (!hasCache) _loadingState.value = LoadingState.error;
@@ -128,37 +111,13 @@ class SubscribeController extends GetxController {
       }
     } catch (e) {
       if (_service.hasCache()) {
-        _loadFromCache();
+        trainersList.items.value = _service.getCachedTrainers();
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.error;
       }
       if (kDebugMode) debugPrint('Unexpected error: ${e.toString()}');
     }
-  }
-
-  Future<void> _loadMore() async {
-    final page = pagination.startLoadMore();
-    if (page == null) return;
-
-    try {
-      final newPolls = await _service.fetchMorePolls(page, pagination.limit);
-
-      if (newPolls.isNotEmpty) {
-        _trainers.addAll(newPolls);
-      }
-      pagination.finishLoadMore(newPolls.length);
-    } on AppException catch (e) {
-      pagination.failLoadMore();
-      if (kDebugMode) debugPrint('Load more error: $e');
-    } catch (e) {
-      pagination.failLoadMore();
-      if (kDebugMode) debugPrint('Unexpected error: ${e.toString()}');
-    }
-  }
-
-  void _loadFromCache() {
-    _trainers.value = _service.getCachedTrainers();
   }
 
   Future<List<FindTrainerModel>> _fetchSearch(String query) async {
@@ -181,15 +140,7 @@ class SubscribeController extends GetxController {
 
   // ─── Refresh  ──────────────────────────────────────────────────────
   @override
-  Future<void> refresh() async {
-    pagination.beginRefresh();
-    pagination.scrollToTop(_scrollController);
-    try {
-      await _loadData();
-    } finally {
-      pagination.endRefresh();
-    }
-  }
+  Future<void> refresh() => trainersList.refreshWith(_loadData);
 
   // ─── Poll Details ─────────────────────────────────────────────────────────
   Future<void> fetchDetails(
@@ -212,9 +163,7 @@ class SubscribeController extends GetxController {
 
   // ─── Submit Answer ────────────────────────────────────────────────────────
   Future<void> requestTrainer(String trainerId) async {
-    if(noteTEController.text.isEmpty){
-      return ;
-    }
+    if (noteTEController.text.isEmpty) return;
     try {
       _requestLoadingState.value = LoadingState.loading;
       await _service.trainerRequest(
@@ -234,9 +183,7 @@ class SubscribeController extends GetxController {
   // ─── On Close ─────────────────────────────────────────────────────────────
   @override
   void onClose() {
-    _scrollController?.removeListener(_onScroll);
-    _scrollController?.dispose();
-    _scrollController = null;
+    trainersList.dispose();
     searchController.dispose();
     noteTEController.dispose();
     super.onClose();
