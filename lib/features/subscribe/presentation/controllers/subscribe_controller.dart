@@ -199,16 +199,17 @@ class SubscribeController extends GetxController {
   }
 
   // ─── Poll Details ─────────────────────────────────────────────────────────
-  Future<void> fetchPollDetails(
+  Future<void> fetchDetails(
     String trainerID, {
     bool showLoader = true,
   }) async {
     try {
       if (showLoader) {
+        _trainerDetails.value = null;
         _detailsLoadingState.value = LoadingState.loading;
       }
-      final poll = await _service.trainerDetails(trainerID);
-      _trainerDetails.value = poll;
+      final details = await _service.trainerDetails(trainerID);
+      _trainerDetails.value = details;
       _detailsLoadingState.value = LoadingState.loaded;
     } catch (e) {
       _detailsLoadingState.value = LoadingState.error;

@@ -34,7 +34,7 @@ class FindTrainerCard extends StatelessWidget {
                 imageUrl: '',
               ),
 
-              SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +53,9 @@ class FindTrainerCard extends StatelessWidget {
                       maxline: 1,
                       textOverflow: TextOverflow.ellipsis,
                       color: AppColors.textSecondary,
-                      text: StringFormat.formatSpecialty(trainer?.specialty ?? '') ,
+                      text: StringFormat.formatSpecialty(
+                        trainer?.specialty ?? '',
+                      ),
                     ),
                   ],
                 ),
@@ -81,7 +83,10 @@ class FindTrainerCard extends StatelessWidget {
                   fontSize: 14.sp,
                   height: 32.h,
                   onPressed: () {
-                    Get.toNamed(AppRoute.trainerProfileScreen);
+                    Get.toNamed(
+                      AppRoute.trainerProfileScreen,
+                      arguments: trainer?.sId ?? '',
+                    );
                   },
                   label: 'View profile',
                 ),
@@ -103,21 +108,24 @@ class FindTrainerCard extends StatelessWidget {
                       elevation: 2,
                       context: context,
                       builder: (context) {
-                        return Obx(() => DialogShowHelper.showBottomSheet(
-                          context,
-                          title: 'Trainer request',
-                          content: CustomTextField(
-                            controller: controller.noteTEController,
-                            contentPaddingVertical: 10.h,
-                            labelText: 'Note :',
-                            hintText: 'Write a short message ',
-                            maxLines: 5,
-                            minLines: 5,
+                        return Obx(
+                          () => DialogShowHelper.showBottomSheet(
+                            context,
+                            title: 'Trainer request',
+                            content: CustomTextField(
+                              controller: controller.noteTEController,
+                              contentPaddingVertical: 10.h,
+                              labelText: 'Note :',
+                              hintText: 'Write a short message ',
+                              maxLines: 5,
+                              minLines: 5,
+                            ),
+                            buttonLabel: 'Request trainer',
+                            isLoading: controller.requestLoadingState.isLoading,
+                            onTapConfirm: () =>
+                                controller.requestTrainer(trainer?.sId ?? ''),
                           ),
-                          buttonLabel: 'Request trainer',
-                          isLoading: controller.requestLoadingState.isLoading,
-                          onTapConfirm: () => controller.requestTrainer(trainer?.sId ?? ''),
-                        ));
+                        );
                       },
                     );
                   },

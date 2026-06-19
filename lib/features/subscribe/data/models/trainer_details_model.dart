@@ -43,9 +43,13 @@ class TrainerDetailsModel {
     json['userId'] != null ? UserId.fromJson(json['userId']) : null;
     name = json['name'];
     bio = json['bio'];
-    certifications = json['certifications'].cast<String>();
+    certifications = json['certifications'] != null
+        ? List<String>.from(json['certifications'])
+        : null;
     specialty = json['specialty'];
-    trainingStyleTags = json['trainingStyleTags'].cast<String>();
+    trainingStyleTags = json['trainingStyleTags'] != null
+        ? List<String>.from(json['trainingStyleTags'])
+        : null;
     systemPrompt = json['systemPrompt'];
     subscriptionPrice = json['subscriptionPrice'] != null
         ? SubscriptionPrice.fromJson(json['subscriptionPrice'])
