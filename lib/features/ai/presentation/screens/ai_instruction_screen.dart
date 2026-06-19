@@ -55,7 +55,7 @@ class AiInstructionScreen extends StatelessWidget {
             child: Padding(
               padding:  EdgeInsets.all(16.r),
               child: CustomButton(onPressed: (){
-                Get.toNamed(AppRoute.trainAiScreen);
+                Get.offAllNamed(AppRoute.trainAiScreen);
               },label: 'Train your personal AI',),
             )),
       ),
