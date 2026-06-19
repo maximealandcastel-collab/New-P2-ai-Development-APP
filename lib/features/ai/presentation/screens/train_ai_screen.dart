@@ -5,11 +5,18 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
-import 'package:pler_to_pler_app/features/ai/presentation/screens/children/coaching_mindset_page.dart';
-import 'package:pler_to_pler_app/features/ai/presentation/screens/children/communication_page.dart';
-import 'package:pler_to_pler_app/features/ai/presentation/screens/children/exercises_page.dart';
-import 'package:pler_to_pler_app/features/ai/presentation/screens/children/nutrition_page.dart';
-import 'package:pler_to_pler_app/features/ai/presentation/screens/children/training_setup_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/avoid_accessory_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/cardio_must_use_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/communication_style_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/consistency_motivation_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/days_splits_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/intensity_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/natural_phrases_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/plateau_deload_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/plate_weekend_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/protein_hydration_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/rep_range_page.dart';
+import 'package:pler_to_pler_app/features/ai/presentation/screens/children/rest_times_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -25,11 +32,18 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
   late PageController pageController;
 
   final List<Widget> pages = const [
-    TrainingSetupPage(),
-    ExercisesPage(),
-    NutritionPage(),
-    CoachingMindsetPage(),
-    CommunicationPage(),
+    DaysSplitsPage(),
+    RepRangePage(),
+    RestTimesPage(),
+    IntensityPage(),
+    CardioMustUsePage(),
+    AvoidAccessoryPage(),
+    ProteinHydrationPage(),
+    PlateWeekendPage(),
+    ConsistencyMotivationPage(),
+    PlateauDeloadPage(),
+    NaturalPhrasesPage(),
+    CommunicationStylePage(),
   ];
 
   @override
@@ -100,7 +114,8 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
             pages.length,
             (index) => Expanded(
               child: CustomContainer(
-                marginLeft: (index == 0 && currentIndex == 0) ? 16.w : 4.w,
+                marginLeft: index == 0 ? 16.w : 2.w,
+                marginRight: index == pages.length - 1 ? 16.w : 2.w,
                 height: 6.h,
                 color: currentIndex == index
                     ? AppColors.textPrimary
@@ -129,10 +144,11 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
+                    SizedBox(height: 16.h),
                     const AppLogoWidget(
                       subtitle: 'Train your personal AI',
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 24.h),
                     pages[index],
                     SizedBox(height: 24.h),
                   ],

@@ -3,12 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
-import 'package:pler_to_pler_app/widgets/dynamic_field_list_widget.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class CommunicationPage extends StatelessWidget {
-  const CommunicationPage({super.key});
+class CommunicationStylePage extends StatelessWidget {
+  const CommunicationStylePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +22,6 @@ class CommunicationPage extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
         SizedBox(height: 16.h),
-        DynamicFieldListWidget(
-          title: 'Natural phrases',
-          initialValues: controller.naturalPhrases,
-          onChanged: controller.setNaturalPhrases,
-        ),
         TagAddWidget(
           labelText: 'Never say phrases',
           hintText: 'Write here ...',

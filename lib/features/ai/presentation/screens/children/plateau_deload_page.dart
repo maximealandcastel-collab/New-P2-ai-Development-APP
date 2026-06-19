@@ -4,8 +4,8 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class NutritionPage extends StatelessWidget {
-  const NutritionPage({super.key});
+class PlateauDeloadPage extends StatelessWidget {
+  const PlateauDeloadPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class NutritionPage extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         CustomText(
-          text: 'Nutrition',
+          text: 'Progress protocol',
           fontSize: 24.sp,
           fontWeight: FontWeight.w600,
         ),
@@ -24,33 +24,17 @@ class NutritionPage extends StatelessWidget {
           keyboardType: TextInputType.text,
           borderColor: Colors.transparent,
           labelColor: AppColors.textPrimary,
-          labelText: 'Protein target',
+          labelText: 'Plateau protocol',
           hintText: 'Write here  . . .',
-          controller: controller.proteinTargetController,
+          controller: controller.plateauProtocolController,
         ),
         CustomTextField(
           keyboardType: TextInputType.text,
           borderColor: Colors.transparent,
           labelColor: AppColors.textPrimary,
-          labelText: 'Hydration rule',
+          labelText: 'Deload rules',
           hintText: 'Write here  . . .',
-          controller: controller.hydrationRuleController,
-        ),
-        CustomTextField(
-          keyboardType: TextInputType.text,
-          borderColor: Colors.transparent,
-          labelColor: AppColors.textPrimary,
-          labelText: 'Maintenance plate',
-          hintText: 'Write here  . . .',
-          controller: controller.maintenancePlateController,
-        ),
-        CustomTextField(
-          keyboardType: TextInputType.text,
-          borderColor: Colors.transparent,
-          labelColor: AppColors.textPrimary,
-          labelText: 'Weekend strategy',
-          hintText: 'Write here  . . .',
-          controller: controller.weekendStrategyController,
+          controller: controller.deloadRulesController,
         ),
       ],
     );

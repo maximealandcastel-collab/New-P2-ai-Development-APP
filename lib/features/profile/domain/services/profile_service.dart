@@ -60,7 +60,7 @@ class ProfileService {
     }
 
     if (user?.role == 'trainer') {
-      return AppRoute.trainerCompleteProfileScreen;
+      return AppRoute.trainAiScreen;
     }
 
     return AppRoute.userCompleteProfileScreen;

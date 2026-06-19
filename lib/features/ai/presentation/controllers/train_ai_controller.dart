@@ -47,7 +47,7 @@ class TrainAiController extends GetxController {
   List<String> naturalPhrases = [];
   List<String> neverSayPhrases = [];
 
-  static const int pageCount = 5;
+  static const int pageCount = 12;
 
   final _submitState = LoadingState.initial.obs;
 
@@ -97,7 +97,8 @@ class TrainAiController extends GetxController {
           ToastMessageHelper.show('Please add at least one preferred split');
           return false;
         }
-
+        return true;
+      case 1:
         final repMin = int.tryParse(repRangeMinController.text.trim());
         final repMax = int.tryParse(repRangeMaxController.text.trim());
         if (repMin == null || repMin < 1) {
@@ -110,7 +111,8 @@ class TrainAiController extends GetxController {
           );
           return false;
         }
-
+        return true;
+      case 2:
         final restMin = int.tryParse(restTimeMinController.text.trim());
         final restMax = int.tryParse(restTimeMaxController.text.trim());
         if (restMin == null || restMin < 1) {
@@ -125,19 +127,20 @@ class TrainAiController extends GetxController {
           );
           return false;
         }
-
+        return true;
+      case 3:
         if (intensityMeasureController.text.trim().isEmpty) {
           ToastMessageHelper.show('Please select intensity measure');
           return false;
         }
         return true;
-      case 1:
+      case 4:
         if (mustUseExercises.isEmpty) {
           ToastMessageHelper.show('Please add at least one must use exercise');
           return false;
         }
         return true;
-      case 4:
+      case 11:
         if (coachingStyleController.text.trim().isEmpty) {
           ToastMessageHelper.show('Please select coaching style');
           return false;
