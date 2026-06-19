@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
@@ -14,6 +15,7 @@ class FindTrainerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return CustomContainer(
       color: Colors.white,
       radiusAll: 16.r,
@@ -49,7 +51,7 @@ class FindTrainerCard extends StatelessWidget {
                       maxline: 1,
                       textOverflow: TextOverflow.ellipsis,
                       color: AppColors.textSecondary,
-                      text: trainer?.specialty ?? '',
+                      text: StringFormat.formatSpecialty(trainer?.specialty ?? '') ,
                     ),
                   ],
                 ),
