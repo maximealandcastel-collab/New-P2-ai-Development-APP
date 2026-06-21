@@ -65,7 +65,7 @@ class ContentsScreen extends StatelessWidget {
           ),
         ),
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 24.h),
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 120.h),
           sliver: SliverList.builder(
             itemCount: 20,
             itemBuilder: (context, index) {
