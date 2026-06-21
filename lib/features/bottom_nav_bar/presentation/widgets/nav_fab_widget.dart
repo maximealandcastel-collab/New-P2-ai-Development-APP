@@ -1,76 +1,43 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class NavFabWidget {
-  NavFabWidget._();
-
-  static final NavFabWidget instance = NavFabWidget._();
-
-  Future<dynamic> show(
-    BuildContext context, {
-    VoidCallback? onPostContent,
-    VoidCallback? onAddSchedule,
-    VoidCallback? onAddExercise,
-  }) {
-    final double bottomNavHeight = MediaQuery.of(context).padding.bottom + 44.h;
+  static Future<void> show(BuildContext context, List<NavFabModel> items) {
+    final bottomOffset = MediaQuery.paddingOf(context).bottom + 44.h;
 
     return showCupertinoDialog(
-      barrierColor: Colors.black.withOpacity(0.80),
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (context) => Dialog(
         insetPadding: EdgeInsets.zero,
         backgroundColor: Colors.transparent,
         child: Stack(
           children: [
-            Positioned.fill(child: GestureDetector(onTap: () => Get.back())),
+            Positioned.fill(
+              child: GestureDetector(onTap: Get.back),
+            ),
             Positioned(
-              bottom: bottomNavHeight + 44.h,
-              right: 16.w,
               left: 16.w,
+              right: 16.w,
+              bottom: bottomOffset + 44.h,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
                 spacing: 6.h,
-                children: [
-                  _buildMenuItem(
-                    icon: Assets.icons.contents.svg(),
-                    label: 'Post a content',
-                    onTap: () {
-                      Get.back();
-                      onPostContent?.call();
-                    },
-                  ),
-                  _buildMenuItem(
-                    icon: Assets.icons.person.svg(),
-                    label: 'Find Trainer',
-                    onTap: () {
-                      Get.back();
-                      onAddSchedule?.call();
-                    },
-                  ),
-                  _buildMenuItem(
-                    icon: Assets.icons.exercise.svg(),
-                    label: 'Add exercise plan',
-                    onTap: () {
-                      Get.back();
-                      onAddExercise?.call();
-                    },
-                  ),
-                ],
+                mainAxisSize: MainAxisSize.min,
+                children: items.map(_buildMenuItem).toList(),
               ),
             ),
-
             Positioned(
-              bottom: bottomNavHeight - 24.h,
-              right: 0,
               left: 0,
+              right: 0,
+              bottom: bottomOffset - 24.h,
               child: Center(
                 child: GestureDetector(
-                  onTap: () => Get.back(),
+                  onTap: Get.back,
                   child: CustomContainer(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -86,29 +53,26 @@ class NavFabWidget {
     );
   }
 
-  Widget _buildMenuItem({
-    required Widget icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
+  static Widget _buildMenuItem(NavFabModel item) {
     return CustomContainer(
-      width: 182.w,
+      width: 245.w,
       color: Colors.white,
       radiusAll: 12.r,
-      paddingAll: 12.r,
-      onTap: onTap,
+      paddingAll: 10.r,
+      onTap: () {
+        Get.back();
+        item.onTap();
+      },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          icon,
+          SvgPicture.asset(item.icon, width: 24.w, height: 24.h),
           Flexible(
-            child: FittedBox(
-              child: CustomText(
-                left: 4.w,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
-                text: label,
-              ),
+            child: CustomText(
+              left: 4.w,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              text: item.label,
             ),
           ),
         ],

@@ -44,6 +44,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/camera.svg
   SvgGenImage get camera => const SvgGenImage('assets/icons/camera.svg');
 
+  /// File path: assets/icons/category.svg
+  SvgGenImage get category => const SvgGenImage('assets/icons/category.svg');
+
   /// File path: assets/icons/check.svg
   SvgGenImage get check => const SvgGenImage('assets/icons/check.svg');
 
@@ -109,6 +112,9 @@ class $AssetsIconsGen {
   SvgGenImage get personalTrainer =>
       const SvgGenImage('assets/icons/personal_trainer.svg');
 
+  /// File path: assets/icons/post.svg
+  SvgGenImage get post => const SvgGenImage('assets/icons/post.svg');
+
   /// File path: assets/icons/progress.svg
   SvgGenImage get progress => const SvgGenImage('assets/icons/progress.svg');
 
@@ -152,6 +158,7 @@ class $AssetsIconsGen {
     attention,
     calender,
     camera,
+    category,
     check,
     clean,
     date,
@@ -172,6 +179,7 @@ class $AssetsIconsGen {
     paypal,
     person,
     personalTrainer,
+    post,
     progress,
     recieved,
     request,
@@ -268,22 +276,11 @@ class $AssetsImagesGen {
   ];
 }
 
-class $AssetsLogosGen {
-  const $AssetsLogosGen();
-
-  /// File path: assets/logos/img.png
-  AssetGenImage get img => const AssetGenImage('assets/logos/img.png');
-
-  /// List of all assets
-  List<AssetGenImage> get values => [img];
-}
-
 class Assets {
   const Assets._();
 
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
-  static const $AssetsLogosGen logos = $AssetsLogosGen();
 }
 
 class AssetGenImage {

@@ -1,14 +1,10 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_fab_widget.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_item_widget.dart';
-import 'package:pler_to_pler_app/features/trainer/contentPost/presentation/screens/content_post_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
-import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -18,6 +14,8 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = BottomNavBarController.to;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, MediaQuery.of(context).padding.bottom + 8.h),
       child: LiquidGlassLayer(
@@ -37,17 +35,7 @@ class BottomNavBar extends StatelessWidget {
 
                 // Centre FAB
                 GestureDetector(
-                  onTap: () {
-                    NavFabWidget.instance.show(
-                      context,
-                      onPostContent: () =>
-                          Get.to(() => const ContentPostScreen()),
-                      onAddSchedule: () =>
-                          Get.to(() => const FindTrainerScreen()),
-                      onAddExercise: () =>
-                          Get.to(() => const CreateExercisePlanScreen()),
-                    );
-                  },
+                  onTap: () => NavFabWidget.show(context, controller.fabItems),
                   child: Assets.icons.addButton.svg(
                     height: 48.h,
                     width: 48.w,

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 
 class BottomNavBarController extends GetxController {
@@ -12,6 +13,11 @@ class BottomNavBarController extends GetxController {
       LoginController.to.isTrainer()
           ? NavItemModel.trainerNavItems
           : NavItemModel.userNavItems;
+
+  List<NavFabModel> get fabItems =>
+      LoginController.to.isTrainer()
+          ? NavFabModel.trainerFabItems
+          : NavFabModel.userFabItems;
 
   void onChange(int index) {
     _selectedIndex.value = index;
