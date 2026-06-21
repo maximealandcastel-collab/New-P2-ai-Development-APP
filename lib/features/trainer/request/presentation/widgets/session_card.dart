@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class RequestCard extends StatelessWidget {
@@ -65,10 +66,10 @@ class RequestCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.message),
+                    Assets.icons.note.svg(),
                     CustomText(
+                      left: 6.w,
                       fontWeight: FontWeight.w600,
-                      top: 10.h,
                       textAlign: TextAlign.start,
                       text: 'Note',
                       fontSize: 12.sp,
@@ -76,6 +77,7 @@ class RequestCard extends StatelessWidget {
                   ],
                 ),
                 CustomText(
+                  top: 6.h,
                   fontWeight: FontWeight.w500,
                   color: Colors.black.withValues(alpha: 0.50),
                   textAlign: TextAlign.start,

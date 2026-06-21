@@ -88,6 +88,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/more.svg
   SvgGenImage get more => const SvgGenImage('assets/icons/more.svg');
 
+  /// File path: assets/icons/note.svg
+  SvgGenImage get note => const SvgGenImage('assets/icons/note.svg');
+
   /// File path: assets/icons/notification.svg
   SvgGenImage get notification =>
       const SvgGenImage('assets/icons/notification.svg');
@@ -163,6 +166,7 @@ class $AssetsIconsGen {
     message,
     missing,
     more,
+    note,
     notification,
     passwordIcon,
     paypal,
