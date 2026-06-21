@@ -62,7 +62,6 @@ class _ExerciseSummaryScreenState extends State<ExerciseSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // App bar
-              FeedAppBar(),
               SizedBox(height: 20.h),
 
               // Exercise summary card

@@ -60,7 +60,6 @@ class _FeedScreenState extends State<FeedScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            FeedAppBar(),
             SizedBox(height: 14.h),
             _TabBar(
               tabs: _tabs,

@@ -109,7 +109,6 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            FeedAppBar(),
             // ── Tab switcher
             _TabSwitcher(
               selected: _selectedTab,

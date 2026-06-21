@@ -22,7 +22,6 @@ class UserHomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FeedAppBar(),
               _HeroBanner(),
               SizedBox(height: 20.h),
               _DailyToDoSection(),

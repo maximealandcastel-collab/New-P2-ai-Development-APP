@@ -3,9 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/home/widgets/ai_insight_widget.dart';
-import 'package:pler_to_pler_app/features/home/widgets/session_card_widget.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
+import 'package:pler_to_pler_app/features/home/widgets/session_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerHomeScreen extends StatelessWidget {
@@ -15,6 +14,7 @@ class TrainerHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const FeedAppBarSliver(),
         Column(
           children: [
             SizedBox(height: 18.h),
@@ -106,12 +106,6 @@ class TrainerHomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            SizedBox(height: 8.h),
-
-             AiInsightWidget(),
-
-            SizedBox(height: 140.h),
           ],
         ).asSliverWithPadding(horizontal: 16.w)
       ],

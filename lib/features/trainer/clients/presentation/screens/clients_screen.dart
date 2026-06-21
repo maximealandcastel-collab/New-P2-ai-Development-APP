@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_details_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/widgets/client_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/custom_search_field.dart';
@@ -79,6 +80,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const FeedAppBarSliver(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Column(
