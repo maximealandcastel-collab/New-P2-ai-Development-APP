@@ -4,7 +4,7 @@ import 'package:pler_to_pler_app/features/home/trainer_home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/contents_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/request_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_screen.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
 import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_summary_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
