@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -55,39 +57,47 @@ class GoalSetupPage extends StatelessWidget {
         GestureDetector(
           onTap: () {
             DateTime tempDate = controller.selectedDateOfBirth;
-            DialogShowHelper.showBottomSheet(
-              context,
-              title: 'Date of birth',
-              content: SizedBox(
-                height: 186.h,
-                child: CupertinoTheme(
-                  data: CupertinoThemeData(
-                    textTheme: CupertinoTextThemeData(
-                      dateTimePickerTextStyle: TextStyle(
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w600,
-                        color: CupertinoColors.black,
+            showModalBottomSheet(
+                backgroundColor: Colors.white,
+                elevation: 2,
+                context: context, builder: (context) {
+              return             DialogShowHelper.showBottomSheet(
+                context,
+                title: 'Date of birth',
+                content: SizedBox(
+                  height: 186.h,
+                  child: CupertinoTheme(
+                    data: CupertinoThemeData(
+                      textTheme: CupertinoTextThemeData(
+                        dateTimePickerTextStyle: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                          color: CupertinoColors.black,
+                        ),
                       ),
                     ),
-                  ),
-                  child: CupertinoDatePicker(
-                    itemExtent: 32.0,
-                    onDateTimeChanged: (DateTime newDate) {
-                      tempDate = newDate;
-                    },
-                    initialDateTime: controller.selectedDateOfBirth,
-                    mode: CupertinoDatePickerMode.date,
-                    minimumYear: 1900,
-                    maximumYear: DateTime.now().year,
-                    backgroundColor: Colors.white,
+                    child: CupertinoDatePicker(
+                      itemExtent: 32.0,
+                      onDateTimeChanged: (DateTime newDate) {
+                        tempDate = newDate;
+                      },
+                      initialDateTime: controller.selectedDateOfBirth,
+                      mode: CupertinoDatePickerMode.date,
+                      minimumYear: 1900,
+                      maximumYear: DateTime.now().year,
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              onTapConfirm: () {
-                controller.selectedDateOfBirth = tempDate;
-                controller.dateOfBirthController.text =
-                    TimeFormatHelper.formatDate(tempDate);
-              },
+                onTapConfirm: () {
+                  controller.selectedDateOfBirth = tempDate;
+                  controller.dateOfBirthController.text =
+                      TimeFormatHelper.formatDate(tempDate);
+                  Get.back(canPop: true);
+                },
+              );
+
+            }
             );
           },
           child: AbsorbPointer(

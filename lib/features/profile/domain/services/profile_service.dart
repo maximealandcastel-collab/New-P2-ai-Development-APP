@@ -56,13 +56,8 @@ class ProfileService {
 
     final user = getCachedUserData();
     if (user?.onboardingCompleted == true) {
-      return AppRoute.subscribeSelectScreen;
+        return AppRoute.bottonNavBar;
     }
-
-    if (user?.role == 'trainer') {
-      return AppRoute.trainAiScreen;
-    }
-
     return AppRoute.userCompleteProfileScreen;
   }
 }
