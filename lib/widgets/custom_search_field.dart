@@ -47,7 +47,7 @@ class CustomSearchField extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(Colors.white),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24.r),
+                borderRadius: BorderRadius.circular(14.r),
                 side: const BorderSide(color: Color(0xFFE6E6E6)),
               ),
             ),

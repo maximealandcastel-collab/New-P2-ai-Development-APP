@@ -79,6 +79,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home.svg
   SvgGenImage get home => const SvgGenImage('assets/icons/home.svg');
 
+  /// File path: assets/icons/message.svg
+  SvgGenImage get message => const SvgGenImage('assets/icons/message.svg');
+
   /// File path: assets/icons/missing.svg
   SvgGenImage get missing => const SvgGenImage('assets/icons/missing.svg');
 
@@ -157,6 +160,7 @@ class $AssetsIconsGen {
     exercise,
     file,
     home,
+    message,
     missing,
     more,
     notification,

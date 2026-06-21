@@ -15,13 +15,14 @@ class ContentsScreen extends StatelessWidget {
          FeedAppBarSliver(
            pinned: true,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(90.h),
+            preferredSize: Size.fromHeight(98.h),
             child: Padding(
               padding:  EdgeInsets.fromLTRB(16.w,0.h,16.w,0),
               child: CustomContainer(
                 topLeftRadius: 16.r,
                 topRightRadius: 16.r,
                 paddingTop: 16.h,
+                paddingBottom: 8.h,
                 color: Colors.white,
                 width: double.infinity,
                 child: Column(
@@ -72,7 +73,6 @@ class ContentsScreen extends StatelessWidget {
             itemCount: 20,
             itemBuilder: (context, index) {
               return CustomContainer(
-                paddingTop: 10.h,
                 color: Colors.white,
                 paddingLeft: 16.w,
                 paddingRight: 16.w,
