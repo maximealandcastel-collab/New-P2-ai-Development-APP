@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/content_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -40,6 +41,7 @@ class ContentsScreen extends StatelessWidget {
                         itemCount: 20,
                         itemBuilder: (context, index) {
                           return CustomContainer(
+                            bordersColor: AppColors.secondary,
                             radiusAll: 99.r,
                             marginTop: 3.h,
                             marginLeft: index == 0 ? 10.w : 0,
@@ -47,11 +49,11 @@ class ContentsScreen extends StatelessWidget {
                             marginRight: 6.w,
                             paddingVertical: 6.h,
                             paddingHorizontal: 12.r,
-                            color: Colors.black,
+                            color: Colors.transparent,
                             child: CustomText(
                               fontWeight: FontWeight.w600,
                               fontSize: 16.sp,
-                              color: Colors.white,
+                              color: AppColors.textSecondary,
                               text: 'Muscles gain',
                             ),
                           );
