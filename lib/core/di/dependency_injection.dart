@@ -21,6 +21,9 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/sub
 import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
 import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/category_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/domain/services/category_service.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 
 class DependencyInjection {
@@ -158,6 +161,26 @@ class DependencyInjection {
     Get.lazyPut<SubscribeController>(
       () => SubscribeController(
         service: Get.find<SubscribeServices>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Category
+    Get.lazyPut<CategoryRepository>(
+      () => CategoryRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<CategoryService>(
+      () => CategoryService(repository: Get.find<CategoryRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<CategoryController>(
+      () => CategoryController(
+        service: Get.find<CategoryService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,

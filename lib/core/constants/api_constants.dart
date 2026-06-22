@@ -32,6 +32,11 @@ class ApiConstants {
   static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
   static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
 
+  /// CATEGORY ──────────────────────────────────────────────
+  static const String categoryMy = '/api/v1/category/my';
+  static const String categoryCreate = '/api/v1/category/create';
+  static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
+
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';

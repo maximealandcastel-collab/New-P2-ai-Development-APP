@@ -20,7 +20,7 @@ import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.d
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/content_category_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/category_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_content_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
@@ -87,7 +87,7 @@ class AppRoute {
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
     GetPage(name: earningsScreen, page: () => EarningsScreen()),
-    GetPage(name: contentCategoryScreen, page: () => ContentCategoryScreen()),
+    GetPage(name: contentCategoryScreen, page: () => CategoryScreen()),
     GetPage(name: createCategoryScreen, page: () => CreateCategoryScreen()),
     GetPage(name: createContentScreen, page: () => CreateContentScreen()),
 

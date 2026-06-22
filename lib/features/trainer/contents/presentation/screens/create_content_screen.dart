@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/content_form_constants.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_basic_info_page.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_equipment_tags_page.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_muscle_difficulty_page.dart';
@@ -44,6 +45,7 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
   @override
   void initState() {
     super.initState();
+    CategoryController.to.fetchCategories();
     _pages = [
       ContentBasicInfoPage(
         categoryController: _categoryController,
@@ -96,11 +98,8 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
     super.dispose();
   }
 
-  void _onCategorySelected(String displayName) {
-    final match = ContentFormConstants.categoryOptions.firstWhereOrNull(
-      (entry) => entry.value == displayName,
-    );
-    _selectedCategoryId = match?.key;
+  void _onCategorySelected(String categoryId) {
+    _selectedCategoryId = categoryId;
   }
 
   void _navigateToPage(int index) {

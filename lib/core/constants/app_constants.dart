@@ -6,6 +6,7 @@ class AppConstants{
   static const String cacheUserGender = "cacheUserGender";
   static const String cacheUserProfile = "cacheUserProfile";
   static const String cacheTrainers = "cacheTrainers";
+  static const String cacheCategories = "cacheCategories";
 
 
 
