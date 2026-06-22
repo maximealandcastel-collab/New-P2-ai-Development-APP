@@ -153,16 +153,16 @@ class MenuShowHelper {
       ),
       items: options.map((String option) {
         return PopupMenuItem<String>(
-          height: 32.h,
+          height: 38.h,
           value: option,
-          padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 12.w),
+          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 12.w),
           child: SizedBox(
             //height: 28.h,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 option,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary,fontFamily: FontFamily.figtree,fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 16.sp, color: AppColors.textPrimary,fontFamily: FontFamily.figtree,fontWeight: FontWeight.w500),
               ),
             ),
           ),

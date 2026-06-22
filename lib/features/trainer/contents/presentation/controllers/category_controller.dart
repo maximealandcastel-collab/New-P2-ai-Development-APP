@@ -29,7 +29,7 @@ class CategoryController extends GetxController {
   final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
 
-  List<CategoryModel> get categories => _categories;
+  List<CategoryModel> get categories => _categories.where((e) => e.isActive == true).toList();
 
   LoadingState get loadingState => _loadingState.value;
   LoadingState get submitLoadingState => _submitLoadingState.value;
@@ -129,6 +129,7 @@ class CategoryController extends GetxController {
       await _service.deleteCategory(categoryId);
       _deleteLoadingState.value = LoadingState.loaded;
       await fetchCategories();
+      Get.back(canPop: true);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _deleteLoadingState.value = LoadingState.error;

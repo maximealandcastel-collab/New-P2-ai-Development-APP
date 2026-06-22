@@ -32,6 +32,7 @@ dependencies:
   dio: ^5.9.0
   connectivity_plus: ^7.1.1
   liquid_glass_renderer: ^0.2.0-dev.4
+  lottie: ^3.3.3
 
 
 dev_dependencies:
@@ -64,6 +65,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/lotties/
 
   fonts:
     - family: Figtree
