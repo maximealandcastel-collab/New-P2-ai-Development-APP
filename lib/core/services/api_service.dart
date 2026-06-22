@@ -103,6 +103,8 @@ class ApiService {
             debugPrint(
               '\n🔴 ──── ERROR ──────────────────────────────────────',
             );
+            debugPrint('   TYPE      : ${error.type}');
+            debugPrint('   MESSAGE   : ${error.message}');
             debugPrint('   STATUS    : ${error.response?.statusCode}');
             debugPrint('   PATH      : ${error.requestOptions.path}');
             debugPrint('   ERROR BODY: ${error.response?.data}');

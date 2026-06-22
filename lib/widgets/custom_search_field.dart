@@ -20,47 +20,44 @@ class CustomSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: 'search_bar',
-      child: Material(
-        color: Colors.transparent,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: AppColors.textSecondary,
+    return Material(
+      color: Colors.transparent,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: AppColors.textSecondary,
+          ),
+        ),
+        child: SearchBar(
+          keyboardType: TextInputType.webSearch,
+          onTap: onTap,
+          readOnly: readOnly,
+          autoFocus: autoFocus,
+          controller: searchController,
+          hintText: hintText ?? 'Search here . . .',
+          leading: Icon(
+            Icons.search,
+            size: 20.r,
+            color: AppColors.textSecondary,
+          ),
+          constraints: BoxConstraints(minHeight: 44.h, maxHeight: 44.h),
+          elevation: WidgetStateProperty.all(0),
+          backgroundColor: WidgetStateProperty.all(Colors.white),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14.r),
+              side: const BorderSide(color: Color(0xFFE6E6E6)),
             ),
           ),
-          child: SearchBar(
-            keyboardType: TextInputType.webSearch,
-            onTap: onTap,
-            readOnly: readOnly,
-            autoFocus: autoFocus,
-            controller: searchController,
-            hintText: hintText ?? 'Search here . . .',
-            leading: Icon(
-              Icons.search,
-              size: 20.r,
-              color: AppColors.textSecondary,
-            ),
-            constraints: BoxConstraints(minHeight: 44.h, maxHeight: 44.h),
-            elevation: WidgetStateProperty.all(0),
-            backgroundColor: WidgetStateProperty.all(Colors.white),
-            shape: WidgetStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                side: const BorderSide(color: Color(0xFFE6E6E6)),
-              ),
-            ),
-            padding: WidgetStateProperty.all(EdgeInsets.only(left: 16.w)),
-            textStyle: WidgetStateProperty.all(
-              TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
-            ),
-            hintStyle: WidgetStateProperty.all(
-              TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
-            ),
+          padding: WidgetStateProperty.all(EdgeInsets.only(left: 16.w)),
+          textStyle: WidgetStateProperty.all(
+            TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
+          ),
+          hintStyle: WidgetStateProperty.all(
+            TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
+          ),
 
-            onChanged: (value) {},
-          ),
+          onChanged: (value) {},
         ),
       ),
     );
