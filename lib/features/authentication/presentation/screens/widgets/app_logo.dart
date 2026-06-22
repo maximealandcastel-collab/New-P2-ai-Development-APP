@@ -54,7 +54,7 @@ class AppLogoWidget extends StatelessWidget {
             children: [
               TextSpan(
                 style: TextStyle(color: AppColors.primary),
-                text: 'Pier to Pier',
+                text: 'P2P Fit Tech Ai',
               ),
             ],
           ),
