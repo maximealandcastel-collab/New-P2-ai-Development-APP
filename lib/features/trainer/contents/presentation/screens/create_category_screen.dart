@@ -79,9 +79,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
       ],
       bottomNavigationBar: Obx(
         () => CustomButton(
-          onPressed: _controller.submitLoadingState.isLoading
-              ? null
-              : _submit,
+          onPressed: _submit,
           isLoading: _controller.submitLoadingState.isLoading,
           label: _isEditMode ? 'Update category' : 'Add category',
           width: double.infinity,

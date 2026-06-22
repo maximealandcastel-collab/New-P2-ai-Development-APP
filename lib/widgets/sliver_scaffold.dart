@@ -39,7 +39,7 @@ class SliverScaffold extends StatefulWidget {
     this.flexiblePaddingTop,
     this.flexibleAlignment = Alignment.topCenter,
     this.safeArea = true,
-    this.expandedHeight,
+    this.expandedHeight = 70,
     this.pinned = true,
     this.floating = true,
     this.collapsedTitle,
@@ -248,7 +248,7 @@ class _SliverScaffoldState extends State<SliverScaffold> {
     return RefreshIndicator(
       backgroundColor: AppColors.backgroundLight,
       color: AppColors.primary,
-      edgeOffset: (widget.expandedHeight  ?? 0) + 16.h,
+      edgeOffset: (widget.expandedHeight  ?? 0) + 20.h,
       onRefresh: widget.onRefresh!,
       child: child,
     );
