@@ -35,7 +35,7 @@ class AiInstructionScreen extends StatelessWidget {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Assets.images.appLogo.image(height: 84.h,width: 84.w),
+            Assets.images.logo.image(height: 84.h,width: 84.w),
             SizedBox(height: 24.h),
             CustomText(text: 'Instruction',fontWeight: FontWeight.w600,fontSize: 24.sp,),
 

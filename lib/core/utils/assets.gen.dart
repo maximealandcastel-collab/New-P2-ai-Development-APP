@@ -201,33 +201,12 @@ class $AssetsImagesGen {
   AssetGenImage get appIcon =>
       const AssetGenImage('assets/images/app_icon.png');
 
-  /// File path: assets/images/app_icon1.png
-  AssetGenImage get appIcon1 =>
-      const AssetGenImage('assets/images/app_icon1.png');
-
-  /// File path: assets/images/app_icon2.png
-  AssetGenImage get appIcon2 =>
-      const AssetGenImage('assets/images/app_icon2.png');
-
-  /// File path: assets/images/app_logo.png
-  AssetGenImage get appLogo =>
-      const AssetGenImage('assets/images/app_logo.png');
-
   /// File path: assets/images/facility_app_logo.png
   AssetGenImage get facilityAppLogo =>
       const AssetGenImage('assets/images/facility_app_logo.png');
 
-  /// File path: assets/images/iamge3.png
-  AssetGenImage get iamge3 => const AssetGenImage('assets/images/iamge3.png');
-
-  /// File path: assets/images/img.png
-  AssetGenImage get img => const AssetGenImage('assets/images/img.png');
-
   /// File path: assets/images/img_1.png
   AssetGenImage get img1 => const AssetGenImage('assets/images/img_1.png');
-
-  /// File path: assets/images/img_2.png
-  AssetGenImage get img2 => const AssetGenImage('assets/images/img_2.png');
 
   /// File path: assets/images/logo.png
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
@@ -248,35 +227,19 @@ class $AssetsImagesGen {
   AssetGenImage get onbordingTwoBgImg =>
       const AssetGenImage('assets/images/onbording_two_bg_img.png');
 
-  /// File path: assets/images/profile_img.png
-  AssetGenImage get profileImg =>
-      const AssetGenImage('assets/images/profile_img.png');
-
-  /// File path: assets/images/subscribe_logo.png
-  AssetGenImage get subscribeLogo =>
-      const AssetGenImage('assets/images/subscribe_logo.png');
-
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
   /// List of all assets
   List<AssetGenImage> get values => [
     appIcon,
-    appIcon1,
-    appIcon2,
-    appLogo,
     facilityAppLogo,
-    iamge3,
-    img,
     img1,
-    img2,
     logo,
     onboardingForeBgImg,
     onboardingOneBgImg,
     onboardingThreeBgImg,
     onbordingTwoBgImg,
-    profileImg,
-    subscribeLogo,
     success,
   ];
 }
