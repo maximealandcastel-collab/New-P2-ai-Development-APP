@@ -10,9 +10,9 @@ class SplashScreen extends StatelessWidget {
 
   final controller = SplashController.to;
   final List<String> splashImages = [
-    Assets.images.appIcon.path,
-    Assets.images.appIcon.path,
-    Assets.images.appIcon.path,
+    Assets.images.logo.path,
+    Assets.images.logo.path,
+    Assets.images.logo.path,
   ];
 
   @override
@@ -34,8 +34,8 @@ class SplashScreen extends StatelessWidget {
             },
             child: Image.asset(
               splashImages[controller.currentImageIndex.value],
-              width: 200.r,
-              height: 200.r,
+              width: 150.r,
+              height: 150.r,
               fit: BoxFit.contain,
             ),
           );
