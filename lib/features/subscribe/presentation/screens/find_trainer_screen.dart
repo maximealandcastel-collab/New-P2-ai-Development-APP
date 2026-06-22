@@ -37,7 +37,8 @@ class FindTrainerScreen extends StatelessWidget {
                     .map(
                       (trainer) => SearchModel(
                         model: trainer,
-                        title: trainer.name,
+                        title: trainer.userId?.fullName,
+                        image: trainer.userId?.profilePicture,
                         subtitle:
                             trainer.subscriptionPrice?.premium.toString(),
                       ),

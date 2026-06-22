@@ -17,16 +17,21 @@ class BottomNavBar extends StatelessWidget {
     final controller = BottomNavBarController.to;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, MediaQuery.of(context).padding.bottom + 8.h),
+      padding: EdgeInsets.fromLTRB(
+        12.w,
+        0,
+        12.w,
+        MediaQuery.of(context).padding.bottom + 8.h,
+      ),
       child: LiquidGlassLayer(
-        settings:  LiquidGlassSettings(
-          blur: 4,
+        settings: LiquidGlassSettings(
+          blur: 3,
           glassColor: Colors.black.withValues(alpha: 0.06),
         ),
         child: LiquidGlass(
           shape: LiquidRoundedSuperellipse(borderRadius: 16.r),
           child: Padding(
-            padding:  EdgeInsets.symmetric(vertical:  10.h),
+            padding: EdgeInsets.symmetric(vertical: 10.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -36,10 +41,7 @@ class BottomNavBar extends StatelessWidget {
                 // Centre FAB
                 GestureDetector(
                   onTap: () => NavFabWidget.show(context, controller.fabItems),
-                  child: Assets.icons.addButton.svg(
-                    height: 48.h,
-                    width: 48.w,
-                  ),
+                  child: Assets.icons.addButton.svg(height: 48.h, width: 48.w),
                 ),
 
                 BottomNavItem(index: 2, navItem: navItems[2]),

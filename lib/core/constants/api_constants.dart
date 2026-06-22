@@ -1,10 +1,7 @@
 class ApiConstants {
   /// Override at run time, e.g.:
   /// `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:4001`
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:4001',
-  );
+  static const String baseUrl = 'https://faisal8080.merinasib.shop';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';

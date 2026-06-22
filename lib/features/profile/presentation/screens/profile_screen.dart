@@ -29,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
                   height: 210.h,
                   fit: BoxFit.cover,
                   width: double.infinity,
-                  imageUrl: "https://picsum.photos/300",
+                  imageUrl: controller.userData?.coverPhoto ,
                 ),
                 Positioned(
                   top: 132.h,
@@ -46,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
                           height: 124.r,
                           width: 124.r,
                           boxShape: BoxShape.circle,
-                          imageUrl: "https://picsum.photos/300",
+                          imageUrl: controller.userData?.profilePicture ,
                         ),
                       ),
                       CustomText(

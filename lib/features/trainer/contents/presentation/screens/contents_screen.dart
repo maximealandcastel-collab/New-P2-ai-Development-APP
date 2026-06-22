@@ -74,6 +74,7 @@ class ContentsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               return CustomContainer(
                 color: Colors.white,
+                paddingTop: 8.h,
                 paddingLeft: 16.w,
                 paddingRight: 16.w,
                 child: ContentCard(),
