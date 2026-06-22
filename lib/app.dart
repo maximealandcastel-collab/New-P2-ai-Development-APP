@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: AppRoute.init,
         getPages: AppRoute.routes,
-        defaultTransition: Transition.fadeIn,
+        defaultTransition: Transition.cupertino,
         transitionDuration: const Duration(milliseconds: 200),
       ),
     );
