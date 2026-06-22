@@ -26,7 +26,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Post content',
           icon: Assets.icons.post.path,
-          onTap: () => Get.to(() => const ContentPostScreen()),
+          onTap: () => Get.toNamed(AppRoute.createContentScreen),
         ),
         NavFabModel(
           label: 'Add exercise block',

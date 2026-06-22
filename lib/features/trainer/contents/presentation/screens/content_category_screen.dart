@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -68,7 +70,9 @@ class ContentCategoryScreen extends StatelessWidget {
         SizedBox(height: 70.h).asSliver,
       ],
 
-      floatingActionButton: IconButton(onPressed: (){},icon: Assets.icons.addButton.svg(height: 57.r,width: 57.r),),
+      floatingActionButton: IconButton(onPressed: (){
+        Get.toNamed(AppRoute.createCategoryScreen);
+      },icon: Assets.icons.addButton.svg(height: 57.r,width: 57.r),),
     );
   }
 }

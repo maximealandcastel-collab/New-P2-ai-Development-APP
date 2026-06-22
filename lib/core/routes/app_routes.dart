@@ -21,6 +21,8 @@ import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_scr
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/content_category_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_category_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_content_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
@@ -49,6 +51,8 @@ class AppRoute {
   static String settingsScreen = "/settingsScreen";
   static String earningsScreen = "/earningsScreen";
   static String contentCategoryScreen = "/contentCategoryScreen";
+  static String createCategoryScreen = "/createCategoryScreen";
+  static String createContentScreen = "/createContentScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -84,6 +88,8 @@ class AppRoute {
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
     GetPage(name: earningsScreen, page: () => EarningsScreen()),
     GetPage(name: contentCategoryScreen, page: () => ContentCategoryScreen()),
+    GetPage(name: createCategoryScreen, page: () => CreateCategoryScreen()),
+    GetPage(name: createContentScreen, page: () => CreateContentScreen()),
 
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
