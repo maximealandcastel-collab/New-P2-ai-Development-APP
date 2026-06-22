@@ -30,7 +30,7 @@ class AppLogoWidget extends StatelessWidget {
       children: [
         SizedBox(height: topPadding),
         Image.asset(
-          Assets.images.appLogo.path,
+          Assets.images.logo.path,
           width: size.w,
           height: size.h,
         ),
