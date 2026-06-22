@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/content_form_constants.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_basic_info_page.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_equipment_tags_page.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_muscle_difficulty_page.dart';
@@ -22,6 +25,7 @@ class CreateContentScreen extends StatefulWidget {
 class _CreateContentScreenState extends State<CreateContentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
+  final _contentController = ContentController.to;
   int _currentIndex = 0;
 
   final _categoryController = TextEditingController();
@@ -34,6 +38,7 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
   final _muscleGroupsController = TextEditingController();
   final _difficultyController = TextEditingController();
 
+  ContentModel? _editingContent;
   String? _selectedCategoryId;
   String? _selectedDifficulty;
   final List<String> _selectedMuscleGroups = [];
@@ -42,11 +47,48 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
 
   late final List<Widget> _pages;
 
+  bool get _isEditMode => _editingContent != null;
+
   @override
   void initState() {
     super.initState();
     CategoryController.to.fetchCategories();
-    _pages = [
+    _editingContent = Get.arguments as ContentModel?;
+    _populateEditData();
+    _pages = _buildPages();
+  }
+
+  void _populateEditData() {
+    final content = _editingContent;
+    if (content == null) return;
+
+    _selectedCategoryId = content.categoryId?.id;
+    _categoryController.text = content.categoryId?.category ?? '';
+    _titleController.text = content.title ?? '';
+    _descriptionController.text = content.description ?? '';
+    _videoUrlController.text = content.videoUrl ?? '';
+    _thumbnailUrlController.text = content.thumbnailUrl ?? '';
+    _durationController.text = content.durationSeconds?.toString() ?? '';
+    _exerciseNameController.text = content.exerciseName ?? '';
+    _selectedDifficulty = content.difficulty;
+    _difficultyController.text = content.difficulty != null
+        ? ContentFormConstants.formatLabel(content.difficulty!)
+        : '';
+    _selectedMuscleGroups
+      ..clear()
+      ..addAll(content.muscleGroups ?? []);
+    _muscleGroupsController.text =
+        ContentFormConstants.formatSelectedList(_selectedMuscleGroups);
+    _equipment
+      ..clear()
+      ..addAll(content.equipment ?? []);
+    _tags
+      ..clear()
+      ..addAll(content.tags ?? []);
+  }
+
+  List<Widget> _buildPages() {
+    return [
       ContentBasicInfoPage(
         categoryController: _categoryController,
         titleController: _titleController,
@@ -73,6 +115,8 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
         onDifficultySelected: (value) => _selectedDifficulty = value,
       ),
       ContentEquipmentTagsPage(
+        initialEquipment: List<String>.from(_equipment),
+        initialTags: List<String>.from(_tags),
         onEquipmentChanged: (values) => _equipment
           ..clear()
           ..addAll(values),
@@ -159,7 +203,7 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
     };
   }
 
-  void _onNextPressed() {
+  Future<void> _onNextPressed() async {
     final formValid = _formKey.currentState?.validate() ?? false;
     if (!formValid) return;
 
@@ -181,8 +225,10 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
       }
     }
 
-    debugPrint('Create content payload: ${_buildPayload()}');
-    Get.back();
+    await _contentController.submitContent(
+      data: _buildPayload(),
+      editingContent: _editingContent,
+    );
   }
 
   @override
@@ -234,7 +280,9 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
                   children: [
                     SizedBox(height: 24.h),
                     AppLogoWidget(
-                      subtitle: 'Post your training content',
+                      subtitle: _isEditMode
+                          ? 'Update your training content'
+                          : 'Post your training content',
                     ),
                     SizedBox(height: 40.h),
                     _pages[index],
@@ -249,12 +297,17 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.w),
-          child: CustomButton(
-            onPressed: _onNextPressed,
-            label: _currentIndex == _pages.length - 1
-                ? 'Post content'
-                : 'Next',
-            width: double.infinity,
+          child: Obx(
+            () => CustomButton(
+              onPressed: _contentController.submitLoadingState.isLoading
+                  ? null
+                  : _onNextPressed,
+              isLoading: _contentController.submitLoadingState.isLoading,
+              label: _currentIndex == _pages.length - 1
+                  ? (_isEditMode ? 'Update content' : 'Post content')
+                  : 'Next',
+              width: double.infinity,
+            ),
           ),
         ),
       ),

@@ -22,8 +22,11 @@ import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dar
 import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/category_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/content_repository.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/category_service.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 
 class DependencyInjection {
@@ -181,6 +184,23 @@ class DependencyInjection {
     Get.lazyPut<CategoryController>(
       () => CategoryController(
         service: Get.find<CategoryService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Content
+    Get.lazyPut<ContentRepository>(
+      () => ContentRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<ContentService>(
+      () => ContentService(repository: Get.find<ContentRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ContentController>(
+      () => ContentController(
+        service: Get.find<ContentService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,

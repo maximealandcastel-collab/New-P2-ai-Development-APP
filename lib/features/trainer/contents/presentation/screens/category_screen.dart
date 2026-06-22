@@ -5,7 +5,9 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/core/helpers/simmer_helper.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/category_card.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/category_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class CategoryScreen extends StatelessWidget {
@@ -31,12 +33,7 @@ class CategoryScreen extends StatelessWidget {
           switch (controller.loadingState) {
             case LoadingState.initial:
             case LoadingState.loading:
-              return SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 40.h),
-                  child: const Center(child: CustomLoader()),
-                ),
-              );
+              return const CategoryShimmer().asSliver;
             case LoadingState.offline:
             case LoadingState.error:
               return EmptyDataWidget(

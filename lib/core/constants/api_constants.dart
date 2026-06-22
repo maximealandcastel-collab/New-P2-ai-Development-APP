@@ -37,6 +37,11 @@ class ApiConstants {
   static const String categoryCreate = '/api/v1/category/create';
   static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
 
+  /// CONTENT ──────────────────────────────────────────────
+  static const String myContent = '/api/v1/content/my-content';
+  static const String content = '/api/v1/content/content';
+  static String contentById(String contentId) => '/api/v1/content/content/$contentId';
+
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';
