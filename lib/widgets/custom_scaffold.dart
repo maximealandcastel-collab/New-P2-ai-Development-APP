@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 class CustomScaffold extends StatelessWidget {
   const CustomScaffold(
       {super.key,
@@ -23,11 +24,17 @@ class CustomScaffold extends StatelessWidget {
     return Scaffold(
        backgroundColor: AppColors.backgroundLight,
       appBar: appBar,
-      body: SafeArea(
+      body: KeyboardDismissOnTap(
+        child: SafeArea(
           child: Padding(
-        padding: EdgeInsets.only(left: paddingSide ?? 16.w,right: paddingSide ?? 16.w),
-        child: body,
-      )),
+            padding: EdgeInsets.only(
+              left: paddingSide ?? 16.w,
+              right: paddingSide ?? 16.w,
+            ),
+            child: body,
+          ),
+        ),
+      ),
       floatingActionButton: floatingActionButton,
       endDrawer: endDrawer,
       bottomNavigationBar: bottomNavigationBar,

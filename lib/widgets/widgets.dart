@@ -5,6 +5,7 @@ export 'custom_container.dart';
 export 'custom_delete_or_success_dialog.dart';
 export 'custom_dialog.dart';
 export 'custom_image_avatar.dart';
+export 'keyboard_dismiss_on_tap.dart';
 export 'custom_list_tile.dart';
 export 'custom_loader.dart';
 export 'empty_data_widget.dart';

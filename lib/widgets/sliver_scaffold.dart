@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
+import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 
 /// Shared scaffold for scrollable screens.
 ///
@@ -325,7 +326,7 @@ class _SliverScaffoldState extends State<SliverScaffold> {
               ),
             )
           : null,
-      body: _buildScrollBody(context),
+      body: KeyboardDismissOnTap(child: _buildScrollBody(context)),
     );
   }
 }
