@@ -24,10 +24,10 @@ class FeedAppBarSliver extends StatelessWidget {
       pinned: pinned,
       floating: true,
       snap: true,
-      backgroundColor: AppColors.backgroundLight,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      surfaceTintColor: Colors.transparent,
+      backgroundColor:           AppColors.backgroundLight.withValues(alpha: 0.6),
+      scrolledUnderElevation: 10,
+      shadowColor: AppColors.backgroundLight.withValues(alpha: 0.1),
+      surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
       flexibleSpace: FlexibleSpaceBar(background:Padding(
         padding: EdgeInsets.fromLTRB(
           16.w,
