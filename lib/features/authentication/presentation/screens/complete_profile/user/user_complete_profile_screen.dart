@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/children/additional_info_page.dart';
@@ -80,31 +79,25 @@ class _UserCompleteProfileScreenState extends State<UserCompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final showBackButton = currentIndex > 0;
+
     return Scaffold(
       appBar: CustomAppBar(
-        leading: currentIndex > 0 ?  IconButton(
-          icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
-          onPressed: (){
-            if (currentIndex > 0) {
-              _navigateToPage(currentIndex - 1);
-            }
-          },
-        ) : null,
-        titleWidget: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            pages.length,
-            (index) => Expanded(
-              child: CustomContainer(
-                marginLeft: (index == 0 && currentIndex == 0) ? 16.w : 4.w,
-                height: 6.h,
-                color: currentIndex == index
-                    ? AppColors.textPrimary
-                    : AppColors.textWhite,
-                radiusAll: 99.r,
-              ),
-            ),
-          ),
+        showLeading: showBackButton,
+        leading: showBackButton
+            ? IconButton(
+                icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
+                onPressed: () {
+                  if (currentIndex > 0) {
+                    _navigateToPage(currentIndex - 1);
+                  }
+                },
+              )
+            : null,
+        titleWidget: StepProgressBar(
+          stepCount: pages.length,
+          currentIndex: currentIndex,
+          showLeading: showBackButton,
         ),
         actions: [SizedBox(width: 24.w)],
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
@@ -233,9 +232,12 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final showBackButton = _currentIndex > 0;
+
     return Scaffold(
       appBar: CustomAppBar(
-        leading: _currentIndex > 0
+        showLeading: showBackButton,
+        leading: showBackButton
             ? IconButton(
                 icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
                 onPressed: () {
@@ -245,21 +247,10 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
                 },
               )
             : null,
-        titleWidget: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            _pages.length,
-            (index) => Expanded(
-              child: CustomContainer(
-                marginLeft: (index == 0 && _currentIndex == 0) ? 16.w : 4.w,
-                height: 6.h,
-                color: _currentIndex == index
-                    ? AppColors.textPrimary
-                    : AppColors.textWhite,
-                radiusAll: 99.r,
-              ),
-            ),
-          ),
+        titleWidget: StepProgressBar(
+          stepCount: _pages.length,
+          currentIndex: _currentIndex,
+          showLeading: showBackButton,
         ),
         actions: [SizedBox(width: 24.w)],
       ),

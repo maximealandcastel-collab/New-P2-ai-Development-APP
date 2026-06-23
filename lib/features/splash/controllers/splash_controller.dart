@@ -62,7 +62,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     // } else {
     //   Get.offAllNamed(AppRoute.onboardingMainScreen);
     // }
-    Get.offAllNamed(AppRoute.loginScreen);
+    Get.offAllNamed(AppRoute.trainerCompleteProfileScreen);
   }
 
   @override
