@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -36,7 +38,12 @@ class ClientCardWidget extends StatelessWidget {
           color: AppColors.textSecondary,
           text: 'Subscription period\n12 January 2026 - 12 February 2026',
         ),
-        trailing: Assets.icons.message.svg(),
+        trailing: GestureDetector(
+          onTap: (){
+            Get.toNamed(AppRoute.chatScreen);
+          },
+          behavior: HitTestBehavior.opaque,
+            child: Assets.icons.message.svg()),
       ),
     );
   }

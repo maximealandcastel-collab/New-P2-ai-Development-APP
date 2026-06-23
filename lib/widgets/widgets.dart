@@ -1,4 +1,4 @@
-export 'chats_list_lite_widget.dart';
+export 'chat_bubble_message.dart';
 export 'custom_app_bar.dart';
 export 'custom_button.dart';
 export 'custom_container.dart';

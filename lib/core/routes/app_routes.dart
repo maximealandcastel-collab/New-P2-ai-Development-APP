@@ -20,6 +20,7 @@ import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.d
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/category_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_content_screen.dart';
@@ -53,6 +54,7 @@ class AppRoute {
   static String contentCategoryScreen = "/contentCategoryScreen";
   static String createCategoryScreen = "/createCategoryScreen";
   static String createContentScreen = "/createContentScreen";
+  static String chatScreen = "/chatScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -90,6 +92,7 @@ class AppRoute {
     GetPage(name: contentCategoryScreen, page: () => CategoryScreen()),
     GetPage(name: createCategoryScreen, page: () => CreateCategoryScreen()),
     GetPage(name: createContentScreen, page: () => CreateContentScreen()),
+    GetPage(name: chatScreen, page: () => ChatScreen()),
 
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),

@@ -114,16 +114,23 @@ class ContentsScreen extends StatelessWidget {
                 return const ContentShimmer().asSliver;
               case LoadingState.offline:
               case LoadingState.error:
-                return EmptyDataWidget(
-                  message: 'Failed to load contents. Please try again.',
-                  onRefresh: contentController.refresh,
+                return CustomContainer(
+                  horizontalMargin: 16.h,
+                  bottomLeft: 16.r,
+                  bottomRight: 16.r,
+                  paddingBottom: 16.h,
+                  color: Colors.white,
+                  child: EmptyDataWidget(
+                    message: 'Content not found ',
+                    onRefresh: contentController.refresh,
+                  ),
                 ).asSliver;
               case LoadingState.loaded:
-                if (contentController.contents.isEmpty) {
-                  return const EmptyDataWidget(
-                    message: 'No contents found.',
-                  ).asSliver;
-                }
+                // if (contentController.contents.isEmpty) {
+                //   return const EmptyDataWidget(
+                //     message: 'No contents found.',
+                //   ).asSliver;
+                // }
 
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),

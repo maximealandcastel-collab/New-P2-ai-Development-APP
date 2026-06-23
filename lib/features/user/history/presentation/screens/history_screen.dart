@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
-import 'package:pler_to_pler_app/features/trainer/clients/presentation/widgets/client_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class UserHomeScreen extends StatelessWidget {
-  const UserHomeScreen({super.key});
+class HistoryScreen extends StatelessWidget {
+  const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-      return CustomScrollView(
+    return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),

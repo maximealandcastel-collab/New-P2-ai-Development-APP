@@ -17,7 +17,7 @@ class ContentRepository {
       final response = await _apiService.get(
         ApiConstants.myContent,
         queryParameters: {
-          'categoryId': categoryId ?? '',
+          'categoryId': ?categoryId,
           'page': page,
           'limit': limit,
         },

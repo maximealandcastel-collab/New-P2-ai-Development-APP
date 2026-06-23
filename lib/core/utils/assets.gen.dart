@@ -33,6 +33,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ai.svg
   SvgGenImage get ai => const SvgGenImage('assets/icons/ai.svg');
 
+  /// File path: assets/icons/ai_chat.svg
+  SvgGenImage get aiChat => const SvgGenImage('assets/icons/ai_chat.svg');
+
   /// File path: assets/icons/arrow_back.svg
   SvgGenImage get arrowBack => const SvgGenImage('assets/icons/arrow_back.svg');
 
@@ -80,6 +83,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/file.svg
   SvgGenImage get file => const SvgGenImage('assets/icons/file.svg');
 
+  /// File path: assets/icons/history.svg
+  SvgGenImage get history => const SvgGenImage('assets/icons/history.svg');
+
   /// File path: assets/icons/home.svg
   SvgGenImage get home => const SvgGenImage('assets/icons/home.svg');
 
@@ -116,14 +122,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/post.svg
   SvgGenImage get post => const SvgGenImage('assets/icons/post.svg');
 
-  /// File path: assets/icons/progress.svg
-  SvgGenImage get progress => const SvgGenImage('assets/icons/progress.svg');
-
   /// File path: assets/icons/recieved.svg
   SvgGenImage get recieved => const SvgGenImage('assets/icons/recieved.svg');
 
   /// File path: assets/icons/request.svg
   SvgGenImage get request => const SvgGenImage('assets/icons/request.svg');
+
+  /// File path: assets/icons/send.svg
+  SvgGenImage get send => const SvgGenImage('assets/icons/send.svg');
 
   /// File path: assets/icons/setting.svg
   SvgGenImage get setting => const SvgGenImage('assets/icons/setting.svg');
@@ -137,6 +143,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/subscribe_icons.svg
   SvgGenImage get subscribeIcons =>
       const SvgGenImage('assets/icons/subscribe_icons.svg');
+
+  /// File path: assets/icons/trainer.svg
+  SvgGenImage get trainer => const SvgGenImage('assets/icons/trainer.svg');
 
   /// File path: assets/icons/trainer_sub_icons.svg
   SvgGenImage get trainerSubIcons =>
@@ -155,6 +164,7 @@ class $AssetsIconsGen {
     payoneer,
     addButton,
     ai,
+    aiChat,
     arrowBack,
     attention,
     calender,
@@ -170,6 +180,7 @@ class $AssetsIconsGen {
     emailIcon,
     exercise,
     file,
+    history,
     home,
     message,
     missing,
@@ -181,13 +192,14 @@ class $AssetsIconsGen {
     person,
     personalTrainer,
     post,
-    progress,
     recieved,
     request,
+    send,
     setting,
     star,
     subButton,
     subscribeIcons,
+    trainer,
     trainerSubIcons,
     transfer,
     videoCall,

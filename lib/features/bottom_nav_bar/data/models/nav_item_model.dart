@@ -5,8 +5,8 @@ import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/contents_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_screen.dart';
-import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
-import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_summary_screen.dart';
+import 'package:pler_to_pler_app/features/user/history/presentation/screens/history_screen.dart';
+import 'package:pler_to_pler_app/features/user/trainer/presentation/screens/user_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 
 class NavItemModel {
@@ -50,19 +50,19 @@ class NavItemModel {
       screen: const UserHomeScreen(),
     ),
     NavItemModel(
-      label: 'Plans',
-      icon: Assets.icons.request.path,
-      screen: const WorkoutPlansScreen(),
+      label: 'History',
+      icon: Assets.icons.history.path,
+      screen: const HistoryScreen(),
     ),
     NavItemModel(
       label: 'Contents',
       icon: Assets.icons.contents.path,
-      screen: const FeedScreen(),
+      screen: const ContentsScreen(),
     ),
     NavItemModel(
-      label: 'Progress',
-      icon: Assets.icons.progress.path,
-      screen: const ExerciseSummaryScreen(),
+      label: 'Trainer',
+      icon: Assets.icons.trainer.path,
+      screen: const UserTrainerScreen(),
     ),
   ];
 }
