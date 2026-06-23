@@ -239,6 +239,10 @@ class $AssetsImagesGen {
   AssetGenImage get onbordingTwoBgImg =>
       const AssetGenImage('assets/images/onbording_two_bg_img.png');
 
+  /// File path: assets/images/set_goal.png
+  AssetGenImage get setGoal =>
+      const AssetGenImage('assets/images/set_goal.png');
+
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
@@ -252,6 +256,7 @@ class $AssetsImagesGen {
     onboardingOneBgImg,
     onboardingThreeBgImg,
     onbordingTwoBgImg,
+    setGoal,
     success,
   ];
 }

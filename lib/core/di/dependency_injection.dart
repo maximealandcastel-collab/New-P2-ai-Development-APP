@@ -205,6 +205,7 @@ class DependencyInjection {
       ),
       fenix: true,
     );
+
   }
 
   static void clear() {
