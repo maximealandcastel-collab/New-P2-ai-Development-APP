@@ -49,6 +49,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CustomText(
+          top: 10.h,
           left: 16.r,
             bottom: 8.h,
             text: 'Daily workout progress',fontSize: 18.sp,fontWeight: FontWeight.w600),
