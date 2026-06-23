@@ -23,25 +23,26 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppLogoWidget(
-                topPadding: 28.h,
+                topPadding: 44.h,
                 centerLogo: false,
                 title: 'Sign in to  fitness',
-              ),
-              SizedBox(height: 40.h),
-              Container(
-                padding: EdgeInsets.all(4.r),
-                decoration: BoxDecoration(
-                  color: AppColors.textWhite,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(child: TapBarHelper(text: "Trainer")),
-                    Expanded(child: TapBarHelper(text: "User")),
-                  ],
-                ),
+                subtitle: 'Your fitness journey continues here!',
               ),
               SizedBox(height: 24.h),
+              // Container(
+              //   padding: EdgeInsets.all(4.r),
+              //   decoration: BoxDecoration(
+              //     color: AppColors.textWhite,
+              //     borderRadius: BorderRadius.circular(16),
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       Expanded(child: TapBarHelper(text: "Trainer")),
+              //       Expanded(child: TapBarHelper(text: "User")),
+              //     ],
+              //   ),
+              // ),
+              //SizedBox(height: 24.h),
               CustomTextField(
                 labelText: 'Email',
                 controller: controller.emailController,
