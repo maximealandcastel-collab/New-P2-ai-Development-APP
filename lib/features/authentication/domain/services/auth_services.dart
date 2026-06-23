@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
-import 'package:pler_to_pler_app/features/authentication/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_repository.dart';
 
