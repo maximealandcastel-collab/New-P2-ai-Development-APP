@@ -22,15 +22,9 @@ class ChangePasswordScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               CustomText(
-                text: 'Update your password',
-                fontWeight: FontWeight.w600,
-                fontSize: 18.sp,
-                bottom: 8.h,
                 top: 24.h,
-                textAlign: TextAlign.start,
-              ),
-              CustomText(
                 text:
                     'Enter your current password and choose a new secure password.',
                 color: Colors.grey,
