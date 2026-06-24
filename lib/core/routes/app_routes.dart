@@ -3,7 +3,10 @@ import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_information_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_fitness_info_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_personal_info_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_fitness_info_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_personal_info_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
@@ -64,6 +67,8 @@ class AppRoute {
   static String profileScreen = "/profileScreen";
   static String changePasswordScreen = "/changePasswordScreen";
   static String profileInformationScreen = "/profileInformationScreen";
+  static String editPersonalInfoScreen = "/editPersonalInfoScreen";
+  static String editFitnessInfoScreen = "/editFitnessInfoScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -102,8 +107,19 @@ class AppRoute {
     GetPage(
       name: profileInformationScreen,
       page: () => const ProfileInformationScreen(),
+    ),
+    GetPage(
+      name: editPersonalInfoScreen,
+      page: () => const EditPersonalInfoScreen(),
       binding: BindingsBuilder(() {
-        Get.put(ProfileInformationController());
+        Get.put(EditPersonalInfoController());
+      }),
+    ),
+    GetPage(
+      name: editFitnessInfoScreen,
+      page: () => const EditFitnessInfoScreen(),
+      binding: BindingsBuilder(() {
+        Get.put(EditFitnessInfoController());
       }),
     ),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),

@@ -51,7 +51,7 @@ class ApiConstants {
   static const String aboutUs = '/api/v1/about';
 
   /// DEVICE ──────────────────────────────────────────────
-  static const String userDevices = '/api/v1/devices/user';
+  static const String userDevices = '/api/v1/devices';
   static const String pairDevice = '/api/v1/devices/pair';
   static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
   static String devicePrimary(String deviceId) =>
