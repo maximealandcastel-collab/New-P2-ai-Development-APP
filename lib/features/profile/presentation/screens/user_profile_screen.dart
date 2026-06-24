@@ -38,7 +38,10 @@ class UserProfileScreen extends StatelessWidget {
       children: [
         ListTileWidget(label: 'Profile Information', onTap: () {}),
         ListTileWidget(label: 'Notifications', onTap: () {}),
-        ListTileWidget(label: 'Change Password', onTap: () {}),
+        ListTileWidget(
+          label: 'Change Password',
+          onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
+        ),
         ListTileWidget(
           label: 'Manage devices',
           onTap: () {

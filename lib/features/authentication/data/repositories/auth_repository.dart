@@ -183,7 +183,7 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         ApiConstants.changePassword,
-        data: {'currentPassword': oldPassword, 'newPassword': newPassword},
+        data: {'oldPassword': oldPassword, 'newPassword': newPassword},
       );
 
       final accessToken = response.data?['data']?['accessToken'];

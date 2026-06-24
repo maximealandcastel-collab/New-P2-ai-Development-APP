@@ -30,7 +30,8 @@ import 'package:pler_to_pler_app/features/trainer/contents/presentation/controll
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
-import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/change_password_controller.dart';
 
 class DependencyInjection {
   DependencyInjection._();
@@ -115,6 +116,11 @@ class DependencyInjection {
     Get.put<ResetPassController>(
       ResetPassController(authService: Get.find<AuthService>()),
       permanent: true,
+    );
+
+    Get.lazyPut<ChangePasswordController>(
+      () => ChangePasswordController(authService: Get.find<AuthService>()),
+      fenix: true,
     );
 
     Get.lazyPut<BottomNavBarController>(
