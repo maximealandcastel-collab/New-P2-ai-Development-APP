@@ -23,9 +23,7 @@ class UserProfileScreen extends StatelessWidget {
       expandedHeight: 270.h,
       collapsedTitle: controller.userData?.fullName ?? '',
       appBarForegroundColor: Colors.white,
-      flexibleBackground: const ProfileFlexibleBackground(
-        showEditProfileButton: true,
-      ),
+      flexibleBackground: const ProfileFlexibleBackground(),
 
       slivers: _buildSlivers,
     );
