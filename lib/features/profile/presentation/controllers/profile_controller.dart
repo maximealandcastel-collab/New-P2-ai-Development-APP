@@ -36,6 +36,12 @@ class ProfileController extends GetxController {
 
   UserModel? get userData => _userData.value;
 
+  final _selectedProfilePicture = Rxn<File>();
+  final _selectedCoverPhoto = Rxn<File>();
+
+  File? get selectedProfilePicture => _selectedProfilePicture.value;
+  File? get selectedCoverPhoto => _selectedCoverPhoto.value;
+
   // ─── Lifecycle ─────────────────────────────────────────────────────────────
   @override
   void onInit() {
@@ -95,15 +101,18 @@ class ProfileController extends GetxController {
   Future<void> refresh() => loadData();
 
   Future<void> uploadProfilePicture(File file) async {
+    _selectedProfilePicture.value = file;
     _updateLoadingState.value = LoadingState.loading;
     try {
       _userData.value = await _service.uploadProfilePicture(file);
+      _selectedProfilePicture.value = null;
       _updateLoadingState.value = LoadingState.loaded;
-      ToastMessageHelper.show('Profile picture updated');
     } on AppException catch (e) {
+      _selectedProfilePicture.value = null;
       _updateLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     } catch (e) {
+      _selectedProfilePicture.value = null;
       _updateLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Failed to upload profile picture');
       if (kDebugMode) debugPrint('Upload profile picture error: $e');
@@ -111,15 +120,18 @@ class ProfileController extends GetxController {
   }
 
   Future<void> uploadCoverPhoto(File file) async {
+    _selectedCoverPhoto.value = file;
     _updateLoadingState.value = LoadingState.loading;
     try {
       _userData.value = await _service.uploadCoverPhoto(file);
+      _selectedCoverPhoto.value = null;
       _updateLoadingState.value = LoadingState.loaded;
-      ToastMessageHelper.show('Cover photo updated');
     } on AppException catch (e) {
+      _selectedCoverPhoto.value = null;
       _updateLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
     } catch (e) {
+      _selectedCoverPhoto.value = null;
       _updateLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Failed to upload cover photo');
       if (kDebugMode) debugPrint('Upload cover photo error: $e');
