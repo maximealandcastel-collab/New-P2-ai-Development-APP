@@ -37,7 +37,10 @@ class UserProfileScreen extends StatelessWidget {
     ContainerCard(
       label: 'Account Management',
       children: [
-        ListTileWidget(label: 'Profile Information', onTap: () {}),
+        ListTileWidget(
+          label: 'Profile Information',
+          onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
+        ),
         ListTileWidget(
           label: 'Change Password',
           onTap: () => Get.toNamed(AppRoute.changePasswordScreen),

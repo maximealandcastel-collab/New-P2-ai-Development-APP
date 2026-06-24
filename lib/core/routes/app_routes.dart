@@ -3,6 +3,8 @@ import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_information_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
@@ -61,6 +63,7 @@ class AppRoute {
   static String userProfileScreen = "/userProfileScreen";
   static String profileScreen = "/profileScreen";
   static String changePasswordScreen = "/changePasswordScreen";
+  static String profileInformationScreen = "/profileInformationScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -96,6 +99,13 @@ class AppRoute {
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
     GetPage(name: changePasswordScreen, page: () => const ChangePasswordScreen()),
+    GetPage(
+      name: profileInformationScreen,
+      page: () => const ProfileInformationScreen(),
+      binding: BindingsBuilder(() {
+        Get.put(ProfileInformationController());
+      }),
+    ),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
     GetPage(name: earningsScreen, page: () => EarningsScreen()),
     GetPage(name: contentCategoryScreen, page: () => CategoryScreen()),

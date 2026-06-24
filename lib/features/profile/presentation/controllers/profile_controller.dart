@@ -137,4 +137,22 @@ class ProfileController extends GetxController {
       if (kDebugMode) debugPrint('Upload cover photo error: $e');
     }
   }
+
+  Future<bool> updateProfileInformation(Map<String, dynamic> data) async {
+    _updateLoadingState.value = LoadingState.loading;
+    try {
+      _userData.value = await _service.updateUserProfile(data);
+      _updateLoadingState.value = LoadingState.loaded;
+      return true;
+    } on AppException catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      return false;
+    } catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show('Failed to update profile');
+      if (kDebugMode) debugPrint('Update profile error: $e');
+      return false;
+    }
+  }
 }

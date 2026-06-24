@@ -31,6 +31,8 @@ class UserModel {
   String? subscriptionStartDate;
   String? profilePicture;
   String? coverPhoto;
+  String? preferredName;
+  String? motivationStyle;
 
   SubscribedTrainer? subscribedTrainer;
 
@@ -62,6 +64,8 @@ class UserModel {
     this.subscriptionStartDate,
     this.profilePicture,
     this.coverPhoto,
+    this.preferredName,
+    this.motivationStyle,
     this.subscribedTrainer,
   });
 
@@ -112,6 +116,8 @@ class UserModel {
     subscriptionStartDate = json['subscriptionStartDate'];
     profilePicture = json['profilePicture'];
     coverPhoto = json['coverPhoto'];
+    preferredName = json['preferredName'];
+    motivationStyle = json['motivationStyle'];
 
     subscribedTrainer = json['subscribedTrainer'] != null
         ? SubscribedTrainer.fromJson(json['subscribedTrainer'])
@@ -147,6 +153,8 @@ class UserModel {
       'subscriptionStartDate': subscriptionStartDate,
       'profilePicture': profilePicture,
       'coverPhoto': coverPhoto,
+      'preferredName': preferredName,
+      'motivationStyle': motivationStyle,
       'subscribedTrainer': subscribedTrainer?.toJson(),
     };
   }

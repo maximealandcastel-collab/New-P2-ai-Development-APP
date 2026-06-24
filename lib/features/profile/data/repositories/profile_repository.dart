@@ -54,23 +54,14 @@ class ProfileRepository {
     }
   }
 
-  Future<UserModel> updateUserProfile(
-      UserModel user, {
-        File? image,
-        File? cv,
-        File? certificate,
-      }) async {
+  Future<UserModel> updateUserProfile(Map<String, dynamic> data) async {
     try {
-      final formData = FormData.fromMap({
-      });
-
-      final response = await _apiService.dio.patch(
+      final response = await _apiService.patch(
         ApiConstants.userProfileUpdate,
-        data: formData,
+        data: data,
       );
 
-      final data = response.data['data'];
-      final updatedUser = UserModel.fromJson(data);
+      final updatedUser = UserModel.fromJson(response.data['data']);
       await _cacheService.put(
         AppConstants.cacheUserProfile,
         updatedUser.toJson(),

@@ -13,7 +13,7 @@ import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
 class FeedAppBarSliver extends StatelessWidget {
-  const FeedAppBarSliver({super.key, this.bottom,  this.pinned = false});
+  const FeedAppBarSliver({super.key, this.bottom, this.pinned = false});
 
   final PreferredSizeWidget? bottom;
   final bool pinned;
@@ -26,83 +26,92 @@ class FeedAppBarSliver extends StatelessWidget {
       pinned: pinned,
       floating: true,
       snap: true,
-      backgroundColor:           AppColors.backgroundLight.withValues(alpha: 0.6),
+      backgroundColor: AppColors.backgroundLight.withValues(alpha: 0.6),
       scrolledUnderElevation: 10,
       shadowColor: AppColors.backgroundLight.withValues(alpha: 0.1),
       surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
-      flexibleSpace: FlexibleSpaceBar(background:Padding(
-        padding: EdgeInsets.fromLTRB(
-          16.w,
-          MediaQuery.of(context).padding.top + 4.h,
-          16.w,
-          0,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                if(LoginController.to.isTrainer()){
-                  Get.toNamed(AppRoute.profileScreen);
-                }else{
-                  Get.toNamed(AppRoute.userProfileScreen);
-                }
-              },
-              child: CustomNetworkImage(
-                height: 48.r,
-                width: 48.r,
-                boxShape: BoxShape.circle,
-                border: Border.all(color: Colors.black.withValues(alpha: 0.48)),
-                imageUrl: controller.userData?.profilePicture,
-              ),
-            ),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Obx(
-                          () {
-                        return CustomText(
-                          textAlign: TextAlign.start,
-                          maxline: 1,
-                          textOverflow: TextOverflow.ellipsis,
-                          text: 'Hi ${controller.userData?.firstName}!',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500,
-                        );
-                      }
+      flexibleSpace: FlexibleSpaceBar(
+        background: Padding(
+          padding: EdgeInsets.fromLTRB(
+            16.w,
+            MediaQuery.of(context).padding.top + 4.h,
+            16.w,
+            0,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Obx(() {
+                final user = controller.userData;
+                return GestureDetector(
+                  onTap: () {
+                    if (LoginController.to.isTrainer()) {
+                      Get.toNamed(AppRoute.profileScreen);
+                    } else {
+                      Get.toNamed(AppRoute.userProfileScreen);
+                    }
+                  },
+                  child: CustomNetworkImage(
+                    key: ValueKey('${user?.profilePicture}_${user?.updatedAt}'),
+                    height: 48.r,
+                    width: 48.r,
+                    boxShape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.black.withValues(alpha: 0.48),
+                    ),
+                    imageFile: controller.selectedProfilePicture,
+                    imageUrl: user?.profilePicture,
                   ),
-                  CustomText(
-                    top: 2.h,
-                    text: 'Let’s Manage your  users',
-                    textAlign: TextAlign.start,
-                    maxline: 1,
-                    textOverflow: TextOverflow.ellipsis,
-                    fontSize: 12.sp,
-                    color: AppColors.textSecondary,
-                  ),
-                ],
+                );
+              }),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(() {
+                      return CustomText(
+                        textAlign: TextAlign.start,
+                        maxline: 1,
+                        textOverflow: TextOverflow.ellipsis,
+                        text: 'Hi ${controller.userData?.firstName}!',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w500,
+                      );
+                    }),
+                    CustomText(
+                      top: 2.h,
+                      text: 'Let’s Manage your  users',
+                      textAlign: TextAlign.start,
+                      maxline: 1,
+                      textOverflow: TextOverflow.ellipsis,
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                Get.to(() => NotificationsScreen());
-              },
-              child: CustomContainer(
-                paddingAll: 10.r,
-                color: Colors.white,
-                shape: BoxShape.circle,
-                child: Assets.icons.notification.svg(height: 24.h,width: 24.w),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  Get.to(() => NotificationsScreen());
+                },
+                child: CustomContainer(
+                  paddingAll: 10.r,
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  child: Assets.icons.notification.svg(
+                    height: 24.h,
+                    width: 24.w,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      )),
+      ),
       bottom: bottom,
     );
   }
 }
-

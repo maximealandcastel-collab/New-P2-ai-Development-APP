@@ -103,6 +103,63 @@ class MenuShowHelper {
   static String genderBackendValue(String display) =>
       display.trim().toLowerCase();
 
+  static String? goalDisplayValue(String? backend) {
+    if (backend == null || backend.isEmpty) return null;
+    final index = _goalBackendOptions.indexOf(backend);
+    if (index != -1) return goalOptions[index];
+    return backend;
+  }
+
+  static String? equipmentDisplayValue(String? backend) {
+    if (backend == null || backend.isEmpty) return null;
+    final index = _equipmentBackendOptions.indexOf(backend);
+    if (index != -1) return equipmentDisplayOptions[index];
+    return backend;
+  }
+
+  static String? motivationStyleDisplayValue(String? backend) {
+    if (backend == null || backend.isEmpty) return null;
+    final index = _motivationStyleBackendOptions.indexOf(backend);
+    if (index != -1) return motivationStyleDisplayOptions[index];
+    return backend;
+  }
+
+  static String fitnessLevelDisplayValue(String? value) {
+    if (value == null || value.isEmpty) return '';
+    for (final option in fitnessLevelOptions) {
+      if (option.toLowerCase() == value.toLowerCase()) return option;
+    }
+    return value;
+  }
+
+  static String genderDisplayValue(String? value) {
+    if (value == null || value.isEmpty) return '';
+    final normalized = value.trim().toLowerCase();
+    if (normalized == 'male') return 'Male';
+    if (normalized == 'female') return 'Female';
+    return value;
+  }
+
+  static String heightDisplayValue(int? cm) {
+    if (cm == null) return '';
+    for (final option in heightOptions) {
+      final match = RegExp(r'\((\d+)\s*cm\)').firstMatch(option);
+      if (match != null && int.parse(match.group(1)!) == cm) return option;
+    }
+    return '$cm cm';
+  }
+
+  static String weightDisplayValue(int? kg) {
+    if (kg == null) return '';
+    final option = '$kg kg';
+    return weightOptions.contains(option) ? option : option;
+  }
+
+  static String roleDisplayValue(String? role) {
+    if (role == null || role.isEmpty) return '';
+    return role[0].toUpperCase() + role.substring(1).toLowerCase();
+  }
+
   static const List<String> coachingStyleOptions = ["strict", "chill", "balanced"];
   static const List<String> intensityMeasureOptions = ["RPE", "RIR", "%1RM"];
 
