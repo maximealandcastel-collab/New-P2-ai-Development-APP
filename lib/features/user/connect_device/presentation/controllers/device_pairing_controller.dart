@@ -1,0 +1,297 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
+
+enum PairingStep { idle, scanning, connecting, saving }
+
+class DevicePairingController extends GetxController {
+  DevicePairingController({
+    required DeviceService deviceService,
+    required BluetoothService bluetoothService,
+    required ConnectivityService connectivityService,
+  })  : _deviceService = deviceService,
+        _bluetoothService = bluetoothService,
+        _connectivityService = connectivityService;
+
+  final DeviceService _deviceService;
+  final BluetoothService _bluetoothService;
+  final ConnectivityService _connectivityService;
+
+  static DevicePairingController get to => Get.find();
+
+  final RxList<DeviceModel> pairedDevices = <DeviceModel>[].obs;
+  final RxList<BluetoothScanResultModel> discoveredDevices =
+      <BluetoothScanResultModel>[].obs;
+
+  final RxBool isPairing = false.obs;
+  final Rx<PairingStep> pairingStep = PairingStep.idle.obs;
+  final RxDouble pairingProgress = 0.0.obs;
+  final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
+  final RxString pairingError = ''.obs;
+  final RxnString connectingDeviceId = RxnString();
+
+  StreamSubscription<List<BluetoothScanResultModel>>? _scanSubscription;
+
+  LoadingState get loadingState => _loadingState.value;
+  bool get isEmpty => pairedDevices.isEmpty;
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(_connectivityService.isConnected, (isConnected) {
+      if (isConnected) fetchPairedDevices();
+    });
+    fetchPairedDevices();
+  }
+
+  @override
+  void onClose() {
+    _scanSubscription?.cancel();
+    super.onClose();
+  }
+
+  Future<void> fetchPairedDevices() async {
+    try {
+      final hasCache = _deviceService.hasCache();
+      final isOnline = _connectivityService.isConnected.value;
+
+      if (hasCache) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.loading;
+      }
+
+      if (!isOnline) {
+        if (!hasCache) _loadingState.value = LoadingState.offline;
+        return;
+      }
+
+      final devices = await _deviceService.fetchUserDevices();
+      pairedDevices.assignAll(devices);
+      _loadingState.value = LoadingState.loaded;
+    } on AppException catch (e) {
+      if (_deviceService.hasCache()) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchPairedDevices error: $e');
+    } catch (e) {
+      if (_deviceService.hasCache()) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchPairedDevices error: $e');
+    }
+  }
+
+  void preparePairingUi() {
+    pairingError.value = '';
+    isPairing.value = true;
+    pairingStep.value = PairingStep.scanning;
+    pairingProgress.value = 0.1;
+    discoveredDevices.clear();
+  }
+
+  Future<void> startScanning() async {
+    try {
+      await _scanSubscription?.cancel();
+      _scanSubscription = _bluetoothService.scanResults.listen((results) {
+        discoveredDevices.assignAll(results);
+      });
+
+      await _bluetoothService.startScan();
+      pairingProgress.value = 0.25;
+    } catch (e) {
+      if (kDebugMode) debugPrint('Start scanning error: $e');
+      pairingError.value = e.errorMessage;
+      await _resetPairingState(stopScan: true);
+      _popPairingScreen();
+      rethrow;
+    }
+  }
+
+  Future<void> selectAndConnectDevice(BluetoothScanResultModel device) async {
+    try {
+      pairingError.value = '';
+      pairingStep.value = PairingStep.connecting;
+      pairingProgress.value = 0.45;
+      await _bluetoothService.stopScan();
+
+      await _releaseActiveConnection();
+      await _bluetoothService.connect(device.id);
+      pairingProgress.value = 0.65;
+
+      pairingStep.value = PairingStep.saving;
+      final info = await _bluetoothService.getDeviceInfo(device.id);
+
+      final pairedDevice = await _deviceService.pairDevice(
+        name: info['name'] ?? device.name,
+        serialNumber: info['serialNumber'] ?? device.id,
+        macAddress: info['macAddress'] ?? device.macAddress,
+        deviceType: info['deviceType'] ?? 'watch',
+      );
+
+      pairingProgress.value = 1.0;
+      _markOnlyDeviceConnected(
+        pairedDevice.id,
+        serverDevice: pairedDevice,
+      );
+      await _syncDeviceCache();
+      await _finishPairing();
+    } catch (e) {
+      if (kDebugMode) debugPrint('Connect/pair device error: $e');
+      pairingError.value = e.errorMessage;
+      ToastMessageHelper.show(e.errorMessage);
+      pairingStep.value = PairingStep.scanning;
+      pairingProgress.value = 0.25;
+      try {
+        await _bluetoothService.startScan();
+      } catch (scanError) {
+        if (kDebugMode) debugPrint('Resume scan error: $scanError');
+      }
+    }
+  }
+
+  Future<void> switchToDevice(DeviceModel device) async {
+    if (device.isConnected) return;
+
+    final address = device.macAddress?.trim();
+    if (address == null || address.isEmpty) {
+      return;
+    }
+
+    connectingDeviceId.value = device.id;
+    try {
+      await _releaseActiveConnection();
+      await _bluetoothService.connect(address);
+
+      final updated = await _deviceService.updateDeviceStatus(
+        deviceId: device.id,
+        isConnected: true,
+      );
+      _markOnlyDeviceConnected(device.id, serverDevice: updated);
+      await _syncDeviceCache();
+      ToastMessageHelper.show('Connected to ${device.name}');
+    } catch (e) {
+      if (kDebugMode) debugPrint('Switch device error: $e');
+      ToastMessageHelper.show(e.errorMessage);
+    } finally {
+      connectingDeviceId.value = null;
+    }
+  }
+
+  Future<void> cancelPairing() async {
+    await _resetPairingState(stopScan: true);
+    _popPairingScreen();
+  }
+
+  Future<void> unpairDevice(DeviceModel device) async {
+    try {
+      if (device.isConnected &&
+          device.macAddress != null &&
+          device.macAddress!.isNotEmpty) {
+        await _bluetoothService.disconnect(device.macAddress!);
+      }
+      await _deviceService.unpairDevice(device.id);
+      pairedDevices.removeWhere((item) => item.id == device.id);
+      await _syncDeviceCache();
+    } catch (e) {
+      if (kDebugMode) debugPrint('Unpair device error: $e');
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
+  Future<void> syncDeviceMetrics(DeviceModel device) async {
+    try {
+      await _deviceService.syncDeviceMetrics(device.id);
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+    }
+  }
+
+  Future<void> _releaseActiveConnection() async {
+    await _bluetoothService.disconnectAll();
+
+    for (final device in pairedDevices.where((d) => d.isConnected)) {
+      try {
+        final updated = await _deviceService.updateDeviceStatus(
+          deviceId: device.id,
+          isConnected: false,
+        );
+        _upsertDevice(updated);
+      } catch (e) {
+        if (kDebugMode) debugPrint('Mark device disconnected: $e');
+        _upsertDevice(device.copyWith(isConnected: false));
+      }
+    }
+  }
+
+  void _markOnlyDeviceConnected(String activeId, {DeviceModel? serverDevice}) {
+    for (var i = 0; i < pairedDevices.length; i++) {
+      final item = pairedDevices[i];
+      final shouldConnect = item.id == activeId;
+      if (item.isConnected != shouldConnect) {
+        pairedDevices[i] = item.copyWith(isConnected: shouldConnect);
+      }
+    }
+
+    if (serverDevice != null) {
+      _upsertDevice(serverDevice.copyWith(isConnected: true));
+    } else {
+      final index = pairedDevices.indexWhere((item) => item.id == activeId);
+      if (index >= 0) {
+        pairedDevices[index] = pairedDevices[index].copyWith(isConnected: true);
+      }
+    }
+  }
+
+  Future<void> _finishPairing() async {
+    await _resetPairingState(stopScan: false);
+    _popPairingScreen();
+  }
+
+  Future<void> _resetPairingState({required bool stopScan}) async {
+    if (stopScan) {
+      await _bluetoothService.stopScan();
+    }
+
+    isPairing.value = false;
+    pairingStep.value = PairingStep.idle;
+    pairingProgress.value = 0.0;
+    discoveredDevices.clear();
+    pairingError.value = '';
+  }
+
+  Future<void> _syncDeviceCache() async {
+    await _deviceService.saveCachedDevices(pairedDevices.toList());
+  }
+
+  void _popPairingScreen() {
+    if (Get.key.currentState?.canPop() ?? false) {
+      Get.back();
+    }
+  }
+
+  void _upsertDevice(DeviceModel device) {
+    final index = pairedDevices.indexWhere((item) => item.id == device.id);
+    if (index >= 0) {
+      pairedDevices[index] = device;
+    } else {
+      pairedDevices.add(device);
+    }
+  }
+}

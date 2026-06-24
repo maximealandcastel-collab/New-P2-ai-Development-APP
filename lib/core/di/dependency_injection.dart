@@ -27,7 +27,15 @@ import 'package:pler_to_pler_app/features/trainer/contents/domain/services/categ
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
-import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
+import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/change_password_controller.dart';
 
 class DependencyInjection {
   DependencyInjection._();
@@ -112,6 +120,11 @@ class DependencyInjection {
     Get.put<ResetPassController>(
       ResetPassController(authService: Get.find<AuthService>()),
       permanent: true,
+    );
+
+    Get.lazyPut<ChangePasswordController>(
+      () => ChangePasswordController(authService: Get.find<AuthService>()),
+      fenix: true,
     );
 
     Get.lazyPut<BottomNavBarController>(
@@ -201,6 +214,48 @@ class DependencyInjection {
     Get.lazyPut<ContentController>(
       () => ContentController(
         service: Get.find<ContentService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Privacy
+    Get.lazyPut<PrivacyRepository>(
+      () => PrivacyRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyServices>(
+      () => PrivacyServices(repository: Get.find<PrivacyRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyController>(
+      () => PrivacyController(
+        service: Get.find<PrivacyServices>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
+
+    Get.lazyPut<DeviceRepository>(
+      () => DeviceRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<DeviceService>(
+      () => DeviceService(repository: Get.find<DeviceRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<DevicePairingController>(
+      () => DevicePairingController(
+        deviceService: Get.find<DeviceService>(),
+        bluetoothService: BluetoothService.instance,
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,

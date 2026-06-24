@@ -18,13 +18,15 @@ class ApiConstants {
   static const String resendOtp = '/api/v1/auth/resend-otp';
   static const String resetPassword = '/api/v1/auth/reset-password';
   static const String changePassword = '/api/v1/auth/change-password';
+  static const String accountDelete = '/api/v1/auth/account-delete';
+  static const String uploadProfilePicture = '/api/v1/auth/upload-profile-picture';
+  static const String uploadCoverPhoto = '/api/v1/auth/upload-cover-photo';
 
 
 
 
   /// USER ──────────────────────────────────────────────
   static const String userProfile = '/api/v1/auth/me';
-  static const String userProfileUpdate = '/api/v1/users/edit-profile';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
   static const String trainerRequest = '/api/v1/trainer-request';
@@ -42,6 +44,17 @@ class ApiConstants {
   static const String content = '/api/v1/content/content';
   static String contentById(String contentId) => '/api/v1/content/content/$contentId';
 
+  /// PRIVACY ──────────────────────────────────────────────
+  static const String privacyPolicy = '/api/v1/privacy';
+  static const String termsAndCondition = '/api/v1/terms';
+  static const String aboutUs = '/api/v1/about';
+
+  /// DEVICE ──────────────────────────────────────────────
+  static const String userDevices = '/api/v1/devices';
+  static const String pairDevice = '/api/v1/devices/pair';
+  static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
+  static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
+  static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';

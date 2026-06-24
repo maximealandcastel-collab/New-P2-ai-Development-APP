@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -19,50 +20,7 @@ class ProfileScreen extends StatelessWidget {
       expandedHeight: 270.h,
       collapsedTitle: controller.userData?.fullName ?? '',
       appBarForegroundColor: Colors.white,
-      flexibleBackground: CustomContainer(
-        child: Obx(
-           () {
-             final user = controller.userData;
-            return Stack(
-              children: [
-                CustomNetworkImage(
-                  height: 210.h,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  imageUrl: controller.userData?.coverPhoto ,
-                ),
-                Positioned(
-                  top: 132.h,
-                  left: 16.w,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomContainer(
-                        shape: BoxShape.circle,
-                        paddingAll: 6.r,
-                        bordersColor: AppColors.primary,
-                        child: CustomNetworkImage(
-                          height: 124.r,
-                          width: 124.r,
-                          boxShape: BoxShape.circle,
-                          imageUrl: controller.userData?.profilePicture ,
-                        ),
-                      ),
-                      CustomText(
-                        top: 6.h,
-                        text: user?.fullName ?? '',
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }
-        ),
-      ),
+      flexibleBackground: const ProfileFlexibleBackground(),
 
       slivers: _buildSlivers,
     );

@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -63,6 +66,20 @@ class LoginController extends GetxController {
     Get.back();
     await _authService.logout();
     Get.offAllNamed(AppRoute.loginScreen);
+  }
+
+  /// ─── DELETE ACCOUNT ────────────────────
+  Future<void> deleteAccount() async {
+    Get.back();
+    try {
+      await _authService.deleteAccount();
+      Get.offAllNamed(AppRoute.loginScreen);
+    } on AppException catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+    } catch (e) {
+      ToastMessageHelper.show('Failed to delete account. Please try again.');
+      if (kDebugMode) debugPrint('Delete account error: $e');
+    }
   }
 
   /// ─── IS LOGGED IN ──────────────────────

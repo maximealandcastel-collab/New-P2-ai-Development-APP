@@ -34,6 +34,9 @@ dependencies:
   liquid_glass_renderer: ^0.2.0-dev.4
   lottie: ^3.3.3
   chat_bubbles: ^1.10.1
+  image_cropper: ^12.2.1
+  permission_handler: ^11.4.0
+  flutter_blue_plus: ^2.3.9
 
 
 dev_dependencies:

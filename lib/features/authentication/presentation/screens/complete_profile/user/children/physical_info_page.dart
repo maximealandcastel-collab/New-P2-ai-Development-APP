@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class PhysicalInfoPage extends StatelessWidget {
@@ -14,89 +15,43 @@ class PhysicalInfoPage extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomText(
-          text: 'What\'s your physical\ninfo ?',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        const CompleteProfilePageTitle(text: 'What\'s your physical\ninfo ?'),
         SizedBox(height: 16.h),
-        GestureDetector(
-          onTapDown: (details) {
-            final menu = MenuShowHelper.showCustomMenu(
-              context: context,
-              details: details,
-              options: MenuShowHelper.heightOptions,
-            );
-            menu.then((value) {
-              if (value != null) controller.heightController.text = value;
-            });
+        MenuDropdownField(
+          labelText: 'Your height',
+          hintText: 'Eg : 120 cm',
+          controller: controller.heightController,
+          options: MenuShowHelper.heightOptions,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please select your height';
+            }
+            return null;
           },
-          child: AbsorbPointer(
-            child: CustomTextField(
-              suffixIcon: Icon(Icons.arrow_drop_down_outlined),
-              labelText: 'Your height',
-              hintText: 'Eg : 120 cm',
-              controller: controller.heightController,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please select your height';
-                }
-                return null;
-              },
-            ),
-          ),
         ),
-        GestureDetector(
-          onTapDown: (details) {
-            final menu = MenuShowHelper.showCustomMenu(
-              context: context,
-              details: details,
-              options: MenuShowHelper.weightOptions,
-            );
-            menu.then((value) {
-              if (value != null) controller.weightController.text = value;
-            });
+        MenuDropdownField(
+          labelText: 'Weight',
+          hintText: 'Eg : 64 kg',
+          controller: controller.weightController,
+          options: MenuShowHelper.weightOptions,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please select your weight';
+            }
+            return null;
           },
-          child: AbsorbPointer(
-            child: CustomTextField(
-              suffixIcon: Icon(Icons.arrow_drop_down_outlined),
-              labelText: 'Weight',
-              hintText: 'Eg : 64 kg',
-              controller: controller.weightController,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please select your weight';
-                }
-                return null;
-              },
-            ),
-          ),
         ),
-        GestureDetector(
-          onTapDown: (details) {
-            final menu = MenuShowHelper.showCustomMenu(
-              context: context,
-              details: details,
-              options: MenuShowHelper.fitnessLevelOptions,
-            );
-            menu.then((value) {
-              if (value != null) controller.fitnessLevelController.text = value;
-            });
+        MenuDropdownField(
+          labelText: 'Fitness level',
+          hintText: 'Select fitness level',
+          controller: controller.fitnessLevelController,
+          options: MenuShowHelper.fitnessLevelOptions,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please select your fitness level';
+            }
+            return null;
           },
-          child: AbsorbPointer(
-            child: CustomTextField(
-              suffixIcon: Icon(Icons.arrow_drop_down_outlined),
-              labelText: 'Fitness level',
-              hintText: 'Select fitness level',
-              controller: controller.fitnessLevelController,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please select your fitness level';
-                }
-                return null;
-              },
-            ),
-          ),
         ),
       ],
     );

@@ -26,11 +26,14 @@ class UserModel {
   int? height;
   String? primaryGoal;
   int? trainingDaysPerWeek;
-  int? weight;
+  num? weight;
+  String? bio;
 
   String? subscriptionStartDate;
   String? profilePicture;
   String? coverPhoto;
+  String? preferredName;
+  String? motivationStyle;
 
   SubscribedTrainer? subscribedTrainer;
 
@@ -59,9 +62,12 @@ class UserModel {
     this.primaryGoal,
     this.trainingDaysPerWeek,
     this.weight,
+    this.bio,
     this.subscriptionStartDate,
     this.profilePicture,
     this.coverPhoto,
+    this.preferredName,
+    this.motivationStyle,
     this.subscribedTrainer,
   });
 
@@ -77,29 +83,31 @@ class UserModel {
     isVerified = json['isVerified'];
     isDeleted = json['isDeleted'];
 
-    injuries = json['injuries'] != null
-        ? List<String>.from(json['injuries'])
+    injuries = json['injuries'] is List
+        ? (json['injuries'] as List).map((e) => e.toString()).toList()
         : [];
 
     subscriptionTier = json['subscriptionTier'];
     onboardingCompleted = json['onboardingCompleted'];
 
-    memory = json['memory'] != null
+    memory = json['memory'] is List
         ? (json['memory'] as List)
-        .map((e) => Memory.fromJson(e))
-        .toList()
+            .whereType<Map>()
+            .map((e) => Memory.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
         : [];
 
-    workoutHistory = json['workoutHistory'] != null
-        ? List<dynamic>.from(json['workoutHistory'])
+    workoutHistory = json['workoutHistory'] is List
+        ? List<dynamic>.from(json['workoutHistory'] as List)
         : [];
 
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     iV = json['__v'];
 
-    anamAI =
-    json['anamAI'] != null ? AnamAI.fromJson(json['anamAI']) : null;
+    anamAI = json['anamAI'] is Map
+        ? AnamAI.fromJson(Map<String, dynamic>.from(json['anamAI'] as Map))
+        : null;
 
     availableEquipment = json['availableEquipment'];
     dateOfBirth = json['dateOfBirth'];
@@ -107,14 +115,19 @@ class UserModel {
     height = json['height'];
     primaryGoal = json['primaryGoal'];
     trainingDaysPerWeek = json['trainingDaysPerWeek'];
-    weight = json['weight'];
+    weight = json['weight'] != null ? num.tryParse(json['weight'].toString()) : null;
+    bio = json['bio'];
 
     subscriptionStartDate = json['subscriptionStartDate'];
     profilePicture = json['profilePicture'];
     coverPhoto = json['coverPhoto'];
+    preferredName = json['preferredName'];
+    motivationStyle = json['motivationStyle'];
 
-    subscribedTrainer = json['subscribedTrainer'] != null
-        ? SubscribedTrainer.fromJson(json['subscribedTrainer'])
+    subscribedTrainer = json['subscribedTrainer'] is Map
+        ? SubscribedTrainer.fromJson(
+            Map<String, dynamic>.from(json['subscribedTrainer'] as Map),
+          )
         : null;
   }
 
@@ -144,9 +157,12 @@ class UserModel {
       'primaryGoal': primaryGoal,
       'trainingDaysPerWeek': trainingDaysPerWeek,
       'weight': weight,
+      'bio': bio,
       'subscriptionStartDate': subscriptionStartDate,
       'profilePicture': profilePicture,
       'coverPhoto': coverPhoto,
+      'preferredName': preferredName,
+      'motivationStyle': motivationStyle,
       'subscribedTrainer': subscribedTrainer?.toJson(),
     };
   }
@@ -198,13 +214,17 @@ class Memory {
   });
 
   Memory.fromJson(Map<String, dynamic> json) {
-    trainerId = json['trainerId'];
-    profileMemory = json['profileMemory'] != null
-        ? ProfileMemory.fromJson(json['profileMemory'])
+    trainerId = json['trainerId']?.toString();
+    profileMemory = json['profileMemory'] is Map
+        ? ProfileMemory.fromJson(
+            Map<String, dynamic>.from(json['profileMemory'] as Map),
+          )
         : null;
 
-    rollingMemory = json['rollingMemory'] != null
-        ? RollingMemory.fromJson(json['rollingMemory'])
+    rollingMemory = json['rollingMemory'] is Map
+        ? RollingMemory.fromJson(
+            Map<String, dynamic>.from(json['rollingMemory'] as Map),
+          )
         : null;
 
     lastUpdatedAt = json['lastUpdatedAt'];

@@ -6,8 +6,9 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/l
 import 'package:pler_to_pler_app/features/settings/children/account_details_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/connect_device_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -86,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               ListTileWidget(
                 label: 'Connect Device',
-                onTap: () => Get.to(() => const ConnectDeviceScreen()),
+                onTap: () => Get.to(() => const ManageDevicesScreen()),
               ),
               ListTileWidget(
                 label: 'Invoice',
@@ -107,8 +108,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: 'About',
             sublabel: 'App version 1.58.7.1',
             children: [
-              ListTileWidget(label: 'Privacy Policy', onTap: () {}),
-              ListTileWidget(label: 'Terms of Service', onTap: () {}),
+              ListTileWidget(
+                label: 'Privacy Policy',
+                onTap: () => Get.to(
+                  () => const PrivacyPolicyAllScreen(),
+                  arguments: {
+                    'title': 'Privacy Policy',
+                    'key': 'privacy',
+                  },
+                ),
+              ),
+              ListTileWidget(
+                label: 'Terms of Service',
+                onTap: () => Get.to(
+                  () => const PrivacyPolicyAllScreen(),
+                  arguments: {
+                    'title': 'Terms of Service',
+                    'key': 'terms',
+                  },
+                ),
+              ),
               ListTileWidget(
                 label: 'Logout',
                 onTap: () {
@@ -128,15 +147,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Get.dialog(
                     ConfirmationDialog(
                       icon: Icons.person_off,
-                      title: 'You really want to delete your account',
+                      title: 'Delete your account?',
                       description:
                           'This action can not be undone and all your data will be wiped. Do you wish to continue?',
                       confirmLabel: 'Delete account',
                       isDeleteAction: true,
                       showCancel: true,
-                      onConfirm: () {
-                        Get.back();
-                      },
+                      onConfirm: LoginController.to.deleteAccount,
                     ),
                   );
                 },

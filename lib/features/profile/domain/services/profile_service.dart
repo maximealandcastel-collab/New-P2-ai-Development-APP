@@ -23,18 +23,16 @@ class ProfileService {
     }
   }
 
-  Future<UserModel> updateUserProfile(
-    UserModel user, {
-    File? image,
-    File? cv,
-    File? certificate,
-  }) async {
-    return await _repository.updateUserProfile(
-      user,
-      image: image,
-      cv: cv,
-      certificate: certificate,
-    );
+  Future<UserModel> updateUserProfile(Map<String, dynamic> data) async {
+    return await _repository.updateUserProfile(data);
+  }
+
+  Future<UserModel> uploadProfilePicture(File file) async {
+    return _repository.uploadProfilePicture(file);
+  }
+
+  Future<UserModel> uploadCoverPhoto(File file) async {
+    return _repository.uploadCoverPhoto(file);
   }
 
   bool hasCache() {
