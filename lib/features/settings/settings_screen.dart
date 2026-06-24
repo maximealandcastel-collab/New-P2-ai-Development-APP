@@ -8,7 +8,7 @@ import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/manage_devices_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class SettingsScreen extends StatefulWidget {

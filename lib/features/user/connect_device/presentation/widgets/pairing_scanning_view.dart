@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/pairing/pairing_pulse_indicator.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/pairing/pairing_scan_result_tile.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/pairing_pulse_indicator.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/pairing_scan_result_tile.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class PairingScanningView extends StatelessWidget {

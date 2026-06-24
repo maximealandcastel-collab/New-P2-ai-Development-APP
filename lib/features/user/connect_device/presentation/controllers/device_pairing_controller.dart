@@ -80,7 +80,6 @@ class DevicePairingController extends GetxController {
     } catch (e) {
       if (kDebugMode) debugPrint('Start scanning error: $e');
       pairingError.value = e.errorMessage;
-      ToastMessageHelper.show(e.errorMessage);
       await _resetPairingState(stopScan: true);
       _popPairingScreen();
       rethrow;
@@ -113,7 +112,6 @@ class DevicePairingController extends GetxController {
         pairedDevice.id,
         serverDevice: pairedDevice,
       );
-      ToastMessageHelper.show('Device paired successfully');
       await _finishPairing();
     } catch (e) {
       if (kDebugMode) debugPrint('Connect/pair device error: $e');
@@ -134,7 +132,6 @@ class DevicePairingController extends GetxController {
 
     final address = device.macAddress?.trim();
     if (address == null || address.isEmpty) {
-      ToastMessageHelper.show('Device Bluetooth address not found');
       return;
     }
 
@@ -157,13 +154,9 @@ class DevicePairingController extends GetxController {
     }
   }
 
-  Future<void> cancelPairing({bool showError = true}) async {
+  Future<void> cancelPairing() async {
     await _resetPairingState(stopScan: true);
     _popPairingScreen();
-
-    if (showError) {
-      ToastMessageHelper.show('Pairing cancelled');
-    }
   }
 
   Future<void> unpairDevice(DeviceModel device) async {
@@ -175,7 +168,6 @@ class DevicePairingController extends GetxController {
       }
       await _deviceService.unpairDevice(device.id);
       pairedDevices.removeWhere((item) => item.id == device.id);
-      ToastMessageHelper.show('Device removed');
     } catch (e) {
       if (kDebugMode) debugPrint('Unpair device error: $e');
       ToastMessageHelper.show(e.errorMessage);
@@ -185,7 +177,6 @@ class DevicePairingController extends GetxController {
   Future<void> syncDeviceMetrics(DeviceModel device) async {
     try {
       await _deviceService.syncDeviceMetrics(device.id);
-      ToastMessageHelper.show('Device metrics synced');
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
     }

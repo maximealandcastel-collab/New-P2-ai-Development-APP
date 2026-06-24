@@ -1,12 +1,12 @@
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/data/services/device_api_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
 
 class DeviceService {
-  DeviceService({required DeviceApiService apiService}) : _apiService = apiService;
+  DeviceService({required DeviceRepository repository}) : _repository = repository;
 
-  final DeviceApiService _apiService;
+  final DeviceRepository _repository;
 
-  Future<List<DeviceModel>> getUserDevices() => _apiService.getUserDevices();
+  Future<List<DeviceModel>> getUserDevices() => _repository.getUserDevices();
 
   Future<DeviceModel> pairDevice({
     required String name,
@@ -14,7 +14,7 @@ class DeviceService {
     String? macAddress,
     String? deviceType,
   }) {
-    return _apiService.pairDevice(
+    return _repository.pairDevice(
       name: name,
       serialNumber: serialNumber,
       macAddress: macAddress,
@@ -26,14 +26,14 @@ class DeviceService {
     required String deviceId,
     required bool isConnected,
   }) {
-    return _apiService.updateDeviceStatus(
+    return _repository.updateDeviceStatus(
       deviceId: deviceId,
       isConnected: isConnected,
     );
   }
 
-  Future<void> unpairDevice(String deviceId) => _apiService.unpairDevice(deviceId);
+  Future<void> unpairDevice(String deviceId) => _repository.unpairDevice(deviceId);
 
   Future<Map<String, dynamic>> syncDeviceMetrics(String deviceId) =>
-      _apiService.syncDeviceMetrics(deviceId);
+      _repository.syncDeviceMetrics(deviceId);
 }

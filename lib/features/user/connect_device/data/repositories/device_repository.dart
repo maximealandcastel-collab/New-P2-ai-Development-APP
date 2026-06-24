@@ -3,20 +3,19 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
 
-class DeviceApiService {
-  DeviceApiService({required ApiService apiService}) : _apiService = apiService;
+class DeviceRepository {
+  DeviceRepository({required ApiService apiService}) : _apiService = apiService;
 
   final ApiService _apiService;
 
   Future<List<DeviceModel>> getUserDevices() async {
     try {
       final response = await _apiService.get(ApiConstants.userDevices);
-      final data = response.data?['data'];
+      final data = response.data['data'];
 
       if (data is List) {
         return data
-            .whereType<Map<String, dynamic>>()
-            .map(DeviceModel.fromJson)
+            .map((item) => DeviceModel.fromJson(item as Map<String, dynamic>))
             .toList();
       }
 
@@ -24,8 +23,7 @@ class DeviceApiService {
         final devices = data['devices'];
         if (devices is List) {
           return devices
-              .whereType<Map<String, dynamic>>()
-              .map(DeviceModel.fromJson)
+              .map((item) => DeviceModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
       }
@@ -55,16 +53,10 @@ class DeviceApiService {
         },
       );
 
-      final data = response.data?['data'];
-      if (data is Map<String, dynamic>) {
-        return DeviceModel.fromJson(data);
-      }
-
-      throw UnknownException('Invalid pair device response');
+      return DeviceModel.fromJson(response.data['data']);
     } on AppException {
       rethrow;
     } catch (e) {
-      if (e is AppException) rethrow;
       throw UnknownException(e.toString());
     }
   }
@@ -79,16 +71,10 @@ class DeviceApiService {
         data: {'isConnected': isConnected},
       );
 
-      final data = response.data?['data'];
-      if (data is Map<String, dynamic>) {
-        return DeviceModel.fromJson(data);
-      }
-
-      throw UnknownException('Invalid update device status response');
+      return DeviceModel.fromJson(response.data['data']);
     } on AppException {
       rethrow;
     } catch (e) {
-      if (e is AppException) rethrow;
       throw UnknownException(e.toString());
     }
   }
@@ -106,7 +92,7 @@ class DeviceApiService {
   Future<Map<String, dynamic>> syncDeviceMetrics(String deviceId) async {
     try {
       final response = await _apiService.get(ApiConstants.deviceMetrics(deviceId));
-      final data = response.data?['data'];
+      final data = response.data['data'];
       if (data is Map<String, dynamic>) return data;
       return {};
     } on AppException {
