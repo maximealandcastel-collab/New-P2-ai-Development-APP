@@ -11,7 +11,8 @@ class BluetoothService {
 
   static final BluetoothService instance = BluetoothService._();
 
-  StreamSubscription<List<ScanResult>>? _scanSubscription;
+  static const Duration _connectTimeout = Duration(seconds: 30);
+  static const Duration _disconnectSettleDelay = Duration(milliseconds: 500);
 
   Stream<List<BluetoothScanResultModel>> get scanResults =>
       FlutterBluePlus.scanResults.map(_mapScanResults);
@@ -41,38 +42,101 @@ class BluetoothService {
   Future<void> startScan({Duration timeout = const Duration(seconds: 15)}) async {
     final granted = await requestPermissions();
     if (!granted) {
-      throw Exception('Bluetooth permissions not granted');
+      throw Exception(
+        'Bluetooth and location permissions are required to scan for devices',
+      );
     }
 
     if (await FlutterBluePlus.isSupported == false) {
       throw Exception('Bluetooth is not supported on this device');
     }
 
-    await FlutterBluePlus.adapterState
-        .where((state) => state == BluetoothAdapterState.on)
-        .first
-        .timeout(const Duration(seconds: 8));
+    await _ensureAdapterOn();
+
+    if (FlutterBluePlus.isScanningNow) {
+      await stopScan();
+    }
 
     await FlutterBluePlus.startScan(timeout: timeout);
   }
 
+  Future<void> _ensureAdapterOn() async {
+    final currentState = await FlutterBluePlus.adapterState.first;
+
+    if (currentState == BluetoothAdapterState.on) return;
+
+    if (currentState == BluetoothAdapterState.off && Platform.isAndroid) {
+      try {
+        await FlutterBluePlus.turnOn();
+      } catch (e) {
+        if (kDebugMode) debugPrint('Bluetooth turnOn failed: $e');
+      }
+    }
+
+    try {
+      await FlutterBluePlus.adapterState
+          .where((state) => state == BluetoothAdapterState.on)
+          .first
+          .timeout(const Duration(seconds: 12));
+    } on TimeoutException {
+      throw Exception('Please turn on Bluetooth and try again');
+    }
+  }
+
   Future<void> stopScan() async {
-    await FlutterBluePlus.stopScan();
-    await _scanSubscription?.cancel();
-    _scanSubscription = null;
+    try {
+      if (FlutterBluePlus.isScanningNow) {
+        await FlutterBluePlus.stopScan();
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('BluetoothService.stopScan: $e');
+    }
+  }
+
+  Future<void> disconnectAll() async {
+    try {
+      final connected = FlutterBluePlus.connectedDevices;
+      for (final device in connected) {
+        try {
+          await device.disconnect();
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Bluetooth disconnect ${device.remoteId.str}: $e');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('BluetoothService.disconnectAll: $e');
+    }
   }
 
   Future<void> connect(String deviceId) async {
+    await disconnectAll();
+    await Future<void>.delayed(_disconnectSettleDelay);
+
     final device = BluetoothDevice.fromId(deviceId);
+
+    if (device.isConnected) {
+      try {
+        await device.disconnect();
+        await Future<void>.delayed(_disconnectSettleDelay);
+      } catch (e) {
+        if (kDebugMode) debugPrint('Pre-connect disconnect failed: $e');
+      }
+    }
+
     await device.connect(
       license: License.nonprofit,
-      timeout: const Duration(seconds: 15),
+      timeout: _connectTimeout,
+      autoConnect: false,
     );
   }
 
   Future<void> disconnect(String deviceId) async {
     final device = BluetoothDevice.fromId(deviceId);
-    await device.disconnect();
+    if (device.isConnected) {
+      await device.disconnect();
+    }
   }
 
   Future<Map<String, String>> getDeviceInfo(String deviceId) async {
@@ -94,11 +158,10 @@ class BluetoothService {
 
     for (final result in results) {
       final id = result.device.remoteId.str;
+      final name = result.device.platformName.trim();
       unique[id] = BluetoothScanResultModel(
         id: id,
-        name: result.device.platformName.isNotEmpty
-            ? result.device.platformName
-            : 'Unknown Device',
+        name: name.isNotEmpty ? name : 'Unknown Device',
         macAddress: id,
       );
     }
@@ -108,5 +171,6 @@ class BluetoothService {
 
   Future<void> dispose() async {
     await stopScan();
+    await disconnectAll();
   }
 }

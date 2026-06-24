@@ -30,6 +30,8 @@ class DevicePairingController extends GetxController {
   final Rx<PairingStep> pairingStep = PairingStep.idle.obs;
   final RxDouble pairingProgress = 0.0.obs;
   final RxBool isLoadingDevices = false.obs;
+  final RxString pairingError = ''.obs;
+  final RxnString connectingDeviceId = RxnString();
 
   StreamSubscription<List<BluetoothScanResultModel>>? _scanSubscription;
 
@@ -58,17 +60,16 @@ class DevicePairingController extends GetxController {
     }
   }
 
-  Future<void> openPairingFlow() async {
-    await startPairing();
+  void preparePairingUi() {
+    pairingError.value = '';
+    isPairing.value = true;
+    pairingStep.value = PairingStep.scanning;
+    pairingProgress.value = 0.1;
+    discoveredDevices.clear();
   }
 
-  Future<void> startPairing() async {
+  Future<void> startScanning() async {
     try {
-      isPairing.value = true;
-      pairingStep.value = PairingStep.scanning;
-      pairingProgress.value = 0.1;
-      discoveredDevices.clear();
-
       await _scanSubscription?.cancel();
       _scanSubscription = _bluetoothService.scanResults.listen((results) {
         discoveredDevices.assignAll(results);
@@ -77,17 +78,23 @@ class DevicePairingController extends GetxController {
       await _bluetoothService.startScan();
       pairingProgress.value = 0.25;
     } catch (e) {
-      await cancelPairing(showError: false);
+      if (kDebugMode) debugPrint('Start scanning error: $e');
+      pairingError.value = e.errorMessage;
       ToastMessageHelper.show(e.errorMessage);
+      await _resetPairingState(stopScan: true);
+      _popPairingScreen();
+      rethrow;
     }
   }
 
   Future<void> selectAndConnectDevice(BluetoothScanResultModel device) async {
     try {
+      pairingError.value = '';
       pairingStep.value = PairingStep.connecting;
       pairingProgress.value = 0.45;
       await _bluetoothService.stopScan();
 
+      await _releaseActiveConnection();
       await _bluetoothService.connect(device.id);
       pairingProgress.value = 0.65;
 
@@ -102,25 +109,57 @@ class DevicePairingController extends GetxController {
       );
 
       pairingProgress.value = 1.0;
-      _upsertDevice(pairedDevice.copyWith(isConnected: true));
+      _markOnlyDeviceConnected(
+        pairedDevice.id,
+        serverDevice: pairedDevice,
+      );
       ToastMessageHelper.show('Device paired successfully');
-      await _finishPairing(closeDialog: true);
+      await _finishPairing();
     } catch (e) {
+      if (kDebugMode) debugPrint('Connect/pair device error: $e');
+      pairingError.value = e.errorMessage;
       ToastMessageHelper.show(e.errorMessage);
-      await cancelPairing(showError: false);
+      pairingStep.value = PairingStep.scanning;
+      pairingProgress.value = 0.25;
+      try {
+        await _bluetoothService.startScan();
+      } catch (scanError) {
+        if (kDebugMode) debugPrint('Resume scan error: $scanError');
+      }
+    }
+  }
+
+  Future<void> switchToDevice(DeviceModel device) async {
+    if (device.isConnected) return;
+
+    final address = device.macAddress?.trim();
+    if (address == null || address.isEmpty) {
+      ToastMessageHelper.show('Device Bluetooth address not found');
+      return;
+    }
+
+    connectingDeviceId.value = device.id;
+    try {
+      await _releaseActiveConnection();
+      await _bluetoothService.connect(address);
+
+      final updated = await _deviceService.updateDeviceStatus(
+        deviceId: device.id,
+        isConnected: true,
+      );
+      _markOnlyDeviceConnected(device.id, serverDevice: updated);
+      ToastMessageHelper.show('Connected to ${device.name}');
+    } catch (e) {
+      if (kDebugMode) debugPrint('Switch device error: $e');
+      ToastMessageHelper.show(e.errorMessage);
+    } finally {
+      connectingDeviceId.value = null;
     }
   }
 
   Future<void> cancelPairing({bool showError = true}) async {
-    await _bluetoothService.stopScan();
-    isPairing.value = false;
-    pairingStep.value = PairingStep.idle;
-    pairingProgress.value = 0.0;
-    discoveredDevices.clear();
-
-    if (Get.isDialogOpen ?? false) {
-      Get.back();
-    }
+    await _resetPairingState(stopScan: true);
+    _popPairingScreen();
 
     if (showError) {
       ToastMessageHelper.show('Pairing cancelled');
@@ -129,26 +168,16 @@ class DevicePairingController extends GetxController {
 
   Future<void> unpairDevice(DeviceModel device) async {
     try {
-      await _deviceService.unpairDevice(device.id);
-      if (device.macAddress != null && device.macAddress!.isNotEmpty) {
+      if (device.isConnected &&
+          device.macAddress != null &&
+          device.macAddress!.isNotEmpty) {
         await _bluetoothService.disconnect(device.macAddress!);
       }
+      await _deviceService.unpairDevice(device.id);
       pairedDevices.removeWhere((item) => item.id == device.id);
       ToastMessageHelper.show('Device removed');
     } catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-    }
-  }
-
-  Future<void> setPrimaryDevice(DeviceModel device) async {
-    try {
-      final updated = await _deviceService.setPrimaryDevice(
-        device.id,
-        pairedDevices.toList(),
-      );
-      pairedDevices.assignAll(updated);
-      ToastMessageHelper.show('Primary device updated');
-    } catch (e) {
+      if (kDebugMode) debugPrint('Unpair device error: $e');
       ToastMessageHelper.show(e.errorMessage);
     }
   }
@@ -162,13 +191,61 @@ class DevicePairingController extends GetxController {
     }
   }
 
-  Future<void> _finishPairing({required bool closeDialog}) async {
+  Future<void> _releaseActiveConnection() async {
+    await _bluetoothService.disconnectAll();
+
+    for (final device in pairedDevices.where((d) => d.isConnected)) {
+      try {
+        final updated = await _deviceService.updateDeviceStatus(
+          deviceId: device.id,
+          isConnected: false,
+        );
+        _upsertDevice(updated);
+      } catch (e) {
+        if (kDebugMode) debugPrint('Mark device disconnected: $e');
+        _upsertDevice(device.copyWith(isConnected: false));
+      }
+    }
+  }
+
+  void _markOnlyDeviceConnected(String activeId, {DeviceModel? serverDevice}) {
+    for (var i = 0; i < pairedDevices.length; i++) {
+      final item = pairedDevices[i];
+      final shouldConnect = item.id == activeId;
+      if (item.isConnected != shouldConnect) {
+        pairedDevices[i] = item.copyWith(isConnected: shouldConnect);
+      }
+    }
+
+    if (serverDevice != null) {
+      _upsertDevice(serverDevice.copyWith(isConnected: true));
+    } else {
+      final index = pairedDevices.indexWhere((item) => item.id == activeId);
+      if (index >= 0) {
+        pairedDevices[index] = pairedDevices[index].copyWith(isConnected: true);
+      }
+    }
+  }
+
+  Future<void> _finishPairing() async {
+    await _resetPairingState(stopScan: false);
+    _popPairingScreen();
+  }
+
+  Future<void> _resetPairingState({required bool stopScan}) async {
+    if (stopScan) {
+      await _bluetoothService.stopScan();
+    }
+
     isPairing.value = false;
     pairingStep.value = PairingStep.idle;
     pairingProgress.value = 0.0;
     discoveredDevices.clear();
+    pairingError.value = '';
+  }
 
-    if (closeDialog && (Get.isDialogOpen ?? false)) {
+  void _popPairingScreen() {
+    if (Get.key.currentState?.canPop() ?? false) {
       Get.back();
     }
   }

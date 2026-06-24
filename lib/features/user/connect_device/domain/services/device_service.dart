@@ -32,18 +32,6 @@ class DeviceService {
     );
   }
 
-  Future<List<DeviceModel>> setPrimaryDevice(
-    String deviceId,
-    List<DeviceModel> currentDevices,
-  ) async {
-    await _apiService.setPrimaryDevice(deviceId);
-    return currentDevices
-        .map(
-          (device) => device.copyWith(isPrimary: device.id == deviceId),
-        )
-        .toList();
-  }
-
   Future<void> unpairDevice(String deviceId) => _apiService.unpairDevice(deviceId);
 
   Future<Map<String, dynamic>> syncDeviceMetrics(String deviceId) =>

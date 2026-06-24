@@ -8,13 +8,15 @@ class ConnectedDeviceTile extends StatelessWidget {
   const ConnectedDeviceTile({
     super.key,
     required this.device,
-    this.onSetPrimary,
+    this.onTap,
+    this.isConnecting = false,
     this.onRemove,
     this.onSync,
   });
 
   final DeviceModel device;
-  final VoidCallback? onSetPrimary;
+  final VoidCallback? onTap;
+  final bool isConnecting;
   final VoidCallback? onRemove;
   final VoidCallback? onSync;
 
@@ -25,6 +27,7 @@ class ConnectedDeviceTile extends StatelessWidget {
     final statusText = device.isConnected ? 'Connected' : 'Disconnected';
 
     return CustomContainer(
+      onTap: device.isConnected ? null : onTap,
       radiusAll: 14.r,
       color: Colors.white,
       paddingHorizontal: 14.w,
@@ -47,31 +50,11 @@ class ConnectedDeviceTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomText(
-                        text: device.name,
-                        textAlign: TextAlign.start,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (device.isPrimary)
-                      CustomContainer(
-                        marginLeft: 6.w,
-                        paddingHorizontal: 8.w,
-                        paddingVertical: 3.h,
-                        radiusAll: 20.r,
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        child: CustomText(
-                          text: 'Primary',
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                  ],
+                CustomText(
+                  text: device.name,
+                  textAlign: TextAlign.start,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
                 ),
                 CustomText(
                   top: 3.h,
@@ -87,20 +70,27 @@ class ConnectedDeviceTile extends StatelessWidget {
             paddingHorizontal: 10.w,
             paddingVertical: 5.h,
             radiusAll: 20.r,
-            color: statusColor,
-            child: CustomText(
-              text: statusText,
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+            color: isConnecting ? AppColors.primary : statusColor,
+            child: isConnecting
+                ? SizedBox(
+                    width: 12.r,
+                    height: 12.r,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : CustomText(
+                    text: statusText,
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, size: 20.sp, color: Colors.black54),
             onSelected: (value) {
               switch (value) {
-                case 'primary':
-                  onSetPrimary?.call();
                 case 'sync':
                   onSync?.call();
                 case 'remove':
@@ -108,11 +98,6 @@ class ConnectedDeviceTile extends StatelessWidget {
               }
             },
             itemBuilder: (context) => [
-              if (!device.isPrimary)
-                const PopupMenuItem(
-                  value: 'primary',
-                  child: Text('Set as primary'),
-                ),
               const PopupMenuItem(
                 value: 'sync',
                 child: Text('Sync metrics'),

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/connected_device_tile.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/device_pairing_dialog.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ManageDevicesScreen extends StatelessWidget {
@@ -37,19 +37,9 @@ class ManageDevicesScreen extends StatelessWidget {
             ? null
             : CustomButton(
                 label: 'Add a new device',
-                onPressed: () => _openPairingDialog(controller),
+                onPressed: () => Get.to(() => const AddDeviceScreen()),
               ),
       ),
-    );
-  }
-
-  Future<void> _openPairingDialog(DevicePairingController controller) async {
-    await controller.openPairingFlow();
-    if (!controller.isPairing.value) return;
-
-    await Get.dialog(
-      const DevicePairingDialog(),
-      barrierDismissible: false,
     );
   }
 
@@ -77,7 +67,7 @@ class ManageDevicesScreen extends StatelessWidget {
               SizedBox(height: 24.h),
               CustomButton(
                 label: 'Add a New Device',
-                onPressed: () => _openPairingDialog(controller),
+                onPressed: () => Get.to(() => const AddDeviceScreen()),
               ),
             ],
           ),
@@ -96,11 +86,14 @@ class ManageDevicesScreen extends StatelessWidget {
           separatorBuilder: (_, _) => SizedBox(height: 12.h),
           itemBuilder: (context, index) {
             final device = controller.pairedDevices[index];
-            return ConnectedDeviceTile(
-              device: device,
-              onSetPrimary: () => controller.setPrimaryDevice(device),
-              onRemove: () => controller.unpairDevice(device),
-              onSync: () => controller.syncDeviceMetrics(device),
+            return Obx(
+              () => ConnectedDeviceTile(
+                device: device,
+                isConnecting: controller.connectingDeviceId.value == device.id,
+                onTap: () => controller.switchToDevice(device),
+                onRemove: () => controller.unpairDevice(device),
+                onSync: () => controller.syncDeviceMetrics(device),
+              ),
             );
           },
         ),

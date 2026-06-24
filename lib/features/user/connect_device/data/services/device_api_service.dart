@@ -93,26 +93,6 @@ class DeviceApiService {
     }
   }
 
-  Future<DeviceModel> setPrimaryDevice(String deviceId) async {
-    try {
-      final response = await _apiService.patch(
-        ApiConstants.devicePrimary(deviceId),
-      );
-
-      final data = response.data?['data'];
-      if (data is Map<String, dynamic>) {
-        return DeviceModel.fromJson(data);
-      }
-
-      throw UnknownException('Invalid set primary device response');
-    } on AppException {
-      rethrow;
-    } catch (e) {
-      if (e is AppException) rethrow;
-      throw UnknownException(e.toString());
-    }
-  }
-
   Future<void> unpairDevice(String deviceId) async {
     try {
       await _apiService.delete(ApiConstants.unpairDevice(deviceId));
