@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:pler_to_pler_app/core/helpers/image_crop_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
@@ -56,6 +59,23 @@ class PhotoPickerHelper {
           ),
         ),
       ),
+    );
+  }
+
+  static void showPickerAndCrop({
+    required BuildContext context,
+    required ImageCropConfig cropConfig,
+    required ValueChanged<File> onCropped,
+  }) {
+    showPicker(
+      context: context,
+      onImagePicked: (file) async {
+        final cropped = await ImageCropHelper.cropImage(
+          imagePath: file.path,
+          config: cropConfig,
+        );
+        if (cropped != null) onCropped(cropped);
+      },
     );
   }
 

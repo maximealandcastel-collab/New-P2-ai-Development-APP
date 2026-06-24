@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/image_crop_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
@@ -42,11 +41,14 @@ class ProfileFlexibleBackground extends StatelessWidget {
                   right: 16.w,
                   child: CustomContainer(
                     onTap: () {
-                      PhotoPickerHelper.showPicker(
+                      final screenWidth = MediaQuery.sizeOf(context).width;
+                      PhotoPickerHelper.showPickerAndCrop(
                         context: context,
-                        onImagePicked: (image) {
-                          controller.uploadCoverPhoto(File(image.path));
-                        },
+                        cropConfig: ImageCropHelper.coverPhoto(
+                          width: screenWidth,
+                          height: 210.h,
+                        ),
+                        onCropped: controller.uploadCoverPhoto,
                       );
                     },
                     radiusAll: 12.r,
@@ -95,13 +97,10 @@ class ProfileFlexibleBackground extends StatelessWidget {
                         right: 2,
                         child: CustomContainer(
                           onTap: () {
-                            PhotoPickerHelper.showPicker(
+                            PhotoPickerHelper.showPickerAndCrop(
                               context: context,
-                              onImagePicked: (image) {
-                                controller.uploadProfilePicture(
-                                  File(image.path),
-                                );
-                              },
+                              cropConfig: ImageCropHelper.profilePicture,
+                              onCropped: controller.uploadProfilePicture,
                             );
                           },
                           shape: BoxShape.circle,

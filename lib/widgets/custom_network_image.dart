@@ -49,7 +49,7 @@ class CustomNetworkImage extends StatelessWidget {
 
     if ((imageUrl ?? '').trim().isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: '${ApiConstants.baseUrl}/api/v1$imageUrl}',
+        imageUrl: '${ApiConstants.baseUrl}$imageUrl',
         imageBuilder: (context, imageProvider) =>
             _buildContainer(imageProvider),
         placeholder: (context, url) => Shimmer.fromColors(
