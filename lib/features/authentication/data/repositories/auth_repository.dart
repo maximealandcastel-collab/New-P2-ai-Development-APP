@@ -201,6 +201,18 @@ class AuthRepository {
     }
   }
 
+  // ─── Delete Account ──────────────────────
+
+  Future<void> deleteAccount() async {
+    try {
+      await _apiService.delete(ApiConstants.accountDelete);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
 
 
   // ─── Trainer Profile  ────────────────────────────

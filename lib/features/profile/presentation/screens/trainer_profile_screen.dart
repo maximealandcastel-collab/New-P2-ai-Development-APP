@@ -7,8 +7,8 @@ import 'package:pler_to_pler_app/features/profile/presentation/controllers/profi
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class TrainerProfileScreen extends StatelessWidget {
+  const TrainerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

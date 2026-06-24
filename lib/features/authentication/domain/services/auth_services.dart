@@ -66,6 +66,11 @@ class AuthService {
     );
   }
 
+  Future<void> deleteAccount() async {
+    await _repository.deleteAccount();
+    await logout();
+  }
+
 
 
   // ─── Trainer Profile  ────────────────────────────

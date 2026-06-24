@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/widgets/custom_container.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
@@ -40,7 +42,11 @@ class FeedAppBarSliver extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Get.to(() => ProfileScreen());
+                if(LoginController.to.isTrainer()){
+                  Get.toNamed(AppRoute.trainerProfileScreen);
+                }else{
+                  Get.toNamed(AppRoute.userProfileScreen);
+                }
               },
               child: CustomNetworkImage(
                 height: 48.r,

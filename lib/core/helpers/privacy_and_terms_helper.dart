@@ -3,21 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 
 class PrivacyAndTermsHelper extends StatelessWidget {
   PrivacyAndTermsHelper({super.key});
 
-  final PrivacyController _controller = Get.find<PrivacyController>();
+  final TermsAgreementController _controller = Get.find<TermsAgreementController>();
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Obx(() => Checkbox(
-          value: _controller.isChecked.value,
-          onChanged: _controller.toggleCheckbox,
-          activeColor: AppColors.textPrimary,
-        )),
+        Obx(
+          () => Checkbox(
+            value: _controller.isChecked.value,
+            onChanged: _controller.toggleCheckbox,
+            activeColor: AppColors.textPrimary,
+          ),
+        ),
         Expanded(
           child: RichText(
             text: TextSpan(
@@ -26,26 +29,38 @@ class PrivacyAndTermsHelper extends StatelessWidget {
                 color: AppColors.textPrimary,
               ),
               children: [
-                const TextSpan(text: "I agree with "),
+                const TextSpan(text: 'I agree with '),
                 TextSpan(
-                  text: "terms of services ",
-                  style: TextStyle(
+                  text: 'terms of services ',
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                   ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      //Get.toNamed(AppRoutes.termsScreen);
+                      Get.to(
+                        () => const PrivacyPolicyAllScreen(),
+                        arguments: {
+                          'title': 'Terms of Service',
+                          'key': 'terms',
+                        },
+                      );
                     },
                 ),
-                const TextSpan(text: "and "),
+                const TextSpan(text: 'and '),
                 TextSpan(
-                  text: "privacy policy.",
-                  style: TextStyle(
+                  text: 'privacy policy.',
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                   ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      //Get.toNamed(AppRoutes.privacyPolicyScreen); // example navigation
+                      Get.to(
+                        () => const PrivacyPolicyAllScreen(),
+                        arguments: {
+                          'title': 'Privacy Policy',
+                          'key': 'privacy',
+                        },
+                      );
                     },
                 ),
               ],
@@ -57,11 +72,10 @@ class PrivacyAndTermsHelper extends StatelessWidget {
   }
 }
 
-class PrivacyController extends GetxController {
+class TermsAgreementController extends GetxController {
   var isChecked = false.obs;
 
   void toggleCheckbox(bool? value) {
     isChecked.value = value ?? false;
   }
 }
-

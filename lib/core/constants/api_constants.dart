@@ -18,6 +18,7 @@ class ApiConstants {
   static const String resendOtp = '/api/v1/auth/resend-otp';
   static const String resetPassword = '/api/v1/auth/reset-password';
   static const String changePassword = '/api/v1/auth/change-password';
+  static const String accountDelete = '/api/v1/auth/account-delete';
 
 
 
@@ -42,6 +43,10 @@ class ApiConstants {
   static const String content = '/api/v1/content/content';
   static String contentById(String contentId) => '/api/v1/content/content/$contentId';
 
+  /// PRIVACY ──────────────────────────────────────────────
+  static const String privacyPolicy = '/api/v1/privacy';
+  static const String termsAndCondition = '/api/v1/terms';
+  static const String aboutUs = '/api/v1/about';
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';

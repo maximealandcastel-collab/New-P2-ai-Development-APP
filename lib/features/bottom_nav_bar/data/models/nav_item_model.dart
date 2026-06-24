@@ -7,7 +7,6 @@ import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_screen.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/screens/history_screen.dart';
 import 'package:pler_to_pler_app/features/user/trainer/presentation/screens/user_trainer_screen.dart';
-import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 
 class NavItemModel {
   final String icon;

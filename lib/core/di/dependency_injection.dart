@@ -27,6 +27,9 @@ import 'package:pler_to_pler_app/features/trainer/contents/domain/services/categ
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
+import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
 import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
 
 class DependencyInjection {
@@ -201,6 +204,26 @@ class DependencyInjection {
     Get.lazyPut<ContentController>(
       () => ContentController(
         service: Get.find<ContentService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Privacy
+    Get.lazyPut<PrivacyRepository>(
+      () => PrivacyRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyServices>(
+      () => PrivacyServices(repository: Get.find<PrivacyRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyController>(
+      () => PrivacyController(
+        service: Get.find<PrivacyServices>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
