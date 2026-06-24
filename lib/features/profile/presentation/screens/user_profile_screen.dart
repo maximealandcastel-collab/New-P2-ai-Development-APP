@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
@@ -39,6 +42,14 @@ class UserProfileScreen extends StatelessWidget {
                       bottom: 12.h,
                       right: 16.w,
                       child: CustomContainer(
+                        onTap: () {
+                          PhotoPickerHelper.showPicker(
+                            context: context,
+                            onImagePicked: (image) {
+                              controller.uploadCoverPhoto(File(image.path));
+                            },
+                          );
+                        },
                         radiusAll: 12.r,
                           paddingVertical: 4.h,
                           paddingHorizontal: 14.r,
@@ -76,6 +87,16 @@ class UserProfileScreen extends StatelessWidget {
                           bottom: 12,
                             right: 2,
                             child: CustomContainer(
+                              onTap: () {
+                                PhotoPickerHelper.showPicker(
+                                  context: context,
+                                  onImagePicked: (image) {
+                                    controller.uploadProfilePicture(
+                                      File(image.path),
+                                    );
+                                  },
+                                );
+                              },
                           shape: BoxShape.circle,
                             paddingAll: 8.r,
                             color: AppColors.primary.withValues(alpha: 0.8),

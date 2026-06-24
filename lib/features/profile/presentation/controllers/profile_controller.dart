@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'dart:io';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -90,4 +93,36 @@ class ProfileController extends GetxController {
 
   @override
   Future<void> refresh() => loadData();
+
+  Future<void> uploadProfilePicture(File file) async {
+    _updateLoadingState.value = LoadingState.loading;
+    try {
+      _userData.value = await _service.uploadProfilePicture(file);
+      _updateLoadingState.value = LoadingState.loaded;
+      ToastMessageHelper.show('Profile picture updated');
+    } on AppException catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+    } catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show('Failed to upload profile picture');
+      if (kDebugMode) debugPrint('Upload profile picture error: $e');
+    }
+  }
+
+  Future<void> uploadCoverPhoto(File file) async {
+    _updateLoadingState.value = LoadingState.loading;
+    try {
+      _userData.value = await _service.uploadCoverPhoto(file);
+      _updateLoadingState.value = LoadingState.loaded;
+      ToastMessageHelper.show('Cover photo updated');
+    } on AppException catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+    } catch (e) {
+      _updateLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show('Failed to upload cover photo');
+      if (kDebugMode) debugPrint('Upload cover photo error: $e');
+    }
+  }
 }

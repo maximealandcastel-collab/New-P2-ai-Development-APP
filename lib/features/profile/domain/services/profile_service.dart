@@ -37,6 +37,14 @@ class ProfileService {
     );
   }
 
+  Future<UserModel> uploadProfilePicture(File file) async {
+    return _repository.uploadProfilePicture(file);
+  }
+
+  Future<UserModel> uploadCoverPhoto(File file) async {
+    return _repository.uploadCoverPhoto(file);
+  }
+
   bool hasCache() {
     return _repository.hasCache();
   }

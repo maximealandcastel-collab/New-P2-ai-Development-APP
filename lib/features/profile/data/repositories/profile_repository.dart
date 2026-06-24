@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +76,48 @@ class ProfileRepository {
         updatedUser.toJson(),
       );
       return updatedUser;
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<UserModel> uploadProfilePicture(File file) async {
+    try {
+      final multipart = await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      );
+
+      await _apiService.uploadFile(
+        ApiConstants.uploadProfilePicture,
+        file: multipart,
+        fieldName: 'profilePicture',
+      );
+
+      return fetchUserProfile();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<UserModel> uploadCoverPhoto(File file) async {
+    try {
+      final multipart = await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      );
+
+      await _apiService.uploadFile(
+        ApiConstants.uploadCoverPhoto,
+        file: multipart,
+        fieldName: 'coverPhoto',
+      );
+
+      return fetchUserProfile();
     } on AppException {
       rethrow;
     } catch (e) {
