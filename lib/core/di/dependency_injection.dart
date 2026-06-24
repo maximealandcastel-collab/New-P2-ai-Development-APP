@@ -30,7 +30,10 @@ import 'package:pler_to_pler_app/features/trainer/contents/presentation/controll
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/manage_devices_controller.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/services/device_api_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/change_password_controller.dart';
 
@@ -236,8 +239,21 @@ class DependencyInjection {
       fenix: true,
     );
 
-    Get.lazyPut<ManageDevicesController>(
-      () => ManageDevicesController(),
+    Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
+
+    Get.lazyPut<DeviceApiService>(
+      () => DeviceApiService(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<DeviceService>(
+      () => DeviceService(apiService: Get.find<DeviceApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<DevicePairingController>(
+      () => DevicePairingController(
+        deviceService: Get.find<DeviceService>(),
+        bluetoothService: BluetoothService.instance,
+      ),
       fenix: true,
     );
 

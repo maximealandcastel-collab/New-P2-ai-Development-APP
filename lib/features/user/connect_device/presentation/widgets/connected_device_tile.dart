@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/data/models/connected_device_model.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ConnectedDeviceTile extends StatelessWidget {
   const ConnectedDeviceTile({
     super.key,
     required this.device,
+    this.onSetPrimary,
+    this.onRemove,
+    this.onSync,
   });
 
-  final ConnectedDeviceModel device;
+  final DeviceModel device;
+  final VoidCallback? onSetPrimary;
+  final VoidCallback? onRemove;
+  final VoidCallback? onSync;
 
   @override
   Widget build(BuildContext context) {
+    final statusColor =
+        device.isConnected ? const Color(0xFF4CAF50) : AppColors.textSecondary;
+    final statusText = device.isConnected ? 'Connected' : 'Disconnected';
+
     return CustomContainer(
       radiusAll: 14.r,
       color: Colors.white,
@@ -37,15 +47,35 @@ class ConnectedDeviceTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: device.name,
-                  textAlign: TextAlign.start,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomText(
+                        text: device.name,
+                        textAlign: TextAlign.start,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (device.isPrimary)
+                      CustomContainer(
+                        marginLeft: 6.w,
+                        paddingHorizontal: 8.w,
+                        paddingVertical: 3.h,
+                        radiusAll: 20.r,
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        child: CustomText(
+                          text: 'Primary',
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                  ],
                 ),
                 CustomText(
                   top: 3.h,
-                  text: device.serial,
+                  text: device.serialNumber,
                   textAlign: TextAlign.start,
                   fontSize: 11.sp,
                   color: AppColors.textSecondary,
@@ -57,13 +87,41 @@ class ConnectedDeviceTile extends StatelessWidget {
             paddingHorizontal: 10.w,
             paddingVertical: 5.h,
             radiusAll: 20.r,
-            color: const Color(0xFF4CAF50),
+            color: statusColor,
             child: CustomText(
-              text: 'Connected',
+              text: statusText,
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, size: 20.sp, color: Colors.black54),
+            onSelected: (value) {
+              switch (value) {
+                case 'primary':
+                  onSetPrimary?.call();
+                case 'sync':
+                  onSync?.call();
+                case 'remove':
+                  onRemove?.call();
+              }
+            },
+            itemBuilder: (context) => [
+              if (!device.isPrimary)
+                const PopupMenuItem(
+                  value: 'primary',
+                  child: Text('Set as primary'),
+                ),
+              const PopupMenuItem(
+                value: 'sync',
+                child: Text('Sync metrics'),
+              ),
+              const PopupMenuItem(
+                value: 'remove',
+                child: Text('Remove device'),
+              ),
+            ],
           ),
         ],
       ),
