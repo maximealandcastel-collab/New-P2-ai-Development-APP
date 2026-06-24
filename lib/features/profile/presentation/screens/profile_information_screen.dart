@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
-import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_fixed_account_card.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_info_section_card.dart';
@@ -18,89 +15,22 @@ class ProfileInformationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final user = ProfileController.to.userData;
-
-      final personalRows = [
-        (
-          label: 'First name',
-          value: StringFormat.valueOrNa(user?.firstName),
-        ),
-        (
-          label: 'Last name',
-          value: StringFormat.valueOrNa(user?.lastName),
-        ),
-        (
-          label: 'Preferred name',
-          value: StringFormat.valueOrNa(user?.preferredName),
-        ),
-        (
-          label: 'Gender',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.genderDisplayValue(user?.gender),
-          ),
-        ),
-        (
-          label: 'Date of birth',
-          value: _formatDateOfBirth(user),
-        ),
-      ];
-
-      final fitnessRows = [
-        (
-          label: 'Primary goal',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.goalDisplayValue(user?.primaryGoal),
-          ),
-        ),
-        (
-          label: 'Height',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.heightDisplayValue(user?.height),
-          ),
-        ),
-        (
-          label: 'Weight',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.weightDisplayValue(user?.weight),
-          ),
-        ),
-        (
-          label: 'Fitness level',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.fitnessLevelDisplayValue(user?.fitnessLevel),
-          ),
-        ),
-        (
-          label: 'Available equipment',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.equipmentDisplayValue(user?.availableEquipment),
-          ),
-        ),
-        (
-          label: 'Training days per week',
-          value: user?.trainingDaysPerWeek?.toString() ?? 'N/A',
-        ),
-        (
-          label: 'Injuries',
-          value: StringFormat.listOrNa(user?.injuries),
-        ),
-        (
-          label: 'Motivation style',
-          value: StringFormat.valueOrNa(
-            MenuShowHelper.motivationStyleDisplayValue(user?.motivationStyle),
-          ),
-        ),
-      ];
+      final personalRows = StringFormat.buildPersonalProfileRows(user);
+      final fitnessRows = StringFormat.buildFitnessProfileRows(user);
+      final hasAccountInfo = StringFormat.hasAccountInfo(user);
 
       return SliverScaffold(
         floating: false,
         appBarTitle: 'Profile Information',
         slivers: (context) => [
           SizedBox(height: 16.h).asSliver,
-          ProfileFixedAccountCard(
-            email: user?.email ?? '',
-            role: MenuShowHelper.roleDisplayValue(user?.role),
-          ).asSliverWithPadding(horizontal: 16.w),
-          SizedBox(height: 12.h).asSliver,
+          if (hasAccountInfo) ...[
+            ProfileFixedAccountCard(
+              email: user?.email ?? '',
+              username: user?.preferredName,
+            ).asSliverWithPadding(horizontal: 16.w),
+            SizedBox(height: 12.h).asSliver,
+          ],
           ProfileInfoSectionCard(
             title: 'Personal details',
             onEdit: () => Get.toNamed(AppRoute.editPersonalInfoScreen),
@@ -113,6 +43,8 @@ class ProfileInformationScreen extends StatelessWidget {
             rows: fitnessRows,
           ).asSliverWithPadding(horizontal: 16.w),
           SizedBox(height: 12.h).asSliver,
+
+
           CustomContainer(
             radiusAll: 20.r,
             paddingAll: 16.r,
@@ -164,15 +96,9 @@ class ProfileInformationScreen extends StatelessWidget {
               ],
             ),
           ).asSliverWithPadding(horizontal: 16.w),
-          SizedBox(height: 24.h).asSliver,
+          SizedBox(height: 100.h).asSliver,
         ],
       );
     });
-  }
-
-  String _formatDateOfBirth(UserModel? user) {
-    final dateOfBirth = user?.dateOfBirth;
-    if (dateOfBirth == null || dateOfBirth.isEmpty) return 'N/A';
-    return TimeFormatHelper.formatDate(DateTime.parse(dateOfBirth));
   }
 }

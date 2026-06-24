@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_info_row.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -14,7 +15,7 @@ class ProfileInfoSectionCard extends StatelessWidget {
 
   final String title;
   final VoidCallback onEdit;
-  final List<({String label, String value})> rows;
+  final List<ProfileInfoRowData> rows;
 
   @override
   Widget build(BuildContext context) {

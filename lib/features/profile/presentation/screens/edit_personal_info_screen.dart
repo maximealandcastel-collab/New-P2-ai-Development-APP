@@ -8,9 +8,7 @@ import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_personal_info_controller.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_dropdown_field.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_fixed_account_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class EditPersonalInfoScreen extends StatelessWidget {
@@ -19,8 +17,6 @@ class EditPersonalInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = EditPersonalInfoController.to;
-    final user = ProfileController.to.userData;
-
     return CustomScaffold(
       appBar: const CustomAppBar(title: 'Edit Personal Info'),
       body: SingleChildScrollView(
@@ -30,10 +26,6 @@ class EditPersonalInfoScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileFixedAccountCard(
-                email: user?.email ?? '',
-                role: MenuShowHelper.roleDisplayValue(user?.role),
-              ),
               SizedBox(height: 16.h),
               Row(
                 children: [

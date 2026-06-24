@@ -54,11 +54,9 @@ class ApiConstants {
   static const String userDevices = '/api/v1/devices';
   static const String pairDevice = '/api/v1/devices/pair';
   static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
-  static String devicePrimary(String deviceId) =>
-      '/api/v1/devices/$deviceId/primary';
+  static String devicePrimary(String deviceId) => '/api/v1/devices/$deviceId/primary';
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
-  static String deviceMetrics(String deviceId) =>
-      '/api/v1/devices/$deviceId/metrics';
+  static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';
