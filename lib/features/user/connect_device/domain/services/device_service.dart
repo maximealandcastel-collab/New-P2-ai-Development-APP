@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
 
@@ -6,7 +7,25 @@ class DeviceService {
 
   final DeviceRepository _repository;
 
-  Future<List<DeviceModel>> getUserDevices() => _repository.getUserDevices();
+  Future<List<DeviceModel>> fetchUserDevices() async {
+    try {
+      return await _repository.getUserDevices();
+    } on AppException {
+      if (!_repository.hasCache()) {
+        rethrow;
+      }
+      return _repository.getCachedDevices();
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  List<DeviceModel> getCachedDevices() => _repository.getCachedDevices();
+
+  Future<void> saveCachedDevices(List<DeviceModel> devices) =>
+      _repository.saveCachedDevices(devices);
+
+  bool hasCache() => _repository.hasCache();
 
   Future<DeviceModel> pairDevice({
     required String name,

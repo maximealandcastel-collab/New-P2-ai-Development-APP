@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class ProfileDropdownField extends StatelessWidget {
-  const ProfileDropdownField({
+class MenuDropdownField extends StatelessWidget {
+  const MenuDropdownField({
     super.key,
     required this.labelText,
     required this.hintText,
@@ -11,6 +11,7 @@ class ProfileDropdownField extends StatelessWidget {
     required this.options,
     this.validator,
     this.readOnly = false,
+    this.prefixIcon,
   });
 
   final String labelText;
@@ -19,6 +20,7 @@ class ProfileDropdownField extends StatelessWidget {
   final List<String> options;
   final FormFieldValidator? validator;
   final bool readOnly;
+  final Widget? prefixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class ProfileDropdownField extends StatelessWidget {
         controller: controller,
         readOnly: true,
         enabled: false,
+        prefixIcon: prefixIcon,
       );
     }
 
@@ -44,6 +47,7 @@ class ProfileDropdownField extends StatelessWidget {
       },
       child: AbsorbPointer(
         child: CustomTextField(
+          prefixIcon: prefixIcon,
           suffixIcon: const Icon(Icons.arrow_drop_down_outlined),
           labelText: labelText,
           hintText: hintText,

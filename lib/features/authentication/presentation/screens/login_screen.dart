@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/auth_switch_link.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -84,28 +85,10 @@ class LoginScreen extends StatelessWidget {
               }),
 
               SizedBox(height: 18.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: "Don’t have an account? ",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      Get.toNamed(AppRoute.signUpScreen);
-                    },
-                    child: CustomText(
-                      text: "Sign up",
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
+              AuthSwitchLink(
+                prompt: 'Don’t have an account? ',
+                actionLabel: 'Sign up',
+                onTap: () => Get.toNamed(AppRoute.signUpScreen),
               ),
               SizedBox(height: 10.h),
             ],

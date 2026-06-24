@@ -38,6 +38,19 @@ class StringFormat {
 
   static bool hasText(String? value) => value != null && value.trim().isNotEmpty;
 
+  static int? parseHeight(String value) {
+    final cmMatch = RegExp(r'\((\d+)\s*cm\)').firstMatch(value.trim());
+    if (cmMatch != null) {
+      return int.tryParse(cmMatch.group(1)!);
+    }
+    return int.tryParse(value.trim());
+  }
+
+  static double? parseWeight(String value) {
+    final match = RegExp(r'([\d.]+)').firstMatch(value.trim());
+    return match != null ? double.tryParse(match.group(1)!) : null;
+  }
+
   static bool hasAccountInfo(UserModel? user) {
     return hasText(user?.email) || hasText(user?.preferredName);
   }

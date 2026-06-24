@@ -242,7 +242,10 @@ class DependencyInjection {
     Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
 
     Get.lazyPut<DeviceRepository>(
-      () => DeviceRepository(apiService: Get.find<ApiService>()),
+      () => DeviceRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
       fenix: true,
     );
     Get.lazyPut<DeviceService>(
@@ -253,6 +256,7 @@ class DependencyInjection {
       () => DevicePairingController(
         deviceService: Get.find<DeviceService>(),
         bluetoothService: BluetoothService.instance,
+        connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
     );

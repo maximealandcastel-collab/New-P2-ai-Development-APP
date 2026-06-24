@@ -4,8 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_fitness_info_controller.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_dropdown_field.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/dynamic_field_list_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -14,18 +13,18 @@ class EditFitnessInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = EditFitnessInfoController.to;
+    final controller = ProfileController.to;
 
     return CustomScaffold(
       appBar: const CustomAppBar(title: 'Edit Fitness Info'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Form(
-          key: controller.formKey,
+          key: controller.fitnessFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Primary goal',
                 hintText: 'Select primary goal',
                 controller: controller.primaryGoalController,
@@ -37,7 +36,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                   return null;
                 },
               ),
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Height',
                 hintText: 'Select your height',
                 controller: controller.heightController,
@@ -49,7 +48,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                   return null;
                 },
               ),
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Weight',
                 hintText: 'Select your weight',
                 controller: controller.weightController,
@@ -61,7 +60,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                   return null;
                 },
               ),
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Fitness level',
                 hintText: 'Select fitness level',
                 controller: controller.fitnessLevelController,
@@ -73,7 +72,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                   return null;
                 },
               ),
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Available equipment',
                 hintText: 'Select equipment',
                 controller: controller.equipmentController,
@@ -107,7 +106,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 initialValues: controller.injuries,
                 onChanged: controller.setInjuries,
               ),
-              ProfileDropdownField(
+              MenuDropdownField(
                 labelText: 'Motivation style',
                 hintText: 'Select motivation style',
                 controller: controller.motivationStyleController,
@@ -123,8 +122,11 @@ class EditFitnessInfoScreen extends StatelessWidget {
               Obx(
                 () => CustomButton(
                   label: 'Update',
-                  onPressed: controller.save,
-                  isLoading: controller.saveState.isLoading,
+                  onPressed: () => controller.updateProfile(
+                    updates: controller.fitnessInfoUpdates(),
+                    formKey: controller.fitnessFormKey,
+                  ),
+                  isLoading: controller.updateLoadingState.isLoading,
                 ),
               ),
               SizedBox(height: 24.h),

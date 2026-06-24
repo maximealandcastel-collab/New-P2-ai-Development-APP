@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class SubscriptionPricePage extends StatelessWidget {
@@ -17,12 +18,9 @@ class SubscriptionPricePage extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(
-          child: CustomText(
-            text: 'Set your subscription price',
-            fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
-          ),
+        const CompleteProfilePageTitle(
+          text: 'Set your subscription price',
+          center: true,
         ),
         SizedBox(height: 12.h),
         Center(

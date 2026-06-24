@@ -161,6 +161,38 @@ class ShimmerHelper {
     );
   }
 
+  static Widget deviceTileShimmer() {
+    return _shimmerWrap(
+      Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            _shimmerBox(width: 40.r, height: 40, radius: 10),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _shimmerBox(width: 140.w, height: 14),
+                  SizedBox(height: 6.h),
+                  _shimmerBox(width: 100.w, height: 11),
+                ],
+              ),
+            ),
+            _shimmerBox(width: 72.w, height: 24, radius: 20),
+            SizedBox(width: 8.w),
+            _shimmerBox(width: 20.r, height: 20, radius: 4),
+          ],
+        ),
+      ),
+    );
+  }
+
   static Widget cardShimmer() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,

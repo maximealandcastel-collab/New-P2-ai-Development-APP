@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
@@ -14,11 +17,14 @@ class DevicePairingController extends GetxController {
   DevicePairingController({
     required DeviceService deviceService,
     required BluetoothService bluetoothService,
+    required ConnectivityService connectivityService,
   })  : _deviceService = deviceService,
-        _bluetoothService = bluetoothService;
+        _bluetoothService = bluetoothService,
+        _connectivityService = connectivityService;
 
   final DeviceService _deviceService;
   final BluetoothService _bluetoothService;
+  final ConnectivityService _connectivityService;
 
   static DevicePairingController get to => Get.find();
 
@@ -29,18 +35,22 @@ class DevicePairingController extends GetxController {
   final RxBool isPairing = false.obs;
   final Rx<PairingStep> pairingStep = PairingStep.idle.obs;
   final RxDouble pairingProgress = 0.0.obs;
-  final RxBool isLoadingDevices = false.obs;
+  final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final RxString pairingError = ''.obs;
   final RxnString connectingDeviceId = RxnString();
 
   StreamSubscription<List<BluetoothScanResultModel>>? _scanSubscription;
 
+  LoadingState get loadingState => _loadingState.value;
   bool get isEmpty => pairedDevices.isEmpty;
 
   @override
   void onInit() {
     super.onInit();
-    loadPairedDevices();
+    ever(_connectivityService.isConnected, (isConnected) {
+      if (isConnected) fetchPairedDevices();
+    });
+    fetchPairedDevices();
   }
 
   @override
@@ -49,14 +59,42 @@ class DevicePairingController extends GetxController {
     super.onClose();
   }
 
-  Future<void> loadPairedDevices() async {
-    isLoadingDevices.value = true;
+  Future<void> fetchPairedDevices() async {
     try {
-      pairedDevices.assignAll(await _deviceService.getUserDevices());
+      final hasCache = _deviceService.hasCache();
+      final isOnline = _connectivityService.isConnected.value;
+
+      if (hasCache) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.loading;
+      }
+
+      if (!isOnline) {
+        if (!hasCache) _loadingState.value = LoadingState.offline;
+        return;
+      }
+
+      final devices = await _deviceService.fetchUserDevices();
+      pairedDevices.assignAll(devices);
+      _loadingState.value = LoadingState.loaded;
+    } on AppException catch (e) {
+      if (_deviceService.hasCache()) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchPairedDevices error: $e');
     } catch (e) {
-      if (kDebugMode) debugPrint('Load devices error: $e');
-    } finally {
-      isLoadingDevices.value = false;
+      if (_deviceService.hasCache()) {
+        pairedDevices.assignAll(_deviceService.getCachedDevices());
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchPairedDevices error: $e');
     }
   }
 
@@ -112,6 +150,7 @@ class DevicePairingController extends GetxController {
         pairedDevice.id,
         serverDevice: pairedDevice,
       );
+      await _syncDeviceCache();
       await _finishPairing();
     } catch (e) {
       if (kDebugMode) debugPrint('Connect/pair device error: $e');
@@ -145,6 +184,7 @@ class DevicePairingController extends GetxController {
         isConnected: true,
       );
       _markOnlyDeviceConnected(device.id, serverDevice: updated);
+      await _syncDeviceCache();
       ToastMessageHelper.show('Connected to ${device.name}');
     } catch (e) {
       if (kDebugMode) debugPrint('Switch device error: $e');
@@ -168,6 +208,7 @@ class DevicePairingController extends GetxController {
       }
       await _deviceService.unpairDevice(device.id);
       pairedDevices.removeWhere((item) => item.id == device.id);
+      await _syncDeviceCache();
     } catch (e) {
       if (kDebugMode) debugPrint('Unpair device error: $e');
       ToastMessageHelper.show(e.errorMessage);
@@ -233,6 +274,10 @@ class DevicePairingController extends GetxController {
     pairingProgress.value = 0.0;
     discoveredDevices.clear();
     pairingError.value = '';
+  }
+
+  Future<void> _syncDeviceCache() async {
+    await _deviceService.saveCachedDevices(pairedDevices.toList());
   }
 
   void _popPairingScreen() {

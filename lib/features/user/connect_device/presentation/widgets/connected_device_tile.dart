@@ -24,7 +24,7 @@ class ConnectedDeviceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor =
         device.isConnected ? const Color(0xFF4CAF50) : AppColors.textSecondary;
-    final statusText = device.isConnected ? 'Connected' : 'Disconnected';
+    final statusText = device.isConnected ? 'Connected' : 'Not connected';
 
     return CustomContainer(
       onTap: device.isConnected ? null : onTap,

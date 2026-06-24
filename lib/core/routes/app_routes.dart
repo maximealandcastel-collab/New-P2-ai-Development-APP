@@ -3,8 +3,7 @@ import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_fitness_info_controller.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/edit_personal_info_controller.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_fitness_info_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_personal_info_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
@@ -112,14 +111,14 @@ class AppRoute {
       name: editPersonalInfoScreen,
       page: () => const EditPersonalInfoScreen(),
       binding: BindingsBuilder(() {
-        Get.put(EditPersonalInfoController());
+        ProfileController.to.initPersonalInfoForm();
       }),
     ),
     GetPage(
       name: editFitnessInfoScreen,
       page: () => const EditFitnessInfoScreen(),
       binding: BindingsBuilder(() {
-        Get.put(EditFitnessInfoController());
+        ProfileController.to.initFitnessInfoForm();
       }),
     ),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),

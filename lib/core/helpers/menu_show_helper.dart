@@ -149,9 +149,10 @@ class MenuShowHelper {
     return '$cm cm';
   }
 
-  static String weightDisplayValue(int? kg) {
+  static String weightDisplayValue(num? kg) {
     if (kg == null) return '';
-    final option = '$kg kg';
+    final display = kg == kg.roundToDouble() ? '${kg.round()}' : kg.toString();
+    final option = '$display kg';
     return weightOptions.contains(option) ? option : option;
   }
 

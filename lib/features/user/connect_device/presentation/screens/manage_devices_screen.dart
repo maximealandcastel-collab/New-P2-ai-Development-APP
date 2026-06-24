@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/connected_device_tile.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/connected_device_tile.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/device_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ManageDevicesScreen extends StatelessWidget {
@@ -13,91 +15,92 @@ class ManageDevicesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = DevicePairingController.to;
 
-    return Obx(
-      () => SliverScaffold(
-        appBarTitle: 'Manage devices',
-        slivers: (context) {
-          if (controller.isLoadingDevices.value) {
-            return [
-              SliverFillRemaining(
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ];
+    return SliverScaffold(
+      appBarTitle: 'Manage devices',
+      onRefresh: controller.fetchPairedDevices,
+      slivers: (context) => [
+        Obx(() {
+          switch (controller.loadingState) {
+            case LoadingState.initial:
+            case LoadingState.loading:
+              return const DeviceShimmer().asSliver;
+            case LoadingState.offline:
+            case LoadingState.error:
+              return EmptyDataWidget(
+                message: 'Failed to load devices',
+                onRefresh: controller.fetchPairedDevices,
+              ).asSliver;
+            case LoadingState.loaded:
+              if (controller.isEmpty) {
+                return _buildEmptySliver(controller);
+              }
+              return _buildDeviceSliver(controller);
           }
+        }),
+      ],
+      bottomNavigationBar: Obx(() {
+        if (controller.loadingState != LoadingState.loaded || controller.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
-          return controller.isEmpty
-              ? _buildEmptySlivers(controller)
-              : _buildDeviceSlivers(controller);
-        },
-        bottomNavigationBar: controller.isEmpty
-            ? null
-            : CustomButton(
-                label: 'Add a new device',
-                onPressed: () => Get.to(() => const AddDeviceScreen()),
-              ),
+        return CustomButton(
+          label: 'Add a new device',
+          onPressed: () => Get.to(() => const AddDeviceScreen()),
+        );
+      }),
+    );
+  }
+
+  Widget _buildEmptySliver(DevicePairingController controller) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CustomText(
+              text: 'No Devices Connected',
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(height: 8.h),
+            CustomText(
+              text:
+                  'You haven’t connected any devices yet. Connect a device to start tracking your fitness data and activity.',
+              textAlign: TextAlign.center,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 24.h),
+            CustomButton(
+              label: 'Add a New Device',
+              onPressed: () => Get.to(() => const AddDeviceScreen()),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  List<Widget> _buildEmptySlivers(DevicePairingController controller) {
-    return [
-      SliverFillRemaining(
-        hasScrollBody: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomText(
-                text: 'No Devices Connected',
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              SizedBox(height: 8.h),
-              CustomText(
-                text:
-                    'You haven’t connected any devices yet. Connect a device to start tracking your fitness data and activity.',
-                textAlign: TextAlign.center,
-                color: Colors.grey,
-              ),
-              SizedBox(height: 24.h),
-              CustomButton(
-                label: 'Add a New Device',
-                onPressed: () => Get.to(() => const AddDeviceScreen()),
-              ),
-            ],
-          ),
-        ),
+  Widget _buildDeviceSliver(DevicePairingController controller) {
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+      sliver: SliverList.separated(
+        itemCount: controller.pairedDevices.length,
+        separatorBuilder: (_, _) => SizedBox(height: 12.h),
+        itemBuilder: (context, index) {
+          final device = controller.pairedDevices[index];
+          return Obx(
+            () => ConnectedDeviceTile(
+              device: device,
+              isConnecting: controller.connectingDeviceId.value == device.id,
+              onTap: () => controller.switchToDevice(device),
+              onRemove: () => controller.unpairDevice(device),
+              onSync: () => controller.syncDeviceMetrics(device),
+            ),
+          );
+        },
       ),
-    ];
-  }
-
-  List<Widget> _buildDeviceSlivers(DevicePairingController controller) {
-    return [
-      SizedBox(height: 16.h).asSliver,
-      SliverPadding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        sliver: SliverList.separated(
-          itemCount: controller.pairedDevices.length,
-          separatorBuilder: (_, _) => SizedBox(height: 12.h),
-          itemBuilder: (context, index) {
-            final device = controller.pairedDevices[index];
-            return Obx(
-              () => ConnectedDeviceTile(
-                device: device,
-                isConnecting: controller.connectingDeviceId.value == device.id,
-                onTap: () => controller.switchToDevice(device),
-                onRemove: () => controller.unpairDevice(device),
-                onSync: () => controller.syncDeviceMetrics(device),
-              ),
-            );
-          },
-        ),
-      ),
-    ];
+    );
   }
 }
