@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/l
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -37,16 +38,13 @@ class UserProfileScreen extends StatelessWidget {
       label: 'Account Management',
       children: [
         ListTileWidget(label: 'Profile Information', onTap: () {}),
-        ListTileWidget(label: 'Notifications', onTap: () {}),
         ListTileWidget(
           label: 'Change Password',
           onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
         ),
         ListTileWidget(
           label: 'Manage devices',
-          onTap: () {
-            Get.toNamed(AppRoute.settingsScreen);
-          },
+          onTap: () => Get.to(() => const ManageDevicesScreen()),
         ),
       ],
     ).asSliverWithPadding(horizontal: 16.w),

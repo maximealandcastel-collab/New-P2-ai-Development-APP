@@ -8,8 +8,8 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/l
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TrainerProfileScreen extends StatelessWidget {
-  const TrainerProfileScreen({super.key});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

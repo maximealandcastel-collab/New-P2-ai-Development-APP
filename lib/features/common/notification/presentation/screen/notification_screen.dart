@@ -49,21 +49,8 @@ class NotificationsScreen extends StatelessWidget {
     return CustomScaffold(
       appBar: CustomAppBar(
         title: 'Notifications',
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.w),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.settings, color: Colors.black),
-              ),
-            ),
-          ),
-        ],
       ),
       body: ListView.separated(
-        padding: EdgeInsets.all(16.r),
         itemCount: notifications.length,
         separatorBuilder: (context, index) => SizedBox(height: 12.h),
         itemBuilder: (context, index) {

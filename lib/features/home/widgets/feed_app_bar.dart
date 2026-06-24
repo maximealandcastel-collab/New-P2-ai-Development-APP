@@ -43,7 +43,7 @@ class FeedAppBarSliver extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 if(LoginController.to.isTrainer()){
-                  Get.toNamed(AppRoute.trainerProfileScreen);
+                  Get.toNamed(AppRoute.profileScreen);
                 }else{
                   Get.toNamed(AppRoute.userProfileScreen);
                 }

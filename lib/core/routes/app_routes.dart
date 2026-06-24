@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
@@ -58,6 +59,7 @@ class AppRoute {
   static String createContentScreen = "/createContentScreen";
   static String chatScreen = "/chatScreen";
   static String userProfileScreen = "/userProfileScreen";
+  static String profileScreen = "/profileScreen";
   static String changePasswordScreen = "/changePasswordScreen";
 
   static List<GetPage> routes = [
@@ -92,6 +94,7 @@ class AppRoute {
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
+    GetPage(name: profileScreen, page: () => ProfileScreen()),
     GetPage(name: changePasswordScreen, page: () => const ChangePasswordScreen()),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
     GetPage(name: earningsScreen, page: () => EarningsScreen()),

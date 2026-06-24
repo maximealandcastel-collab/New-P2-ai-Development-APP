@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/models/connected_device_model.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MODEL
@@ -78,12 +80,14 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen>
   void _onConnectDevice() {
     setState(() => _device.status = _DeviceStatus.connecting);
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _device.status = _DeviceStatus.connected;
-          _state = _ScreenState.connected;
-        });
-      }
+      if (!mounted) return;
+      Get.back(
+        result: ConnectedDeviceModel(
+          id: _device.serial,
+          name: _device.name,
+          serial: _device.serial,
+        ),
+      );
     });
   }
 
