@@ -20,14 +20,25 @@ class ContentVideoDetailsPage extends StatelessWidget {
         const CompleteProfilePageTitle(text: 'Video details'),
         SizedBox(height: 16.h),
         Obx(
-          () => ContentMediaPickerTile(
-            label: 'Video file',
-            hint: 'Upload training video',
-            icon: Icons.videocam_outlined,
-            isVideo: true,
-            fileName: controller.videoFileName.value,
-            onTap: controller.pickVideo,
-          ),
+          () {
+            final hasThumbnailPreview = controller.thumbnailFile != null ||
+                controller.existingThumbnailUrl.value != null;
+
+            return ContentMediaPickerTile(
+              label: 'Video file',
+              hint: 'Upload training video',
+              icon: Icons.videocam_outlined,
+              isVideo: true,
+              fileName: controller.videoFileName.value,
+              localImagePath: hasThumbnailPreview && controller.thumbnailFile != null
+                  ? controller.thumbnailPreviewPath.value
+                  : null,
+              remoteImageUrl: hasThumbnailPreview && controller.thumbnailFile == null
+                  ? controller.existingThumbnailUrl.value
+                  : null,
+              onTap: controller.pickVideo,
+            );
+          },
         ),
         SizedBox(height: 16.h),
         Obx(
