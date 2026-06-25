@@ -6,8 +6,8 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/category_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/domain/services/category_service.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/category_model.dart';
+import 'package:pler_to_pler_app/features/contents/domain/services/category_service.dart';
 
 class CategoryController extends GetxController {
   CategoryController({

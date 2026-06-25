@@ -4,7 +4,7 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/helpers/slug_helper.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/category_model.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/category_model.dart';
 
 class CategoryRepository {
   CategoryRepository({

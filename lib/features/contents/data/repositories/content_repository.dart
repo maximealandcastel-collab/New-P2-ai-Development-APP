@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 
 class ContentRepository {
   ContentRepository({required ApiService apiService}) : _apiService = apiService;

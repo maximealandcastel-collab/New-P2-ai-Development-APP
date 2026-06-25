@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_basic_info_page.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_equipment_tags_page.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_muscle_difficulty_page.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/children/content_video_details_page.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/create_content_flow_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/children/content_basic_info_page.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/children/content_equipment_tags_page.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/children/content_muscle_difficulty_page.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/children/content_video_details_page.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/create_content_flow_screen.dart';
 
 class CreateContentScreen extends StatelessWidget {
   const CreateContentScreen({super.key});

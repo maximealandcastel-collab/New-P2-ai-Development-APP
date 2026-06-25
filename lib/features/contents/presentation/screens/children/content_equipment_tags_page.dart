@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
 
 class ContentEquipmentTagsPage extends StatelessWidget {

@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/content_card.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/content_shimmer.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_card.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsScreen extends StatelessWidget {
@@ -173,20 +173,25 @@ class ContentsScreen extends StatelessWidget {
               case LoadingState.loaded:
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                  sliver: SliverList.builder(
-                    itemCount: contentController.contents.length,
-                    itemBuilder: (context, index) {
-                      final content = contentController.contents[index];
-                      return CustomContainer(
-                        color: Colors.white,
-                        paddingTop: 8.h,
-                        paddingLeft: 16.w,
-                        paddingRight: 16.w,
-                        child: ContentCard(
-                          content: content,
-                        ),
-                      );
-                    },
+                  sliver: CustomContainer(
+                    child: SliverList.builder(
+                      itemCount: contentController.contents.length,
+                      itemBuilder: (context, index) {
+                        final content = contentController.contents[index];
+                        return CustomContainer(
+                          color: Colors.white,
+                          paddingTop: 8.h,
+                          paddingLeft: 16.w,
+                          paddingRight: 16.w,
+                          bottomLeft: 16.r,
+                          bottomRight: 16.r,
+                          paddingBottom: 16.h,
+                          child: ContentCard(
+                            content: content,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 );
             }

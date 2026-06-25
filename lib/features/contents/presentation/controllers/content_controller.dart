@@ -11,8 +11,8 @@ import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
 
 class ContentController extends GetxController with PaginatedLoaderUi {
   ContentController({

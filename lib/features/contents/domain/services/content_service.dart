@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/content_repository.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/data/repositories/content_repository.dart';
 
 class ContentService {
   ContentService({required ContentRepository repository})

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/category_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/category_model.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class CreateCategoryScreen extends StatefulWidget {

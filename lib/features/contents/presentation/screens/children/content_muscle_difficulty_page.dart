@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/dropdown_text_field.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/muscle_group_picker_field.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/dropdown_text_field.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/muscle_group_picker_field.dart';
 
 class ContentMuscleDifficultyPage extends StatelessWidget {
   const ContentMuscleDifficultyPage({super.key});

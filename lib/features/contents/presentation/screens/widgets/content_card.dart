@@ -5,8 +5,8 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentCard extends StatelessWidget {

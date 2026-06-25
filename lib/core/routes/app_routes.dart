@@ -28,11 +28,11 @@ import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_scr
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/category_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_category_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/create_content_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/category_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';

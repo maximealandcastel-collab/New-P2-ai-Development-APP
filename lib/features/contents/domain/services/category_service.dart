@@ -1,6 +1,6 @@
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/category_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/category_repository.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/category_model.dart';
+import 'package:pler_to_pler_app/features/contents/data/repositories/category_repository.dart';
 
 class CategoryService {
   CategoryService({required CategoryRepository repository})

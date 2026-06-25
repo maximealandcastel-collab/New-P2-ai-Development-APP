@@ -3,12 +3,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
-import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 
 class CreateContentController extends GetxController {
   CreateContentController({
