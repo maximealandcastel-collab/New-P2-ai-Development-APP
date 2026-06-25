@@ -173,25 +173,20 @@ class ContentsScreen extends StatelessWidget {
               case LoadingState.loaded:
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                  sliver: CustomContainer(
-                    child: SliverList.builder(
-                      itemCount: contentController.contents.length,
-                      itemBuilder: (context, index) {
-                        final content = contentController.contents[index];
-                        return CustomContainer(
-                          color: Colors.white,
-                          paddingTop: 8.h,
-                          paddingLeft: 16.w,
-                          paddingRight: 16.w,
-                          bottomLeft: 16.r,
-                          bottomRight: 16.r,
-                          paddingBottom: 16.h,
-                          child: ContentCard(
-                            content: content,
-                          ),
-                        );
-                      },
-                    ),
+                  sliver: SliverList.builder(
+                    itemCount: contentController.contents.length,
+                    itemBuilder: (context, index) {
+                      final content = contentController.contents[index];
+                      return CustomContainer(
+                        color: Colors.white,
+                        paddingTop: 8.h,
+                        paddingLeft: 16.w,
+                        paddingRight: 16.w,
+                        child: ContentCard(
+                          content: content,
+                        ),
+                      );
+                    },
                   ),
                 );
             }
