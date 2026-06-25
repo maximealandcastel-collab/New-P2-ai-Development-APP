@@ -3,23 +3,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
 
 class CreateContentController extends GetxController {
   CreateContentController({
-    required ContentService service,
     required ContentController contentController,
-  })  : _service = service,
-        _contentController = contentController;
+  }) : _contentController = contentController;
 
-  final ContentService _service;
   final ContentController _contentController;
 
   static CreateContentController get to => Get.find();
@@ -195,38 +190,18 @@ class CreateContentController extends GetxController {
     uploadProgress.value = 0;
 
     try {
-      final fields = _buildFields();
-      void onProgress(int sent, int total) {
-        if (total > 0) uploadProgress.value = sent / total;
-      }
-
-      if (isEditMode && editingContent?.id != null) {
-        await _service.updateContent(
-          contentId: editingContent!.id!,
-          fields: fields,
-          video: videoFile,
-          thumbnail: thumbnailFile,
-          onSendProgress: onProgress,
-        );
-        ToastMessageHelper.show('Content updated successfully');
-      } else {
-        await _service.createContent(
-          fields: fields,
-          video: videoFile,
-          thumbnail: thumbnailFile,
-          onSendProgress: onProgress,
-        );
-        ToastMessageHelper.show('Content posted successfully');
-      }
-
-      await _contentController.refresh();
-      Get.back(result: true);
-    } catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-      if (kDebugMode) debugPrint('submit content error: $e');
+      await _contentController.createOrUpdateContent(
+        fields: _buildFields(),
+        video: videoFile,
+        thumbnail: thumbnailFile,
+        contentId: editingContent?.id,
+        isEditMode: isEditMode,
+      );
     } finally {
-      isSubmitting.value = false;
-      uploadProgress.value = 0;
+      if (!isClosed) {
+        isSubmitting.value = false;
+        uploadProgress.value = 0;
+      }
     }
   }
 

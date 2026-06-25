@@ -28,7 +28,6 @@ import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_scr
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/category_screen.dart';
@@ -134,7 +133,6 @@ class AppRoute {
       binding: BindingsBuilder(() {
         Get.put<CreateContentController>(
           CreateContentController(
-            service: Get.find<ContentService>(),
             contentController: Get.find<ContentController>(),
           ),
           permanent: false,

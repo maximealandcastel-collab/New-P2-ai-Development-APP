@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,7 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 
@@ -26,6 +29,9 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
   final RxnString _selectedCategoryId = RxnString();
+  final RxBool isSubmittingContent = false.obs;
+  final RxDouble submitProgress = 0.0.obs;
+  final RxString submitMessage = ''.obs;
 
   LoadingState get loadingState => _loadingState.value;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
@@ -95,6 +101,59 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   Future<void> refresh() =>
       contentList.refreshWith(() => _loadData(showFullLoader: false));
+
+  Future<void> createOrUpdateContent({
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+    String? contentId,
+    required bool isEditMode,
+  }) async {
+    isSubmittingContent.value = true;
+    submitProgress.value = 0;
+    submitMessage.value =
+        isEditMode ? 'Updating content...' : 'Posting content...';
+
+    BottomNavBarController.to.goToContentsTab();
+
+    if (Get.key.currentState?.canPop() ?? false) {
+      Get.back();
+    }
+
+    void onProgress(int sent, int total) {
+      if (total > 0) submitProgress.value = sent / total;
+    }
+
+    try {
+      if (isEditMode && contentId != null) {
+        await _service.updateContent(
+          contentId: contentId,
+          fields: fields,
+          video: video,
+          thumbnail: thumbnail,
+          onSendProgress: onProgress,
+        );
+        ToastMessageHelper.show('Content updated successfully');
+      } else {
+        await _service.createContent(
+          fields: fields,
+          video: video,
+          thumbnail: thumbnail,
+          onSendProgress: onProgress,
+        );
+        ToastMessageHelper.show('Content posted successfully');
+      }
+
+      await _loadData(showFullLoader: false);
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('createOrUpdateContent error: $e');
+    } finally {
+      isSubmittingContent.value = false;
+      submitProgress.value = 0;
+      submitMessage.value = '';
+    }
+  }
 
   Future<void> deleteContent(String contentId) async {
     try {

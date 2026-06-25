@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class MuscleGroupPickerField extends StatelessWidget {
@@ -21,69 +20,92 @@ class MuscleGroupPickerField extends StatelessWidget {
   final ValueChanged<List<String>> onChanged;
   final FormFieldValidator? validator;
 
-  void _openPicker(BuildContext context) {
-    final tempSelected = List<String>.from(selectedValues);
+  List<String> get _displayOptions =>
+      MenuShowHelper.muscleGroupOptions.map(StringFormat.formatLabel).toList();
 
-    showModalBottomSheet<void>(
-      backgroundColor: Colors.white,
+  String? _backendValue(String display) {
+    for (final option in MenuShowHelper.muscleGroupOptions) {
+      if (StringFormat.formatLabel(option) == display) return option;
+    }
+    return null;
+  }
+
+  void _toggleSelection(String display) {
+    final backend = _backendValue(display);
+    if (backend == null) return;
+
+    final updated = List<String>.from(selectedValues);
+    if (updated.contains(backend)) {
+      updated.remove(backend);
+    } else {
+      updated.add(backend);
+    }
+
+    onChanged(updated);
+    controller.text = StringFormat.formatSelectedList(updated);
+  }
+
+  Future<void> _openDropdown(
+    BuildContext context,
+    TapDownDetails details,
+  ) async {
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final tapPosition = details.globalPosition;
+
+    final selected = await showMenu<String>(
       context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return DialogShowHelper.showBottomSheet(
-              context,
-              title: 'Muscle groups',
-              buttonLabel: 'Apply',
-              onTapConfirm: () {
-                onChanged(List<String>.from(tempSelected));
-                controller.text =
-                    StringFormat.formatSelectedList(tempSelected);
-                Get.back();
-              },
-              content: ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: 360.h),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: MenuShowHelper.muscleGroupOptions.map(
-                      (value) {
-                        final isSelected = tempSelected.contains(value);
-                        return CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          dense: true,
-                          activeColor: AppColors.textPrimary,
-                          title: CustomText(
-                            text: StringFormat.formatLabel(value),
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          value: isSelected,
-                          onChanged: (checked) {
-                            setSheetState(() {
-                              if (checked == true) {
-                                tempSelected.add(value);
-                              } else {
-                                tempSelected.remove(value);
-                              }
-                            });
-                          },
-                        );
-                      },
-                    ).toList(),
+      color: Colors.white,
+      constraints: BoxConstraints(
+        maxHeight: 280.h,
+        minWidth: 160.w,
+        maxWidth: 220.w,
+      ),
+      position: RelativeRect.fromRect(
+        Rect.fromPoints(tapPosition, tapPosition),
+        Offset.zero & overlay.size,
+      ),
+      items: _displayOptions.map((option) {
+        final backend = _backendValue(option);
+        final isSelected =
+            backend != null && selectedValues.contains(backend);
+
+        return PopupMenuItem<String>(
+          height: 38.h,
+          value: option,
+          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 12.w),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: AppColors.textPrimary,
+                    fontFamily: FontFamily.figtree,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            );
-          },
+              if (isSelected)
+                Icon(
+                  Icons.check,
+                  size: 18.sp,
+                  color: AppColors.primary,
+                ),
+            ],
+          ),
         );
-      },
+      }).toList(),
     );
+
+    if (selected != null) _toggleSelection(selected);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _openPicker(context),
+      onTapDown: (details) => _openDropdown(context, details),
       child: AbsorbPointer(
         child: CustomTextField(
           suffixIcon: const Icon(Icons.arrow_drop_down_outlined),

@@ -19,8 +19,14 @@ class BottomNavBarController extends GetxController {
           ? NavFabModel.trainerFabItems
           : NavFabModel.userFabItems;
 
+  static const int contentsTabIndex = 2;
+
   void onChange(int index) {
     _selectedIndex.value = index;
+  }
+
+  void goToContentsTab() {
+    _selectedIndex.value = contentsTabIndex;
   }
 
   void resetIndex() {
