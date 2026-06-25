@@ -20,4 +20,5 @@ export 'two_button_widget.dart';
 export 'date_picker_field.dart';
 export 'menu_dropdown_field.dart';
 export 'step_progress_bar.dart';
+export 'pagination_loader_sliver.dart';
 export 'sliver_scaffold.dart';

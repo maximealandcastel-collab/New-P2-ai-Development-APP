@@ -53,6 +53,9 @@ class PaginatedList<T> {
       !isRefreshing.value &&
       !_suppressAutoLoadMore;
 
+  bool get showLoadMoreLoader =>
+      isLoadingMore.value && !isRefreshing.value;
+
   void initScroll() {
     scrollController?.dispose();
     scrollController = ScrollController()..addListener(_onScroll);

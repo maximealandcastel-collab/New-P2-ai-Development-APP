@@ -6,11 +6,12 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 
-class ContentController extends GetxController {
+class ContentController extends GetxController with PaginatedLoaderUi {
   ContentController({
     required ContentService service,
     required ConnectivityService connectivityService,
@@ -35,8 +36,13 @@ class ContentController extends GetxController {
   late final PaginatedList<ContentModel> contentList;
 
   List<ContentModel> get contents => contentList.items;
-  bool get isLoadingMore => contentList.isLoadingMore.value;
   ScrollController? get scrollController => contentList.scrollController;
+
+  @override
+  LoadingState get paginationContentState => loadingState;
+
+  @override
+  PaginatedList<dynamic> get paginatedList => contentList;
 
   @override
   void onInit() {

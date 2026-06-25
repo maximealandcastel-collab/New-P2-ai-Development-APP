@@ -7,13 +7,14 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 
-class SubscribeController extends GetxController {
+class SubscribeController extends GetxController with PaginatedLoaderUi {
   final SubscribeServices _service;
   final ConnectivityService _connectivityService;
 
@@ -55,8 +56,13 @@ class SubscribeController extends GetxController {
   late final PaginatedList<FindTrainerModel> trainersList;
 
   List<FindTrainerModel> get trainers => trainersList.items;
-  bool get isLoadingMore => trainersList.isLoadingMore.value;
   ScrollController? get scrollController => trainersList.scrollController;
+
+  @override
+  LoadingState get paginationContentState => loadingState;
+
+  @override
+  PaginatedList<dynamic> get paginatedList => trainersList;
 
   late final SearchService<FindTrainerModel> search;
 
