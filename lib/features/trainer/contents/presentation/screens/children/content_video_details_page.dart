@@ -60,6 +60,7 @@ class ContentVideoDetailsPage extends StatelessWidget {
             onTap: () => controller.pickThumbnail(context),
           ),
         ),
+        SizedBox(height: 8.h),
         CustomTextField(
           labelText: 'Duration (seconds)',
           hintText: 'eg : 840',
