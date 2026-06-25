@@ -118,10 +118,22 @@ class DevicePairingController extends GetxController {
     } catch (e) {
       if (kDebugMode) debugPrint('Start scanning error: $e');
       pairingError.value = e.errorMessage;
-      await _resetPairingState(stopScan: true);
-      _popPairingScreen();
-      rethrow;
+      ToastMessageHelper.show(e.errorMessage);
+      pairingStep.value = PairingStep.scanning;
+      isPairing.value = true;
+      pairingProgress.value = 0.1;
     }
+  }
+
+  Future<void> retryScanning() async {
+    pairingError.value = '';
+    pairingStep.value = PairingStep.scanning;
+    isPairing.value = true;
+    pairingProgress.value = 0.1;
+    discoveredDevices.clear();
+    try {
+      await startScanning();
+    } catch (_) {}
   }
 
   Future<void> selectAndConnectDevice(BluetoothScanResultModel device) async {

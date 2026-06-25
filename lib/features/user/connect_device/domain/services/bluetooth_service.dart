@@ -32,18 +32,34 @@ class BluetoothService {
     }
 
     if (Platform.isIOS) {
-      final status = await Permission.bluetooth.request();
-      return status.isGranted;
+      // CoreBluetooth permission is requested via Info.plist on first BLE use.
+      return true;
     }
 
     return true;
+  }
+
+  Future<bool> isBluetoothReady() async {
+    if (kIsWeb) return false;
+
+    if (await FlutterBluePlus.isSupported == false) {
+      return false;
+    }
+
+    try {
+      final state = await FlutterBluePlus.adapterState.first
+          .timeout(const Duration(seconds: 5));
+      return state == BluetoothAdapterState.on;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> startScan({Duration timeout = const Duration(seconds: 15)}) async {
     final granted = await requestPermissions();
     if (!granted) {
       throw Exception(
-        'Bluetooth and location permissions are required to scan for devices',
+        'Bluetooth permission is required to scan for devices',
       );
     }
 
@@ -61,26 +77,41 @@ class BluetoothService {
   }
 
   Future<void> _ensureAdapterOn() async {
-    final currentState = await FlutterBluePlus.adapterState.first;
+    BluetoothAdapterState currentState;
+    try {
+      currentState = await FlutterBluePlus.adapterState.first
+          .timeout(const Duration(seconds: 5));
+    } catch (_) {
+      throw Exception('Please turn on Bluetooth and try again');
+    }
 
     if (currentState == BluetoothAdapterState.on) return;
 
-    if (currentState == BluetoothAdapterState.off && Platform.isAndroid) {
+    if (Platform.isAndroid) {
       try {
         await FlutterBluePlus.turnOn();
       } catch (e) {
         if (kDebugMode) debugPrint('Bluetooth turnOn failed: $e');
       }
+
+      try {
+        await FlutterBluePlus.adapterState
+            .where((state) => state == BluetoothAdapterState.on)
+            .first
+            .timeout(const Duration(seconds: 12));
+      } on TimeoutException {
+        throw Exception('Please turn on Bluetooth and try again');
+      }
+      return;
     }
 
-    try {
-      await FlutterBluePlus.adapterState
-          .where((state) => state == BluetoothAdapterState.on)
-          .first
-          .timeout(const Duration(seconds: 12));
-    } on TimeoutException {
-      throw Exception('Please turn on Bluetooth and try again');
+    if (currentState == BluetoothAdapterState.unauthorized) {
+      throw Exception(
+        'Bluetooth permission denied. Enable Bluetooth access in Settings.',
+      );
     }
+
+    throw Exception('Please turn on Bluetooth and try again');
   }
 
   Future<void> stopScan() async {

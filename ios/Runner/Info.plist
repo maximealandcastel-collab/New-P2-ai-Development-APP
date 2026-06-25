@@ -34,6 +34,10 @@
     <string>This app needs permission to save photos to your library.</string>
     <key>NSCameraUsageDescription</key>
     <string>This app uses the camera to take profile and progress photos.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app uses Bluetooth to find, connect, and sync your fitness wearables and health devices.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>This app uses Bluetooth to find, connect, and sync your fitness wearables and health devices.</string>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>

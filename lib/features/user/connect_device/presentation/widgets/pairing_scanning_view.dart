@@ -36,16 +36,25 @@ class PairingScanningView extends StatelessWidget {
         SizedBox(height: 24.h),
         Obx(() {
           if (controller.pairingError.value.isNotEmpty) {
-            return CustomContainer(
-              radiusAll: 12.r,
-              paddingAll: 12.r,
-              color: Colors.redAccent.withValues(alpha: 0.08),
-              child: CustomText(
-                text: controller.pairingError.value,
-                textAlign: TextAlign.center,
-                color: Colors.redAccent,
-                fontSize: 13.sp,
-              ),
+            return Column(
+              children: [
+                CustomContainer(
+                  radiusAll: 12.r,
+                  paddingAll: 12.r,
+                  color: Colors.redAccent.withValues(alpha: 0.08),
+                  child: CustomText(
+                    text: controller.pairingError.value,
+                    textAlign: TextAlign.center,
+                    color: Colors.redAccent,
+                    fontSize: 13.sp,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                CustomButton(
+                  label: 'Try again',
+                  onPressed: controller.retryScanning,
+                ),
+              ],
             );
           }
 
