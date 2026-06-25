@@ -1,60 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/content_form_constants.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/dropdown_text_field.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/muscle_group_picker_field.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentMuscleDifficultyPage extends StatelessWidget {
-  const ContentMuscleDifficultyPage({
-    super.key,
-    required this.muscleGroupsController,
-    required this.difficultyController,
-    required this.selectedMuscleGroups,
-    required this.onMuscleGroupsChanged,
-    required this.onDifficultySelected,
-  });
-
-  final TextEditingController muscleGroupsController;
-  final TextEditingController difficultyController;
-  final List<String> selectedMuscleGroups;
-  final ValueChanged<List<String>> onMuscleGroupsChanged;
-  final ValueChanged<String> onDifficultySelected;
+  const ContentMuscleDifficultyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = CreateContentController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomText(
-          text: 'Target & difficulty',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        const CompleteProfilePageTitle(text: 'Target & difficulty'),
         SizedBox(height: 16.h),
-        MuscleGroupPickerField(
-          controller: muscleGroupsController,
-          selectedValues: selectedMuscleGroups,
-          onChanged: onMuscleGroupsChanged,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please select at least one muscle group';
-            }
-            return null;
-          },
+        Obx(
+          () => MuscleGroupPickerField(
+            controller: controller.muscleGroupsController,
+            selectedValues: controller.selectedMuscleGroups.toList(),
+            onChanged: controller.onMuscleGroupsChanged,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Please select at least one muscle group';
+              }
+              return null;
+            },
+          ),
         ),
         DropdownTextField(
-          controller: difficultyController,
+          controller: controller.difficultyController,
           labelText: 'Difficulty',
           hintText: 'Select difficulty',
-          options: ContentFormConstants.difficultyOptions
-              .map(ContentFormConstants.formatLabel)
+          options: MenuShowHelper.contentDifficultyOptions
+              .map(StringFormat.formatLabel)
               .toList(),
           onSelected: (display) {
-            final match = ContentFormConstants.difficultyOptions.firstWhere(
-              (value) => ContentFormConstants.formatLabel(value) == display,
-            );
-            onDifficultySelected(match);
+            final match = StringFormat.contentDifficultyBackendValue(display);
+            if (match != null) controller.onDifficultySelected(match);
           },
           validator: (value) {
             if (value == null || value.trim().isEmpty) {

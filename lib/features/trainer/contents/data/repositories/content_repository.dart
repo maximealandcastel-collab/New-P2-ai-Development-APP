@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
@@ -33,9 +37,24 @@ class ContentRepository {
     }
   }
 
-  Future<void> createContent(Map<String, dynamic> data) async {
+  Future<void> createContent({
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+    ProgressCallback? onSendProgress,
+  }) async {
     try {
-      await _apiService.post(ApiConstants.content, data: data);
+      final formData = await _buildContentFormData(
+        fields: fields,
+        video: video,
+        thumbnail: thumbnail,
+      );
+
+      await _apiService.postFormData(
+        ApiConstants.content,
+        formData: formData,
+        onSendProgress: onSendProgress,
+      );
     } on AppException {
       rethrow;
     } catch (e) {
@@ -45,12 +64,22 @@ class ContentRepository {
 
   Future<void> updateContent({
     required String contentId,
-    required Map<String, dynamic> data,
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+    ProgressCallback? onSendProgress,
   }) async {
     try {
-      await _apiService.put(
+      final formData = await _buildContentFormData(
+        fields: fields,
+        video: video,
+        thumbnail: thumbnail,
+      );
+
+      await _apiService.putFormData(
         ApiConstants.contentById(contentId),
-        data: data,
+        formData: formData,
+        onSendProgress: onSendProgress,
       );
     } on AppException {
       rethrow;
@@ -67,5 +96,45 @@ class ContentRepository {
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
+
+  Future<FormData> _buildContentFormData({
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+  }) async {
+    final map = <String, dynamic>{};
+
+    for (final entry in fields.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+
+      if (value is List) {
+        map[entry.key] = jsonEncode(value);
+      } else {
+        map[entry.key] = value;
+      }
+    }
+
+    if (video != null) {
+      map['video'] = await MultipartFile.fromFile(
+        video.path,
+        filename: _fileName(video.path),
+      );
+    }
+
+    if (thumbnail != null) {
+      map['thumbnail'] = await MultipartFile.fromFile(
+        thumbnail.path,
+        filename: _fileName(thumbnail.path),
+      );
+    }
+
+    return FormData.fromMap(map);
+  }
+
+  String _fileName(String path) {
+    final segments = path.split('/');
+    return segments.isNotEmpty ? segments.last : 'file';
   }
 }

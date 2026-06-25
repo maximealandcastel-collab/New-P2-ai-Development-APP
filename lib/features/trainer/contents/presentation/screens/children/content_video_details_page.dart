@@ -1,61 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/content_media_picker_tile.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentVideoDetailsPage extends StatelessWidget {
-  const ContentVideoDetailsPage({
-    super.key,
-    required this.videoUrlController,
-    required this.thumbnailUrlController,
-    required this.durationController,
-    required this.exerciseNameController,
-  });
-
-  final TextEditingController videoUrlController;
-  final TextEditingController thumbnailUrlController;
-  final TextEditingController durationController;
-  final TextEditingController exerciseNameController;
+  const ContentVideoDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = CreateContentController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomText(
-          text: 'Video details',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+        const CompleteProfilePageTitle(text: 'Video details'),
+        SizedBox(height: 16.h),
+        Obx(
+          () => ContentMediaPickerTile(
+            label: 'Video file',
+            hint: 'Upload training video',
+            icon: Icons.videocam_outlined,
+            isVideo: true,
+            fileName: controller.videoFileName.value,
+            onTap: controller.pickVideo,
+          ),
         ),
         SizedBox(height: 16.h),
-        CustomTextField(
-          labelText: 'Video URL',
-          hintText: 'https://storage.example.com/videos/...',
-          controller: videoUrlController,
-          keyboardType: TextInputType.url,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter video URL';
-            }
-            return null;
-          },
-        ),
-        CustomTextField(
-          labelText: 'Thumbnail URL',
-          hintText: 'https://storage.example.com/thumbnails/...',
-          controller: thumbnailUrlController,
-          keyboardType: TextInputType.url,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter thumbnail URL';
-            }
-            return null;
-          },
+        Obx(
+          () => ContentMediaPickerTile(
+            label: 'Thumbnail image',
+            hint: 'Upload thumbnail image',
+            icon: Icons.image_outlined,
+            fileName: controller.thumbnailFile != null
+                ? controller.thumbnailPreviewPath.value?.split('/').last
+                : (controller.existingThumbnailUrl.value != null
+                    ? 'Current thumbnail'
+                    : null),
+            localImagePath: controller.thumbnailFile != null
+                ? controller.thumbnailPreviewPath.value
+                : null,
+            remoteImageUrl: controller.thumbnailFile == null
+                ? controller.existingThumbnailUrl.value
+                : null,
+            onTap: () => controller.pickThumbnail(context),
+          ),
         ),
         CustomTextField(
           labelText: 'Duration (seconds)',
           hintText: 'eg : 840',
-          controller: durationController,
+          controller: controller.durationController,
           keyboardType: TextInputType.number,
           inputFormatter: [FilteringTextInputFormatter.digitsOnly],
           validator: (value) {
@@ -68,7 +65,7 @@ class ContentVideoDetailsPage extends StatelessWidget {
         CustomTextField(
           labelText: 'Exercise name',
           hintText: 'eg : Bench Press',
-          controller: exerciseNameController,
+          controller: controller.exerciseNameController,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Please enter exercise name';

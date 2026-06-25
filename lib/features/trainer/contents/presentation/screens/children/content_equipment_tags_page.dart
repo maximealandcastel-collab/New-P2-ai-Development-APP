@@ -1,50 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentEquipmentTagsPage extends StatelessWidget {
-  const ContentEquipmentTagsPage({
-    super.key,
-    required this.onEquipmentChanged,
-    required this.onTagsChanged,
-    this.initialEquipment = const [],
-    this.initialTags = const [],
-  });
-
-  final ValueChanged<List<String>> onEquipmentChanged;
-  final ValueChanged<List<String>> onTagsChanged;
-  final List<String> initialEquipment;
-  final List<String> initialTags;
+  const ContentEquipmentTagsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: CustomText(
-            text: 'Equipment & tags',
-            fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
+    final controller = CreateContentController.to;
+
+    return Obx(
+      () => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CompleteProfilePageTitle(text: 'Equipment & tags', center: true),
+          SizedBox(height: 16.h),
+          TagAddWidget(
+            labelText: 'Equipment',
+            hintText: 'eg : barbell',
+            initialTags: controller.equipment.toList(),
+            onTagsChanged: controller.onEquipmentChanged,
           ),
-        ),
-        SizedBox(height: 16.h),
-        TagAddWidget(
-          labelText: 'Equipment',
-          hintText: 'eg : barbell',
-          initialTags: initialEquipment,
-          onTagsChanged: onEquipmentChanged,
-        ),
-        SizedBox(height: 8.h),
-        TagAddWidget(
-          labelText: 'Tags',
-          hintText: 'eg : bench press',
-          initialTags: initialTags,
-          onTagsChanged: onTagsChanged,
-        ),
-      ],
+          SizedBox(height: 8.h),
+          TagAddWidget(
+            labelText: 'Tags',
+            hintText: 'eg : bench press',
+            initialTags: controller.tags.toList(),
+            onTagsChanged: controller.onTagsChanged,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -457,7 +457,7 @@ class ApiService {
         path,
         data: formData,
         onSendProgress: onSendProgress,
-        options: options,
+        options: options ?? _multipartOptions,
         cancelToken: cancelToken,
       );
     } on DioException catch (e) {
@@ -466,6 +466,59 @@ class ApiService {
       throw UnknownException(e.toString());
     }
   }
+
+  Future<Response> postFormData(
+    String path, {
+    required FormData formData,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+  }) async {
+    try {
+      return await _dio.post(
+        path,
+        data: formData,
+        queryParameters: queryParameters,
+        onSendProgress: onSendProgress,
+        options: options ?? _multipartOptions,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<Response> putFormData(
+    String path, {
+    required FormData formData,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+  }) async {
+    try {
+      return await _dio.put(
+        path,
+        data: formData,
+        queryParameters: queryParameters,
+        onSendProgress: onSendProgress,
+        options: options ?? _multipartOptions,
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  static final Options _multipartOptions = Options(
+    sendTimeout: const Duration(minutes: 10),
+    receiveTimeout: const Duration(minutes: 10),
+  );
 
   /// Converts DioException to typed AppException for better error handling.
   ///

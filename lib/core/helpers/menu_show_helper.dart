@@ -186,7 +186,31 @@ class MenuShowHelper {
     return _specialityBackendOptions[index];
   }
 
-  static final List<String> genderOptions = ["Male", "Female"];
+  static const List<String> genderOptions = ["Male", "Female"];
+
+  static const String contentType = 'video';
+
+  static const List<String> muscleGroupOptions = [
+    'upper_body',
+    'chest',
+    'back',
+    'shoulders',
+    'arms',
+    'lower_body',
+    'legs',
+    'glutes',
+    'core',
+    'full_body',
+    'cardio',
+    'boxing',
+  ];
+
+  static const List<String> contentDifficultyOptions = [
+    'beginner',
+    'intermediate',
+    'advanced',
+    'all',
+  ];
 
   static Future<String?> showCustomMenu({
     required BuildContext context,

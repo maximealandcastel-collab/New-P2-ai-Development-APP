@@ -15,6 +15,27 @@ class StringFormat {
         : withSpace[0].toUpperCase() + withSpace.substring(1);
   }
 
+  static String formatLabel(String value) {
+    return value
+        .split('_')
+        .map(
+          (word) =>
+              word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}',
+        )
+        .join(' ');
+  }
+
+  static String formatSelectedList(List<String> values) {
+    return values.map(formatLabel).join(', ');
+  }
+
+  static String? contentDifficultyBackendValue(String display) {
+    for (final option in MenuShowHelper.contentDifficultyOptions) {
+      if (formatLabel(option) == display) return option;
+    }
+    return null;
+  }
+
   static String valueOrNa(String? value) {
     if (value == null || value.trim().isEmpty) return 'N/A';
     return value;

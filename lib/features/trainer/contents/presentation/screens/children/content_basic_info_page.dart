@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/widgets/dropdown_text_field.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentBasicInfoPage extends StatelessWidget {
-  const ContentBasicInfoPage({
-    super.key,
-    required this.categoryController,
-    required this.titleController,
-    required this.descriptionController,
-    required this.onCategorySelected,
-  });
-
-  final TextEditingController categoryController;
-  final TextEditingController titleController;
-  final TextEditingController descriptionController;
-  final ValueChanged<String> onCategorySelected;
+  const ContentBasicInfoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = CreateContentController.to;
     final categoryControllerRef = CategoryController.to;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomText(
-          text: 'Content details',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        const CompleteProfilePageTitle(text: 'Content details'),
         SizedBox(height: 16.h),
         Obx(() {
           final options = categoryControllerRef.categories
@@ -43,13 +31,13 @@ class ContentBasicInfoPage extends StatelessWidget {
               readOnly: true,
               labelText: 'Category',
               hintText: 'No active categories found',
-              controller: categoryController,
+              controller: controller.categoryController,
               validator: (value) => 'Please create a category first',
             );
           }
 
           return DropdownTextField(
-            controller: categoryController,
+            controller: controller.categoryController,
             labelText: 'Category',
             hintText: 'Select category',
             options: options,
@@ -57,7 +45,7 @@ class ContentBasicInfoPage extends StatelessWidget {
               final match = categoryControllerRef.categories
                   .firstWhereOrNull((item) => item.category == display);
               if (match?.id != null) {
-                onCategorySelected(match!.id!);
+                controller.onCategorySelected(match!.id!);
               }
             },
             validator: (value) {
@@ -71,7 +59,7 @@ class ContentBasicInfoPage extends StatelessWidget {
         CustomTextField(
           labelText: 'Title',
           hintText: 'eg : Perfect Bench Press Form',
-          controller: titleController,
+          controller: controller.titleController,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Please enter a title';
@@ -86,7 +74,7 @@ class ContentBasicInfoPage extends StatelessWidget {
           contentPaddingHorizontal: 16.w,
           minLines: 6,
           maxLines: 6,
-          controller: descriptionController,
+          controller: controller.descriptionController,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Please enter a description';

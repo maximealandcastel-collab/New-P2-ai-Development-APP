@@ -3,7 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/content_form_constants.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
+import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class MuscleGroupPickerField extends StatelessWidget {
@@ -37,14 +38,14 @@ class MuscleGroupPickerField extends StatelessWidget {
               onTapConfirm: () {
                 onChanged(List<String>.from(tempSelected));
                 controller.text =
-                    ContentFormConstants.formatSelectedList(tempSelected);
+                    StringFormat.formatSelectedList(tempSelected);
                 Get.back();
               },
               content: ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: 360.h),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: ContentFormConstants.muscleGroupOptions.map(
+                    children: MenuShowHelper.muscleGroupOptions.map(
                       (value) {
                         final isSelected = tempSelected.contains(value);
                         return CheckboxListTile(
@@ -52,7 +53,7 @@ class MuscleGroupPickerField extends StatelessWidget {
                           dense: true,
                           activeColor: AppColors.textPrimary,
                           title: CustomText(
-                            text: ContentFormConstants.formatLabel(value),
+                            text: StringFormat.formatLabel(value),
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
                           ),

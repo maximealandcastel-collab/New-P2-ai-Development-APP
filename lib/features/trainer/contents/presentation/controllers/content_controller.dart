@@ -24,12 +24,10 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   static ContentController get to => Get.find();
 
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
-  final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
   final RxnString _selectedCategoryId = RxnString();
 
   LoadingState get loadingState => _loadingState.value;
-  LoadingState get submitLoadingState => _submitLoadingState.value;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
   String? get selectedCategoryId => _selectedCategoryId.value;
 
@@ -97,34 +95,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   Future<void> refresh() =>
       contentList.refreshWith(() => _loadData(showFullLoader: false));
-
-  Future<bool> submitContent({
-    required Map<String, dynamic> data,
-    ContentModel? editingContent,
-  }) async {
-    try {
-      _submitLoadingState.value = LoadingState.loading;
-
-      if (editingContent?.id != null) {
-        await _service.updateContent(
-          contentId: editingContent!.id!,
-          data: data,
-        );
-      } else {
-        await _service.createContent(data);
-      }
-
-      _submitLoadingState.value = LoadingState.loaded;
-      await _loadData();
-      Get.back(result: true);
-      return true;
-    } catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-      _submitLoadingState.value = LoadingState.error;
-      if (kDebugMode) debugPrint('submitContent error: $e');
-      return false;
-    }
-  }
 
   Future<void> deleteContent(String contentId) async {
     try {

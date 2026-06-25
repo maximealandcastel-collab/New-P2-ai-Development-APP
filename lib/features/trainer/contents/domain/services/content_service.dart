@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/data/repositories/content_repository.dart';
 
@@ -19,15 +22,34 @@ class ContentService {
     );
   }
 
-  Future<void> createContent(Map<String, dynamic> data) {
-    return _repository.createContent(data);
+  Future<void> createContent({
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+    ProgressCallback? onSendProgress,
+  }) {
+    return _repository.createContent(
+      fields: fields,
+      video: video,
+      thumbnail: thumbnail,
+      onSendProgress: onSendProgress,
+    );
   }
 
   Future<void> updateContent({
     required String contentId,
-    required Map<String, dynamic> data,
+    required Map<String, dynamic> fields,
+    File? video,
+    File? thumbnail,
+    ProgressCallback? onSendProgress,
   }) {
-    return _repository.updateContent(contentId: contentId, data: data);
+    return _repository.updateContent(
+      contentId: contentId,
+      fields: fields,
+      video: video,
+      thumbnail: thumbnail,
+      onSendProgress: onSendProgress,
+    );
   }
 
   Future<void> deleteContent(String contentId) {

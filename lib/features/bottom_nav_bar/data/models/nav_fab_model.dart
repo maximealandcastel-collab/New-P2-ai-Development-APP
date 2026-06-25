@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/trainer/contentPost/presentation/screens/content_post_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 

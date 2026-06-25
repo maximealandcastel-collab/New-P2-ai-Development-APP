@@ -5,7 +5,6 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
-import 'package:pler_to_pler_app/core/helpers/simmer_helper.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/category_card.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/screens/widgets/category_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
