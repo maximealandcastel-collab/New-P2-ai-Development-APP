@@ -132,12 +132,12 @@ class AppRoute {
       name: createContentScreen,
       page: () => const CreateContentScreen(),
       binding: BindingsBuilder(() {
-        Get.lazyPut<CreateContentController>(
-          () => CreateContentController(
+        Get.put<CreateContentController>(
+          CreateContentController(
             service: Get.find<ContentService>(),
             contentController: Get.find<ContentController>(),
           ),
-          fenix: true,
+          permanent: false,
         );
       }),
     ),

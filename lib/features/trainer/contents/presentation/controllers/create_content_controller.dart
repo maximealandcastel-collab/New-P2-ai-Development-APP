@@ -10,7 +10,6 @@ import 'package:pler_to_pler_app/features/trainer/contents/data/models/content_m
 import 'package:pler_to_pler_app/features/trainer/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
-import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/contents/presentation/controllers/content_controller.dart';
 
 class CreateContentController extends GetxController {
@@ -59,7 +58,6 @@ class CreateContentController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    CategoryController.to.fetchCategories();
     final args = Get.arguments;
     if (args is ContentModel) {
       _populateEditData(args);

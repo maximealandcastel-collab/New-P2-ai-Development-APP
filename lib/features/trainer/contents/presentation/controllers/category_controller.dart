@@ -49,12 +49,14 @@ class CategoryController extends GetxController {
       final hasCache = _service.hasCache();
       final isOnline = _connectivityService.isConnected.value;
 
-      if (hasCache) {
-        _categories.value = _service.getCachedCategories();
-        _loadingState.value = LoadingState.loaded;
-      } else {
-        _loadingState.value = LoadingState.loading;
-      }
+      await Future.microtask(() {
+        if (hasCache) {
+          _categories.value = _service.getCachedCategories();
+          _loadingState.value = LoadingState.loaded;
+        } else {
+          _loadingState.value = LoadingState.loading;
+        }
+      });
 
       if (!isOnline) {
         if (!hasCache) _loadingState.value = LoadingState.offline;

@@ -19,10 +19,10 @@ class CreateContentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final controller = CreateContentController.to;
+    final controller = Get.find<CreateContentController>();
 
-      return CreateContentFlowScreen(
+    return Obx(
+      () => CreateContentFlowScreen(
         pages: _pages,
         formKey: controller.formKey,
         isSubmitting: controller.isSubmitting.value,
@@ -55,7 +55,7 @@ class CreateContentScreen extends StatelessWidget {
 
           await controller.submit();
         },
-      );
-    });
+      ),
+    );
   }
 }
