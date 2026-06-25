@@ -29,11 +29,11 @@
 
     <!-- Privacy Permissions -->
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app requires access to your photo library to upload profile pictures and fitness progress photos.</string>
+    <string>This app requires access to your photo library to upload profile pictures, training content videos, and fitness progress photos.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>This app needs permission to save photos to your library.</string>
+    <string>This app needs permission to save photos and videos to your library.</string>
     <key>NSCameraUsageDescription</key>
-    <string>This app uses the camera to take profile and progress photos.</string>
+    <string>This app uses the camera to take profile photos, content thumbnails, and progress photos.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>This app uses Bluetooth to find, connect, and sync your fitness wearables and health devices.</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
@@ -42,6 +42,19 @@
     <string>This app reads your steps and heart rate from Apple Health to sync Apple Watch activity.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>This app may write health data to Apple Health when syncing your Apple Watch.</string>
+
+    <!-- Content / video playback -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoadsInMedia</key>
+        <true/>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+    </array>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
@@ -55,6 +68,8 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

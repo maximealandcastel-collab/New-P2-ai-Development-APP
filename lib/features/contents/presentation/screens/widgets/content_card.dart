@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_hero_tags.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -14,21 +15,35 @@ class ContentCard extends StatelessWidget {
 
   final ContentModel content;
 
+  void _openDetails() {
+    Get.toNamed(
+      AppRoute.contentDetailsScreen,
+      arguments: content,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = ContentController.to;
     return CustomContainer(
+      onTap: _openDetails,
       paddingBottom: 16.h,
       border: Border(
         bottom: BorderSide(color: AppColors.secondary, width: 0.5),
       ),
       child: Row(
         children: [
-          CustomNetworkImage(
-            borderRadius: 8.r,
-            width: 96.w,
-            height: 74.h,
-            imageUrl: content.thumbnailUrl ?? '',
+          Hero(
+            tag: ContentHeroTags.thumbnail(content.id),
+            child: Material(
+              color: Colors.transparent,
+              child: CustomNetworkImage(
+                borderRadius: 8.r,
+                width: 96.w,
+                height: 74.h,
+                imageUrl: content.thumbnailUrl ?? '',
+              ),
+            ),
           ),
           SizedBox(width: 8.w),
           Expanded(

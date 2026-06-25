@@ -38,6 +38,10 @@ dependencies:
   permission_handler: ^11.4.0
   flutter_blue_plus: ^2.3.9
   health: ^12.0.2
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_video: ^1.0.7
+  floating: ^6.0.0
 
 
 dev_dependencies:

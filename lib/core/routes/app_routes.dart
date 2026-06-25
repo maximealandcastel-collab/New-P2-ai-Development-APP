@@ -29,8 +29,11 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscri
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/category_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
@@ -63,6 +66,7 @@ class AppRoute {
   static String contentCategoryScreen = "/contentCategoryScreen";
   static String createCategoryScreen = "/createCategoryScreen";
   static String createContentScreen = "/createContentScreen";
+  static String contentDetailsScreen = "/contentDetailsScreen";
   static String chatScreen = "/chatScreen";
   static String userProfileScreen = "/userProfileScreen";
   static String profileScreen = "/profileScreen";
@@ -135,6 +139,18 @@ class AppRoute {
           CreateContentController(
             contentController: Get.find<ContentController>(),
           ),
+          permanent: false,
+        );
+      }),
+    ),
+    GetPage(
+      name: contentDetailsScreen,
+      page: () => const ContentDetailsScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 320),
+      binding: BindingsBuilder(() {
+        Get.put<ContentDetailsController>(
+          ContentDetailsController(content: Get.arguments as ContentModel),
           permanent: false,
         );
       }),
