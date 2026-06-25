@@ -136,4 +136,20 @@ class DeviceRepository {
       throw UnknownException(e.toString());
     }
   }
+
+  Future<void> postDeviceMetrics(
+    String deviceId,
+    Map<String, dynamic> metrics,
+  ) async {
+    try {
+      await _apiService.post(
+        ApiConstants.deviceMetrics(deviceId),
+        data: metrics,
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
 }

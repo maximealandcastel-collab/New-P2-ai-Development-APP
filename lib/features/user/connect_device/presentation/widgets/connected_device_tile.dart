@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/constants/supported_watch_type.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ConnectedDeviceTile extends StatelessWidget {
@@ -25,9 +26,11 @@ class ConnectedDeviceTile extends StatelessWidget {
     final statusColor =
         device.isConnected ? const Color(0xFF4CAF50) : AppColors.textSecondary;
     final statusText = device.isConnected ? 'Connected' : 'Not connected';
+    final watchType = SupportedWatchType.fromApiValue(device.deviceType);
+    final subtitle = watchType?.displayName ?? device.serialNumber;
 
     return CustomContainer(
-      onTap: device.isConnected ? null : onTap,
+      onTap: onTap,
       radiusAll: 14.r,
       color: Colors.white,
       paddingHorizontal: 14.w,
@@ -58,11 +61,19 @@ class ConnectedDeviceTile extends StatelessWidget {
                 ),
                 CustomText(
                   top: 3.h,
-                  text: device.serialNumber,
+                  text: subtitle,
                   textAlign: TextAlign.start,
                   fontSize: 11.sp,
                   color: AppColors.textSecondary,
                 ),
+                if (watchType != null && device.serialNumber.isNotEmpty)
+                  CustomText(
+                    top: 2.h,
+                    text: device.serialNumber,
+                    textAlign: TextAlign.start,
+                    fontSize: 10.sp,
+                    color: AppColors.textSecondary,
+                  ),
               ],
             ),
           ),
@@ -86,6 +97,11 @@ class ConnectedDeviceTile extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            color: AppColors.textSecondary,
+            size: 20.r,
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, size: 20.sp, color: Colors.black54),

@@ -20,15 +20,19 @@ class PairingScanningView extends StatelessWidget {
         SizedBox(height: 8.h),
         const Center(child: PairingPulseIndicator()),
         SizedBox(height: 20.h),
-        CustomText(
-          text: 'Searching nearby devices',
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
-          textAlign: TextAlign.center,
+        Obx(
+          () => CustomText(
+            text: controller.selectedWatchType.value != null
+                ? 'Searching for ${controller.selectedWatchType.value!.displayName}'
+                : 'Searching nearby devices',
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            textAlign: TextAlign.center,
+          ),
         ),
         SizedBox(height: 8.h),
         CustomText(
-          text: 'Keep your watch or band close to your phone.',
+          text: 'Only supported watches appear here. Keep your watch close to your phone.',
           fontSize: 13.sp,
           color: AppColors.textSecondary,
           textAlign: TextAlign.center,
@@ -62,7 +66,9 @@ class PairingScanningView extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 32.h),
               child: CustomText(
-                text: 'No devices found yet...',
+                text: controller.selectedWatchType.value != null
+                    ? 'No ${controller.selectedWatchType.value!.displayName} found yet...'
+                    : 'No devices found yet...',
                 textAlign: TextAlign.center,
                 color: AppColors.textSecondary,
               ),
