@@ -85,11 +85,16 @@ class FindTrainerScreen extends StatelessWidget {
               ).asPaddedSliver(horizontal: 16.w);
           }
         }),
-        Obx(
-          () => controller.isLoadingMore
-              ? const Center(child: CustomLoader()).asSliver
-              : const SizedBox.shrink().asSliver,
-        ),
+        Obx(() {
+          final showLoader = controller.loadingState == LoadingState.loaded &&
+              controller.trainersList.isLoadingMore.value;
+
+          if (!showLoader) {
+            return const SizedBox.shrink().asSliver;
+          }
+
+          return const Center(child: CustomLoader()).asSliver;
+        }),
         SizedBox(height: 70.h).asSliver,
       ],
     );

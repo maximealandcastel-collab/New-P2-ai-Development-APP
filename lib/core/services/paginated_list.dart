@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 typedef FetchPage<T> = Future<List<T>> Function(int page, int limit);
@@ -29,11 +30,13 @@ class PaginatedList<T> {
     required this.fetchPage,
     this.limit = 10,
     this.scrollThreshold = 200,
+    this.postRefreshSuppressMs = 350,
   });
 
   final FetchPage<T> fetchPage;
   final int limit;
   final double scrollThreshold;
+  final int postRefreshSuppressMs;
 
   final RxList<T> items = <T>[].obs;
   final RxBool isLoadingMore = false.obs;
@@ -42,9 +45,13 @@ class PaginatedList<T> {
 
   ScrollController? scrollController;
   int _page = 1;
+  bool _suppressAutoLoadMore = false;
 
   bool get canLoadMore =>
-      hasMore.value && !isLoadingMore.value && !isRefreshing.value;
+      hasMore.value &&
+      !isLoadingMore.value &&
+      !isRefreshing.value &&
+      !_suppressAutoLoadMore;
 
   void initScroll() {
     scrollController?.dispose();
@@ -69,26 +76,41 @@ class PaginatedList<T> {
 
   /// Pull-to-refresh — scroll top + page 1 reload.
   Future<void> refreshList() async {
-    isRefreshing.value = true;
-    _resetPagination();
-    scrollController?.jumpTo(0);
-    try {
-      await loadFirst();
-    } finally {
-      isRefreshing.value = false;
-    }
+    await _runRefresh(loadFirst);
   }
 
   /// Custom reload (cache/offline logic থাকলে use করো).
   Future<void> refreshWith(Future<void> Function() reload) async {
+    await _runRefresh(reload);
+  }
+
+  Future<void> _runRefresh(Future<void> Function() reload) async {
     isRefreshing.value = true;
-    _resetPagination();
-    scrollController?.jumpTo(0);
+    _beginRefreshGuard();
     try {
       await reload();
     } finally {
       isRefreshing.value = false;
+      _endRefreshGuard();
     }
+  }
+
+  void _beginRefreshGuard() {
+    _suppressAutoLoadMore = true;
+    isLoadingMore.value = false;
+    _resetPagination();
+    _jumpToTop();
+  }
+
+  void _endRefreshGuard() {
+    _jumpToTop();
+    _scheduleJumpToTop();
+
+    Future<void>.delayed(Duration(milliseconds: postRefreshSuppressMs), () {
+      _suppressAutoLoadMore = false;
+      _jumpToTop();
+      _scheduleJumpToTop();
+    });
   }
 
   void _resetPagination() {
@@ -119,8 +141,27 @@ class PaginatedList<T> {
     if (controller == null || !controller.hasClients || !canLoadMore) return;
 
     final position = controller.position;
+    if (!position.hasContentDimensions || position.maxScrollExtent <= 0) {
+      return;
+    }
+
     if (position.pixels >= position.maxScrollExtent - scrollThreshold) {
       _loadMore();
     }
+  }
+
+  void _jumpToTop() {
+    final controller = scrollController;
+    if (controller == null || !controller.hasClients) return;
+
+    try {
+      if (controller.offset != 0) {
+        controller.jumpTo(0);
+      }
+    } catch (_) {}
+  }
+
+  void _scheduleJumpToTop() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _jumpToTop());
   }
 }

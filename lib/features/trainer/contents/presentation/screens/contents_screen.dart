@@ -152,18 +152,22 @@ class ContentsScreen extends StatelessWidget {
                 );
             }
           }),
-          Obx(
-            () => contentController.isLoadingMore
-                ? SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16.h,
-                      ),
-                      child: CustomLoader(),
-                    ),
-                  )
-                : const SliverToBoxAdapter(child: SizedBox.shrink()),
-          ),
+          Obx(() {
+            final showLoader = contentController.loadingState ==
+                    LoadingState.loaded &&
+                contentController.contentList.isLoadingMore.value;
+
+            if (!showLoader) {
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
+            }
+
+            return SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                child: const CustomLoader(),
+              ),
+            );
+          }),
           SliverToBoxAdapter(child: SizedBox(height: 120.h)),
         ],
       ),

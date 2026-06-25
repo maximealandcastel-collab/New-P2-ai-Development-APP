@@ -60,14 +60,17 @@ class ContentController extends GetxController {
     );
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool showFullLoader = true}) async {
     try {
       if (!_connectivityService.isConnected.value) {
         _loadingState.value = LoadingState.offline;
         return;
       }
 
-      _loadingState.value = LoadingState.loading;
+      if (showFullLoader) {
+        _loadingState.value = LoadingState.loading;
+      }
+
       await contentList.loadFirst();
       _loadingState.value = LoadingState.loaded;
     } on AppException catch (e) {
@@ -86,7 +89,8 @@ class ContentController extends GetxController {
   }
 
   @override
-  Future<void> refresh() => contentList.refreshWith(_loadData);
+  Future<void> refresh() =>
+      contentList.refreshWith(() => _loadData(showFullLoader: false));
 
   Future<bool> submitContent({
     required Map<String, dynamic> data,

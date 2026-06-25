@@ -85,16 +85,18 @@ class SubscribeController extends GetxController {
   }
 
   // ─── Poll List ────────────────────────────────────────────────────────────
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool showFullLoader = true}) async {
     try {
       final hasCache = _service.hasCache();
       final isOnline = _connectivityService.isConnected.value;
 
-      if (hasCache) {
-        trainersList.items.value = _service.getCachedTrainers();
-        _loadingState.value = LoadingState.loaded;
-      } else {
-        _loadingState.value = LoadingState.loading;
+      if (showFullLoader) {
+        if (hasCache) {
+          trainersList.items.value = _service.getCachedTrainers();
+          _loadingState.value = LoadingState.loaded;
+        } else {
+          _loadingState.value = LoadingState.loading;
+        }
       }
 
       if (!isOnline) {
@@ -140,7 +142,8 @@ class SubscribeController extends GetxController {
 
   // ─── Refresh  ──────────────────────────────────────────────────────
   @override
-  Future<void> refresh() => trainersList.refreshWith(_loadData);
+  Future<void> refresh() =>
+      trainersList.refreshWith(() => _loadData(showFullLoader: false));
 
   // ─── Poll Details ─────────────────────────────────────────────────────────
   Future<void> fetchDetails(
