@@ -126,12 +126,6 @@ class ContentsScreen extends StatelessWidget {
                   ),
                 ).asSliver;
               case LoadingState.loaded:
-                // if (contentController.contents.isEmpty) {
-                //   return const EmptyDataWidget(
-                //     message: 'No contents found.',
-                //   ).asSliver;
-                // }
-
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
                   sliver: SliverList.builder(

@@ -366,7 +366,6 @@ class DevicePairingController extends GetxController {
       } else {
         await _deviceService.syncDeviceMetrics(device.id);
       }
-      ToastMessageHelper.show('Device metrics synced');
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
     }
