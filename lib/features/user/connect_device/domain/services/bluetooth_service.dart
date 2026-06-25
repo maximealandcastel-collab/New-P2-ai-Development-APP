@@ -180,7 +180,6 @@ class BluetoothService {
       'name': name,
       'macAddress': device.remoteId.str,
       'serialNumber': device.remoteId.str,
-      'deviceType': 'watch',
     };
   }
 

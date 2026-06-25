@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/device_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/connected_device_tile.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/widgets/device_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -94,7 +95,7 @@ class ManageDevicesScreen extends StatelessWidget {
             () => ConnectedDeviceTile(
               device: device,
               isConnecting: controller.connectingDeviceId.value == device.id,
-              onTap: () => controller.switchToDevice(device),
+              onTap: () => Get.to(() => DeviceDetailsScreen(device: device)),
               onRemove: () => controller.unpairDevice(device),
               onSync: () => controller.syncDeviceMetrics(device),
             ),

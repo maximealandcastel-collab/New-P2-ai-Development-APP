@@ -8,22 +8,33 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/constants/supported_watch_type.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/apple_watch_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
 
-enum PairingStep { idle, scanning, connecting, saving }
+enum PairingStep {
+  idle,
+  selectingWatch,
+  scanning,
+  connecting,
+  saving,
+}
 
 class DevicePairingController extends GetxController {
   DevicePairingController({
     required DeviceService deviceService,
     required BluetoothService bluetoothService,
+    required AppleWatchService appleWatchService,
     required ConnectivityService connectivityService,
   })  : _deviceService = deviceService,
         _bluetoothService = bluetoothService,
+        _appleWatchService = appleWatchService,
         _connectivityService = connectivityService;
 
   final DeviceService _deviceService;
   final BluetoothService _bluetoothService;
+  final AppleWatchService _appleWatchService;
   final ConnectivityService _connectivityService;
 
   static DevicePairingController get to => Get.find();
@@ -38,6 +49,7 @@ class DevicePairingController extends GetxController {
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final RxString pairingError = ''.obs;
   final RxnString connectingDeviceId = RxnString();
+  final Rxn<SupportedWatchType> selectedWatchType = Rxn<SupportedWatchType>();
 
   StreamSubscription<List<BluetoothScanResultModel>>? _scanSubscription;
 
@@ -101,16 +113,93 @@ class DevicePairingController extends GetxController {
   void preparePairingUi() {
     pairingError.value = '';
     isPairing.value = true;
-    pairingStep.value = PairingStep.scanning;
-    pairingProgress.value = 0.1;
+    pairingStep.value = PairingStep.selectingWatch;
+    pairingProgress.value = 0.0;
+    selectedWatchType.value = null;
     discoveredDevices.clear();
   }
 
+  Future<void> selectWatchType(SupportedWatchType watchType) async {
+    selectedWatchType.value = watchType;
+    pairingError.value = '';
+
+    if (watchType.usesHealthKit) {
+      await pairAppleWatch();
+      return;
+    }
+
+    pairingStep.value = PairingStep.scanning;
+    pairingProgress.value = 0.1;
+    discoveredDevices.clear();
+    try {
+      await startScanning();
+    } catch (_) {}
+  }
+
+  Future<void> pairAppleWatch() async {
+    try {
+      pairingStep.value = PairingStep.connecting;
+      pairingProgress.value = 0.3;
+
+      if (!_appleWatchService.isAvailable) {
+        throw Exception('Apple Watch sync is only available on iPhone');
+      }
+
+      final authorized = await _appleWatchService.requestAuthorization();
+      if (!authorized) {
+        throw Exception(
+          'Health permission is required to sync Apple Watch data',
+        );
+      }
+
+      pairingProgress.value = 0.5;
+      await _prepareExclusivePairing();
+
+      pairingStep.value = PairingStep.saving;
+      pairingProgress.value = 0.7;
+
+      final watchType = SupportedWatchType.appleWatchS3;
+      final pairedDevice = await _deviceService.pairDevice(
+        name: watchType.displayName,
+        serialNumber: _appleWatchService.getDeviceSerial(),
+        deviceType: watchType.apiValue,
+      );
+
+      pairingProgress.value = 0.9;
+      try {
+        final metrics = await _appleWatchService.fetchTodayMetrics();
+        await _deviceService.postDeviceMetrics(
+          pairedDevice.id,
+          metrics.toJson(),
+        );
+      } catch (e) {
+        if (kDebugMode) debugPrint('Initial Apple Watch metrics sync: $e');
+      }
+
+      pairingProgress.value = 1.0;
+      await fetchPairedDevices();
+      await _finishPairing();
+    } catch (e) {
+      if (kDebugMode) debugPrint('Pair Apple Watch error: $e');
+      pairingError.value = e.errorMessage;
+      ToastMessageHelper.show(e.errorMessage);
+      pairingStep.value = PairingStep.selectingWatch;
+      pairingProgress.value = 0.0;
+      selectedWatchType.value = null;
+    }
+  }
+
   Future<void> startScanning() async {
+    final watchType = selectedWatchType.value;
+    if (watchType == null || watchType.usesHealthKit) return;
+
     try {
       await _scanSubscription?.cancel();
       _scanSubscription = _bluetoothService.scanResults.listen((results) {
-        discoveredDevices.assignAll(results);
+        final filtered = results
+            .where((device) => watchType.matchesBleName(device.name))
+            .toList();
+        discoveredDevices.assignAll(filtered);
       });
 
       await _bluetoothService.startScan();
@@ -126,6 +215,17 @@ class DevicePairingController extends GetxController {
   }
 
   Future<void> retryScanning() async {
+    final watchType = selectedWatchType.value;
+    if (watchType == null) {
+      pairingStep.value = PairingStep.selectingWatch;
+      return;
+    }
+
+    if (watchType.usesHealthKit) {
+      await pairAppleWatch();
+      return;
+    }
+
     pairingError.value = '';
     pairingStep.value = PairingStep.scanning;
     isPairing.value = true;
@@ -137,32 +237,31 @@ class DevicePairingController extends GetxController {
   }
 
   Future<void> selectAndConnectDevice(BluetoothScanResultModel device) async {
+    final watchType = selectedWatchType.value;
+    if (watchType == null) return;
+
     try {
       pairingError.value = '';
       pairingStep.value = PairingStep.connecting;
       pairingProgress.value = 0.45;
       await _bluetoothService.stopScan();
 
-      await _releaseActiveConnection();
+      await _prepareExclusivePairing();
       await _bluetoothService.connect(device.id);
       pairingProgress.value = 0.65;
 
       pairingStep.value = PairingStep.saving;
       final info = await _bluetoothService.getDeviceInfo(device.id);
 
-      final pairedDevice = await _deviceService.pairDevice(
+      await _deviceService.pairDevice(
         name: info['name'] ?? device.name,
         serialNumber: info['serialNumber'] ?? device.id,
         macAddress: info['macAddress'] ?? device.macAddress,
-        deviceType: info['deviceType'] ?? 'watch',
+        deviceType: watchType.apiValue,
       );
 
       pairingProgress.value = 1.0;
-      _markOnlyDeviceConnected(
-        pairedDevice.id,
-        serverDevice: pairedDevice,
-      );
-      await _syncDeviceCache();
+      await fetchPairedDevices();
       await _finishPairing();
     } catch (e) {
       if (kDebugMode) debugPrint('Connect/pair device error: $e');
@@ -181,14 +280,35 @@ class DevicePairingController extends GetxController {
   Future<void> switchToDevice(DeviceModel device) async {
     if (device.isConnected) return;
 
-    final address = device.macAddress?.trim();
-    if (address == null || address.isEmpty) {
-      return;
-    }
-
     connectingDeviceId.value = device.id;
     try {
-      await _releaseActiveConnection();
+      await _prepareExclusivePairing();
+
+      if (SupportedWatchType.isAppleWatchType(device.deviceType)) {
+        if (!_appleWatchService.isAvailable) {
+          throw Exception('Apple Watch sync is only available on iPhone');
+        }
+
+        final authorized = await _appleWatchService.requestAuthorization();
+        if (!authorized) {
+          throw Exception('Health permission is required');
+        }
+
+        final updated = await _deviceService.updateDeviceStatus(
+          deviceId: device.id,
+          isConnected: true,
+        );
+        _markOnlyDeviceConnected(device.id, serverDevice: updated);
+        await _syncDeviceCache();
+        ToastMessageHelper.show('Connected to ${device.name}');
+        return;
+      }
+
+      final address = device.macAddress?.trim();
+      if (address == null || address.isEmpty) {
+        throw Exception('Device address not found');
+      }
+
       await _bluetoothService.connect(address);
 
       final updated = await _deviceService.updateDeviceStatus(
@@ -207,6 +327,16 @@ class DevicePairingController extends GetxController {
   }
 
   Future<void> cancelPairing() async {
+    if (pairingStep.value == PairingStep.scanning) {
+      await _bluetoothService.stopScan();
+      pairingStep.value = PairingStep.selectingWatch;
+      selectedWatchType.value = null;
+      discoveredDevices.clear();
+      pairingError.value = '';
+      pairingProgress.value = 0.0;
+      return;
+    }
+
     await _resetPairingState(stopScan: true);
     _popPairingScreen();
   }
@@ -214,6 +344,7 @@ class DevicePairingController extends GetxController {
   Future<void> unpairDevice(DeviceModel device) async {
     try {
       if (device.isConnected &&
+          !SupportedWatchType.isAppleWatchType(device.deviceType) &&
           device.macAddress != null &&
           device.macAddress!.isNotEmpty) {
         await _bluetoothService.disconnect(device.macAddress!);
@@ -229,10 +360,20 @@ class DevicePairingController extends GetxController {
 
   Future<void> syncDeviceMetrics(DeviceModel device) async {
     try {
-      await _deviceService.syncDeviceMetrics(device.id);
+      if (SupportedWatchType.isAppleWatchType(device.deviceType)) {
+        final metrics = await _appleWatchService.fetchTodayMetrics();
+        await _deviceService.postDeviceMetrics(device.id, metrics.toJson());
+      } else {
+        await _deviceService.syncDeviceMetrics(device.id);
+      }
+      ToastMessageHelper.show('Device metrics synced');
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
     }
+  }
+
+  Future<void> _prepareExclusivePairing() async {
+    await _releaseActiveConnection();
   }
 
   Future<void> _releaseActiveConnection() async {
@@ -266,7 +407,8 @@ class DevicePairingController extends GetxController {
     } else {
       final index = pairedDevices.indexWhere((item) => item.id == activeId);
       if (index >= 0) {
-        pairedDevices[index] = pairedDevices[index].copyWith(isConnected: true);
+        pairedDevices[index] =
+            pairedDevices[index].copyWith(isConnected: true);
       }
     }
   }
@@ -284,6 +426,7 @@ class DevicePairingController extends GetxController {
     isPairing.value = false;
     pairingStep.value = PairingStep.idle;
     pairingProgress.value = 0.0;
+    selectedWatchType.value = null;
     discoveredDevices.clear();
     pairingError.value = '';
   }

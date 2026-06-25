@@ -55,4 +55,10 @@ class DeviceService {
 
   Future<Map<String, dynamic>> syncDeviceMetrics(String deviceId) =>
       _repository.syncDeviceMetrics(deviceId);
+
+  Future<void> postDeviceMetrics(
+    String deviceId,
+    Map<String, dynamic> metrics,
+  ) =>
+      _repository.postDeviceMetrics(deviceId, metrics);
 }

@@ -31,6 +31,7 @@ import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repo
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/apple_watch_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
@@ -240,6 +241,7 @@ class DependencyInjection {
     );
 
     Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
+    Get.put<AppleWatchService>(AppleWatchService(), permanent: true);
 
     Get.lazyPut<DeviceRepository>(
       () => DeviceRepository(
@@ -256,6 +258,7 @@ class DependencyInjection {
       () => DevicePairingController(
         deviceService: Get.find<DeviceService>(),
         bluetoothService: BluetoothService.instance,
+        appleWatchService: Get.find<AppleWatchService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
