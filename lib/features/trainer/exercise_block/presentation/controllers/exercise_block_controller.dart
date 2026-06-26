@@ -164,11 +164,10 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   Future<void> deleteBlock(String blockId) async {
     try {
       _deleteLoadingState.value = LoadingState.loading;
-      // TODO: call delete API when available.
+      await _service.deleteBlock(blockId);
       blocksList.items.removeWhere((block) => block.id == blockId);
       _deleteLoadingState.value = LoadingState.loaded;
       Get.back(canPop: true);
-      ToastMessageHelper.show('Exercise block deleted');
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _deleteLoadingState.value = LoadingState.error;

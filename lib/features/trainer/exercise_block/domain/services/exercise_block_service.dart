@@ -84,4 +84,16 @@ class ExerciseBlockService {
       context: context,
     );
   }
+
+  Future<void> deleteBlock(String blockId) async {
+    final trainerId = await resolveTrainerId();
+    if (trainerId == null || trainerId.isEmpty) {
+      throw UnknownException('User ID not found');
+    }
+
+    return _repository.deleteBlock(
+      trainerId: trainerId,
+      blockId: blockId,
+    );
+  }
 }

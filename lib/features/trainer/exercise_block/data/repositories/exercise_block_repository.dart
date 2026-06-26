@@ -111,5 +111,27 @@ class ExerciseBlockRepository {
     }
   }
 
+  Future<void> deleteBlock({
+    required String trainerId,
+    required String blockId,
+  }) async {
+    try {
+      await _apiService.delete(
+        ApiConstants.trainerBlockById(trainerId, blockId),
+      );
+
+      final updatedCache = getCachedBlocks()
+        ..removeWhere((block) => block.id == blockId);
+      await _cacheService.put(
+        AppConstants.cacheExerciseBlocks,
+        updatedCache.map((item) => item.toJson()).toList(),
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   bool hasCache() => _cacheService.containsKey(AppConstants.cacheExerciseBlocks);
 }
