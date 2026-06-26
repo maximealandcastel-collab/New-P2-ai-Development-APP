@@ -64,13 +64,15 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildTabContent('No manual exercise block'),
-          _buildTabContent('No auto generated exercise block'),
-        ],
-      ),
+      bodyList: [
+        TabBarView(
+          controller: _tabController,
+          children: [
+            _buildTabContent('No manual exercise block'),
+            _buildTabContent('No auto generated exercise block'),
+          ],
+        ).asFillRemainingSliver(),
+      ],
     );
   }
 

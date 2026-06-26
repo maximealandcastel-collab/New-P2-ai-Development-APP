@@ -9,8 +9,7 @@ class SliverScaffold extends StatelessWidget {
   const SliverScaffold({
     super.key,
     this.appBar,
-    this.body,
-    this.bodyList,
+    required this.bodyList,
     this.paginationList,
     this.floatingActionButton,
     this.bottomNavigationBar,
@@ -19,11 +18,10 @@ class SliverScaffold extends StatelessWidget {
     this.scrollPhysics,
     this.onRefresh,
     this.refreshEdgeOffset,
-  }) : assert(body != null || bodyList != null);
+  });
 
   final CustomSliverAppBar? appBar;
-  final Widget? body;
-  final List<Widget>? bodyList;
+  final List<Widget> bodyList;
   final PaginatedList<dynamic>? paginationList;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
@@ -42,8 +40,6 @@ class SliverScaffold extends StatelessWidget {
       : _scrollPhysics;
 
   Widget _buildBody(BuildContext context) {
-    if (body != null) return body!;
-
     return Builder(
       builder: (context) {
         final slivers = <Widget>[
@@ -51,7 +47,7 @@ class SliverScaffold extends StatelessWidget {
             SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
             ),
-          ...bodyList!,
+          ...bodyList,
         ];
 
         return CustomScrollView(
