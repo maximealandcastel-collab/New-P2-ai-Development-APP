@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_media_picker_tile.dart';
@@ -36,10 +36,51 @@ class ContentVideoDetailsPage extends StatelessWidget {
               remoteImageUrl: hasThumbnailPreview && controller.thumbnailFile == null
                   ? controller.existingThumbnailUrl.value
                   : null,
-              onTap: controller.pickVideo,
+              onTap: controller.isReadingVideoDuration.value
+                  ? () {}
+                  : controller.pickVideo,
             );
           },
         ),
+        Obx(() {
+          if (controller.isReadingVideoDuration.value) {
+            return Padding(
+              padding: EdgeInsets.only(top: 8.h),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 14.r,
+                    height: 14.r,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  CustomText(
+                    text: 'Reading video duration...',
+                    fontSize: 12.sp,
+                    color: AppColors.textSecondary,
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final duration = controller.formattedVideoDuration;
+          if (duration.isEmpty) return const SizedBox.shrink();
+
+          return Padding(
+            padding: EdgeInsets.only(top: 8.h),
+            child: CustomText(
+              text: 'Duration: $duration',
+              fontSize: 12.sp,
+              color: AppColors.textSecondary,
+              textAlign: TextAlign.start,
+            ),
+          );
+        }),
         SizedBox(height: 16.h),
         Obx(
           () => ContentMediaPickerTile(
@@ -61,19 +102,6 @@ class ContentVideoDetailsPage extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        CustomTextField(
-          labelText: 'Duration (seconds)',
-          hintText: 'eg : 840',
-          controller: controller.durationController,
-          keyboardType: TextInputType.number,
-          inputFormatter: [FilteringTextInputFormatter.digitsOnly],
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter duration';
-            }
-            return null;
-          },
-        ),
         CustomTextField(
           labelText: 'Exercise name',
           hintText: 'eg : Bench Press',

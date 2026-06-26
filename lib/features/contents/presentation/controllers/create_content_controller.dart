@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/video_duration_helper.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 
@@ -26,7 +27,6 @@ class CreateContentController extends GetxController {
   final categoryController = TextEditingController();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  final durationController = TextEditingController();
   final exerciseNameController = TextEditingController();
   final muscleGroupsController = TextEditingController();
   final difficultyController = TextEditingController();
@@ -41,6 +41,8 @@ class CreateContentController extends GetxController {
   final RxnString thumbnailPreviewPath = RxnString();
   final RxnString existingVideoUrl = RxnString();
   final RxnString existingThumbnailUrl = RxnString();
+  final RxnInt durationSeconds = RxnInt();
+  final RxBool isReadingVideoDuration = false.obs;
 
   File? videoFile;
   File? thumbnailFile;
@@ -65,7 +67,7 @@ class CreateContentController extends GetxController {
     categoryController.text = content.categoryId?.category ?? '';
     titleController.text = content.title ?? '';
     descriptionController.text = content.description ?? '';
-    durationController.text = content.durationSeconds?.toString() ?? '';
+    durationSeconds.value = content.durationSeconds;
     exerciseNameController.text = content.exerciseName ?? '';
     selectedDifficulty.value = content.difficulty;
     difficultyController.text = content.difficulty != null
@@ -112,12 +114,23 @@ class CreateContentController extends GetxController {
       final file = result?.files.first;
       if (file?.path == null) return;
 
-      videoFile = File(file!.path!);
+      isReadingVideoDuration.value = true;
+
+      final seconds = await VideoDurationHelper.fromFilePath(file!.path!);
+      if (seconds == null || seconds <= 0) {
+        ToastMessageHelper.show('Could not read video duration');
+        return;
+      }
+
+      videoFile = File(file.path!);
       videoFileName.value = file.name;
+      durationSeconds.value = seconds;
       existingVideoUrl.value = null;
     } catch (e) {
       ToastMessageHelper.show('Could not pick video file');
       if (kDebugMode) debugPrint('pickVideo error: $e');
+    } finally {
+      isReadingVideoDuration.value = false;
     }
   }
 
@@ -140,7 +153,8 @@ class CreateContentController extends GetxController {
         final hasVideo = videoFile != null || existingVideoUrl.value != null;
         final hasThumbnail =
             thumbnailFile != null || existingThumbnailUrl.value != null;
-        return hasVideo && hasThumbnail;
+        final hasDuration = (durationSeconds.value ?? 0) > 0;
+        return hasVideo && hasThumbnail && hasDuration;
       case 2:
         return selectedMuscleGroups.isNotEmpty &&
             _resolveDifficultyValue() != null;
@@ -165,7 +179,20 @@ class CreateContentController extends GetxController {
       ToastMessageHelper.show('Please upload a video file');
     } else if (thumbnailFile == null && existingThumbnailUrl.value == null) {
       ToastMessageHelper.show('Please upload a thumbnail image');
+    } else if ((durationSeconds.value ?? 0) <= 0) {
+      ToastMessageHelper.show('Could not read video duration');
     }
+  }
+
+  String get formattedVideoDuration {
+    final seconds = durationSeconds.value;
+    if (seconds == null || seconds <= 0) return '';
+
+    final duration = Duration(seconds: seconds);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final secs = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return hours > 0 ? '$hours:$minutes:$secs' : '$minutes:$secs';
   }
 
   Map<String, dynamic> _buildFields() {
@@ -174,7 +201,7 @@ class CreateContentController extends GetxController {
       'title': titleController.text.trim(),
       'description': descriptionController.text.trim(),
       'contentType': MenuShowHelper.contentType,
-      'durationSeconds': int.tryParse(durationController.text.trim()) ?? 0,
+      'durationSeconds': durationSeconds.value ?? 0,
       'exerciseName': exerciseNameController.text.trim(),
       'muscleGroups': List<String>.from(selectedMuscleGroups),
       'difficulty': _resolveDifficultyValue(),
@@ -210,7 +237,6 @@ class CreateContentController extends GetxController {
     categoryController.dispose();
     titleController.dispose();
     descriptionController.dispose();
-    durationController.dispose();
     exerciseNameController.dispose();
     muscleGroupsController.dispose();
     difficultyController.dispose();
