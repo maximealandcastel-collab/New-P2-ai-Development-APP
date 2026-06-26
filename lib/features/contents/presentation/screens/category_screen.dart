@@ -40,6 +40,12 @@ class CategoryScreen extends StatelessWidget {
                 onRefresh: controller.fetchCategories,
               ).asSliver;
             case LoadingState.loaded:
+              if (controller.categories.isEmpty) {
+                return EmptyDataWidget(
+                  message: 'Category not found',
+                  onRefresh: controller.fetchCategories,
+                ).asSliver;
+              }
               return SliverList.separated(
                 itemCount: controller.categories.length,
                 itemBuilder: (_, index) {
