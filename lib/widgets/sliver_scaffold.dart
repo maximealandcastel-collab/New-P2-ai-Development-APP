@@ -54,10 +54,22 @@ class SliverScaffold extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     if (body != null) return body!;
 
-    return CustomScrollView(
-      physics: _refreshablePhysics,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      slivers: bodyList!,
+    return Builder(
+      builder: (context) {
+        final slivers = <Widget>[
+          if (appBar != null)
+            SliverOverlapInjector(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+            ),
+          ...bodyList!,
+        ];
+
+        return CustomScrollView(
+          physics: _refreshablePhysics,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: slivers,
+        );
+      },
     );
   }
 
@@ -107,7 +119,13 @@ class SliverScaffold extends StatelessWidget {
           physics: _scrollPhysics,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             if (appBar != null)
-              appBar!.copyWith(innerBoxIsScrolled: innerBoxIsScrolled),
+              SliverOverlapAbsorber(
+                handle:
+                    NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                sliver: appBar!.copyWith(
+                  innerBoxIsScrolled: innerBoxIsScrolled,
+                ),
+              ),
           ],
           body: _wrapPagination(_wrapRefreshable(_buildBody(context))),
         ),
@@ -131,6 +149,17 @@ extension WidgetSliverX on Widget {
               vertical: vertical ?? 0,
             ),
         sliver: SliverToBoxAdapter(child: this),
+      );
+
+  /// Avoid using this for loading shimmers inside [SliverScaffold]: the inner
+  /// [NestedScrollView] body is already wrapped in [SliverFillRemaining].
+  Widget asFillRemainingSliver({
+    bool hasScrollBody = false,
+    AlignmentGeometry? alignment,
+  }) =>
+      SliverFillRemaining(
+        hasScrollBody: hasScrollBody,
+        child: alignment != null ? Align(alignment: alignment, child: this) : this,
       );
 }
 

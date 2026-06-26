@@ -92,20 +92,22 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   // ─── Poll List ────────────────────────────────────────────────────────────
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
-      final hasCache = _service.hasCache();
+      final cached = _service.getCachedTrainers();
+      final hasUsableCache = cached.isNotEmpty;
       final isOnline = _connectivityService.isConnected.value;
 
       if (showFullLoader) {
-        if (hasCache) {
-          trainersList.items.value = _service.getCachedTrainers();
+        if (hasUsableCache) {
+          trainersList.items.value = cached;
           _loadingState.value = LoadingState.loaded;
         } else {
+          trainersList.items.clear();
           _loadingState.value = LoadingState.loading;
         }
       }
 
       if (!isOnline) {
-        if (!hasCache) _loadingState.value = LoadingState.offline;
+        if (!hasUsableCache) _loadingState.value = LoadingState.offline;
         return;
       }
 
@@ -113,12 +115,13 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         await trainersList.loadFirst();
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
-        if (!hasCache) _loadingState.value = LoadingState.error;
+        if (!hasUsableCache) _loadingState.value = LoadingState.error;
         if (kDebugMode) debugPrint('Fetch error: $e');
       }
     } catch (e) {
-      if (_service.hasCache()) {
-        trainersList.items.value = _service.getCachedTrainers();
+      final cached = _service.getCachedTrainers();
+      if (cached.isNotEmpty) {
+        trainersList.items.value = cached;
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.error;
