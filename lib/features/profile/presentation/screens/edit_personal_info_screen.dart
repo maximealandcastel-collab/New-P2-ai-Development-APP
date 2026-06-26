@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -58,7 +59,7 @@ class EditPersonalInfoScreen extends StatelessWidget {
                 labelText: 'Gender',
                 hintText: 'Select gender',
                 controller: controller.genderController,
-                options: MenuShowHelper.genderOptions,
+                options: HelperData.genderOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your gender';

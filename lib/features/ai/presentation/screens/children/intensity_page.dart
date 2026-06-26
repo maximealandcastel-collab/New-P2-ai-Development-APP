@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
@@ -26,7 +27,7 @@ class IntensityPage extends StatelessWidget {
             MenuShowHelper.showCustomMenu(
               context: context,
               details: details,
-              options: MenuShowHelper.intensityMeasureOptions,
+              options: HelperData.intensityMeasureOptions,
             ).then((value) {
               if (value != null) {
                 controller.intensityMeasureController.text = value;

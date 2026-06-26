@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/dynamic_field_list_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -28,7 +28,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Primary goal',
                 hintText: 'Select primary goal',
                 controller: controller.primaryGoalController,
-                options: MenuShowHelper.goalOptions,
+                options: HelperData.goalOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your primary goal';
@@ -40,7 +40,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Height',
                 hintText: 'Select your height',
                 controller: controller.heightController,
-                options: MenuShowHelper.heightOptions,
+                options: HelperData.heightOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your height';
@@ -52,7 +52,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Weight',
                 hintText: 'Select your weight',
                 controller: controller.weightController,
-                options: MenuShowHelper.weightOptions,
+                options: HelperData.weightOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your weight';
@@ -64,7 +64,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Fitness level',
                 hintText: 'Select fitness level',
                 controller: controller.fitnessLevelController,
-                options: MenuShowHelper.fitnessLevelOptions,
+                options: HelperData.fitnessLevelOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your fitness level';
@@ -76,7 +76,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Available equipment',
                 hintText: 'Select equipment',
                 controller: controller.equipmentController,
-                options: MenuShowHelper.equipmentDisplayOptions,
+                options: HelperData.equipmentDisplayOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your available equipment';
@@ -110,7 +110,7 @@ class EditFitnessInfoScreen extends StatelessWidget {
                 labelText: 'Motivation style',
                 hintText: 'Select motivation style',
                 controller: controller.motivationStyleController,
-                options: MenuShowHelper.motivationStyleDisplayOptions,
+                options: HelperData.motivationStyleDisplayOptions,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Please select your motivation style';

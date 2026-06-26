@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
@@ -200,7 +200,7 @@ class CreateContentController extends GetxController {
       'categoryId': selectedCategoryId.value,
       'title': titleController.text.trim(),
       'description': descriptionController.text.trim(),
-      'contentType': MenuShowHelper.contentType,
+      'contentType': HelperData.contentType,
       'durationSeconds': durationSeconds.value ?? 0,
       'exerciseName': exerciseNameController.text.trim(),
       'muscleGroups': List<String>.from(selectedMuscleGroups),

@@ -1,7 +1,7 @@
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
-import 'package:pler_to_pler_app/core/helpers/slug_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/category_model.dart';
@@ -56,7 +56,7 @@ class CategoryRepository {
         ApiConstants.categoryCreate,
         data: {
           'category': category,
-          'slug': SlugHelper.fromName(category),
+          'slug': StringFormat.slugFromName(category),
           'description': description,
         },
       );
@@ -77,7 +77,7 @@ class CategoryRepository {
         ApiConstants.categoryById(categoryId),
         data: {
           'category': category,
-          'slug': SlugHelper.fromName(category),
+          'slug': StringFormat.slugFromName(category),
           'description': description,
         },
       );

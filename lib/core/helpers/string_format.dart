@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
@@ -29,8 +30,17 @@ class StringFormat {
     return values.map(formatLabel).join(', ');
   }
 
+  static String slugFromName(String name) {
+    return name
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^\w\s-]'), '')
+        .replaceAll(RegExp(r'\s+'), '-')
+        .replaceAll(RegExp(r'-+'), '-');
+  }
+
   static String? contentDifficultyBackendValue(String display) {
-    for (final option in MenuShowHelper.contentDifficultyOptions) {
+    for (final option in HelperData.contentDifficultyOptions) {
       if (formatLabel(option) == display) return option;
     }
     return null;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
@@ -21,10 +21,10 @@ class MuscleGroupPickerField extends StatelessWidget {
   final FormFieldValidator? validator;
 
   List<String> get _displayOptions =>
-      MenuShowHelper.muscleGroupOptions.map(StringFormat.formatLabel).toList();
+      HelperData.muscleGroupOptions.map(StringFormat.formatLabel).toList();
 
   String? _backendValue(String display) {
-    for (final option in MenuShowHelper.muscleGroupOptions) {
+    for (final option in HelperData.muscleGroupOptions) {
       if (StringFormat.formatLabel(option) == display) return option;
     }
     return null;
