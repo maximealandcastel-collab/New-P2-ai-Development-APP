@@ -140,7 +140,7 @@ class CustomSliverAppBar extends StatelessWidget {
     final content = _flexibleContent;
 
     return SliverAppBar(
-      pinned: pinned,
+      pinned: pinned || bottom != null,
       floating: floating,
       snap: snap,
       elevation: 0,
@@ -161,17 +161,17 @@ class CustomSliverAppBar extends StatelessWidget {
       bottom: bottom,
       shape: borderColor != null
           ? Border(
-              bottom: BorderSide(
-                color: borderColor!,
-                width: borderWidth ?? 1,
-              ),
-            )
+        bottom: BorderSide(
+          color: borderColor!,
+          width: borderWidth ?? 1,
+        ),
+      )
           : null,
       flexibleSpace: content != null
           ? FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background: content,
-            )
+        collapseMode: CollapseMode.pin,
+        background: content,
+      )
           : null,
     );
   }
