@@ -49,11 +49,9 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
               ? TrainerProfileShimmer.headerShimmer()
               : _buildHeader(userData),
         ),
-        body: CustomScrollView(
-          slivers: isLoading
-              ? TrainerProfileShimmer.contentSlivers()
-              : _buildSlivers(context),
-        ),
+        bodyList: isLoading
+            ? TrainerProfileShimmer.contentSlivers()
+            : _buildSlivers(context),
       );
     });
   }

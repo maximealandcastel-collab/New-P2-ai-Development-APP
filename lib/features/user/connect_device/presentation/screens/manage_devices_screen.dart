@@ -21,11 +21,7 @@ class ManageDevicesScreen extends StatelessWidget {
         title: 'Manage devices',
       ),
       onRefresh: controller.fetchPairedDevices,
-      body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
+      bodyList: [
         Obx(() {
           switch (controller.loadingState) {
             case LoadingState.initial:
@@ -45,8 +41,7 @@ class ManageDevicesScreen extends StatelessWidget {
           }
         }),
         SizedBox(height: 120.h).asSliver,
-        ],
-      ),
+      ],
       bottomNavigationBar: Obx(() {
         if (controller.loadingState != LoadingState.loaded || controller.isEmpty) {
           return const SizedBox.shrink();

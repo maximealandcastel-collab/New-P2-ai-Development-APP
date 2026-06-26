@@ -22,27 +22,19 @@ class FindTrainerScreen extends StatelessWidget {
     return SliverScaffold(
       appBar: CustomSliverAppBar(
         title: 'Find trainer',
-        pinned: true,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(58.h),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
-            child: CustomSearchField(
-              readOnly: true,
-              onTap: () => _openSearch(context, controller),
-              searchController: controller.searchController,
-              hintText: 'Search trainer by name or needs',
-            ),
+        flexibleChild: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+          child: CustomSearchField(
+            readOnly: true,
+            onTap: () => _openSearch(context, controller),
+            searchController: controller.searchController,
+            hintText: 'Search trainer by name or needs',
           ),
         ),
       ),
       onRefresh: controller.refresh,
-      body: CustomScrollView(
-        controller: controller.scrollController,
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
+      scrollController: controller.scrollController,
+      bodyList: [
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 4.h),
@@ -108,7 +100,6 @@ class FindTrainerScreen extends StatelessWidget {
           }),
           PaginationLoaderSliver(controller: controller),
         ],
-      ),
     );
   }
 

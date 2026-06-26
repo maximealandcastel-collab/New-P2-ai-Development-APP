@@ -117,9 +117,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: _buildSlivers(context),
-      ),
+      bodyList: _buildSlivers(context),
       bottomNavigationBar: CustomButton(
         onPressed: () {},
         label: 'Withdraw',

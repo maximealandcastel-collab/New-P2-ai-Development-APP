@@ -23,8 +23,7 @@ class ProfileInformationScreen extends StatelessWidget {
         appBar: CustomSliverAppBar(
           title: 'Profile Information',
         ),
-        body: CustomScrollView(
-          slivers: [
+        bodyList: [
           SizedBox(height: 16.h).asSliver,
           if (hasAccountInfo) ...[
             ProfileFixedAccountCard(
@@ -99,8 +98,7 @@ class ProfileInformationScreen extends StatelessWidget {
             ),
           ).asSliverWithPadding(horizontal: 16.w),
           SizedBox(height: 100.h).asSliver,
-          ],
-        ),
+        ],
       );
     });
   }

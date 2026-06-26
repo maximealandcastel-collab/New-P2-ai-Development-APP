@@ -9,18 +9,18 @@ import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 /// ```dart
 /// SliverScaffold(
 ///   appBar: CustomSliverAppBar(title: 'Settings'),
-///   body: CustomScrollView(
-///     slivers: [
-///       MyContent().asSliver,
-///     ],
-///   ),
+///   bodyList: [
+///     MyContent().asSliver,
+///   ],
 /// )
 /// ```
 class SliverScaffold extends StatelessWidget {
   const SliverScaffold({
     super.key,
     this.appBar,
-    required this.body,
+    this.body,
+    this.bodyList,
+    this.scrollController,
     this.floatingActionButton,
     this.bottomNavigationBar,
     this.endDrawer,
@@ -28,10 +28,12 @@ class SliverScaffold extends StatelessWidget {
     this.scrollPhysics,
     this.onRefresh,
     this.refreshEdgeOffset,
-  });
+  }) : assert(body != null || bodyList != null);
 
   final CustomSliverAppBar? appBar;
-  final Widget body;
+  final Widget? body;
+  final List<Widget>? bodyList;
+  final ScrollController? scrollController;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
   final Widget? endDrawer;
@@ -43,6 +45,21 @@ class SliverScaffold extends StatelessWidget {
   ScrollPhysics get _scrollPhysics =>
       scrollPhysics ??
       const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics());
+
+  ScrollPhysics get _refreshablePhysics => onRefresh != null
+      ? const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics())
+      : _scrollPhysics;
+
+  Widget _buildBody(BuildContext context) {
+    if (body != null) return body!;
+
+    return CustomScrollView(
+      controller: scrollController,
+      physics: _refreshablePhysics,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: bodyList!,
+    );
+  }
 
   Widget _wrapRefreshable(Widget child) {
     if (onRefresh == null) return child;
@@ -84,7 +101,7 @@ class SliverScaffold extends StatelessWidget {
             if (appBar != null)
               appBar!.copyWith(innerBoxIsScrolled: innerBoxIsScrolled),
           ],
-          body: _wrapRefreshable(body),
+          body: _wrapRefreshable(_buildBody(context)),
         ),
       ),
     );

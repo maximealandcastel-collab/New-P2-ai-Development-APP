@@ -21,11 +21,7 @@ class CategoryScreen extends StatelessWidget {
         title: 'All category',
       ),
       onRefresh: controller.fetchCategories,
-      body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
+      bodyList: [
         CustomText(
           left: 16.w,
           bottom: 12.h,
@@ -63,8 +59,7 @@ class CategoryScreen extends StatelessWidget {
           }
         }),
         SizedBox(height: 70.h).asSliver,
-        ],
-      ),
+      ],
       floatingActionButton: IconButton(
         onPressed: () {
           CategoryController.to.clearForm();

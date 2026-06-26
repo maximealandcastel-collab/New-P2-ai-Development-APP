@@ -39,8 +39,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
       appBar: CustomSliverAppBar(
         title: _isEditMode ? 'Edit category' : 'Add category',
       ),
-      body: CustomScrollView(
-        slivers: [
+      bodyList: [
         SizedBox(height: 24.h).asSliver,
         Form(
           key: _formKey,
@@ -79,8 +78,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
           ),
         ).asSliverWithPadding(horizontal: 16.w),
         SizedBox(height: 120.h).asSliver,
-        ],
-      ),
+      ],
       bottomNavigationBar: Obx(
         () => CustomButton(
           onPressed: _submit,
