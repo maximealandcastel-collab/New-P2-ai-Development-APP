@@ -31,24 +31,20 @@ class FindTrainerScreen extends StatelessWidget {
         ),
       ),
       onRefresh: controller.refresh,
+      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.1,
       paginationList: controller.trainersList,
       bodyList: [
         Obx(() {
           switch (controller.loadingState) {
             case LoadingState.initial:
             case LoadingState.loading:
-              return const FindTrainerShimmer().asSliverWithPadding(
-                padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
-              );
+              return const FindTrainerShimmer().asSliver;
             case LoadingState.offline:
             case LoadingState.error:
-              return SliverFillRemaining(
-                hasScrollBody: false,
-                child: EmptyDataWidget(
-                  message: 'Failed to load trainers. Please try again.',
-                  onRefresh: controller.refresh,
-                ),
-              );
+              return EmptyDataWidget(
+                message: 'Failed to load trainers. Please try again.',
+                onRefresh: controller.refresh,
+              ).asFillRemainingSliver();
             case LoadingState.loaded:
               return SliverList.separated(
                 itemCount: controller.trainers.length,
@@ -58,12 +54,12 @@ class FindTrainerScreen extends StatelessWidget {
                     trainer: controller.trainers[index],
                   );
                 },
-              ).asPaddedSliver(
-                padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
+              ).asPaddedSliver(horizontal: 16.h,
               );
           }
         }),
         PaginationLoaderSliver(controller: controller),
+        SizedBox(height: 130.h).asSliver,
       ],
     );
   }

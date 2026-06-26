@@ -5,16 +5,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/custom_sliver_app_bar.dart';
 import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 
-/// Scaffold-like wrapper powered by [NestedScrollView] + slivers.
-///
-/// ```dart
-/// SliverScaffold(
-///   appBar: CustomSliverAppBar(title: 'Settings'),
-///   bodyList: [
-///     MyContent().asSliver,
-///   ],
-/// )
-/// ```
 class SliverScaffold extends StatelessWidget {
   const SliverScaffold({
     super.key,
@@ -150,9 +140,6 @@ extension WidgetSliverX on Widget {
             ),
         sliver: SliverToBoxAdapter(child: this),
       );
-
-  /// Avoid using this for loading shimmers inside [SliverScaffold]: the inner
-  /// [NestedScrollView] body is already wrapped in [SliverFillRemaining].
   Widget asFillRemainingSliver({
     bool hasScrollBody = false,
     AlignmentGeometry? alignment,
