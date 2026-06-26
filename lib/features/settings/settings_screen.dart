@@ -25,7 +25,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: CustomSliverAppBar(
         title: 'Settings',
       ),
-      slivers: _buildSlivers,
+      body: CustomScrollView(
+        slivers: _buildSlivers(context),
+      ),
     );
   }
 

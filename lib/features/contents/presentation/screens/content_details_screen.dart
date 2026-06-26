@@ -33,10 +33,12 @@ class ContentDetailsScreen extends StatelessWidget {
           controller: controller,
         ),
       ),
-      slivers: (context) => [
-        ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
-        SizedBox(height: 24.h).asSliver,
-      ],
+      body: CustomScrollView(
+        slivers: [
+          ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
+          SizedBox(height: 24.h).asSliver,
+        ],
+      ),
     );
 
     return PiPSwitcher(

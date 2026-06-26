@@ -117,7 +117,9 @@ class _EarningsScreenState extends State<EarningsScreen> {
           ),
         ],
       ),
-      slivers: _buildSlivers,
+      body: CustomScrollView(
+        slivers: _buildSlivers(context),
+      ),
       bottomNavigationBar: CustomButton(
         onPressed: () {},
         label: 'Withdraw',
@@ -144,5 +146,6 @@ class _EarningsScreenState extends State<EarningsScreen> {
             ),
           ),
         ),
+        SizedBox(height: 120.h).asSliver,
       ];
 }

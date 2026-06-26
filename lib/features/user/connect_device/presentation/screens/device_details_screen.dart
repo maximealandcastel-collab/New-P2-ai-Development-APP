@@ -69,7 +69,11 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
         title: 'Device details',
       ),
       onRefresh: controller.reloadDetails,
-      slivers: (context) => [
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
         Obx(() {
           final currentDevice = controller.device;
           final watchType =
@@ -101,7 +105,9 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
             ],
           ).asSliverWithPadding(horizontal: 16.w);
         }),
-      ],
+        SizedBox(height: 120.h).asSliver,
+        ],
+      ),
       bottomNavigationBar: Obx(() {
         final currentDevice = controller.device;
 

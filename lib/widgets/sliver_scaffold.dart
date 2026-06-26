@@ -20,44 +20,29 @@ class SliverScaffold extends StatelessWidget {
   const SliverScaffold({
     super.key,
     this.appBar,
-    this.body,
-    this.slivers,
+    required this.body,
     this.floatingActionButton,
     this.bottomNavigationBar,
     this.endDrawer,
     this.resizeToAvoidBottomInset,
     this.scrollPhysics,
-    this.scrollController,
     this.onRefresh,
     this.refreshEdgeOffset,
-  }) : assert(body != null || slivers != null);
+  });
 
   final CustomSliverAppBar? appBar;
-  final Widget? body;
-  final List<Widget> Function(BuildContext context)? slivers;
+  final Widget body;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
   final Widget? endDrawer;
   final bool? resizeToAvoidBottomInset;
   final ScrollPhysics? scrollPhysics;
-  final ScrollController? scrollController;
   final Future<void> Function()? onRefresh;
   final double? refreshEdgeOffset;
 
   ScrollPhysics get _scrollPhysics =>
       scrollPhysics ??
       const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics());
-
-  ScrollPhysics get _refreshablePhysics => onRefresh != null
-      ? const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics())
-      : _scrollPhysics;
-
-  Widget _bottomSpacerSliver() {
-    if (bottomNavigationBar == null) {
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
-    }
-    return SliverToBoxAdapter(child: SizedBox(height: 120.h));
-  }
 
   Widget _wrapRefreshable(Widget child) {
     if (onRefresh == null) return child;
@@ -67,22 +52,6 @@ class SliverScaffold extends StatelessWidget {
       edgeOffset: refreshEdgeOffset ?? 0,
       onRefresh: onRefresh!,
       child: child,
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
-    if (body != null) return _wrapRefreshable(body!);
-
-    return _wrapRefreshable(
-      CustomScrollView(
-        controller: scrollController,
-        physics: _refreshablePhysics,
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        slivers: [
-          ...slivers!(context),
-          _bottomSpacerSliver(),
-        ],
-      ),
     );
   }
 
@@ -115,7 +84,7 @@ class SliverScaffold extends StatelessWidget {
             if (appBar != null)
               appBar!.copyWith(innerBoxIsScrolled: innerBoxIsScrolled),
           ],
-          body: _buildBody(context),
+          body: _wrapRefreshable(body),
         ),
       ),
     );

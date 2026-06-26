@@ -55,7 +55,8 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
           title: 'Add device',
           backAction: () => _controller.cancelPairing(),
         ),
-        slivers: (context) => [
+        body: CustomScrollView(
+          slivers: [
           SizedBox(height: 8.h).asSliver,
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
@@ -64,7 +65,8 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
             child: content,
           ).asSliverWithPadding(horizontal: 16.w),
           SizedBox(height: 24.h).asSliver,
-        ],
+          ],
+        ),
       );
     });
   }

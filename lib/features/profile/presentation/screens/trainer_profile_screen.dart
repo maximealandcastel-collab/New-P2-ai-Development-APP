@@ -22,7 +22,9 @@ class ProfileScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         flexibleBackground: const ProfileFlexibleBackground(),
       ),
-      slivers: _buildSlivers,
+      body: CustomScrollView(
+        slivers: _buildSlivers(context),
+      ),
     );
   }
 
