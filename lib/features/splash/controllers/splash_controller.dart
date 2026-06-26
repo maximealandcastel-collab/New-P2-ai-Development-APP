@@ -56,13 +56,13 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // if (LoginController.to.isLoggedIn()) {
-    //   final route = await Get.find<ProfileService>().resolveInitialRoute();
-    //   Get.offAllNamed(route);
-    // } else {
-    //   Get.offAllNamed(AppRoute.onboardingMainScreen);
-    // }
-    Get.offAllNamed(AppRoute.subscribeSelectScreen);
+    if (LoginController.to.isLoggedIn()) {
+      final route = await Get.find<ProfileService>().resolveInitialRoute();
+      Get.offAllNamed(route);
+    } else {
+      Get.offAllNamed(AppRoute.onboardingMainScreen);
+    }
+    //Get.offAllNamed(AppRoute.subscribeSelectScreen);
   }
 
   @override
