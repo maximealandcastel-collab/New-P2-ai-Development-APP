@@ -95,8 +95,14 @@ class AppRoute {
     GetPage(name: forgotScreen, page: () => ForgotScreen()),
     GetPage(name: otpVerificationScreen, page: () => OtpVerificationScreen()),
     GetPage(name: resetPasswordScreen, page: () => ResetPasswordScreen()),
-    GetPage(name: userCompleteProfileScreen, page: () => UserCompleteProfileScreen()),
-    GetPage(name: trainerCompleteProfileScreen, page: () => TrainerCompleteProfileScreen()),
+    GetPage(
+      name: userCompleteProfileScreen,
+      page: () => UserCompleteProfileScreen(),
+    ),
+    GetPage(
+      name: trainerCompleteProfileScreen,
+      page: () => TrainerCompleteProfileScreen(),
+    ),
     GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
     GetPage(name: paymentSuccessScreen, page: () => PaymentSuccessScreen()),
@@ -108,7 +114,10 @@ class AppRoute {
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
-    GetPage(name: changePasswordScreen, page: () => const ChangePasswordScreen()),
+    GetPage(
+      name: changePasswordScreen,
+      page: () => const ChangePasswordScreen(),
+    ),
     GetPage(
       name: profileInformationScreen,
       page: () => const ProfileInformationScreen(),
@@ -146,8 +155,8 @@ class AppRoute {
     GetPage(
       name: contentDetailsScreen,
       page: () => const ContentDetailsScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 320),
+      //transition: Transition.zoom,
+     // transitionDuration: const Duration(milliseconds: 320),
       binding: BindingsBuilder(() {
         Get.put<ContentDetailsController>(
           ContentDetailsController(content: Get.arguments as ContentModel),

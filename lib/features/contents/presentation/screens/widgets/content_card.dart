@@ -15,18 +15,17 @@ class ContentCard extends StatelessWidget {
 
   final ContentModel content;
 
-  void _openDetails() {
-    Get.toNamed(
-      AppRoute.contentDetailsScreen,
-      arguments: content,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = ContentController.to;
     return CustomContainer(
-      onTap: _openDetails,
+      onTap: () {
+        Get.toNamed(
+          AppRoute.contentDetailsScreen,
+          arguments: content,
+
+        );
+      },
       paddingBottom: 16.h,
       border: Border(
         bottom: BorderSide(color: AppColors.secondary, width: 0.5),
