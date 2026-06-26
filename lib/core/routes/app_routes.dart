@@ -34,6 +34,7 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -64,6 +65,7 @@ class AppRoute {
   static String profileInformationScreen = "/profileInformationScreen";
   static String editPersonalInfoScreen = "/editPersonalInfoScreen";
   static String editFitnessInfoScreen = "/editFitnessInfoScreen";
+  static String exerciseBlockScreen = "/exerciseBlockScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -150,5 +152,6 @@ class AppRoute {
       }),
     ),
     GetPage(name: chatScreen, page: () => ChatScreen()),
+    GetPage(name: exerciseBlockScreen, page: () => ExerciseBlockScreen()),
   ];
 }

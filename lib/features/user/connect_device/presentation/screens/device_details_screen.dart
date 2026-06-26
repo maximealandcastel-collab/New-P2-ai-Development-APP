@@ -65,8 +65,9 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
     final controller = _controller;
 
     return SliverScaffold(
-      floating: false,
-      appBarTitle: 'Device details',
+      appBar: CustomSliverAppBar(
+        title: 'Device details',
+      ),
       onRefresh: controller.reloadDetails,
       slivers: (context) => [
         Obx(() {

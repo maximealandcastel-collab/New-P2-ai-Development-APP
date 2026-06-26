@@ -35,32 +35,33 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      centerTitle: false,
-      titleWidget: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomText(
-            left: 8.w,
-            textAlign: TextAlign.start,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            text: 'John Adams',
-          ),
-          CustomText(
-            left: 8.w,
-            fontSize: 12.sp,
-            textAlign: TextAlign.start,
-            color: AppColors.textSecondary,
-            text: 'Active now',
-          ),
+      appBar: CustomSliverAppBar(
+        centerTitle: false,
+        titleWidget: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomText(
+              left: 8.w,
+              textAlign: TextAlign.start,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              text: 'John Adams',
+            ),
+            CustomText(
+              left: 8.w,
+              fontSize: 12.sp,
+              textAlign: TextAlign.start,
+              color: AppColors.textSecondary,
+              text: 'Active now',
+            ),
+          ],
+        ),
+        actions: [
+          if (!LoginController.to.isTrainer())
+            IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
         ],
       ),
-      actions: [
-        if (!LoginController.to.isTrainer())
-          IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
-      ],
-
       body: Column(
         children: [
           Expanded(

@@ -15,13 +15,13 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ProfileController.to;
     return SliverScaffold(
-      floating: false,
-      safeArea: false,
-      expandedHeight: 270.h,
-      collapsedTitle: controller.userData?.fullName ?? '',
-      appBarForegroundColor: Colors.white,
-      flexibleBackground: const ProfileFlexibleBackground(),
-
+      appBar: CustomSliverAppBar(
+        safeArea: false,
+        expandedHeight: 270.h,
+        collapsedTitle: controller.userData?.fullName ?? '',
+        foregroundColor: Colors.white,
+        flexibleBackground: const ProfileFlexibleBackground(),
+      ),
       slivers: _buildSlivers,
     );
   }

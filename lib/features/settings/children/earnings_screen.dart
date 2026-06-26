@@ -21,103 +21,103 @@ class _EarningsScreenState extends State<EarningsScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      floating: false,
-      appBarTitle: 'Earnings',
-      actions: [
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (details) async {
-            final selected = await MenuShowHelper.showCustomMenu(
-              context: context,
-              details: details,
-              options: ['Payout method', 'Invoices'],
-            );
-
-            if (selected == 'Payout method') {
-              debugPrint('Payout method selected');
-            } else if (selected == 'Invoices') {
-              Get.to(() => const InvoicesScreen());
-            }
-          },
-          child: Padding(
-            padding: EdgeInsets.only(right: 12.w),
-            child: Assets.icons.more.svg(height: 44.r,width: 44.r),
+      appBar: CustomSliverAppBar(
+        title: 'Earnings',
+        expandedHeight: 240.h,
+        flexibleChild: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CustomText(
+                  text: 'Available balance',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16.sp,
+                  color: AppColors.textSecondary,
+                  bottom: 8.h,
+                  top: 8.h,
+                ),
+              ),
+              Center(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 40.sp,
+                      fontFamily: FontFamily.figtree,
+                    ),
+                    text: '48.54',
+                    children: [
+                      TextSpan(
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20.sp,
+                        ),
+                        text: ' USD',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 24.h),
+              CustomContainer(
+                width: double.infinity,
+                radiusAll: 16.r,
+                color: Colors.white,
+                paddingAll: 18.r,
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontFamily: FontFamily.figtree,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16.sp,
+                    ),
+                    text: 'Pending balance ',
+                    children: [
+                      TextSpan(
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        text: ' 48.54',
+                      ),
+                      TextSpan(text: ' USD'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
-      expandedHeight: 240.h,
-      flexibleChild: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: CustomText(
-                text: 'Available balance',
-                fontWeight: FontWeight.w500,
-                fontSize: 16.sp,
-                color: AppColors.textSecondary,
-                bottom: 8.h,
-                top: 8.h,
-              ),
-            ),
-            Center(
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 40.sp,
-                    fontFamily: FontFamily.figtree,
-                  ),
-                  text: '48.54',
-                  children: [
-                    TextSpan(
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20.sp,
-                      ),
-                      text: ' USD',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 24.h),
-            CustomContainer(
-              width: double.infinity,
-              radiusAll: 16.r,
-              color: Colors.white,
-              paddingAll: 18.r,
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(
-                    fontFamily: FontFamily.figtree,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16.sp,
-                  ),
-                  text: 'Pending balance ',
-                  children: [
-                    TextSpan(
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      text: ' 48.54',
-                    ),
-                    TextSpan(text: ' USD'),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+        actions: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) async {
+              final selected = await MenuShowHelper.showCustomMenu(
+                context: context,
+                details: details,
+                options: ['Payout method', 'Invoices'],
+              );
 
-        slivers: _buildSlivers,
+              if (selected == 'Payout method') {
+                debugPrint('Payout method selected');
+              } else if (selected == 'Invoices') {
+                Get.to(() => const InvoicesScreen());
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(right: 12.w),
+              child: Assets.icons.more.svg(height: 44.r, width: 44.r),
+            ),
+          ),
+        ],
+      ),
+      slivers: _buildSlivers,
       bottomNavigationBar: CustomButton(
         onPressed: () {},
         label: 'Withdraw',

@@ -20,8 +20,9 @@ class ProfileInformationScreen extends StatelessWidget {
       final hasAccountInfo = StringFormat.hasAccountInfo(user);
 
       return SliverScaffold(
-        floating: false,
-        appBarTitle: 'Profile Information',
+        appBar: CustomSliverAppBar(
+          title: 'Profile Information',
+        ),
         slivers: (context) => [
           SizedBox(height: 16.h).asSliver,
           if (hasAccountInfo) ...[

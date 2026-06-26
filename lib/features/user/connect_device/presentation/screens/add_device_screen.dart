@@ -51,9 +51,10 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
       }
 
       return SliverScaffold(
-        floating: false,
-        appBarTitle: 'Add device',
-        backAction: () => _controller.cancelPairing(),
+        appBar: CustomSliverAppBar(
+          title: 'Add device',
+          backAction: () => _controller.cancelPairing(),
+        ),
         slivers: (context) => [
           SizedBox(height: 8.h).asSliver,
           AnimatedSwitcher(

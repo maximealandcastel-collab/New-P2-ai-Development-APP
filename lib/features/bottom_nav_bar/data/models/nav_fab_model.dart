@@ -28,7 +28,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Add exercise block',
           icon: Assets.icons.exercise.path,
-          onTap: () => Get.toNamed(AppRoute.createContentScreen),
+          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
         ),
       ];
 
@@ -36,12 +36,12 @@ class NavFabModel {
         NavFabModel(
           label: 'Find Trainer',
           icon: Assets.icons.person.path,
-          onTap: () => Get.toNamed(AppRoute.createContentScreen),
+          onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
         ),
         NavFabModel(
           label: 'Add exercise plan',
           icon: Assets.icons.exercise.path,
-          onTap: () => Get.toNamed(AppRoute.createContentScreen),
+          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
         ),
       ];
 }

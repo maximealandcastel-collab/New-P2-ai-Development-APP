@@ -19,45 +19,46 @@ class FindTrainerScreen extends StatelessWidget {
     final controller = SubscribeController.to;
 
     return SliverScaffold(
-      floating: false,
-      appBarTitle: 'Find trainer',
-      expandedHeight: 134.h,
-      flexiblePaddingTop: 16.h,
+      appBar: CustomSliverAppBar(
+        title: 'Find trainer',
+        expandedHeight: 134.h,
+        flexiblePaddingTop: 16.h,
+        flexibleChild: CustomSearchField(
+          readOnly: true,
+          onTap: () {
+            showSearch(
+              context: context,
+              delegate: SearchScreen(
+                onSearch: (String query) async {
+                  await controller.search.search(query);
+                  return controller.search.results
+                      .map(
+                        (trainer) => SearchModel(
+                          model: trainer,
+                          title: trainer.userId?.fullName,
+                          image: trainer.userId?.profilePicture,
+                          subtitle:
+                              trainer.subscriptionPrice?.premium.toString(),
+                        ),
+                      )
+                      .toList();
+                },
+                onResultTap: (result) {
+                  controller.search.clear();
+                  Get.toNamed(
+                    AppRoute.trainerProfileScreen,
+                    arguments: result.model.sId as String,
+                  );
+                },
+              ),
+            );
+          },
+          searchController: controller.searchController,
+          hintText: 'Search trainer by name or needs',
+        ),
+      ),
       scrollController: controller.scrollController,
       onRefresh: controller.refresh,
-      flexibleChild: CustomSearchField(
-        readOnly: true,
-        onTap: () {
-          showSearch(
-            context: context,
-            delegate: SearchScreen(
-              onSearch: (String query) async {
-                await controller.search.search(query);
-                return controller.search.results
-                    .map(
-                      (trainer) => SearchModel(
-                        model: trainer,
-                        title: trainer.userId?.fullName,
-                        image: trainer.userId?.profilePicture,
-                        subtitle:
-                            trainer.subscriptionPrice?.premium.toString(),
-                      ),
-                    )
-                    .toList();
-              },
-              onResultTap: (result) {
-                controller.search.clear();
-                Get.toNamed(
-                  AppRoute.trainerProfileScreen,
-                  arguments: result.model.sId as String,
-                );
-              },
-            ),
-          );
-        },
-        searchController: controller.searchController,
-        hintText: 'Search trainer by name or needs',
-      ),
       slivers: (BuildContext context) => [
         Obx(() {
           switch (controller.loadingState) {

@@ -17,7 +17,9 @@ class CategoryScreen extends StatelessWidget {
     final controller = CategoryController.to;
 
     return SliverScaffold(
-      appBarTitle: 'All category',
+      appBar: CustomSliverAppBar(
+        title: 'All category',
+      ),
       onRefresh: controller.fetchCategories,
       slivers: (context) => [
         CustomText(

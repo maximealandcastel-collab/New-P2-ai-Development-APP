@@ -17,7 +17,9 @@ class ManageDevicesScreen extends StatelessWidget {
     final controller = DevicePairingController.to;
 
     return SliverScaffold(
-      appBarTitle: 'Manage devices',
+      appBar: CustomSliverAppBar(
+        title: 'Manage devices',
+      ),
       onRefresh: controller.fetchPairedDevices,
       slivers: (context) => [
         Obx(() {

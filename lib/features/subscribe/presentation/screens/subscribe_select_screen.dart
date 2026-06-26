@@ -15,7 +15,9 @@ class SubscribeSelectScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = SubscribeController.to;
     return SliverScaffold(
-      appBarTitle:  'Subscribe',
+      appBar: CustomSliverAppBar(
+        title: 'Subscribe',
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(

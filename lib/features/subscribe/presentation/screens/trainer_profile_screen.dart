@@ -40,14 +40,15 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
       final userData = controller.trainerDetails;
 
       return SliverScaffold(
-        floating: false,
-        safeArea: false,
-        expandedHeight: 270.h,
-        collapsedTitle: isLoading ? '' : userData?.name ?? '',
-        appBarForegroundColor: Colors.white,
-        flexibleBackground: isLoading
-            ? TrainerProfileShimmer.headerShimmer()
-            : _buildHeader(userData),
+        appBar: CustomSliverAppBar(
+          safeArea: false,
+          expandedHeight: 270.h,
+          collapsedTitle: isLoading ? '' : userData?.name ?? '',
+          foregroundColor: Colors.white,
+          flexibleBackground: isLoading
+              ? TrainerProfileShimmer.headerShimmer()
+              : _buildHeader(userData),
+        ),
         slivers: isLoading
             ? (_) => TrainerProfileShimmer.contentSlivers()
             : _buildSlivers,
