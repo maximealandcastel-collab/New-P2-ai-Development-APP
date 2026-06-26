@@ -10,11 +10,9 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_i
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
-import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
@@ -49,17 +47,12 @@ class AppRoute {
   static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
   static String aiInstructionScreen = "/aiInstructionScreen";
   static String trainAiScreen = "/trainAiScreen";
-  static String workoutFinderFlow = "/workoutFinderFlow";
-  static String createExercisePlan = "/createExercisePlan";
-  static String createExercisePlan2 = "/createExercisePlan2";
-  static String paymentSuccessScreen = "/paymentSuccessScreen";
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
   static String bottonNavBar = "/bottonNavBar";
   static String findTrainerScreen = "/findTrainerScreen";
   static String trainerProfileScreen = "/trainerProfileScreen";
   static String settingsScreen = "/settingsScreen";
-  static String earningsScreen = "/earningsScreen";
   static String contentCategoryScreen = "/contentCategoryScreen";
   static String createCategoryScreen = "/createCategoryScreen";
   static String createContentScreen = "/createContentScreen";
@@ -102,9 +95,7 @@ class AppRoute {
     ),
     GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
-    GetPage(name: paymentSuccessScreen, page: () => PaymentSuccessScreen()),
     GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
-    GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
@@ -134,7 +125,6 @@ class AppRoute {
       }),
     ),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
-    GetPage(name: earningsScreen, page: () => EarningsScreen()),
     GetPage(name: contentCategoryScreen, page: () => CategoryScreen()),
     GetPage(name: createCategoryScreen, page: () => CreateCategoryScreen()),
     GetPage(
@@ -152,8 +142,6 @@ class AppRoute {
     GetPage(
       name: contentDetailsScreen,
       page: () => const ContentDetailsScreen(),
-      //transition: Transition.zoom,
-     // transitionDuration: const Duration(milliseconds: 320),
       binding: BindingsBuilder(() {
         Get.put<ContentDetailsController>(
           ContentDetailsController(content: Get.arguments as ContentModel),
