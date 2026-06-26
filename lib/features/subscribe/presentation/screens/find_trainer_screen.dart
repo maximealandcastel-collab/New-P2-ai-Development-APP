@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
@@ -34,71 +33,38 @@ class FindTrainerScreen extends StatelessWidget {
       onRefresh: controller.refresh,
       paginationList: controller.trainersList,
       bodyList: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 4.h),
-              child: Obx(() {
-                if (controller.loadingState != LoadingState.loaded) {
-                  return const SizedBox.shrink();
-                }
-
-                final count = controller.trainers.length;
-                return CustomText(
-                  textAlign: TextAlign.start,
-                  text: count == 0
-                      ? 'No trainers available right now'
-                      : '$count trainer${count == 1 ? '' : 's'} available',
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                );
-              }),
-            ),
-          ),
-          Obx(() {
-            switch (controller.loadingState) {
-              case LoadingState.initial:
-              case LoadingState.loading:
-                return SliverPadding(
-                  padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
-                  sliver: const SliverToBoxAdapter(child: FindTrainerShimmer()),
-                );
-              case LoadingState.offline:
-              case LoadingState.error:
-                return SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: EmptyDataWidget(
-                    message: 'Failed to load trainers. Please try again.',
-                    onRefresh: controller.refresh,
-                  ),
-                );
-              case LoadingState.loaded:
-                if (controller.trainers.isEmpty) {
-                  return SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: EmptyDataWidget(
-                      message: 'No trainers found.',
-                      onRefresh: controller.refresh,
-                    ),
+        Obx(() {
+          switch (controller.loadingState) {
+            case LoadingState.initial:
+            case LoadingState.loading:
+              return const FindTrainerShimmer().asSliverWithPadding(
+                padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
+              );
+            case LoadingState.offline:
+            case LoadingState.error:
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: EmptyDataWidget(
+                  message: 'Failed to load trainers. Please try again.',
+                  onRefresh: controller.refresh,
+                ),
+              );
+            case LoadingState.loaded:
+              return SliverList.separated(
+                itemCount: controller.trainers.length,
+                separatorBuilder: (_, _) => SizedBox(height: 10.h),
+                itemBuilder: (_, index) {
+                  return FindTrainerCard(
+                    trainer: controller.trainers[index],
                   );
-                }
-
-                return SliverPadding(
-                  padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
-                  sliver: SliverList.separated(
-                    itemCount: controller.trainers.length,
-                    separatorBuilder: (_, _) => SizedBox(height: 10.h),
-                    itemBuilder: (_, index) {
-                      return FindTrainerCard(
-                        trainer: controller.trainers[index],
-                      );
-                    },
-                  ),
-                );
-            }
-          }),
-          PaginationLoaderSliver(controller: controller),
-        ],
+                },
+              ).asPaddedSliver(
+                padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
+              );
+          }
+        }),
+        PaginationLoaderSliver(controller: controller),
+      ],
     );
   }
 
