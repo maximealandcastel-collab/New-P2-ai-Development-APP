@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
-import 'package:pler_to_pler_app/features/trainer/clients/presentation/widgets/client_card_widget.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class UserTrainerScreen extends StatelessWidget {

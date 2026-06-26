@@ -36,9 +36,6 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
-import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
-import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -165,9 +162,5 @@ class AppRoute {
       }),
     ),
     GetPage(name: chatScreen, page: () => ChatScreen()),
-
-    GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
-    GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
-    GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
   ];
 }
