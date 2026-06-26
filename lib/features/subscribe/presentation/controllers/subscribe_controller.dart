@@ -74,7 +74,6 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
       limit: 10,
       fetchPage: _fetchTrainersPage,
     );
-    trainersList.initScroll();
     search = SearchService(fetcher: _fetchSearch);
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();

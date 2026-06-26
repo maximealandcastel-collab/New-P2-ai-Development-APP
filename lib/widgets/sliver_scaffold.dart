@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/custom_sliver_app_bar.dart';
 import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
@@ -20,7 +21,7 @@ class SliverScaffold extends StatelessWidget {
     this.appBar,
     this.body,
     this.bodyList,
-    this.scrollController,
+    this.paginationList,
     this.floatingActionButton,
     this.bottomNavigationBar,
     this.endDrawer,
@@ -33,7 +34,7 @@ class SliverScaffold extends StatelessWidget {
   final CustomSliverAppBar? appBar;
   final Widget? body;
   final List<Widget>? bodyList;
-  final ScrollController? scrollController;
+  final PaginatedList<dynamic>? paginationList;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
   final Widget? endDrawer;
@@ -54,10 +55,17 @@ class SliverScaffold extends StatelessWidget {
     if (body != null) return body!;
 
     return CustomScrollView(
-      controller: scrollController,
       physics: _refreshablePhysics,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: bodyList!,
+    );
+  }
+
+  Widget _wrapPagination(Widget child) {
+    if (paginationList == null) return child;
+    return NotificationListener<ScrollNotification>(
+      onNotification: paginationList!.handleScrollNotification,
+      child: child,
     );
   }
 
@@ -101,7 +109,7 @@ class SliverScaffold extends StatelessWidget {
             if (appBar != null)
               appBar!.copyWith(innerBoxIsScrolled: innerBoxIsScrolled),
           ],
-          body: _wrapRefreshable(_buildBody(context)),
+          body: _wrapPagination(_wrapRefreshable(_buildBody(context))),
         ),
       ),
     );

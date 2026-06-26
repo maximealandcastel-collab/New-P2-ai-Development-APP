@@ -21,19 +21,18 @@ class FindTrainerScreen extends StatelessWidget {
 
     return SliverScaffold(
       appBar: CustomSliverAppBar(
+        expandedHeight: 134.h,
         title: 'Find trainer',
-        flexibleChild: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
-          child: CustomSearchField(
-            readOnly: true,
-            onTap: () => _openSearch(context, controller),
-            searchController: controller.searchController,
-            hintText: 'Search trainer by name or needs',
-          ),
+        flexiblePaddingTop: 16.h,
+        flexibleChild: CustomSearchField(
+          readOnly: true,
+          onTap: () => _openSearch(context, controller),
+          searchController: controller.searchController,
+          hintText: 'Search trainer by name or needs',
         ),
       ),
       onRefresh: controller.refresh,
-      scrollController: controller.scrollController,
+      paginationList: controller.trainersList,
       bodyList: [
           SliverToBoxAdapter(
             child: Padding(
