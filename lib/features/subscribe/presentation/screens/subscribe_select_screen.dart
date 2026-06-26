@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/promo_code_section.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_option_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -100,6 +101,8 @@ class SubscribeSelectScreen extends StatelessWidget {
             onTap: () => controller.selected = 1,
           ),
         ).asSliverWithPadding(horizontal: 20.w),
+        SizedBox(height: 14.h).asSliver,
+        const PromoCodeSection().asSliverWithPadding(horizontal: 20.w),
         SizedBox(height: 180.h).asSliver,
       ],
       bottomNavigationBar: Column(

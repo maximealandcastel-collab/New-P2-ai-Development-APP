@@ -28,16 +28,50 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
 
   final noteTEController = TextEditingController();
   final searchController = TextEditingController();
+  final promoCodeController = TextEditingController();
 
   final RxInt _selected = 0.obs;
   final RxInt _selectedIndex = 0.obs;
+  final RxBool _isPromoApplied = false.obs;
+  final RxBool _isApplyingPromo = false.obs;
+  final RxString _appliedPromoCode = ''.obs;
 
   int get selected => _selected.value;
   int get selectedIndex => _selectedIndex.value;
+  bool get isPromoApplied => _isPromoApplied.value;
+  bool get isApplyingPromo => _isApplyingPromo.value;
+  String get appliedPromoCode => _appliedPromoCode.value;
   set selected(int val) => _selected.value = val;
 
   void onChange(int index) {
     _selectedIndex.value = index;
+  }
+
+  Future<void> applyPromoCode({bool popOnSuccess = false}) async {
+    final code = promoCodeController.text.trim();
+    if (code.isEmpty) {
+      ToastMessageHelper.show('Please enter a promo code');
+      return;
+    }
+
+    try {
+      _isApplyingPromo.value = true;
+      // TODO: validate promo code via API when available.
+      _appliedPromoCode.value = code.toUpperCase();
+      _isPromoApplied.value = true;
+      ToastMessageHelper.show('Promo code applied successfully');
+      if (popOnSuccess && Get.currentRoute == AppRoute.promoCodeScreen) {
+        Get.back();
+      }
+    } finally {
+      _isApplyingPromo.value = false;
+    }
+  }
+
+  void removePromoCode() {
+    _isPromoApplied.value = false;
+    _appliedPromoCode.value = '';
+    promoCodeController.clear();
   }
 
   // ─── Loading States ───────────────────────────────────────────────────────
@@ -197,6 +231,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     trainersList.dispose();
     searchController.dispose();
     noteTEController.dispose();
+    promoCodeController.dispose();
     super.onClose();
   }
 }

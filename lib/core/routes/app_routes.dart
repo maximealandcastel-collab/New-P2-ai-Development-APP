@@ -23,6 +23,7 @@ import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_contr
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/promo_code_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
@@ -50,6 +51,7 @@ class AppRoute {
   static String trainAiScreen = "/trainAiScreen";
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
+  static String promoCodeScreen = "/promoCodeScreen";
   static String bottonNavBar = "/bottonNavBar";
   static String findTrainerScreen = "/findTrainerScreen";
   static String trainerProfileScreen = "/trainerProfileScreen";
@@ -99,6 +101,7 @@ class AppRoute {
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
     GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
+    GetPage(name: promoCodeScreen, page: () => const PromoCodeScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
