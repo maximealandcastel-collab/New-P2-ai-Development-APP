@@ -17,15 +17,48 @@ class SubscribeSelectScreen extends StatelessWidget {
 
     return SliverScaffold(
       appBar: CustomSliverAppBar(
-        title: 'Subscribe',
+        titleWidget: Row(
+          children: [
+            SizedBox(width: 16.w,),
+            Assets.images.logo.image(height: 48.h,width: 48.w),
+            SizedBox(width: 6.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(text: 'P2P Tech',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+
+                  CustomText(text: 'AI-Powered Training',
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
       bodyList: [
-        CustomText(
-          top: 8.h,
-          textAlign: TextAlign.start,
-          text: 'Unlock everything\nP2P Tech has to offer',
-          fontSize: 22.sp,
-          fontWeight: FontWeight.w600,
+        SizedBox(height: 16.h).asSliver,
+        Center(
+          child: RichText(
+            text: TextSpan(
+              text: 'Unlock Your ',
+              style: TextStyle(
+                fontSize: 24.sp,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+              children: [
+                TextSpan(
+                  style: TextStyle(color: AppColors.primary),
+                  text: 'Full Potential',
+                ),
+              ],
+            ),
+          ),
         ).asSliverWithPadding(horizontal: 20.w),
         CustomText(
           top: 8.h,
@@ -33,7 +66,6 @@ class SubscribeSelectScreen extends StatelessWidget {
               'Choose the plan that works best for you\nand start achieving your goals.',
           fontSize: 12.sp,
           color: AppColors.textSecondary,
-          textAlign: TextAlign.start,
         ).asSliverWithPadding(horizontal: 20.w),
         SizedBox(height: 24.h).asSliver,
         Obx(
