@@ -38,8 +38,13 @@ class ApiConstants {
   static String trainerBlocks(
     String trainerId,
     int page,
-    int limit) =>
-      '/api/v1/trainer/$trainerId/blocks?approvedOnly=true&page=$page&limit=$limit';
+    int limit, {
+    bool approvedOnly = true,
+  }) =>
+      '/api/v1/trainer/$trainerId/blocks?approvedOnly=$approvedOnly&page=$page&limit=$limit';
+
+  static String trainerBlocksGenerate(String trainerId) =>
+      '/api/v1/trainer/$trainerId/blocks/generate';
 
   /// CATEGORY ──────────────────────────────────────────────
   static const String categoryMy = '/api/v1/category/my';

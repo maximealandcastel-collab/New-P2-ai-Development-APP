@@ -64,4 +64,24 @@ class ExerciseBlockService {
       _repository.getCachedBlocks();
 
   bool hasCache() => _repository.hasCache();
+
+  Future<ExerciseBlockModel> generateBlock({
+    required String blockName,
+    required String category,
+    required int count,
+    required String context,
+  }) async {
+    final trainerId = await resolveTrainerId();
+    if (trainerId == null || trainerId.isEmpty) {
+      throw UnknownException('User ID not found');
+    }
+
+    return _repository.generateBlock(
+      trainerId: trainerId,
+      blockName: blockName,
+      category: category,
+      count: count,
+      context: context,
+    );
+  }
 }

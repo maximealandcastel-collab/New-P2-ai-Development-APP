@@ -27,6 +27,7 @@ class ExerciseBlockRepository {
           trainerId,
           page,
           limit,
+          approvedOnly: approvedOnly,
         ),
       );
 
@@ -82,6 +83,32 @@ class ExerciseBlockRepository {
       );
     }
     return response;
+  }
+
+  Future<ExerciseBlockModel> generateBlock({
+    required String trainerId,
+    required String blockName,
+    required String category,
+    required int count,
+    required String context,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        ApiConstants.trainerBlocksGenerate(trainerId),
+        data: {
+          'blockName': blockName,
+          'category': category,
+          'count': count,
+          'context': context,
+        },
+      );
+
+      return ExerciseBlockModel.fromJson(response.data['data']);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
   }
 
   bool hasCache() => _cacheService.containsKey(AppConstants.cacheExerciseBlocks);
