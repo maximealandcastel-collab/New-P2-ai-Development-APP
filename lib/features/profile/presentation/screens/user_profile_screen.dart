@@ -18,97 +18,89 @@ class UserProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ProfileController.to;
     return SliverScaffold(
-      floating: false,
-      safeArea: false,
-      expandedHeight: 270.h,
-      collapsedTitle: controller.userData?.fullName ?? '',
-      appBarForegroundColor: Colors.white,
-      flexibleBackground: const ProfileFlexibleBackground(),
+      appBar: CustomSliverAppBar(
+        safeArea: false,
+        expandedHeight: 270.h,
+        collapsedTitle: controller.userData?.fullName ?? '',
+        foregroundColor: Colors.black,
+        flexibleBackground: const ProfileFlexibleBackground(),
+      ),
+      bodyList: [
+        SizedBox(height: 20.h).asSliver,
 
-      slivers: _buildSlivers,
+        ContainerCard(
+          label: 'Account Management',
+          children: [
+            ListTileWidget(
+              label: 'Profile Information',
+              onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
+            ),
+            ListTileWidget(
+              label: 'Change Password',
+              onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
+            ),
+            ListTileWidget(
+              label: 'Manage devices',
+              onTap: () => Get.to(() => const ManageDevicesScreen()),
+            ),
+          ],
+        ).asSliverWithPadding(horizontal: 16.w),
+
+        SizedBox(height: 12.h).asSliver,
+
+        ContainerCard(
+          label: 'About',
+          sublabel: 'App version 1.58.7.1',
+          children: [
+            ListTileWidget(
+              label: 'Privacy Policy',
+              onTap: () => Get.to(
+                () => const PrivacyPolicyAllScreen(),
+                arguments: {'title': 'Privacy Policy', 'key': 'privacy'},
+              ),
+            ),
+            ListTileWidget(
+              label: 'Terms of Service',
+              onTap: () => Get.to(
+                () => const PrivacyPolicyAllScreen(),
+                arguments: {'title': 'Terms of Service', 'key': 'terms'},
+              ),
+            ),
+            ListTileWidget(
+              label: 'Logout',
+              onTap: () {
+                Get.dialog(
+                  ConfirmationDialog(
+                    icon: Icons.logout,
+                    title: 'You really want to logout',
+                    confirmLabel: 'Logout',
+                    onConfirm: LoginController.to.logout,
+                  ),
+                );
+              }, // Triggering the UI dialog
+            ),
+            ListTileWidget(
+              label: 'Delete my account',
+              onTap: () {
+                Get.dialog(
+                  ConfirmationDialog(
+                    icon: Icons.person_off,
+                    title: 'Delete your account?',
+                    description:
+                        'This action can not be undone and all your data will be wiped. Do you wish to continue?',
+                    confirmLabel: 'Delete account',
+                    isDeleteAction: true,
+                    showCancel: true,
+                    onConfirm: LoginController.to.deleteAccount,
+                  ),
+                );
+              },
+              isSpacer: false,
+              textColor: Colors.redAccent,
+            ),
+          ],
+        ).asSliverWithPadding(horizontal: 16.w),
+      ],
     );
   }
-
-  List<Widget> _buildSlivers(BuildContext context) => [
-    SizedBox(height: 20.h).asSliver,
-
-    ContainerCard(
-      label: 'Account Management',
-      children: [
-        ListTileWidget(
-          label: 'Profile Information',
-          onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
-        ),
-        ListTileWidget(
-          label: 'Change Password',
-          onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
-        ),
-        ListTileWidget(
-          label: 'Manage devices',
-          onTap: () => Get.to(() => const ManageDevicesScreen()),
-        ),
-      ],
-    ).asSliverWithPadding(horizontal: 16.w),
-
-    SizedBox(height: 12.h).asSliver,
-
-    ContainerCard(
-      label: 'About',
-      sublabel: 'App version 1.58.7.1',
-      children: [
-        ListTileWidget(
-          label: 'Privacy Policy',
-          onTap: () => Get.to(
-            () => const PrivacyPolicyAllScreen(),
-            arguments: {
-              'title': 'Privacy Policy',
-              'key': 'privacy',
-            },
-          ),
-        ),
-        ListTileWidget(
-          label: 'Terms of Service',
-          onTap: () => Get.to(
-            () => const PrivacyPolicyAllScreen(),
-            arguments: {
-              'title': 'Terms of Service',
-              'key': 'terms',
-            },
-          ),
-        ),
-        ListTileWidget(
-          label: 'Logout',
-          onTap: () {
-            Get.dialog(
-              ConfirmationDialog(
-                icon: Icons.logout,
-                title: 'You really want to logout',
-                confirmLabel: 'Logout',
-                onConfirm: LoginController.to.logout,
-              ),
-            );
-          }, // Triggering the UI dialog
-        ),
-        ListTileWidget(
-          label: 'Delete my account',
-          onTap: () {
-            Get.dialog(
-              ConfirmationDialog(
-                icon: Icons.person_off,
-                title: 'Delete your account?',
-                description:
-                    'This action can not be undone and all your data will be wiped. Do you wish to continue?',
-                confirmLabel: 'Delete account',
-                isDeleteAction: true,
-                showCancel: true,
-                onConfirm: LoginController.to.deleteAccount,
-              ),
-            );
-          },
-          isSpacer: false,
-          textColor: Colors.redAccent,
-        ),
-      ],
-    ).asSliverWithPadding(horizontal: 16.w),
-  ];
 }

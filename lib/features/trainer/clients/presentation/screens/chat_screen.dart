@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
@@ -35,39 +34,39 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      centerTitle: false,
-      titleWidget: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomText(
-            left: 8.w,
-            textAlign: TextAlign.start,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            text: 'John Adams',
-          ),
-          CustomText(
-            left: 8.w,
-            fontSize: 12.sp,
-            textAlign: TextAlign.start,
-            color: AppColors.textSecondary,
-            text: 'Active now',
-          ),
+      appBar: CustomSliverAppBar(
+        centerTitle: false,
+        titleWidget: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomText(
+              left: 8.w,
+              textAlign: TextAlign.start,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              text: 'John Adams',
+            ),
+            CustomText(
+              left: 8.w,
+              fontSize: 12.sp,
+              textAlign: TextAlign.start,
+              color: AppColors.textSecondary,
+              text: 'Active now',
+            ),
+          ],
+        ),
+        actions: [
+          if (!LoginController.to.isTrainer())
+            IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
         ],
       ),
-      actions: [
-        if (!LoginController.to.isTrainer())
-          IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
-      ],
-
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-              itemCount: _dummyMessages.length,
-              itemBuilder: (context, index) {
+      bodyList: [
+        SliverPadding(
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
                 final message = _dummyMessages[index];
                 return ChatBubbleMessage(
                   text: message["text"],
@@ -75,52 +74,49 @@ class _ChatScreenState extends State<ChatScreen> {
                   isMe: message["isMe"],
                 );
               },
+              childCount: _dummyMessages.length,
             ),
           ),
-          _buildMessageSender(),
-        ],
-
-      ),
+        ),
+      ],
+      bottomNavigationBar: _buildMessageSender(),
     );
   }
 
   Widget _buildMessageSender() {
-    return SafeArea(
-      top: false,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
-                validator: (_) => null,
-                controller: _messageController,
-                hintText: 'Type message...',
-              ),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: CustomTextField(
+              validator: (_) => null,
+              controller: _messageController,
+              hintText: 'Type message...',
             ),
-            SizedBox(width: 10.w),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                if (_messageController.text.isNotEmpty) {
-                  setState(() {
-                    _dummyMessages.add({
-                      "text": _messageController.text,
-                      "time": "Now",
-                      "isMe": true,
-                    });
+          ),
+          SizedBox(width: 10.w),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (_messageController.text.isNotEmpty) {
+                setState(() {
+                  _dummyMessages.add({
+                    "text": _messageController.text,
+                    "time": "Now",
+                    "isMe": true,
                   });
-                  _messageController.clear();
-                }
-              },
-              child: Padding(
-                padding:  EdgeInsets.only(bottom: 7.h),
-                child: Assets.icons.send.svg(),
-              ),
+                });
+                _messageController.clear();
+              }
+            },
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 7.h),
+              child: Assets.icons.send.svg(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

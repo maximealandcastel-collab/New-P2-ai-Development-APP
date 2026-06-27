@@ -24,7 +24,7 @@ class TimeFormatHelper {
   }
 
 
-  static timeWithAMPM( DateTime time){
+  static String timeWithAMPM( DateTime time){
     // DateTime parsedTime = DateFormat('HH:mm:ss').parse(time);
 
     String formattedTime = DateFormat('h:mm a').format(time.add(const Duration(hours: 6)));

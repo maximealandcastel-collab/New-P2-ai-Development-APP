@@ -17,9 +17,11 @@ class ManageDevicesScreen extends StatelessWidget {
     final controller = DevicePairingController.to;
 
     return SliverScaffold(
-      appBarTitle: 'Manage devices',
+      appBar: CustomSliverAppBar(
+        title: 'Manage devices',
+      ),
       onRefresh: controller.fetchPairedDevices,
-      slivers: (context) => [
+      bodyList: [
         Obx(() {
           switch (controller.loadingState) {
             case LoadingState.initial:
@@ -38,6 +40,7 @@ class ManageDevicesScreen extends StatelessWidget {
               return _buildDeviceSliver(controller);
           }
         }),
+        SizedBox(height: 120.h).asSliver,
       ],
       bottomNavigationBar: Obx(() {
         if (controller.loadingState != LoadingState.loaded || controller.isEmpty) {

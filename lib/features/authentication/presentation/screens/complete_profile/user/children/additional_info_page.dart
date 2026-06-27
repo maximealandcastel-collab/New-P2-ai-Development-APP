@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -32,7 +32,7 @@ class AdditionalInfoPage extends StatelessWidget {
           labelText: 'Motivation style',
           hintText: 'Select motivation (e.g. balanced)',
           controller: controller.motivationStyleController,
-          options: MenuShowHelper.motivationStyleDisplayOptions,
+          options: HelperData.motivationStyleDisplayOptions,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Please select your motivation style';

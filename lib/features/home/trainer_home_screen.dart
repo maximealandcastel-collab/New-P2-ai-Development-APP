@@ -15,100 +15,108 @@ class TrainerHomeScreen extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         const FeedAppBarSliver(),
-        Column(
-          children: [
-            SizedBox(height: 18.h),
-            CustomContainer(
-              radiusAll: 16.r,
-              paddingAll: 14.r,
-              width: double.infinity,
-              color: Colors.white,
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16.sp,
-                    bottom: 12.h,
-                    text: 'Client Overview',
-                  ),
-
-                  GridView.count(
-                    padding: EdgeInsets.zero,
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10.w,
-                    mainAxisSpacing: 10.h,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 151.w / 112.h,
-                    children: [
-                      _buildClientOverviewCard(
-                        icon: Assets.icons.clients.path,
-                        label: 'Active Clients',
-                        point: '22',
-                      ),
-                      _buildClientOverviewCard(
-                        icon: Assets.icons.star.path,
-                        label: 'New this week',
-                        point: '3',
-                      ),
-                      _buildClientOverviewCard(
-                        icon: Assets.icons.attention.path,
-                        label: 'Need Attention',
-                        point: '4',
-                      ),
-                      _buildClientOverviewCard(
-                        icon: Assets.icons.missing.path,
-                        label: 'Missed session',
-                        point: '4',
-                      ),
-                    ],
-                  ),                ],
-              ),
-            ),
-
-            SizedBox(height: 8.h),
-            CustomContainer(
-              radiusAll: 16.r,
-              paddingAll: 16.r,
-              width: double.infinity,
-              color: Colors.white,
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CustomText(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16.sp,
-                        text: 'Today’s Sessions (4)',
-                      ),
-                      CustomText(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16.sp,
-                        text: 'View all',
-                      ),
-                    ],
-                  ),
-
-                  ListView.builder(
-                    padding: EdgeInsets.zero,
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: 2,
-                    itemBuilder: (context, index) {
-                      return SessionsCardWidget();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ).asSliverWithPadding(horizontal: 16.w)
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 130.h),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildClientOverviewSection(),
+              SizedBox(height: 8.h),
+              _buildTodaySessionsSection(),
+            ]),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildClientOverviewSection() {
+    return CustomContainer(
+      radiusAll: 16.r,
+      paddingAll: 14.r,
+      width: double.infinity,
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            fontWeight: FontWeight.w600,
+            fontSize: 16.sp,
+            bottom: 12.h,
+            text: 'Client Overview',
+          ),
+          GridView.count(
+            padding: EdgeInsets.zero,
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.w,
+            mainAxisSpacing: 10.h,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 151.w / 112.h,
+            children: [
+              _buildClientOverviewCard(
+                icon: Assets.icons.clients.path,
+                label: 'Active Clients',
+                point: '22',
+              ),
+              _buildClientOverviewCard(
+                icon: Assets.icons.star.path,
+                label: 'New this week',
+                point: '3',
+              ),
+              _buildClientOverviewCard(
+                icon: Assets.icons.attention.path,
+                label: 'Need Attention',
+                point: '4',
+              ),
+              _buildClientOverviewCard(
+                icon: Assets.icons.missing.path,
+                label: 'Missed session',
+                point: '4',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTodaySessionsSection() {
+    return CustomContainer(
+      radiusAll: 16.r,
+      paddingAll: 16.r,
+      width: double.infinity,
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CustomText(
+                fontWeight: FontWeight.w600,
+                fontSize: 16.sp,
+                text: 'Today’s Sessions (4)',
+              ),
+              CustomText(
+                fontWeight: FontWeight.w600,
+                fontSize: 16.sp,
+                text: 'View all',
+              ),
+            ],
+          ),
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              return SessionsCardWidget();
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -121,7 +129,7 @@ class TrainerHomeScreen extends StatelessWidget {
       radiusAll: 12.r,
       paddingAll: 10.r,
       alignment: Alignment.centerLeft,
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -22,8 +22,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      appBarTitle: 'Settings',
-      slivers: _buildSlivers,
+      appBar: CustomSliverAppBar(
+        title: 'Settings',
+      ),
+      bodyList: _buildSlivers(context),
     );
   }
 

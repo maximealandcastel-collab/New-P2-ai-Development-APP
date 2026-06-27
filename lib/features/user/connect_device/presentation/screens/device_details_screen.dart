@@ -65,10 +65,11 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
     final controller = _controller;
 
     return SliverScaffold(
-      floating: false,
-      appBarTitle: 'Device details',
+      appBar: CustomSliverAppBar(
+        title: 'Device details',
+      ),
       onRefresh: controller.reloadDetails,
-      slivers: (context) => [
+      bodyList: [
         Obx(() {
           final currentDevice = controller.device;
           final watchType =
@@ -100,6 +101,7 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
             ],
           ).asSliverWithPadding(horizontal: 16.w);
         }),
+        SizedBox(height: 120.h).asSliver,
       ],
       bottomNavigationBar: Obx(() {
         final currentDevice = controller.device;

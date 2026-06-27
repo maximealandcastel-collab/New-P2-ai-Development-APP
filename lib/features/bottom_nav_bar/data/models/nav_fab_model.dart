@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
-import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 
 class NavFabModel {
   final String icon;
@@ -30,7 +28,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Add exercise block',
           icon: Assets.icons.exercise.path,
-          onTap: () => Get.to(() => const CreateExercisePlanScreen()),
+          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
         ),
       ];
 
@@ -38,12 +36,12 @@ class NavFabModel {
         NavFabModel(
           label: 'Find Trainer',
           icon: Assets.icons.person.path,
-          onTap: () => Get.to(() => const FindTrainerScreen()),
+          onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
         ),
         NavFabModel(
           label: 'Add exercise plan',
           icon: Assets.icons.exercise.path,
-          onTap: () => Get.to(() => const CreateExercisePlanScreen()),
+          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
         ),
       ];
 }

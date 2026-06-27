@@ -28,16 +28,50 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
 
   final noteTEController = TextEditingController();
   final searchController = TextEditingController();
+  final promoCodeController = TextEditingController();
 
   final RxInt _selected = 0.obs;
   final RxInt _selectedIndex = 0.obs;
+  final RxBool _isPromoApplied = false.obs;
+  final RxBool _isApplyingPromo = false.obs;
+  final RxString _appliedPromoCode = ''.obs;
 
   int get selected => _selected.value;
   int get selectedIndex => _selectedIndex.value;
+  bool get isPromoApplied => _isPromoApplied.value;
+  bool get isApplyingPromo => _isApplyingPromo.value;
+  String get appliedPromoCode => _appliedPromoCode.value;
   set selected(int val) => _selected.value = val;
 
   void onChange(int index) {
     _selectedIndex.value = index;
+  }
+
+  Future<void> applyPromoCode({bool popOnSuccess = false}) async {
+    final code = promoCodeController.text.trim();
+    if (code.isEmpty) {
+      ToastMessageHelper.show('Please enter a promo code');
+      return;
+    }
+
+    try {
+      _isApplyingPromo.value = true;
+      // TODO: validate promo code via API when available.
+      _appliedPromoCode.value = code.toUpperCase();
+      _isPromoApplied.value = true;
+      ToastMessageHelper.show('Promo code applied successfully');
+      if (popOnSuccess && Get.currentRoute == AppRoute.promoCodeScreen) {
+        Get.back();
+      }
+    } finally {
+      _isApplyingPromo.value = false;
+    }
+  }
+
+  void removePromoCode() {
+    _isPromoApplied.value = false;
+    _appliedPromoCode.value = '';
+    promoCodeController.clear();
   }
 
   // ─── Loading States ───────────────────────────────────────────────────────
@@ -74,7 +108,6 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
       limit: 10,
       fetchPage: _fetchTrainersPage,
     );
-    trainersList.initScroll();
     search = SearchService(fetcher: _fetchSearch);
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();
@@ -93,20 +126,22 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   // ─── Poll List ────────────────────────────────────────────────────────────
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
-      final hasCache = _service.hasCache();
+      final cached = _service.getCachedTrainers();
+      final hasUsableCache = cached.isNotEmpty;
       final isOnline = _connectivityService.isConnected.value;
 
       if (showFullLoader) {
-        if (hasCache) {
-          trainersList.items.value = _service.getCachedTrainers();
+        if (hasUsableCache) {
+          trainersList.items.value = cached;
           _loadingState.value = LoadingState.loaded;
         } else {
+          trainersList.items.clear();
           _loadingState.value = LoadingState.loading;
         }
       }
 
       if (!isOnline) {
-        if (!hasCache) _loadingState.value = LoadingState.offline;
+        if (!hasUsableCache) _loadingState.value = LoadingState.offline;
         return;
       }
 
@@ -114,12 +149,13 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         await trainersList.loadFirst();
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
-        if (!hasCache) _loadingState.value = LoadingState.error;
+        if (!hasUsableCache) _loadingState.value = LoadingState.error;
         if (kDebugMode) debugPrint('Fetch error: $e');
       }
     } catch (e) {
-      if (_service.hasCache()) {
-        trainersList.items.value = _service.getCachedTrainers();
+      final cached = _service.getCachedTrainers();
+      if (cached.isNotEmpty) {
+        trainersList.items.value = cached;
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.error;
@@ -195,6 +231,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     trainersList.dispose();
     searchController.dispose();
     noteTEController.dispose();
+    promoCodeController.dispose();
     super.onClose();
   }
 }

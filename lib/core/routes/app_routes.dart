@@ -10,11 +10,9 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_i
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
-import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
@@ -25,6 +23,7 @@ import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_contr
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/promo_code_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
@@ -36,9 +35,8 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
-import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
-import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -52,17 +50,13 @@ class AppRoute {
   static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
   static String aiInstructionScreen = "/aiInstructionScreen";
   static String trainAiScreen = "/trainAiScreen";
-  static String workoutFinderFlow = "/workoutFinderFlow";
-  static String createExercisePlan = "/createExercisePlan";
-  static String createExercisePlan2 = "/createExercisePlan2";
-  static String paymentSuccessScreen = "/paymentSuccessScreen";
   static String trainerUpgradeScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
+  static String promoCodeScreen = "/promoCodeScreen";
   static String bottonNavBar = "/bottonNavBar";
   static String findTrainerScreen = "/findTrainerScreen";
   static String trainerProfileScreen = "/trainerProfileScreen";
   static String settingsScreen = "/settingsScreen";
-  static String earningsScreen = "/earningsScreen";
   static String contentCategoryScreen = "/contentCategoryScreen";
   static String createCategoryScreen = "/createCategoryScreen";
   static String createContentScreen = "/createContentScreen";
@@ -74,6 +68,8 @@ class AppRoute {
   static String profileInformationScreen = "/profileInformationScreen";
   static String editPersonalInfoScreen = "/editPersonalInfoScreen";
   static String editFitnessInfoScreen = "/editFitnessInfoScreen";
+  static String exerciseBlockScreen = "/exerciseBlockScreen";
+  static String generateExerciseBlockScreen = "/generateExerciseBlockScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -95,20 +91,28 @@ class AppRoute {
     GetPage(name: forgotScreen, page: () => ForgotScreen()),
     GetPage(name: otpVerificationScreen, page: () => OtpVerificationScreen()),
     GetPage(name: resetPasswordScreen, page: () => ResetPasswordScreen()),
-    GetPage(name: userCompleteProfileScreen, page: () => UserCompleteProfileScreen()),
-    GetPage(name: trainerCompleteProfileScreen, page: () => TrainerCompleteProfileScreen()),
+    GetPage(
+      name: userCompleteProfileScreen,
+      page: () => UserCompleteProfileScreen(),
+    ),
+    GetPage(
+      name: trainerCompleteProfileScreen,
+      page: () => TrainerCompleteProfileScreen(),
+    ),
     GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
-    GetPage(name: paymentSuccessScreen, page: () => PaymentSuccessScreen()),
     GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
-    GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
+    GetPage(name: promoCodeScreen, page: () => const PromoCodeScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
-    GetPage(name: changePasswordScreen, page: () => const ChangePasswordScreen()),
+    GetPage(
+      name: changePasswordScreen,
+      page: () => const ChangePasswordScreen(),
+    ),
     GetPage(
       name: profileInformationScreen,
       page: () => const ProfileInformationScreen(),
@@ -128,7 +132,6 @@ class AppRoute {
       }),
     ),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
-    GetPage(name: earningsScreen, page: () => EarningsScreen()),
     GetPage(name: contentCategoryScreen, page: () => CategoryScreen()),
     GetPage(name: createCategoryScreen, page: () => CreateCategoryScreen()),
     GetPage(
@@ -146,8 +149,6 @@ class AppRoute {
     GetPage(
       name: contentDetailsScreen,
       page: () => const ContentDetailsScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 320),
       binding: BindingsBuilder(() {
         Get.put<ContentDetailsController>(
           ContentDetailsController(content: Get.arguments as ContentModel),
@@ -156,9 +157,10 @@ class AppRoute {
       }),
     ),
     GetPage(name: chatScreen, page: () => ChatScreen()),
-
-    GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
-    GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
-    GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
+    GetPage(name: exerciseBlockScreen, page: () => ExerciseBlockScreen()),
+    GetPage(
+      name: generateExerciseBlockScreen,
+      page: () => const GenerateExerciseBlockScreen(),
+    ),
   ];
 }

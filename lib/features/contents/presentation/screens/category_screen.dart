@@ -17,9 +17,11 @@ class CategoryScreen extends StatelessWidget {
     final controller = CategoryController.to;
 
     return SliverScaffold(
-      appBarTitle: 'All category',
+      appBar: CustomSliverAppBar(
+        title: 'All category',
+      ),
       onRefresh: controller.fetchCategories,
-      slivers: (context) => [
+      bodyList: [
         CustomText(
           left: 16.w,
           bottom: 12.h,
@@ -40,6 +42,12 @@ class CategoryScreen extends StatelessWidget {
                 onRefresh: controller.fetchCategories,
               ).asSliver;
             case LoadingState.loaded:
+              if (controller.categories.isEmpty) {
+                return EmptyDataWidget(
+                  message: 'Category not found',
+                  onRefresh: controller.fetchCategories,
+                ).asSliver;
+              }
               return SliverList.separated(
                 itemCount: controller.categories.length,
                 itemBuilder: (_, index) {

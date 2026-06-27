@@ -36,8 +36,10 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      appBarTitle: _isEditMode ? 'Edit category' : 'Add category',
-      slivers: (context) => [
+      appBar: CustomSliverAppBar(
+        title: _isEditMode ? 'Edit category' : 'Add category',
+      ),
+      bodyList: [
         SizedBox(height: 24.h).asSliver,
         Form(
           key: _formKey,
@@ -75,7 +77,7 @@ class _CreateCategoryScreenState extends State<CreateCategoryScreen> {
             ],
           ),
         ).asSliverWithPadding(horizontal: 16.w),
-        SizedBox(height: 70.h).asSliver,
+        SizedBox(height: 120.h).asSliver,
       ],
       bottomNavigationBar: Obx(
         () => CustomButton(

@@ -44,6 +44,8 @@ class PaginatedList<T> {
   final RxBool isRefreshing = false.obs;
 
   ScrollController? scrollController;
+  ScrollPosition? _scrollPosition;
+  bool _ownsScrollController = false;
   int _page = 1;
   bool _suppressAutoLoadMore = false;
 
@@ -57,14 +59,35 @@ class PaginatedList<T> {
       isLoadingMore.value && !isRefreshing.value;
 
   void initScroll() {
-    scrollController?.dispose();
+    scrollController?.removeListener(_onScroll);
+    if (_ownsScrollController) scrollController?.dispose();
     scrollController = ScrollController()..addListener(_onScroll);
+    _ownsScrollController = true;
+  }
+
+  /// [NestedScrollView] / [SliverScaffold] body-te use korar jonno.
+  bool handleScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+
+    final metrics = notification.metrics;
+    if (metrics is ScrollPosition) _scrollPosition = metrics;
+
+    if (!canLoadMore) return false;
+    if (!metrics.hasContentDimensions || metrics.maxScrollExtent <= 0) {
+      return false;
+    }
+
+    if (metrics.pixels >= metrics.maxScrollExtent - scrollThreshold) {
+      _loadMore();
+    }
+    return false;
   }
 
   void dispose() {
     scrollController?.removeListener(_onScroll);
-    scrollController?.dispose();
+    if (_ownsScrollController) scrollController?.dispose();
     scrollController = null;
+    _ownsScrollController = false;
   }
 
   Future<void> loadFirst() async {
@@ -155,13 +178,21 @@ class PaginatedList<T> {
 
   void _jumpToTop() {
     final controller = scrollController;
-    if (controller == null || !controller.hasClients) return;
+    if (controller != null && controller.hasClients) {
+      try {
+        if (controller.offset != 0) controller.jumpTo(0);
+      } catch (_) {}
+      return;
+    }
 
-    try {
-      if (controller.offset != 0) {
-        controller.jumpTo(0);
-      }
-    } catch (_) {}
+    final position = _scrollPosition;
+    if (position != null &&
+        position.hasPixels &&
+        position.hasContentDimensions) {
+      try {
+        if (position.pixels != 0) position.jumpTo(0);
+      } catch (_) {}
+    }
   }
 
   void _scheduleJumpToTop() {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
@@ -37,7 +37,7 @@ class ContentMuscleDifficultyPage extends StatelessWidget {
           controller: controller.difficultyController,
           labelText: 'Difficulty',
           hintText: 'Select difficulty',
-          options: MenuShowHelper.contentDifficultyOptions
+          options: HelperData.contentDifficultyOptions
               .map(StringFormat.formatLabel)
               .toList(),
           onSelected: (display) {

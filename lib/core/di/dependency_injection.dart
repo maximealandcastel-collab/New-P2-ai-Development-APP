@@ -30,6 +30,9 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cont
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/repositories/exercise_block_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/apple_watch_service.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
@@ -198,6 +201,29 @@ class DependencyInjection {
     Get.lazyPut<CategoryController>(
       () => CategoryController(
         service: Get.find<CategoryService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Exercise Block
+    Get.lazyPut<ExerciseBlockRepository>(
+      () => ExerciseBlockRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ExerciseBlockService>(
+      () => ExerciseBlockService(
+        repository: Get.find<ExerciseBlockRepository>(),
+        profileService: Get.find<ProfileService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ExerciseBlockController>(
+      () => ExerciseBlockController(
+        service: Get.find<ExerciseBlockService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,

@@ -19,23 +19,24 @@ class ContentDetailsScreen extends StatelessWidget {
     final videoHeight = 1.sw * 9 / 16;
 
     final page = SliverScaffold(
-      floating: false,
-      pinned: true,
-      safeArea: false,
-      centerTitle: false,
-      expandedHeight: videoHeight + kToolbarHeight,
-      collapsedTitle: content.title ?? 'Content details',
-      collapsedTitleColor: AppColors.textPrimary,
-      appBarForegroundColor: AppColors.textPrimary,
-      backAction: Get.back,
-      flexibleBackground: ContentVideoHeader(
-        content: content,
-        controller: controller,
+      appBar: CustomSliverAppBar(
+        pinned: true,
+        safeArea: false,
+        centerTitle: false,
+        expandedHeight: videoHeight + kToolbarHeight,
+        collapsedTitle: content.title ?? 'Content details',
+        collapsedTitleColor: AppColors.textPrimary,
+        foregroundColor: AppColors.textPrimary,
+        backAction: Get.back,
+        flexibleBackground: ContentVideoHeader(
+          content: content,
+          controller: controller,
+        ),
       ),
-      slivers: (context) => [
-        ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
-        SizedBox(height: 24.h).asSliver,
-      ],
+      bodyList: [
+          ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
+          SizedBox(height: 24.h).asSliver,
+        ],
     );
 
     return PiPSwitcher(
