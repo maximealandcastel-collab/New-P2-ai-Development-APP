@@ -106,6 +106,14 @@ class ExerciseBlockService {
     );
   }
 
+  Future<ExerciseBlockModel> fetchBlockById(String blockId) async {
+    if (blockId.isEmpty) {
+      throw UnknownException('Block ID not found');
+    }
+
+    return _repository.getBlockById(blockId: blockId);
+  }
+
   Future<void> deleteBlock(String blockId) async {
     final trainerId = await resolveTrainerId();
     if (trainerId == null || trainerId.isEmpty) {

@@ -9,17 +9,20 @@ class ExerciseBlockCard extends StatelessWidget {
   const ExerciseBlockCard({
     super.key,
     required this.block,
+    this.onTap,
     this.onEdit,
     this.onDelete,
   });
 
   final ExerciseBlockModel block;
+  final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
+      onTap: onTap,
       width: double.infinity,
       paddingAll: 16.r,
       radiusAll: 16.r,

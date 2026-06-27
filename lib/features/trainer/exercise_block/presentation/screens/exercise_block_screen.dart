@@ -132,6 +132,7 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
                     final block = controller.blocks[index];
                     return ExerciseBlockCard(
                       block: block,
+                      onTap: () => controller.onBlockTap(block),
                       onEdit: () => controller.onEditBlock(block),
                       onDelete: () => _onDeleteBlock(block),
                     );

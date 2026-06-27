@@ -52,6 +52,8 @@ class ApiConstants {
   static String trainerBlockById(String trainerId, String blockId) =>
       '/api/v1/trainer/$trainerId/blocks/$blockId';
 
+  static String blockById(String blockId) => '/api/v1/block/$blockId';
+
   /// CATEGORY ──────────────────────────────────────────────
   static const String categoryMy = '/api/v1/category/my';
   static const String categoryCreate = '/api/v1/category/create';

@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
 
 class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
@@ -104,6 +105,16 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
 
   void onEditBlock(ExerciseBlockModel block) {
     ToastMessageHelper.show('Edit ${block.title}');
+  }
+
+  void onBlockTap(ExerciseBlockModel block) {
+    final blockId = block.id;
+    if (blockId == null || blockId.isEmpty) return;
+
+    Get.toNamed(
+      AppRoute.exerciseBlockDetailsScreen,
+      arguments: block,
+    );
   }
 
   Future<void> deleteBlock(String blockId) async {

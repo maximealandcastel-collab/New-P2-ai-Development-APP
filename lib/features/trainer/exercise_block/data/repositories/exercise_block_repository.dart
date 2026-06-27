@@ -144,6 +144,22 @@ class ExerciseBlockRepository {
     }
   }
 
+  Future<ExerciseBlockModel> getBlockById({
+    required String blockId,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.blockById(blockId),
+      );
+
+      return ExerciseBlockModel.fromJson(response.data['data']);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> deleteBlock({
     required String trainerId,
     required String blockId,

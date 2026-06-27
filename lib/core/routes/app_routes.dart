@@ -35,10 +35,14 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_steps_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_substitutions_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_details_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_details_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 
@@ -78,6 +82,7 @@ class AppRoute {
   static String addExerciseScreen = "/addExerciseScreen";
   static String addExerciseStepsScreen = "/addExerciseStepsScreen";
   static String addExerciseSubstitutionsScreen = "/addExerciseSubstitutionsScreen";
+  static String exerciseBlockDetailsScreen = "/exerciseBlockDetailsScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -185,6 +190,21 @@ class AppRoute {
     GetPage(
       name: addExerciseSubstitutionsScreen,
       page: () => const AddExerciseSubstitutionsScreen(),
+    ),
+    GetPage(
+      name: exerciseBlockDetailsScreen,
+      page: () => const ExerciseBlockDetailsScreen(),
+      binding: BindingsBuilder(() {
+        final preview = Get.arguments as ExerciseBlockModel;
+        Get.put<ExerciseBlockDetailsController>(
+          ExerciseBlockDetailsController(
+            blockId: preview.id ?? '',
+            previewBlock: preview,
+            service: Get.find<ExerciseBlockService>(),
+          ),
+          permanent: false,
+        );
+      }),
     ),
   ];
 }
