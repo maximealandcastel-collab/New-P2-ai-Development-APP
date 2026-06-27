@@ -11,8 +11,6 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final exerciseCount = block.exercises?.length ?? 0;
-
     return CustomContainer(
       color: Colors.white,
       radiusAll: 16.r,
@@ -22,16 +20,6 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: [
-              _primaryChip(block.categoryLabel),
-              _primaryChip('$exerciseCount exercises'),
-              if (block.isAiGenerated == true) _primaryChip('AI generated'),
-            ],
-          ),
-          SizedBox(height: 14.h),
           CustomText(
             text: block.title,
             fontWeight: FontWeight.w700,
@@ -74,23 +62,6 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
             textAlign: TextAlign.start,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _primaryChip(String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(999.r),
-      ),
-      child: CustomText(
-        text: label,
-        fontSize: 12.sp,
-        fontWeight: FontWeight.w600,
-        color: AppColors.primary,
-        textAlign: TextAlign.start,
       ),
     );
   }

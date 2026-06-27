@@ -42,7 +42,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: _isExpanded
-                ? AppColors.primary.withValues(alpha: 0.4)
+                ? AppColors.primary.withValues(alpha: 0.1)
                 : AppColors.colorE6E6E6,
           ),
         ),
@@ -105,7 +105,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
               ? Icons.keyboard_arrow_up_rounded
               : Icons.keyboard_arrow_down_rounded,
           size: 22.sp,
-          color: _isExpanded ? AppColors.primary : AppColors.textSecondary,
+          color: _isExpanded ? AppColors.textPrimary : AppColors.textSecondary,
         ),
       ],
     );
@@ -117,14 +117,14 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
       height: 28.r,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.12),
+        color: AppColors.textPrimary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: CustomText(
         text: '${widget.index}',
         fontSize: 12.sp,
         fontWeight: FontWeight.w700,
-        color: AppColors.primary,
+        color: AppColors.textPrimary,
         textAlign: TextAlign.center,
       ),
     );

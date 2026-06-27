@@ -21,7 +21,12 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
         SizedBox(height: 12.h),
         ExerciseBlockDetailsInfo(block: block),
         SizedBox(height: 22.h),
-        _buildSectionHeader(exercises.length),
+        CustomText(
+          text: 'Exercises (${exercises.length})',
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w700,
+          textAlign: TextAlign.start,
+        ),
         SizedBox(height: 12.h),
         if (exercises.isEmpty)
           const EmptyDataWidget(message: 'No exercises in this block.')
@@ -33,47 +38,6 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
                   exercise: entry.value,
                 ),
               ),
-      ],
-    );
-  }
-
-  Widget _buildSectionHeader(int count) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomText(
-                text: 'Exercise list',
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                textAlign: TextAlign.start,
-              ),
-              CustomText(
-                top: 2.h,
-                text: 'Tap an exercise to view details',
-                fontSize: 12.sp,
-                color: AppColors.textSecondary,
-                textAlign: TextAlign.start,
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(999.r),
-          ),
-          child: CustomText(
-            text: '$count',
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            textAlign: TextAlign.start,
-          ),
-        ),
       ],
     );
   }

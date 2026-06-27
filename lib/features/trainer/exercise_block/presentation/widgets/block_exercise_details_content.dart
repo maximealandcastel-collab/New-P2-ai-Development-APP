@@ -164,14 +164,14 @@ class BlockExerciseDetailsContent extends StatelessWidget {
             height: 26.r,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
+              color: AppColors.textPrimary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: CustomText(
               text: '${step.order ?? index + 1}',
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: AppColors.textPrimary,
               textAlign: TextAlign.center,
             ),
           ),
@@ -239,7 +239,7 @@ class BlockExerciseDetailsContent extends StatelessWidget {
             text: value,
             fontSize: 15.sp,
             fontWeight: FontWeight.w700,
-            color: AppColors.primary,
+            color: AppColors.textPrimary,
             textAlign: TextAlign.start,
           ),
         ],
@@ -267,14 +267,14 @@ class BlockExerciseDetailsContent extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: AppColors.textPrimary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999.r),
       ),
       child: CustomText(
         text: label,
         fontSize: 12.sp,
         fontWeight: FontWeight.w600,
-        color: AppColors.primary,
+        color: AppColors.textPrimary,
         textAlign: TextAlign.start,
       ),
     );
