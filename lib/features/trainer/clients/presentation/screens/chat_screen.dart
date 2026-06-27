@@ -13,7 +13,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-
   final TextEditingController _messageController = TextEditingController();
 
   // Dummy Chat List
@@ -27,14 +26,22 @@ class _ChatScreenState extends State<ChatScreen> {
     },
     {"text": "Are you free this evening?", "time": "10:28 AM", "isMe": false},
     {"text": "Yes, I am. Any plans?", "time": "10:30 AM", "isMe": true},
-    {"text": "Let’s catch up at the café.", "time": "10:32 AM", "isMe": false},
+    {"text": "Let's catch up at the café.", "time": "10:32 AM", "isMe": false},
     {"text": "Perfect, see you then!", "time": "10:35 AM", "isMe": true},
   ];
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SliverScaffold(
-      appBar: CustomSliverAppBar(
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      resizeToAvoidBottomInset: true,
+      appBar: CustomAppBar(
         centerTitle: false,
         titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,32 +68,37 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
         ],
       ),
-      bodyList: [
-        SliverPadding(
-          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final message = _dummyMessages[index];
-                return ChatBubbleMessage(
-                  text: message["text"],
-                  time: message["time"],
-                  isMe: message["isMe"],
-                );
-              },
-              childCount: _dummyMessages.length,
+      body: KeyboardDismissOnTap(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+                itemCount: _dummyMessages.length,
+                itemBuilder: (context, index) {
+                  final message = _dummyMessages[index];
+                  return ChatBubbleMessage(
+                    text: message["text"],
+                    time: message["time"],
+                    isMe: message["isMe"],
+                  );
+                },
+              ),
             ),
-          ),
+            SafeArea(
+              top: false,
+              child: _buildMessageSender(),
+            ),
+          ],
         ),
-      ],
-      bottomNavigationBar: _buildMessageSender(),
+      ),
     );
   }
 
   Widget _buildMessageSender() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         children: [
           Expanded(
@@ -99,25 +111,27 @@ class _ChatScreenState extends State<ChatScreen> {
           SizedBox(width: 10.w),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              if (_messageController.text.isNotEmpty) {
-                setState(() {
-                  _dummyMessages.add({
-                    "text": _messageController.text,
-                    "time": "Now",
-                    "isMe": true,
-                  });
-                });
-                _messageController.clear();
-              }
-            },
+            onTap: _sendMessage,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 7.h),
+              padding: EdgeInsets.only(bottom: 6.h),
               child: Assets.icons.send.svg(),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _sendMessage() {
+    if (_messageController.text.trim().isEmpty) return;
+
+    setState(() {
+      _dummyMessages.add({
+        "text": _messageController.text.trim(),
+        "time": "Now",
+        "isMe": true,
+      });
+    });
+    _messageController.clear();
   }
 }
