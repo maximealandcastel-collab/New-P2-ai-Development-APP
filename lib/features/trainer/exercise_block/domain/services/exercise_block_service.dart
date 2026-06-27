@@ -1,5 +1,6 @@
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/create_exercise_draft_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/repositories/exercise_block_repository.dart';
 
@@ -82,6 +83,26 @@ class ExerciseBlockService {
       category: category,
       count: count,
       context: context,
+    );
+  }
+
+  Future<ExerciseBlockModel> createBlock({
+    required String blockName,
+    required String description,
+    required String category,
+    required List<CreateExerciseDraftModel> exercises,
+  }) async {
+    final trainerId = await resolveTrainerId();
+    if (trainerId == null || trainerId.isEmpty) {
+      throw UnknownException('User ID not found');
+    }
+
+    return _repository.createBlock(
+      trainerId: trainerId,
+      blockName: blockName,
+      description: description,
+      category: category,
+      exercises: exercises,
     );
   }
 

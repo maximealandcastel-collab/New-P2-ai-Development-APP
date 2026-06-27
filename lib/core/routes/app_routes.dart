@@ -35,6 +35,8 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_block_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_name_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 
@@ -70,6 +72,8 @@ class AppRoute {
   static String editFitnessInfoScreen = "/editFitnessInfoScreen";
   static String exerciseBlockScreen = "/exerciseBlockScreen";
   static String generateExerciseBlockScreen = "/generateExerciseBlockScreen";
+  static String addExerciseBlockScreen = "/addExerciseBlockScreen";
+  static String addExerciseNameScreen = "/addExerciseNameScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -161,6 +165,14 @@ class AppRoute {
     GetPage(
       name: generateExerciseBlockScreen,
       page: () => const GenerateExerciseBlockScreen(),
+    ),
+    GetPage(
+      name: addExerciseBlockScreen,
+      page: () => const AddExerciseBlockScreen(),
+    ),
+    GetPage(
+      name: addExerciseNameScreen,
+      page: () => const AddExerciseNameScreen(),
     ),
   ];
 }

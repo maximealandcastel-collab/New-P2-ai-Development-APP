@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/create_exercise_draft_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 
 class ExerciseBlockRepository {
@@ -104,6 +105,38 @@ class ExerciseBlockRepository {
       );
 
       return ExerciseBlockModel.fromJson(response.data['data']);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<ExerciseBlockModel> createBlock({
+    required String trainerId,
+    required String blockName,
+    required String description,
+    required String category,
+    required List<CreateExerciseDraftModel> exercises,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        ApiConstants.trainerBlocksCreate(trainerId),
+        data: {
+          'name': blockName,
+          'description': description,
+          'category': category,
+          'exercises': exercises.map((exercise) => exercise.toJson()).toList(),
+        },
+      );
+
+      final block = ExerciseBlockModel.fromJson(response.data['data']);
+      final updatedCache = [block, ...getCachedBlocks()];
+      await _cacheService.put(
+        AppConstants.cacheExerciseBlocks,
+        updatedCache.map((item) => item.toJson()).toList(),
+      );
+      return block;
     } on AppException {
       rethrow;
     } catch (e) {

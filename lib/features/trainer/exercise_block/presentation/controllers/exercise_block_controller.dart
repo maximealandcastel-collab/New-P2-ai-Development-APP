@@ -11,6 +11,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/create_exercise_draft_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
 
@@ -29,17 +30,36 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   late final PaginatedList<ExerciseBlockModel> blocksList;
 
   final blockNameController = TextEditingController();
+  final descriptionController = TextEditingController();
   final categoryController = TextEditingController();
   final countController = TextEditingController();
   final contextController = TextEditingController();
+  final exerciseNameController = TextEditingController();
+  final exerciseMuscleGroupController = TextEditingController();
+  final exerciseDifficultyController = TextEditingController();
+  final exerciseEquipmentController = TextEditingController();
+  final exerciseSetsController = TextEditingController();
+  final exerciseRepsController = TextEditingController();
+  final exerciseRestTimeController = TextEditingController();
+  final exerciseRpeController = TextEditingController();
+  final noBarbellController = TextEditingController();
+  final noMachineController = TextEditingController();
+  final homeOnlyController = TextEditingController();
+  final hotelGymController = TextEditingController();
+
+  final RxList<String> exerciseTags = <String>[].obs;
+  final RxList<CreateExerciseDraftModel> draftExercises =
+      <CreateExerciseDraftModel>[].obs;
 
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _createLoadingState = LoadingState.initial.obs;
 
   LoadingState get loadingState => _loadingState.value;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
   LoadingState get generateLoadingState => _generateLoadingState.value;
+  LoadingState get createLoadingState => _createLoadingState.value;
   List<ExerciseBlockModel> get blocks => blocksList.items;
 
   @override
@@ -130,6 +150,191 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     contextController.clear();
   }
 
+  String? _backendValueFromOptions(String selected, List<String> options) {
+    if (selected.isEmpty) return null;
+    for (final option in options) {
+      if (StringFormat.formatLabel(option) == selected) return option;
+    }
+    return selected;
+  }
+
+  String? _selectedExerciseMuscleGroup() =>
+      _backendValueFromOptions(
+        exerciseMuscleGroupController.text.trim(),
+        HelperData.muscleGroupOptions,
+      );
+
+  String? _selectedExerciseDifficulty() =>
+      _backendValueFromOptions(
+        exerciseDifficultyController.text.trim(),
+        HelperData.contentDifficultyOptions,
+      );
+
+  String? _selectedExerciseEquipment() =>
+      _backendValueFromOptions(
+        exerciseEquipmentController.text.trim(),
+        HelperData.exerciseEquipmentOptions,
+      );
+
+  Map<String, String> _buildSubstitutions() {
+    final substitutions = <String, String>{};
+    void addIfNotEmpty(String key, String value) {
+      final trimmed = value.trim();
+      if (trimmed.isNotEmpty) substitutions[key] = trimmed;
+    }
+
+    addIfNotEmpty('noBarbell', noBarbellController.text);
+    addIfNotEmpty('noMachine', noMachineController.text);
+    addIfNotEmpty('homeOnly', homeOnlyController.text);
+    addIfNotEmpty('hotelGym', hotelGymController.text);
+    return substitutions;
+  }
+
+  void clearExerciseForm() {
+    exerciseNameController.clear();
+    exerciseMuscleGroupController.clear();
+    exerciseDifficultyController.clear();
+    exerciseEquipmentController.clear();
+    exerciseSetsController.clear();
+    exerciseRepsController.clear();
+    exerciseRestTimeController.clear();
+    exerciseRpeController.clear();
+    noBarbellController.clear();
+    noMachineController.clear();
+    homeOnlyController.clear();
+    hotelGymController.clear();
+    exerciseTags.clear();
+  }
+
+  void clearAddForm() {
+    blockNameController.clear();
+    descriptionController.clear();
+    categoryController.clear();
+    draftExercises.clear();
+    clearExerciseForm();
+  }
+
+  void onExerciseTagsChanged(List<String> tags) {
+    exerciseTags.assignAll(tags);
+  }
+
+  bool validateExerciseForm() {
+    final name = exerciseNameController.text.trim();
+    if (name.isEmpty) {
+      ToastMessageHelper.show('Please enter exercise name');
+      return false;
+    }
+    if (_selectedExerciseMuscleGroup() == null) {
+      ToastMessageHelper.show('Please select muscle group');
+      return false;
+    }
+    if (_selectedExerciseDifficulty() == null) {
+      ToastMessageHelper.show('Please select difficulty');
+      return false;
+    }
+    if (_selectedExerciseEquipment() == null) {
+      ToastMessageHelper.show('Please select equipment');
+      return false;
+    }
+    final sets = int.tryParse(exerciseSetsController.text.trim());
+    if (sets == null || sets < 1) {
+      ToastMessageHelper.show('Please enter valid sets');
+      return false;
+    }
+    if (exerciseRepsController.text.trim().isEmpty) {
+      ToastMessageHelper.show('Please enter reps');
+      return false;
+    }
+    if (exerciseRestTimeController.text.trim().isEmpty) {
+      ToastMessageHelper.show('Please enter rest time');
+      return false;
+    }
+    if (exerciseRpeController.text.trim().isEmpty) {
+      ToastMessageHelper.show('Please enter RPE');
+      return false;
+    }
+    return true;
+  }
+
+  void onOpenAddExercise() {
+    clearExerciseForm();
+    Get.toNamed(AppRoute.addExerciseScreen);
+  }
+
+  void onOpenExerciseSteps() {
+    if (!validateExerciseForm()) return;
+    Get.toNamed(AppRoute.addExerciseStepsScreen);
+  }
+
+  CreateExerciseDraftModel _buildExerciseDraft(
+    List<ExerciseStepDraftModel> steps,
+  ) {
+    return CreateExerciseDraftModel(
+      name: exerciseNameController.text.trim(),
+      muscleGroup: _selectedExerciseMuscleGroup()!,
+      difficulty: _selectedExerciseDifficulty()!,
+      equipment: _selectedExerciseEquipment()!,
+      sets: int.parse(exerciseSetsController.text.trim()),
+      reps: exerciseRepsController.text.trim(),
+      restTime: exerciseRestTimeController.text.trim(),
+      rpe: exerciseRpeController.text.trim(),
+      substitutions: _buildSubstitutions(),
+      tags: exerciseTags.toList(),
+      steps: steps,
+    );
+  }
+
+  void saveExerciseWithSteps(List<ExerciseStepDraftModel> steps) {
+    if (!validateExerciseForm()) return;
+    if (steps.isEmpty) {
+      ToastMessageHelper.show('Please add at least one step');
+      return;
+    }
+
+    final name = exerciseNameController.text.trim();
+    if (draftExercises.any((exercise) => exercise.name == name)) {
+      ToastMessageHelper.show('Exercise already added');
+      return;
+    }
+
+    draftExercises.add(_buildExerciseDraft(steps));
+    clearExerciseForm();
+    Get.until(
+      (route) => route.settings.name == AppRoute.addExerciseBlockScreen,
+    );
+    ToastMessageHelper.show('Exercise added');
+  }
+
+  void removeExercise(int index) {
+    if (index < 0 || index >= draftExercises.length) return;
+    draftExercises.removeAt(index);
+  }
+
+  Future<bool> createBlock() async {
+    final category = _selectedCategoryBackend();
+    if (category == null) return false;
+
+    try {
+      _createLoadingState.value = LoadingState.loading;
+      await _service.createBlock(
+        blockName: blockNameController.text.trim(),
+        description: descriptionController.text.trim(),
+        category: category,
+        exercises: draftExercises.toList(),
+      );
+      _createLoadingState.value = LoadingState.loaded;
+      clearAddForm();
+      await refresh();
+      ToastMessageHelper.show('Exercise block added successfully');
+      return true;
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      _createLoadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('createBlock error: $e');
+      return false;
+    }
+  }
+
   Future<bool> generateBlock() async {
     final category = _selectedCategoryBackend();
     final count = int.tryParse(countController.text.trim());
@@ -176,7 +381,8 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   }
 
   void onAddExerciseBlock() {
-    ToastMessageHelper.show('Add exercise block');
+    clearAddForm();
+    Get.toNamed(AppRoute.addExerciseBlockScreen);
   }
 
   void onGenerateExercise() {
@@ -188,9 +394,22 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   void onClose() {
     blocksList.dispose();
     blockNameController.dispose();
+    descriptionController.dispose();
     categoryController.dispose();
     countController.dispose();
     contextController.dispose();
+    exerciseNameController.dispose();
+    exerciseMuscleGroupController.dispose();
+    exerciseDifficultyController.dispose();
+    exerciseEquipmentController.dispose();
+    exerciseSetsController.dispose();
+    exerciseRepsController.dispose();
+    exerciseRestTimeController.dispose();
+    exerciseRpeController.dispose();
+    noBarbellController.dispose();
+    noMachineController.dispose();
+    homeOnlyController.dispose();
+    hotelGymController.dispose();
     super.onClose();
   }
 }
