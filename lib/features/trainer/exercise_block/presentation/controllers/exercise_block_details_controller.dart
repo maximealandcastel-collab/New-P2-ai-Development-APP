@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
@@ -28,21 +29,38 @@ class ExerciseBlockDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchDetails();
+    loadData();
   }
 
-  Future<void> fetchDetails() async {
+  Future<void> loadData() async {
     try {
-      _loadingState.value = LoadingState.loading;
+      final hasPreview = previewBlock != null;
+
+      if (hasPreview) {
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.loading;
+      }
+
       _block.value = await _service.fetchBlockById(blockId);
       _loadingState.value = LoadingState.loaded;
-    } catch (e) {
-      _loadingState.value = LoadingState.error;
+    } on AppException catch (e) {
+      if (previewBlock == null) {
+        _loadingState.value = LoadingState.error;
+      }
       ToastMessageHelper.show(e.errorMessage);
-      if (kDebugMode) debugPrint('fetchBlockDetails error: $e');
+      if (kDebugMode) debugPrint('loadBlockDetails error: $e');
+    } catch (e) {
+      if (previewBlock != null) {
+        _loadingState.value = LoadingState.loaded;
+      } else {
+        _loadingState.value = LoadingState.error;
+      }
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('loadBlockDetails error: $e');
     }
   }
 
   @override
-  Future<void> refresh() => fetchDetails();
+  Future<void> refresh() => loadData();
 }
