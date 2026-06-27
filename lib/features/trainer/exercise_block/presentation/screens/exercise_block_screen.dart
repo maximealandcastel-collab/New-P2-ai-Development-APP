@@ -104,6 +104,7 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
         ),
       ),
       onRefresh: controller.refresh,
+      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.2,
       paginationList: controller.blocksList,
       bodyList: [
         Obx(() {

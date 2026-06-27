@@ -20,6 +20,7 @@ class ExerciseBlockDetailsScreen extends StatelessWidget {
         pinned: true,
       ),
       onRefresh: controller.refresh,
+      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.1,
       bodyList: [
         Obx(() {
           switch (controller.loadingState) {

@@ -22,7 +22,7 @@ class ContentsScreen extends StatelessWidget {
       color: AppColors.primary,
       backgroundColor: AppColors.backgroundLight,
       onRefresh: contentController.refresh,
-      edgeOffset: 190.h,
+      edgeOffset: MediaQuery.heightOf(context) * 0.25,
       child: CustomScrollView(
         controller: contentController.scrollController,
         physics: const AlwaysScrollableScrollPhysics(
@@ -32,7 +32,7 @@ class ContentsScreen extends StatelessWidget {
           FeedAppBarSliver(
             pinned: true,
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(98.h),
+              preferredSize: Size.fromHeight(MediaQuery.heightOf(context) * 0.13),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
                 child: CustomContainer(
