@@ -37,7 +37,7 @@ class _HistoryScreenState extends State<HistoryScreen>
         FeedAppBarSliver(
           pinned: true,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(70.h),
+            preferredSize: Size.fromHeight(MediaQuery.heightOf(context) * 0.07),
             child: CustomContainer(
               horizontalMargin: 16,
               verticalMargin: 6.h,
