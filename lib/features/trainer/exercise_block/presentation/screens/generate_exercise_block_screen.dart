@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class GenerateExerciseBlockScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class GenerateExerciseBlockScreen extends StatefulWidget {
 class _GenerateExerciseBlockScreenState
     extends State<GenerateExerciseBlockScreen> {
   final _formKey = GlobalKey<FormState>();
-  final controller = ExerciseBlockController.to;
+  final controller = CreateExerciseBlockController.to;
 
   List<String> get _categoryOptions => HelperData.muscleGroupOptions
       .map(StringFormat.formatLabel)

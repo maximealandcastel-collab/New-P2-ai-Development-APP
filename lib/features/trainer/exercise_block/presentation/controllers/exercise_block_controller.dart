@@ -1,13 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
-import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
@@ -28,18 +24,11 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
 
   late final PaginatedList<ExerciseBlockModel> blocksList;
 
-  final blockNameController = TextEditingController();
-  final categoryController = TextEditingController();
-  final countController = TextEditingController();
-  final contextController = TextEditingController();
-
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
-  final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
 
   LoadingState get loadingState => _loadingState.value;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
-  LoadingState get generateLoadingState => _generateLoadingState.value;
   List<ExerciseBlockModel> get blocks => blocksList.items;
 
   @override
@@ -113,50 +102,6 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   Future<void> refresh() =>
       blocksList.refreshWith(() => _loadData(showFullLoader: false));
 
-  String? _selectedCategoryBackend() {
-    final selected = categoryController.text.trim();
-    if (selected.isEmpty) return null;
-
-    for (final option in HelperData.muscleGroupOptions) {
-      if (StringFormat.formatLabel(option) == selected) return option;
-    }
-    return selected;
-  }
-
-  void clearGenerateForm() {
-    blockNameController.clear();
-    categoryController.clear();
-    countController.clear();
-    contextController.clear();
-  }
-
-  Future<bool> generateBlock() async {
-    final category = _selectedCategoryBackend();
-    final count = int.tryParse(countController.text.trim());
-
-    if (category == null || count == null) return false;
-
-    try {
-      _generateLoadingState.value = LoadingState.loading;
-      await _service.generateBlock(
-        blockName: blockNameController.text.trim(),
-        category: category,
-        count: count,
-        context: contextController.text.trim(),
-      );
-      _generateLoadingState.value = LoadingState.loaded;
-      clearGenerateForm();
-      await refresh();
-      ToastMessageHelper.show('Exercise block generated successfully');
-      return true;
-    } catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-      _generateLoadingState.value = LoadingState.error;
-      if (kDebugMode) debugPrint('generateBlock error: $e');
-      return false;
-    }
-  }
-
   void onEditBlock(ExerciseBlockModel block) {
     ToastMessageHelper.show('Edit ${block.title}');
   }
@@ -175,22 +120,9 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  void onAddExerciseBlock() {
-    ToastMessageHelper.show('Add exercise block');
-  }
-
-  void onGenerateExercise() {
-    clearGenerateForm();
-    Get.toNamed(AppRoute.generateExerciseBlockScreen);
-  }
-
   @override
   void onClose() {
     blocksList.dispose();
-    blockNameController.dispose();
-    categoryController.dispose();
-    countController.dispose();
-    contextController.dispose();
     super.onClose();
   }
 }

@@ -46,6 +46,9 @@ class ApiConstants {
   static String trainerBlocksGenerate(String trainerId) =>
       '/api/v1/trainer/$trainerId/blocks/generate';
 
+  static String trainerBlocksCreate(String trainerId) =>
+      '/api/v1/trainer/$trainerId/blocks';
+
   static String trainerBlockById(String trainerId, String blockId) =>
       '/api/v1/trainer/$trainerId/blocks/$blockId';
 

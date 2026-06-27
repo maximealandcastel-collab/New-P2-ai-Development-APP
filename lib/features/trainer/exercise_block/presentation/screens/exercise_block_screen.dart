@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/widgets/exercise_block_card.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/widgets/exercise_block_fab.dart';
@@ -22,6 +23,7 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final controller = ExerciseBlockController.to;
+  final createController = CreateExerciseBlockController.to;
 
   @override
   void initState() {
@@ -150,8 +152,8 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
             label: _isManualTab ? 'Add exercise block' : 'Generate exercise',
             icon: _isManualTab ? Icons.add_rounded : Icons.auto_awesome_rounded,
             onPressed: _isManualTab
-                ? controller.onAddExerciseBlock
-                : controller.onGenerateExercise,
+                ? createController.onAddExerciseBlock
+                : createController.onGenerateExercise,
           ),
         ),
       ),

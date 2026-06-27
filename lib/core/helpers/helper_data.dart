@@ -132,6 +132,16 @@ class HelperData {
     'all',
   ];
 
+  static const List<String> exerciseEquipmentOptions = [
+    'barbell',
+    'dumbbell',
+    'machine',
+    'bodyweight',
+    'cable',
+    'kettlebell',
+    'resistance_band',
+  ];
+
   static const List<String> trainerGuidance = [
     'AI-Powered trainer Guidance',
     'Workout plan',
