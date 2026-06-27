@@ -49,6 +49,9 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   final stepInstructionController = TextEditingController();
   final stepTipController = TextEditingController();
 
+  final exerciseFormKey = GlobalKey<FormState>();
+  static const int exercisePageCount = 3;
+
   final RxList<String> exerciseTags = <String>[].obs;
   final RxList<ExerciseStepDraftModel> draftSteps =
       <ExerciseStepDraftModel>[].obs;
@@ -230,52 +233,39 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     exerciseTags.assignAll(tags);
   }
 
-  bool validateExerciseForm() {
-    final name = exerciseNameController.text.trim();
-    if (name.isEmpty) {
-      ToastMessageHelper.show('Please enter exercise name');
-      return false;
-    }
-    if (_selectedExerciseMuscleGroup() == null) {
-      ToastMessageHelper.show('Please select muscle group');
-      return false;
-    }
-    if (_selectedExerciseDifficulty() == null) {
-      ToastMessageHelper.show('Please select difficulty');
-      return false;
-    }
-    if (_selectedExerciseEquipment() == null) {
-      ToastMessageHelper.show('Please select equipment');
-      return false;
-    }
-    final sets = int.tryParse(exerciseSetsController.text.trim());
-    if (sets == null || sets < 1) {
-      ToastMessageHelper.show('Please enter valid sets');
-      return false;
-    }
-    if (exerciseRepsController.text.trim().isEmpty) {
-      ToastMessageHelper.show('Please enter reps');
-      return false;
-    }
-    if (exerciseRestTimeController.text.trim().isEmpty) {
-      ToastMessageHelper.show('Please enter rest time');
-      return false;
-    }
-    if (exerciseRpeController.text.trim().isEmpty) {
-      ToastMessageHelper.show('Please enter RPE');
-      return false;
-    }
-    return true;
-  }
-
   void onOpenAddExercise() {
     clearExerciseForm();
     clearStepForm();
     Get.toNamed(AppRoute.addExerciseScreen);
   }
 
+  bool validateExerciseStep(int step) {
+    switch (step) {
+      case 0:
+        final sets = int.tryParse(exerciseSetsController.text.trim());
+        return exerciseNameController.text.trim().isNotEmpty &&
+            sets != null &&
+            sets >= 1 &&
+            exerciseRepsController.text.trim().isNotEmpty &&
+            exerciseRestTimeController.text.trim().isNotEmpty &&
+            exerciseRpeController.text.trim().isNotEmpty;
+      case 1:
+        return _selectedExerciseMuscleGroup() != null &&
+            _selectedExerciseDifficulty() != null &&
+            _selectedExerciseEquipment() != null;
+      case 2:
+        return draftSteps.isNotEmpty;
+      default:
+        return true;
+    }
+  }
+
+  void showExerciseStepValidationMessage(int step) {
+    if (step != 2) return;
+    ToastMessageHelper.show('Please add at least one step');
+  }
+
   void onOpenExerciseSteps() {
-    if (!validateExerciseForm()) return;
     stepInstructionController.clear();
     stepTipController.clear();
     Get.toNamed(AppRoute.addExerciseStepsScreen);
@@ -357,7 +347,6 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   }
 
   void saveExercise() {
-    if (!validateExerciseForm()) return;
     if (draftSteps.isEmpty) {
       ToastMessageHelper.show('Please add at least one step');
       return;
