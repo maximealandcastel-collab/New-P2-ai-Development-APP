@@ -35,42 +35,35 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         width: double.infinity,
-        margin: EdgeInsets.only(bottom: 12.h),
-        padding: EdgeInsets.all(16.r),
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18.r),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: _isExpanded
-                ? AppColors.primary.withValues(alpha: 0.35)
+                ? AppColors.primary.withValues(alpha: 0.4)
                 : AppColors.colorE6E6E6,
-            width: _isExpanded ? 1.2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.textPrimary.withValues(
-                alpha: _isExpanded ? 0.08 : 0.04,
-              ),
-              blurRadius: _isExpanded ? 18 : 10,
-              offset: Offset(0, _isExpanded ? 6.h : 3.h),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            if (_isExpanded) ...[
-              SizedBox(height: 14.h),
-              Divider(color: AppColors.colorE6E6E6, height: 1.h),
-            ],
             AnimatedSize(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               alignment: Alignment.topCenter,
               clipBehavior: Clip.hardEdge,
               child: _isExpanded
-                  ? BlockExerciseDetailsContent(exercise: exercise)
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 12.h),
+                        Divider(color: AppColors.colorE6E6E6, height: 1.h),
+                        BlockExerciseDetailsContent(exercise: exercise),
+                      ],
+                    )
                   : SizedBox(width: double.infinity, height: 0.h),
             ),
           ],
@@ -86,17 +79,6 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
       children: [
         _buildIndexBadge(),
         SizedBox(width: 12.w),
-        CustomContainer(
-          radiusAll: 14.r,
-          paddingAll: 10.r,
-          color: AppColors.primary.withValues(alpha: 0.1),
-          child: Icon(
-            Icons.fitness_center_rounded,
-            size: 20.sp,
-            color: AppColors.primary,
-          ),
-        ),
-        SizedBox(width: 12.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +86,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
               CustomText(
                 text: exercise.name ?? 'Exercise',
                 fontSize: 15.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 textAlign: TextAlign.start,
               ),
               if (subtitle.isNotEmpty)
@@ -118,21 +100,12 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
             ],
           ),
         ),
-        AnimatedRotation(
-          turns: _isExpanded ? 0.5 : 0,
-          duration: const Duration(milliseconds: 200),
-          child: CustomContainer(
-            radiusAll: 999.r,
-            paddingAll: 6.r,
-            color: _isExpanded
-                ? AppColors.primary.withValues(alpha: 0.12)
-                : AppColors.backgroundLight,
-            child: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 22.sp,
-              color: _isExpanded ? AppColors.primary : AppColors.textSecondary,
-            ),
-          ),
+        Icon(
+          _isExpanded
+              ? Icons.keyboard_arrow_up_rounded
+              : Icons.keyboard_arrow_down_rounded,
+          size: 22.sp,
+          color: _isExpanded ? AppColors.primary : AppColors.textSecondary,
         ),
       ],
     );
@@ -144,14 +117,14 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
       height: 28.r,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.textPrimary,
-        borderRadius: BorderRadius.circular(10.r),
+        color: AppColors.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: CustomText(
         text: '${widget.index}',
         fontSize: 12.sp,
         fontWeight: FontWeight.w700,
-        color: Colors.white,
+        color: AppColors.primary,
         textAlign: TextAlign.center,
       ),
     );

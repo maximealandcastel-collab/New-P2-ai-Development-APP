@@ -20,9 +20,9 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
       children: [
         SizedBox(height: 12.h),
         ExerciseBlockDetailsInfo(block: block),
-        SizedBox(height: 24.h),
+        SizedBox(height: 22.h),
         _buildSectionHeader(exercises.length),
-        SizedBox(height: 14.h),
+        SizedBox(height: 12.h),
         if (exercises.isEmpty)
           const EmptyDataWidget(message: 'No exercises in this block.')
         else
@@ -40,17 +40,6 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
   Widget _buildSectionHeader(int count) {
     return Row(
       children: [
-        CustomContainer(
-          radiusAll: 12.r,
-          paddingAll: 10.r,
-          color: AppColors.primary.withValues(alpha: 0.12),
-          child: Icon(
-            Icons.list_alt_rounded,
-            size: 20.sp,
-            color: AppColors.primary,
-          ),
-        ),
-        SizedBox(width: 12.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +63,7 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: AppColors.textPrimary,
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(999.r),
           ),
           child: CustomText(
