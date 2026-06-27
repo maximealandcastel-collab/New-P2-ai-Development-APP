@@ -38,6 +38,7 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/create_c
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_steps_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_substitutions_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 
@@ -76,6 +77,7 @@ class AppRoute {
   static String addExerciseBlockScreen = "/addExerciseBlockScreen";
   static String addExerciseScreen = "/addExerciseScreen";
   static String addExerciseStepsScreen = "/addExerciseStepsScreen";
+  static String addExerciseSubstitutionsScreen = "/addExerciseSubstitutionsScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -179,6 +181,10 @@ class AppRoute {
     GetPage(
       name: addExerciseStepsScreen,
       page: () => const AddExerciseStepsScreen(),
+    ),
+    GetPage(
+      name: addExerciseSubstitutionsScreen,
+      page: () => const AddExerciseSubstitutionsScreen(),
     ),
   ];
 }

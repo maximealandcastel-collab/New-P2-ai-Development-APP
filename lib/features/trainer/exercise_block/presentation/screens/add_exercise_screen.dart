@@ -169,39 +169,76 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
                 color: AppColors.textPrimary,
                 textAlign: TextAlign.start,
               ),
-              SizedBox(height: 8.h),
-              CustomTextField(
-                borderColor: Colors.transparent,
-                labelColor: Colors.black,
-                labelText: 'No barbell',
-                hintText: 'eg : Dumbbell bench press',
-                controller: controller.noBarbellController,
-              ),
+              SizedBox(height: 24.h),
+              Obx(() {
+                if (controller.hasSubstitutions) {
+                  return CustomContainer(
+                    width: double.infinity,
+                    marginBottom: 8.h,
+                    paddingHorizontal: 12.w,
+                    paddingVertical: 12.h,
+                    radiusAll: 12.r,
+                    color: Colors.white,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomText(
+                                text: 'Substitutions',
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                textAlign: TextAlign.start,
+                              ),
+                              ...controller.draftSubstitutions.entries.map(
+                                (entry) {
+                                  final label = ExerciseBlockController
+                                          .substitutionLabels[entry.key] ??
+                                      entry.key;
+                                  return CustomText(
+                                    top: 6.h,
+                                    text: '$label: ${entry.value}',
+                                    fontSize: 12.sp,
+                                    color: AppColors.textSecondary,
+                                    textAlign: TextAlign.start,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: controller.removeSubstitutions,
+                          child: Icon(
+                            Icons.delete_outline,
+                            size: 22.sp,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return CustomButton(
+                  onPressed: controller.onOpenSubstitutions,
+                  label: 'Add substitutions',
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.primary,
+                  bordersColor: AppColors.primary,
+                  radius: 16.r,
+                  prefixIcon: Icon(
+                    Icons.add_rounded,
+                    size: 20.sp,
+                    color: AppColors.primary,
+                  ),
+                  prefixIconShow: true,
+                );
+              }),
               SizedBox(height: 12.h),
-              CustomTextField(
-                borderColor: Colors.transparent,
-                labelColor: Colors.black,
-                labelText: 'No machine',
-                hintText: 'eg : Push-up',
-                controller: controller.noMachineController,
-              ),
-              SizedBox(height: 12.h),
-              CustomTextField(
-                borderColor: Colors.transparent,
-                labelColor: Colors.black,
-                labelText: 'Home only',
-                hintText: 'eg : Floor press',
-                controller: controller.homeOnlyController,
-              ),
-              SizedBox(height: 12.h),
-              CustomTextField(
-                borderColor: Colors.transparent,
-                labelColor: Colors.black,
-                labelText: 'Hotel gym',
-                hintText: 'eg : Dumbbell bench press',
-                controller: controller.hotelGymController,
-              ),
-              SizedBox(height: 20.h),
               Obx(
                 () => TagAddWidget(
                   labelText: 'Tags',

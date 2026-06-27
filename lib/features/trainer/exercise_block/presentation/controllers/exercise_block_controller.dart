@@ -52,6 +52,7 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   final RxList<String> exerciseTags = <String>[].obs;
   final RxList<ExerciseStepDraftModel> draftSteps =
       <ExerciseStepDraftModel>[].obs;
+  final RxMap<String, String> draftSubstitutions = <String, String>{}.obs;
   final RxList<CreateExerciseDraftModel> draftExercises =
       <CreateExerciseDraftModel>[].obs;
 
@@ -180,18 +181,21 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
         HelperData.exerciseEquipmentOptions,
       );
 
-  Map<String, String> _buildSubstitutions() {
-    final substitutions = <String, String>{};
-    void addIfNotEmpty(String key, String value) {
-      final trimmed = value.trim();
-      if (trimmed.isNotEmpty) substitutions[key] = trimmed;
-    }
+  static const Map<String, String> substitutionLabels = {
+    'noBarbell': 'No barbell',
+    'noMachine': 'No machine',
+    'homeOnly': 'Home only',
+    'hotelGym': 'Hotel gym',
+  };
 
-    addIfNotEmpty('noBarbell', noBarbellController.text);
-    addIfNotEmpty('noMachine', noMachineController.text);
-    addIfNotEmpty('homeOnly', homeOnlyController.text);
-    addIfNotEmpty('hotelGym', hotelGymController.text);
-    return substitutions;
+  bool get hasSubstitutions => draftSubstitutions.isNotEmpty;
+
+  void clearSubstitutionForm() {
+    noBarbellController.clear();
+    noMachineController.clear();
+    homeOnlyController.clear();
+    hotelGymController.clear();
+    draftSubstitutions.clear();
   }
 
   void clearStepForm() {
@@ -209,10 +213,7 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     exerciseRepsController.clear();
     exerciseRestTimeController.clear();
     exerciseRpeController.clear();
-    noBarbellController.clear();
-    noMachineController.clear();
-    homeOnlyController.clear();
-    hotelGymController.clear();
+    clearSubstitutionForm();
     exerciseTags.clear();
   }
 
@@ -278,6 +279,44 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     stepInstructionController.clear();
     stepTipController.clear();
     Get.toNamed(AppRoute.addExerciseStepsScreen);
+  }
+
+  bool validateSubstitutionForm() {
+    final fields = [
+      noBarbellController.text,
+      noMachineController.text,
+      homeOnlyController.text,
+      hotelGymController.text,
+    ];
+    if (fields.any((value) => value.trim().isEmpty)) {
+      ToastMessageHelper.show('Please fill all substitution fields');
+      return false;
+    }
+    return true;
+  }
+
+  void onOpenSubstitutions() {
+    if (hasSubstitutions) return;
+    Get.toNamed(AppRoute.addExerciseSubstitutionsScreen);
+  }
+
+  void syncSubstitutionsPreview() {
+    draftSubstitutions.assignAll({
+      'noBarbell': noBarbellController.text.trim(),
+      'noMachine': noMachineController.text.trim(),
+      'homeOnly': homeOnlyController.text.trim(),
+      'hotelGym': hotelGymController.text.trim(),
+    });
+  }
+
+  void doneAddingSubstitutions() {
+    if (!validateSubstitutionForm()) return;
+    syncSubstitutionsPreview();
+    Get.back();
+  }
+
+  void removeSubstitutions() {
+    clearSubstitutionForm();
   }
 
   void doneAddingSteps() {
@@ -351,7 +390,7 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
       reps: exerciseRepsController.text.trim(),
       restTime: exerciseRestTimeController.text.trim(),
       rpe: exerciseRpeController.text.trim(),
-      substitutions: _buildSubstitutions(),
+      substitutions: Map<String, String>.from(draftSubstitutions),
       tags: exerciseTags.toList(),
       steps: steps,
     );
