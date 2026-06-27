@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -16,7 +16,7 @@ class AddExerciseOptionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ExerciseBlockController.to;
+    final controller = CreateExerciseBlockController.to;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

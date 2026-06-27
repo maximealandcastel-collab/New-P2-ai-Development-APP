@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class AddExerciseDetailsPage extends StatelessWidget {
@@ -10,7 +10,7 @@ class AddExerciseDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ExerciseBlockController.to;
+    final controller = CreateExerciseBlockController.to;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

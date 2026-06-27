@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/create_content_flow_screen.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/children/add_exercise_details_page.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/children/add_exercise_options_page.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/children/add_exercise_steps_substitutions_page.dart';
@@ -16,7 +16,7 @@ class AddExerciseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ExerciseBlockController.to;
+    final controller = CreateExerciseBlockController.to;
 
     return CreateContentFlowScreen(
       pages: _pages,

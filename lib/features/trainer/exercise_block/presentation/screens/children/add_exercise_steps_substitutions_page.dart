@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
@@ -11,7 +11,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ExerciseBlockController.to;
+    final controller = CreateExerciseBlockController.to;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -51,7 +51,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
                         ),
                         ...controller.draftSubstitutions.entries.map((entry) {
                           final label =
-                              ExerciseBlockController.substitutionLabels[
+                              CreateExerciseBlockController.substitutionLabels[
                                       entry.key] ??
                                   entry.key;
                           return CustomText(

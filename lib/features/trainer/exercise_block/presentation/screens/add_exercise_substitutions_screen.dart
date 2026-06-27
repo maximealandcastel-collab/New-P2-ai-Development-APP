@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class AddExerciseSubstitutionsScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class AddExerciseSubstitutionsScreen extends StatefulWidget {
 class _AddExerciseSubstitutionsScreenState
     extends State<AddExerciseSubstitutionsScreen> {
   final _formKey = GlobalKey<FormState>();
-  final controller = ExerciseBlockController.to;
+  final controller = CreateExerciseBlockController.to;
 
   void _onDone() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
