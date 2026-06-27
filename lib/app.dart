@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
+      useInheritedMediaQuery: true,
       builder: (context, child) => GetMaterialApp(
         theme: AppThemeData.themeData,
         debugShowCheckedModeBanner: false,
