@@ -26,7 +26,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    if (controller.createdExercises.isEmpty) {
+    if (controller.draftExercises.isEmpty) {
       ToastMessageHelper.show('Please add at least one exercise');
       return;
     }
@@ -100,7 +100,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
               ),
               SizedBox(height: 24.h),
               CustomButton(
-                onPressed: controller.onOpenAddExerciseName,
+                onPressed: controller.onOpenAddExercise,
                 label: 'Add exercise',
                 backgroundColor: Colors.white,
                 foregroundColor: AppColors.primary,
@@ -115,13 +115,13 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
               ),
               SizedBox(height: 12.h),
               Obx(() {
-                if (controller.createdExercises.isEmpty) {
+                if (controller.draftExercises.isEmpty) {
                   return SizedBox.shrink();
                 }
 
                 return Column(
-                  children: List.generate(controller.createdExercises.length, (index) {
-                    final name = controller.createdExercises[index];
+                  children: List.generate(controller.draftExercises.length, (index) {
+                    final exercise = controller.draftExercises[index];
                     return CustomContainer(
                       width: double.infinity,
                       marginBottom: 8.h,
@@ -132,11 +132,24 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: CustomText(
-                              text: name,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                              textAlign: TextAlign.start,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomText(
+                                  text: exercise.name,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  textAlign: TextAlign.start,
+                                ),
+                                CustomText(
+                                  top: 4.h,
+                                  text:
+                                      '${StringFormat.formatLabel(exercise.muscleGroup)} · ${exercise.sets} sets · ${exercise.steps.length} steps',
+                                  fontSize: 12.sp,
+                                  color: AppColors.textSecondary,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
                             ),
                           ),
                           GestureDetector(
@@ -164,7 +177,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
         () => CustomButton(
           onPressed: _submit,
           isLoading: controller.createLoadingState.isLoading,
-          label: 'Add exercise block',
+          label: 'Save and continue',
           width: double.infinity,
         ),
       ),

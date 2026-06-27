@@ -46,8 +46,12 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
   final noMachineController = TextEditingController();
   final homeOnlyController = TextEditingController();
   final hotelGymController = TextEditingController();
+  final stepInstructionController = TextEditingController();
+  final stepTipController = TextEditingController();
 
   final RxList<String> exerciseTags = <String>[].obs;
+  final RxList<ExerciseStepDraftModel> draftSteps =
+      <ExerciseStepDraftModel>[].obs;
   final RxList<CreateExerciseDraftModel> draftExercises =
       <CreateExerciseDraftModel>[].obs;
 
@@ -190,6 +194,12 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     return substitutions;
   }
 
+  void clearStepForm() {
+    stepInstructionController.clear();
+    stepTipController.clear();
+    draftSteps.clear();
+  }
+
   void clearExerciseForm() {
     exerciseNameController.clear();
     exerciseMuscleGroupController.clear();
@@ -212,6 +222,7 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     categoryController.clear();
     draftExercises.clear();
     clearExerciseForm();
+    clearStepForm();
   }
 
   void onExerciseTagsChanged(List<String> tags) {
@@ -258,12 +269,74 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
 
   void onOpenAddExercise() {
     clearExerciseForm();
+    clearStepForm();
     Get.toNamed(AppRoute.addExerciseScreen);
   }
 
   void onOpenExerciseSteps() {
     if (!validateExerciseForm()) return;
+    stepInstructionController.clear();
+    stepTipController.clear();
     Get.toNamed(AppRoute.addExerciseStepsScreen);
+  }
+
+  void doneAddingSteps() {
+    addDraftStep();
+    Get.back();
+  }
+
+  void addDraftStep() {
+    final instruction = stepInstructionController.text.trim();
+    final tip = stepTipController.text.trim();
+    if (instruction.isEmpty) {
+      ToastMessageHelper.show('Please enter instruction');
+      return;
+    }
+
+    draftSteps.add(
+      ExerciseStepDraftModel(
+        order: draftSteps.length + 1,
+        instruction: instruction,
+        tip: tip,
+      ),
+    );
+    stepInstructionController.clear();
+    stepTipController.clear();
+  }
+
+  void removeDraftStep(int index) {
+    if (index < 0 || index >= draftSteps.length) return;
+    draftSteps.removeAt(index);
+    for (var i = 0; i < draftSteps.length; i++) {
+      final step = draftSteps[i];
+      draftSteps[i] = ExerciseStepDraftModel(
+        order: i + 1,
+        instruction: step.instruction,
+        tip: step.tip,
+      );
+    }
+  }
+
+  void saveExercise() {
+    if (!validateExerciseForm()) return;
+    if (draftSteps.isEmpty) {
+      ToastMessageHelper.show('Please add at least one step');
+      return;
+    }
+
+    final name = exerciseNameController.text.trim();
+    if (draftExercises.any((exercise) => exercise.name == name)) {
+      ToastMessageHelper.show('Exercise already added');
+      return;
+    }
+
+    draftExercises.add(_buildExerciseDraft(draftSteps.toList()));
+    clearExerciseForm();
+    clearStepForm();
+    Get.until(
+      (route) => route.settings.name == AppRoute.addExerciseBlockScreen,
+    );
+    ToastMessageHelper.show('Exercise added');
   }
 
   CreateExerciseDraftModel _buildExerciseDraft(
@@ -282,27 +355,6 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
       tags: exerciseTags.toList(),
       steps: steps,
     );
-  }
-
-  void saveExerciseWithSteps(List<ExerciseStepDraftModel> steps) {
-    if (!validateExerciseForm()) return;
-    if (steps.isEmpty) {
-      ToastMessageHelper.show('Please add at least one step');
-      return;
-    }
-
-    final name = exerciseNameController.text.trim();
-    if (draftExercises.any((exercise) => exercise.name == name)) {
-      ToastMessageHelper.show('Exercise already added');
-      return;
-    }
-
-    draftExercises.add(_buildExerciseDraft(steps));
-    clearExerciseForm();
-    Get.until(
-      (route) => route.settings.name == AppRoute.addExerciseBlockScreen,
-    );
-    ToastMessageHelper.show('Exercise added');
   }
 
   void removeExercise(int index) {
@@ -410,6 +462,8 @@ class ExerciseBlockController extends GetxController with PaginatedLoaderUi {
     noMachineController.dispose();
     homeOnlyController.dispose();
     hotelGymController.dispose();
+    stepInstructionController.dispose();
+    stepTipController.dispose();
     super.onClose();
   }
 }
