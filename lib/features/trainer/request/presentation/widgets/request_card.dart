@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class RequestCard extends StatelessWidget {
   const RequestCard({super.key, required this.request});
 
   final TrainerRequestModel request;
+
+  RequestsController get _controller => RequestsController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -93,13 +98,13 @@ class RequestCard extends StatelessWidget {
               ),
             ),
           ],
-          ..._buildActions(),
+          ..._buildActions(context),
         ],
       ),
     );
   }
 
-  List<Widget> _buildActions() {
+  List<Widget> _buildActions(BuildContext context) {
     if (request.isAccepted) {
       return [
         SizedBox(height: 16.h),
@@ -107,20 +112,7 @@ class RequestCard extends StatelessWidget {
           height: 40.h,
           radius: 16.r,
           fontSize: 14.sp,
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return CustomDialog(
-                  isLoading: ,
-                  title: '',
-                  onTapLeftButton: onTapLeftButton,
-                  onTapRightButton: onTapRightButton,
-                  description: description,
-                );
-              },
-            );
-          },
+          onPressed: () => _showSendInvoiceDialog(context),
           label: 'Send Invoice',
         ),
       ];
@@ -139,8 +131,7 @@ class RequestCard extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: AppColors.primary,
                 bordersColor: AppColors.primary,
-                isLoading: isActionLoading,
-                onPressed: onAccept,
+                onPressed: () => _showAcceptDialog(context),
                 label: 'Accept',
               ),
             ),
@@ -153,8 +144,7 @@ class RequestCard extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: AppColors.error,
                 bordersColor: AppColors.error,
-                isLoading: isActionLoading,
-                onPressed: onReject,
+                onPressed: () => _showRejectDialog(context),
                 label: 'Reject',
               ),
             ),
@@ -164,5 +154,69 @@ class RequestCard extends StatelessWidget {
     }
 
     return const [];
+  }
+
+  void _showAcceptDialog(BuildContext context) {
+    _showConfirmDialog(
+      context,
+      title: 'Accept request?',
+      description: 'Are you sure you want to accept ${request.clientName}?',
+      rightButtonLabel: 'Yes, Accept',
+      titleColor: AppColors.primary,
+      rightButtonBgColor: AppColors.primary,
+      onConfirm: () => _controller.acceptRequest(request.id ?? ''),
+    );
+  }
+
+  void _showRejectDialog(BuildContext context) {
+    _showConfirmDialog(
+      context,
+      title: 'Reject request?',
+      description: 'Are you sure you want to reject ${request.clientName}?',
+      rightButtonLabel: 'Yes, Reject',
+      titleColor: AppColors.error,
+      rightButtonBgColor: AppColors.error,
+      onConfirm: () => _controller.rejectRequest(request.id ?? ''),
+    );
+  }
+
+  void _showSendInvoiceDialog(BuildContext context) {
+    _showConfirmDialog(
+      context,
+      title: 'Send invoice?',
+      description: 'Send invoice to ${request.clientName}?',
+      rightButtonLabel: 'Send Invoice',
+      titleColor: AppColors.textPrimary,
+      rightButtonBgColor: AppColors.primary,
+      onConfirm: () => _controller.sendInvoice(request),
+    );
+  }
+
+  void _showConfirmDialog(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String rightButtonLabel,
+    required Color titleColor,
+    required Color rightButtonBgColor,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Obx(
+          () => CustomDialog(
+            title: title,
+            description: description,
+            titleColor: titleColor,
+            rightButtonLabel: rightButtonLabel,
+            rightButtonBgColor: rightButtonBgColor,
+            isLoading: _controller.actionLoadingState.isLoading,
+            onTapLeftButton: () => Get.back(),
+            onTapRightButton: onConfirm,
+          ),
+        );
+      },
+    );
   }
 }

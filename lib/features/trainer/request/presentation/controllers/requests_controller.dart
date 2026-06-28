@@ -26,9 +26,10 @@ class RequestsController extends GetxController with PaginatedLoaderUi {
 
   final searchController = TextEditingController();
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
-  final RxSet<String> _actionLoadingIds = <String>{}.obs;
+  final Rx<LoadingState> _actionLoadingState = LoadingState.initial.obs;
 
   LoadingState get loadingState => _loadingState.value;
+  LoadingState get actionLoadingState => _actionLoadingState.value;
   List<TrainerRequestModel> get requests => requestsList.items;
 
   ScrollController? get scrollController => requestsList.scrollController;
@@ -133,53 +134,48 @@ class RequestsController extends GetxController with PaginatedLoaderUi {
     _loadData(showFullLoader: false);
   }
 
-  bool isActionLoading(String requestId) => _actionLoadingIds.contains(requestId);
-
-  Future<void> acceptRequest(TrainerRequestModel request) async {
-    final requestId = request.id;
-    if (requestId == null || isActionLoading(requestId)) return;
-
+  Future<void> acceptRequest(String requestId) async {
     try {
-      _actionLoadingIds.add(requestId);
+      _actionLoadingState.value = LoadingState.loading;
       await _service.acceptRequest(requestId);
-      ToastMessageHelper.show('Request accepted');
+      _actionLoadingState.value = LoadingState.loaded;
+      Get.back(canPop: true);
       await refresh();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _actionLoadingIds.remove(requestId);
+      _actionLoadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('acceptRequest error: $e');
     }
   }
 
-  Future<void> rejectRequest(TrainerRequestModel request) async {
-    final requestId = request.id;
-    if (requestId == null || isActionLoading(requestId)) return;
-
+  Future<void> rejectRequest(String requestId) async {
     try {
-      _actionLoadingIds.add(requestId);
+      _actionLoadingState.value = LoadingState.loading;
       await _service.rejectRequest(requestId);
-      ToastMessageHelper.show('Request rejected');
+      _actionLoadingState.value = LoadingState.loaded;
+      Get.back(canPop: true);
       await refresh();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _actionLoadingIds.remove(requestId);
+      _actionLoadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('rejectRequest error: $e');
     }
   }
 
   Future<void> sendInvoice(TrainerRequestModel request) async {
     final requestId = request.id;
-    if (requestId == null || isActionLoading(requestId)) return;
+    if (requestId == null) return;
 
     try {
-      _actionLoadingIds.add(requestId);
+      _actionLoadingState.value = LoadingState.loading;
       await _service.sendInvoice(request);
-      ToastMessageHelper.show('Invoice sent successfully');
+      _actionLoadingState.value = LoadingState.loaded;
+      Get.back(canPop: true);
       await refresh();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
-    } finally {
-      _actionLoadingIds.remove(requestId);
+      _actionLoadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('sendInvoice error: $e');
     }
   }
 

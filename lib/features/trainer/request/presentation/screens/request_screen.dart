@@ -82,17 +82,7 @@ class RequestScreen extends StatelessWidget {
                     itemCount: controller.requests.length,
                     itemBuilder: (context, index) {
                       final request = controller.requests[index];
-                      return Obx(
-                        () => RequestCard(
-                          request: request,
-                          isActionLoading: controller.isActionLoading(
-                            request.id ?? '',
-                          ),
-                          onAccept: () => controller.acceptRequest(request),
-                          onReject: () => controller.rejectRequest(request),
-                          onSendInvoice: () => controller.sendInvoice(request),
-                        ),
-                      );
+                      return RequestCard(request: request);
                     },
                   ),
                 );
