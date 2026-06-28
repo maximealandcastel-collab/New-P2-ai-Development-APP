@@ -91,7 +91,9 @@ class RequestRepository {
 
   Future<void> acceptRequest(String requestId) async {
     try {
-      await _apiService.patch(ApiConstants.acceptTrainerRequest(requestId));
+      await _apiService.patch(
+        ApiConstants.acceptTrainerRequest(requestId, 'accept'),
+      );
     } on AppException {
       rethrow;
     } catch (e) {
@@ -101,7 +103,9 @@ class RequestRepository {
 
   Future<void> rejectRequest(String requestId) async {
     try {
-      await _apiService.patch(ApiConstants.rejectTrainerRequest(requestId));
+      await _apiService.patch(
+        ApiConstants.acceptTrainerRequest(requestId, 'reject'),
+      );
     } on AppException {
       rethrow;
     } catch (e) {

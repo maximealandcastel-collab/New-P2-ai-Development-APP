@@ -31,10 +31,8 @@ class ApiConstants {
   static const String trainerProfile = '/api/v1/trainer';
   static const String trainerRequest = '/api/v1/trainer-request';
   static const String trainerRequestAll = '/api/v1/trainer-request/all';
-  static String acceptTrainerRequest(String requestId,String type) =>
+  static String acceptTrainerRequest(String requestId, String type) =>
       '/api/v1/trainer-request/$requestId/$type';
-  static String rejectTrainerRequest(String requestId) =>
-      '/api/v1/trainer-request/$requestId/reject';
   static String trainerKnowledgePack(String trainerId) => '/api/v1/trainer/$trainerId/knowledge-pack';
   static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
   static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
