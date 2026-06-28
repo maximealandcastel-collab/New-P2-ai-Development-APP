@@ -30,6 +30,11 @@ class ApiConstants {
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
   static const String trainerRequest = '/api/v1/trainer-request';
+  static const String trainerRequestAll = '/api/v1/trainer-request/all';
+  static String acceptTrainerRequest(String requestId) =>
+      '/api/v1/trainer-request/$requestId/accept';
+  static String rejectTrainerRequest(String requestId) =>
+      '/api/v1/trainer-request/$requestId/reject';
   static String trainerKnowledgePack(String trainerId) => '/api/v1/trainer/$trainerId/knowledge-pack';
   static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
   static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
@@ -55,7 +60,10 @@ class ApiConstants {
   static String blockById(String blockId) => '/api/v1/block/$blockId';
 
   /// INVOICE ──────────────────────────────────────────────
+  static const String invoice = '/api/v1/invoice';
   static const String trainerInvoices = '/api/v1/invoice/trainer';
+  static String sendInvoice(String invoiceId) =>
+      '/api/v1/invoice/$invoiceId/send';
 
   /// CATEGORY ──────────────────────────────────────────────
   static const String categoryMy = '/api/v1/category/my';
