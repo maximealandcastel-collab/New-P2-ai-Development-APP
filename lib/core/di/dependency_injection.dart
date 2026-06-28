@@ -30,6 +30,12 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cont
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/repositories/client_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/domain/services/client_service.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/clients_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/request/data/repositories/request_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/request/domain/services/request_service.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/repositories/exercise_block_repository.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
@@ -202,6 +208,49 @@ class DependencyInjection {
     Get.lazyPut<CategoryController>(
       () => CategoryController(
         service: Get.find<CategoryService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Clients
+    Get.lazyPut<ClientRepository>(
+      () => ClientRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ClientService>(
+      () => ClientService(repository: Get.find<ClientRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ClientsController>(
+      () => ClientsController(
+        service: Get.find<ClientService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Requests
+    Get.lazyPut<RequestRepository>(
+      () => RequestRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<RequestService>(
+      () => RequestService(
+        repository: Get.find<RequestRepository>(),
+        subscribeService: Get.find<SubscribeServices>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<RequestsController>(
+      () => RequestsController(
+        service: Get.find<RequestService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
