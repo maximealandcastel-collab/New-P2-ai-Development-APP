@@ -19,9 +19,9 @@ class ClientCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final clientName = invoice?.clientName ?? 'John Adams';
+    final clientName = invoice?.clientName ?? '';
     final subscriptionPeriod =
-        invoice?.subscriptionPeriod ?? '12 January 2026 - 12 February 2026';
+        invoice?.subscriptionPeriod ?? '';
     final profilePicture = invoice?.userId?.profilePicture ?? '';
 
     return CustomContainer(
@@ -54,7 +54,7 @@ class ClientCardWidget extends StatelessWidget {
           color: AppColors.textSecondary,
           text: 'Subscription period\n$subscriptionPeriod',
         ),
-        trailing: GestureDetector(
+        trailing: onChatTap == null ? null : GestureDetector(
           onTap: onChatTap,
           behavior: HitTestBehavior.opaque,
           child: Assets.icons.message.svg(),
