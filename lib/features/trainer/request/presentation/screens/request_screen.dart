@@ -24,7 +24,7 @@ class RequestScreen extends StatelessWidget {
       color: AppColors.primary,
       backgroundColor: AppColors.backgroundLight,
       onRefresh: controller.refresh,
-      edgeOffset: MediaQuery.heightOf(context) * 0.25,
+      edgeOffset: MediaQuery.heightOf(context) * 0.19,
       child: CustomScrollView(
         controller: controller.scrollController,
         physics: const AlwaysScrollableScrollPhysics(
