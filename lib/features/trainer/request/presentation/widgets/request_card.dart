@@ -39,7 +39,7 @@ class RequestCard extends StatelessWidget {
                     ),
                     CustomText(
                       textAlign: TextAlign.start,
-                      text: 'Oliver Westwood',
+                      text: 'Pending client',
                       fontSize: 12.sp,
                       color: AppColors.textSecondary,
                     ),

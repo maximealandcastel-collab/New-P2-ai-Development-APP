@@ -26,7 +26,10 @@ import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_scr
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/promo_code_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/client_details_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/client_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
@@ -83,6 +86,7 @@ class AppRoute {
   static String addExerciseStepsScreen = "/addExerciseStepsScreen";
   static String addExerciseSubstitutionsScreen = "/addExerciseSubstitutionsScreen";
   static String exerciseBlockDetailsScreen = "/exerciseBlockDetailsScreen";
+  static String clientDetailsScreen = "/clientDetailsScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -201,6 +205,18 @@ class AppRoute {
             blockId: preview.id ?? '',
             previewBlock: preview,
             service: Get.find<ExerciseBlockService>(),
+          ),
+          permanent: false,
+        );
+      }),
+    ),
+    GetPage(
+      name: clientDetailsScreen,
+      page: () => const ClientDetailsScreen(),
+      binding: BindingsBuilder(() {
+        Get.put<ClientDetailsController>(
+          ClientDetailsController(
+            invoice: Get.arguments as ClientInvoiceModel,
           ),
           permanent: false,
         );

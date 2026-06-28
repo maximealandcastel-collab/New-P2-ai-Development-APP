@@ -10,6 +10,7 @@ class CustomSearchField extends StatelessWidget {
     this.hintText,
     this.readOnly = false,
     this.onTap,
+    this.onChanged,
   });
 
   final TextEditingController? searchController;
@@ -17,6 +18,7 @@ class CustomSearchField extends StatelessWidget {
   final bool readOnly;
   final bool autoFocus;
   final VoidCallback? onTap;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,7 @@ class CustomSearchField extends StatelessWidget {
             TextStyle(fontSize: 14.sp, color: AppColors.textSecondary),
           ),
 
-          onChanged: (value) {},
+          onChanged: onChanged,
         ),
       ),
     );

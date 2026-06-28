@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
-import 'package:pler_to_pler_app/features/trainer/request/presentation/widgets/session_card.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/widgets/request_card.dart';
 import 'package:pler_to_pler_app/widgets/custom_search_field.dart';
 
 class RequestScreen extends StatelessWidget {
