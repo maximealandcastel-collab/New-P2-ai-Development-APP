@@ -13,7 +13,7 @@ class ClientDetailsScreen extends StatelessWidget {
     final controller = ClientDetailsController.to;
 
     return SliverScaffold(
-      appBar: const CustomSliverAppBar(title: 'Client details', pinned: true),
+      appBar: const CustomSliverAppBar(title: 'Client details'),
       bodyList: [
         ClientDetailsContent(
           invoice: controller.invoice,

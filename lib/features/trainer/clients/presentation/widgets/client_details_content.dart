@@ -37,30 +37,6 @@ class ClientDetailsContent extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12.h),
-        _buildDetailsSection(
-          title: 'Invoice',
-          children: [
-            _buildDetailRow(label: 'Status', value: invoice.statusLabel),
-            _buildDetailRow(
-              label: 'Sent at',
-              value: invoice.formatDateTime(invoice.sentAt),
-            ),
-            if (invoice.isPaid)
-              _buildDetailRow(
-                label: 'Paid at',
-                value: invoice.formatDateTime(invoice.paidAt),
-              ),
-            _buildDetailRow(
-              label: 'Expires at',
-              value: invoice.formatDateTime(invoice.expiresAt),
-            ),
-            _buildDetailRow(
-              label: 'Created at',
-              value: invoice.formatDateTime(invoice.createdAt),
-            ),
-          ],
-        ),
         SizedBox(height: 20.h),
       ],
     );
@@ -105,6 +81,12 @@ class ClientDetailsContent extends StatelessWidget {
                 ],
               ],
             ),
+          ),
+
+          CustomText(
+            text: invoice.status?.toUpperCase() ?? '',
+            fontWeight: FontWeight.w600,
+            color: invoice.status == 'paid' ? AppColors.success : null,
           ),
         ],
       ),
