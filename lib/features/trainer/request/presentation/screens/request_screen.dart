@@ -64,18 +64,6 @@ class RequestScreen extends StatelessWidget {
                   ),
                 );
               case LoadingState.loaded:
-                if (controller.requests.isEmpty) {
-                  return SliverPadding(
-                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 130.h),
-                    sliver: SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: EmptyDataWidget(
-                        message: 'No requests found',
-                        onRefresh: controller.refresh,
-                      ),
-                    ),
-                  );
-                }
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 130.h),
                   sliver: SliverList.builder(
