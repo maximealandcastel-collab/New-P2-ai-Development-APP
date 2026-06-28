@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
 import 'package:pler_to_pler_app/features/trainer/request/domain/services/request_service.dart';
 
@@ -132,6 +133,10 @@ class RequestsController extends GetxController with PaginatedLoaderUi {
   void applySearchQuery(String query) {
     searchController.text = query;
     _loadData(showFullLoader: false);
+  }
+
+  void onRequestTap(TrainerRequestModel request) {
+    Get.toNamed(AppRoute.requestDetailsScreen, arguments: request);
   }
 
   Future<void> acceptRequest(String requestId) async {

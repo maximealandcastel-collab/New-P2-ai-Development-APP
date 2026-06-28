@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
+import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 
 class TrainerRequestModel {
   String? id;
@@ -75,6 +76,11 @@ class TrainerRequestModel {
     if (createdAt == null || createdAt!.isEmpty) return '';
     final date = DateTime.parse(createdAt!).toLocal();
     return 'Request at ${DateFormat('dd-MM-yyyy').format(date)}';
+  }
+
+  String formatDateTime(String? isoDate) {
+    if (isoDate == null || isoDate.isEmpty) return 'N/A';
+    return TimeFormatHelper.formatDateTime(DateTime.parse(isoDate).toLocal());
   }
 }
 

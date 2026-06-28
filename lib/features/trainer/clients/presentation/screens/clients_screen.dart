@@ -114,7 +114,7 @@ class ClientsScreen extends StatelessWidget {
                       return ClientCardWidget(
                         invoice: invoice,
                         onTap: () => controller.onClientTap(invoice),
-                        onChatTap: () => controller.onChatTap(invoice),
+                        onChatTap: controller.selectedTab == 1 ? null : () => controller.onChatTap(invoice),
                       );
                     },
                   ),

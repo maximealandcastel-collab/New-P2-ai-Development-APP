@@ -30,6 +30,8 @@ import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_inv
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/client_details_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/client_details_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
@@ -87,6 +89,7 @@ class AppRoute {
   static String addExerciseSubstitutionsScreen = "/addExerciseSubstitutionsScreen";
   static String exerciseBlockDetailsScreen = "/exerciseBlockDetailsScreen";
   static String clientDetailsScreen = "/clientDetailsScreen";
+  static String requestDetailsScreen = "/requestDetailsScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -221,6 +224,12 @@ class AppRoute {
           permanent: false,
         );
       }),
+    ),
+    GetPage(
+      name: requestDetailsScreen,
+      page: () => RequestDetailsScreen(
+        request: Get.arguments as TrainerRequestModel,
+      ),
     ),
   ];
 }

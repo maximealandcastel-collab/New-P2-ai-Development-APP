@@ -22,14 +22,17 @@ class ClientDetailsScreen extends StatelessWidget {
       ],
       bottomNavigationBar: Row(
         children: [
-          Expanded(
-            child: CustomButton(
-              height: 42.h,
-              onPressed: controller.onChatTap,
-              label: 'Message',
+          if(controller.invoice.isPaid)...[
+            Expanded(
+              child: CustomButton(
+                height: 42.h,
+                onPressed: controller.onChatTap,
+                label: 'Message',
+              ),
             ),
-          ),
-          SizedBox(width: 12.w),
+            SizedBox(width: 12.w),
+          ],
+
           Expanded(
             child: CustomButton(
               height: 42.h,

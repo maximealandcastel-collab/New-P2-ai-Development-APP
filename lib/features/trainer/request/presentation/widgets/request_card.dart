@@ -23,6 +23,7 @@ class RequestCard extends StatelessWidget {
       radiusAll: 16.r,
       color: Colors.white,
       paddingAll: 16.r,
+      onTap: () => _controller.onRequestTap(request),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
