@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
-import 'package:pler_to_pler_app/features/trainer/request/presentation/widgets/request_details_content.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/widgets/request_details_content.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class RequestDetailsScreen extends StatefulWidget {

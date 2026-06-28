@@ -9,7 +9,7 @@ import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/clients_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_card_widget.dart';
-import 'package:pler_to_pler_app/features/trainer/clients/presentation/widgets/client_shimmer.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/custom_search_field.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
