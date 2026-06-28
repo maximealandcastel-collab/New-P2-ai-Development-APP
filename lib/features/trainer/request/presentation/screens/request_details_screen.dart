@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/widgets/request_details_content.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/widgets/request_profile_header.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class RequestDetailsScreen extends StatefulWidget {
@@ -32,7 +33,13 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return SliverScaffold(
-      appBar: const CustomSliverAppBar(title: 'Request details'),
+      appBar: CustomSliverAppBar(
+        safeArea: false,
+        expandedHeight: 270.h,
+        collapsedTitle: _request.clientName,
+        foregroundColor: Colors.white,
+        flexibleBackground: RequestProfileHeader(request: _request),
+      ),
       bodyList: [
         RequestDetailsContent(request: _request).asSliverWithPadding(
           horizontal: 16.w,
@@ -72,7 +79,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
       );
     }
 
-    if (_request.isAccepted) {
+    if (_request.canSendInvoice) {
       return CustomButton(
         height: 42.h,
         onPressed: () => _showSendInvoiceDialog(context),
