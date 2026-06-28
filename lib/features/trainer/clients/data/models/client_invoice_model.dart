@@ -132,14 +132,58 @@ class ClientUser {
   String? firstName;
   String? lastName;
   String? email;
+  String? gender;
+  String? role;
+  bool? isVerified;
+  List<String>? injuries;
+  String? subscriptionTier;
+  bool? onboardingCompleted;
+  String? createdAt;
+  String? updatedAt;
+  ClientAnamAI? anamAI;
+  String? availableEquipment;
+  String? dateOfBirth;
+  String? fitnessLevel;
+  int? height;
+  String? primaryGoal;
+  int? trainingDaysPerWeek;
+  num? weight;
+  String? subscribedTrainer;
+  String? subscriptionStartDate;
   String? profilePicture;
+  String? coverPhoto;
+  String? preferredName;
+  String? bio;
+  String? motivationStyle;
 
   ClientUser({
     this.id,
     this.firstName,
     this.lastName,
     this.email,
+    this.gender,
+    this.role,
+    this.isVerified,
+    this.injuries,
+    this.subscriptionTier,
+    this.onboardingCompleted,
+    this.createdAt,
+    this.updatedAt,
+    this.anamAI,
+    this.availableEquipment,
+    this.dateOfBirth,
+    this.fitnessLevel,
+    this.height,
+    this.primaryGoal,
+    this.trainingDaysPerWeek,
+    this.weight,
+    this.subscribedTrainer,
+    this.subscriptionStartDate,
     this.profilePicture,
+    this.coverPhoto,
+    this.preferredName,
+    this.bio,
+    this.motivationStyle,
   });
 
   String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
@@ -149,7 +193,35 @@ class ClientUser {
     firstName = json['firstName'];
     lastName = json['lastName'];
     email = json['email'];
+    gender = json['gender'];
+    role = json['role'];
+    isVerified = json['isVerified'];
+    injuries = json['injuries'] is List
+        ? (json['injuries'] as List).map((e) => e.toString()).toList()
+        : [];
+    subscriptionTier = json['subscriptionTier'];
+    onboardingCompleted = json['onboardingCompleted'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    anamAI = json['anamAI'] is Map
+        ? ClientAnamAI.fromJson(json['anamAI'])
+        : null;
+    availableEquipment = json['availableEquipment'];
+    dateOfBirth = json['dateOfBirth'];
+    fitnessLevel = json['fitnessLevel'];
+    height = json['height'];
+    primaryGoal = json['primaryGoal'];
+    trainingDaysPerWeek = json['trainingDaysPerWeek'];
+    weight = json['weight'] != null
+        ? num.tryParse(json['weight'].toString())
+        : null;
+    subscribedTrainer = json['subscribedTrainer']?.toString();
+    subscriptionStartDate = json['subscriptionStartDate'];
     profilePicture = json['profilePicture'];
+    coverPhoto = json['coverPhoto'];
+    preferredName = json['preferredName'];
+    bio = json['bio'];
+    motivationStyle = json['motivationStyle'];
   }
 
   Map<String, dynamic> toJson() {
@@ -158,7 +230,61 @@ class ClientUser {
     data['firstName'] = firstName;
     data['lastName'] = lastName;
     data['email'] = email;
+    data['gender'] = gender;
+    data['role'] = role;
+    data['isVerified'] = isVerified;
+    data['injuries'] = injuries;
+    data['subscriptionTier'] = subscriptionTier;
+    data['onboardingCompleted'] = onboardingCompleted;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    if (anamAI != null) {
+      data['anamAI'] = anamAI!.toJson();
+    }
+    data['availableEquipment'] = availableEquipment;
+    data['dateOfBirth'] = dateOfBirth;
+    data['fitnessLevel'] = fitnessLevel;
+    data['height'] = height;
+    data['primaryGoal'] = primaryGoal;
+    data['trainingDaysPerWeek'] = trainingDaysPerWeek;
+    data['weight'] = weight;
+    data['subscribedTrainer'] = subscribedTrainer;
+    data['subscriptionStartDate'] = subscriptionStartDate;
     data['profilePicture'] = profilePicture;
+    data['coverPhoto'] = coverPhoto;
+    data['preferredName'] = preferredName;
+    data['bio'] = bio;
+    data['motivationStyle'] = motivationStyle;
+    return data;
+  }
+}
+
+class ClientAnamAI {
+  int? monthlyMinutesLimit;
+  int? minutesUsedThisMonth;
+  int? totalMinutesAllTime;
+  String? currentPeriodStart;
+
+  ClientAnamAI({
+    this.monthlyMinutesLimit,
+    this.minutesUsedThisMonth,
+    this.totalMinutesAllTime,
+    this.currentPeriodStart,
+  });
+
+  ClientAnamAI.fromJson(Map<String, dynamic> json) {
+    monthlyMinutesLimit = json['monthlyMinutesLimit'];
+    minutesUsedThisMonth = json['minutesUsedThisMonth'];
+    totalMinutesAllTime = json['totalMinutesAllTime'];
+    currentPeriodStart = json['currentPeriodStart'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['monthlyMinutesLimit'] = monthlyMinutesLimit;
+    data['minutesUsedThisMonth'] = minutesUsedThisMonth;
+    data['totalMinutesAllTime'] = totalMinutesAllTime;
+    data['currentPeriodStart'] = currentPeriodStart;
     return data;
   }
 }

@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
+import 'package:pler_to_pler_app/features/trainer/widgets/user_profile_fields.dart';
 
 export 'package:pler_to_pler_app/core/helpers/string_format.dart'
     show ProfileInfoRowData;
@@ -9,7 +10,12 @@ export 'package:pler_to_pler_app/core/helpers/string_format.dart'
 class RequestUserProfileRows {
   RequestUserProfileRows._();
 
-  static List<ProfileInfoRowData> profileInformation(RequestUser? user) {
+  static List<ProfileInfoRowData> profileInformation(RequestUser? user) =>
+      profileInformationFromFields(UserProfileFields.fromRequestUser(user));
+
+  static List<ProfileInfoRowData> profileInformationFromFields(
+    UserProfileFields? user,
+  ) {
     final rows = <ProfileInfoRowData>[];
 
     final preferredName = StringFormat.hasText(user?.preferredName)
@@ -39,12 +45,20 @@ class RequestUserProfileRows {
     return rows;
   }
 
-  static String? fitnessLevel(RequestUser? user) {
+  static String? fitnessLevel(RequestUser? user) =>
+      fitnessLevelFromFields(UserProfileFields.fromRequestUser(user));
+
+  static String? fitnessLevelFromFields(UserProfileFields? user) {
     if (!StringFormat.hasText(user?.fitnessLevel)) return null;
     return MenuShowHelper.fitnessLevelDisplayValue(user!.fitnessLevel);
   }
 
-  static List<ProfileInfoRowData> bodyMetrics(RequestUser? user) {
+  static List<ProfileInfoRowData> bodyMetrics(RequestUser? user) =>
+      bodyMetricsFromFields(UserProfileFields.fromRequestUser(user));
+
+  static List<ProfileInfoRowData> bodyMetricsFromFields(
+    UserProfileFields? user,
+  ) {
     final rows = <ProfileInfoRowData>[];
 
     if (user?.height != null) {
@@ -64,7 +78,12 @@ class RequestUserProfileRows {
     return rows;
   }
 
-  static List<String> trainingPreferenceChips(RequestUser? user) {
+  static List<String> trainingPreferenceChips(RequestUser? user) =>
+      trainingPreferenceChipsFromFields(UserProfileFields.fromRequestUser(user));
+
+  static List<String> trainingPreferenceChipsFromFields(
+    UserProfileFields? user,
+  ) {
     if (user == null) return [];
 
     final chips = <String>[];
@@ -103,7 +122,10 @@ class RequestUserProfileRows {
     return chips;
   }
 
-  static List<String> injuryChips(RequestUser? user) {
+  static List<String> injuryChips(RequestUser? user) =>
+      injuryChipsFromFields(UserProfileFields.fromRequestUser(user));
+
+  static List<String> injuryChipsFromFields(UserProfileFields? user) {
     if (user?.injuries == null || user!.injuries!.isEmpty) return [];
 
     return user.injuries!

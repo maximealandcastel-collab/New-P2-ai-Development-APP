@@ -7,7 +7,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/widgets/request_details_content.dart';
-import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/widgets/request_profile_header.dart';
+import 'package:pler_to_pler_app/features/trainer/widgets/trainer_profile_header.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class RequestDetailsScreen extends StatefulWidget {
@@ -38,7 +38,11 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
         expandedHeight: 270.h,
         collapsedTitle: _request.clientName,
         foregroundColor: Colors.white,
-        flexibleBackground: RequestProfileHeader(request: _request),
+        flexibleBackground: TrainerProfileHeader(
+          name: _request.clientName,
+          coverPhoto: _request.userId?.coverPhoto,
+          profilePicture: _request.userId?.profilePicture,
+        ),
       ),
       bodyList: [
         RequestDetailsContent(request: _request).asSliverWithPadding(

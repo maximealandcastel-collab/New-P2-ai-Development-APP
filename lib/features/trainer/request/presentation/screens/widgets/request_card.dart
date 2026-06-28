@@ -107,16 +107,52 @@ class RequestCard extends StatelessWidget {
 
   List<Widget> _buildActions(BuildContext context) {
     if (request.isAccepted) {
-      return [
-        SizedBox(height: 16.h),
-        CustomButton(
-          height: 40.h,
-          radius: 16.r,
-          fontSize: 14.sp,
-          onPressed: () => _showSendInvoiceDialog(context),
-          label: 'Send Invoice',
-        ),
-      ];
+      if (request.canSendInvoice) {
+        return [
+          SizedBox(height: 16.h),
+          CustomButton(
+            height: 40.h,
+            radius: 16.r,
+            fontSize: 14.sp,
+            onPressed: () => _showSendInvoiceDialog(context),
+            label: 'Send Invoice',
+          ),
+        ];
+      }
+
+      if (request.isInvoiceSent) {
+        return [
+          SizedBox(height: 16.h),
+          CustomContainer(
+            radiusAll: 12.r,
+            color: AppColors.info.withValues(alpha: 0.12),
+            paddingHorizontal: 12.w,
+            paddingVertical: 10.h,
+            width: double.infinity,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  size: 18.r,
+                  color: AppColors.info,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: CustomText(
+                    text: request.invoiceStatusLabel,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.info,
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ];
+      }
+
+      return const [];
     }
 
     if (request.isPending) {
