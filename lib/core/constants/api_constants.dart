@@ -29,6 +29,7 @@ class ApiConstants {
   static const String userProfile = '/api/v1/auth/me';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
+  static const String trainerMe = '/api/v1/trainer/me';
   static const String trainerRequest = '/api/v1/trainer-request';
   static const String trainerRequestAll = '/api/v1/trainer-request/all';
   static String acceptTrainerRequest(String requestId, String type) =>
@@ -84,6 +85,18 @@ class ApiConstants {
   static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
   static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
+
+  /// ANAM VIDEO CALL ──────────────────────────────────────────────
+  static const String anamUsage = '/api/v1/anam/usage';
+  static const String anamSessionStart = '/api/v1/anam/session/start';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionMessage(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/message';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionEnd(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/end';
+  static String trainerAnam(String trainerId) =>
+      '/api/v1/trainer/$trainerId/anam';
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';

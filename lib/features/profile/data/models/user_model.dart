@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class UserModel {
   String? sId;
   String? firstName;
@@ -30,6 +32,7 @@ class UserModel {
   String? bio;
 
   String? subscriptionStartDate;
+  String? subscriptionEndDate;
   String? profilePicture;
   String? coverPhoto;
   String? preferredName;
@@ -64,6 +67,7 @@ class UserModel {
     this.weight,
     this.bio,
     this.subscriptionStartDate,
+    this.subscriptionEndDate,
     this.profilePicture,
     this.coverPhoto,
     this.preferredName,
@@ -72,6 +76,16 @@ class UserModel {
   });
 
   String get fullName => "$firstName $lastName";
+
+  String get subscriptionPeriod {
+    if (subscriptionStartDate == null || subscriptionEndDate == null) {
+      return 'N/A';
+    }
+    final start = DateTime.parse(subscriptionStartDate!).toLocal();
+    final end = DateTime.parse(subscriptionEndDate!).toLocal();
+    final formatter = DateFormat('d MMMM yyyy');
+    return '${formatter.format(start)} - ${formatter.format(end)}';
+  }
 
   UserModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -119,6 +133,7 @@ class UserModel {
     bio = json['bio'];
 
     subscriptionStartDate = json['subscriptionStartDate'];
+    subscriptionEndDate = json['subscriptionEndDate'];
     profilePicture = json['profilePicture'];
     coverPhoto = json['coverPhoto'];
     preferredName = json['preferredName'];
@@ -159,6 +174,7 @@ class UserModel {
       'weight': weight,
       'bio': bio,
       'subscriptionStartDate': subscriptionStartDate,
+      'subscriptionEndDate': subscriptionEndDate,
       'profilePicture': profilePicture,
       'coverPhoto': coverPhoto,
       'preferredName': preferredName,
@@ -243,33 +259,49 @@ class Memory {
 }
 
 class ProfileMemory {
+  String? preferredName;
   String? goal;
   String? experienceLevel;
+  int? scheduleDaysPerWeek;
   String? equipment;
+  String? limitations;
+  String? preferences;
   String? updatedAt;
   String? motivationStyle;
 
   ProfileMemory({
+    this.preferredName,
     this.goal,
     this.experienceLevel,
+    this.scheduleDaysPerWeek,
     this.equipment,
+    this.limitations,
+    this.preferences,
     this.updatedAt,
     this.motivationStyle,
   });
 
   ProfileMemory.fromJson(Map<String, dynamic> json) {
+    preferredName = json['preferredName'];
     goal = json['goal'];
     experienceLevel = json['experienceLevel'];
+    scheduleDaysPerWeek = json['scheduleDaysPerWeek'];
     equipment = json['equipment'];
+    limitations = json['limitations'];
+    preferences = json['preferences'];
     updatedAt = json['updatedAt'];
     motivationStyle = json['motivationStyle'];
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'preferredName': preferredName,
       'goal': goal,
       'experienceLevel': experienceLevel,
+      'scheduleDaysPerWeek': scheduleDaysPerWeek,
       'equipment': equipment,
+      'limitations': limitations,
+      'preferences': preferences,
       'updatedAt': updatedAt,
       'motivationStyle': motivationStyle,
     };
@@ -278,11 +310,15 @@ class ProfileMemory {
 
 class RollingMemory {
   List<dynamic>? last3Sessions;
+  String? adherenceNotes;
+  String? recoveryNotes;
   List<dynamic>? flags;
   String? updatedAt;
 
   RollingMemory({
     this.last3Sessions,
+    this.adherenceNotes,
+    this.recoveryNotes,
     this.flags,
     this.updatedAt,
   });
@@ -291,6 +327,9 @@ class RollingMemory {
     last3Sessions = json['last3Sessions'] != null
         ? List<dynamic>.from(json['last3Sessions'])
         : [];
+
+    adherenceNotes = json['adherenceNotes'];
+    recoveryNotes = json['recoveryNotes'];
 
     flags = json['flags'] != null
         ? List<dynamic>.from(json['flags'])
@@ -302,6 +341,8 @@ class RollingMemory {
   Map<String, dynamic> toJson() {
     return {
       'last3Sessions': last3Sessions,
+      'adherenceNotes': adherenceNotes,
+      'recoveryNotes': recoveryNotes,
       'flags': flags,
       'updatedAt': updatedAt,
     };

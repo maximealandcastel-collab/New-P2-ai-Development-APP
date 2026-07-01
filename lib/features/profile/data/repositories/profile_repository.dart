@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
 
 class ProfileRepository {
@@ -19,7 +20,6 @@ class ProfileRepository {
     required CacheService cacheService,
   }) : _apiService = apiService,
        _cacheService = cacheService;
-
 
   // fetch user profile
   Future<UserModel> fetchUserProfile() async {
@@ -41,6 +41,61 @@ class ProfileRepository {
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
+
+  Future<TrainerDetailsModel> fetchTrainerProfile() async {
+    try {
+      final response = await _apiService.get(ApiConstants.trainerMe);
+      final trainer = _trainerFromResponseData(response.data?['data']);
+
+      if (trainer == null) {
+        throw UnknownException('Invalid trainer profile response');
+      }
+
+      await _cacheService.put(
+        AppConstants.cacheTrainerProfile,
+        trainer.toJson(),
+      );
+
+      return trainer;
+    } on AppException {
+      final cached = getCachedTrainerProfile();
+      if (cached != null) return cached;
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  TrainerDetailsModel? _trainerFromResponseData(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      return TrainerDetailsModel.fromJson(data);
+    }
+    if (data is Map) {
+      return TrainerDetailsModel.fromJson(Map<String, dynamic>.from(data));
+    }
+    return null;
+  }
+
+  TrainerDetailsModel? getCachedTrainerProfile() {
+    try {
+      final json = _cacheService.get(AppConstants.cacheTrainerProfile);
+
+      if (json is Map<String, dynamic>) {
+        return TrainerDetailsModel.fromJson(json);
+      }
+      if (json is Map) {
+        return TrainerDetailsModel.fromJson(Map<String, dynamic>.from(json));
+      }
+      return null;
+    } catch (e) {
+      debugPrint('❌ Error getting cached trainer profile: $e');
+      return null;
+    }
+  }
+
+  bool hasTrainerCache() {
+    return _cacheService.containsKey(AppConstants.cacheTrainerProfile);
   }
 
   UserModel? _userFromResponseData(dynamic data) {

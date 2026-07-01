@@ -99,14 +99,30 @@ class UserId {
   String? firstName;
   String? lastName;
   String? email;
+  String? profilePicture;
+  String? coverPhoto;
+  String? coverPicture;
 
-  UserId({this.sId, this.firstName, this.lastName, this.email});
+  UserId({
+    this.sId,
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.profilePicture,
+    this.coverPhoto,
+    this.coverPicture,
+  });
+
+  String get fullName => '$firstName $lastName';
 
   UserId.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     firstName = json['firstName'];
     lastName = json['lastName'];
     email = json['email'];
+    profilePicture = json['profilePicture'];
+    coverPhoto = json['coverPhoto'];
+    coverPicture = json['coverPicture'];
   }
 
   Map<String, dynamic> toJson() {
@@ -115,25 +131,31 @@ class UserId {
     data['firstName'] = firstName;
     data['lastName'] = lastName;
     data['email'] = email;
+    data['profilePicture'] = profilePicture;
+    data['coverPhoto'] = coverPhoto;
+    data['coverPicture'] = coverPicture;
     return data;
   }
 }
 
 class SubscriptionPrice {
-  int? premium;
   bool? free;
+  int? paid;
+  int? premium;
 
-  SubscriptionPrice({this.premium, this.free});
+  SubscriptionPrice({this.free, this.paid, this.premium});
 
   SubscriptionPrice.fromJson(Map<String, dynamic> json) {
-    premium = json['premium'];
     free = json['free'];
+    paid = json['paid'];
+    premium = json['premium'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['premium'] = premium;
     data['free'] = free;
+    data['paid'] = paid;
+    data['premium'] = premium;
     return data;
   }
 }

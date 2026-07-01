@@ -24,6 +24,13 @@ class ProfileFlexibleBackground extends StatelessWidget {
     return CustomContainer(
       child: Obx(() {
         final user = controller.userData;
+        final trainer = controller.trainerData;
+        final displayName = trainer?.name ?? user?.fullName ?? '';
+        final coverPhoto = trainer?.userId?.coverPhoto ??
+            trainer?.userId?.coverPicture ??
+            user?.coverPhoto;
+        final profilePicture =
+            trainer?.userId?.profilePicture ?? user?.profilePicture;
 
         return Stack(
           children: [
@@ -34,7 +41,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: double.infinity,
                   imageFile: controller.selectedCoverPhoto,
-                  imageUrl: user?.coverPhoto,
+                  imageUrl: coverPhoto,
                 ),
                 Positioned(
                   bottom: 12.h,
@@ -89,7 +96,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                           width: 124.r,
                           boxShape: BoxShape.circle,
                           imageFile: controller.selectedProfilePicture,
-                          imageUrl: user?.profilePicture,
+                          imageUrl: profilePicture,
                         ),
                       ),
                       Positioned(
@@ -117,7 +124,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                   ),
                   CustomText(
                     top: 6.h,
-                    text: user?.fullName ?? '',
+                    text: displayName,
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
                   ),

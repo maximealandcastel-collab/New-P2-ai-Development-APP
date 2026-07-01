@@ -42,6 +42,9 @@ dependencies:
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
   floating: ^6.0.0
+  anam_flutter_sdk:
+    path: packages/anam_flutter_sdk
+  flutter_webrtc: ^0.12.0
 
 
 dev_dependencies:

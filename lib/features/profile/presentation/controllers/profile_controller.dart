@@ -12,6 +12,7 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
 class ProfileController extends GetxController {
   ProfileController({
@@ -33,6 +34,9 @@ class ProfileController extends GetxController {
 
   final _userData = Rxn<UserModel>();
   UserModel? get userData => _userData.value;
+
+  final _trainerData = Rxn<TrainerDetailsModel>();
+  TrainerDetailsModel? get trainerData => _trainerData.value;
 
   final _selectedProfilePicture = Rxn<File>();
   final _selectedCoverPhoto = Rxn<File>();
@@ -126,10 +130,14 @@ class ProfileController extends GetxController {
 
   Future<void> loadData() async {
     try {
+      final cachedUser = _service.getCachedUserData();
       final hasCache = _service.hasCache();
+      final hasTrainerCache = _service.hasTrainerCache();
+      final isTrainer = cachedUser?.role == 'trainer';
       final isOnline = _connectivityService.isConnected.value;
+      final hasRequiredCache = hasCache && (!isTrainer || hasTrainerCache);
 
-      if (hasCache) {
+      if (hasRequiredCache) {
         _loadFromCache();
         _loadingState.value = LoadingState.loaded;
       } else {
@@ -141,13 +149,24 @@ class ProfileController extends GetxController {
       try {
         await _service.fetchUserProfile();
         _loadFromCache();
+
+        if (_userData.value?.role == 'trainer') {
+          if (!_service.hasTrainerCache()) {
+            _loadingState.value = LoadingState.loading;
+          }
+          await _service.fetchTrainerProfile();
+          _loadFromCache();
+        }
+
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
-        if (!hasCache) _loadingState.value = LoadingState.error;
+        if (!hasRequiredCache) _loadingState.value = LoadingState.error;
         if (kDebugMode) debugPrint('Fetch error: $e');
       }
     } catch (e) {
-      if (_service.hasCache()) {
+      if (_service.hasCache() &&
+          (_service.getCachedUserData()?.role != 'trainer' ||
+              _service.hasTrainerCache())) {
         _loadFromCache();
         _loadingState.value = LoadingState.loaded;
       } else {
@@ -159,6 +178,7 @@ class ProfileController extends GetxController {
 
   void _loadFromCache() {
     _userData.value = _service.getCachedUserData();
+    _trainerData.value = _service.getCachedTrainerProfile();
   }
 
   @override

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
-import 'package:pler_to_pler_app/features/settings/children/account_details_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
@@ -32,28 +32,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   List<Widget> _buildSlivers(BuildContext context) => [
         SizedBox(height: 16.h).asSliver,
           ContainerCard(
-            label: 'Account',
+            label: 'Device',
             children: [
-              CustomContainer(
-                color: Colors.black.withOpacity(0.05),
-                width: double.infinity,
-                paddingAll: 14.r,
-                radiusAll: 12.r,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomText(
-                      text: 'Email',
-                      fontSize: 11.sp,
-                      color: Colors.grey,
-                      bottom: 4.h,
-                    ),
-                    CustomText(
-                      text: 'Ethancarter77@gmail.com',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ],
-                ),
+              ListTileWidget(
+                label: 'Connect Device',
+                onTap: () => Get.to(() => const ManageDevicesScreen()),
               ),
             ],
           ).asSliverWithPadding(horizontal: 16.w),
@@ -62,44 +45,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // --- App Section ---
           ContainerCard(
-            label: 'App',
-            children: [
-              ListTileWidget(
-                label: 'App Preferences',
-                onTap: () => Get.to(() => const AccountDetailsScreen()),
-              ),
-              ListTileWidget(label: 'Language & Region', onTap: () {}),
-              ListTileWidget(
-                label: 'Notifications',
-                onTap: () {},
-                isSpacer: false,
-              ),
-            ],
-          ).asSliverWithPadding(horizontal: 16.w),
-
-          SizedBox(height: 12.h).asSliver,
-
-          // --- Options Section ---
-          ContainerCard(
             label: 'Options',
             children: [
               ListTileWidget(
                 label: 'Earnings',
                 onTap: () => Get.to(() => const EarningsScreen()),
               ),
-              ListTileWidget(
-                label: 'Connect Device',
-                onTap: () => Get.to(() => const ManageDevicesScreen()),
-              ),
-              ListTileWidget(
-                label: 'Invoice',
-                onTap: () => Get.to(() => const InvoicesScreen()),
-              ),
-              ListTileWidget(
-                label: 'Privacy & Security',
-                onTap: () {},
-                isSpacer: false,
-              ),
+              ListTileWidget(label: 'Invoices', onTap: () {
+                Get.to(() => const InvoicesScreen());
+              }),
+              if (LoginController.to.isTrainer())
+                ListTileWidget(
+                  label: 'AI video chat',
+                  onTap: () {
+                    Get.toNamed(AppRoute.aiVideoChatConnectScreen);
+                  },
+                  isSpacer: false,
+                ),
             ],
           ).asSliverWithPadding(horizontal: 16.w),
 

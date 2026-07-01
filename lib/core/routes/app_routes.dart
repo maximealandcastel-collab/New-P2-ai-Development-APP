@@ -9,7 +9,14 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_pers
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
+import 'package:pler_to_pler_app/features/settings/children/ai_video_chat_connect_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
+import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_call_controller.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_connect_controller.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/screens/anam_call_screen.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
@@ -90,6 +97,8 @@ class AppRoute {
   static String exerciseBlockDetailsScreen = "/exerciseBlockDetailsScreen";
   static String clientDetailsScreen = "/clientDetailsScreen";
   static String requestDetailsScreen = "/requestDetailsScreen";
+  static String aiVideoChatConnectScreen = "/aiVideoChatConnectScreen";
+  static String anamCallScreen = "/anamCallScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -129,6 +138,33 @@ class AppRoute {
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
+    GetPage(
+      name: aiVideoChatConnectScreen,
+      page: () => const AiVideoChatConnectScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<AnamConnectController>(
+          () => AnamConnectController(
+            anamService: Get.find<AnamService>(),
+            profileService: Get.find<ProfileService>(),
+          ),
+        );
+      }),
+    ),
+    GetPage(
+      name: anamCallScreen,
+      page: () => const AnamCallScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 280),
+      binding: BindingsBuilder(() {
+        Get.put<AnamCallController>(
+          AnamCallController(
+            anamService: Get.find<AnamService>(),
+            args: Get.arguments as AnamCallArgs,
+          ),
+          permanent: false,
+        );
+      }),
+    ),
     GetPage(
       name: changePasswordScreen,
       page: () => const ChangePasswordScreen(),

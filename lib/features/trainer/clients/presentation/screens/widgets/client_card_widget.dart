@@ -9,20 +9,26 @@ class ClientCardWidget extends StatelessWidget {
   const ClientCardWidget({
     super.key,
     this.invoice,
+    this.name,
+    this.subtitle,
+    this.profilePicture,
     this.onTap,
     this.onChatTap,
   });
 
   final ClientInvoiceModel? invoice;
+  final String? name;
+  final String? subtitle;
+  final String? profilePicture;
   final VoidCallback? onTap;
   final VoidCallback? onChatTap;
 
   @override
   Widget build(BuildContext context) {
-    final clientName = invoice?.clientName ?? '';
-    final subscriptionPeriod =
-        invoice?.subscriptionPeriod ?? '';
-    final profilePicture = invoice?.userId?.profilePicture ?? '';
+    final clientName = name ?? invoice?.clientName ?? '';
+    final subscriptionPeriod = subtitle ?? invoice?.subscriptionPeriod ?? '';
+    final profilePictureUrl =
+        profilePicture ?? invoice?.userId?.profilePicture ?? '';
 
     return CustomContainer(
       marginTop: 8.h,
@@ -38,7 +44,7 @@ class ClientCardWidget extends StatelessWidget {
           width: 40.r,
           boxShape: BoxShape.circle,
           border: Border.all(color: Colors.black.withValues(alpha: 0.48)),
-          imageUrl: profilePicture,
+          imageUrl: profilePictureUrl,
         ),
         title: CustomText(
           textAlign: TextAlign.start,
