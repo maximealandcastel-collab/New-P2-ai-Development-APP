@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/features/anam/data/anam_engine_client.dart';
 import 'package:pler_to_pler_app/features/anam/data/models/anam_usage_model.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
+import 'package:pler_to_pler_app/features/anam/utils/anam_audio_helper.dart';
 import 'package:pler_to_pler_app/features/anam/utils/anam_speak_helper.dart';
 
 enum AnamCallStatus {
@@ -150,6 +151,8 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
 
       status.value = AnamCallStatus.connecting;
 
+      await AnamAudioHelper.configureForVideoCall();
+
       _client = AnamClientFactory.createClient(
         sessionToken: token,
         enableLogging: kDebugMode,
@@ -223,6 +226,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
       status.value = AnamCallStatus.connected;
       errorMessage.value = null;
       _streamWatchdog?.cancel();
+      unawaited(AnamAudioHelper.prepareRemoteAudio(stream));
     } catch (e) {
       if (kDebugMode) debugPrint('Anam attach stream warning: $e');
     }
@@ -315,7 +319,12 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     );
 
     _audioSub = _client!.on(AnamEvent.audioStreamStarted).listen(
-      (stream) => _handleStreamReady(stream is MediaStream ? stream : null),
+      (stream) {
+        if (stream is MediaStream) {
+          unawaited(AnamAudioHelper.prepareRemoteAudio(stream));
+        }
+        _handleStreamReady(stream is MediaStream ? stream : null);
+      },
       onError: _handleStreamError,
     );
 
@@ -333,6 +342,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
         if (_client != null && renderer != null) {
           AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
         }
+        unawaited(AnamAudioHelper.enableLoudSpeaker());
         if (!isStreamReady.value) {
           status.value = AnamCallStatus.connecting;
         }
