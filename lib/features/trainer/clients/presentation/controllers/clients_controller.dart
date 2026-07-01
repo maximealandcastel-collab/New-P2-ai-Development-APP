@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/domain/services/client_service.dart';
 
@@ -148,7 +149,10 @@ class ClientsController extends GetxController with PaginatedLoaderUi {
   }
 
   void onChatTap(ClientInvoiceModel invoice) {
-    Get.toNamed(AppRoute.chatScreen);
+    Get.toNamed(
+      AppRoute.chatScreen,
+      arguments: ChatScreenArgs(displayName: invoice.clientName),
+    );
   }
 
   @override

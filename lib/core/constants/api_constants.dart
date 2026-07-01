@@ -85,6 +85,16 @@ class ApiConstants {
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
   static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
 
+  /// ANAM VIDEO CALL ──────────────────────────────────────────────
+  static const String anamUsage = '/api/v1/anam/usage';
+  static const String anamSessionStart = '/api/v1/anam/session/start';
+  static String anamSessionMessage(String sessionId) =>
+      '/api/v1/anam/session/$sessionId/message';
+  static String anamSessionEnd(String sessionId) =>
+      '/api/v1/anam/session/$sessionId/end';
+  static String trainerAnam(String trainerId) =>
+      '/api/v1/trainer/$trainerId/anam';
+
   ///
   static const String searchHistoryKey = '/searchHistoryKey';
 }

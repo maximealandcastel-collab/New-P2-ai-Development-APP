@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/screens/anam_call_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -14,6 +19,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  late final ChatScreenArgs _args;
 
   // Dummy Chat List
   final List<Map<String, dynamic>> _dummyMessages = [
@@ -29,6 +35,25 @@ class _ChatScreenState extends State<ChatScreen> {
     {"text": "Let's catch up at the café.", "time": "10:32 AM", "isMe": false},
     {"text": "Perfect, see you then!", "time": "10:35 AM", "isMe": true},
   ];
+
+  bool get _canStartAiCall =>
+      !LoginController.to.isTrainer() &&
+      _args.isAnamEnabled &&
+      (_args.trainerId?.isNotEmpty ?? false);
+
+  @override
+  void initState() {
+    super.initState();
+    _args = Get.arguments is ChatScreenArgs
+        ? Get.arguments as ChatScreenArgs
+        : const ChatScreenArgs(displayName: 'John Adams');
+    _prefetchAnamUsage();
+  }
+
+  void _prefetchAnamUsage() {
+    if (!_canStartAiCall || !Get.isRegistered<AnamService>()) return;
+    prefetchAnamUsage(Get.find<AnamService>());
+  }
 
   @override
   void dispose() {
@@ -52,20 +77,23 @@ class _ChatScreenState extends State<ChatScreen> {
               textAlign: TextAlign.start,
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              text: 'John Adams',
+              text: _args.displayName,
             ),
             CustomText(
               left: 8.w,
               fontSize: 12.sp,
               textAlign: TextAlign.start,
               color: AppColors.textSecondary,
-              text: 'Active now',
+              text: _args.subtitle,
             ),
           ],
         ),
         actions: [
-          if (!LoginController.to.isTrainer())
-            IconButton(onPressed: () {}, icon: Assets.icons.aiChat.svg()),
+          if (_canStartAiCall)
+            IconButton(
+              onPressed: _onAiCallTap,
+              icon: Assets.icons.aiChat.svg(),
+            ),
         ],
       ),
       body: KeyboardDismissOnTap(
@@ -93,6 +121,20 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onAiCallTap() async {
+    final trainerId = _args.trainerId;
+    if (trainerId == null || trainerId.isEmpty) {
+      ToastMessageHelper.show('Trainer not available for video call');
+      return;
+    }
+
+    await openAnamVideoCall(
+      trainerId: trainerId,
+      trainerName: _args.displayName,
+    );
+    _prefetchAnamUsage();
   }
 
   Widget _buildMessageSender() {

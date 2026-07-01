@@ -18,6 +18,8 @@ import 'package:pler_to_pler_app/features/search/controller/search_controller.da
 import 'package:pler_to_pler_app/features/subscribe/data/repositories/subscribe_repository.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/anam/data/repositories/anam_repository.dart';
+import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
 import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
@@ -153,6 +155,16 @@ class DependencyInjection {
         authService: Get.find<AuthService>(),
         profileService: Get.find<ProfileService>(),
       ),
+      fenix: true,
+    );
+
+    /// Anam video call (lazy — SDK loads only when call screen opens)
+    Get.lazyPut<AnamRepository>(
+      () => AnamRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<AnamService>(
+      () => AnamService(repository: Get.find<AnamRepository>()),
       fenix: true,
     );
 
