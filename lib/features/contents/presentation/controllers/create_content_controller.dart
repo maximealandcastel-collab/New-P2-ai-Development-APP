@@ -42,8 +42,6 @@ class CreateContentController extends GetxController {
   final RxnString existingVideoUrl = RxnString();
   final RxnString existingThumbnailUrl = RxnString();
   final RxnInt durationSeconds = RxnInt();
-  final RxnInt videoWidth = RxnInt();
-  final RxnInt videoHeight = RxnInt();
   final RxBool isReadingVideoDuration = false.obs;
 
   File? videoFile;
@@ -70,8 +68,6 @@ class CreateContentController extends GetxController {
     titleController.text = content.title ?? '';
     descriptionController.text = content.description ?? '';
     durationSeconds.value = content.durationSeconds;
-    videoWidth.value = content.videoWidth;
-    videoHeight.value = content.videoHeight;
     exerciseNameController.text = content.exerciseName ?? '';
     selectedDifficulty.value = content.difficulty;
     difficultyController.text = content.difficulty != null
@@ -120,21 +116,15 @@ class CreateContentController extends GetxController {
 
       isReadingVideoDuration.value = true;
 
-      final metadata = await VideoDurationHelper.metadataFromFilePath(file!.path!);
-      if (metadata == null || metadata.durationSeconds <= 0) {
+      final seconds = await VideoDurationHelper.fromFilePath(file!.path!);
+      if (seconds == null || seconds <= 0) {
         ToastMessageHelper.show('Could not read video duration');
-        return;
-      }
-      if (metadata.width <= 0 || metadata.height <= 0) {
-        ToastMessageHelper.show('Could not read video dimensions');
         return;
       }
 
       videoFile = File(file.path!);
       videoFileName.value = file.name;
-      durationSeconds.value = metadata.durationSeconds;
-      videoWidth.value = metadata.width;
-      videoHeight.value = metadata.height;
+      durationSeconds.value = seconds;
       existingVideoUrl.value = null;
     } catch (e) {
       ToastMessageHelper.show('Could not pick video file');
@@ -164,9 +154,7 @@ class CreateContentController extends GetxController {
         final hasThumbnail =
             thumbnailFile != null || existingThumbnailUrl.value != null;
         final hasDuration = (durationSeconds.value ?? 0) > 0;
-        final hasDimensions = videoFile == null ||
-            ((videoWidth.value ?? 0) > 0 && (videoHeight.value ?? 0) > 0);
-        return hasVideo && hasThumbnail && hasDuration && hasDimensions;
+        return hasVideo && hasThumbnail && hasDuration;
       case 2:
         return selectedMuscleGroups.isNotEmpty &&
             _resolveDifficultyValue() != null;
@@ -193,9 +181,6 @@ class CreateContentController extends GetxController {
       ToastMessageHelper.show('Please upload a thumbnail image');
     } else if ((durationSeconds.value ?? 0) <= 0) {
       ToastMessageHelper.show('Could not read video duration');
-    } else if (videoFile != null &&
-        ((videoWidth.value ?? 0) <= 0 || (videoHeight.value ?? 0) <= 0)) {
-      ToastMessageHelper.show('Could not read video dimensions');
     }
   }
 
@@ -216,8 +201,6 @@ class CreateContentController extends GetxController {
       'title': titleController.text.trim(),
       'description': descriptionController.text.trim(),
       'contentType': HelperData.contentType,
-      'videoWidth': videoWidth.value,
-      'videoHeight': videoHeight.value,
       'durationSeconds': durationSeconds.value ?? 0,
       'exerciseName': exerciseNameController.text.trim(),
       'muscleGroups': List<String>.from(selectedMuscleGroups),

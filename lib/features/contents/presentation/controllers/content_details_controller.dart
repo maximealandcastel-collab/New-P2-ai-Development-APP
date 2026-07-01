@@ -110,18 +110,9 @@ class ContentDetailsController extends GetxController {
   Future<void> enterPictureInPicture() async {
     if (!pipAvailable.value) return;
 
-    final width = content.videoWidth;
-    final height = content.videoHeight;
-    final aspectRatio = width != null &&
-            height != null &&
-            width > 0 &&
-            height > 0
-        ? Rational(width, height)
-        : const Rational(16, 9);
-
     try {
       await _floating.enable(
-        ImmediatePiP(aspectRatio: aspectRatio),
+        ImmediatePiP(aspectRatio: const Rational(16, 9)),
       );
     } catch (error) {
       if (kDebugMode) {

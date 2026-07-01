@@ -14,14 +14,12 @@ class ContentVideoPlayer extends StatelessWidget {
     this.poster,
     this.borderRadius,
     this.showActions = true,
-    this.aspectRatio = 16 / 9,
   });
 
   final ContentDetailsController controller;
   final Widget? poster;
   final BorderRadius? borderRadius;
   final bool showActions;
-  final double aspectRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,7 @@ class ContentVideoPlayer extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: AspectRatio(
-        aspectRatio: aspectRatio,
+        aspectRatio: 16 / 9,
         child: MaterialVideoControlsTheme(
           normal: controlsTheme,
           fullscreen: controlsTheme.copyWith(buttonBarHeight: 52.h),
