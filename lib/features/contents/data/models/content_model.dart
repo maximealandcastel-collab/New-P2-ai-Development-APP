@@ -29,6 +29,8 @@ class ContentModel {
   String? contentType;
   String? videoUrl;
   String? thumbnailUrl;
+  int? videoWidth;
+  int? videoHeight;
   int? durationSeconds;
   String? exerciseName;
   List<String>? muscleGroups;
@@ -50,6 +52,8 @@ class ContentModel {
     this.contentType,
     this.videoUrl,
     this.thumbnailUrl,
+    this.videoWidth,
+    this.videoHeight,
     this.durationSeconds,
     this.exerciseName,
     this.muscleGroups,
@@ -74,6 +78,8 @@ class ContentModel {
     contentType = json['contentType'];
     videoUrl = json['videoUrl'];
     thumbnailUrl = json['thumbnailUrl'];
+    videoWidth = json['videoWidth'];
+    videoHeight = json['videoHeight'];
     durationSeconds = json['durationSeconds'];
     exerciseName = json['exerciseName'];
     muscleGroups = json['muscleGroups']?.cast<String>();
@@ -97,6 +103,8 @@ class ContentModel {
       'contentType': contentType,
       'videoUrl': videoUrl,
       'thumbnailUrl': thumbnailUrl,
+      'videoWidth': videoWidth,
+      'videoHeight': videoHeight,
       'durationSeconds': durationSeconds,
       'exerciseName': exerciseName,
       'muscleGroups': muscleGroups,
@@ -119,6 +127,8 @@ class ContentModel {
       'contentType': contentType,
       'videoUrl': videoUrl,
       'thumbnailUrl': thumbnailUrl,
+      'videoWidth': videoWidth,
+      'videoHeight': videoHeight,
       'durationSeconds': durationSeconds,
       'exerciseName': exerciseName,
       'muscleGroups': muscleGroups,

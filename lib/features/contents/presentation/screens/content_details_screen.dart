@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_video_aspect.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_video_header.dart';
@@ -16,7 +17,12 @@ class ContentDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ContentDetailsController.to;
     final content = controller.content;
-    final videoHeight = 1.sw * 9 / 16;
+    final videoContentWidth = 1.sw - 32.w;
+    final videoHeight = ContentVideoAspect.displayHeight(
+      availableWidth: videoContentWidth,
+      videoWidth: content.videoWidth,
+      videoHeight: content.videoHeight,
+    );
 
     final page = SliverScaffold(
       appBar: CustomSliverAppBar(
@@ -47,6 +53,10 @@ class ContentDetailsScreen extends StatelessWidget {
           child: ContentVideoPlayer(
             controller: controller,
             showActions: false,
+            aspectRatio: ContentVideoAspect.aspectRatio(
+              width: controller.content.videoWidth,
+              height: controller.content.videoHeight,
+            ),
           ),
         ),
       ),

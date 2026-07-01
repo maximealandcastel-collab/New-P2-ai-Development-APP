@@ -58,7 +58,7 @@ class ContentVideoDetailsPage extends StatelessWidget {
                   ),
                   SizedBox(width: 8.w),
                   CustomText(
-                    text: 'Reading video duration...',
+                    text: 'Reading video details...',
                     fontSize: 12.sp,
                     color: AppColors.textSecondary,
                     textAlign: TextAlign.start,
