@@ -29,6 +29,7 @@ class ApiConstants {
   static const String userProfile = '/api/v1/auth/me';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
+  static const String trainerMe = '/api/v1/trainer/me';
   static const String trainerRequest = '/api/v1/trainer-request';
   static const String trainerRequestAll = '/api/v1/trainer-request/all';
   static String acceptTrainerRequest(String requestId, String type) =>

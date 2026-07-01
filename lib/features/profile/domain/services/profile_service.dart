@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/data/repositories/profile_repository.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
 class ProfileService {
   final ProfileRepository _repository;
@@ -16,6 +17,18 @@ class ProfileService {
       await Future.wait([_repository.fetchUserProfile()]);
     } on AppException {
       if (!_repository.hasCache()) {
+        rethrow;
+      }
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<void> fetchTrainerProfile() async {
+    try {
+      await _repository.fetchTrainerProfile();
+    } on AppException {
+      if (!_repository.hasTrainerCache()) {
         rethrow;
       }
     } catch (e) {
@@ -41,6 +54,14 @@ class ProfileService {
 
   UserModel? getCachedUserData() {
     return _repository.getCachedUserData();
+  }
+
+  TrainerDetailsModel? getCachedTrainerProfile() {
+    return _repository.getCachedTrainerProfile();
+  }
+
+  bool hasTrainerCache() {
+    return _repository.hasTrainerCache();
   }
 
   Future<String> resolveInitialRoute() async {
