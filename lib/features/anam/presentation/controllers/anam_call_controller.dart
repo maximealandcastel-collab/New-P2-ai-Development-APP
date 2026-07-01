@@ -81,8 +81,10 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Do not end on [inactive] — iOS fires it for Control Center, permission
+    // dialogs, and other overlays. Only end when the app is actually backgrounded.
     if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden ||
         state == AppLifecycleState.detached) {
       unawaited(endCall(popRoute: false));
     }
