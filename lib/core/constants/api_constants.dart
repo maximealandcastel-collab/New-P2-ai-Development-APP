@@ -89,10 +89,12 @@ class ApiConstants {
   /// ANAM VIDEO CALL ──────────────────────────────────────────────
   static const String anamUsage = '/api/v1/anam/usage';
   static const String anamSessionStart = '/api/v1/anam/session/start';
-  static String anamSessionMessage(String sessionId) =>
-      '/api/v1/anam/session/$sessionId/message';
-  static String anamSessionEnd(String sessionId) =>
-      '/api/v1/anam/session/$sessionId/end';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionMessage(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/message';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionEnd(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/end';
   static String trainerAnam(String trainerId) =>
       '/api/v1/trainer/$trainerId/anam';
 

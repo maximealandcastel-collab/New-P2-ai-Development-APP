@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
@@ -44,8 +45,12 @@ class AnamRepository {
     required String message,
   }) async {
     try {
+      final path = ApiConstants.anamSessionMessage(dbSessionId);
+      if (kDebugMode) {
+        debugPrint('Anam message API: POST $path');
+      }
       final response = await _apiService.post(
-        ApiConstants.anamSessionMessage(dbSessionId),
+        path,
         data: {'trainerId': trainerId, 'message': message},
       );
       return AnamMessageReplyModel.fromJson(

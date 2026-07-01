@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/features/anam/data/anam_engine_client.dart';
 import 'package:pler_to_pler_app/features/anam/data/models/anam_usage_model.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
@@ -30,7 +31,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   final AnamService _anamService;
   final AnamCallArgs _args;
 
-  static const _customLlmId = 'CUSTOMER_CLIENT_V1';
+  static const _maxStreamWatchAttempts = 60;
 
   final status = AnamCallStatus.idle.obs;
   final usage = Rxn<AnamUsageModel>();
@@ -48,12 +49,19 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   StreamSubscription<dynamic>? _sessionSub;
   StreamSubscription<dynamic>? _errorSub;
   StreamSubscription<dynamic>? _dataChannelSub;
+  StreamSubscription<dynamic>? _closedSub;
   Timer? _streamWatchdog;
+  int _streamWatchAttempts = 0;
+  int _startGeneration = 0;
+
+  final AnamEngineClient _engineClient = AnamEngineClient();
 
   String? _dbSessionId;
   String? _lastProcessedUserMessage;
   bool _isEnding = false;
+  bool _isStarting = false;
   bool _isProcessingMessage = false;
+  bool _disableAnamBrains = true;
 
   String get trainerName => _args.trainerName;
 
@@ -74,21 +82,53 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
       unawaited(endCall(popRoute: false));
     }
   }
 
-  Future<void> startCall() async {
-    if (_isEnding) return;
+  bool get isStartingCall =>
+      _isStarting || status.value == AnamCallStatus.starting;
+
+  Future<void> startCall({bool isRetryAfterActiveSession = false}) async {
+    if (_isEnding || _isStarting) return;
+
+    _isStarting = true;
+    final generation = ++_startGeneration;
 
     try {
       status.value = AnamCallStatus.starting;
       errorMessage.value = null;
       isStreamReady.value = false;
 
+      await _cleanupAnamOnly();
+
+      final previousDbSessionId = _dbSessionId;
+      _dbSessionId = null;
+      if (previousDbSessionId != null) {
+        try {
+          await _anamService.endSession(previousDbSessionId);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Anam end previous session failed: $e');
+          }
+        }
+      }
+
+      if (generation != _startGeneration) return;
+
       final session = await _anamService.startSession(_args.trainerId);
+      if (generation != _startGeneration) return;
+
       _dbSessionId = session.dbSessionId;
+      _disableAnamBrains = session.usesClientCustomLlm;
+      if (kDebugMode) {
+        debugPrint(
+          'Anam dbSessionId: $_dbSessionId '
+          'customLlm=${session.customLlm} llmId=${session.llmId}',
+        );
+      }
       usage.value = session.usage;
 
       if (!session.hasConnectPayload) {
@@ -108,65 +148,111 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
 
       status.value = AnamCallStatus.connecting;
 
-      await _cleanupAnamOnly();
-
-      _client = AnamClient(
-        options: AnamClientOptions(
-          sessionToken: token,
-          enableLogging: kDebugMode,
-          disableBrains: true,
-        ),
+      _client = AnamClientFactory.createClient(
+        sessionToken: token,
+        enableLogging: kDebugMode,
+        disableBrains: _disableAnamBrains,
       );
       renderer = RTCVideoRenderer();
       await renderer!.initialize();
 
+      if (generation != _startGeneration) return;
+
       _setupClientListeners();
 
-      final personaConfig = PersonaConfig(
-        personaId: session.personaId,
-        name: session.trainerName ?? _args.trainerName,
-        avatarId: session.personaId,
-        voiceId: session.personaId,
-        llmId: _customLlmId,
-      );
+      final preNegotiated = session.preNegotiatedSession ??
+          await _engineClient.startEngineSession(
+            sessionToken: token,
+            personaId: session.personaId,
+            disableBrains: _disableAnamBrains,
+          );
 
-      if (session.preNegotiatedSession != null) {
-        await _client!.talk(
-          preNegotiatedSession: session.preNegotiatedSession,
-          onStreamReady: _handleStreamReady,
-        );
-      } else {
-        await _client!.talk(
-          personaConfig: personaConfig,
-          onStreamReady: _handleStreamReady,
+      if (kDebugMode) {
+        debugPrint(
+          'Anam engine session: ${preNegotiated['sessionId']} '
+          'host=${preNegotiated['engineHost']} '
+          'disableBrains=$_disableAnamBrains',
         );
       }
+
+      await runZonedGuarded(
+        () => _client!.talk(
+          preNegotiatedSession: preNegotiated,
+          onStreamReady: _handleStreamReady,
+        ),
+        _handleStreamError,
+      );
+
+      if (generation != _startGeneration) return;
 
       _startStreamWatchdog();
       _listenForUserSpeech();
     } catch (e) {
+      if (generation != _startGeneration) return;
+
+      final message = e.errorMessage.toLowerCase();
+      if (!isRetryAfterActiveSession &&
+          (message.contains('active call session') ||
+              message.contains('already have an active'))) {
+        if (kDebugMode) {
+          debugPrint('Anam: active session conflict — ending and retrying');
+        }
+        _isStarting = false;
+        await startCall(isRetryAfterActiveSession: true);
+        return;
+      }
+
       status.value = AnamCallStatus.error;
       errorMessage.value = e.errorMessage;
       if (kDebugMode) debugPrint('Anam startCall error: $e');
       await _cleanupAnamOnly();
+    } finally {
+      if (generation == _startGeneration) {
+        _isStarting = false;
+      }
     }
   }
 
   void _handleStreamReady(MediaStream? stream) {
     if (stream == null || renderer == null || isStreamReady.value) return;
-    renderer!.srcObject = stream;
-    isStreamReady.value = true;
-    status.value = AnamCallStatus.connected;
-    _streamWatchdog?.cancel();
+    try {
+      renderer!.srcObject = stream;
+      isStreamReady.value = true;
+      status.value = AnamCallStatus.connected;
+      errorMessage.value = null;
+      _streamWatchdog?.cancel();
+    } catch (e) {
+      if (kDebugMode) debugPrint('Anam attach stream warning: $e');
+    }
+  }
+
+  bool _isIgnorableStreamError(Object error) {
+    if (error is UnimplementedError) return true;
+    final message = error.toString();
+    return message.contains('UnimplementedError') ||
+        message.contains('MediaStream.active');
   }
 
   void _startStreamWatchdog() {
     _streamWatchdog?.cancel();
+    _streamWatchAttempts = 0;
     _streamWatchdog = Timer.periodic(const Duration(milliseconds: 500), (_) {
       if (_client == null || renderer == null || isStreamReady.value) {
         _streamWatchdog?.cancel();
         return;
       }
+
+      _streamWatchAttempts++;
+      if (_streamWatchAttempts > _maxStreamWatchAttempts) {
+        _streamWatchdog?.cancel();
+        if (!_isEnding && !isStreamReady.value) {
+          status.value = AnamCallStatus.error;
+          errorMessage.value =
+              'Video stream timed out. Please try again.';
+        }
+        return;
+      }
+
       AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
       if (renderer!.srcObject != null) {
         isStreamReady.value = true;
@@ -176,6 +262,42 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     });
   }
 
+  void _handleStreamError(Object error, [StackTrace? stackTrace]) {
+    if (_isEnding || _isStarting) return;
+
+    if (_isIgnorableStreamError(error)) {
+      if (kDebugMode) {
+        debugPrint('Anam: ignored flutter_webrtc SDK noise: $error');
+      }
+      return;
+    }
+
+    final message = error.toString();
+    if (kDebugMode) {
+      debugPrint('Anam stream error: $message');
+    }
+
+    if (message.contains('Session ended by server')) {
+      unawaited(_handleServerEndSession());
+      return;
+    }
+
+    if (isStreamReady.value) return;
+
+    status.value = AnamCallStatus.error;
+    errorMessage.value = message;
+  }
+
+  Future<void> _handleServerEndSession() async {
+    if (_isEnding || _isStarting) return;
+
+    status.value = AnamCallStatus.error;
+    errorMessage.value = isStreamReady.value
+        ? 'Call ended unexpectedly. Please try again.'
+        : 'Could not keep the video session alive. Please try again.';
+    await endCall(popRoute: false);
+  }
+
   void _setupClientListeners() {
     _connectionSub?.cancel();
     _videoSub?.cancel();
@@ -183,72 +305,104 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     _sessionSub?.cancel();
     _errorSub?.cancel();
     _dataChannelSub?.cancel();
+    _closedSub?.cancel();
 
-    _videoSub = _client!.on(AnamEvent.videoStreamStarted).listen((stream) {
-      _handleStreamReady(stream is MediaStream ? stream : null);
-    });
+    _videoSub = _client!.on(AnamEvent.videoStreamStarted).listen(
+      (stream) => _handleStreamReady(stream is MediaStream ? stream : null),
+      onError: _handleStreamError,
+    );
 
-    _audioSub = _client!.on(AnamEvent.audioStreamStarted).listen((stream) {
-      _handleStreamReady(stream is MediaStream ? stream : null);
-    });
+    _audioSub = _client!.on(AnamEvent.audioStreamStarted).listen(
+      (stream) => _handleStreamReady(stream is MediaStream ? stream : null),
+      onError: _handleStreamError,
+    );
 
-    _sessionSub = _client!.on(AnamEvent.sessionReady).listen((_) {
-      if (_client != null && renderer != null) {
-        AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
-      }
-    });
+    _sessionSub = _client!.on(AnamEvent.sessionReady).listen(
+      (_) {
+        if (_client != null && renderer != null) {
+          AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
+        }
+      },
+      onError: _handleStreamError,
+    );
 
-    _connectionSub = _client!
-        .on(AnamEvent.connectionEstablished)
-        .listen((_) {
-      if (_client != null && renderer != null) {
-        AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
-      }
-      if (!isStreamReady.value) {
-        status.value = AnamCallStatus.connecting;
-      }
-    });
+    _connectionSub = _client!.on(AnamEvent.connectionEstablished).listen(
+      (_) {
+        if (_client != null && renderer != null) {
+          AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
+        }
+        if (!isStreamReady.value) {
+          status.value = AnamCallStatus.connecting;
+        }
+      },
+      onError: _handleStreamError,
+    );
 
-    _errorSub = _client!.on(AnamEvent.error).listen((error) {
-      status.value = AnamCallStatus.error;
-      errorMessage.value = error?.toString() ?? 'Video connection failed';
-      if (kDebugMode) debugPrint('Anam SDK error: $error');
-    });
+    _closedSub = _client!.on(AnamEvent.connectionClosed).listen(
+      (_) {
+        if (_isEnding || _isStarting) return;
+        unawaited(endCall(popRoute: false));
+      },
+      onError: _handleStreamError,
+    );
+
+    _errorSub = _client!.on(AnamEvent.error).listen(
+      (error) => _handleStreamError(error ?? 'Video connection failed'),
+      onError: _handleStreamError,
+    );
 
     _dataChannelSub =
-        _client!.on<dynamic>(AnamEvent.dataChannelMessage).listen((data) {
-      if (data is! Map) return;
-      final map = Map<String, dynamic>.from(data);
-      final type = map['type']?.toString();
-      if (type == 'user_message' || type == 'transcript') {
-        final text = map['content']?.toString() ?? map['text']?.toString();
-        if (text != null && text.trim().isNotEmpty) {
-          unawaited(_processUserSpeech(text.trim()));
+        _client!.on<dynamic>(AnamEvent.dataChannelMessage).listen(
+      (data) {
+        if (data is! Map) return;
+        final map = Map<String, dynamic>.from(data);
+
+        if (map['messageType'] == 'speechText' && map['data'] is Map) {
+          final speech = Map<String, dynamic>.from(map['data'] as Map);
+          if (speech['role'] == 'user' && speech['end_of_speech'] == true) {
+            final text = speech['content']?.toString().trim();
+            if (text != null && text.isNotEmpty) {
+              unawaited(_processUserSpeech(text));
+            }
+          }
+          return;
         }
-      }
-    });
+
+        final type = map['type']?.toString();
+        if (type == 'user_message' || type == 'transcript') {
+          final text = map['content']?.toString() ?? map['text']?.toString();
+          if (text != null && text.trim().isNotEmpty) {
+            unawaited(_processUserSpeech(text.trim()));
+          }
+        }
+      },
+      onError: _handleStreamError,
+    );
   }
 
   void _listenForUserSpeech() {
     _historySub?.cancel();
     _historySub = _client!
         .on<List<Message>>(AnamEvent.messageHistoryUpdated)
-        .listen((messages) async {
-      if (messages.isEmpty ||
-          _dbSessionId == null ||
-          _isProcessingMessage ||
-          _isEnding) {
-        return;
-      }
+        .listen(
+      (messages) async {
+        if (messages.isEmpty ||
+            _dbSessionId == null ||
+            _isProcessingMessage ||
+            _isEnding) {
+          return;
+        }
 
-      final last = messages.last;
-      if (last.role != MessageRole.user) return;
+        final last = messages.last;
+        if (last.role != MessageRole.user) return;
 
-      final userText = last.content.trim();
-      if (userText.isEmpty || userText == _lastProcessedUserMessage) return;
+        final userText = last.content.trim();
+        if (userText.isEmpty || userText == _lastProcessedUserMessage) return;
 
-      await _processUserSpeech(userText);
-    });
+        await _processUserSpeech(userText);
+      },
+      onError: _handleStreamError,
+    );
   }
 
   Future<void> _processUserSpeech(String userText) async {
@@ -259,8 +413,9 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     _isProcessingMessage = true;
 
     try {
+      final bazzDbSessionId = _dbSessionId!;
       final reply = await _anamService.sendMessage(
-        dbSessionId: _dbSessionId!,
+        dbSessionId: bazzDbSessionId,
         trainerId: _args.trainerId,
         message: userText,
       );
@@ -270,8 +425,14 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
           : null;
 
       final assistantText = reply.assistantText.trim();
-      if (assistantText.isNotEmpty && _client != null) {
-        await AnamSpeakHelper.speak(_client!, assistantText);
+      if (assistantText.isNotEmpty &&
+          _client != null &&
+          isStreamReady.value) {
+        _client?.interruptPersona();
+        await AnamSpeakHelper.speak(
+          client: _client!,
+          text: assistantText,
+        );
       }
     } catch (e) {
       errorMessage.value = e.errorMessage;
@@ -290,6 +451,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   Future<void> endCall({bool popRoute = true}) async {
     if (_isEnding) return;
     _isEnding = true;
+    _startGeneration++;
     status.value = AnamCallStatus.ending;
 
     final sessionId = _dbSessionId;
@@ -329,6 +491,8 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     _errorSub = null;
     await _dataChannelSub?.cancel();
     _dataChannelSub = null;
+    await _closedSub?.cancel();
+    _closedSub = null;
     await _client?.stopStreaming();
     _client = null;
     await renderer?.dispose();

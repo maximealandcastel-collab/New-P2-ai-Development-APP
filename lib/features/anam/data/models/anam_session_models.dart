@@ -9,13 +9,17 @@ class AnamStartSessionModel {
     this.trainerName,
     this.anamSessionId,
     this.preNegotiatedSession,
+    this.customLlm = false,
+    this.llmId,
+    this.integrationMode,
+    this.flutterHint,
   });
 
   factory AnamStartSessionModel.fromJson(Map<String, dynamic> json) {
     final preNegotiated = _parsePreNegotiatedSession(json);
 
     return AnamStartSessionModel(
-      dbSessionId: json['dbSessionId'] as String,
+      dbSessionId: _readDbSessionId(json),
       sessionToken: _parseSessionToken(json, preNegotiated),
       personaId: json['personaId'] as String,
       trainerName: json['trainerName'] as String?,
@@ -24,7 +28,21 @@ class AnamStartSessionModel {
         Map<String, dynamic>.from(json['usage'] as Map),
       ),
       preNegotiatedSession: preNegotiated,
+      customLlm: json['customLlm'] as bool? ?? false,
+      llmId: json['llmId'] as String?,
+      integrationMode: json['integrationMode'] as String?,
+      flutterHint: json['flutterHint'] as String?,
     );
+  }
+
+  static String _readDbSessionId(Map<String, dynamic> json) {
+    for (final key in ['dbSessionId', '_id']) {
+      final value = json[key];
+      if (value == null) continue;
+      final id = value.toString().trim();
+      if (id.isNotEmpty) return id;
+    }
+    throw FormatException('Missing dbSessionId in anam session start response');
   }
 
   static String? _readToken(Map<String, dynamic> source) {
@@ -52,6 +70,17 @@ class AnamStartSessionModel {
       return Map<String, dynamic>.from(json['preNegotiatedSession'] as Map);
     }
 
+    for (final key in ['engineSession', 'anamEngineSession', 'anamSession']) {
+      final nested = json[key];
+      if (nested is Map) {
+        final parsed = _parsePreNegotiatedSession(
+          Map<String, dynamic>.from(nested),
+        );
+        if (parsed != null) return parsed;
+      }
+    }
+
+    // Anam engine session id — never use dbSessionId here (that is for Bazz APIs).
     final sessionId = json['sessionId'] ?? json['anamSessionId'];
     final engineHost = json['engineHost'];
     final sessionToken = _readToken(json);
@@ -78,9 +107,18 @@ class AnamStartSessionModel {
   final String? anamSessionId;
   final AnamUsageModel usage;
   final Map<String, dynamic>? preNegotiatedSession;
+  final bool customLlm;
+  final String? llmId;
+  final String? integrationMode;
+  final String? flutterHint;
 
   bool get hasConnectPayload =>
       (sessionToken?.isNotEmpty ?? false) || preNegotiatedSession != null;
+
+  bool get usesClientCustomLlm =>
+      customLlm ||
+      llmId == 'CUSTOMER_CLIENT_V1' ||
+      integrationMode == 'client_custom_llm';
 }
 
 class AnamMessageReplyModel {

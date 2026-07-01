@@ -25,11 +25,16 @@ class AnamCallScreen extends StatelessWidget {
         if (!didPop) _controller.endCall();
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.black,
         appBar: CustomAppBar(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           title: _controller.trainerName,
+          backAction: _controller.endCall,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white, size: 24.sp),
+            onPressed: _controller.endCall,
+          ),
           actions: [
             Obx(() {
               final remaining = _controller.usage.value?.minutesRemaining;
@@ -40,7 +45,7 @@ class AnamCallScreen extends StatelessWidget {
                   child: CustomText(
                     text: '$remaining min left',
                     fontSize: 12.sp,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                 ),
               );
@@ -72,7 +77,7 @@ class AnamCallScreen extends StatelessWidget {
               children: [
                 Icon(
                   Icons.videocam_off_outlined,
-                  color: Colors.black,
+                  color: Colors.white,
                   size: 48.r,
                 ),
                 SizedBox(height: 16.h),
@@ -80,19 +85,21 @@ class AnamCallScreen extends StatelessWidget {
                   text: _controller.errorMessage.value ??
                       'Could not start video call',
                   fontSize: 14.sp,
-                  color: Colors.black,
+                  color: Colors.white,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 24.h),
                 CustomButton(
                   label: 'Try again',
-                  onPressed: _controller.startCall,
+                  onPressed: _controller.isStartingCall
+                      ? null
+                      : _controller.startCall,
                 ),
                 SizedBox(height: 12.h),
                 CustomButton(
                   label: 'Go back',
                   backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                   onPressed: _controller.endCall,
                 ),
               ],
@@ -124,7 +131,7 @@ class AnamCallScreen extends StatelessWidget {
             CustomText(
               text: _controller.statusLabel(),
               fontSize: 14.sp,
-              color: Colors.black,
+              color: Colors.white,
               textAlign: TextAlign.center,
             ),
           ],
@@ -143,7 +150,7 @@ class AnamCallScreen extends StatelessWidget {
             CustomText(
               text: _controller.statusLabel(),
               fontSize: 14.sp,
-              color: Colors.black,
+              color: Colors.white,
               textAlign: TextAlign.center,
             ),
             if (suggested != null && suggested.isNotEmpty) ...[
@@ -151,11 +158,11 @@ class AnamCallScreen extends StatelessWidget {
               CustomContainer(
                 paddingAll: 8.r,
                 radiusAll: 20.r,
-                color: AppColors.primary.withValues(alpha: 0.2),
+                color: Colors.white.withValues(alpha: 0.12),
                 child: CustomText(
                   text: 'Suggested: $suggested',
                   fontSize: 12.sp,
-                  color: Colors.black,
+                  color: Colors.white,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -176,7 +183,7 @@ class AnamCallScreen extends StatelessWidget {
           IconButton(
             icon: Icon(
               _controller.micEnabled.value ? Icons.mic : Icons.mic_off,
-              color: Colors.black,
+              color: Colors.white,
               size: 28.sp,
             ),
             onPressed: _controller.toggleMic,
@@ -192,7 +199,7 @@ class AnamCallScreen extends StatelessWidget {
               ),
               child: Icon(
                 Icons.call_end,
-                color: Colors.black,
+                color: Colors.white,
                 size: 28.sp,
               ),
             ),

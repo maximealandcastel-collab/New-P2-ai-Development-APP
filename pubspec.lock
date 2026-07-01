@@ -20,10 +20,9 @@ packages:
   anam_flutter_sdk:
     dependency: "direct main"
     description:
-      name: anam_flutter_sdk
-      sha256: "494ff75639ddf9576165bd55fef5726b772d995ef1cb2a939798ae653144e80d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/anam_flutter_sdk"
+      relative: true
+    source: path
     version: "0.1.0"
   archive:
     dependency: transitive
