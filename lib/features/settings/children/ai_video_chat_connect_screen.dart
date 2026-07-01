@@ -32,7 +32,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
               ),
               CustomText(
                 text:
-                    'Enter the persona ID from Anam Lab to enable AI video calls for your clients.',
+                    'Set your Anam Lab persona ID so your subscribed clients can start AI video calls with you.',
                 fontSize: 13.sp,
                 color: Colors.grey,
                 bottom: 12.h,
@@ -45,7 +45,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
               Obx(
                 () => CustomButton(
                   onPressed: _controller.connectPersona,
-                  label: 'Connect',
+                  label: 'Save persona ID',
                   isLoading:
                       _controller.submitState.value == LoadingState.loading,
                 ),

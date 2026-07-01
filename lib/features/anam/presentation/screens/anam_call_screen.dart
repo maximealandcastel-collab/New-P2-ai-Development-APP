@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_call_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -24,10 +25,10 @@ class AnamCallScreen extends StatelessWidget {
         if (!didPop) _controller.endCall();
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          backgroundColor: Colors.black,
-          foregroundColor: AppColors.textWhite,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
           title: _controller.trainerName,
           actions: [
             Obx(() {
@@ -39,20 +40,22 @@ class AnamCallScreen extends StatelessWidget {
                   child: CustomText(
                     text: '$remaining min left',
                     fontSize: 12.sp,
-                    color: AppColors.textWhite,
+                    color: Colors.black,
                   ),
                 ),
               );
             }),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(child: _buildVideoArea()),
-            _buildStatusSection(),
-            _buildControls(),
-            SizedBox(height: 24.h),
-          ],
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(child: _buildVideoArea()),
+              _buildStatusSection(),
+              _buildControls(),
+              SizedBox(height: 24.h),
+            ],
+          ),
         ),
       ),
     );
@@ -60,20 +63,73 @@ class AnamCallScreen extends StatelessWidget {
 
   Widget _buildVideoArea() {
     return Obx(() {
+      if (_controller.hasError) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.videocam_off_outlined,
+                  color: Colors.black,
+                  size: 48.r,
+                ),
+                SizedBox(height: 16.h),
+                CustomText(
+                  text: _controller.errorMessage.value ??
+                      'Could not start video call',
+                  fontSize: 14.sp,
+                  color: Colors.black,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24.h),
+                CustomButton(
+                  label: 'Try again',
+                  onPressed: _controller.startCall,
+                ),
+                SizedBox(height: 12.h),
+                CustomButton(
+                  label: 'Go back',
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.black,
+                  onPressed: _controller.endCall,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
       final renderer = _controller.renderer;
       final ready = _controller.isStreamReady.value;
+      final micOn = _controller.micEnabled.value;
 
       if (renderer != null && ready) {
         return AnamAvatarView(
           renderer: renderer,
-          isMicEnabled: _controller.micEnabled.value,
+          isMicEnabled: micOn,
           showControls: false,
           borderRadius: 0,
           backgroundColor: Colors.black,
         );
       }
 
-      return const Center(child: CustomLoader());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CustomLoader(),
+            SizedBox(height: 16.h),
+            CustomText(
+              text: _controller.statusLabel(),
+              fontSize: 14.sp,
+              color: Colors.black,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
     });
   }
 
@@ -87,7 +143,7 @@ class AnamCallScreen extends StatelessWidget {
             CustomText(
               text: _controller.statusLabel(),
               fontSize: 14.sp,
-              color: AppColors.textWhite,
+              color: Colors.black,
               textAlign: TextAlign.center,
             ),
             if (suggested != null && suggested.isNotEmpty) ...[
@@ -99,7 +155,7 @@ class AnamCallScreen extends StatelessWidget {
                 child: CustomText(
                   text: 'Suggested: $suggested',
                   fontSize: 12.sp,
-                  color: AppColors.textWhite,
+                  color: Colors.black,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -111,14 +167,16 @@ class AnamCallScreen extends StatelessWidget {
   }
 
   Widget _buildControls() {
-    return Obx(
-      () => Row(
+    return Obx(() {
+      if (_controller.hasError) return const SizedBox.shrink();
+
+      return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconButton(
             icon: Icon(
               _controller.micEnabled.value ? Icons.mic : Icons.mic_off,
-              color: AppColors.textWhite,
+              color: Colors.black,
               size: 28.sp,
             ),
             onPressed: _controller.toggleMic,
@@ -134,14 +192,14 @@ class AnamCallScreen extends StatelessWidget {
               ),
               child: Icon(
                 Icons.call_end,
-                color: AppColors.textWhite,
+                color: Colors.black,
                 size: 28.sp,
               ),
             ),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -149,6 +207,11 @@ Future<void> openAnamVideoCall({
   required String trainerId,
   required String trainerName,
 }) async {
+  if (LoginController.to.isTrainer()) {
+    ToastMessageHelper.show('Only clients can start AI video calls');
+    return;
+  }
+
   final micStatus = await Permission.microphone.request();
   if (!micStatus.isGranted) {
     ToastMessageHelper.show('Microphone permission is required for video calls');

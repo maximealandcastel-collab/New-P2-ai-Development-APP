@@ -7,25 +7,80 @@ class AnamStartSessionModel {
     required this.usage,
     this.sessionToken,
     this.trainerName,
+    this.anamSessionId,
+    this.preNegotiatedSession,
   });
 
   factory AnamStartSessionModel.fromJson(Map<String, dynamic> json) {
+    final preNegotiated = _parsePreNegotiatedSession(json);
+
     return AnamStartSessionModel(
       dbSessionId: json['dbSessionId'] as String,
-      sessionToken: json['sessionToken'] as String?,
+      sessionToken: _parseSessionToken(json, preNegotiated),
       personaId: json['personaId'] as String,
       trainerName: json['trainerName'] as String?,
+      anamSessionId: json['anamSessionId'] as String?,
       usage: AnamUsageModel.fromJson(
         Map<String, dynamic>.from(json['usage'] as Map),
       ),
+      preNegotiatedSession: preNegotiated,
     );
+  }
+
+  static String? _readToken(Map<String, dynamic> source) {
+    for (final key in ['sessionToken', 'token', 'anamSessionToken']) {
+      final value = source[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+    return null;
+  }
+
+  static String? _parseSessionToken(
+    Map<String, dynamic> json,
+    Map<String, dynamic>? preNegotiated,
+  ) {
+    return _readToken(json) ??
+        (preNegotiated != null ? _readToken(preNegotiated) : null);
+  }
+
+  static Map<String, dynamic>? _parsePreNegotiatedSession(
+    Map<String, dynamic> json,
+  ) {
+    if (json['preNegotiatedSession'] is Map) {
+      return Map<String, dynamic>.from(json['preNegotiatedSession'] as Map);
+    }
+
+    final sessionId = json['sessionId'] ?? json['anamSessionId'];
+    final engineHost = json['engineHost'];
+    final sessionToken = _readToken(json);
+
+    if (sessionId == null || engineHost == null || sessionToken == null) {
+      return null;
+    }
+
+    return {
+      'sessionId': sessionId,
+      'sessionToken': sessionToken,
+      'engineHost': engineHost,
+      'engineProtocol': json['engineProtocol'] ?? 'https',
+      'signallingEndpoint':
+          json['signallingEndpoint'] ?? json['signalingEndpoint'],
+      'clientConfig': json['clientConfig'] ?? const {},
+    };
   }
 
   final String dbSessionId;
   final String? sessionToken;
   final String personaId;
   final String? trainerName;
+  final String? anamSessionId;
   final AnamUsageModel usage;
+  final Map<String, dynamic>? preNegotiatedSession;
+
+  bool get hasConnectPayload =>
+      (sessionToken?.isNotEmpty ?? false) || preNegotiatedSession != null;
 }
 
 class AnamMessageReplyModel {

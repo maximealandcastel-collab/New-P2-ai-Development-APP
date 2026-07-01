@@ -54,14 +54,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTileWidget(label: 'Invoices', onTap: () {
                 Get.to(() => const InvoicesScreen());
               }),
-
-              ListTileWidget(
-                label: 'AI video chat',
-                onTap: () {
-                  Get.toNamed(AppRoute.aiVideoChatConnectScreen);
-                },
-                isSpacer: false,
-              ),
+              if (LoginController.to.isTrainer())
+                ListTileWidget(
+                  label: 'AI video chat',
+                  onTap: () {
+                    Get.toNamed(AppRoute.aiVideoChatConnectScreen);
+                  },
+                  isSpacer: false,
+                ),
             ],
           ).asSliverWithPadding(horizontal: 16.w),
 

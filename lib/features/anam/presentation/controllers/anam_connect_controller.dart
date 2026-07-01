@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 
 class AnamConnectController extends GetxController {
   AnamConnectController({
@@ -18,6 +19,25 @@ class AnamConnectController extends GetxController {
 
   final personaController = TextEditingController();
   final submitState = LoadingState.initial.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSavedPersonaId();
+  }
+
+  Future<void> _loadSavedPersonaId() async {
+    var personaId = _profileService.getCachedTrainerProfile()?.anamAI?.personaId;
+    if (personaId == null || personaId.isEmpty) {
+      try {
+        await _profileService.fetchTrainerProfile();
+        personaId = _profileService.getCachedTrainerProfile()?.anamAI?.personaId;
+      } catch (_) {}
+    }
+    if (personaId != null && personaId.isNotEmpty) {
+      personaController.text = personaId;
+    }
+  }
 
   @override
   void onClose() {
@@ -53,8 +73,13 @@ class AnamConnectController extends GetxController {
         personaId: personaId,
       );
 
+      await _profileService.fetchTrainerProfile();
+      if (Get.isRegistered<ProfileController>()) {
+        await ProfileController.to.loadData();
+      }
+
       submitState.value = LoadingState.loaded;
-      ToastMessageHelper.show('AI video chat connected');
+      ToastMessageHelper.show('Persona ID saved');
       Get.back();
     } catch (e) {
       submitState.value = LoadingState.error;
