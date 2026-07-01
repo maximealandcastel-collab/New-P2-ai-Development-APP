@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_pers
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
+import 'package:pler_to_pler_app/features/settings/children/ai_video_chat_connect_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
@@ -90,6 +91,7 @@ class AppRoute {
   static String exerciseBlockDetailsScreen = "/exerciseBlockDetailsScreen";
   static String clientDetailsScreen = "/clientDetailsScreen";
   static String requestDetailsScreen = "/requestDetailsScreen";
+  static String aiVideoChatConnectScreen = "/aiVideoChatConnectScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -129,6 +131,7 @@ class AppRoute {
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
+    GetPage(name: aiVideoChatConnectScreen, page: () => AiVideoChatConnectScreen()),
     GetPage(
       name: changePasswordScreen,
       page: () => const ChangePasswordScreen(),
