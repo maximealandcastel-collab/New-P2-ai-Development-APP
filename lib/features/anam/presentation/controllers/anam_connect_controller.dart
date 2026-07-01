@@ -26,11 +26,11 @@ class AnamConnectController extends GetxController {
   }
 
   Future<String?> _resolveTrainerId() async {
-    final cachedId = _profileService.getCachedUserData()?.sId;
+    final cachedId = _profileService.getCachedTrainerProfile()?.sId;
     if (cachedId != null && cachedId.isNotEmpty) return cachedId;
 
-    await _profileService.fetchUserProfile();
-    return _profileService.getCachedUserData()?.sId;
+    await _profileService.fetchTrainerProfile();
+    return _profileService.getCachedTrainerProfile()?.sId;
   }
 
   Future<void> connectPersona() async {
