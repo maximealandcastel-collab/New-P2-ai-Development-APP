@@ -58,8 +58,13 @@ import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/sc
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_generating_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_video_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_plan_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_video_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -103,6 +108,9 @@ class AppRoute {
   static String aiVideoChatConnectScreen = "/aiVideoChatConnectScreen";
   static String anamCallScreen = "/anamCallScreen";
   static String workoutScreen = "/workoutScreen";
+  static String workoutGeneratingScreen = "/workoutGeneratingScreen";
+  static String workoutPlanDetailsScreen = "/workoutPlanDetailsScreen";
+  static String workoutVideoScreen = "/workoutVideoScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -276,9 +284,34 @@ class AppRoute {
       page: () => const WorkoutScreen(),
       binding: BindingsBuilder(() {
         Get.put<WorkoutController>(
-          WorkoutController(
+          WorkoutController(),
+          permanent: false,
+        );
+      }),
+    ),
+    GetPage(
+      name: workoutGeneratingScreen,
+      page: () => const WorkoutGeneratingScreen(),
+      binding: BindingsBuilder(() {
+        Get.put<WorkoutGeneratingController>(
+          WorkoutGeneratingController(
             service: Get.find<WorkoutService>(),
           ),
+          permanent: false,
+        );
+      }),
+    ),
+    GetPage(
+      name: workoutPlanDetailsScreen,
+      page: () => const WorkoutPlanDetailsScreen(),
+    ),
+    GetPage(
+      name: workoutVideoScreen,
+      page: () => const WorkoutVideoScreen(),
+      binding: BindingsBuilder(() {
+        final videoUrl = Get.arguments as String;
+        Get.put<WorkoutVideoController>(
+          WorkoutVideoController(videoUrl: videoUrl),
           permanent: false,
         );
       }),

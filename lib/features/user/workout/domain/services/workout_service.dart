@@ -1,3 +1,5 @@
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 
 class WorkoutService {
@@ -6,7 +8,20 @@ class WorkoutService {
 
   final WorkoutRepository _repository;
 
-  Future<void> createWorkout(Map<String, dynamic> body) {
+  Future<WorkoutModel> createWorkout(Map<String, dynamic> body) {
     return _repository.createWorkout(body);
+  }
+
+  Future<WorkoutModel> generateWorkout(String workoutId) {
+    return _repository.generateWorkout(workoutId);
+  }
+
+  Future<WorkoutModel> createAndGenerateWorkout(Map<String, dynamic> body) async {
+    final created = await _repository.createWorkout(body);
+    final workoutId = created.id;
+    if (workoutId == null || workoutId.isEmpty) {
+      throw UnknownException('Workout id missing from response');
+    }
+    return _repository.generateWorkout(workoutId);
   }
 }
