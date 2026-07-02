@@ -101,7 +101,6 @@ class WorkoutController extends GetxController {
 
     try {
       await _service.createWorkout(_buildBody());
-      ToastMessageHelper.show('Workout plan created successfully');
       if (Get.key.currentState?.canPop() ?? false) {
         Get.back(result: true);
       }
