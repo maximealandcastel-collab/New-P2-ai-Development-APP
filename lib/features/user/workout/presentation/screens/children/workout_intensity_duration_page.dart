@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/widgets/workout_multi_select_field.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/Intensity_option.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/duration_ruler_picker.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutIntensityDurationPage extends StatelessWidget {
@@ -15,53 +15,60 @@ class WorkoutIntensityDurationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = WorkoutController.to;
 
-    return Obx(
-      () => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const CompleteProfilePageTitle(text: 'Intensity & duration'),
-          SizedBox(height: 16.h),
-          WorkoutMultiSelectField(
-            options: HelperData.workoutIntensityOptions,
-            selectedValues: controller.selectedIntensities.toList(),
-            onChanged: controller.onIntensitiesChanged,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const CompleteProfilePageTitle(text: 'Workout Intensity & duration'),
+        SizedBox(height: 44.h),
+
+        CustomText(
+          text: 'Workout Intensity',
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        SizedBox(height: 12.h),
+        Obx(
+          () => WorkoutIntensitySelector(
+            options: const [
+              IntensityOption(
+                value: 'easy',
+                label: 'Easy',
+                icon: Icons.directions_run_rounded,
+              ),
+              IntensityOption(
+                value: 'medium',
+                label: 'Medium',
+                icon: Icons.self_improvement_rounded,
+              ),
+              IntensityOption(
+                value: 'hard',
+                label: 'Hard',
+                icon: Icons.fitness_center_rounded,
+              ),
+            ],
+            selectedValue: controller.selectedIntensities.isEmpty
+                ? null
+                : controller.selectedIntensities.first,
+            onChanged: controller.onIntensitySelected,
           ),
-          SizedBox(height: 24.h),
-          CustomText(
-            text: 'Duration (minutes)',
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-          SizedBox(height: 12.h),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: HelperData.workoutDurationOptions.map((minutes) {
-              final isSelected = controller.selectedDuration.value == minutes;
-              return CustomContainer(
-                onTap: () => controller.onDurationSelected(minutes),
-                paddingHorizontal: 14.w,
-                paddingVertical: 10.h,
-                radiusAll: 99.r,
-                color: isSelected
-                    ? AppColors.primary.withValues(alpha: 0.12)
-                    : AppColors.backgroundLight,
-                bordersColor:
-                    isSelected ? AppColors.primary : AppColors.colorE6E6E6,
-                child: CustomText(
-                  text: '$minutes min',
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color:
-                      isSelected ? AppColors.primary : AppColors.textPrimary,
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: 24.h),
+        CustomText(
+          text: 'Workout Duration (minutes)',
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+        SizedBox(height: 12.h),
+        DurationRulerPicker(
+          min: 1,
+          max: 120,
+          initialValue: controller.selectedDuration.value,
+          onChanged: controller.onDurationSelected,
+        ),
+      ],
     );
   }
 }

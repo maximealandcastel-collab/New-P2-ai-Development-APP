@@ -20,7 +20,7 @@ class WorkoutController extends GetxController {
   final RxList<String> selectedEnvironments = <String>[].obs;
   final RxList<String> selectedEquipment = <String>[].obs;
   final RxList<String> selectedIntensities = <String>[].obs;
-  final RxnInt selectedDuration = RxnInt();
+  final RxInt selectedDuration = 60.obs;
 
   final DateTime workoutDate = DateTime.now().toUtc();
 
@@ -42,11 +42,11 @@ class WorkoutController extends GetxController {
     selectedEquipment.assignAll(values);
   }
 
-  void onIntensitiesChanged(List<String> values) {
-    selectedIntensities.assignAll(values);
+  void onIntensitySelected(String value) {
+    selectedIntensities.assignAll([value]);
   }
 
-  void onDurationSelected(int? value) {
+  void onDurationSelected(int value) {
     selectedDuration.value = value;
   }
 
@@ -61,7 +61,7 @@ class WorkoutController extends GetxController {
       case 3:
         return selectedEquipment.isNotEmpty;
       case 4:
-        return selectedIntensities.isNotEmpty && selectedDuration.value != null;
+        return selectedIntensities.isNotEmpty;
       default:
         return true;
     }
@@ -78,11 +78,7 @@ class WorkoutController extends GetxController {
       case 3:
         ToastMessageHelper.show('Please select at least one equipment option');
       case 4:
-        if (selectedIntensities.isEmpty) {
-          ToastMessageHelper.show('Please select workout intensity');
-        } else {
-          ToastMessageHelper.show('Please select workout duration');
-        }
+        ToastMessageHelper.show('Please select workout intensity');
     }
   }
 
