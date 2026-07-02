@@ -97,68 +97,39 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
       DateTime.now().toString().split(' ').first,
     );
 
-    return Container(
+    return CustomContainer(
       width: double.infinity,
-      padding: EdgeInsets.all(18.r),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withValues(alpha: 0.85),
-          ],
-        ),
-      ),
-      child: Row(
+      paddingAll: 18.r,
+        radiusAll: 20.r,
+      color: AppColors.primary,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText(
-                  text: todayLabel,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textWhite.withValues(alpha: 0.85),
-                ),
-                SizedBox(height: 6.h),
-                CustomText(
-                  text: (plan.trainerSpecialty ?? '').isNotEmpty
-                      ? StringFormat.formatLabel(plan.trainerSpecialty!)
-                      : 'Workout Plan',
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textWhite,
-                ),
-                if ((plan.coachNote ?? '').isNotEmpty) ...[
-                  SizedBox(height: 8.h),
-                  CustomText(
-                    text: plan.coachNote!,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textWhite.withValues(alpha: 0.85),
-                    textAlign: TextAlign.start,
-                  ),
-                ],
-              ],
-            ),
+          CustomText(
+            text: todayLabel,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textWhite.withValues(alpha: 0.85),
           ),
-          SizedBox(width: 12.w),
-          Container(
-            padding: EdgeInsets.all(10.r),
-            decoration: BoxDecoration(
-              color: AppColors.textWhite.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.fitness_center_rounded,
+          SizedBox(height: 6.h),
+          CustomText(
+            text: (plan.trainerSpecialty ?? '').isNotEmpty
+                ? StringFormat.formatLabel(plan.trainerSpecialty!)
+                : 'Workout Plan',
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textWhite,
+          ),
+          if ((plan.coachNote ?? '').isNotEmpty) ...[
+            SizedBox(height: 8.h),
+            CustomText(
+              text: plan.coachNote!,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w400,
               color: AppColors.textWhite,
-              size: 20.sp,
+              textAlign: TextAlign.start,
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -173,34 +144,39 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
     final sortedSteps = [...steps]
       ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomText(
-          text: title,
-          fontSize: 17.sp,
-          fontWeight: FontWeight.w800,
-          left: 4.w,
-          bottom: 10.h,
-        ),
-        CustomContainer(
-          radiusAll: 16.r,
-          paddingAll: 16.r,
-          color: AppColors.textWhite,
-          width: double.infinity,
-          child: Column(
-            children: sortedSteps
-                .asMap()
-                .entries
-                .map((entry) => _buildTimedStepRow(
-              index: entry.key + 1,
-              step: entry.value,
-              isLast: entry.key == sortedSteps.length - 1,
-            ))
-                .toList(),
+    return CustomContainer(
+      radiusAll: 16.r,
+      paddingAll: 16.r,
+      color: AppColors.textWhite,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: title,
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w800,
+            left: 4.w,
+            bottom: 10.h,
           ),
-        ),
-      ],
+          CustomContainer(
+            paddingAll: 16.r,
+            radiusAll: 16.r,
+            bordersColor: AppColors.secondary,
+            child: Column(
+              children: sortedSteps
+                  .asMap()
+                  .entries
+                  .map((entry) => _buildTimedStepRow(
+                index: entry.key + 1,
+                step: entry.value,
+                isLast: entry.key == sortedSteps.length - 1,
+              ))
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -225,37 +201,38 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: step.instruction ?? '',
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                RichText(
                   textAlign: TextAlign.start,
-                ),
-                if ((step.tip ?? '').isNotEmpty) ...[
-                  SizedBox(height: 3.h),
-                  CustomText(
-                    text: step.tip!,
-                    fontSize: 12.sp,
-                    color: AppColors.textSecondary,
-                    textAlign: TextAlign.start,
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '${step.instruction ?? ''} — ',
+                      ),
+                      TextSpan(
+                        text: step.duration ?? '',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+
               ],
             ),
           ),
-          if ((step.duration ?? '').isNotEmpty) ...[
-            SizedBox(width: 8.w),
-            CustomContainer(
-              paddingHorizontal: 10.w,
-              paddingVertical: 6.h,
-              radiusAll: 99.r,
-              color: AppColors.primary.withValues(alpha: 0.12),
-              child: CustomText(
-                text: step.duration!,
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
+          if ((step.tip ?? '').isNotEmpty) ...[
+            SizedBox(height: 3.h),
+            CustomText(
+              text: step.tip!,
+              fontSize: 12.sp,
+              color: AppColors.textSecondary,
+              textAlign: TextAlign.start,
             ),
           ],
         ],
@@ -273,20 +250,26 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
     final sortedExercises = [...exercises]
       ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomText(
-          text: title,
-          fontSize: 17.sp,
-          fontWeight: FontWeight.w800,
-          left: 4.w,
-          bottom: 10.h,
-        ),
-        ...sortedExercises.map(
-              (exercise) => _buildExerciseCard(exercise, tagLabel: tagLabel),
-        ),
-      ],
+    return CustomContainer(
+      radiusAll: 16.r,
+      paddingAll: 16.r,
+      color: AppColors.textWhite,
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: title,
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w800,
+            left: 4.w,
+            bottom: 10.h,
+          ),
+          ...sortedExercises.map(
+                (exercise) => _buildExerciseCard(exercise, tagLabel: tagLabel),
+          ),
+        ],
+      ),
     );
   }
 
@@ -299,10 +282,9 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
 
     return CustomContainer(
       radiusAll: 16.r,
-      paddingAll: 16.r,
-      color: AppColors.textWhite,
-      width: double.infinity,
+      paddingAll: 12.r,
       marginBottom: 12.h,
+      bordersColor: AppColors.secondary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -311,24 +293,14 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: CustomText(
-                  text: exercise.exerciseName ?? 'Exercise',
-                  fontSize: 16.sp,
+                  textAlign: TextAlign.start,
+                  text: exercise.exerciseName ?? '',
+                  fontSize: 18.sp,
+                  color: Color(0xff6A3400),
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              SizedBox(width: 8.w),
-              CustomContainer(
-                paddingHorizontal: 10.w,
-                paddingVertical: 6.h,
-                radiusAll: 99.r,
-                color: AppColors.primary.withValues(alpha: 0.12),
-                child: CustomText(
-                  text: tagLabel,
-                  fontSize: 11.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
+              CustomButton(onPressed: (){},label: 'Mark Completed',width: 100.w,height: 30.h,fontSize: 10.sp),
             ],
           ),
           if ((exercise.muscleGroup ?? '').isNotEmpty) ...[
@@ -386,9 +358,10 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
                           if ((entry.value.tip ?? '').isNotEmpty) ...[
                             SizedBox(height: 3.h),
                             CustomText(
-                              text: entry.value.tip!,
-                              fontSize: 12.sp,
-                              color: AppColors.textSecondary,
+                              text: 'Tip: ${entry.value.tip!}',
+                              fontSize: 11.sp,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                               textAlign: TextAlign.start,
                             ),
                           ],
@@ -513,39 +486,41 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
     required String title,
     required List<String> values,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomText(
-          text: title,
-          fontSize: 17.sp,
-          fontWeight: FontWeight.w800,
-          left: 4.w,
-          bottom: 10.h,
-        ),
-        Wrap(
-          spacing: 8.w,
-          runSpacing: 8.h,
-          children: values.asMap().entries.map((entry) {
-            final isFilled = entry.key.isEven;
-            return CustomContainer(
-              paddingHorizontal: 14.w,
-              paddingVertical: 10.h,
-              radiusAll: 99.r,
-              color: isFilled
-                  ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.08),
-              bordersColor: isFilled ? AppColors.primary : AppColors.primary,
-              child: CustomText(
-                text: StringFormat.formatLabel(entry.value),
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
-                color: isFilled ? AppColors.textWhite : AppColors.primary,
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+    return CustomContainer(
+      radiusAll: 16.r,
+      paddingAll: 12.r,
+      color: AppColors.textWhite,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: title,
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w800,
+            left: 4.w,
+            bottom: 10.h,
+          ),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: values.asMap().entries.map((entry) {
+              final isFilled = entry.key.isEven;
+              return CustomContainer(
+                paddingHorizontal: 14.w,
+                paddingVertical: 6.h,
+                radiusAll: 99.r,
+                color: AppColors.primary.withValues(alpha: 0.1),
+                child: CustomText(
+                  text: StringFormat.formatLabel(entry.value),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -553,15 +528,14 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
     return CustomContainer(
       radiusAll: 16.r,
       paddingAll: 16.r,
-      color: AppColors.primary.withValues(alpha: 0.08),
+      color: AppColors.textWhite,
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomText(
             text: 'Duration in min: ${plan.estimatedDurationMinutes}',
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: AppColors.primary,
           ),
           if ((plan.checkInQuestion ?? '').isNotEmpty) ...[
@@ -569,7 +543,6 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
             CustomText(
               text: plan.checkInQuestion!,
               fontSize: 13.sp,
-              color: AppColors.textSecondary,
               textAlign: TextAlign.start,
             ),
           ],
