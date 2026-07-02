@@ -20,7 +20,7 @@ class WorkoutController extends GetxController {
   final RxList<String> selectedEnvironments = <String>[].obs;
   final RxList<String> selectedEquipment = <String>[].obs;
   final RxList<String> selectedIntensities = <String>[].obs;
-  final RxInt selectedDuration = 60.obs;
+  final RxInt selectedDuration = 10.obs;
 
   final DateTime workoutDate = DateTime.now().toUtc();
 
