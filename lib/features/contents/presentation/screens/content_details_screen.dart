@@ -16,26 +16,19 @@ class ContentDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ContentDetailsController.to;
     final content = controller.content;
-    final videoHeight = 1.sw * 9 / 16;
 
     final page = SliverScaffold(
       appBar: CustomSliverAppBar(
         pinned: true,
-        safeArea: false,
-        centerTitle: false,
-        expandedHeight: videoHeight + kToolbarHeight,
-        collapsedTitle: content.title ?? 'Content details',
-        collapsedTitleColor: AppColors.textPrimary,
-        foregroundColor: AppColors.textPrimary,
-        backAction: Get.back,
-        flexibleBackground: ContentVideoHeader(
-          content: content,
-          controller: controller,
-        ),
+        title: 'Content details',
       ),
       bodyList: [
+        ContentVideoHeader(
+          content: content,
+          controller: controller,
+        ).asSliverWithPadding(vertical: 16.h),
           ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
-          SizedBox(height: 24.h).asSliver,
+          SizedBox(height: 100.h).asSliver,
         ],
     );
 

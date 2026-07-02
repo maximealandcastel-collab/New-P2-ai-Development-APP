@@ -33,7 +33,7 @@ class ContentVideoPlayer extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: AspectRatio(
-        aspectRatio: 16 / 9,
+        aspectRatio: 9 / 16,
         child: MaterialVideoControlsTheme(
           normal: controlsTheme,
           fullscreen: controlsTheme.copyWith(buttonBarHeight: 52.h),
@@ -45,14 +45,14 @@ class ContentVideoPlayer extends StatelessWidget {
                 controller: controller.videoController,
                 controls: MaterialVideoControls,
                 fill: AppColors.backgroundDark,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 subtitleViewConfiguration: SubtitleViewConfiguration(
                   style: TextStyle(
                     color: AppColors.textWhite,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
-                  padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 72.h),
+                  //padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 72.h),
                   textAlign: TextAlign.center,
                 ),
               ),
