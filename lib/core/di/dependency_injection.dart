@@ -29,6 +29,8 @@ import 'package:pler_to_pler_app/features/contents/domain/services/category_serv
 import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
+import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
 import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
@@ -312,6 +314,16 @@ class DependencyInjection {
         service: Get.find<ContentService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
+      fenix: true,
+    );
+
+    /// Workout
+    Get.lazyPut<WorkoutRepository>(
+      () => WorkoutRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<WorkoutService>(
+      () => WorkoutService(repository: Get.find<WorkoutRepository>()),
       fenix: true,
     );
 

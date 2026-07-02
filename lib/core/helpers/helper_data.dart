@@ -148,4 +148,43 @@ class HelperData {
     'Expert Coaching',
     'Motivation & Reminders',
   ];
+
+  static const List<String> workoutFocusAreaOptions = [
+    'upper_body',
+    'chest',
+    'back',
+    'shoulders',
+    'arms',
+    'lower_body',
+    'legs',
+    'glutes',
+    'core',
+    'full_body',
+  ];
+
+  static const List<String> workoutEnvironmentOptions = [
+    'full_gym',
+    'home_gym',
+    'minimal_equipment',
+    'bodyweight_only',
+  ];
+
+  static const List<String> workoutEquipmentOptions = [
+    'barbell',
+    'dumbbells',
+    'cable_machine',
+    'bench',
+    'kettlebell',
+    'resistance_band',
+    'bodyweight',
+    'machine',
+  ];
+
+  static const List<String> workoutIntensityOptions = [
+    'low',
+    'moderate',
+    'high',
+  ];
+
+  static const List<int> workoutDurationOptions = [30, 45, 60, 75, 90];
 }

@@ -74,6 +74,9 @@ class ApiConstants {
   static const String content = '/api/v1/content/content';
   static String contentById(String contentId) => '/api/v1/content/content/$contentId';
 
+  /// WORKOUT ──────────────────────────────────────────────
+  static const String workout = '/api/v1/workout';
+
   /// PRIVACY ──────────────────────────────────────────────
   static const String privacyPolicy = '/api/v1/privacy';
   static const String termsAndCondition = '/api/v1/terms';

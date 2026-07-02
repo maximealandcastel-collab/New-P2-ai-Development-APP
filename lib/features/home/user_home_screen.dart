@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/home/widgets/gym_section.dart';
@@ -27,7 +29,7 @@ class UserHomeScreen extends StatelessWidget {
         ).asSliver,
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.workoutScreen),
           child: Assets.images.setGoal.image(),
         ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
 
