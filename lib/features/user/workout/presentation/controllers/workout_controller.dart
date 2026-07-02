@@ -1,9 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 
 class WorkoutController extends GetxController {
@@ -14,8 +18,15 @@ class WorkoutController extends GetxController {
   static WorkoutController get to => Get.find();
 
   final formKey = GlobalKey<FormState>();
-  final RxBool isSubmitting = false.obs;
-  final RxBool isGenerating = false.obs;
+  final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
+
+  final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
+
+  LoadingState get submitLoadingState => _submitLoadingState.value;
+  LoadingState get generateLoadingState => _generateLoadingState.value;
+  LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
 
   final RxList<String> selectedGoals = <String>[].obs;
   final RxList<String> selectedFocusAreas = <String>[].obs;
@@ -27,6 +38,17 @@ class WorkoutController extends GetxController {
   final DateTime workoutDate = DateTime.now().toUtc();
 
   static const int pageCount = 5;
+
+  WorkoutAiPlanModel? get plan => workoutDetails.value?.aiPlan;
+
+  bool get hasVideo {
+    final video = plan?.suggestedVideo?.trim() ?? '';
+    return video.isNotEmpty;
+  }
+
+  void initWorkoutDetails(WorkoutModel workout) {
+    workoutDetails.value = workout;
+  }
 
   void onGoalsChanged(List<String> values) {
     selectedGoals.assignAll(values);
@@ -97,24 +119,25 @@ class WorkoutController extends GetxController {
   }
 
   Future<void> submit() async {
-    if (isSubmitting.value) return;
+    if (_submitLoadingState.value.isLoading) return;
 
-    isSubmitting.value = true;
+    _submitLoadingState.value = LoadingState.loading;
 
     try {
       await Get.offNamed(
         AppRoute.workoutGeneratingScreen,
         arguments: _buildBody(),
       );
-    } finally {
-      if (!isClosed) {
-        isSubmitting.value = false;
-      }
+      _submitLoadingState.value = LoadingState.loaded;
+    } catch (e) {
+      _submitLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('submitWorkout error: $e');
     }
   }
 
   Future<void> generateWorkout() async {
-    if (isGenerating.value) return;
+    if (_generateLoadingState.value.isLoading) return;
 
     final arguments = Get.arguments;
     if (arguments is! Map<String, dynamic>) {
@@ -122,18 +145,17 @@ class WorkoutController extends GetxController {
       return;
     }
 
-    isGenerating.value = true;
+    _generateLoadingState.value = LoadingState.loading;
 
     try {
       final workout = await _service.createAndGenerateWorkout(arguments);
+      initWorkoutDetails(workout);
+      _generateLoadingState.value = LoadingState.loaded;
       Get.offNamed(AppRoute.workoutPlanDetailsScreen, arguments: workout);
     } catch (e) {
+      _generateLoadingState.value = LoadingState.error;
       _handleGenerateFailure(e.errorMessage);
       if (kDebugMode) debugPrint('generateWorkout error: $e');
-    } finally {
-      if (!isClosed) {
-        isGenerating.value = false;
-      }
     }
   }
 
@@ -142,5 +164,44 @@ class WorkoutController extends GetxController {
     if (Get.key.currentState?.canPop() ?? false) {
       Get.back();
     }
+  }
+
+  Future<void> startSession() async {
+    final workoutId = workoutDetails.value?.id;
+    if (workoutId == null || workoutId.isEmpty) {
+      ToastMessageHelper.show('Workout id not found');
+      return;
+    }
+
+    if (_startSessionLoadingState.value.isLoading) return;
+
+    _startSessionLoadingState.value = LoadingState.loading;
+
+    try {
+      await _service.startWorkout(workoutId);
+      _startSessionLoadingState.value = LoadingState.loaded;
+      goHome();
+    } catch (e) {
+      _startSessionLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('startWorkout error: $e');
+    }
+  }
+
+  void goHome() {
+    if (Get.isRegistered<BottomNavBarController>()) {
+      BottomNavBarController.to.resetIndex();
+    }
+    Get.offAllNamed(AppRoute.bottonNavBar);
+  }
+
+  void watchVideo() {
+    final videoUrl = plan?.suggestedVideo?.trim();
+    if (videoUrl == null || videoUrl.isEmpty) return;
+
+    VideoPlayerArgs.open(
+      videoUrl: videoUrl,
+      title: 'Workout video',
+    );
   }
 }

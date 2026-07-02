@@ -59,6 +59,7 @@ import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/co
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_details_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
@@ -312,6 +313,16 @@ class AppRoute {
     GetPage(
       name: workoutPlanDetailsScreen,
       page: () => const WorkoutPlanDetailsScreen(),
+      binding: BindingsBuilder(() {
+        Get.put<WorkoutController>(
+          WorkoutController(service: Get.find<WorkoutService>()),
+          permanent: false,
+        );
+        final args = Get.arguments;
+        if (args is WorkoutModel) {
+          WorkoutController.to.initWorkoutDetails(args);
+        }
+      }),
     ),
   ];
 }

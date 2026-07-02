@@ -24,4 +24,8 @@ class WorkoutService {
     }
     return _repository.generateWorkout(workoutId);
   }
+
+  Future<void> startWorkout(String workoutId) {
+    return _repository.startWorkout(workoutId);
+  }
 }

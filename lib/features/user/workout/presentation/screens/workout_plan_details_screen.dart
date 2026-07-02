@@ -1,72 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
-import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_plan_details_content.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutPlanDetailsScreen extends StatelessWidget {
   const WorkoutPlanDetailsScreen({super.key});
 
-  WorkoutModel get _workout => Get.arguments as WorkoutModel;
-
-  WorkoutAiPlanModel? get _plan => _workout.aiPlan;
-
-  bool get _hasVideo {
-    final video = _plan?.suggestedVideo?.trim() ?? '';
-    return video.isNotEmpty;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final plan = _plan;
+    final controller = WorkoutController.to;
 
-    return SliverScaffold(
-      appBar: const CustomSliverAppBar(
-        title: 'View full workout plan',
-        pinned: true,
-      ),
-      bodyList: [
-        if (plan == null)
-          const EmptyDataWidget(message: 'Workout plan not available.')
-              .asFillRemainingSliver()
-        else ...[
-          WorkoutPlanDetailsContent(plan: plan)
-              .asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
+    return Obx(() {
+      final plan = controller.plan;
 
-          CustomButton(
-            backgroundColor: Color(0xffE7A700),
-            radius: 12.r,
-            label: 'Watch Video',
-            onPressed: _hasVideo ? _watchVideo : null,
-            isDisabled: !_hasVideo,
-          ).asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
-          SizedBox(height: 200.h).asSliver,
+      return SliverScaffold(
+        appBar: const CustomSliverAppBar(
+          title: 'View full workout plan',
+          pinned: true,
+        ),
+        bodyList: [
+          if (plan == null)
+            const EmptyDataWidget(message: 'Workout plan not available.')
+                .asFillRemainingSliver()
+          else ...[
+            WorkoutPlanDetailsContent(plan: plan)
+                .asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
+            CustomButton(
+              backgroundColor: const Color(0xffE7A700),
+              radius: 12.r,
+              label: 'Watch Video',
+              onPressed: controller.hasVideo ? controller.watchVideo : null,
+              isDisabled: !controller.hasVideo,
+            ).asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
+            SizedBox(height: 200.h).asSliver,
+          ],
         ],
-      ],
-      bottomNavigationBar: CustomButton(
-        radius: 12.r,
-        label:  'Go home',
-        onPressed:  () {
-          if (Get.isRegistered<BottomNavBarController>()) {
-            BottomNavBarController.to.resetIndex();
-          }
-          Get.offAllNamed(AppRoute.bottonNavBar);
-        },
-      ),
-    );
-  }
-
-  void _watchVideo() {
-    final videoUrl = _plan?.suggestedVideo?.trim();
-    if (videoUrl == null || videoUrl.isEmpty) return;
-
-    VideoPlayerArgs.open(
-      videoUrl: videoUrl,
-      title: 'Workout video',
-    );
+        bottomNavigationBar: CustomButton(
+          radius: 12.r,
+          label: 'Session Start',
+          isLoading: controller.startSessionLoadingState.isLoading,
+          isDisabled:
+              controller.startSessionLoadingState.isLoading || plan == null,
+          onPressed: controller.startSession,
+        ),
+      );
+    });
   }
 }

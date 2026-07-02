@@ -78,6 +78,8 @@ class ApiConstants {
   static const String workout = '/api/v1/workout';
   static String workoutGenerate(String workoutId) =>
       '/api/v1/workout/$workoutId/generate';
+  static String workoutStart(String workoutId) =>
+      '/api/v1/workout/$workoutId/start';
 
   /// PRIVACY ──────────────────────────────────────────────
   static const String privacyPolicy = '/api/v1/privacy';

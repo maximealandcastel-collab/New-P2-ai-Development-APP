@@ -35,4 +35,14 @@ class WorkoutRepository {
       throw UnknownException(e.toString());
     }
   }
+
+  Future<void> startWorkout(String workoutId) async {
+    try {
+      await _apiService.patch(ApiConstants.workoutStart(workoutId));
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/create_content_flow_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/children/workout_environment_page.dart';
@@ -27,7 +28,7 @@ class WorkoutScreen extends StatelessWidget {
       () => CreateContentFlowScreen(
         pages: _pages,
         formKey: controller.formKey,
-        isSubmitting: controller.isSubmitting.value,
+        isSubmitting: controller.submitLoadingState.isLoading,
         uploadProgress: 0,
         submitLabel: 'Create workout',
         onNextPressed: (currentIndex, navigateToPage, validateAfterNav) async {
