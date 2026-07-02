@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_metric_chip.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class WorkoutExerciseCard extends StatelessWidget {
+class WorkoutExerciseCard extends StatefulWidget {
   const WorkoutExerciseCard({
     super.key,
     required this.exercise,
@@ -17,9 +17,22 @@ class WorkoutExerciseCard extends StatelessWidget {
   final VoidCallback? onMarkCompleted;
 
   @override
-  Widget build(BuildContext context) {
-    final steps = [...?exercise.steps]
+  State<WorkoutExerciseCard> createState() => _WorkoutExerciseCardState();
+}
+
+class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
+  bool _showSteps = false;
+
+  List<WorkoutExerciseStepModel> get _steps {
+    final steps = [...?widget.exercise.steps]
       ..sort((a, b) => (a.order ?? 0).compareTo(b.order ?? 0));
+    return steps;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final exercise = widget.exercise;
+    final steps = _steps;
 
     return CustomContainer(
       radiusAll: 16.r,
@@ -42,7 +55,7 @@ class WorkoutExerciseCard extends StatelessWidget {
                 ),
               ),
               CustomButton(
-                onPressed: onMarkCompleted,
+                onPressed: widget.onMarkCompleted,
                 label: 'Mark Completed',
                 width: 100.w,
                 height: 30.h,
@@ -77,50 +90,69 @@ class WorkoutExerciseCard extends StatelessWidget {
           if (steps.isNotEmpty) ...[
             SizedBox(height: 14.h),
             Divider(height: 1.h, color: AppColors.colorE6E6E6),
-            SizedBox(height: 14.h),
-            ...steps.asMap().entries.map(
-                  (entry) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: entry.key == steps.length - 1 ? 0 : 10.h,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          text: '${entry.key + 1}.',
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                text: entry.value.instruction ?? '',
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                textAlign: TextAlign.start,
-                              ),
-                              if ((entry.value.tip ?? '').isNotEmpty) ...[
-                                SizedBox(height: 3.h),
-                                CustomText(
-                                  text: 'Tip: ${entry.value.tip!}',
-                                  fontSize: 11.sp,
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+            Center(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() => _showSteps = !_showSteps),
+                child: AnimatedRotation(
+                  turns: _showSteps ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 28.sp,
+                    color: AppColors.textPrimary,
                   ),
                 ),
+              ),
+            ),
+            if (_showSteps) ...[
+              //  SizedBox(height: 6.h),
+              ...steps.asMap().entries.map(_buildStepItem),
+            ],
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepItem(MapEntry<int, WorkoutExerciseStepModel> entry) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: entry.key == _steps.length - 1 ? 0 : 10.h,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: '${entry.key + 1}.',
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text: entry.value.instruction ?? '',
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  textAlign: TextAlign.start,
+                ),
+                if ((entry.value.tip ?? '').isNotEmpty) ...[
+                  SizedBox(height: 3.h),
+                  CustomText(
+                    text: 'Tip: ${entry.value.tip!}',
+                    fontSize: 11.sp,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
