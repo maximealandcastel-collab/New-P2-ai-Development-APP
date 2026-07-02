@@ -1,15 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 
 class WorkoutController extends GetxController {
-  WorkoutController();
+  WorkoutController({required WorkoutService service}) : _service = service;
+
+  final WorkoutService _service;
 
   static WorkoutController get to => Get.find();
 
   final formKey = GlobalKey<FormState>();
   final RxBool isSubmitting = false.obs;
+  final RxBool isGenerating = false.obs;
 
   final RxList<String> selectedGoals = <String>[].obs;
   final RxList<String> selectedFocusAreas = <String>[].obs;
@@ -104,6 +110,37 @@ class WorkoutController extends GetxController {
       if (!isClosed) {
         isSubmitting.value = false;
       }
+    }
+  }
+
+  Future<void> generateWorkout() async {
+    if (isGenerating.value) return;
+
+    final arguments = Get.arguments;
+    if (arguments is! Map<String, dynamic>) {
+      _handleGenerateFailure('Invalid workout data');
+      return;
+    }
+
+    isGenerating.value = true;
+
+    try {
+      final workout = await _service.createAndGenerateWorkout(arguments);
+      Get.offNamed(AppRoute.workoutPlanDetailsScreen, arguments: workout);
+    } catch (e) {
+      _handleGenerateFailure(e.errorMessage);
+      if (kDebugMode) debugPrint('generateWorkout error: $e');
+    } finally {
+      if (!isClosed) {
+        isGenerating.value = false;
+      }
+    }
+  }
+
+  void _handleGenerateFailure(String message) {
+    ToastMessageHelper.show(message);
+    if (Get.key.currentState?.canPop() ?? false) {
+      Get.back();
     }
   }
 }

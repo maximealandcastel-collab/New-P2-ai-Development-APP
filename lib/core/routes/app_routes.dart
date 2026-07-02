@@ -58,7 +58,6 @@ import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/sc
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_generating_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_video_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
@@ -284,7 +283,7 @@ class AppRoute {
       page: () => const WorkoutScreen(),
       binding: BindingsBuilder(() {
         Get.put<WorkoutController>(
-          WorkoutController(),
+          WorkoutController(service: Get.find<WorkoutService>()),
           permanent: false,
         );
       }),
@@ -293,10 +292,8 @@ class AppRoute {
       name: workoutGeneratingScreen,
       page: () => const WorkoutGeneratingScreen(),
       binding: BindingsBuilder(() {
-        Get.put<WorkoutGeneratingController>(
-          WorkoutGeneratingController(
-            service: Get.find<WorkoutService>(),
-          ),
+        Get.put<WorkoutController>(
+          WorkoutController(service: Get.find<WorkoutService>()),
           permanent: false,
         );
       }),

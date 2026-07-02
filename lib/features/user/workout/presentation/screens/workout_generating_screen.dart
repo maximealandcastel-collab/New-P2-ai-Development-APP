@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
+import 'package:pler_to_pler_app/widgets/gradient_ring_loader.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class WorkoutGeneratingScreen extends StatelessWidget {
+class WorkoutGeneratingScreen extends StatefulWidget {
   const WorkoutGeneratingScreen({super.key});
+
+  @override
+  State<WorkoutGeneratingScreen> createState() =>
+      _WorkoutGeneratingScreenState();
+}
+
+class _WorkoutGeneratingScreenState extends State<WorkoutGeneratingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WorkoutController.to.generateWorkout();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +48,16 @@ class WorkoutGeneratingScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 color: AppColors.textSecondary,
               ),
-              SizedBox(height: 40.h),
-              const CustomLoader(),
+              SizedBox(height: 60.h),
+               GradientRingLoader(size: 200.r, strokeWidth: 7),
+              SizedBox(height: 24.h),
+              CustomText(
+                text: 'Might take 1~2 minutes',
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                textAlign: TextAlign.center,
+                color: AppColors.textSecondary,
+              ),
               const Spacer(flex: 2),
             ],
           ),
