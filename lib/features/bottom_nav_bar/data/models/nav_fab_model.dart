@@ -41,7 +41,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Add exercise plan',
           icon: Assets.icons.exercise.path,
-          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
+          onTap: () => Get.toNamed(AppRoute.workoutScreen),
         ),
       ];
 }
