@@ -38,11 +38,17 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
             SizedBox(height: 200.h).asSliver,
           ],
         ],
-        bottomNavigationBar: CustomButton(
-          radius: 12.r,
-          label: 'Session Start',
-          isLoading: controller.startSessionLoadingState.isLoading,
-          onPressed: controller.startSession,
+        bottomNavigationBar: Obx(
+          () => CustomButton(
+            radius: 12.r,
+            label: controller.isSessionInProgress
+                ? 'Complete Session'
+                : 'Session Start',
+            isLoading: controller.isSessionInProgress
+                ? controller.completeSessionLoadingState.isLoading
+                : controller.startSessionLoadingState.isLoading,
+            onPressed: controller.onSessionAction,
+          ),
         ),
       );
     });

@@ -5,10 +5,13 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
+import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutController extends GetxController {
   WorkoutController({required WorkoutService service}) : _service = service;
@@ -22,13 +25,18 @@ class WorkoutController extends GetxController {
 
   final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _todayWorkoutLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _completeSessionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _completeExerciseLoadingState =
       LoadingState.initial.obs;
 
   LoadingState get submitLoadingState => _submitLoadingState.value;
   LoadingState get generateLoadingState => _generateLoadingState.value;
+  LoadingState get todayWorkoutLoadingState => _todayWorkoutLoadingState.value;
   LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
+  LoadingState get completeSessionLoadingState =>
+      _completeSessionLoadingState.value;
   LoadingState get completeExerciseLoadingState =>
       _completeExerciseLoadingState.value;
 
@@ -45,13 +53,58 @@ class WorkoutController extends GetxController {
 
   WorkoutAiPlanModel? get plan => workoutDetails.value?.aiPlan;
 
+  bool get hasTodayWorkout =>
+      workoutDetails.value != null && (plan?.mainWork?.isNotEmpty ?? false);
+
+  bool get isSessionInProgress =>
+      workoutDetails.value?.status == 'in_progress';
+
   bool get hasVideo {
     final video = plan?.suggestedVideo?.trim() ?? '';
     return video.isNotEmpty;
   }
 
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.isRegistered<LoginController>() &&
+        !LoginController.to.isTrainer()) {
+      fetchTodayWorkout();
+    }
+  }
+
   void initWorkoutDetails(WorkoutModel workout) {
     workoutDetails.value = workout;
+  }
+
+  Future<void> fetchTodayWorkout() async {
+    if (_todayWorkoutLoadingState.value.isLoading) return;
+
+    _todayWorkoutLoadingState.value = LoadingState.loading;
+
+    try {
+      final workout = await _service.getTodayWorkout();
+      if (workout != null) {
+        initWorkoutDetails(workout);
+      }
+      _todayWorkoutLoadingState.value = LoadingState.loaded;
+    } catch (e) {
+      _todayWorkoutLoadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('fetchTodayWorkout error: $e');
+    }
+  }
+
+  void openFullWorkoutPlan() {
+    final workout = workoutDetails.value;
+    if (workout == null) {
+      ToastMessageHelper.show('Workout plan not available');
+      return;
+    }
+
+    Get.toNamed(
+      AppRoute.workoutPlanDetailsScreen,
+      arguments: workout,
+    );
   }
 
   void onGoalsChanged(List<String> values) {
@@ -183,6 +236,8 @@ class WorkoutController extends GetxController {
 
     try {
       await _service.startWorkout(workoutId);
+      workoutDetails.value?.status = 'in_progress';
+      workoutDetails.refresh();
       _startSessionLoadingState.value = LoadingState.loaded;
       goHome();
     } catch (e) {
@@ -207,6 +262,64 @@ class WorkoutController extends GetxController {
       videoUrl: videoUrl,
       title: 'Workout video',
     );
+  }
+
+  void showCompleteSessionDialog() {
+    final checkInQuestion = plan?.checkInQuestion?.trim();
+    final description = checkInQuestion?.isNotEmpty == true
+        ? checkInQuestion!
+        : 'Are you sure you want to complete today\'s session?';
+
+    Get.dialog(
+      Obx(
+        () => CustomDialog(
+          title: 'Complete Session',
+          description: description,
+          titleColor: AppColors.primary,
+          rightButtonLabel: 'Complete',
+          rightButtonBgColor: AppColors.primary,
+          rightButtonLabelColor: AppColors.textWhite,
+          isLoading: completeSessionLoadingState.isLoading,
+          onTapLeftButton: () => Get.back(),
+          onTapRightButton: completeSession,
+        ),
+      ),
+      barrierDismissible: !completeSessionLoadingState.isLoading,
+    );
+  }
+
+  Future<void> completeSession() async {
+    final workoutId = workoutDetails.value?.id;
+    if (workoutId == null || workoutId.isEmpty) {
+      ToastMessageHelper.show('Workout id not found');
+      return;
+    }
+
+    if (_completeSessionLoadingState.value.isLoading) return;
+
+    _completeSessionLoadingState.value = LoadingState.loading;
+
+    try {
+      // TODO: await _service.completeWorkout(workoutId) when API is ready.
+      workoutDetails.value?.status = 'completed';
+      workoutDetails.refresh();
+      _completeSessionLoadingState.value = LoadingState.loaded;
+      if (Get.isDialogOpen ?? false) Get.back();
+      ToastMessageHelper.show('Session completed');
+      goHome();
+    } catch (e) {
+      _completeSessionLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('completeSession error: $e');
+    }
+  }
+
+  void onSessionAction() {
+    if (isSessionInProgress) {
+      showCompleteSessionDialog();
+      return;
+    }
+    startSession();
   }
 
   Future<void> completeExercise(WorkoutExerciseModel exercise) async {

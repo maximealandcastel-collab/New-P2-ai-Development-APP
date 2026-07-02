@@ -36,9 +36,37 @@ class WorkoutRepository {
     }
   }
 
+  Future<WorkoutModel?> getTodayWorkout() async {
+    try {
+      final response = await _apiService.get(ApiConstants.workoutToday);
+      final data = response.data;
+      if (data == null) return null;
+
+      final payload = data is Map ? Map<String, dynamic>.from(data) : null;
+      if (payload == null || payload['data'] == null) return null;
+
+      return WorkoutModel.fromJson(payload);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<void> startWorkout(String workoutId) async {
     try {
       await _apiService.patch(ApiConstants.workoutStart(workoutId));
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<void> completeWorkout(String workoutId) async {
+    // TODO: Wire up when complete-session API is finalized.
+    try {
+      await _apiService.patch(ApiConstants.workoutComplete(workoutId));
     } on AppException {
       rethrow;
     } catch (e) {

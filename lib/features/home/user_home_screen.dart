@@ -6,11 +6,12 @@ import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/home/widgets/gym_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/overview_section.dart';
+import 'package:pler_to_pler_app/features/home/widgets/today_workout_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/week_date_picker.dart';
-import 'package:pler_to_pler_app/widgets/gradient_ring_loader.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class UserHomeScreen extends StatelessWidget {
+class UserHomeScreen extends GetView<WorkoutController> {
   const UserHomeScreen({super.key});
 
   @override
@@ -33,10 +34,10 @@ class UserHomeScreen extends StatelessWidget {
           onTap: () => Get.toNamed(AppRoute.workoutScreen),
           child: Assets.images.setGoal.image(),
         ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
-
-
         GymSection().asSliverWithPadding(horizontal: 16.w),
-        OverviewSection().asSliverWithPadding(horizontal: 16.w,vertical: 14.h),
+        OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
+        const TodayWorkoutSection()
+            .asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
         SizedBox(height: 16.h).asSliver,
         SliverToBoxAdapter(child: SizedBox(height: 120.h)),
       ],

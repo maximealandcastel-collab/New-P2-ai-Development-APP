@@ -25,8 +25,16 @@ class WorkoutService {
     return _repository.generateWorkout(workoutId);
   }
 
+  Future<WorkoutModel?> getTodayWorkout() {
+    return _repository.getTodayWorkout();
+  }
+
   Future<void> startWorkout(String workoutId) {
     return _repository.startWorkout(workoutId);
+  }
+
+  Future<void> completeWorkout(String workoutId) {
+    return _repository.completeWorkout(workoutId);
   }
 
   Future<void> completeExercise(String workoutId, String exerciseId) {
