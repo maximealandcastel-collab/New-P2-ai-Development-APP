@@ -1,7 +1,6 @@
 import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
