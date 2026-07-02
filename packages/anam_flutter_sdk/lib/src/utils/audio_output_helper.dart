@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-class AnamAudioHelper {
-  AnamAudioHelper._();
+class AudioOutputHelper {
+  AudioOutputHelper._();
 
-  static Future<void> configureForVideoCall() async {
+  static Future<void> configureBeforeWebRtcSession() async {
     if (kIsWeb) return;
 
     try {
@@ -37,12 +37,14 @@ class AnamAudioHelper {
       }
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('AnamAudioHelper.configureForVideoCall: $error');
+        debugPrint('AudioOutputHelper.configureBeforeWebRtcSession: $error');
       }
     }
   }
 
-  static Future<void> enableLoudSpeaker({RTCVideoRenderer? renderer}) async {
+  static Future<void> enableSpeakerphone({
+    RTCVideoRenderer? renderer,
+  }) async {
     if (kIsWeb) return;
 
     try {
@@ -64,7 +66,7 @@ class AnamAudioHelper {
       await _selectSpeakerOutput(renderer);
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('AnamAudioHelper.enableLoudSpeaker: $error');
+        debugPrint('AudioOutputHelper.enableSpeakerphone: $error');
       }
     }
   }
@@ -80,7 +82,7 @@ class AnamAudioHelper {
     }
 
     for (var attempt = 0; attempt < 4; attempt++) {
-      await enableLoudSpeaker(renderer: renderer);
+      await enableSpeakerphone(renderer: renderer);
       if (attempt < 3) {
         await Future<void>.delayed(
           Duration(milliseconds: 250 * (attempt + 1)),
@@ -107,7 +109,7 @@ class AnamAudioHelper {
       }
     } catch (error) {
       if (kDebugMode) {
-        debugPrint('AnamAudioHelper._selectSpeakerOutput: $error');
+        debugPrint('AudioOutputHelper._selectSpeakerOutput: $error');
       }
     }
   }

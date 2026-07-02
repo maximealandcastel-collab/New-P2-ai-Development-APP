@@ -8,8 +8,11 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/features/anam/data/anam_engine_client.dart';
 import 'package:pler_to_pler_app/features/anam/data/models/anam_usage_model.dart';
+import 'package:pler_to_pler_app/features/anam/data/anam_session_store.dart';
+import 'package:pler_to_pler_app/features/anam/data/models/anam_session_models.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/widgets/anam_session_recovery_dialog.dart';
 import 'package:pler_to_pler_app/features/anam/utils/anam_audio_helper.dart';
 import 'package:pler_to_pler_app/features/anam/utils/anam_speak_helper.dart';
 
@@ -31,6 +34,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
 
   final AnamService _anamService;
   final AnamCallArgs _args;
+  final AnamSessionStore _sessionStore = AnamSessionStore();
 
   static const _maxStreamWatchAttempts = 60;
 
@@ -52,6 +56,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   StreamSubscription<dynamic>? _dataChannelSub;
   StreamSubscription<dynamic>? _closedSub;
   Timer? _streamWatchdog;
+  Timer? _speakerMaintenanceTimer;
   int _streamWatchAttempts = 0;
   int _startGeneration = 0;
 
@@ -63,6 +68,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   bool _isStarting = false;
   bool _isProcessingMessage = false;
   bool _disableAnamBrains = true;
+  Completer<void>? _endCallCompleter;
 
   String get trainerName => _args.trainerName;
 
@@ -77,24 +83,65 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   @override
   void onReady() {
     super.onReady();
-    startCall();
+    unawaited(_prepareCallEntry());
+  }
+
+  Future<void> _prepareCallEntry() async {
+    if (_args.continueStoredSession) {
+      await startCall(resumeStored: true);
+      return;
+    }
+
+    final stored = _sessionStore.read();
+    if (stored != null &&
+        stored.needsRecovery &&
+        stored.trainerId == _args.trainerId) {
+      final choice = await showAnamSessionRecoveryDialog(
+        trainerName: stored.trainerName.isNotEmpty
+            ? stored.trainerName
+            : _args.trainerName,
+      );
+      if (choice == null || choice == AnamSessionRecoveryChoice.cancel) {
+        await endCall(popRoute: true);
+        return;
+      }
+      if (choice == AnamSessionRecoveryChoice.endSession) {
+        await _forceEndStoredSession();
+        await startCall();
+        return;
+      }
+      if (choice == AnamSessionRecoveryChoice.continueCall) {
+        await startCall(resumeStored: true);
+        return;
+      }
+    }
+
+    await startCall();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Do not end on [inactive] — iOS fires it for Control Center, permission
-    // dialogs, and other overlays. Only end when the app is actually backgrounded.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden ||
         state == AppLifecycleState.detached) {
-      unawaited(endCall(popRoute: false));
+      unawaited(_handleAppBackgrounded());
     }
+  }
+
+  Future<void> _handleAppBackgrounded() async {
+    if (_dbSessionId != null || _sessionStore.hasActiveSession) {
+      await _sessionStore.markNeedsRecovery();
+    }
+    await endCall(popRoute: false);
   }
 
   bool get isStartingCall =>
       _isStarting || status.value == AnamCallStatus.starting;
 
-  Future<void> startCall({bool isRetryAfterActiveSession = false}) async {
+  Future<void> startCall({
+    bool isRetryAfterActiveSession = false,
+    bool resumeStored = false,
+  }) async {
     if (_isEnding || _isStarting) return;
 
     _isStarting = true;
@@ -121,10 +168,27 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
 
       if (generation != _startGeneration) return;
 
-      final session = await _anamService.startSession(_args.trainerId);
+      AnamStartSessionModel session;
+      if (resumeStored) {
+        final stored = _sessionStore.read();
+        if (stored != null &&
+            stored.trainerId == _args.trainerId &&
+            stored.canResume) {
+          session = stored.toStartSessionModel();
+        } else {
+          session = await _anamService.startSession(_args.trainerId);
+        }
+      } else {
+        session = await _anamService.startSession(_args.trainerId);
+      }
       if (generation != _startGeneration) return;
 
       _dbSessionId = session.dbSessionId;
+      await _sessionStore.saveFromStartSession(
+        session: session,
+        trainerId: _args.trainerId,
+        trainerName: _args.trainerName,
+      );
       _disableAnamBrains = session.usesClientCustomLlm;
       if (kDebugMode) {
         debugPrint(
@@ -200,10 +264,14 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
           (message.contains('active call session') ||
               message.contains('already have an active'))) {
         if (kDebugMode) {
-          debugPrint('Anam: active session conflict — ending and retrying');
+          debugPrint('Anam: active session conflict — ending stored session');
         }
         _isStarting = false;
-        await startCall(isRetryAfterActiveSession: true);
+        await _forceEndStoredSession();
+        await startCall(
+          isRetryAfterActiveSession: true,
+          resumeStored: resumeStored,
+        );
         return;
       }
 
@@ -226,10 +294,36 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
       status.value = AnamCallStatus.connected;
       errorMessage.value = null;
       _streamWatchdog?.cancel();
-      unawaited(AnamAudioHelper.prepareRemoteAudio(stream));
+      unawaited(
+        AnamAudioHelper.prepareRemoteAudio(
+          stream: stream,
+          renderer: renderer,
+        ),
+      );
+      _startSpeakerMaintenance();
     } catch (e) {
       if (kDebugMode) debugPrint('Anam attach stream warning: $e');
     }
+  }
+
+  void _startSpeakerMaintenance() {
+    _speakerMaintenanceTimer?.cancel();
+    var ticks = 0;
+
+    _speakerMaintenanceTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        if (_isEnding || !isStreamReady.value || ticks >= 20) {
+          timer.cancel();
+          return;
+        }
+
+        ticks++;
+        unawaited(
+          AnamAudioHelper.enableLoudSpeaker(renderer: renderer),
+        );
+      },
+    );
   }
 
   bool _isIgnorableStreamError(Object error) {
@@ -321,7 +415,12 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
     _audioSub = _client!.on(AnamEvent.audioStreamStarted).listen(
       (stream) {
         if (stream is MediaStream) {
-          unawaited(AnamAudioHelper.prepareRemoteAudio(stream));
+          unawaited(
+            AnamAudioHelper.prepareRemoteAudio(
+              stream: stream,
+              renderer: renderer,
+            ),
+          );
         }
         _handleStreamReady(stream is MediaStream ? stream : null);
       },
@@ -342,7 +441,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
         if (_client != null && renderer != null) {
           AnamSpeakHelper.attachRemoteStream(_client!, renderer!);
         }
-        unawaited(AnamAudioHelper.enableLoudSpeaker());
+        unawaited(AnamAudioHelper.enableLoudSpeaker(renderer: renderer));
         if (!isStreamReady.value) {
           status.value = AnamCallStatus.connecting;
         }
@@ -461,34 +560,98 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> endCall({bool popRoute = true}) async {
-    if (_isEnding) return;
+    if (_endCallCompleter != null) {
+      await _endCallCompleter!.future;
+      if (popRoute && (Get.key.currentState?.canPop() ?? false)) {
+        Get.back();
+      }
+      return;
+    }
+
+    if (_isEnding && _dbSessionId == null && !_sessionStore.hasActiveSession) {
+      if (popRoute && (Get.key.currentState?.canPop() ?? false)) {
+        Get.back();
+      }
+      return;
+    }
+
+    _endCallCompleter = Completer<void>();
     _isEnding = true;
     _startGeneration++;
     status.value = AnamCallStatus.ending;
 
-    final sessionId = _dbSessionId;
-    _dbSessionId = null;
-
     try {
       await _cleanupAnamOnly();
-      if (sessionId != null) {
-        final result = await _anamService.endSession(sessionId);
-        usage.value = result.usage ?? usage.value;
-      }
+      await _endSessionOnServer();
     } catch (e) {
       errorMessage.value = e.errorMessage;
+      if (_sessionStore.hasActiveSession) {
+        await _sessionStore.markNeedsRecovery();
+      }
+      if (kDebugMode) debugPrint('Anam endCall error: $e');
     } finally {
       status.value = AnamCallStatus.idle;
       _isEnding = false;
+      if (!(_endCallCompleter?.isCompleted ?? true)) {
+        _endCallCompleter!.complete();
+      }
+      _endCallCompleter = null;
       if (popRoute && (Get.key.currentState?.canPop() ?? false)) {
         Get.back();
       }
     }
   }
 
+  Future<void> _endSessionOnServer() async {
+    final sessionId = _dbSessionId ?? _sessionStore.read()?.dbSessionId;
+    if (sessionId == null) {
+      await _sessionStore.clear();
+      return;
+    }
+
+    _dbSessionId = null;
+    final result = await _anamService.endSession(sessionId);
+    usage.value = result.usage ?? usage.value;
+    await _sessionStore.clear();
+  }
+
+  Future<void> _forceEndStoredSession() async {
+    final stored = _sessionStore.read();
+    if (stored == null) return;
+
+    try {
+      await _anamService.endSession(stored.dbSessionId);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Anam force end stored session failed: $e');
+      }
+    } finally {
+      await _sessionStore.clear();
+    }
+  }
+
+  Future<void> _finalizeSessionEnd() async {
+    if (_endCallCompleter != null) {
+      await _endCallCompleter!.future;
+      return;
+    }
+
+    try {
+      await _cleanupAnamOnly();
+      await _endSessionOnServer();
+    } catch (e) {
+      if (_sessionStore.hasActiveSession) {
+        await _sessionStore.markNeedsRecovery();
+      }
+      if (kDebugMode) debugPrint('Anam finalize session end error: $e');
+    }
+  }
+
   Future<void> _cleanupAnamOnly() async {
     _streamWatchdog?.cancel();
     _streamWatchdog = null;
+    _speakerMaintenanceTimer?.cancel();
+    _speakerMaintenanceTimer = null;
     await _historySub?.cancel();
     _historySub = null;
     await _connectionSub?.cancel();
@@ -534,7 +697,10 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
   @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(endCall(popRoute: false));
+    if (_endCallCompleter == null &&
+        (_dbSessionId != null || _sessionStore.hasActiveSession)) {
+      unawaited(_finalizeSessionEnd());
+    }
     super.onClose();
   }
 }

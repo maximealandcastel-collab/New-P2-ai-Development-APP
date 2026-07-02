@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:anam_flutter_sdk/anam_flutter_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,9 +7,11 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/anam/data/anam_session_store.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_call_controller.dart';
+import 'package:pler_to_pler_app/features/anam/presentation/widgets/anam_session_recovery_dialog.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,7 +26,7 @@ class AnamCallScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _controller.endCall();
+        if (!didPop) unawaited(_controller.endCall());
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -225,10 +229,45 @@ Future<void> openAnamVideoCall({
     return;
   }
 
-  await Get.toNamed(AppRoute.anamCallScreen, arguments: AnamCallArgs(
-    trainerId: trainerId,
-    trainerName: trainerName,
-  ));
+  final sessionStore = AnamSessionStore();
+  final stored = sessionStore.read();
+  var continueStoredSession = false;
+
+  if (stored != null) {
+    final forceEndOnly = stored.trainerId != trainerId;
+    final choice = await showAnamSessionRecoveryDialog(
+      trainerName: stored.trainerName.isNotEmpty
+          ? stored.trainerName
+          : trainerName,
+      forceEndOnly: forceEndOnly,
+    );
+
+    if (choice == null || choice == AnamSessionRecoveryChoice.cancel) {
+      return;
+    }
+
+    if (choice == AnamSessionRecoveryChoice.endSession) {
+      try {
+        await Get.find<AnamService>().endSession(stored.dbSessionId);
+      } catch (_) {}
+      await sessionStore.clear();
+    } else if (choice == AnamSessionRecoveryChoice.continueCall) {
+      if (stored.trainerId != trainerId) {
+        ToastMessageHelper.show('End the previous session first');
+        return;
+      }
+      continueStoredSession = true;
+    }
+  }
+
+  await Get.toNamed(
+    AppRoute.anamCallScreen,
+    arguments: AnamCallArgs(
+      trainerId: trainerId,
+      trainerName: trainerName,
+      continueStoredSession: continueStoredSession,
+    ),
+  );
 }
 
 Future<void> prefetchAnamUsage(AnamService service) async {

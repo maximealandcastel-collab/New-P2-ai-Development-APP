@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 
 import '../events/anam_event.dart';
 import '../events/event_emitter.dart';
+import '../utils/audio_output_helper.dart';
 import '../utils/client_error.dart';
 
 class StreamingClient {
@@ -44,6 +45,7 @@ class StreamingClient {
     };
 
     try {
+      await AudioOutputHelper.configureBeforeWebRtcSession();
       _peerConnection = await createPeerConnection(configuration, constraints);
       
       _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
@@ -58,6 +60,7 @@ class StreamingClient {
         if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           _isConnected = true;
           _logger.d('✅ WebRTC Connected!');
+          unawaited(AudioOutputHelper.enableSpeakerphone());
           eventEmitter.emit(AnamEvent.connectionEstablished);
         } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
                    state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
@@ -102,6 +105,7 @@ class StreamingClient {
             eventEmitter.emit(AnamEvent.videoStreamStarted, _remoteStream);
           } else if (event.track.kind == 'audio') {
             _logger.d('🔊 Audio track received');
+            unawaited(AudioOutputHelper.prepareRemoteAudio(stream: _remoteStream));
             eventEmitter.emit(AnamEvent.audioStreamStarted, _remoteStream);
           }
         } else {
@@ -166,6 +170,8 @@ class StreamingClient {
     }
     
     try {
+      await AudioOutputHelper.configureBeforeWebRtcSession();
+
       final mediaConstraints = {
         'audio': {
           'echoCancellation': true,
@@ -176,6 +182,8 @@ class StreamingClient {
       };
 
       _localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+
+      await AudioOutputHelper.enableSpeakerphone();
       
       _localStream!.getTracks().forEach((track) {
         _peerConnection!.addTrack(track, _localStream!);
