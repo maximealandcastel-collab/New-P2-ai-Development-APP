@@ -42,8 +42,6 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
           radius: 12.r,
           label: 'Session Start',
           isLoading: controller.startSessionLoadingState.isLoading,
-          isDisabled:
-              controller.startSessionLoadingState.isLoading || plan == null,
           onPressed: controller.startSession,
         ),
       );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_metric_chip.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -10,11 +13,9 @@ class WorkoutExerciseCard extends StatefulWidget {
   const WorkoutExerciseCard({
     super.key,
     required this.exercise,
-    this.onMarkCompleted,
   });
 
   final WorkoutExerciseModel exercise;
-  final VoidCallback? onMarkCompleted;
 
   @override
   State<WorkoutExerciseCard> createState() => _WorkoutExerciseCardState();
@@ -54,13 +55,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              CustomButton(
-                onPressed: widget.onMarkCompleted,
-                label: 'Mark Completed',
-                width: 100.w,
-                height: 30.h,
-                fontSize: 10.sp,
-              ),
+              _buildCompletionAction(context),
             ],
           ),
           if ((exercise.muscleGroup ?? '').isNotEmpty) ...[
@@ -112,6 +107,71 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildCompletionAction(BuildContext context) {
+    if (widget.exercise.isCompleted == true) {
+      return _buildCompletedStatus();
+    }
+
+    return CustomButton(
+      onPressed: () => _showCompleteDialog(context),
+      label: 'Mark Completed',
+      width: 100.w,
+      height: 30.h,
+      fontSize: 10.sp,
+    );
+  }
+
+  Widget _buildCompletedStatus() {
+    return CustomContainer(
+      paddingHorizontal: 10.w,
+      paddingVertical: 6.h,
+      radiusAll: 8.r,
+      color: AppColors.success.withValues(alpha: 0.12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            size: 14.sp,
+            color: AppColors.success,
+          ),
+          SizedBox(width: 4.w),
+          CustomText(
+            text: 'Completed',
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.success,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCompleteDialog(BuildContext context) {
+    final controller = WorkoutController.to;
+    final exerciseName = widget.exercise.exerciseName ?? 'this exercise';
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Obx(
+          () => CustomDialog(
+            title: 'Mark Completed',
+            description: 'Mark "$exerciseName" as completed?',
+            titleColor: AppColors.primary,
+            rightButtonLabel: 'Confirm',
+            rightButtonBgColor: AppColors.primary,
+            rightButtonLabelColor: AppColors.textWhite,
+            isLoading: controller.completeExerciseLoadingState.isLoading,
+            onTapLeftButton: () => Get.back(),
+            onTapRightButton: () =>
+                controller.completeExercise(widget.exercise),
+          ),
+        );
+      },
     );
   }
 

@@ -23,10 +23,14 @@ class WorkoutController extends GetxController {
   final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _completeExerciseLoadingState =
+      LoadingState.initial.obs;
 
   LoadingState get submitLoadingState => _submitLoadingState.value;
   LoadingState get generateLoadingState => _generateLoadingState.value;
   LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
+  LoadingState get completeExerciseLoadingState =>
+      _completeExerciseLoadingState.value;
 
   final RxList<String> selectedGoals = <String>[].obs;
   final RxList<String> selectedFocusAreas = <String>[].obs;
@@ -203,5 +207,59 @@ class WorkoutController extends GetxController {
       videoUrl: videoUrl,
       title: 'Workout video',
     );
+  }
+
+  Future<void> completeExercise(WorkoutExerciseModel exercise) async {
+    final workoutId = workoutDetails.value?.id;
+    final exerciseId = exercise.id ?? exercise.exerciseId;
+
+    if (workoutId == null ||
+        workoutId.isEmpty ||
+        exerciseId == null ||
+        exerciseId.isEmpty) {
+      ToastMessageHelper.show('Exercise details not found');
+      return;
+    }
+
+    if (_completeExerciseLoadingState.value.isLoading) return;
+
+    _completeExerciseLoadingState.value = LoadingState.loading;
+
+    try {
+      await _service.completeExercise(workoutId, exerciseId);
+      _markExerciseCompletedLocally(exerciseId);
+      _completeExerciseLoadingState.value = LoadingState.loaded;
+      if (Get.isDialogOpen ?? false) Get.back();
+      ToastMessageHelper.show('Exercise marked as completed');
+    } catch (e) {
+      _completeExerciseLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('completeExercise error: $e');
+    }
+  }
+
+  void _markExerciseCompletedLocally(String exerciseId) {
+    final plan = workoutDetails.value?.aiPlan;
+    if (plan == null) return;
+
+    _updateExerciseListCompletion(plan.mainWork, exerciseId);
+    _updateExerciseListCompletion(plan.accessories, exerciseId);
+    _updateExerciseListCompletion(plan.finisher, exerciseId);
+    workoutDetails.refresh();
+  }
+
+  void _updateExerciseListCompletion(
+    List<WorkoutExerciseModel>? exercises,
+    String exerciseId,
+  ) {
+    if (exercises == null) return;
+
+    for (final exercise in exercises) {
+      final id = exercise.id ?? exercise.exerciseId;
+      if (id == exerciseId) {
+        exercise.isCompleted = true;
+        return;
+      }
+    }
   }
 }

@@ -28,4 +28,8 @@ class WorkoutService {
   Future<void> startWorkout(String workoutId) {
     return _repository.startWorkout(workoutId);
   }
+
+  Future<void> completeExercise(String workoutId, String exerciseId) {
+    return _repository.completeExercise(workoutId, exerciseId);
+  }
 }
