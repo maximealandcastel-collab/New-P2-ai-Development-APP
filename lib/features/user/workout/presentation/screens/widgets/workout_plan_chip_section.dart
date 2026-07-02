@@ -17,6 +17,7 @@ class WorkoutPlanChipSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
+      width: double.infinity,
       radiusAll: 16.r,
       paddingAll: 12.r,
       color: AppColors.textWhite,
