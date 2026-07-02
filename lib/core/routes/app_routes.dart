@@ -47,6 +47,8 @@ import 'package:pler_to_pler_app/features/contents/presentation/screens/category
 import 'package:pler_to_pler_app/features/contents/presentation/screens/content_details_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_category_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/video_player_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/add_exercise_screen.dart';
@@ -59,11 +61,9 @@ import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/sc
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/screens/generate_exercise_block_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_video_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_plan_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_screen.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_video_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -88,6 +88,7 @@ class AppRoute {
   static String createCategoryScreen = "/createCategoryScreen";
   static String createContentScreen = "/createContentScreen";
   static String contentDetailsScreen = "/contentDetailsScreen";
+  static String videoPlayerScreen = "/videoPlayerScreen";
   static String chatScreen = "/chatScreen";
   static String userProfileScreen = "/userProfileScreen";
   static String profileScreen = "/profileScreen";
@@ -109,7 +110,6 @@ class AppRoute {
   static String workoutScreen = "/workoutScreen";
   static String workoutGeneratingScreen = "/workoutGeneratingScreen";
   static String workoutPlanDetailsScreen = "/workoutPlanDetailsScreen";
-  static String workoutVideoScreen = "/workoutVideoScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -223,6 +223,17 @@ class AppRoute {
         );
       }),
     ),
+    GetPage(
+      name: videoPlayerScreen,
+      page: () => const VideoPlayerScreen(),
+      binding: BindingsBuilder(() {
+        final args = Get.arguments as VideoPlayerArgs;
+        Get.put<ContentDetailsController>(
+          ContentDetailsController(videoUrl: args.videoUrl),
+          permanent: false,
+        );
+      }),
+    ),
     GetPage(name: chatScreen, page: () => ChatScreen()),
     GetPage(name: exerciseBlockScreen, page: () => ExerciseBlockScreen()),
     GetPage(
@@ -301,17 +312,6 @@ class AppRoute {
     GetPage(
       name: workoutPlanDetailsScreen,
       page: () => const WorkoutPlanDetailsScreen(),
-    ),
-    GetPage(
-      name: workoutVideoScreen,
-      page: () => const WorkoutVideoScreen(),
-      binding: BindingsBuilder(() {
-        final videoUrl = Get.arguments as String;
-        Get.put<WorkoutVideoController>(
-          WorkoutVideoController(videoUrl: videoUrl),
-          permanent: false,
-        );
-      }),
     ),
   ];
 }

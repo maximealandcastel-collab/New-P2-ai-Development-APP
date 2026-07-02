@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_plan_details_content.dart';
@@ -35,30 +36,37 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
         else ...[
           WorkoutPlanDetailsContent(plan: plan)
               .asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
-          SizedBox(height: 120.h).asSliver,
+
+          CustomButton(
+            backgroundColor: Color(0xffE7A700),
+            radius: 12.r,
+            label: 'Watch Video',
+            onPressed: _hasVideo ? _watchVideo : null,
+            isDisabled: !_hasVideo,
+          ).asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
+          SizedBox(height: 200.h).asSliver,
         ],
       ],
       bottomNavigationBar: CustomButton(
-        label: _hasVideo ? 'Complete Exercise' : 'Go home',
-        onPressed: _hasVideo ? _watchVideo : _goHome,
+        radius: 12.r,
+        label:  'Go home',
+        onPressed:  () {
+          if (Get.isRegistered<BottomNavBarController>()) {
+            BottomNavBarController.to.resetIndex();
+          }
+          Get.offAllNamed(AppRoute.bottonNavBar);
+        },
       ),
     );
-  }
-
-  void _goHome() {
-    if (Get.isRegistered<BottomNavBarController>()) {
-      BottomNavBarController.to.resetIndex();
-    }
-    Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   void _watchVideo() {
     final videoUrl = _plan?.suggestedVideo?.trim();
     if (videoUrl == null || videoUrl.isEmpty) return;
 
-    Get.toNamed(
-      AppRoute.workoutVideoScreen,
-      arguments: videoUrl,
+    VideoPlayerArgs.open(
+      videoUrl: videoUrl,
+      title: 'Workout video',
     );
   }
 }

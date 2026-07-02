@@ -42,9 +42,10 @@ class ContentVideoPlayer extends StatelessWidget {
             children: [
               ?poster,
               Video(
+
                 controller: controller.videoController,
                 controls: MaterialVideoControls,
-                fill: AppColors.backgroundDark,
+                //fill: AppColors.backgroundLight,
                 fit: BoxFit.contain,
                 subtitleViewConfiguration: SubtitleViewConfiguration(
                   style: TextStyle(

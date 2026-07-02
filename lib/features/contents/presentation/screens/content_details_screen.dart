@@ -14,7 +14,7 @@ class ContentDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = ContentDetailsController.to;
-    final content = controller.content;
+    final content = controller.content!;
 
     final page = SliverScaffold(
       appBar: CustomSliverAppBar(

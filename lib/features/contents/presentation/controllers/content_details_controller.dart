@@ -7,9 +7,16 @@ import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.d
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 
 class ContentDetailsController extends GetxController {
-  ContentDetailsController({required this.content});
+  ContentDetailsController({
+    this.content,
+    this.videoUrl,
+  }) : assert(
+          content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
+          'Either content or videoUrl is required.',
+        );
 
-  final ContentModel content;
+  final ContentModel? content;
+  final String? videoUrl;
 
   late final Player player;
   late final VideoController videoController;
@@ -59,7 +66,14 @@ class ContentDetailsController extends GetxController {
     mediaError.value = '';
 
     try {
-      final media = ContentMediaResolver.mediaFromContent(content);
+      final Media? media;
+      if (content != null) {
+        media = ContentMediaResolver.mediaFromContent(content!);
+      } else {
+        final url = videoUrl?.trim() ?? '';
+        media = url.isEmpty ? null : ContentMediaResolver.mediaFromSource(url);
+      }
+
       if (media == null) {
         mediaError.value = 'No video available for this content.';
         return;
