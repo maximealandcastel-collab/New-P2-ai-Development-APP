@@ -29,6 +29,22 @@ class WorkoutService {
     return _repository.getTodayWorkout();
   }
 
+  Future<List<WorkoutModel>> getWorkouts({
+    String? status,
+    required int page,
+    required int limit,
+  }) {
+    return _repository.getWorkouts(
+      status: status,
+      page: page,
+      limit: limit,
+    );
+  }
+
+  Future<WorkoutModel> getWorkoutById(String workoutId) {
+    return _repository.getWorkoutById(workoutId);
+  }
+
   Future<void> startWorkout(String workoutId) {
     return _repository.startWorkout(workoutId);
   }

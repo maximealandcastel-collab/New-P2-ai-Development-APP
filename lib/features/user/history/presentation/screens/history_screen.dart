@@ -1,100 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
+import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
+import 'package:pler_to_pler_app/features/user/history/presentation/screens/widgets/history_card.dart';
+import 'package:pler_to_pler_app/features/user/history/presentation/screens/widgets/history_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        FeedAppBarSliver(
-          pinned: true,
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(MediaQuery.heightOf(context) * 0.07),
-            child: CustomContainer(
-              horizontalMargin: 16,
-              verticalMargin: 6.h,
-              color: Colors.white,
-              radiusAll: 16.r,
-              child: TabBar(
-                padding: EdgeInsets.zero,
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(16.r),
+    final controller = HistoryController.to;
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      backgroundColor: AppColors.backgroundLight,
+      onRefresh: controller.refresh,
+      edgeOffset: MediaQuery.heightOf(context) * 0.25,
+      child: CustomScrollView(
+        controller: controller.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          FeedAppBarSliver(
+            pinned: true,
+            bottom: PreferredSize(
+              preferredSize: Size.fromHeight(58.h),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+                child: Obx(
+                  () => CustomContainer(
+                    radiusAll: 14.r,
+                    color: Colors.white,
+                    paddingAll: 4.r,
+                    child: Row(
+                      children: [
+                        _buildTabItem(
+                          controller: controller,
+                          label: 'All',
+                          index: 0,
+                        ),
+                        _buildTabItem(
+                          controller: controller,
+                          label: 'Pending',
+                          index: 1,
+                        ),
+                        _buildTabItem(
+                          controller: controller,
+                          label: 'Complete',
+                          index: 2,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelColor: Colors.white,
-                unselectedLabelColor: AppColors.textSecondary,
-                labelStyle: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-                unselectedLabelStyle: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-                tabs: [
-                  Tab(text: 'All', height: 40.h),
-                  Tab(text: 'Pending', height: 40.h),
-                  Tab(text: 'Complete', height: 40.h),
-                ],
               ),
             ),
           ),
-        ),
-      ],
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildTabContent('No history found'),
-          _buildTabContent('No pending history'),
-          _buildTabContent('No completed history'),
+          Obx(() {
+            switch (controller.loadingState) {
+              case LoadingState.initial:
+              case LoadingState.loading:
+                return const HistoryShimmer().asSliver;
+              case LoadingState.offline:
+              case LoadingState.error:
+                return SliverPadding(
+                  padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 130.h),
+                  sliver: SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyDataWidget(
+                      message: 'Failed to load history. Please try again.',
+                      onRefresh: controller.refresh,
+                    ),
+                  ),
+                );
+              case LoadingState.loaded:
+                return SliverPadding(
+                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 130.h),
+                  sliver: SliverList.builder(
+                    itemCount: controller.workouts.length,
+                    itemBuilder: (context, index) {
+                      final workout = controller.workouts[index];
+                      return HistoryCard(
+                        workout: workout,
+                        onViewDetails: () =>
+                            controller.openWorkoutDetails(workout),
+                      );
+                    },
+                  ),
+                );
+            }
+          }),
+          PaginationLoaderSliver(controller: controller),
         ],
       ),
     );
   }
 
-  Widget _buildTabContent(String emptyMessage) {
-    return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
-      slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: EmptyDataWidget(message: emptyMessage),
+  Widget _buildTabItem({
+    required HistoryController controller,
+    required String label,
+    required int index,
+  }) {
+    final isSelected = controller.selectedTab == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => controller.onTabSelected(index),
+        child: CustomContainer(
+          radiusAll: 12.r,
+          paddingVertical: 12.h,
+          color: isSelected ? Colors.black : Colors.transparent,
+          alignment: Alignment.center,
+          child: CustomText(
+            text: label,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.grey,
+          ),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: 120.h)),
-      ],
+      ),
     );
   }
 }

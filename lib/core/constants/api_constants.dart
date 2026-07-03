@@ -77,6 +77,19 @@ class ApiConstants {
   /// WORKOUT ──────────────────────────────────────────────
   static const String workout = '/api/v1/workout';
   static const String workoutToday = '/api/v1/workout/today';
+  static String workouts({
+    String? status,
+    required int page,
+    required int limit,
+  }) {
+    final params = <String>['page=$page', 'limit=$limit'];
+    if (status != null && status.isNotEmpty) {
+      params.add('status=$status');
+    }
+    return '/api/v1/workout?${params.join('&')}';
+  }
+
+  static String workoutById(String workoutId) => '/api/v1/workout/$workoutId';
   static String workoutGenerate(String workoutId) =>
       '/api/v1/workout/$workoutId/generate';
   static String workoutStart(String workoutId) =>

@@ -36,6 +36,36 @@ class WorkoutRepository {
     }
   }
 
+  Future<List<WorkoutModel>> getWorkouts({
+    String? status,
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.workouts(status: status, page: page, limit: limit),
+      );
+      return WorkoutModel.listFromResponse(response.data);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<WorkoutModel> getWorkoutById(String workoutId) async {
+    try {
+      final response = await _apiService.get(ApiConstants.workoutById(workoutId));
+      return WorkoutModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map),
+      );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<WorkoutModel?> getTodayWorkout() async {
     try {
       final response = await _apiService.get(ApiConstants.workoutToday);

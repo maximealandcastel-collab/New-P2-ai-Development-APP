@@ -105,6 +105,9 @@ class $AssetsIconsGen {
   SvgGenImage get notification =>
       const SvgGenImage('assets/icons/notification.svg');
 
+  /// File path: assets/icons/panding.svg
+  SvgGenImage get panding => const SvgGenImage('assets/icons/panding.svg');
+
   /// File path: assets/icons/password_icon.png
   AssetGenImage get passwordIcon =>
       const AssetGenImage('assets/icons/password_icon.png');
@@ -187,6 +190,7 @@ class $AssetsIconsGen {
     more,
     note,
     notification,
+    panding,
     passwordIcon,
     paypal,
     person,

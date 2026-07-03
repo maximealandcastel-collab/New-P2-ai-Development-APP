@@ -22,10 +22,14 @@ class WorkoutController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
   final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
+  String? _detailsWorkoutId;
+
+  String? get detailsWorkoutId => _detailsWorkoutId;
 
   final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _todayWorkoutLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _detailsLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _completeSessionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _completeExerciseLoadingState =
@@ -34,6 +38,7 @@ class WorkoutController extends GetxController {
   LoadingState get submitLoadingState => _submitLoadingState.value;
   LoadingState get generateLoadingState => _generateLoadingState.value;
   LoadingState get todayWorkoutLoadingState => _todayWorkoutLoadingState.value;
+  LoadingState get detailsLoadingState => _detailsLoadingState.value;
   LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
   LoadingState get completeSessionLoadingState =>
       _completeSessionLoadingState.value;
@@ -59,6 +64,10 @@ class WorkoutController extends GetxController {
   bool get isSessionInProgress =>
       workoutDetails.value?.status == 'in_progress';
 
+  bool get isWorkoutCompleted => workoutDetails.value?.status == 'completed';
+
+  bool get showSessionButton => !isWorkoutCompleted;
+
   bool get hasVideo {
     final video = plan?.suggestedVideo?.trim() ?? '';
     return video.isNotEmpty;
@@ -75,6 +84,31 @@ class WorkoutController extends GetxController {
 
   void initWorkoutDetails(WorkoutModel workout) {
     workoutDetails.value = workout;
+    _detailsWorkoutId = workout.id;
+    _detailsLoadingState.value = LoadingState.loaded;
+  }
+
+  Future<void> fetchWorkoutById(String workoutId) async {
+    if (_detailsLoadingState.value.isLoading) return;
+
+    _detailsWorkoutId = workoutId;
+    workoutDetails.value = null;
+    _detailsLoadingState.value = LoadingState.loading;
+
+    try {
+      final workout = await _service.getWorkoutById(workoutId);
+      initWorkoutDetails(workout);
+    } catch (e) {
+      _detailsLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('fetchWorkoutById error: $e');
+    }
+  }
+
+  Future<void> refreshWorkoutDetails() async {
+    final workoutId = _detailsWorkoutId;
+    if (workoutId == null || workoutId.isEmpty) return;
+    await fetchWorkoutById(workoutId);
   }
 
   Future<void> fetchTodayWorkout() async {

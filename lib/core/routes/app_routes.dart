@@ -304,6 +304,8 @@ class AppRoute {
         final args = Get.arguments;
         if (args is WorkoutModel) {
           WorkoutController.to.initWorkoutDetails(args);
+        } else if (args is String && args.isNotEmpty) {
+          WorkoutController.to.fetchWorkoutById(args);
         }
       }),
     ),

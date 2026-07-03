@@ -196,10 +196,12 @@ class WorkoutModel {
   int? duration;
   String? date;
   String? trainerId;
+  String? trainerName;
   WorkoutAiPlanModel? aiPlan;
   String? status;
   String? createdAt;
   String? updatedAt;
+  String? startedAt;
 
   WorkoutModel({
     this.id,
@@ -212,16 +214,35 @@ class WorkoutModel {
     this.duration,
     this.date,
     this.trainerId,
+    this.trainerName,
     this.aiPlan,
     this.status,
     this.createdAt,
     this.updatedAt,
+    this.startedAt,
   });
+
+  static List<WorkoutModel> listFromResponse(dynamic responseData) {
+    if (responseData is! Map) return [];
+
+    final data = responseData['data'];
+    if (data is! List) return [];
+
+    return data
+        .map(
+          (item) => WorkoutModel.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList();
+  }
 
   factory WorkoutModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] is Map
         ? Map<String, dynamic>.from(json['data'] as Map)
         : json;
+
+    final trainer = data['trainerId'];
 
     return WorkoutModel(
       id: data['_id']?.toString(),
@@ -243,7 +264,10 @@ class WorkoutModel {
           ? data['duration'] as int
           : int.tryParse('${data['duration']}'),
       date: data['date']?.toString(),
-      trainerId: data['trainerId']?.toString(),
+      trainerId: trainer is Map
+          ? trainer['_id']?.toString()
+          : trainer?.toString(),
+      trainerName: trainer is Map ? trainer['name']?.toString() : null,
       aiPlan: data['aiPlan'] is Map
           ? WorkoutAiPlanModel.fromJson(
               Map<String, dynamic>.from(data['aiPlan'] as Map),
@@ -252,6 +276,15 @@ class WorkoutModel {
       status: data['status']?.toString(),
       createdAt: data['createdAt']?.toString(),
       updatedAt: data['updatedAt']?.toString(),
+      startedAt: data['startedAt']?.toString(),
     );
+  }
+
+  (int completed, int total) exerciseProgress(List<WorkoutExerciseModel>? exercises) {
+    if (exercises == null || exercises.isEmpty) return (0, 0);
+
+    final completedCount =
+        exercises.where((exercise) => exercise.isCompleted == true).length;
+    return (completedCount, exercises.length);
   }
 }
