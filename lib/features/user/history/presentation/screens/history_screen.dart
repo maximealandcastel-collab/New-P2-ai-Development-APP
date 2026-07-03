@@ -20,7 +20,7 @@ class HistoryScreen extends StatelessWidget {
       color: AppColors.primary,
       backgroundColor: AppColors.backgroundLight,
       onRefresh: controller.refresh,
-      edgeOffset: MediaQuery.heightOf(context) * 0.25,
+      edgeOffset: MediaQuery.heightOf(context) * 0.2,
       child: CustomScrollView(
         controller: controller.scrollController,
         physics: const AlwaysScrollableScrollPhysics(
@@ -30,7 +30,7 @@ class HistoryScreen extends StatelessWidget {
           FeedAppBarSliver(
             pinned: true,
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(58.h),
+              preferredSize: Size.fromHeight(70.h),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
                 child: Obx(
