@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cate
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_card.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_shimmer.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsScreen extends StatelessWidget {
@@ -32,7 +33,9 @@ class ContentsScreen extends StatelessWidget {
           FeedAppBarSliver(
             pinned: true,
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(MediaQuery.heightOf(context) * 0.13),
+              preferredSize: Size.fromHeight(
+                ProfileController.to.userData?.role == 'trainer' ? 110.h : 160.h,
+              ),
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
                 child: CustomContainer(
@@ -52,57 +55,141 @@ class ContentsScreen extends StatelessWidget {
                         text: 'All Contents',
                       ),
                       SizedBox(height: 8.h),
+                      
+                      // Default and My Trainer selection tabs
                       Obx(() {
-                        final categories = categoryController.categories;
-                        final selectedCategoryId =
-                            contentController.selectedCategoryId;
+                        final isTrainer = ProfileController.to.userData?.role == 'trainer';
+                        if (isTrainer) return const SizedBox.shrink();
 
-                        return SizedBox(
-                          height: 40.h,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: categories.length + 1,
-                            itemBuilder: (context, index) {
-                              final isAll = index == 0;
-                              final isSelected = isAll
-                                  ? selectedCategoryId == null
-                                  : selectedCategoryId ==
-                                      categories[index - 1].id;
-                              final label = isAll
-                                  ? 'All'
-                                  : categories[index - 1].category ?? '';
-
-                              return GestureDetector(
-                                onTap: () => contentController.selectCategory(
-                                  isAll ? null : categories[index - 1].id,
-                                ),
-                                child: CustomContainer(
-                                  bordersColor: isSelected
-                                      ? Colors.black
-                                      : AppColors.secondary,
-                                  radiusAll: 99.r,
-                                  marginTop: 3.h,
-                                  marginLeft: index == 0 ? 10.w : 0,
-                                  marginBottom: 3.h,
-                                  marginRight: 6.w,
-                                  paddingVertical: 6.h,
-                                  paddingHorizontal: 12.r,
-                                  color: isSelected
-                                      ? Colors.black
-                                      : Colors.transparent,
-                                  child: CustomText(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16.sp,
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppColors.textSecondary,
-                                    text: label,
+                        final isDefault = contentController.activeTab.value == ContentTab.defaultContent;
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => contentController.changeTab(ContentTab.defaultContent),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(vertical: 8.h),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: isDefault ? AppColors.primary : Colors.transparent,
+                                              width: 2.w,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: CustomText(
+                                            text: 'Default',
+                                            fontWeight: isDefault ? FontWeight.w600 : FontWeight.w400,
+                                            color: isDefault ? AppColors.primary : AppColors.textSecondary,
+                                            fontSize: 15.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => contentController.changeTab(ContentTab.myTrainer),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(vertical: 8.h),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: !isDefault ? AppColors.primary : Colors.transparent,
+                                              width: 2.w,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: CustomText(
+                                            text: 'My Trainer',
+                                            fontWeight: !isDefault ? FontWeight.w600 : FontWeight.w400,
+                                            color: !isDefault ? AppColors.primary : AppColors.textSecondary,
+                                            fontSize: 15.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 12.h),
+                          ],
                         );
+                      }),
+
+                      // Conditional Search Field or Category Chips
+                      Obx(() {
+                        final isTrainer = ProfileController.to.userData?.role == 'trainer';
+                        if (!isTrainer && contentController.activeTab.value == ContentTab.defaultContent) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: CustomSearchField(
+                              searchController: contentController.searchController,
+                              hintText: 'Search default exercises...',
+                              onChanged: (val) {
+                                contentController.searchQuery.value = val;
+                              },
+                            ),
+                          );
+                        } else {
+                          final categories = categoryController.categories;
+                          final selectedCategoryId =
+                              contentController.selectedCategoryId;
+
+                          return SizedBox(
+                            height: 40.h,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: categories.length + 1,
+                              itemBuilder: (context, index) {
+                                final isAll = index == 0;
+                                final isSelected = isAll
+                                    ? selectedCategoryId == null
+                                    : selectedCategoryId ==
+                                        categories[index - 1].id;
+                                final label = isAll
+                                    ? 'All'
+                                    : categories[index - 1].category ?? '';
+
+                                return GestureDetector(
+                                  onTap: () => contentController.selectCategory(
+                                    isAll ? null : categories[index - 1].id,
+                                  ),
+                                  child: CustomContainer(
+                                    bordersColor: isSelected
+                                        ? Colors.black
+                                        : AppColors.secondary,
+                                    radiusAll: 99.r,
+                                    marginTop: 3.h,
+                                    marginLeft: index == 0 ? 10.w : 0,
+                                    marginBottom: 3.h,
+                                    marginRight: 6.w,
+                                    paddingVertical: 6.h,
+                                    paddingHorizontal: 12.r,
+                                    color: isSelected
+                                        ? Colors.black
+                                        : Colors.transparent,
+                                    child: CustomText(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16.sp,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.textSecondary,
+                                      text: label,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
                       }),
                     ],
                   ),
@@ -171,6 +258,9 @@ class ContentsScreen extends StatelessWidget {
                   ),
                 ).asSliver;
               case LoadingState.loaded:
+                final isTrainer = ProfileController.to.userData?.role == 'trainer';
+                final showActions = isTrainer && (contentController.activeTab.value != ContentTab.defaultContent);
+
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
                   sliver: SliverList.builder(
@@ -184,6 +274,7 @@ class ContentsScreen extends StatelessWidget {
                         paddingRight: 16.w,
                         child: ContentCard(
                           content: content,
+                          showActions: showActions,
                         ),
                       );
                     },

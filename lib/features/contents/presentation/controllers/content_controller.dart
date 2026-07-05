@@ -13,6 +13,12 @@ import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+
+enum ContentTab {
+  defaultContent,
+  myTrainer,
+}
 
 class ContentController extends GetxController with PaginatedLoaderUi {
   ContentController({
@@ -33,6 +39,13 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   final RxDouble submitProgress = 0.0.obs;
   final RxString submitMessage = ''.obs;
 
+  // Tabs selection
+  final Rx<ContentTab> activeTab = ContentTab.defaultContent.obs;
+
+  // Search controllers for default content
+  final searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+
   LoadingState get loadingState => _loadingState.value;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
   String? get selectedCategoryId => _selectedCategoryId.value;
@@ -51,11 +64,24 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   void onInit() {
     super.onInit();
+    
+    // Set initial active tab based on user role
+    final isTrainer = Get.find<ProfileController>().userData?.role == 'trainer';
+    activeTab.value = isTrainer ? ContentTab.myTrainer : ContentTab.defaultContent;
+
     contentList = PaginatedList<ContentModel>(
       limit: 10,
       fetchPage: _fetchContentPage,
     );
     contentList.initScroll();
+
+    // Trigger debounced search when user types in default content search bar
+    debounce(searchQuery, (_) {
+      if (activeTab.value == ContentTab.defaultContent) {
+        _loadData(showFullLoader: true);
+      }
+    }, time: const Duration(milliseconds: 500));
+
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();
     });
@@ -63,11 +89,19 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   }
 
   Future<List<ContentModel>> _fetchContentPage(int page, int limit) async {
-    return _service.fetchMyContent(
-      categoryId: _selectedCategoryId.value,
-      page: page,
-      limit: limit,
-    );
+    if (activeTab.value == ContentTab.defaultContent) {
+      return _service.fetchDefaultContent(
+        search: searchQuery.value,
+        page: page,
+        limit: 200,
+      );
+    } else {
+      return _service.fetchMyContent(
+        categoryId: _selectedCategoryId.value,
+        page: page,
+        limit: limit,
+      );
+    }
   }
 
   Future<void> _loadData({bool showFullLoader = true}) async {
@@ -90,6 +124,18 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       _loadingState.value = LoadingState.error;
       if (kDebugMode) debugPrint('fetchContents error: $e');
     }
+  }
+
+  Future<void> changeTab(ContentTab tab) async {
+    if (activeTab.value == tab) return;
+    activeTab.value = tab;
+
+    // Reset parameters on tab change
+    _selectedCategoryId.value = null;
+    searchQuery.value = '';
+    searchController.clear();
+
+    await _loadData();
   }
 
   Future<void> selectCategory(String? categoryId) async {
@@ -171,6 +217,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   @override
   void onClose() {
+    searchController.dispose();
     contentList.dispose();
     super.onClose();
   }

@@ -72,7 +72,7 @@ class ContentModel {
     title = json['title'];
     description = json['description'];
     contentType = json['contentType'];
-    videoUrl = json['videoUrl'];
+    videoUrl = json['videoUrl'] ?? json['videoPath'];
     thumbnailUrl = json['thumbnailUrl'];
     durationSeconds = json['durationSeconds'];
     exerciseName = json['exerciseName'];

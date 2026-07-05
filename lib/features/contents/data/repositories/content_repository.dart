@@ -21,7 +21,7 @@ class ContentRepository {
       final response = await _apiService.get(
         ApiConstants.myContent,
         queryParameters: {
-          'categoryId': ?categoryId,
+          'categoryId': categoryId,
           'page': page,
           'limit': limit,
         },
@@ -30,6 +30,46 @@ class ContentRepository {
       return (response.data['data'] as List)
           .map((item) => ContentModel.fromJson(item))
           .toList();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<List<ContentModel>> getDefaultContent({
+    String? search,
+    required int page,
+    required int limit,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.defaultContent,
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if(search != null && search.isNotEmpty)
+          'search': search,
+        },
+      );
+
+      return (response.data['data'] as List)
+          .map((item) => ContentModel.fromJson(item))
+          .toList();
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<ContentModel> getDefaultContentById(String contentId) async {
+    try {
+      final response = await _apiService.get(
+        ApiConstants.defaultContentById(contentId),
+      );
+
+      return ContentModel.fromJson(response.data['data']);
     } on AppException {
       rethrow;
     } catch (e) {

@@ -22,6 +22,22 @@ class ContentService {
     );
   }
 
+  Future<List<ContentModel>> fetchDefaultContent({
+    String? search,
+    required int page,
+    required int limit,
+  }) {
+    return _repository.getDefaultContent(
+      search: search,
+      page: page,
+      limit: limit,
+    );
+  }
+
+  Future<ContentModel> getDefaultContentById(String contentId) {
+    return _repository.getDefaultContentById(contentId);
+  }
+
   Future<void> createContent({
     required Map<String, dynamic> fields,
     File? video,
