@@ -183,7 +183,7 @@ class AuthRepository {
     try {
       final response = await _apiService.post(
         ApiConstants.changePassword,
-        data: {'currentPassword': oldPassword, 'newPassword': newPassword},
+        data: {'oldPassword': oldPassword, 'newPassword': newPassword},
       );
 
       final accessToken = response.data?['data']?['accessToken'];
@@ -194,6 +194,18 @@ class AuthRepository {
           accessToken.toString(),
         );
       }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  // ─── Delete Account ──────────────────────
+
+  Future<void> deleteAccount() async {
+    try {
+      await _apiService.delete(ApiConstants.accountDelete);
     } on AppException {
       rethrow;
     } catch (e) {

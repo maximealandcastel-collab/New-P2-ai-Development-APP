@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/auth_switch_link.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/tap_bar_helper.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -62,28 +64,12 @@ class SignUpScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              GestureDetector(
-                onTapDown: (details) {
-                  final menu = MenuShowHelper.showCustomMenu(
-                    context: context,
-                    details: details,
-                    options: ['Male', 'Female', 'Other'],
-                  );
-                  menu.then((value) {
-                    if (value != null) {
-                      controller.genderController.text = value;
-                    }
-                  });
-                },
-                child: AbsorbPointer(
-                  child: CustomTextField(
-                    labelText: 'Gender',
-                    controller: controller.genderController,
-                    hintText: "Select gender",
-                    prefixIcon: Icon(Icons.male, size: 24.sp),
-                    suffixIcon: Icon(Icons.arrow_drop_down, size: 24.sp),
-                  ),
-                ),
+              MenuDropdownField(
+                labelText: 'Gender',
+                hintText: 'Select gender',
+                controller: controller.genderController,
+                options: HelperData.genderOptions,
+                prefixIcon: Icon(Icons.male, size: 24.sp),
               ),
               CustomTextField(
                 labelText: 'Email',
@@ -124,30 +110,11 @@ class SignUpScreen extends StatelessWidget {
               }),
 
               SizedBox(height: 18.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: "Don’t have an account? ",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: CustomText(
-                      text: "Sign in",
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
+              AuthSwitchLink(
+                prompt: 'Don’t have an account? ',
+                actionLabel: 'Sign in',
+                onTap: () => Get.back(),
               ),
-
               SizedBox(height: 24.h),
             ],
           ),

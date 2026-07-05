@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/children/avoid_accessory_page.dart';
@@ -96,9 +95,12 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final showBackButton = currentIndex > 0;
+
     return Scaffold(
       appBar: CustomAppBar(
-        leading: currentIndex > 0
+        showLeading: showBackButton,
+        leading: showBackButton
             ? IconButton(
                 icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
                 onPressed: () {
@@ -108,22 +110,10 @@ class _TrainAiScreenState extends State<TrainAiScreen> {
                 },
               )
             : null,
-        titleWidget: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            pages.length,
-            (index) => Expanded(
-              child: CustomContainer(
-                marginLeft: index == 0 ? 16.w : 2.w,
-                marginRight: index == pages.length - 1 ? 16.w : 2.w,
-                height: 6.h,
-                color: currentIndex == index
-                    ? AppColors.textPrimary
-                    : AppColors.textWhite,
-                radiusAll: 99.r,
-              ),
-            ),
-          ),
+        titleWidget: StepProgressBar(
+          stepCount: pages.length,
+          currentIndex: currentIndex,
+          showLeading: showBackButton,
         ),
         actions: [SizedBox(width: 24.w)],
       ),

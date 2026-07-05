@@ -29,7 +29,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 60.h),
-                Center(child: Assets.images.subscribeLogo.image(width: 193.w,height: 115.h,fit: BoxFit.cover)),
+                Center(child: Assets.images.logo.image(height: 110.h)),
                 CustomText(
                   top: 10.h,
                   text: 'Unlock Your Full\nAi Fitness Experience',fontSize: 26.sp,fontWeight: FontWeight.w600,),

@@ -31,7 +31,7 @@ class FindTrainerCard extends StatelessWidget {
                 boxShape: BoxShape.circle,
                 height: 48.r,
                 width: 48.r,
-                imageUrl: '',
+                imageUrl: trainer?.userId?.profilePicture ?? '',
               ),
 
               SizedBox(width: 10.w),
@@ -45,7 +45,7 @@ class FindTrainerCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       maxline: 1,
                       textOverflow: TextOverflow.ellipsis,
-                      text: trainer?.name ?? '',
+                      text: trainer?.userId?.fullName ?? '',
                     ),
                     CustomText(
                       textAlign: TextAlign.start,

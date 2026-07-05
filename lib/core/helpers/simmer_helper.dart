@@ -83,6 +83,116 @@ class ShimmerHelper {
     );
   }
 
+  static Widget _shimmerBox({
+    double? width,
+    double height = 14,
+    double radius = 4,
+  }) {
+    return Container(
+      width: width,
+      height: height.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius.r),
+      ),
+    );
+  }
+
+  static Widget _shimmerWrap(Widget child) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: child,
+    );
+  }
+
+  static Widget contentCardShimmer() {
+    return _shimmerWrap(
+      Padding(
+        padding: EdgeInsets.only(bottom: 16.h),
+        child: Row(
+          children: [
+            _shimmerBox(width: 96.w, height: 74, radius: 8),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _shimmerBox(width: double.infinity, height: 14),
+                  SizedBox(height: 6.h),
+                  _shimmerBox(width: 120.w, height: 12),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Expanded(child: _shimmerBox(height: 26, radius: 8)),
+                      SizedBox(width: 8.w),
+                      Expanded(child: _shimmerBox(height: 26, radius: 8)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget categoryCardShimmer() {
+    return _shimmerWrap(
+      Container(
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.all(14.r),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _shimmerBox(width: 180.w, height: 16),
+            SizedBox(height: 10.h),
+            _shimmerBox(width: double.infinity, height: 12),
+            SizedBox(height: 6.h),
+            _shimmerBox(width: 220.w, height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget deviceTileShimmer() {
+    return _shimmerWrap(
+      Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            _shimmerBox(width: 40.r, height: 40, radius: 10),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _shimmerBox(width: 140.w, height: 14),
+                  SizedBox(height: 6.h),
+                  _shimmerBox(width: 100.w, height: 11),
+                ],
+              ),
+            ),
+            _shimmerBox(width: 72.w, height: 24, radius: 20),
+            SizedBox(width: 8.w),
+            _shimmerBox(width: 20.r, height: 20, radius: 4),
+          ],
+        ),
+      ),
+    );
+  }
+
   static Widget cardShimmer() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,

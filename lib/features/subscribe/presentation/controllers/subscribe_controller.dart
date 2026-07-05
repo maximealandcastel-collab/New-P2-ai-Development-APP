@@ -7,13 +7,14 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 
-class SubscribeController extends GetxController {
+class SubscribeController extends GetxController with PaginatedLoaderUi {
   final SubscribeServices _service;
   final ConnectivityService _connectivityService;
 
@@ -27,16 +28,50 @@ class SubscribeController extends GetxController {
 
   final noteTEController = TextEditingController();
   final searchController = TextEditingController();
+  final promoCodeController = TextEditingController();
 
   final RxInt _selected = 0.obs;
   final RxInt _selectedIndex = 0.obs;
+  final RxBool _isPromoApplied = false.obs;
+  final RxBool _isApplyingPromo = false.obs;
+  final RxString _appliedPromoCode = ''.obs;
 
   int get selected => _selected.value;
   int get selectedIndex => _selectedIndex.value;
+  bool get isPromoApplied => _isPromoApplied.value;
+  bool get isApplyingPromo => _isApplyingPromo.value;
+  String get appliedPromoCode => _appliedPromoCode.value;
   set selected(int val) => _selected.value = val;
 
   void onChange(int index) {
     _selectedIndex.value = index;
+  }
+
+  Future<void> applyPromoCode({bool popOnSuccess = false}) async {
+    final code = promoCodeController.text.trim();
+    if (code.isEmpty) {
+      ToastMessageHelper.show('Please enter a promo code');
+      return;
+    }
+
+    try {
+      _isApplyingPromo.value = true;
+      // TODO: validate promo code via API when available.
+      _appliedPromoCode.value = code.toUpperCase();
+      _isPromoApplied.value = true;
+      ToastMessageHelper.show('Promo code applied successfully');
+      if (popOnSuccess && Get.currentRoute == AppRoute.promoCodeScreen) {
+        Get.back();
+      }
+    } finally {
+      _isApplyingPromo.value = false;
+    }
+  }
+
+  void removePromoCode() {
+    _isPromoApplied.value = false;
+    _appliedPromoCode.value = '';
+    promoCodeController.clear();
   }
 
   // ─── Loading States ───────────────────────────────────────────────────────
@@ -55,8 +90,13 @@ class SubscribeController extends GetxController {
   late final PaginatedList<FindTrainerModel> trainersList;
 
   List<FindTrainerModel> get trainers => trainersList.items;
-  bool get isLoadingMore => trainersList.isLoadingMore.value;
   ScrollController? get scrollController => trainersList.scrollController;
+
+  @override
+  LoadingState get paginationContentState => loadingState;
+
+  @override
+  PaginatedList<dynamic> get paginatedList => trainersList;
 
   late final SearchService<FindTrainerModel> search;
 
@@ -68,7 +108,6 @@ class SubscribeController extends GetxController {
       limit: 10,
       fetchPage: _fetchTrainersPage,
     );
-    trainersList.initScroll();
     search = SearchService(fetcher: _fetchSearch);
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();
@@ -85,20 +124,24 @@ class SubscribeController extends GetxController {
   }
 
   // ─── Poll List ────────────────────────────────────────────────────────────
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool showFullLoader = true}) async {
     try {
-      final hasCache = _service.hasCache();
+      final cached = _service.getCachedTrainers();
+      final hasUsableCache = cached.isNotEmpty;
       final isOnline = _connectivityService.isConnected.value;
 
-      if (hasCache) {
-        trainersList.items.value = _service.getCachedTrainers();
-        _loadingState.value = LoadingState.loaded;
-      } else {
-        _loadingState.value = LoadingState.loading;
+      if (showFullLoader) {
+        if (hasUsableCache) {
+          trainersList.items.value = cached;
+          _loadingState.value = LoadingState.loaded;
+        } else {
+          trainersList.items.clear();
+          _loadingState.value = LoadingState.loading;
+        }
       }
 
       if (!isOnline) {
-        if (!hasCache) _loadingState.value = LoadingState.offline;
+        if (!hasUsableCache) _loadingState.value = LoadingState.offline;
         return;
       }
 
@@ -106,12 +149,13 @@ class SubscribeController extends GetxController {
         await trainersList.loadFirst();
         _loadingState.value = LoadingState.loaded;
       } on AppException catch (e) {
-        if (!hasCache) _loadingState.value = LoadingState.error;
+        if (!hasUsableCache) _loadingState.value = LoadingState.error;
         if (kDebugMode) debugPrint('Fetch error: $e');
       }
     } catch (e) {
-      if (_service.hasCache()) {
-        trainersList.items.value = _service.getCachedTrainers();
+      final cached = _service.getCachedTrainers();
+      if (cached.isNotEmpty) {
+        trainersList.items.value = cached;
         _loadingState.value = LoadingState.loaded;
       } else {
         _loadingState.value = LoadingState.error;
@@ -140,7 +184,8 @@ class SubscribeController extends GetxController {
 
   // ─── Refresh  ──────────────────────────────────────────────────────
   @override
-  Future<void> refresh() => trainersList.refreshWith(_loadData);
+  Future<void> refresh() =>
+      trainersList.refreshWith(() => _loadData(showFullLoader: false));
 
   // ─── Poll Details ─────────────────────────────────────────────────────────
   Future<void> fetchDetails(
@@ -186,6 +231,7 @@ class SubscribeController extends GetxController {
     trainersList.dispose();
     searchController.dispose();
     noteTEController.dispose();
+    promoCodeController.dispose();
     super.onClose();
   }
 }

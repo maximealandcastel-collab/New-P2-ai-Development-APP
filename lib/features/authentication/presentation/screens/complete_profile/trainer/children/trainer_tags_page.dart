@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/widgets/tag_add_widget.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerTagsPage extends StatelessWidget {
   const TrainerTagsPage({super.key});
@@ -10,16 +10,14 @@ class TrainerTagsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = ProfileCompleteController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(
-          child: CustomText(
-            text: 'Add your trainer tags',
-            fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
-          ),
+        const CompleteProfilePageTitle(
+          text: 'Add your trainer tags',
+          center: true,
         ),
         SizedBox(height: 12.h),
         TagAddWidget(

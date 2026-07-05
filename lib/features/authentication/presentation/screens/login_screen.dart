@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/tap_bar_helper.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/auth_switch_link.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -23,25 +23,26 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppLogoWidget(
-                topPadding: 28.h,
+                topPadding: 44.h,
                 centerLogo: false,
                 title: 'Sign in to  fitness',
-              ),
-              SizedBox(height: 40.h),
-              Container(
-                padding: EdgeInsets.all(4.r),
-                decoration: BoxDecoration(
-                  color: AppColors.textWhite,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(child: TapBarHelper(text: "Trainer")),
-                    Expanded(child: TapBarHelper(text: "User")),
-                  ],
-                ),
+                subtitle: 'Your fitness journey continues here!',
               ),
               SizedBox(height: 24.h),
+              // Container(
+              //   padding: EdgeInsets.all(4.r),
+              //   decoration: BoxDecoration(
+              //     color: AppColors.textWhite,
+              //     borderRadius: BorderRadius.circular(16),
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       Expanded(child: TapBarHelper(text: "Trainer")),
+              //       Expanded(child: TapBarHelper(text: "User")),
+              //     ],
+              //   ),
+              // ),
+              //SizedBox(height: 24.h),
               CustomTextField(
                 labelText: 'Email',
                 controller: controller.emailController,
@@ -84,28 +85,10 @@ class LoginScreen extends StatelessWidget {
               }),
 
               SizedBox(height: 18.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: "Don’t have an account? ",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      Get.toNamed(AppRoute.signUpScreen);
-                    },
-                    child: CustomText(
-                      text: "Sign up",
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
+              AuthSwitchLink(
+                prompt: 'Don’t have an account? ',
+                actionLabel: 'Sign up',
+                onTap: () => Get.toNamed(AppRoute.signUpScreen),
               ),
               SizedBox(height: 10.h),
             ],

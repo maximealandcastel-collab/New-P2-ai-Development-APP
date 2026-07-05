@@ -12,6 +12,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart' as _svg;
+import 'package:lottie/lottie.dart' as _lottie;
 import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
 class $AssetsIconsGen {
@@ -31,6 +32,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/ai.svg
   SvgGenImage get ai => const SvgGenImage('assets/icons/ai.svg');
+
+  /// File path: assets/icons/ai_chat.svg
+  SvgGenImage get aiChat => const SvgGenImage('assets/icons/ai_chat.svg');
 
   /// File path: assets/icons/arrow_back.svg
   SvgGenImage get arrowBack => const SvgGenImage('assets/icons/arrow_back.svg');
@@ -79,6 +83,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/file.svg
   SvgGenImage get file => const SvgGenImage('assets/icons/file.svg');
 
+  /// File path: assets/icons/history.svg
+  SvgGenImage get history => const SvgGenImage('assets/icons/history.svg');
+
   /// File path: assets/icons/home.svg
   SvgGenImage get home => const SvgGenImage('assets/icons/home.svg');
 
@@ -98,6 +105,9 @@ class $AssetsIconsGen {
   SvgGenImage get notification =>
       const SvgGenImage('assets/icons/notification.svg');
 
+  /// File path: assets/icons/panding.svg
+  SvgGenImage get panding => const SvgGenImage('assets/icons/panding.svg');
+
   /// File path: assets/icons/password_icon.png
   AssetGenImage get passwordIcon =>
       const AssetGenImage('assets/icons/password_icon.png');
@@ -115,14 +125,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/post.svg
   SvgGenImage get post => const SvgGenImage('assets/icons/post.svg');
 
-  /// File path: assets/icons/progress.svg
-  SvgGenImage get progress => const SvgGenImage('assets/icons/progress.svg');
-
   /// File path: assets/icons/recieved.svg
   SvgGenImage get recieved => const SvgGenImage('assets/icons/recieved.svg');
 
   /// File path: assets/icons/request.svg
   SvgGenImage get request => const SvgGenImage('assets/icons/request.svg');
+
+  /// File path: assets/icons/send.svg
+  SvgGenImage get send => const SvgGenImage('assets/icons/send.svg');
 
   /// File path: assets/icons/setting.svg
   SvgGenImage get setting => const SvgGenImage('assets/icons/setting.svg');
@@ -136,6 +146,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/subscribe_icons.svg
   SvgGenImage get subscribeIcons =>
       const SvgGenImage('assets/icons/subscribe_icons.svg');
+
+  /// File path: assets/icons/trainer.svg
+  SvgGenImage get trainer => const SvgGenImage('assets/icons/trainer.svg');
 
   /// File path: assets/icons/trainer_sub_icons.svg
   SvgGenImage get trainerSubIcons =>
@@ -154,6 +167,7 @@ class $AssetsIconsGen {
     payoneer,
     addButton,
     ai,
+    aiChat,
     arrowBack,
     attention,
     calender,
@@ -169,24 +183,27 @@ class $AssetsIconsGen {
     emailIcon,
     exercise,
     file,
+    history,
     home,
     message,
     missing,
     more,
     note,
     notification,
+    panding,
     passwordIcon,
     paypal,
     person,
     personalTrainer,
     post,
-    progress,
     recieved,
     request,
+    send,
     setting,
     star,
     subButton,
     subscribeIcons,
+    trainer,
     trainerSubIcons,
     transfer,
     videoCall,
@@ -200,33 +217,15 @@ class $AssetsImagesGen {
   AssetGenImage get appIcon =>
       const AssetGenImage('assets/images/app_icon.png');
 
-  /// File path: assets/images/app_icon1.png
-  AssetGenImage get appIcon1 =>
-      const AssetGenImage('assets/images/app_icon1.png');
-
-  /// File path: assets/images/app_icon2.png
-  AssetGenImage get appIcon2 =>
-      const AssetGenImage('assets/images/app_icon2.png');
-
-  /// File path: assets/images/app_logo.png
-  AssetGenImage get appLogo =>
-      const AssetGenImage('assets/images/app_logo.png');
-
   /// File path: assets/images/facility_app_logo.png
   AssetGenImage get facilityAppLogo =>
       const AssetGenImage('assets/images/facility_app_logo.png');
 
-  /// File path: assets/images/iamge3.png
-  AssetGenImage get iamge3 => const AssetGenImage('assets/images/iamge3.png');
-
-  /// File path: assets/images/img.png
-  AssetGenImage get img => const AssetGenImage('assets/images/img.png');
-
   /// File path: assets/images/img_1.png
   AssetGenImage get img1 => const AssetGenImage('assets/images/img_1.png');
 
-  /// File path: assets/images/img_2.png
-  AssetGenImage get img2 => const AssetGenImage('assets/images/img_2.png');
+  /// File path: assets/images/logo.png
+  AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
 
   /// File path: assets/images/onboarding_fore_bg_img.png
   AssetGenImage get onboardingForeBgImg =>
@@ -244,13 +243,9 @@ class $AssetsImagesGen {
   AssetGenImage get onbordingTwoBgImg =>
       const AssetGenImage('assets/images/onbording_two_bg_img.png');
 
-  /// File path: assets/images/profile_img.png
-  AssetGenImage get profileImg =>
-      const AssetGenImage('assets/images/profile_img.png');
-
-  /// File path: assets/images/subscribe_logo.png
-  AssetGenImage get subscribeLogo =>
-      const AssetGenImage('assets/images/subscribe_logo.png');
+  /// File path: assets/images/set_goal.png
+  AssetGenImage get setGoal =>
+      const AssetGenImage('assets/images/set_goal.png');
 
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
@@ -258,22 +253,27 @@ class $AssetsImagesGen {
   /// List of all assets
   List<AssetGenImage> get values => [
     appIcon,
-    appIcon1,
-    appIcon2,
-    appLogo,
     facilityAppLogo,
-    iamge3,
-    img,
     img1,
-    img2,
+    logo,
     onboardingForeBgImg,
     onboardingOneBgImg,
     onboardingThreeBgImg,
     onbordingTwoBgImg,
-    profileImg,
-    subscribeLogo,
+    setGoal,
     success,
   ];
+}
+
+class $AssetsLottiesGen {
+  const $AssetsLottiesGen();
+
+  /// File path: assets/lotties/empty data.json
+  LottieGenImage get emptyData =>
+      const LottieGenImage('assets/lotties/empty data.json');
+
+  /// List of all assets
+  List<LottieGenImage> get values => [emptyData];
 }
 
 class Assets {
@@ -281,6 +281,7 @@ class Assets {
 
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
+  static const $AssetsLottiesGen lotties = $AssetsLottiesGen();
 }
 
 class AssetGenImage {
@@ -437,6 +438,73 @@ class SvgGenImage {
           (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,
+    );
+  }
+
+  String get path => _assetName;
+
+  String get keyName => _assetName;
+}
+
+class LottieGenImage {
+  const LottieGenImage(this._assetName, {this.flavors = const {}});
+
+  final String _assetName;
+  final Set<String> flavors;
+
+  _lottie.LottieBuilder lottie({
+    Animation<double>? controller,
+    bool? animate,
+    _lottie.FrameRate? frameRate,
+    bool? repeat,
+    bool? reverse,
+    _lottie.LottieDelegates? delegates,
+    _lottie.LottieOptions? options,
+    void Function(_lottie.LottieComposition)? onLoaded,
+    _lottie.LottieImageProviderFactory? imageProviderFactory,
+    Key? key,
+    AssetBundle? bundle,
+    Widget Function(BuildContext, Widget, _lottie.LottieComposition?)?
+    frameBuilder,
+    ImageErrorWidgetBuilder? errorBuilder,
+    double? width,
+    double? height,
+    BoxFit? fit,
+    AlignmentGeometry? alignment,
+    String? package,
+    bool? addRepaintBoundary,
+    FilterQuality? filterQuality,
+    void Function(String)? onWarning,
+    _lottie.LottieDecoder? decoder,
+    _lottie.RenderCache? renderCache,
+    bool? backgroundLoading,
+  }) {
+    return _lottie.Lottie.asset(
+      _assetName,
+      controller: controller,
+      animate: animate,
+      frameRate: frameRate,
+      repeat: repeat,
+      reverse: reverse,
+      delegates: delegates,
+      options: options,
+      onLoaded: onLoaded,
+      imageProviderFactory: imageProviderFactory,
+      key: key,
+      bundle: bundle,
+      frameBuilder: frameBuilder,
+      errorBuilder: errorBuilder,
+      width: width,
+      height: height,
+      fit: fit,
+      alignment: alignment,
+      package: package,
+      addRepaintBoundary: addRepaintBoundary,
+      filterQuality: filterQuality,
+      onWarning: onWarning,
+      decoder: decoder,
+      renderCache: renderCache,
+      backgroundLoading: backgroundLoading,
     );
   }
 

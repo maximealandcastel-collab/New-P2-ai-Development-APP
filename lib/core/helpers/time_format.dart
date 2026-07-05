@@ -24,7 +24,7 @@ class TimeFormatHelper {
   }
 
 
-  static timeWithAMPM( DateTime time){
+  static String timeWithAMPM( DateTime time){
     // DateTime parsedTime = DateFormat('HH:mm:ss').parse(time);
 
     String formattedTime = DateFormat('h:mm a').format(time.add(const Duration(hours: 6)));
@@ -49,9 +49,22 @@ class TimeFormatHelper {
   }
 
   static String formatMonthOrDate(String date) {
-    DateTime dateTime = DateTime.parse(date).toLocal(); // Local timezone
+    DateTime dateTime = DateTime.parse(date).toLocal();
 
     return DateFormat('MMM d').format(dateTime);
+  }
+
+  static String getTimeAgo(String? isoDate) {
+    if (isoDate == null || isoDate.isEmpty) return '';
+
+    final date = DateTime.parse(isoDate).toLocal();
+    final diff = DateTime.now().difference(date);
+
+    if (diff.inMinutes < 1) return 'uploaded just now';
+    if (diff.inMinutes < 60) return 'uploaded ${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return 'uploaded ${diff.inHours} hr ago';
+    if (diff.inDays < 7) return 'uploaded ${diff.inDays} days ago';
+    return 'uploaded on ${formatDate(date)}';
   }
 
 

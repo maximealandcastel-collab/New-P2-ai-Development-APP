@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/data/repositories/profile_repository.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
 class ProfileService {
   final ProfileRepository _repository;
@@ -23,18 +24,28 @@ class ProfileService {
     }
   }
 
-  Future<UserModel> updateUserProfile(
-    UserModel user, {
-    File? image,
-    File? cv,
-    File? certificate,
-  }) async {
-    return await _repository.updateUserProfile(
-      user,
-      image: image,
-      cv: cv,
-      certificate: certificate,
-    );
+  Future<void> fetchTrainerProfile() async {
+    try {
+      await _repository.fetchTrainerProfile();
+    } on AppException {
+      if (!_repository.hasTrainerCache()) {
+        rethrow;
+      }
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<UserModel> updateUserProfile(Map<String, dynamic> data) async {
+    return await _repository.updateUserProfile(data);
+  }
+
+  Future<UserModel> uploadProfilePicture(File file) async {
+    return _repository.uploadProfilePicture(file);
+  }
+
+  Future<UserModel> uploadCoverPhoto(File file) async {
+    return _repository.uploadCoverPhoto(file);
   }
 
   bool hasCache() {
@@ -43,6 +54,14 @@ class ProfileService {
 
   UserModel? getCachedUserData() {
     return _repository.getCachedUserData();
+  }
+
+  TrainerDetailsModel? getCachedTrainerProfile() {
+    return _repository.getCachedTrainerProfile();
+  }
+
+  bool hasTrainerCache() {
+    return _repository.hasTrainerCache();
   }
 
   Future<String> resolveInitialRoute() async {

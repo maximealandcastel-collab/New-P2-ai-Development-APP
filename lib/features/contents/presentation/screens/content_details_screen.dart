@@ -1,0 +1,47 @@
+import 'package:floating/floating.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_video_header.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_video_player.dart';
+import 'package:pler_to_pler_app/widgets/widgets.dart';
+
+class ContentDetailsScreen extends StatelessWidget {
+  const ContentDetailsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = ContentDetailsController.to;
+    final content = controller.content!;
+
+    final page = SliverScaffold(
+      appBar: CustomSliverAppBar(
+        pinned: true,
+        title: 'Content details',
+      ),
+      bodyList: [
+        ContentVideoHeader(
+          content: content,
+          controller: controller,
+        ).asSliverWithPadding(vertical: 16.h),
+          ContentDetailsInfo(content: content).asSliverWithPadding(horizontal: 16.w),
+          SizedBox(height: 100.h).asSliver,
+        ],
+    );
+
+    return PiPSwitcher(
+      childWhenDisabled: page,
+      childWhenEnabled: Scaffold(
+        backgroundColor: AppColors.backgroundDark,
+        body: SafeArea(
+          child: ContentVideoPlayer(
+            controller: controller,
+            showActions: false,
+          ),
+        ),
+      ),
+    );
+  }
+}

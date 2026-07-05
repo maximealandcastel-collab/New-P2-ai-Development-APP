@@ -18,10 +18,41 @@ import 'package:pler_to_pler_app/features/search/controller/search_controller.da
 import 'package:pler_to_pler_app/features/subscribe/data/repositories/subscribe_repository.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/anam/data/repositories/anam_repository.dart';
+import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
 import 'package:pler_to_pler_app/features/ai/domain/services/ai_service.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/controllers/train_ai_controller.dart';
-import '../../features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/contents/data/repositories/category_repository.dart';
+import 'package:pler_to_pler_app/features/contents/data/repositories/content_repository.dart';
+import 'package:pler_to_pler_app/features/contents/domain/services/category_service.dart';
+import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/category_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
+import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
+import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
+import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
+import 'package:pler_to_pler_app/features/privacy/domain/services/privacy_services.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/repositories/client_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/domain/services/client_service.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/clients_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/request/data/repositories/request_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/request/domain/services/request_service.dart';
+import 'package:pler_to_pler_app/features/trainer/request/presentation/controllers/requests_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/data/repositories/exercise_block_repository.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/domain/services/exercise_block_service.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/exercise_block_controller.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/repositories/device_repository.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/apple_watch_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/bluetooth_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/change_password_controller.dart';
 
 class DependencyInjection {
   DependencyInjection._();
@@ -108,6 +139,11 @@ class DependencyInjection {
       permanent: true,
     );
 
+    Get.lazyPut<ChangePasswordController>(
+      () => ChangePasswordController(authService: Get.find<AuthService>()),
+      fenix: true,
+    );
+
     Get.lazyPut<BottomNavBarController>(
       () => BottomNavBarController(),
       fenix: true,
@@ -123,6 +159,16 @@ class DependencyInjection {
         authService: Get.find<AuthService>(),
         profileService: Get.find<ProfileService>(),
       ),
+      fenix: true,
+    );
+
+    /// Anam video call (lazy — SDK loads only when call screen opens)
+    Get.lazyPut<AnamRepository>(
+      () => AnamRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<AnamService>(
+      () => AnamService(repository: Get.find<AnamRepository>()),
       fenix: true,
     );
 
@@ -162,6 +208,182 @@ class DependencyInjection {
       ),
       fenix: true,
     );
+
+    /// Category
+    Get.lazyPut<CategoryRepository>(
+      () => CategoryRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<CategoryService>(
+      () => CategoryService(repository: Get.find<CategoryRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<CategoryController>(
+      () => CategoryController(
+        service: Get.find<CategoryService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Clients
+    Get.lazyPut<ClientRepository>(
+      () => ClientRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ClientService>(
+      () => ClientService(repository: Get.find<ClientRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ClientsController>(
+      () => ClientsController(
+        service: Get.find<ClientService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Requests
+    Get.lazyPut<RequestRepository>(
+      () => RequestRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<RequestService>(
+      () => RequestService(
+        repository: Get.find<RequestRepository>(),
+        subscribeService: Get.find<SubscribeServices>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<RequestsController>(
+      () => RequestsController(
+        service: Get.find<RequestService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Exercise Block
+    Get.lazyPut<ExerciseBlockRepository>(
+      () => ExerciseBlockRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ExerciseBlockService>(
+      () => ExerciseBlockService(
+        repository: Get.find<ExerciseBlockRepository>(),
+        profileService: Get.find<ProfileService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<ExerciseBlockController>(
+      () => ExerciseBlockController(
+        service: Get.find<ExerciseBlockService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<CreateExerciseBlockController>(
+      () => CreateExerciseBlockController(
+        service: Get.find<ExerciseBlockService>(),
+        blocksController: Get.find<ExerciseBlockController>(),
+      ),
+      fenix: true,
+    );
+
+    /// Content
+    Get.lazyPut<ContentRepository>(
+      () => ContentRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<ContentService>(
+      () => ContentService(repository: Get.find<ContentRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<ContentController>(
+      () => ContentController(
+        service: Get.find<ContentService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Workout
+    Get.lazyPut<WorkoutRepository>(
+      () => WorkoutRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<WorkoutService>(
+      () => WorkoutService(repository: Get.find<WorkoutRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<WorkoutController>(
+      () => WorkoutController(service: Get.find<WorkoutService>()),
+      fenix: true,
+    );
+    Get.lazyPut<HistoryController>(
+      () => HistoryController(
+        service: Get.find<WorkoutService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Privacy
+    Get.lazyPut<PrivacyRepository>(
+      () => PrivacyRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyServices>(
+      () => PrivacyServices(repository: Get.find<PrivacyRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<PrivacyController>(
+      () => PrivacyController(
+        service: Get.find<PrivacyServices>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
+    Get.put<AppleWatchService>(AppleWatchService(), permanent: true);
+
+    Get.lazyPut<DeviceRepository>(
+      () => DeviceRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<DeviceService>(
+      () => DeviceService(repository: Get.find<DeviceRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<DevicePairingController>(
+      () => DevicePairingController(
+        deviceService: Get.find<DeviceService>(),
+        bluetoothService: BluetoothService.instance,
+        appleWatchService: Get.find<AppleWatchService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
   }
 
   static void clear() {

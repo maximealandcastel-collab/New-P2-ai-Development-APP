@@ -5,7 +5,14 @@ class AppConstants{
   static const String cacheUserRole = "cacheUserRole";
   static const String cacheUserGender = "cacheUserGender";
   static const String cacheUserProfile = "cacheUserProfile";
+  static const String cacheTrainerProfile = "cacheTrainerProfile";
   static const String cacheTrainers = "cacheTrainers";
+  static const String cacheCategories = "cacheCategories";
+  static const String cacheExerciseBlocks = "cacheExerciseBlocks";
+  static const String cacheTrainerClientsPaid = "cacheTrainerClientsPaid";
+  static const String cacheTrainerClientsSent = "cacheTrainerClientsSent";
+  static const String cacheTrainerRequests = "cacheTrainerRequests";
+  static const String cacheUserDevices = "cacheUserDevices";
 
 
 

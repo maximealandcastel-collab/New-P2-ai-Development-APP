@@ -26,33 +26,15 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>This app uses the camera to take profile and progress photos.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs permission to save photos to your library.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to your photo library to upload profile pictures and fitness progress photos.</string>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneClassName</key>
-					<string>UIWindowScene</string>
-					<key>UISceneConfigurationName</key>
-					<string>flutter</string>
-					<key>UISceneDelegateClassName</key>
-					<string>FlutterSceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
+
+    <!-- Privacy Permissions -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app requires access to your photo library to upload profile pictures and fitness progress photos.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs permission to save photos to your library.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app uses the camera to take profile and progress photos.</string>
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

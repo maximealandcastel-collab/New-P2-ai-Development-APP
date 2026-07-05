@@ -30,7 +30,7 @@ class AppLogoWidget extends StatelessWidget {
       children: [
         SizedBox(height: topPadding),
         Image.asset(
-          Assets.images.appLogo.path,
+          Assets.images.logo.path,
           width: size.w,
           height: size.h,
         ),
@@ -54,7 +54,7 @@ class AppLogoWidget extends StatelessWidget {
             children: [
               TextSpan(
                 style: TextStyle(color: AppColors.primary),
-                text: 'Pier to Pier',
+                text: 'P2P Fit tech Ai',
               ),
             ],
           ),

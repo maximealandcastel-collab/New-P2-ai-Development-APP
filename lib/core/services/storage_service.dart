@@ -121,4 +121,14 @@ abstract class StorageKeys {
   // Add more keys below as needed:
   // static const String fcmToken = 'fcm_token';
   // static const String lastSyncTime = 'last_sync_time';
+
+  // ─── Anam call ────────────────────────────────────────────────────────────
+  static const String anamActiveDbSessionId = 'anam_active_db_session_id';
+  static const String anamActiveTrainerId = 'anam_active_trainer_id';
+  static const String anamActiveTrainerName = 'anam_active_trainer_name';
+  static const String anamActiveSessionToken = 'anam_active_session_token';
+  static const String anamActivePersonaId = 'anam_active_persona_id';
+  static const String anamActiveCustomLlm = 'anam_active_custom_llm';
+  static const String anamActivePreNegotiated = 'anam_active_pre_negotiated';
+  static const String anamSessionNeedsRecovery = 'anam_session_needs_recovery';
 }

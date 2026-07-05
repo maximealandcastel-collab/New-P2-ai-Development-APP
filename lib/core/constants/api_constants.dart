@@ -1,5 +1,7 @@
 class ApiConstants {
-  static const String baseUrl = 'http://10.10.11.81:4001';
+  /// Override at run time, e.g.:
+  /// `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:4001`
+  static const String baseUrl = 'https://faisal8080.merinasib.shop';
 
   /// ─── Auth Marker ───────────────────────────
   static const String requiresAuthHeader = 'X-Requires-Auth';
@@ -16,20 +18,110 @@ class ApiConstants {
   static const String resendOtp = '/api/v1/auth/resend-otp';
   static const String resetPassword = '/api/v1/auth/reset-password';
   static const String changePassword = '/api/v1/auth/change-password';
+  static const String accountDelete = '/api/v1/auth/account-delete';
+  static const String uploadProfilePicture = '/api/v1/auth/upload-profile-picture';
+  static const String uploadCoverPhoto = '/api/v1/auth/upload-cover-photo';
 
 
 
 
   /// USER ──────────────────────────────────────────────
   static const String userProfile = '/api/v1/auth/me';
-  static const String userProfileUpdate = '/api/v1/users/edit-profile';
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
+  static const String trainerMe = '/api/v1/trainer/me';
   static const String trainerRequest = '/api/v1/trainer-request';
+  static const String trainerRequestAll = '/api/v1/trainer-request/all';
+  static String acceptTrainerRequest(String requestId, String type) =>
+      '/api/v1/trainer-request/$requestId/$type';
   static String trainerKnowledgePack(String trainerId) => '/api/v1/trainer/$trainerId/knowledge-pack';
   static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
   static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
 
+  /// EXERCISE BLOCK ──────────────────────────────────────────────
+  static String trainerBlocks(
+    String trainerId,
+    int page,
+    int limit, {
+    bool approvedOnly = true,
+  }) =>
+      '/api/v1/trainer/$trainerId/blocks?approvedOnly=$approvedOnly&page=$page&limit=$limit';
+
+  static String trainerBlocksGenerate(String trainerId) =>
+      '/api/v1/trainer/$trainerId/blocks/generate';
+
+  static String trainerBlocksCreate(String trainerId) =>
+      '/api/v1/trainer/$trainerId/blocks';
+
+  static String trainerBlockById(String trainerId, String blockId) =>
+      '/api/v1/trainer/$trainerId/blocks/$blockId';
+
+  static String blockById(String blockId) => '/api/v1/block/$blockId';
+
+  /// INVOICE ──────────────────────────────────────────────
+  static const String invoice = '/api/v1/invoice';
+  static const String trainerInvoices = '/api/v1/invoice/trainer';
+  static String sendInvoice(String invoiceId) =>
+      '/api/v1/invoice/$invoiceId/send';
+
+  /// CATEGORY ──────────────────────────────────────────────
+  static const String categoryMy = '/api/v1/category/my';
+  static const String categoryCreate = '/api/v1/category/create';
+  static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
+
+  /// CONTENT ──────────────────────────────────────────────
+  static const String myContent = '/api/v1/content/my-content';
+  static const String content = '/api/v1/content/content';
+  static String contentById(String contentId) => '/api/v1/content/content/$contentId';
+
+  /// WORKOUT ──────────────────────────────────────────────
+  static const String workout = '/api/v1/workout';
+  static const String workoutToday = '/api/v1/workout/today';
+  static String workouts({
+    String? status,
+    required int page,
+    required int limit,
+  }) {
+    final params = <String>['page=$page', 'limit=$limit'];
+    if (status != null && status.isNotEmpty) {
+      params.add('status=$status');
+    }
+    return '/api/v1/workout?${params.join('&')}';
+  }
+
+  static String workoutById(String workoutId) => '/api/v1/workout/$workoutId';
+  static String workoutGenerate(String workoutId) =>
+      '/api/v1/workout/$workoutId/generate';
+  static String workoutStart(String workoutId) =>
+      '/api/v1/workout/$workoutId/start';
+  static String workoutComplete(String workoutId) =>
+      '/api/v1/workout/$workoutId/complete';
+  static String workoutExerciseComplete(String workoutId, String exerciseId) =>
+      '/api/v1/workout/$workoutId/exercises/$exerciseId/complete';
+
+  /// PRIVACY ──────────────────────────────────────────────
+  static const String privacyPolicy = '/api/v1/privacy';
+  static const String termsAndCondition = '/api/v1/terms';
+  static const String aboutUs = '/api/v1/about';
+
+  /// DEVICE ──────────────────────────────────────────────
+  static const String userDevices = '/api/v1/devices';
+  static const String pairDevice = '/api/v1/devices/pair';
+  static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
+  static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
+  static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
+
+  /// ANAM VIDEO CALL ──────────────────────────────────────────────
+  static const String anamUsage = '/api/v1/anam/usage';
+  static const String anamSessionStart = '/api/v1/anam/session/start';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionMessage(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/message';
+  /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
+  static String anamSessionEnd(String dbSessionId) =>
+      '/api/v1/anam/session/$dbSessionId/end';
+  static String trainerAnam(String trainerId) =>
+      '/api/v1/trainer/$trainerId/anam';
 
   ///
   static const String searchHistoryKey = '/searchHistoryKey';

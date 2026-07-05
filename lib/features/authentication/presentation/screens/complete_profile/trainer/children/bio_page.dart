@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class BioPage extends StatelessWidget {
@@ -9,16 +10,12 @@ class BioPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = ProfileCompleteController.to;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CustomText(
-          text: 'Add your bio ?',
-          fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
-        ),
+        const CompleteProfilePageTitle(text: 'Add your bio ?'),
         SizedBox(height: 16.h),
-
         CustomTextField(
           labelText: '@username',
           hintText: 'write here...',
@@ -44,8 +41,6 @@ class BioPage extends StatelessWidget {
             return null;
           },
         ),
-
-
       ],
     );
   }

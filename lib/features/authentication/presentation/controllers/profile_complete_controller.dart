@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/menu_show_helper.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
@@ -117,19 +118,6 @@ class ProfileCompleteController extends GetxController {
     }
   }
 
-  int? _parseHeight(String value) {
-    final cmMatch = RegExp(r'\((\d+)\s*cm\)').firstMatch(value.trim());
-    if (cmMatch != null) {
-      return int.tryParse(cmMatch.group(1)!);
-    }
-    return int.tryParse(value.trim());
-  }
-
-  int? _parseWeight(String value) {
-    final match = RegExp(r'(\d+)').firstMatch(value.trim());
-    return match != null ? int.tryParse(match.group(1)!) : null;
-  }
-
   final trainerFormKey = GlobalKey<FormState>();
   final userFormKey = GlobalKey<FormState>();
 
@@ -198,8 +186,8 @@ class ProfileCompleteController extends GetxController {
               primaryGoalController.text.trim(),
           gender: gender,
           dateOfBirth: selectedDateOfBirth.toIso8601String().split('T').first,
-          height: _parseHeight(heightController.text),
-          weight: _parseWeight(weightController.text),
+          height: StringFormat.parseHeight(heightController.text),
+          weight: StringFormat.parseWeight(heightController.text)?.round(),
           fitnessLevel: MenuShowHelper.fitnessLevelBackendValue(
             fitnessLevelController.text.trim(),
           ),

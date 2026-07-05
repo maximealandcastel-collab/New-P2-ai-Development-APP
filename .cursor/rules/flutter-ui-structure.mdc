@@ -1,0 +1,106 @@
+---
+description: Flutter UI structure and lib/widgets custom component usage
+globs: lib/**/*.dart
+alwaysApply: true
+---
+
+# Flutter UI Structure
+
+## One class per screen/widget file
+
+- Each screen or widget file should contain **one public class**.
+- Do **not** add extra private widget classes in the same file (e.g. `_HeroImage`, `_BottomCta`, `_HeaderSection`).
+
+## Split UI inside a single class
+
+- **Small UI parts** → private builder methods on the same class:
+  - `_buildHeroImage()`
+  - `_buildBottomCta()`
+- **Large or reusable UI** → separate widget file under `widgets/`:
+  - `onboarding_feature_item.dart` → `OnboardingFeatureItem`
+
+## Examples
+
+```dart
+// ❌ BAD — extra private widget classes in the same file
+class OnboardingScreen extends StatelessWidget { ... }
+class _HeroImage extends StatelessWidget { ... }
+class _BottomCta extends StatelessWidget { ... }
+
+// ✅ GOOD — one class, small sections as methods
+class OnboardingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _buildHeroImage(),
+        _buildBottomCta(),
+      ],
+    );
+  }
+
+  Widget _buildHeroImage() { ... }
+  Widget _buildBottomCta() { ... }
+}
+
+// ✅ GOOD — large/reusable piece in its own file
+// widgets/onboarding_feature_item.dart
+class OnboardingFeatureItem extends StatelessWidget { ... }
+```
+
+## When to extract a new file
+
+- UI is reused in multiple screens
+- Widget logic is large enough to hurt readability in one file
+- It represents a clear standalone component (card, list item, form section)
+
+Do not extract just to avoid a private `_build...()` method.
+
+---
+
+# Use `lib/widgets` Custom Components
+
+Always prefer project widgets from `lib/widgets/` over raw Flutter widgets when a match exists.
+
+Import via:
+
+```dart
+import 'package:flutter_task/widgets/widgets.dart';
+```
+
+## Widget map
+
+| Use case | Widget |
+|---|---|
+| Text / labels | `CustomText` |
+| Buttons / CTAs | `CustomButton` |
+| Loading | `CustomLoader` |
+| Tappable styled box | `CustomContainer` |
+| Standard app bar | `CustomAppBar` |
+| Collapsible / hero header | `CustomSliverAppBar` |
+| Scrollable sliver screens | `SliverScaffold` |
+| Text input | `CustomTextField` |
+| Search input | `CustomSearchField` |
+| OTP / PIN input | `CustomPinCodeTextField` |
+| Network image | `CustomNetworkImage` |
+| Avatar | `CustomImageAvatar` |
+| Dialog | `CustomDialog` |
+| Empty state | `EmptyDataWidget` |
+| Step progress | `StepProgressBar` |
+| Paginated list footer | `PaginationLoaderSliver` |
+
+## Rules
+
+- Do **not** use raw `Text`, `ElevatedButton`, `TextField`, `AppBar`, `CircularProgressIndicator`, etc. when a custom widget covers the same need.
+- Use `SliverScaffold` + `CustomSliverAppBar` for scrollable screens with a header/hero area.
+- Only use raw Flutter widgets when no custom widget fits, or for low-level layout (`Row`, `Column`, `SizedBox`, `Padding`).
+
+```dart
+// ❌ BAD
+Text('Hello', style: TextStyle(fontSize: 16))
+ElevatedButton(onPressed: () {}, child: Text('Save'))
+
+// ✅ GOOD
+CustomText(text: 'Hello', fontSize: 16.sp)
+CustomButton(label: 'Save', onPressed: () {})
+```

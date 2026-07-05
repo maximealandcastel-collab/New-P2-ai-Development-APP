@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CustomNetworkImage extends StatelessWidget {
@@ -48,7 +49,7 @@ class CustomNetworkImage extends StatelessWidget {
 
     if ((imageUrl ?? '').trim().isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: imageUrl!, // ✅ non-null assert
+        imageUrl: '${ApiConstants.baseUrl}$imageUrl',
         imageBuilder: (context, imageProvider) =>
             _buildContainer(imageProvider),
         placeholder: (context, url) => Shimmer.fromColors(
