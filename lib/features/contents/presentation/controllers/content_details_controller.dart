@@ -11,9 +11,9 @@ class ContentDetailsController extends GetxController {
     this.content,
     this.videoUrl,
   }) : assert(
-          content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
-          'Either content or videoUrl is required.',
-        );
+  content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
+  'Either content or videoUrl is required.',
+  );
 
   final ContentModel? content;
   final String? videoUrl;
@@ -76,14 +76,37 @@ class ContentDetailsController extends GetxController {
 
       if (media == null) {
         mediaError.value = 'No video available for this content.';
+        debugPrint('_loadMedia: media is null');
         return;
       }
 
+      debugPrint('_loadMedia: opening media → ${media.uri}');
       await player.open(media);
+      debugPrint('_loadMedia: player opened successfully');
       await player.setRate(playbackSpeed.value);
-    } catch (error) {
+
+      // player stream থেকে error listen করো
+      player.stream.error.listen((error) {
+        debugPrint('_loadMedia player.stream.error → $error');
+        if (error.isNotEmpty) {
+          mediaError.value = 'Player error: $error';
+        }
+      });
+
+      // buffering state
+      player.stream.buffering.listen((isBuffering) {
+        debugPrint('_loadMedia player.stream.buffering → $isBuffering');
+      });
+
+      // playing state
+      player.stream.playing.listen((isPlaying) {
+        debugPrint('_loadMedia player.stream.playing → $isPlaying');
+      });
+
+    } catch (error, stack) {
       mediaError.value = 'Unable to play this video.';
-      if (kDebugMode) debugPrint('ContentDetailsController._loadMedia: $error');
+      debugPrint('_loadMedia ERROR: $error');
+      debugPrint('_loadMedia STACK: $stack');
     } finally {
       isLoadingMedia.value = false;
     }
