@@ -94,9 +94,10 @@ class WorkoutRepository {
   }
 
   Future<void> completeWorkout(String workoutId) async {
-    // TODO: Wire up when complete-session API is finalized.
     try {
-      await _apiService.patch(ApiConstants.workoutComplete(workoutId));
+      await _apiService.patch(
+        ApiConstants.workoutExerciseComplete(workoutId),
+      );
     } on AppException {
       rethrow;
     } catch (e) {
@@ -107,7 +108,7 @@ class WorkoutRepository {
   Future<void> completeExercise(String workoutId, String exerciseId) async {
     try {
       await _apiService.patch(
-        ApiConstants.workoutExerciseComplete(workoutId, exerciseId),
+        ApiConstants.workoutComplete(workoutId, exerciseId),
       );
     } on AppException {
       rethrow;

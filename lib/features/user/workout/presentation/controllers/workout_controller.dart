@@ -88,19 +88,28 @@ class WorkoutController extends GetxController {
     _detailsLoadingState.value = LoadingState.loaded;
   }
 
-  Future<void> fetchWorkoutById(String workoutId) async {
-    if (_detailsLoadingState.value.isLoading) return;
+  Future<void> fetchWorkoutById(
+    String workoutId, {
+    bool showLoading = true,
+  }) async {
+    if (showLoading) {
+      if (_detailsLoadingState.value.isLoading) return;
 
-    _detailsWorkoutId = workoutId;
-    workoutDetails.value = null;
-    _detailsLoadingState.value = LoadingState.loading;
+      _detailsWorkoutId = workoutId;
+      workoutDetails.value = null;
+      _detailsLoadingState.value = LoadingState.loading;
+    } else {
+      _detailsWorkoutId = workoutId;
+    }
 
     try {
       final workout = await _service.getWorkoutById(workoutId);
       initWorkoutDetails(workout);
     } catch (e) {
-      _detailsLoadingState.value = LoadingState.error;
-      ToastMessageHelper.show(e.errorMessage);
+      if (showLoading) {
+        _detailsLoadingState.value = LoadingState.error;
+        ToastMessageHelper.show(e.errorMessage);
+      }
       if (kDebugMode) debugPrint('fetchWorkoutById error: $e');
     }
   }
@@ -109,6 +118,12 @@ class WorkoutController extends GetxController {
     final workoutId = _detailsWorkoutId;
     if (workoutId == null || workoutId.isEmpty) return;
     await fetchWorkoutById(workoutId);
+  }
+
+  Future<void> refreshWorkoutDetailsSilently() async {
+    final workoutId = _detailsWorkoutId;
+    if (workoutId == null || workoutId.isEmpty) return;
+    await fetchWorkoutById(workoutId, showLoading: false);
   }
 
   Future<void> fetchTodayWorkout() async {
@@ -334,7 +349,7 @@ class WorkoutController extends GetxController {
     _completeSessionLoadingState.value = LoadingState.loading;
 
     try {
-      // TODO: await _service.completeWorkout(workoutId) when API is ready.
+      await _service.completeWorkout(workoutId);
       workoutDetails.value?.status = 'completed';
       workoutDetails.refresh();
       _completeSessionLoadingState.value = LoadingState.loaded;
@@ -358,7 +373,7 @@ class WorkoutController extends GetxController {
 
   Future<void> completeExercise(WorkoutExerciseModel exercise) async {
     final workoutId = workoutDetails.value?.id;
-    final exerciseId = exercise.id ?? exercise.exerciseId;
+    final exerciseId = exercise.exerciseId;
 
     if (workoutId == null ||
         workoutId.isEmpty ||
@@ -374,10 +389,11 @@ class WorkoutController extends GetxController {
 
     try {
       await _service.completeExercise(workoutId, exerciseId);
-      _markExerciseCompletedLocally(exerciseId);
       _completeExerciseLoadingState.value = LoadingState.loaded;
-      if (Get.isDialogOpen ?? false) Get.back();
+      _markExerciseCompletedLocally(exerciseId);
+      await refreshWorkoutDetailsSilently();
       ToastMessageHelper.show('Exercise marked as completed');
+      Get.back(canPop: true);
     } catch (e) {
       _completeExerciseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);
@@ -402,8 +418,7 @@ class WorkoutController extends GetxController {
     if (exercises == null) return;
 
     for (final exercise in exercises) {
-      final id = exercise.id ?? exercise.exerciseId;
-      if (id == exerciseId) {
+      if (exercise.exerciseId == exerciseId || exercise.id == exerciseId) {
         exercise.isCompleted = true;
         return;
       }

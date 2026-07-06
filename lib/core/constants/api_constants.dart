@@ -96,10 +96,8 @@ class ApiConstants {
       '/api/v1/workout/$workoutId/generate';
   static String workoutStart(String workoutId) =>
       '/api/v1/workout/$workoutId/start';
-  static String workoutComplete(String workoutId) =>
-      '/api/v1/workout/$workoutId/complete';
-  static String workoutExerciseComplete(String workoutId, String exerciseId) =>
-      '/api/v1/workout/$workoutId/exercises/$exerciseId/complete';
+  static String workoutComplete(String workoutId, String exerciseId) => '/api/v1/workout/$workoutId/exercises/$exerciseId/complete';
+  static String workoutExerciseComplete(String workoutId) => '/api/v1/workout/$workoutId/complete';
 
   /// PRIVACY ──────────────────────────────────────────────
   static const String privacyPolicy = '/api/v1/privacy';
