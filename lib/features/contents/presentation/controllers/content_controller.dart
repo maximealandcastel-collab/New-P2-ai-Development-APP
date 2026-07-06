@@ -86,7 +86,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (activeTab.value == ContentTab.defaultContent) {
       return _service.fetchDefaultContent(
         page: page,
-        limit: 200,
+        limit: 20,
       );
     } else {
       return _service.fetchMyContent(
