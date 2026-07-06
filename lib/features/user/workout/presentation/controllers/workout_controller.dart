@@ -390,10 +390,10 @@ class WorkoutController extends GetxController {
     try {
       await _service.completeExercise(workoutId, exerciseId);
       _completeExerciseLoadingState.value = LoadingState.loaded;
+      if (Get.isDialogOpen ?? false) Get.back();
       _markExerciseCompletedLocally(exerciseId);
       await refreshWorkoutDetailsSilently();
       ToastMessageHelper.show('Exercise marked as completed');
-      Get.back(canPop: true);
     } catch (e) {
       _completeExerciseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);

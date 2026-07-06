@@ -111,17 +111,43 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
   }
 
   Widget _buildCompletionAction(BuildContext context) {
-    if (widget.exercise.isCompleted == true) {
-      return _buildCompletedStatus();
+    return Obx(() {
+      final isCompleted = _isExerciseCompleted();
+
+      if (isCompleted) {
+        return _buildCompletedStatus();
+      }
+
+      return CustomButton(
+        onPressed: () => _showCompleteDialog(context),
+        label: 'Mark Completed',
+        width: 100.w,
+        height: 30.h,
+        fontSize: 10.sp,
+      );
+    });
+  }
+
+  bool _isExerciseCompleted() {
+    final exerciseId = widget.exercise.exerciseId ?? widget.exercise.id;
+    if (exerciseId == null || exerciseId.isEmpty) {
+      return widget.exercise.isCompleted == true;
     }
 
-    return CustomButton(
-      onPressed: () => _showCompleteDialog(context),
-      label: 'Mark Completed',
-      width: 100.w,
-      height: 30.h,
-      fontSize: 10.sp,
-    );
+    final plan = WorkoutController.to.plan;
+    final exercises = [
+      ...?plan?.mainWork,
+      ...?plan?.accessories,
+      ...?plan?.finisher,
+    ];
+
+    for (final exercise in exercises) {
+      if (exercise.exerciseId == exerciseId || exercise.id == exerciseId) {
+        return exercise.isCompleted == true;
+      }
+    }
+
+    return widget.exercise.isCompleted == true;
   }
 
   Widget _buildCompletedStatus() {
@@ -154,24 +180,21 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
     final controller = WorkoutController.to;
     final exerciseName = widget.exercise.exerciseName ?? 'this exercise';
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return Obx(
-          () => CustomDialog(
-            title: 'Mark Completed',
-            description: 'Mark "$exerciseName" as completed?',
-            titleColor: AppColors.primary,
-            rightButtonLabel: 'Confirm',
-            rightButtonBgColor: AppColors.primary,
-            rightButtonLabelColor: AppColors.textWhite,
-            isLoading: controller.completeExerciseLoadingState.isLoading,
-            onTapLeftButton: () => Get.back(),
-            onTapRightButton: () =>
-                controller.completeExercise(widget.exercise),
-          ),
-        );
-      },
+    Get.dialog(
+      Obx(
+        () => CustomDialog(
+          title: 'Mark Completed',
+          description: 'Mark "$exerciseName" as completed?',
+          titleColor: AppColors.primary,
+          rightButtonLabel: 'Confirm',
+          rightButtonBgColor: AppColors.primary,
+          rightButtonLabelColor: AppColors.textWhite,
+          isLoading: controller.completeExerciseLoadingState.isLoading,
+          onTapLeftButton: () => Get.back(),
+          onTapRightButton: () => controller.completeExercise(widget.exercise),
+        ),
+      ),
+      barrierDismissible: !controller.completeExerciseLoadingState.isLoading,
     );
   }
 
