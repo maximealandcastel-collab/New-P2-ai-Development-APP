@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_hero_tags.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_video_player.dart';
@@ -37,7 +38,7 @@ class ContentVideoHeader extends StatelessWidget {
                   poster: CustomNetworkImage(
                     width: double.infinity,
                     height: double.infinity,
-                    imageUrl: content.thumbnailUrl ?? '',
+                    imageUrl: ContentMediaResolver.resolveUrl(content.thumbnailUrl),
                     fit: BoxFit.cover,
                   ),
                 ),

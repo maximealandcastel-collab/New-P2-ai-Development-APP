@@ -49,7 +49,7 @@ class CustomNetworkImage extends StatelessWidget {
 
     if ((imageUrl ?? '').trim().isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: '${ApiConstants.baseUrl}$imageUrl',
+        imageUrl: _resolveImageUrl(imageUrl!),
         imageBuilder: (context, imageProvider) =>
             _buildContainer(imageProvider),
         placeholder: (context, url) => Shimmer.fromColors(
@@ -65,6 +65,14 @@ class CustomNetworkImage extends StatelessWidget {
     }
 
     return _buildFallback();
+  }
+
+  String _resolveImageUrl(String url) {
+    final value = url.trim();
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    return '${ApiConstants.baseUrl}$value';
   }
 
   Widget _buildContainer(

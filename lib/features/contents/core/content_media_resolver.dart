@@ -13,28 +13,28 @@ class ContentMediaResolver {
       return '';
     }
 
-    String fullUrl;
-
-    if (value.startsWith('http://') ||
-        value.startsWith('https://') ||
-        value.startsWith('file://') ||
-        value.startsWith('asset://')) {
-      fullUrl = value;
-    } else if (value.startsWith('/')) {
-      fullUrl = '${ApiConstants.baseUrl}$value';
-    } else {
-      fullUrl = '${ApiConstants.baseUrl}/$value';
+    if (value.startsWith('asset://') || value.startsWith('file://')) {
+      return value;
     }
 
-    debugPrint('ContentMediaResolver.resolveUrl: fullUrl (before encode) → $fullUrl');
-
-    if (fullUrl.startsWith('asset://') || fullUrl.startsWith('file://')) {
-      return fullUrl;
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      final resolved = Uri.parse(value).toString();
+      debugPrint('ContentMediaResolver.resolveUrl: absolute → $resolved');
+      return resolved;
     }
 
-    final encoded = Uri.encodeFull(fullUrl);
-    debugPrint('ContentMediaResolver.resolveUrl: encoded → $encoded');
-    return encoded;
+    final base = Uri.parse(ApiConstants.baseUrl);
+    final path = value.startsWith('/') ? value.substring(1) : value;
+    final segments = path.split('/').where((segment) => segment.isNotEmpty);
+    final resolved = base.replace(
+      pathSegments: [
+        ...base.pathSegments.where((segment) => segment.isNotEmpty),
+        ...segments,
+      ],
+    );
+
+    debugPrint('ContentMediaResolver.resolveUrl: resolved → ${resolved.toString()}');
+    return resolved.toString();
   }
 
   static Media? mediaFromContent(ContentModel content) {

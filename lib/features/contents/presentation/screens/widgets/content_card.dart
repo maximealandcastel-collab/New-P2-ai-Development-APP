@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_hero_tags.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/video_thumbnail_widget.dart';
@@ -24,6 +25,10 @@ class ContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = ContentController.to;
+    final resolvedThumbnailUrl =
+        ContentMediaResolver.resolveUrl(content.thumbnailUrl);
+    final hasThumbnail = resolvedThumbnailUrl.isNotEmpty;
+
     return CustomContainer(
       onTap: () {
         Get.toNamed(
@@ -41,19 +46,24 @@ class ContentCard extends StatelessWidget {
             tag: ContentHeroTags.thumbnail(content.id),
             child: Material(
               color: Colors.transparent,
-              child: (content.thumbnailUrl != null && content.thumbnailUrl!.isNotEmpty)
+              child: hasThumbnail
                   ? CustomNetworkImage(
-                borderRadius: 8.r,
-                width: 96.w,
-                height: 74.h,
-                imageUrl: content.thumbnailUrl!,
-              )
+                      borderRadius: 8.r,
+                      width: 96.w,
+                      height: 74.h,
+                      imageUrl: resolvedThumbnailUrl,
+                      fallbackAsset: Icon(
+                        Icons.play_circle_outline,
+                        color: AppColors.textSecondary,
+                        size: 28.r,
+                      ),
+                    )
                   : VideoThumbnailWidget(
-                videoUrl: content.videoUrl ?? '',
-                width: 96.w,
-                height: 74.h,
-                borderRadius: 8.r,
-              ),
+                      videoUrl: content.videoUrl ?? '',
+                      width: 96.w,
+                      height: 74.h,
+                      borderRadius: 8.r,
+                    ),
             ),
           ),          SizedBox(width: 8.w),
           Expanded(
