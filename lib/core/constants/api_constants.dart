@@ -79,6 +79,7 @@ class ApiConstants {
   /// WORKOUT ──────────────────────────────────────────────
   static const String workout = '/api/v1/workout';
   static const String workoutToday = '/api/v1/workout/today';
+  static const String workoutTodayOverview = '/api/v1/workout/today/overview';
   static String workouts({
     String? status,
     required int page,

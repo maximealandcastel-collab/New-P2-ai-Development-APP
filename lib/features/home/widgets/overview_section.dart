@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class OverviewSection extends StatelessWidget {
+class OverviewSection extends GetView<WorkoutController> {
   const OverviewSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() {
+      final overview = controller.todayOverview.value;
+      if (overview == null) {
+        return const SizedBox.shrink();
+      }
+
+      return _buildOverviewContent(overview);
+    });
+  }
+
+  Widget _buildOverviewContent(WorkoutTodayOverviewModel overview) {
+    final completionPercentage = overview.completionPercentage ?? 0;
+    final progressValue = (completionPercentage / 100).clamp(0.0, 1.0);
+
     return CustomContainer(
       color: Colors.white,
       radiusAll: 16.r,
@@ -20,123 +38,79 @@ class OverviewSection extends StatelessWidget {
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
-
           SizedBox(height: 12.h),
-
-          /// Main Card
           CustomContainer(
             paddingAll: 18.r,
             bordersColor: AppColors.secondary,
             radiusAll: 16.r,
             child: Column(
               children: [
-                /// Top Section
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Progress Circle
-                    Column(
-                      children: [
-                        SizedBox(height: 10.h),
-                        SizedBox(
-                          height: 80.h,
-                          width: 80.w,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                height: 80.h,
-                                width: 80.w,
-                                child: CircularProgressIndicator(
-                                  value: .68,
-                                  strokeWidth: 10.h,
-                                  backgroundColor: AppColors.secondary,
-                                  valueColor: AlwaysStoppedAnimation(
-                                    AppColors.primary,
-                                  ),
-                                ),
-                              ),
-                              CustomText(
-                                text: '68%',
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ],
-                          ),
-                        ),
-                        CustomText(
-                          top: 10.h,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                          text: 'Exercise',
-                        ),
-                      ],
+                    _buildProgressCircle(
+                      progressValue,
+                      '$completionPercentage%',
                     ),
-
                     SizedBox(width: 24.w),
-
-                    /// Right Content
                     Expanded(
                       child: Column(
                         children: [
-                          _overviewItem(
+                          _buildOverviewItem(
                             Icons.gps_fixed,
                             Colors.orange.shade100,
                             Colors.orange,
                             'Goal',
-                            'Maintain physique',
+                            StringFormat.formatSelectedList(
+                              overview.goal ?? [],
+                            ),
                           ),
                           SizedBox(height: 12.h),
-                          _overviewItem(
+                          _buildOverviewItem(
                             Icons.accessibility_new,
                             Colors.blue.shade100,
                             Colors.blue,
                             'Focus Area',
-                            'Upper body, chest',
+                            StringFormat.formatSelectedList(
+                              overview.focusArea ?? [],
+                            ),
                           ),
                           SizedBox(height: 12.h),
-                          _overviewItem(
+                          _buildOverviewItem(
                             Icons.access_time,
                             Colors.green.shade100,
                             Colors.green,
                             'Duration',
-                            '60 Minutes',
+                            '${overview.duration ?? 0} Minutes',
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-
                 SizedBox(height: 6.h),
-
                 Divider(color: AppColors.primary, thickness: 0.1),
-
                 SizedBox(height: 10.h),
-
-                _detailItem(
+                _buildDetailItem(
                   Icons.local_fire_department_outlined,
                   Colors.orange,
                   'Workout Intensity',
-                  'Moderate',
+                  StringFormat.formatSelectedList(
+                    overview.workoutIntensity ?? [],
+                  ),
                 ),
-
                 SizedBox(height: 14.h),
-
-                _detailItem(
+                _buildDetailItem(
                   Icons.fitness_center,
                   Colors.purple,
                   'Equipment Availability',
-                  'Barbell, Dumbbells, Cable, Machine, Bench',
+                  StringFormat.formatSelectedList(
+                    overview.equipmentAvailability ?? [],
+                  ),
                 ),
-
                 SizedBox(height: 14.h),
-
                 Divider(color: AppColors.primary, thickness: 0.1),
-
                 SizedBox(height: 6.h),
-
                 Row(
                   children: [
                     CustomText(
@@ -145,10 +119,14 @@ class OverviewSection extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                     SizedBox(width: 8.w),
-                    CustomText(
-                      text: 'Full Gym',
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: CustomText(
+                        text: StringFormat.formatSelectedList(
+                          overview.workoutEnvironment ?? [],
+                        ),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -160,7 +138,46 @@ class OverviewSection extends StatelessWidget {
     );
   }
 
-  Widget _overviewItem(
+  Widget _buildProgressCircle(double progressValue, String label) {
+    return Column(
+      children: [
+        SizedBox(height: 10.h),
+        SizedBox(
+          height: 80.h,
+          width: 80.w,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 80.h,
+                width: 80.w,
+                child: CircularProgressIndicator(
+                  value: progressValue,
+                  strokeWidth: 10.h,
+                  backgroundColor: AppColors.secondary,
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                ),
+              ),
+              CustomText(
+                text: label,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+        ),
+        CustomText(
+          top: 10.h,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+          text: 'Exercise',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewItem(
     IconData icon,
     Color bgColor,
     Color iconColor,
@@ -186,7 +203,7 @@ class OverviewSection extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
               CustomText(
-                text: subtitle,
+                text: subtitle.isEmpty ? 'N/A' : subtitle,
                 fontSize: 12.sp,
                 color: Colors.black54,
               ),
@@ -197,7 +214,7 @@ class OverviewSection extends StatelessWidget {
     );
   }
 
-  Widget _detailItem(
+  Widget _buildDetailItem(
     IconData icon,
     Color iconColor,
     String title,
@@ -210,7 +227,7 @@ class OverviewSection extends StatelessWidget {
           height: 34.h,
           width: 34.w,
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(.12),
+            color: iconColor.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 18.sp, color: iconColor),
@@ -227,7 +244,7 @@ class OverviewSection extends StatelessWidget {
               ),
               SizedBox(height: 2.h),
               CustomText(
-                text: subtitle,
+                text: subtitle.isEmpty ? 'N/A' : subtitle,
                 fontSize: 12.sp,
                 color: Colors.black54,
               ),

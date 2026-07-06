@@ -6,10 +6,10 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -22,6 +22,7 @@ class WorkoutController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
   final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
+  final Rxn<WorkoutTodayOverviewModel> todayOverview = Rxn<WorkoutTodayOverviewModel>();
   String? _detailsWorkoutId;
 
   String? get detailsWorkoutId => _detailsWorkoutId;
@@ -29,6 +30,7 @@ class WorkoutController extends GetxController {
   final Rx<LoadingState> _submitLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _todayWorkoutLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _todayOverviewLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _detailsLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _completeSessionLoadingState = LoadingState.initial.obs;
@@ -38,6 +40,7 @@ class WorkoutController extends GetxController {
   LoadingState get submitLoadingState => _submitLoadingState.value;
   LoadingState get generateLoadingState => _generateLoadingState.value;
   LoadingState get todayWorkoutLoadingState => _todayWorkoutLoadingState.value;
+  LoadingState get todayOverviewLoadingState => _todayOverviewLoadingState.value;
   LoadingState get detailsLoadingState => _detailsLoadingState.value;
   LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
   LoadingState get completeSessionLoadingState =>
@@ -61,6 +64,8 @@ class WorkoutController extends GetxController {
   bool get hasTodayWorkout =>
       workoutDetails.value != null && (plan?.mainWork?.isNotEmpty ?? false);
 
+  bool get hasTodayOverview => todayOverview.value != null;
+
   bool get isSessionInProgress =>
       workoutDetails.value?.status == 'in_progress';
 
@@ -73,12 +78,44 @@ class WorkoutController extends GetxController {
     return video.isNotEmpty;
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    if (Get.isRegistered<LoginController>() &&
-        !LoginController.to.isTrainer()) {
-      fetchTodayWorkout();
+  Future<void> fetchTodayWorkout({bool silent = false}) async {
+    if (!silent) {
+      if (_todayWorkoutLoadingState.value.isLoading) return;
+      _todayWorkoutLoadingState.value = LoadingState.loading;
+    }
+
+    try {
+      final workout = await _service.getTodayWorkout();
+      if (workout != null) {
+        initWorkoutDetails(workout);
+      }
+      if (!silent) {
+        _todayWorkoutLoadingState.value = LoadingState.loaded;
+      }
+    } catch (e) {
+      if (!silent) {
+        _todayWorkoutLoadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchTodayWorkout error: $e');
+    }
+  }
+
+  Future<void> fetchTodayOverview({bool silent = false}) async {
+    if (!silent) {
+      if (_todayOverviewLoadingState.value.isLoading) return;
+      _todayOverviewLoadingState.value = LoadingState.loading;
+    }
+
+    try {
+      todayOverview.value = await _service.getTodayOverview();
+      if (!silent) {
+        _todayOverviewLoadingState.value = LoadingState.loaded;
+      }
+    } catch (e) {
+      if (!silent) {
+        _todayOverviewLoadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchTodayOverview error: $e');
     }
   }
 
@@ -126,20 +163,11 @@ class WorkoutController extends GetxController {
     await fetchWorkoutById(workoutId, showLoading: false);
   }
 
-  Future<void> fetchTodayWorkout() async {
-    if (_todayWorkoutLoadingState.value.isLoading) return;
-
-    _todayWorkoutLoadingState.value = LoadingState.loading;
-
+  Future<void> refreshTodayOverviewSilently() async {
     try {
-      final workout = await _service.getTodayWorkout();
-      if (workout != null) {
-        initWorkoutDetails(workout);
-      }
-      _todayWorkoutLoadingState.value = LoadingState.loaded;
+      todayOverview.value = await _service.getTodayOverview();
     } catch (e) {
-      _todayWorkoutLoadingState.value = LoadingState.error;
-      if (kDebugMode) debugPrint('fetchTodayWorkout error: $e');
+      if (kDebugMode) debugPrint('refreshTodayOverviewSilently error: $e');
     }
   }
 
@@ -354,6 +382,7 @@ class WorkoutController extends GetxController {
       workoutDetails.refresh();
       _completeSessionLoadingState.value = LoadingState.loaded;
       if (Get.isDialogOpen ?? false) Get.back();
+      await refreshTodayOverviewSilently();
       ToastMessageHelper.show('Session completed');
       goHome();
     } catch (e) {
@@ -393,6 +422,7 @@ class WorkoutController extends GetxController {
       if (Get.isDialogOpen ?? false) Get.back();
       _markExerciseCompletedLocally(exerciseId);
       await refreshWorkoutDetailsSilently();
+      await refreshTodayOverviewSilently();
       ToastMessageHelper.show('Exercise marked as completed');
     } catch (e) {
       _completeExerciseLoadingState.value = LoadingState.error;

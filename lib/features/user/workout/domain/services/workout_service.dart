@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 
 class WorkoutService {
@@ -29,6 +28,10 @@ class WorkoutService {
 
   Future<WorkoutModel?> getTodayWorkout() {
     return _repository.getTodayWorkout();
+  }
+
+  Future<WorkoutTodayOverviewModel?> getTodayOverview() {
+    return _repository.getTodayOverview();
   }
 
   Future<List<WorkoutModel>> getWorkouts({

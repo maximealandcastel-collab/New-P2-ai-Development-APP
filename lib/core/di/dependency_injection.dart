@@ -31,6 +31,7 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cate
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
+import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
@@ -330,6 +331,10 @@ class DependencyInjection {
     );
     Get.lazyPut<WorkoutController>(
       () => WorkoutController(service: Get.find<WorkoutService>()),
+      fenix: true,
+    );
+    Get.lazyPut<UserHomeController>(
+      () => UserHomeController(workoutController: Get.find<WorkoutController>()),
       fenix: true,
     );
     Get.lazyPut<HistoryController>(

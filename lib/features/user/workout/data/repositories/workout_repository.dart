@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 
 class WorkoutRepository {
   WorkoutRepository({required ApiService apiService}) : _apiService = apiService;
@@ -59,6 +60,23 @@ class WorkoutRepository {
       return WorkoutModel.fromJson(
         Map<String, dynamic>.from(response.data as Map),
       );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<WorkoutTodayOverviewModel?> getTodayOverview() async {
+    try {
+      final response = await _apiService.get(ApiConstants.workoutTodayOverview);
+      final data = response.data;
+      if (data == null) return null;
+
+      final payload = data is Map ? Map<String, dynamic>.from(data) : null;
+      if (payload == null || payload['data'] == null) return null;
+
+      return WorkoutTodayOverviewModel.fromJson(payload);
     } on AppException {
       rethrow;
     } catch (e) {
