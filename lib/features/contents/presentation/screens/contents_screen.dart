@@ -26,7 +26,7 @@ class ContentsScreen extends StatelessWidget {
       color: AppColors.primary,
       backgroundColor: AppColors.backgroundLight,
       onRefresh: contentController.refresh,
-      edgeOffset: MediaQuery.heightOf(context) * 0.25,
+      edgeOffset: MediaQuery.heightOf(context) * 0.31,
       child: CustomScrollView(
         controller: contentController.scrollController,
         physics: const AlwaysScrollableScrollPhysics(
