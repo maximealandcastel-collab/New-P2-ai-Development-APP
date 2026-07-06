@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/helpers/simmer_helper.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import 'package:shimmer/shimmer.dart';
@@ -33,89 +32,30 @@ class UserHomeShimmer extends StatelessWidget {
       marginTop: 8.h,
       color: Colors.white,
       radiusAll: 16.r,
-      paddingVertical: 14.h,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Row(
-              children: [
-                Expanded(child: ShimmerHelper.textShimmer(width: 80.w, height: 16)),
-                ShimmerHelper.textShimmer(width: 60.w, height: 14),
-              ],
-            ),
-          ),
-          SizedBox(height: 10.h),
-          SizedBox(
-            height: 134.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              itemCount: 4,
-              separatorBuilder: (_, __) => SizedBox(width: 8.w),
-              itemBuilder: (_, __) => _buildGymCardShimmer(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGymCardShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: CustomContainer(
-        radiusAll: 12.r,
-        bordersColor: AppColors.secondary,
-        width: 110.w,
-        child: Column(
+      paddingAll: 14.r,
+      child: _shimmerWrap(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 62.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10.r)),
-              ),
+            Row(
+              children: [
+                Expanded(child: _box(height: 16)),
+                SizedBox(width: 12.w),
+                _box(width: 56.w, height: 14),
+              ],
             ),
-            SizedBox(height: 8.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: Container(
-                height: 12.h,
-                width: 80.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: Container(
-                height: 10.h,
-                width: 60.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: Container(
-                height: 15.h,
-                width: 50.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
+            SizedBox(height: 12.h),
+            SizedBox(
+              height: 110.h,
+              child: Row(
+                children: List.generate(3, (index) {
+                  return Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(right: index < 2 ? 8.w : 0),
+                      child: _box(height: 110),
+                    ),
+                  );
+                }),
               ),
             ),
           ],
@@ -129,29 +69,106 @@ class UserHomeShimmer extends StatelessWidget {
       color: Colors.white,
       radiusAll: 16.r,
       paddingAll: 14.r,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ShimmerHelper.textShimmer(width: 140.w, height: 16),
-          SizedBox(height: 12.h),
-          ShimmerHelper.cardShimmer(),
-        ],
+      child: _shimmerWrap(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _box(width: 140.w, height: 16),
+            SizedBox(height: 12.h),
+            CustomContainer(
+              paddingAll: 16.r,
+              bordersColor: AppColors.secondary,
+              radiusAll: 16.r,
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _box(width: 72.w, height: 72, radius: 36),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _box(height: 34),
+                            SizedBox(height: 8.h),
+                            _box(height: 34),
+                            SizedBox(height: 8.h),
+                            _box(height: 34),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                  _box(height: 14),
+                  SizedBox(height: 8.h),
+                  _box(height: 14),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTodayWorkoutShimmer() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ShimmerHelper.textShimmer(width: 180.w, height: 16),
-        SizedBox(height: 12.h),
-        ShimmerHelper.categoryCardShimmer(),
-        SizedBox(height: 10.h),
-        ShimmerHelper.categoryCardShimmer(),
-        SizedBox(height: 12.h),
-        ShimmerHelper.textShimmer(width: double.infinity, height: 48),
-      ],
+    return _shimmerWrap(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _box(width: 180.w, height: 16),
+          SizedBox(height: 12.h),
+          CustomContainer(
+            radiusAll: 16.r,
+            paddingAll: 14.r,
+            bordersColor: AppColors.secondary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _box(width: 150.w, height: 16),
+                SizedBox(height: 10.h),
+                _box(height: 12),
+                SizedBox(height: 10.h),
+                Row(
+                  children: [
+                    _box(width: 56.w, height: 24, radius: 8),
+                    SizedBox(width: 8.w),
+                    _box(width: 56.w, height: 24, radius: 8),
+                    SizedBox(width: 8.w),
+                    _box(width: 56.w, height: 24, radius: 8),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12.h),
+          _box(height: 48, radius: 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _shimmerWrap(Widget child) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: child,
+    );
+  }
+
+  Widget _box({
+    double? width,
+    required double height,
+    double radius = 12,
+  }) {
+    return Container(
+      width: width,
+      height: height.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius.r),
+      ),
     );
   }
 }
