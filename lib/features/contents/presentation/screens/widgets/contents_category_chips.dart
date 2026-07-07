@@ -7,7 +7,9 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cont
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsCategoryChips extends StatelessWidget {
-  const ContentsCategoryChips({super.key});
+  const ContentsCategoryChips({super.key, this.forOverlay = false});
+
+  final bool forOverlay;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +21,10 @@ class ContentsCategoryChips extends StatelessWidget {
       final selectedCategoryId = contentController.selectedCategoryId;
 
       return SizedBox(
-        height: 40.h,
+        height: forOverlay ? 36.h : 40.h,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.symmetric(horizontal: forOverlay ? 12.w : 0),
           itemCount: categories.length + 1,
           itemBuilder: (context, index) {
             final isAll = index == 0;
@@ -36,21 +39,35 @@ class ContentsCategoryChips extends StatelessWidget {
                 isAll ? null : categories[index - 1].id,
               ),
               child: CustomContainer(
-                bordersColor:
-                    isSelected ? Colors.black : AppColors.secondary,
+                bordersColor: forOverlay
+                    ? (isSelected
+                        ? AppColors.textWhite
+                        : AppColors.textWhite.withValues(alpha: 0.55))
+                    : (isSelected ? Colors.black : AppColors.secondary),
                 radiusAll: 99.r,
-                marginTop: 3.h,
-                marginLeft: index == 0 ? 10.w : 0,
-                marginBottom: 3.h,
-                marginRight: 6.w,
-                paddingVertical: 6.h,
-                paddingHorizontal: 12.r,
-                color: isSelected ? Colors.black : Colors.transparent,
+                marginTop: forOverlay ? 0 : 3.h,
+                marginLeft: forOverlay
+                    ? (index == 0 ? 4.w : 0)
+                    : (index == 0 ? 10.w : 0),
+                marginBottom: forOverlay ? 0 : 3.h,
+                marginRight: 8.w,
+                paddingVertical: forOverlay ? 7.h : 6.h,
+                paddingHorizontal: forOverlay ? 14.w : 12.r,
+                color: forOverlay
+                    ? (isSelected
+                        ? AppColors.textWhite
+                        : AppColors.backgroundDark.withValues(alpha: 0.35))
+                    : (isSelected ? Colors.black : Colors.transparent),
                 child: CustomText(
                   fontWeight: FontWeight.w600,
-                  fontSize: 16.sp,
-                  color:
-                      isSelected ? Colors.white : AppColors.textSecondary,
+                  fontSize: forOverlay ? 13.sp : 16.sp,
+                  color: forOverlay
+                      ? (isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textWhite)
+                      : (isSelected
+                          ? Colors.white
+                          : AppColors.textSecondary),
                   text: label,
                 ),
               ),

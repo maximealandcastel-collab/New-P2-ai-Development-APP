@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_category_chips.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsReelsOverlay extends StatelessWidget {
@@ -27,6 +28,16 @@ class ContentsReelsOverlay extends StatelessWidget {
         child: Column(
           children: [
             _buildTikTokHeader(contentController),
+            Obx(() {
+              if (contentController.activeTab.value != ContentTab.myTrainer) {
+                return const SizedBox.shrink();
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(top: 10.h),
+                child: const ContentsCategoryChips(forOverlay: true),
+              );
+            }),
             Obx(() {
               if (!contentController.isSubmittingContent.value) {
                 return const SizedBox.shrink();
@@ -101,18 +112,19 @@ class ContentsReelsOverlay extends StatelessWidget {
                 ),
               ],
             ),
-            Positioned(
-              right: 16.w,
-              child: GestureDetector(
-                onTap: onSearchTap,
-                behavior: HitTestBehavior.opaque,
-                child: Icon(
-                  Icons.search_rounded,
-                  color: AppColors.textWhite,
-                  size: 24.r,
+            if (activeTab != ContentTab.myTrainer)
+              Positioned(
+                right: 16.w,
+                child: GestureDetector(
+                  onTap: onSearchTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(
+                    Icons.search_rounded,
+                    color: AppColors.textWhite,
+                    size: 24.r,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       );

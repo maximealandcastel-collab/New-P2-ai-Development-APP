@@ -34,6 +34,27 @@ class ContentsScreen extends StatelessWidget {
               onRefresh: contentController.refresh,
             );
           case LoadingState.loaded:
+            if (contentController.contents.isEmpty) {
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  const ColoredBox(color: AppColors.backgroundLight),
+                  ContentsReelsOverlay(
+                    onSearchTap: () => _openSearch(context, contentController),
+                  ),
+                  Center(
+                    child: EmptyDataWidget(
+                      message: contentController.activeTab.value ==
+                              ContentTab.myTrainer
+                          ? 'No content found in this category'
+                          : 'Content not found',
+                      onRefresh: contentController.refresh,
+                    ),
+                  ),
+                ],
+              );
+            }
+
             return Stack(
               fit: StackFit.expand,
               children: [

@@ -281,7 +281,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (_selectedCategoryId.value == categoryId) return;
     _selectedCategoryId.value = categoryId;
     _resetReelPosition();
-    await _loadData();
+    await _loadData(showFullLoader: false);
   }
 
   @override

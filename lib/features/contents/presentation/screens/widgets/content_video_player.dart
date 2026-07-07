@@ -33,7 +33,7 @@ class ContentVideoPlayer extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: AspectRatio(
-        aspectRatio: 9 / 16,
+        aspectRatio: 1 / 1,
         child: MaterialVideoControlsTheme(
           normal: controlsTheme,
           fullscreen: controlsTheme.copyWith(buttonBarHeight: 52.h),
@@ -42,7 +42,6 @@ class ContentVideoPlayer extends StatelessWidget {
             children: [
               ?poster,
               Video(
-
                 controller: controller.videoController,
                 controls: MaterialVideoControls,
                 //fill: AppColors.backgroundLight,
