@@ -265,24 +265,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  Future<void> openContentInFeed(ContentModel content) async {
-    final existingIndex = contents.indexWhere((item) => item.id == content.id);
-    final targetIndex = existingIndex >= 0 ? existingIndex : 0;
-
-    if (existingIndex < 0) {
-      contentList.items.insert(0, content);
-    }
-
-    currentReelIndex.value = targetIndex;
-    _loadedReelIndex = null;
-
-    if (pageController.hasClients) {
-      pageController.jumpToPage(targetIndex);
-    }
-
-    _schedulePlayReelAt(targetIndex);
-  }
-
   void _resetReelPosition() {
     currentReelIndex.value = 0;
     _loadedReelIndex = null;

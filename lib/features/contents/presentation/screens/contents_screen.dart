@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
@@ -173,8 +174,11 @@ class ContentsScreen extends StatelessWidget {
               .toList();
         },
         onResultTap: (result) {
+          final content = result.model as ContentModel;
           controller.search.clear();
-          controller.openContentInFeed(result.model as ContentModel);
+          controller.pauseReel();
+          Get.back();
+          Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
         },
       ),
     );
