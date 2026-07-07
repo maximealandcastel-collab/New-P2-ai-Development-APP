@@ -79,15 +79,11 @@ class ProfileRepository {
 
   TrainerDetailsModel? getCachedTrainerProfile() {
     try {
-      final json = _cacheService.get(AppConstants.cacheTrainerProfile);
-
-      if (json is Map<String, dynamic>) {
-        return TrainerDetailsModel.fromJson(json);
-      }
-      if (json is Map) {
-        return TrainerDetailsModel.fromJson(Map<String, dynamic>.from(json));
-      }
-      return null;
+      final json = _cacheService.get<Map<String, dynamic>>(
+        AppConstants.cacheTrainerProfile,
+      );
+      if (json == null) return null;
+      return TrainerDetailsModel.fromJson(json);
     } catch (e) {
       debugPrint('❌ Error getting cached trainer profile: $e');
       return null;
@@ -110,15 +106,11 @@ class ProfileRepository {
 
   UserModel? getCachedUserData() {
     try {
-      final json = _cacheService.get(AppConstants.cacheUserProfile);
-
-      if (json is Map<String, dynamic>) {
-        return UserModel.fromJson(json);
-      }
-      if (json is Map) {
-        return UserModel.fromJson(Map<String, dynamic>.from(json));
-      }
-      return null;
+      final json = _cacheService.get<Map<String, dynamic>>(
+        AppConstants.cacheUserProfile,
+      );
+      if (json == null) return null;
+      return UserModel.fromJson(json);
     } catch (e) {
       debugPrint('❌ Error getting cached user data: $e');
       return null;

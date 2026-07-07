@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -66,9 +67,17 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   final RxBool isReelPlaying = true.obs;
 
   Worker? _navTabWorker;
+  Worker? _connectivityWorker;
   int? _loadedReelIndex;
+  bool _isClosed = false;
 
   static const int _reelPaginationThreshold = 3;
+  static const double _pullUpRefreshTrigger = 72;
+  static const double _pullUpRefreshMaxExtent = 100;
+  final Map<String, List<ContentModel>> _contentCache = {};
+  final RxDouble pullUpRefreshExtent = 0.0.obs;
+
+  bool get isRefreshingFeed => contentList.isRefreshing.value;
 
   @override
   LoadingState get paginationContentState => loadingState;
@@ -93,8 +102,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _initReelPlayer();
     _listenBottomNavVisibility();
 
-    ever(_connectivityService.isConnected, (isConnected) {
-      if (isConnected) _loadData();
+    _connectivityWorker = ever(_connectivityService.isConnected, (isConnected) {
+      if (isConnected && !_isClosed) _loadData();
     });
     _loadData();
   }
@@ -114,18 +123,58 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   void _listenBottomNavVisibility() {
     final navController = Get.find<BottomNavBarController>();
     _navTabWorker = ever<int>(navController.selectedIndexRx, (index) {
+      if (_isClosed) return;
       if (index == BottomNavBarController.contentsTabIndex) {
-        playReelAt(currentReelIndex.value);
+        _schedulePlayReelAt(currentReelIndex.value);
       } else {
         pauseReel();
       }
     });
   }
 
+  void _schedulePlayReelAt(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isClosed) return;
+      playReelAt(index);
+    });
+  }
+
   Future<void> onReelPageChanged(int index) async {
     currentReelIndex.value = index;
+    if (index != 0) {
+      pullUpRefreshExtent.value = 0;
+    }
     await playReelAt(index);
     _maybeLoadMoreReels(index);
+  }
+
+  void onPullUpRefreshUpdate(DragUpdateDetails details) {
+    if (_isClosed || currentReelIndex.value != 0) return;
+    if (contentList.isRefreshing.value) return;
+    if (details.delta.dy >= 0) return;
+
+    pullUpRefreshExtent.value = (pullUpRefreshExtent.value - details.delta.dy)
+        .clamp(0.0, _pullUpRefreshMaxExtent);
+  }
+
+  Future<void> onPullUpRefreshEnd(DragEndDetails details) async {
+    if (_isClosed || currentReelIndex.value != 0) return;
+
+    final shouldRefresh =
+        pullUpRefreshExtent.value >= _pullUpRefreshTrigger &&
+            !contentList.isRefreshing.value;
+
+    if (shouldRefresh) {
+      await refresh();
+    } else {
+      pullUpRefreshExtent.value = 0;
+    }
+  }
+
+  void resetPullUpRefresh() {
+    if (!contentList.isRefreshing.value) {
+      pullUpRefreshExtent.value = 0;
+    }
   }
 
   void _maybeLoadMoreReels(int index) {
@@ -136,20 +185,22 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   }
 
   Future<void> playReelAt(int index) async {
+    if (_isClosed) return;
+
     if (Get.find<BottomNavBarController>().selectedIndex !=
         BottomNavBarController.contentsTabIndex) {
       return;
     }
 
+    if (_loadingState.value != LoadingState.loaded) return;
+
     if (index < 0 || index >= contents.length) {
-      await reelPlayer.pause();
-      isReelPlaying.value = false;
+      await _safePauseReel();
       return;
     }
 
     if (_loadedReelIndex == index && reelMediaError.value.isEmpty) {
-      await reelPlayer.play();
-      isReelPlaying.value = true;
+      await _safePlayReel();
       return;
     }
 
@@ -167,27 +218,50 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
     try {
       await reelPlayer.open(media);
+      if (_isClosed) return;
       _loadedReelIndex = index;
       isReelPlaying.value = true;
     } catch (error) {
+      if (_isClosed) return;
       reelMediaError.value = 'Unable to play this video.';
       if (kDebugMode) debugPrint('playReelAt error: $error');
     } finally {
-      isReelLoading.value = false;
+      if (!_isClosed) {
+        isReelLoading.value = false;
+      }
+    }
+  }
+
+  Future<void> _safePauseReel() async {
+    if (_isClosed) return;
+    try {
+      await reelPlayer.pause();
+      if (!_isClosed) isReelPlaying.value = false;
+    } catch (error) {
+      if (kDebugMode) debugPrint('_safePauseReel error: $error');
+    }
+  }
+
+  Future<void> _safePlayReel() async {
+    if (_isClosed) return;
+    try {
+      await reelPlayer.play();
+      if (!_isClosed) isReelPlaying.value = true;
+    } catch (error) {
+      if (kDebugMode) debugPrint('_safePlayReel error: $error');
     }
   }
 
   Future<void> pauseReel() async {
-    await reelPlayer.pause();
-    isReelPlaying.value = false;
+    await _safePauseReel();
   }
 
   Future<void> toggleReelPlayback() async {
+    if (_isClosed) return;
     if (isReelPlaying.value) {
       await pauseReel();
     } else {
-      await reelPlayer.play();
-      isReelPlaying.value = true;
+      await _safePlayReel();
     }
   }
 
@@ -206,7 +280,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       pageController.jumpToPage(targetIndex);
     }
 
-    await playReelAt(targetIndex);
+    _schedulePlayReelAt(targetIndex);
   }
 
   void _resetReelPosition() {
@@ -232,32 +306,90 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     }
   }
 
+  String _cacheKey(ContentTab tab, String? categoryId) {
+    if (tab == ContentTab.defaultContent) return 'default';
+    return categoryId == null ? 'myTrainer:all' : 'myTrainer:$categoryId';
+  }
+
+  List<ContentModel> _getCachedContents(String key) =>
+      List<ContentModel>.from(_contentCache[key] ?? const []);
+
+  void _cacheForTab(
+    ContentTab tab,
+    String? categoryId,
+    List<ContentModel> items,
+  ) {
+    _contentCache[_cacheKey(tab, categoryId)] =
+        List<ContentModel>.from(items);
+  }
+
+  void _cacheCurrentTab() {
+    _cacheForTab(
+      activeTab.value,
+      _selectedCategoryId.value,
+      contentList.items,
+    );
+  }
+
+  void _invalidateCurrentCache() {
+    _contentCache.remove(
+      _cacheKey(activeTab.value, _selectedCategoryId.value),
+    );
+  }
+
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
-      if (!_connectivityService.isConnected.value) {
-        _loadingState.value = LoadingState.offline;
+      final isOnline = _connectivityService.isConnected.value;
+      final cacheKey = _cacheKey(activeTab.value, _selectedCategoryId.value);
+      final hasCachedData = _contentCache.containsKey(cacheKey);
+      final cached = _getCachedContents(cacheKey);
+
+      if (showFullLoader) {
+        if (hasCachedData) {
+          contentList.items.value = cached;
+          _loadingState.value = LoadingState.loaded;
+          _resetReelPosition();
+          _schedulePlayReelAt(0);
+        } else {
+          contentList.items.clear();
+          _loadingState.value = LoadingState.loading;
+          unawaited(_safePauseReel());
+        }
+      }
+
+      if (!isOnline) {
+        if (!hasCachedData && contents.isEmpty) {
+          _loadingState.value = LoadingState.offline;
+        }
         return;
       }
 
-      if (showFullLoader) {
-        _loadingState.value = LoadingState.loading;
-      }
-
       await contentList.loadFirst();
+      if (_isClosed) return;
+      _cacheCurrentTab();
       _loadingState.value = LoadingState.loaded;
       _resetReelPosition();
-      await playReelAt(0);
+      _schedulePlayReelAt(0);
     } on AppException catch (e) {
-      _loadingState.value = LoadingState.error;
+      if (!_contentCache.containsKey(
+        _cacheKey(activeTab.value, _selectedCategoryId.value),
+      )) {
+        _loadingState.value = LoadingState.error;
+      }
       if (kDebugMode) debugPrint('fetchContents error: $e');
     } catch (e) {
-      _loadingState.value = LoadingState.error;
+      if (!_contentCache.containsKey(
+        _cacheKey(activeTab.value, _selectedCategoryId.value),
+      )) {
+        _loadingState.value = LoadingState.error;
+      }
       if (kDebugMode) debugPrint('fetchContents error: $e');
     }
   }
 
   Future<void> changeTab(ContentTab tab) async {
     if (activeTab.value == tab) return;
+    _cacheCurrentTab();
     activeTab.value = tab;
 
     _selectedCategoryId.value = null;
@@ -279,14 +411,19 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   Future<void> selectCategory(String? categoryId) async {
     if (_selectedCategoryId.value == categoryId) return;
+    _cacheCurrentTab();
     _selectedCategoryId.value = categoryId;
     _resetReelPosition();
-    await _loadData(showFullLoader: false);
+    await _loadData();
   }
 
   @override
-  Future<void> refresh() =>
-      contentList.refreshWith(() => _loadData(showFullLoader: false));
+  Future<void> refresh() async {
+    await pauseReel();
+    _invalidateCurrentCache();
+    await contentList.refreshWith(() => _loadData(showFullLoader: false));
+    pullUpRefreshExtent.value = 0;
+  }
 
   Future<void> createOrUpdateContent({
     required Map<String, dynamic> fields,
@@ -330,6 +467,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
         ToastMessageHelper.show('Content posted successfully');
       }
 
+      _invalidateCurrentCache();
       await _loadData(showFullLoader: false);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
@@ -347,7 +485,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       await _service.deleteContent(contentId);
       _deleteLoadingState.value = LoadingState.loaded;
       if (Get.isDialogOpen ?? false) Get.back();
-      await _loadData();
+      _invalidateCurrentCache();
+      await _loadData(showFullLoader: false);
       if (contents.isNotEmpty) {
         final nextIndex = currentReelIndex.value.clamp(0, contents.length - 1);
         currentReelIndex.value = nextIndex;
@@ -355,7 +494,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
         if (pageController.hasClients) {
           pageController.jumpToPage(nextIndex);
         }
-        await playReelAt(nextIndex);
+        _schedulePlayReelAt(nextIndex);
       }
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
@@ -364,13 +503,27 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     }
   }
 
+  Future<void> _releaseReelPlayer() async {
+    try {
+      await reelPlayer.pause();
+    } catch (_) {}
+    try {
+      await reelPlayer.stop();
+    } catch (_) {}
+    try {
+      await reelPlayer.dispose();
+    } catch (_) {}
+  }
+
   @override
   void onClose() {
+    _isClosed = true;
     _navTabWorker?.dispose();
+    _connectivityWorker?.dispose();
     pageController.dispose();
-    reelPlayer.dispose();
     searchController.dispose();
     contentList.dispose();
+    unawaited(_releaseReelPlayer());
     super.onClose();
   }
 }

@@ -3,10 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/helpers/time_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
@@ -50,41 +48,72 @@ class ContentReelItem extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Video(
-          controller: controller.reelVideoController,
-          fit: BoxFit.contain,
-          controls: (_) => const SizedBox.shrink(),
-          subtitleViewConfiguration: SubtitleViewConfiguration(
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+        if (isActive)
+          Video(
+            controller: controller.reelVideoController,
+            fit: BoxFit.contain,
+            controls: (_) => const SizedBox.shrink(),
+            subtitleViewConfiguration: SubtitleViewConfiguration(
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Obx(() {
-          if (!controller.isReelLoading.value &&
-              controller.reelMediaError.value.isEmpty) {
-            return const SizedBox.shrink();
-          }
+          )
+        else
+          _buildInactivePreview(),
+        if (isActive)
+          Obx(() {
+            if (!controller.isReelLoading.value &&
+                controller.reelMediaError.value.isEmpty) {
+              return const SizedBox.shrink();
+            }
 
-          return Center(
-            child: controller.isReelLoading.value
-                ? const CustomLoader()
-                : Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: CustomText(
-                      text: controller.reelMediaError.value,
-                      color: AppColors.textPrimary,
-                      fontSize: 14.sp,
-                      textAlign: TextAlign.center,
+            return Center(
+              child: controller.isReelLoading.value
+                  ? const CustomLoader()
+                  : Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      child: CustomText(
+                        text: controller.reelMediaError.value,
+                        color: AppColors.textPrimary,
+                        fontSize: 14.sp,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-          );
-        }),
+            );
+          }),
       ],
     );
+  }
+
+  Widget _buildInactivePreview() {
+    final thumbnailUrl = content.thumbnailUrl?.trim();
+    if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) {
+      return CustomNetworkImage(
+        imageUrl: thumbnailUrl,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      );
+    }
+
+    final videoUrl = content.videoUrl?.trim();
+    if (videoUrl != null && videoUrl.isNotEmpty) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return VideoThumbnailWidget(
+            videoUrl: videoUrl,
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+          );
+        },
+      );
+    }
+
+    return const ColoredBox(color: AppColors.backgroundDark);
   }
 
   Widget _buildBottomInfo(BuildContext context) {
