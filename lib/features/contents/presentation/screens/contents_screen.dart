@@ -19,13 +19,8 @@ class ContentsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final contentController = ContentController.to;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: AppColors.backgroundLight,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-      ),
-      child: Obx(() {
+    return Scaffold(
+      body: Obx(() {
         switch (contentController.loadingState) {
           case LoadingState.initial:
           case LoadingState.loading:
@@ -35,23 +30,11 @@ class ContentsScreen extends StatelessWidget {
             );
           case LoadingState.offline:
           case LoadingState.error:
-            return _buildStateScaffold(
-              context: context,
-              child: EmptyDataWidget(
-                message: 'Content not found',
-                onRefresh: contentController.refresh,
-              ),
+            return EmptyDataWidget(
+              message: 'Content not found',
+              onRefresh: contentController.refresh,
             );
           case LoadingState.loaded:
-            if (contentController.contents.isEmpty) {
-              return _buildStateScaffold(
-                context: context,
-                child: EmptyDataWidget(
-                  message: 'No content available yet',
-                  onRefresh: contentController.refresh,
-                ),
-              );
-            }
             return _buildReelsFeed(context, contentController);
         }
       }),
@@ -72,10 +55,7 @@ class ContentsScreen extends StatelessWidget {
           onPageChanged: contentController.onReelPageChanged,
           itemBuilder: (context, index) {
             final content = contentController.contents[index];
-            return ContentReelItem(
-              content: content,
-              index: index,
-            );
+            return ContentReelItem(content: content, index: index);
           },
         ),
         ContentsReelsOverlay(
@@ -102,25 +82,6 @@ class ContentsScreen extends StatelessWidget {
           );
         }),
       ],
-    );
-  }
-
-  Widget _buildStateScaffold({
-    required BuildContext context,
-    required Widget child,
-  }) {
-    final contentController = ContentController.to;
-
-    return ColoredBox(
-      color: AppColors.backgroundLight,
-      child: Stack(
-        children: [
-          Center(child: child),
-          ContentsReelsOverlay(
-            onSearchTap: () => _openSearch(context, contentController),
-          ),
-        ],
-      ),
     );
   }
 
