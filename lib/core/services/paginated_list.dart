@@ -145,6 +145,8 @@ class PaginatedList<T> {
     isLoadingMore.value = false;
   }
 
+  Future<void> loadMore() => _loadMore();
+
   Future<void> _loadMore() async {
     if (!canLoadMore) return;
 

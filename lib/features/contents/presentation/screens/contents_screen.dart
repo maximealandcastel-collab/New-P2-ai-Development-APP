@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_header_section.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_list_section.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_upload_progress.dart';
-import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_reel_item.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reels_overlay.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -20,37 +18,107 @@ class ContentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contentController = ContentController.to;
-    final isTrainer = ProfileController.to.userData?.role == 'trainer';
 
-    return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.backgroundLight,
-      onRefresh: contentController.refresh,
-      edgeOffset: MediaQuery.heightOf(context) * 0.31,
-      child: CustomScrollView(
-        controller: contentController.scrollController,
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
-          FeedAppBarSliver(
-            pinned: true,
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(
-                ContentsHeaderSection.preferredHeight(isTrainer: isTrainer),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: AppColors.backgroundLight,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Obx(() {
+        switch (contentController.loadingState) {
+          case LoadingState.initial:
+          case LoadingState.loading:
+            return const ColoredBox(
+              color: AppColors.backgroundLight,
+              child: CustomLoader(),
+            );
+          case LoadingState.offline:
+          case LoadingState.error:
+            return _buildStateScaffold(
+              context: context,
+              child: EmptyDataWidget(
+                message: 'Content not found',
+                onRefresh: contentController.refresh,
               ),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                child: ContentsHeaderSection(
-                  onSearchTap: () => _openSearch(context, contentController),
+            );
+          case LoadingState.loaded:
+            if (contentController.contents.isEmpty) {
+              return _buildStateScaffold(
+                context: context,
+                child: EmptyDataWidget(
+                  message: 'No content available yet',
+                  onRefresh: contentController.refresh,
                 ),
+              );
+            }
+            return _buildReelsFeed(context, contentController);
+        }
+      }),
+    );
+  }
+
+  Widget _buildReelsFeed(
+    BuildContext context,
+    ContentController contentController,
+  ) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        PageView.builder(
+          controller: contentController.pageController,
+          scrollDirection: Axis.vertical,
+          itemCount: contentController.contents.length,
+          onPageChanged: contentController.onReelPageChanged,
+          itemBuilder: (context, index) {
+            final content = contentController.contents[index];
+            return ContentReelItem(
+              content: content,
+              index: index,
+            );
+          },
+        ),
+        ContentsReelsOverlay(
+          onSearchTap: () => _openSearch(context, contentController),
+        ),
+        Obx(() {
+          if (!contentController.showPaginationLoader) {
+            return const SizedBox.shrink();
+          }
+
+          return Positioned(
+            left: 0,
+            right: 0,
+            bottom: 110.h,
+            child: Center(
+              child: CustomContainer(
+                color: AppColors.backgroundLight.withValues(alpha: 0.92),
+                radiusAll: 999.r,
+                paddingHorizontal: 14.w,
+                paddingVertical: 8.h,
+                child: const CustomLoader(),
               ),
             ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildStateScaffold({
+    required BuildContext context,
+    required Widget child,
+  }) {
+    final contentController = ContentController.to;
+
+    return ColoredBox(
+      color: AppColors.backgroundLight,
+      child: Stack(
+        children: [
+          Center(child: child),
+          ContentsReelsOverlay(
+            onSearchTap: () => _openSearch(context, contentController),
           ),
-          const ContentsUploadProgress(),
-          const ContentsListSection(),
-          PaginationLoaderSliver(controller: contentController),
-          SliverToBoxAdapter(child: SizedBox(height: 120.h)),
         ],
       ),
     );
@@ -76,10 +144,7 @@ class ContentsScreen extends StatelessWidget {
         },
         onResultTap: (result) {
           controller.search.clear();
-          Get.toNamed(
-            AppRoute.contentDetailsScreen,
-            arguments: result.model as ContentModel,
-          );
+          controller.openContentInFeed(result.model as ContentModel);
         },
       ),
     );

@@ -8,6 +8,7 @@ class BottomNavBarController extends GetxController {
 
   final RxInt _selectedIndex = 0.obs;
   int get selectedIndex => _selectedIndex.value;
+  RxInt get selectedIndexRx => _selectedIndex;
 
   List<NavItemModel> get navItems =>
       LoginController.to.isTrainer()

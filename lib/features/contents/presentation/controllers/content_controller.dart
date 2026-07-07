@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
@@ -12,6 +14,7 @@ import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
@@ -40,7 +43,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   final RxDouble submitProgress = 0.0.obs;
   final RxString submitMessage = ''.obs;
 
-  // Tabs selection
   final Rx<ContentTab> activeTab = ContentTab.defaultContent.obs;
 
   final searchController = TextEditingController();
@@ -53,7 +55,20 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   late final PaginatedList<ContentModel> contentList;
 
   List<ContentModel> get contents => contentList.items;
-  ScrollController? get scrollController => contentList.scrollController;
+
+  late final PageController pageController;
+  late final Player reelPlayer;
+  late final VideoController reelVideoController;
+
+  final RxInt currentReelIndex = 0.obs;
+  final RxBool isReelLoading = false.obs;
+  final RxString reelMediaError = ''.obs;
+  final RxBool isReelPlaying = true.obs;
+
+  Worker? _navTabWorker;
+  int? _loadedReelIndex;
+
+  static const int _reelPaginationThreshold = 3;
 
   @override
   LoadingState get paginationContentState => loadingState;
@@ -64,22 +79,142 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   void onInit() {
     super.onInit();
-    
-    // Set initial active tab based on user role
+
     final isTrainer = Get.find<ProfileController>().userData?.role == 'trainer';
-    activeTab.value = isTrainer ? ContentTab.myTrainer : ContentTab.defaultContent;
+    activeTab.value =
+        isTrainer ? ContentTab.myTrainer : ContentTab.defaultContent;
 
     contentList = PaginatedList<ContentModel>(
       limit: 10,
       fetchPage: _fetchContentPage,
     );
-    contentList.initScroll();
     search = SearchService(fetcher: _fetchSearch);
+    pageController = PageController();
+    _initReelPlayer();
+    _listenBottomNavVisibility();
 
     ever(_connectivityService.isConnected, (isConnected) {
       if (isConnected) _loadData();
     });
     _loadData();
+  }
+
+  void _initReelPlayer() {
+    reelPlayer = Player(
+      configuration: const PlayerConfiguration(libass: true),
+    );
+    reelVideoController = VideoController(
+      reelPlayer,
+      configuration: const VideoControllerConfiguration(
+        enableHardwareAcceleration: true,
+      ),
+    );
+  }
+
+  void _listenBottomNavVisibility() {
+    final navController = Get.find<BottomNavBarController>();
+    _navTabWorker = ever<int>(navController.selectedIndexRx, (index) {
+      if (index == BottomNavBarController.contentsTabIndex) {
+        playReelAt(currentReelIndex.value);
+      } else {
+        pauseReel();
+      }
+    });
+  }
+
+  Future<void> onReelPageChanged(int index) async {
+    currentReelIndex.value = index;
+    await playReelAt(index);
+    _maybeLoadMoreReels(index);
+  }
+
+  void _maybeLoadMoreReels(int index) {
+    if (contents.isEmpty) return;
+    if (index < contents.length - _reelPaginationThreshold) return;
+    if (!contentList.canLoadMore) return;
+    contentList.loadMore();
+  }
+
+  Future<void> playReelAt(int index) async {
+    if (Get.find<BottomNavBarController>().selectedIndex !=
+        BottomNavBarController.contentsTabIndex) {
+      return;
+    }
+
+    if (index < 0 || index >= contents.length) {
+      await reelPlayer.pause();
+      isReelPlaying.value = false;
+      return;
+    }
+
+    if (_loadedReelIndex == index && reelMediaError.value.isEmpty) {
+      await reelPlayer.play();
+      isReelPlaying.value = true;
+      return;
+    }
+
+    final content = contents[index];
+    final media = ContentMediaResolver.mediaFromContent(content);
+    if (media == null) {
+      reelMediaError.value = 'No video available for this content.';
+      _loadedReelIndex = index;
+      isReelPlaying.value = false;
+      return;
+    }
+
+    isReelLoading.value = true;
+    reelMediaError.value = '';
+
+    try {
+      await reelPlayer.open(media);
+      _loadedReelIndex = index;
+      isReelPlaying.value = true;
+    } catch (error) {
+      reelMediaError.value = 'Unable to play this video.';
+      if (kDebugMode) debugPrint('playReelAt error: $error');
+    } finally {
+      isReelLoading.value = false;
+    }
+  }
+
+  Future<void> pauseReel() async {
+    await reelPlayer.pause();
+    isReelPlaying.value = false;
+  }
+
+  Future<void> toggleReelPlayback() async {
+    if (isReelPlaying.value) {
+      await pauseReel();
+    } else {
+      await reelPlayer.play();
+      isReelPlaying.value = true;
+    }
+  }
+
+  Future<void> openContentInFeed(ContentModel content) async {
+    final existingIndex = contents.indexWhere((item) => item.id == content.id);
+    final targetIndex = existingIndex >= 0 ? existingIndex : 0;
+
+    if (existingIndex < 0) {
+      contentList.items.insert(0, content);
+    }
+
+    currentReelIndex.value = targetIndex;
+    _loadedReelIndex = null;
+
+    if (pageController.hasClients) {
+      pageController.jumpToPage(targetIndex);
+    }
+
+    await playReelAt(targetIndex);
+  }
+
+  void _resetReelPosition() {
+    currentReelIndex.value = 0;
+    _loadedReelIndex = null;
+    if (pageController.hasClients) {
+      pageController.jumpToPage(0);
+    }
   }
 
   Future<List<ContentModel>> _fetchContentPage(int page, int limit) async {
@@ -110,6 +245,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
       await contentList.loadFirst();
       _loadingState.value = LoadingState.loaded;
+      _resetReelPosition();
+      await playReelAt(0);
     } on AppException catch (e) {
       _loadingState.value = LoadingState.error;
       if (kDebugMode) debugPrint('fetchContents error: $e');
@@ -126,6 +263,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _selectedCategoryId.value = null;
     searchController.clear();
     search.clear();
+    _resetReelPosition();
 
     await _loadData();
   }
@@ -142,6 +280,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   Future<void> selectCategory(String? categoryId) async {
     if (_selectedCategoryId.value == categoryId) return;
     _selectedCategoryId.value = categoryId;
+    _resetReelPosition();
     await _loadData();
   }
 
@@ -207,8 +346,17 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       _deleteLoadingState.value = LoadingState.loading;
       await _service.deleteContent(contentId);
       _deleteLoadingState.value = LoadingState.loaded;
-      Get.back(canPop: true);
+      if (Get.isDialogOpen ?? false) Get.back();
       await _loadData();
+      if (contents.isNotEmpty) {
+        final nextIndex = currentReelIndex.value.clamp(0, contents.length - 1);
+        currentReelIndex.value = nextIndex;
+        _loadedReelIndex = null;
+        if (pageController.hasClients) {
+          pageController.jumpToPage(nextIndex);
+        }
+        await playReelAt(nextIndex);
+      }
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _deleteLoadingState.value = LoadingState.error;
@@ -218,6 +366,9 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   @override
   void onClose() {
+    _navTabWorker?.dispose();
+    pageController.dispose();
+    reelPlayer.dispose();
     searchController.dispose();
     contentList.dispose();
     super.onClose();
