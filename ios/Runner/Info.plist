@@ -38,6 +38,10 @@
     <string>This app uses Bluetooth to discover and connect to your fitness watch so it can sync your health and activity data.</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
     <string>This app uses Bluetooth to discover and connect to your fitness watch so it can sync your health and activity data.</string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>This app reads your steps and heart rate from Apple Health to sync your Apple Watch activity and show your fitness progress.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>This app may write fitness activity data to Apple Health to keep your workout and health records up to date.</string>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
