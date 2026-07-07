@@ -23,11 +23,10 @@ class ContentsScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Obx(() => _buildContentBody(contentController)),
+          Obx(() => _buildContentBody(context, contentController)),
           ContentsReelsOverlay(
             onSearchTap: () => _openSearch(context, contentController),
           ),
-          _buildBottomRefreshIndicator(context, contentController),
           Obx(() {
             if (!contentController.showPaginationLoader) {
               return const SizedBox.shrink();
@@ -55,7 +54,10 @@ class ContentsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContentBody(ContentController contentController) {
+  Widget _buildContentBody(
+    BuildContext context,
+    ContentController contentController,
+  ) {
     switch (contentController.loadingState) {
       case LoadingState.initial:
       case LoadingState.loading:
@@ -73,86 +75,30 @@ class ContentsScreen extends StatelessWidget {
           ),
         );
       case LoadingState.loaded:
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            PageView.builder(
-              controller: contentController.pageController,
-              scrollDirection: Axis.vertical,
-              itemCount: contentController.contents.length,
-              onPageChanged: contentController.onReelPageChanged,
-              itemBuilder: (context, index) {
-                final content = contentController.contents[index];
-                return ContentReelItem(content: content, index: index);
-              },
+        final isFirstReel = contentController.currentReelIndex.value == 0;
+
+        return RefreshIndicator(
+          backgroundColor: AppColors.backgroundLight,
+          color: AppColors.primary,
+          edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
+          onRefresh: contentController.refresh,
+          notificationPredicate: (notification) =>
+              isFirstReel && notification.depth == 0,
+          child: PageView.builder(
+            controller: contentController.pageController,
+            scrollDirection: Axis.vertical,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: PageScrollPhysics(),
             ),
-            _buildBottomPullUpDetector(contentController),
-          ],
+            itemCount: contentController.contents.length,
+            onPageChanged: contentController.onReelPageChanged,
+            itemBuilder: (context, index) {
+              final content = contentController.contents[index];
+              return ContentReelItem(content: content, index: index);
+            },
+          ),
         );
     }
-  }
-
-  Widget _buildBottomPullUpDetector(ContentController contentController) {
-    return Obx(() {
-      if (contentController.currentReelIndex.value != 0) {
-        return const SizedBox.shrink();
-      }
-
-      return Positioned(
-        left: 0,
-        right: 0,
-        bottom: 0,
-        height: 180.h,
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onVerticalDragUpdate: contentController.onPullUpRefreshUpdate,
-          onVerticalDragEnd: contentController.onPullUpRefreshEnd,
-          onVerticalDragCancel: contentController.resetPullUpRefresh,
-        ),
-      );
-    });
-  }
-
-  Widget _buildBottomRefreshIndicator(
-    BuildContext context,
-    ContentController contentController,
-  ) {
-    return Obx(() {
-      final extent = contentController.pullUpRefreshExtent.value;
-      final isRefreshing = contentController.isRefreshingFeed;
-      if (!isRefreshing && extent <= 0) {
-        return const SizedBox.shrink();
-      }
-
-      final bottomInset = MediaQuery.paddingOf(context).bottom;
-
-      return Positioned(
-        left: 0,
-        right: 0,
-        bottom: bottomInset + 88.h + extent,
-        child: Center(
-          child: CustomContainer(
-            color: AppColors.backgroundLight.withValues(alpha: 0.92),
-            radiusAll: 999.r,
-            paddingHorizontal: 16.w,
-            paddingVertical: 10.h,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CustomLoader(),
-                SizedBox(width: 10.w),
-                CustomText(
-                  text: isRefreshing ? 'Refreshing...' : 'Pull up to refresh',
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
   }
 
   void _openSearch(BuildContext context, ContentController controller) {

@@ -72,12 +72,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   bool _isClosed = false;
 
   static const int _reelPaginationThreshold = 3;
-  static const double _pullUpRefreshTrigger = 72;
-  static const double _pullUpRefreshMaxExtent = 100;
   final Map<String, List<ContentModel>> _contentCache = {};
-  final RxDouble pullUpRefreshExtent = 0.0.obs;
-
-  bool get isRefreshingFeed => contentList.isRefreshing.value;
 
   @override
   LoadingState get paginationContentState => loadingState;
@@ -141,40 +136,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   Future<void> onReelPageChanged(int index) async {
     currentReelIndex.value = index;
-    if (index != 0) {
-      pullUpRefreshExtent.value = 0;
-    }
     await playReelAt(index);
     _maybeLoadMoreReels(index);
-  }
-
-  void onPullUpRefreshUpdate(DragUpdateDetails details) {
-    if (_isClosed || currentReelIndex.value != 0) return;
-    if (contentList.isRefreshing.value) return;
-    if (details.delta.dy >= 0) return;
-
-    pullUpRefreshExtent.value = (pullUpRefreshExtent.value - details.delta.dy)
-        .clamp(0.0, _pullUpRefreshMaxExtent);
-  }
-
-  Future<void> onPullUpRefreshEnd(DragEndDetails details) async {
-    if (_isClosed || currentReelIndex.value != 0) return;
-
-    final shouldRefresh =
-        pullUpRefreshExtent.value >= _pullUpRefreshTrigger &&
-            !contentList.isRefreshing.value;
-
-    if (shouldRefresh) {
-      await refresh();
-    } else {
-      pullUpRefreshExtent.value = 0;
-    }
-  }
-
-  void resetPullUpRefresh() {
-    if (!contentList.isRefreshing.value) {
-      pullUpRefreshExtent.value = 0;
-    }
   }
 
   void _maybeLoadMoreReels(int index) {
@@ -319,6 +282,18 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     );
   }
 
+  Future<void> _reloadFeedFromApi() async {
+    if (!_connectivityService.isConnected.value) return;
+
+    await contentList.loadFirst();
+    if (_isClosed) return;
+
+    _cacheCurrentTab();
+    _loadingState.value = LoadingState.loaded;
+    _resetReelPosition();
+    _schedulePlayReelAt(0);
+  }
+
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
       final isOnline = _connectivityService.isConnected.value;
@@ -403,8 +378,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   Future<void> refresh() async {
     await pauseReel();
     _invalidateCurrentCache();
-    await contentList.refreshWith(() => _loadData(showFullLoader: false));
-    pullUpRefreshExtent.value = 0;
+    await contentList.refreshWith(_reloadFeedFromApi);
   }
 
   Future<void> createOrUpdateContent({
@@ -450,7 +424,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       }
 
       _invalidateCurrentCache();
-      await _loadData(showFullLoader: false);
+      await _reloadFeedFromApi();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       if (kDebugMode) debugPrint('createOrUpdateContent error: $e');
@@ -468,7 +442,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       _deleteLoadingState.value = LoadingState.loaded;
       if (Get.isDialogOpen ?? false) Get.back();
       _invalidateCurrentCache();
-      await _loadData(showFullLoader: false);
+      await _reloadFeedFromApi();
       if (contents.isNotEmpty) {
         final nextIndex = currentReelIndex.value.clamp(0, contents.length - 1);
         currentReelIndex.value = nextIndex;
