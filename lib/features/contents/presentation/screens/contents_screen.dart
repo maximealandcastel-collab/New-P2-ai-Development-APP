@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
@@ -35,53 +34,48 @@ class ContentsScreen extends StatelessWidget {
               onRefresh: contentController.refresh,
             );
           case LoadingState.loaded:
-            return _buildReelsFeed(context, contentController);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                PageView.builder(
+                  controller: contentController.pageController,
+                  scrollDirection: Axis.vertical,
+                  itemCount: contentController.contents.length,
+                  onPageChanged: contentController.onReelPageChanged,
+                  itemBuilder: (context, index) {
+                    final content = contentController.contents[index];
+                    return ContentReelItem(content: content, index: index);
+                  },
+                ),
+                ContentsReelsOverlay(
+                  onSearchTap: () => _openSearch(context, contentController),
+                ),
+                Obx(() {
+                  if (!contentController.showPaginationLoader) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 110.h,
+                    child: Center(
+                      child: CustomContainer(
+                        color: AppColors.backgroundLight.withValues(
+                          alpha: 0.92,
+                        ),
+                        radiusAll: 999.r,
+                        paddingHorizontal: 14.w,
+                        paddingVertical: 8.h,
+                        child: const CustomLoader(),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            );
         }
       }),
-    );
-  }
-
-  Widget _buildReelsFeed(
-    BuildContext context,
-    ContentController contentController,
-  ) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        PageView.builder(
-          controller: contentController.pageController,
-          scrollDirection: Axis.vertical,
-          itemCount: contentController.contents.length,
-          onPageChanged: contentController.onReelPageChanged,
-          itemBuilder: (context, index) {
-            final content = contentController.contents[index];
-            return ContentReelItem(content: content, index: index);
-          },
-        ),
-        ContentsReelsOverlay(
-          onSearchTap: () => _openSearch(context, contentController),
-        ),
-        Obx(() {
-          if (!contentController.showPaginationLoader) {
-            return const SizedBox.shrink();
-          }
-
-          return Positioned(
-            left: 0,
-            right: 0,
-            bottom: 110.h,
-            child: Center(
-              child: CustomContainer(
-                color: AppColors.backgroundLight.withValues(alpha: 0.92),
-                radiusAll: 999.r,
-                paddingHorizontal: 14.w,
-                paddingVertical: 8.h,
-                child: const CustomLoader(),
-              ),
-            ),
-          );
-        }),
-      ],
     );
   }
 
