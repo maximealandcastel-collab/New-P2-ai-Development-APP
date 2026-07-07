@@ -146,8 +146,17 @@ class CustomNetworkImage extends StatelessWidget {
           Icon(
             Icons.person,
             color: Colors.grey.shade500,
-            size: height ?? width,
+            size: _fallbackIconSize(),
           ),
     );
+  }
+
+  double _fallbackIconSize() {
+    for (final dimension in [height, width]) {
+      if (dimension != null && dimension.isFinite && dimension > 0) {
+        return dimension.clamp(16, 96);
+      }
+    }
+    return 40;
   }
 }

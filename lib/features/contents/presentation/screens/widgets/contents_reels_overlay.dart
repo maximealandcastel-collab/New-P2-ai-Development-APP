@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_category_chips.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsReelsOverlay extends StatelessWidget {
@@ -88,6 +89,7 @@ class ContentsReelsOverlay extends StatelessWidget {
   Widget _buildTikTokHeader(ContentController contentController) {
     return Obx(() {
       final activeTab = contentController.activeTab.value;
+      final isTrainer = ProfileController.to.userData?.role == 'trainer';
 
       return SizedBox(
         height: 44.h,
@@ -105,7 +107,7 @@ class ContentsReelsOverlay extends StatelessWidget {
                 ),
                 SizedBox(width: 24.w),
                 _buildTab(
-                  label: 'My Trainer',
+                  label: isTrainer ? 'My Content' : 'My Trainer',
                   isActive: activeTab == ContentTab.myTrainer,
                   onTap: () =>
                       contentController.changeTab(ContentTab.myTrainer),
