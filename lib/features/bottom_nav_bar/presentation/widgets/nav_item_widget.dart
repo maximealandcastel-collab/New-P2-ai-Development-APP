@@ -23,6 +23,8 @@ class BottomNavItem extends StatelessWidget {
       final controller = BottomNavBarController.to;
       final isSelected = controller.selectedIndex == index;
 
+      final Color selectedColor =
+      index == 2 ? AppColors.textWhite : AppColors.textPrimary;
       return GestureDetector(
         onTap: () => controller.onChange(index),
         behavior: HitTestBehavior.opaque,
@@ -36,9 +38,7 @@ class BottomNavItem extends StatelessWidget {
                 width: 24.w,
                 height: 24.h,
                 colorFilter: ColorFilter.mode(
-                  isSelected
-                      ? AppColors.textPrimary
-                      : AppColors.textSecondary,
+                  isSelected ? selectedColor : AppColors.textSecondary,
                   BlendMode.srcIn,
                 ),
               ),
@@ -46,11 +46,8 @@ class BottomNavItem extends StatelessWidget {
               CustomText(
                 text: navItem.label,
                 fontSize: 11.sp,
-                fontWeight:
-                isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? selectedColor : AppColors.textSecondary,
               ),
             ],
           ),
