@@ -12,7 +12,7 @@ class BottomNavBarMain extends StatelessWidget {
     final controller = BottomNavBarController.to;
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor:  AppColors.backgroundLight,
       body: Obx(
         () => IndexedStack(
           index: controller.selectedIndex,
