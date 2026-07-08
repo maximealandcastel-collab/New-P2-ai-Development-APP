@@ -126,10 +126,12 @@ class ReelPlayerPool {
   ReelPlayerPool({
     this.preloadRadius = 1,
     this.onStateChanged,
+    this.onReelCompleted,
   });
 
   final int preloadRadius;
   final VoidCallback? onStateChanged;
+  final VoidCallback? onReelCompleted;
 
   final Map<int, ReelPlayerSlot> _slotsByIndex = {};
   final List<ReelPlayerSlot> _freeSlots = [
@@ -139,6 +141,7 @@ class ReelPlayerPool {
   ];
 
   int? _activeIndex;
+  StreamSubscription<bool>? _completedSub;
 
   VideoController? videoControllerFor(int index) {
     final slot = _slotsByIndex[index];
@@ -181,6 +184,7 @@ class ReelPlayerPool {
     }
 
     await _ensureLoaded(center, contents[center], play: true);
+    _attachActiveListeners(_slotsByIndex[center]);
 
     for (final preloadIndex in needed) {
       if (preloadIndex == center) continue;
@@ -208,7 +212,21 @@ class ReelPlayerPool {
     await _slotsByIndex[index]?.play();
   }
 
+  Future<void> replayActive() async {
+    final index = _activeIndex;
+    if (index == null) return;
+    final slot = _slotsByIndex[index];
+    if (slot == null || !slot.isReady) return;
+
+    try {
+      await slot.player.seek(Duration.zero);
+      await slot.player.play();
+    } catch (_) {}
+  }
+
   Future<void> reset() async {
+    _detachActiveListeners();
+
     final slots = _slotsByIndex.values.toList(growable: false);
     _slotsByIndex.clear();
     _activeIndex = null;
@@ -221,6 +239,8 @@ class ReelPlayerPool {
   }
 
   Future<void> dispose() async {
+    _detachActiveListeners();
+
     final slots = [
       ..._slotsByIndex.values,
       ..._freeSlots,
@@ -250,6 +270,20 @@ class ReelPlayerPool {
   }
 
   void _notifyStateChanged() => onStateChanged?.call();
+
+  void _attachActiveListeners(ReelPlayerSlot? slot) {
+    _detachActiveListeners();
+    if (slot == null || !slot.isReady) return;
+
+    _completedSub = slot.player.stream.completed.listen((completed) {
+      if (completed) onReelCompleted?.call();
+    });
+  }
+
+  void _detachActiveListeners() {
+    unawaited(_completedSub?.cancel());
+    _completedSub = null;
+  }
 
   ReelPlayerSlot _takeFreeSlot() {
     if (_freeSlots.isNotEmpty) {

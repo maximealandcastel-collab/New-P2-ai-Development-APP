@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -29,6 +32,9 @@ class ContentDetailsController extends GetxController {
   final RxList<SubtitleTrack> subtitleTracks = <SubtitleTrack>[].obs;
   final Rxn<SubtitleTrack> selectedSubtitle = Rxn<SubtitleTrack>();
 
+  StreamSubscription<bool>? _completedSub;
+  bool _isClosed = false;
+
   static const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
   static ContentDetailsController get to => Get.find<ContentDetailsController>();
@@ -48,8 +54,17 @@ class ContentDetailsController extends GetxController {
       ),
     );
     _listenTracks();
+    _listenPlaybackCompletion();
     _loadMedia();
     _checkPipAvailability();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      unawaited(_ensureAutoPlay());
+    });
   }
 
   void _listenTracks() {
@@ -81,9 +96,11 @@ class ContentDetailsController extends GetxController {
       }
 
       debugPrint('_loadMedia: opening media → ${media.uri}');
-      await player.open(media);
+      await player.setPlaylistMode(PlaylistMode.loop);
+      await player.open(media, play: true);
       debugPrint('_loadMedia: player opened successfully');
       await player.setRate(playbackSpeed.value);
+      await _ensureAutoPlay();
 
       // player stream থেকে error listen করো
       player.stream.error.listen((error) {
@@ -109,6 +126,43 @@ class ContentDetailsController extends GetxController {
       debugPrint('_loadMedia STACK: $stack');
     } finally {
       isLoadingMedia.value = false;
+      if (mediaError.value.isEmpty) {
+        unawaited(_ensureAutoPlay());
+      }
+    }
+  }
+
+  void _listenPlaybackCompletion() {
+    _completedSub = player.stream.completed.listen((completed) async {
+      if (_isClosed || !completed) return;
+      await _replayFromStart();
+    });
+  }
+
+  Future<void> _ensureAutoPlay() async {
+    if (_isClosed || mediaError.value.isNotEmpty) return;
+
+    try {
+      if (!player.state.playing) {
+        await player.play();
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('ContentDetailsController._ensureAutoPlay: $error');
+      }
+    }
+  }
+
+  Future<void> _replayFromStart() async {
+    if (_isClosed || mediaError.value.isNotEmpty) return;
+
+    try {
+      await player.seek(Duration.zero);
+      await player.play();
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('ContentDetailsController._replayFromStart: $error');
+      }
     }
   }
 
@@ -170,6 +224,8 @@ class ContentDetailsController extends GetxController {
 
   @override
   void onClose() {
+    _isClosed = true;
+    unawaited(_completedSub?.cancel());
     player.dispose();
     super.onClose();
   }

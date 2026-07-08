@@ -68,6 +68,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   Worker? _connectivityWorker;
   bool _isClosed = false;
   int _reelSyncGeneration = 0;
+  bool _isHandlingReelCompletion = false;
 
   static const int _reelPaginationThreshold = 3;
   final Map<String, List<ContentModel>> _contentCache = {};
@@ -96,6 +97,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       onStateChanged: () {
         if (!_isClosed) reelMediaRevision.value++;
       },
+      onReelCompleted: _onReelCompleted,
     );
     pageController.addListener(_onPageScroll);
     _listenBottomNavVisibility();
@@ -188,6 +190,85 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (index < contents.length - _reelPaginationThreshold) return;
     if (!contentList.canLoadMore) return;
     contentList.loadMore();
+  }
+
+  void _onReelCompleted() {
+    if (_isClosed || !pageController.hasClients || _isHandlingReelCompletion) {
+      return;
+    }
+
+    if (Get.find<BottomNavBarController>().selectedIndex !=
+        BottomNavBarController.contentsTabIndex) {
+      return;
+    }
+
+    _isHandlingReelCompletion = true;
+
+    final currentIndex = currentReelIndex.value;
+    final nextIndex = currentIndex + 1;
+
+    if (nextIndex < contents.length) {
+      unawaited(
+        _advanceToReel(nextIndex).whenComplete(_resetReelCompletionHandling),
+      );
+      return;
+    }
+
+    if (contentList.canLoadMore) {
+      contentList.loadMore().then((_) {
+        if (_isClosed || !pageController.hasClients) {
+          _resetReelCompletionHandling();
+          return;
+        }
+        final loadedNextIndex = currentReelIndex.value + 1;
+        if (loadedNextIndex < contents.length) {
+          unawaited(
+            _advanceToReel(loadedNextIndex)
+                .whenComplete(_resetReelCompletionHandling),
+          );
+        } else if (contents.length > 1) {
+          unawaited(
+            _advanceToReel(0).whenComplete(_resetReelCompletionHandling),
+          );
+        } else {
+          unawaited(
+            _replayCurrentReel().whenComplete(_resetReelCompletionHandling),
+          );
+        }
+      });
+      return;
+    }
+
+    if (contents.length > 1) {
+      unawaited(
+        _advanceToReel(0).whenComplete(_resetReelCompletionHandling),
+      );
+    } else {
+      unawaited(
+        _replayCurrentReel().whenComplete(_resetReelCompletionHandling),
+      );
+    }
+  }
+
+  void _resetReelCompletionHandling() {
+    _isHandlingReelCompletion = false;
+  }
+
+  Future<void> _advanceToReel(int index) async {
+    if (_isClosed || !pageController.hasClients) return;
+    if (index < 0 || index >= contents.length) return;
+
+    await pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _replayCurrentReel() async {
+    if (_isClosed) return;
+    isReelPlaying.value = true;
+    await _reelPool.replayActive();
   }
 
   Future<void> pauseReel() async {

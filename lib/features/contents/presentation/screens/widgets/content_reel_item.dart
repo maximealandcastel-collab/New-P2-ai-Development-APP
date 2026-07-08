@@ -35,7 +35,7 @@ class ContentReelItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              _buildMedia(controller, isActive),
+              _buildMedia(controller),
               _buildBottomInfo(context),
               _buildSideActions(context, controller),
               if (isActive && !controller.isReelPlaying.value)
@@ -59,7 +59,7 @@ class ContentReelItem extends StatelessWidget {
     });
   }
 
-  Widget _buildMedia(ContentController controller, bool isActive) {
+  Widget _buildMedia(ContentController controller) {
     final videoController = controller.reelVideoControllerFor(index);
     final showVideo = videoController != null;
 
