@@ -115,28 +115,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   bool isReelOpening(int index) => _reelPool.isOpening(index);
 
-  ReelPlayerHandoff? handoffReelPlayerFor(ContentModel content) {
-    final index = contents.indexWhere(
-      (item) => item.id != null && item.id == content.id,
-    );
-    if (index < 0) return null;
-    return _reelPool.tryHandoff(index);
-  }
-
-  Future<void> restoreReelHandoff(ReelPlayerHandoff handoff) async {
-    if (_isClosed) return;
-
-    await _reelPool.restoreHandoff(handoff, play: true);
-    currentReelIndex.value = handoff.index;
-    isReelPlaying.value = true;
-    reelMediaError.value = _reelPool.errorFor(handoff.index);
-    reelMediaRevision.value++;
-
-    if (pageController.hasClients) {
-      pageController.jumpToPage(handoff.index);
-    }
-  }
-
   void _onPageScroll() {
     if (_isClosed || !pageController.hasClients) return;
     if (_loadingState.value != LoadingState.loaded || contents.isEmpty) {
