@@ -107,7 +107,7 @@ class ContentsReelsOverlay extends StatelessWidget {
                 ),
                 SizedBox(width: 24.w),
                 _buildTab(
-                  label: isTrainer ? 'My Content' : 'Trainer',
+                  label: isTrainer ? 'My Content' : 'My Trainer',
                   isActive: activeTab == ContentTab.myTrainer,
                   onTap: () =>
                       contentController.changeTab(ContentTab.myTrainer),
