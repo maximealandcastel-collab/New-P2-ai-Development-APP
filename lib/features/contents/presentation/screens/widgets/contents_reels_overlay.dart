@@ -100,14 +100,14 @@ class ContentsReelsOverlay extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildTab(
-                  label: 'Default',
+                  label: 'Community',
                   isActive: activeTab == ContentTab.defaultContent,
                   onTap: () =>
                       contentController.changeTab(ContentTab.defaultContent),
                 ),
                 SizedBox(width: 24.w),
                 _buildTab(
-                  label: isTrainer ? 'My Content' : 'My Trainer',
+                  label: isTrainer ? 'My Content' : 'Trainer',
                   isActive: activeTab == ContentTab.myTrainer,
                   onTap: () =>
                       contentController.changeTab(ContentTab.myTrainer),
