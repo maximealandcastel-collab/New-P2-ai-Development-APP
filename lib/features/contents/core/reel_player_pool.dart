@@ -71,6 +71,7 @@ class ReelPlayerSlot {
 
   Future<void> _openMedia(Media media, {required bool play}) async {
     try {
+      await player.setPlaylistMode(PlaylistMode.single);
       await player.open(media, play: play);
       isReady = true;
     } catch (error) {

@@ -68,14 +68,12 @@ class ContentsScreen extends StatelessWidget {
         );
       case LoadingState.offline:
       case LoadingState.error:
-        return ColoredBox(
-          color: AppColors.backgroundDark,
-          child: EmptyDataWidget(
-            message: 'Content not found',
-            onRefresh: contentController.refresh,
-          ),
-        );
+        return _buildEmptyState(contentController);
       case LoadingState.loaded:
+        if (contentController.contents.isEmpty) {
+          return _buildEmptyState(contentController);
+        }
+
         final isFirstReel = contentController.currentReelIndex.value == 0;
 
         return RefreshIndicator(
@@ -104,6 +102,14 @@ class ContentsScreen extends StatelessWidget {
           ),
         );
     }
+  }
+
+  Widget _buildEmptyState(ContentController contentController) {
+    return EmptyDataWidget(
+      message: 'No content available',
+      messageColor: AppColors.textWhite,
+      onRefresh: contentController.refresh,
+    );
   }
 
   void _openSearch(BuildContext context, ContentController controller) {

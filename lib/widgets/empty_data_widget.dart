@@ -5,10 +5,16 @@ import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
 class EmptyDataWidget extends StatelessWidget {
-  const EmptyDataWidget({super.key, this.message, this.onRefresh});
+  const EmptyDataWidget({
+    super.key,
+    this.message,
+    this.onRefresh,
+    this.messageColor,
+  });
 
   final String? message;
   final VoidCallback? onRefresh;
+  final Color? messageColor;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,10 @@ class EmptyDataWidget extends StatelessWidget {
         children: [
           Assets.lotties.emptyData.lottie(height: 150.h),
           SizedBox(height: 16.h),
-          CustomText(text: message ?? 'No data found'),
+          CustomText(
+            text: message ?? 'No data found',
+            color: messageColor,
+          ),
           SizedBox(height: 44.h),
           if (onRefresh != null)
             TextButton(
