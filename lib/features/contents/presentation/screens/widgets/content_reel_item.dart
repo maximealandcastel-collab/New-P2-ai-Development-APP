@@ -8,7 +8,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/video_thumbnail_widget.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -27,31 +26,52 @@ class ContentReelItem extends StatelessWidget {
     final controller = ContentController.to;
 
     return Obx(() {
+      controller.reelMediaRevision.value;
       final isActive = controller.currentReelIndex.value == index;
       return GestureDetector(
         onTap: isActive ? controller.toggleReelPlayback : null,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            _buildMedia(controller, isActive),
-            _buildBottomInfo(context),
-            _buildSideActions(context, controller),
-            if (isActive && !controller.isReelPlaying.value)
-              _buildPauseIndicator(),
-          ],
+        child: ColoredBox(
+          color: AppColors.backgroundDark,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _buildMedia(controller, isActive),
+              _buildBottomInfo(context),
+              _buildSideActions(context, controller),
+              if (isActive && !controller.isReelPlaying.value)
+                _buildPauseIndicator(),
+              if (isActive && controller.reelMediaError.value.isNotEmpty)
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: CustomText(
+                      text: controller.reelMediaError.value,
+                      color: AppColors.textPrimary,
+                      fontSize: 14.sp,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       );
     });
   }
 
   Widget _buildMedia(ContentController controller, bool isActive) {
+    final videoController = controller.reelVideoControllerFor(index);
+    final showVideo = videoController != null;
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (isActive)
+        const ColoredBox(color: AppColors.backgroundDark),
+        if (showVideo)
           Video(
-            controller: controller.reelVideoController,
+            controller: videoController,
             fit: BoxFit.contain,
+            fill: AppColors.backgroundDark,
             controls: (_) => const SizedBox.shrink(),
             subtitleViewConfiguration: SubtitleViewConfiguration(
               style: TextStyle(
@@ -61,59 +81,9 @@ class ContentReelItem extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-          )
-        else
-          _buildInactivePreview(),
-        if (isActive)
-          Obx(() {
-            if (!controller.isReelLoading.value &&
-                controller.reelMediaError.value.isEmpty) {
-              return const SizedBox.shrink();
-            }
-
-            return Center(
-              child: controller.isReelLoading.value
-                  ? const CustomLoader()
-                  : Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
-                      child: CustomText(
-                        text: controller.reelMediaError.value,
-                        color: AppColors.textPrimary,
-                        fontSize: 14.sp,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-            );
-          }),
+          ),
       ],
     );
-  }
-
-  Widget _buildInactivePreview() {
-    final thumbnailUrl = content.thumbnailUrl?.trim();
-    if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) {
-      return CustomNetworkImage(
-        imageUrl: thumbnailUrl,
-        width: double.infinity,
-        height: double.infinity,
-        fit: BoxFit.cover,
-      );
-    }
-
-    final videoUrl = content.videoUrl?.trim();
-    if (videoUrl != null && videoUrl.isNotEmpty) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return VideoThumbnailWidget(
-            videoUrl: videoUrl,
-            width: constraints.maxWidth,
-            height: constraints.maxHeight,
-          );
-        },
-      );
-    }
-
-    return const ColoredBox(color: AppColors.backgroundDark);
   }
 
   Widget _buildBottomInfo(BuildContext context) {

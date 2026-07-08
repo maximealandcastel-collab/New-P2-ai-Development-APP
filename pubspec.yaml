@@ -45,7 +45,6 @@ dependencies:
   anam_flutter_sdk:
     path: packages/anam_flutter_sdk
   flutter_webrtc: ^0.12.0
-  video_thumbnail: ^0.5.6
 
 
 dev_dependencies:

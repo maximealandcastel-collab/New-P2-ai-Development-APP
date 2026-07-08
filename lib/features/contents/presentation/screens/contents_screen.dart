@@ -20,6 +20,7 @@ class ContentsScreen extends StatelessWidget {
     final contentController = ContentController.to;
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -84,18 +85,22 @@ class ContentsScreen extends StatelessWidget {
           onRefresh: contentController.refresh,
           notificationPredicate: (notification) =>
               isFirstReel && notification.depth == 0,
-          child: PageView.builder(
-            controller: contentController.pageController,
-            scrollDirection: Axis.vertical,
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: PageScrollPhysics(),
+          child: ColoredBox(
+            color: AppColors.backgroundDark,
+            child: PageView.builder(
+              controller: contentController.pageController,
+              scrollDirection: Axis.vertical,
+              allowImplicitScrolling: true,
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: PageScrollPhysics(),
+              ),
+              itemCount: contentController.contents.length,
+              onPageChanged: contentController.onReelPageChanged,
+              itemBuilder: (context, index) {
+                final content = contentController.contents[index];
+                return ContentReelItem(content: content, index: index);
+              },
             ),
-            itemCount: contentController.contents.length,
-            onPageChanged: contentController.onReelPageChanged,
-            itemBuilder: (context, index) {
-              final content = contentController.contents[index];
-              return ContentReelItem(content: content, index: index);
-            },
           ),
         );
     }
