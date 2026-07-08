@@ -39,6 +39,7 @@ import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/c
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/client_details_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/request/data/models/trainer_request_model.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_details_screen.dart';
+import 'package:pler_to_pler_app/features/contents/core/reel_player_pool.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
@@ -217,8 +218,24 @@ class AppRoute {
       name: contentDetailsScreen,
       page: () => const ContentDetailsScreen(),
       binding: BindingsBuilder(() {
+        final content = Get.arguments as ContentModel;
+        ReelPlayerHandoff? handoff;
+        void Function(ReelPlayerHandoff handoff)? onHandoffRelease;
+
+        if (Get.isRegistered<ContentController>()) {
+          final contentController = Get.find<ContentController>();
+          handoff = contentController.handoffReelPlayerFor(content);
+          if (handoff != null) {
+            onHandoffRelease = contentController.restoreReelHandoff;
+          }
+        }
+
         Get.put<ContentDetailsController>(
-          ContentDetailsController(content: Get.arguments as ContentModel),
+          ContentDetailsController(
+            content: content,
+            handoff: handoff,
+            onHandoffRelease: onHandoffRelease,
+          ),
           permanent: false,
         );
       }),

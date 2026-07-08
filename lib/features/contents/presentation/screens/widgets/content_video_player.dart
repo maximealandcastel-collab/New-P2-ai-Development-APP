@@ -57,18 +57,21 @@ class ContentVideoPlayer extends StatelessWidget {
                 ),
               ),
               Obx(() {
-                final isLoading = controller.isLoadingMedia.value;
                 final error = controller.mediaError.value;
+                final showInitialLoader = controller.isLoadingMedia.value &&
+                    !controller.hasMediaOpened.value;
 
-                if (!isLoading && error.isEmpty) {
+                if (!showInitialLoader && error.isEmpty) {
                   return const SizedBox.shrink();
                 }
 
                 return ColoredBox(
                   color: AppColors.backgroundDark.withValues(alpha: 0.6),
                   child: Center(
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: AppColors.primary)
+                    child: showInitialLoader
+                        ? const CircularProgressIndicator(
+                            color: AppColors.primary,
+                          )
                         : Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24.w),
                             child: CustomText(

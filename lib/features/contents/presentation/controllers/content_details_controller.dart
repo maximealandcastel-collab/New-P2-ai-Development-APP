@@ -2,38 +2,46 @@ import 'dart:async';
 
 import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
+import 'package:pler_to_pler_app/features/contents/core/reel_player_pool.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 
 class ContentDetailsController extends GetxController {
   ContentDetailsController({
     this.content,
     this.videoUrl,
+    this.handoff,
+    this.onHandoffRelease,
   }) : assert(
-  content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
-  'Either content or videoUrl is required.',
-  );
+          content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
+          'Either content or videoUrl is required.',
+        );
 
   final ContentModel? content;
   final String? videoUrl;
+  final ReelPlayerHandoff? handoff;
+  final void Function(ReelPlayerHandoff handoff)? onHandoffRelease;
 
   late final Player player;
   late final VideoController videoController;
+  late final bool _ownsPlayer;
   final Floating _floating = Floating();
 
   final RxDouble playbackSpeed = 1.0.obs;
   final RxBool pipAvailable = false.obs;
   final RxBool isLoadingMedia = true.obs;
+  final RxBool hasMediaOpened = false.obs;
   final RxString mediaError = ''.obs;
   final RxList<SubtitleTrack> subtitleTracks = <SubtitleTrack>[].obs;
   final Rxn<SubtitleTrack> selectedSubtitle = Rxn<SubtitleTrack>();
 
-  StreamSubscription<bool>? _completedSub;
+  StreamSubscription<String>? _errorSub;
   bool _isClosed = false;
+  String? _loadedMediaUri;
+  Future<void>? _loadFuture;
 
   static const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
@@ -42,29 +50,37 @@ class ContentDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    player = Player(
-      configuration: const PlayerConfiguration(
-        libass: true,
-      ),
-    );
-    videoController = VideoController(
-      player,
-      configuration: const VideoControllerConfiguration(
-        enableHardwareAcceleration: true,
-      ),
-    );
-    _listenTracks();
-    _listenPlaybackCompletion();
-    _loadMedia();
-    _checkPipAvailability();
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      unawaited(_ensureAutoPlay());
-    });
+    if (handoff != null) {
+      _ownsPlayer = false;
+      player = handoff!.slot.player;
+      videoController = handoff!.slot.videoController;
+      isLoadingMedia.value = false;
+      hasMediaOpened.value = true;
+    } else {
+      _ownsPlayer = true;
+      player = Player(
+        configuration: const PlayerConfiguration(
+          libass: true,
+        ),
+      );
+      videoController = VideoController(
+        player,
+        configuration: const VideoControllerConfiguration(
+          enableHardwareAcceleration: true,
+        ),
+      );
+    }
+
+    _listenTracks();
+    _listenPlayerErrors();
+    _checkPipAvailability();
+
+    if (handoff != null) {
+      unawaited(_prepareHandoffPlayback());
+    } else {
+      _loadFuture = _loadMedia();
+    }
   }
 
   void _listenTracks() {
@@ -72,12 +88,38 @@ class ContentDetailsController extends GetxController {
       subtitleTracks.assignAll(tracks.subtitle);
     });
     player.stream.track.listen((track) {
-      selectedSubtitle.value = track.subtitle.id == 'no' ? null : track.subtitle;
+      selectedSubtitle.value =
+          track.subtitle.id == 'no' ? null : track.subtitle;
     });
   }
 
+  void _listenPlayerErrors() {
+    _errorSub = player.stream.error.listen((error) {
+      if (error.isEmpty) return;
+      mediaError.value = 'Player error: $error';
+      if (kDebugMode) {
+        debugPrint('ContentDetailsController player error: $error');
+      }
+    });
+  }
+
+  Future<void> _prepareHandoffPlayback() async {
+    if (_isClosed) return;
+
+    try {
+      await player.setPlaylistMode(PlaylistMode.loop);
+      await player.setRate(playbackSpeed.value);
+      if (!player.state.playing) {
+        await player.play();
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('ContentDetailsController._prepareHandoffPlayback: $error');
+      }
+    }
+  }
+
   Future<void> _loadMedia() async {
-    isLoadingMedia.value = true;
     mediaError.value = '';
 
     try {
@@ -91,78 +133,29 @@ class ContentDetailsController extends GetxController {
 
       if (media == null) {
         mediaError.value = 'No video available for this content.';
-        debugPrint('_loadMedia: media is null');
         return;
       }
 
-      debugPrint('_loadMedia: opening media → ${media.uri}');
+      if (_loadedMediaUri == media.uri && hasMediaOpened.value) {
+        isLoadingMedia.value = false;
+        return;
+      }
+
+      isLoadingMedia.value = true;
+
       await player.setPlaylistMode(PlaylistMode.loop);
       await player.open(media, play: true);
-      debugPrint('_loadMedia: player opened successfully');
       await player.setRate(playbackSpeed.value);
-      await _ensureAutoPlay();
-
-      // player stream থেকে error listen করো
-      player.stream.error.listen((error) {
-        debugPrint('_loadMedia player.stream.error → $error');
-        if (error.isNotEmpty) {
-          mediaError.value = 'Player error: $error';
-        }
-      });
-
-      // buffering state
-      player.stream.buffering.listen((isBuffering) {
-        debugPrint('_loadMedia player.stream.buffering → $isBuffering');
-      });
-
-      // playing state
-      player.stream.playing.listen((isPlaying) {
-        debugPrint('_loadMedia player.stream.playing → $isPlaying');
-      });
-
+      _loadedMediaUri = media.uri;
+      hasMediaOpened.value = true;
     } catch (error, stack) {
       mediaError.value = 'Unable to play this video.';
-      debugPrint('_loadMedia ERROR: $error');
-      debugPrint('_loadMedia STACK: $stack');
+      if (kDebugMode) {
+        debugPrint('_loadMedia ERROR: $error');
+        debugPrint('_loadMedia STACK: $stack');
+      }
     } finally {
       isLoadingMedia.value = false;
-      if (mediaError.value.isEmpty) {
-        unawaited(_ensureAutoPlay());
-      }
-    }
-  }
-
-  void _listenPlaybackCompletion() {
-    _completedSub = player.stream.completed.listen((completed) async {
-      if (_isClosed || !completed) return;
-      await _replayFromStart();
-    });
-  }
-
-  Future<void> _ensureAutoPlay() async {
-    if (_isClosed || mediaError.value.isNotEmpty) return;
-
-    try {
-      if (!player.state.playing) {
-        await player.play();
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('ContentDetailsController._ensureAutoPlay: $error');
-      }
-    }
-  }
-
-  Future<void> _replayFromStart() async {
-    if (_isClosed || mediaError.value.isNotEmpty) return;
-
-    try {
-      await player.seek(Duration.zero);
-      await player.play();
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('ContentDetailsController._replayFromStart: $error');
-      }
     }
   }
 
@@ -225,8 +218,18 @@ class ContentDetailsController extends GetxController {
   @override
   void onClose() {
     _isClosed = true;
-    unawaited(_completedSub?.cancel());
-    player.dispose();
+    unawaited(_errorSub?.cancel());
+
+    if (!_ownsPlayer) {
+      final activeHandoff = handoff;
+      if (activeHandoff != null && onHandoffRelease != null) {
+        onHandoffRelease!(activeHandoff);
+      }
+    } else {
+      unawaited(_loadFuture);
+      player.dispose();
+    }
+
     super.onClose();
   }
 }

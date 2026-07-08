@@ -122,6 +122,16 @@ class ReelPlayerSlot {
   }
 }
 
+class ReelPlayerHandoff {
+  const ReelPlayerHandoff({
+    required this.slot,
+    required this.index,
+  });
+
+  final ReelPlayerSlot slot;
+  final int index;
+}
+
 class ReelPlayerPool {
   ReelPlayerPool({
     this.preloadRadius = 1,
@@ -156,6 +166,32 @@ class ReelPlayerPool {
   String errorFor(int index) => _slotsByIndex[index]?.error ?? '';
 
   int? get activeIndex => _activeIndex;
+
+  ReelPlayerHandoff? tryHandoff(int index) {
+    final slot = _slotsByIndex[index];
+    if (slot == null || !slot.isReady) return null;
+
+    _detachActiveListeners();
+    _slotsByIndex.remove(index);
+    if (_activeIndex == index) {
+      _activeIndex = null;
+    }
+    _notifyStateChanged();
+    return ReelPlayerHandoff(slot: slot, index: index);
+  }
+
+  Future<void> restoreHandoff(
+    ReelPlayerHandoff handoff, {
+    required bool play,
+  }) async {
+    _slotsByIndex[handoff.index] = handoff.slot;
+    _activeIndex = handoff.index;
+    _attachActiveListeners(handoff.slot);
+    if (play) {
+      await handoff.slot.play();
+    }
+    _notifyStateChanged();
+  }
 
   Future<void> sync({
     required int index,

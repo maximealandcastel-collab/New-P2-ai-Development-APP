@@ -143,7 +143,6 @@ class ContentReelItem extends StatelessWidget {
             icon: Icons.info_outline_rounded,
             label: 'Info',
             onTap: () {
-              controller.pauseReel();
               Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
             },
           ),
