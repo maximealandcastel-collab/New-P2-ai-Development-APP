@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 
 class UserHomeController extends GetxController {
@@ -20,6 +22,13 @@ class UserHomeController extends GetxController {
   bool get showShimmer =>
       _loadingState.value == LoadingState.initial ||
       _loadingState.value.isLoading;
+
+  Rxn<WorkoutTodayOverviewModel> get todayOverview =>
+      _workoutController.todayOverview;
+
+  WorkoutAiPlanModel? get plan => _workoutController.plan;
+
+  void openFullWorkoutPlan() => _workoutController.openFullWorkoutPlan();
 
   @override
   void onInit() {

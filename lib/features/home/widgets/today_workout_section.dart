@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
+import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_exercise_section.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TodayWorkoutSection extends GetView<WorkoutController> {
+class TodayWorkoutSection extends StatelessWidget {
   const TodayWorkoutSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = UserHomeController.to;
+
     return Obx(() {
       final mainWork = controller.plan?.mainWork;
       if (mainWork == null || mainWork.isEmpty) {
-        return const SizedBox.shrink();
+        return EmptyData(
+          title: 'Today’s assigned workout',
+          subtitle: 'Not enough data to view',
+        );
       }
 
       return Column(

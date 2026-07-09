@@ -13,11 +13,13 @@ import 'package:pler_to_pler_app/features/home/widgets/user_home_shimmer.dart';
 import 'package:pler_to_pler_app/features/home/widgets/week_date_picker.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class UserHomeScreen extends GetView<UserHomeController> {
+class UserHomeScreen extends StatelessWidget {
   const UserHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = UserHomeController.to;
+
     return Obx(() {
       final showShimmer = controller.showShimmer;
 
@@ -37,11 +39,12 @@ class UserHomeScreen extends GetView<UserHomeController> {
                 debugPrint('Selected: $date');
               },
             ).asSliver,
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Get.toNamed(AppRoute.workoutScreen),
-              child: Assets.images.setGoal.image(),
-            ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
+            if (controller.todayOverview.value == null)
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Get.toNamed(AppRoute.workoutScreen),
+                child: Assets.images.setGoal.image(),
+              ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
             if (showShimmer) ...UserHomeShimmer.slivers() else ..._buildContent(),
             SizedBox(height: 16.h).asSliver,
             SliverToBoxAdapter(child: SizedBox(height: 120.h)),
@@ -56,7 +59,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
       GymSection().asSliverWithPadding(horizontal: 16.w),
       OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
       const TodayWorkoutSection()
-          .asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
+          .asSliverWithPadding(horizontal: 16.w),
     ];
   }
 }
