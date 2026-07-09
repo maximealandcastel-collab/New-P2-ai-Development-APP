@@ -3,11 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
+import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class OverviewSection extends GetView<WorkoutController> {
+class OverviewSection extends GetView<UserHomeController> {
   const OverviewSection({super.key});
 
   @override
@@ -15,7 +16,7 @@ class OverviewSection extends GetView<WorkoutController> {
     return Obx(() {
       final overview = controller.todayOverview.value;
       if (overview == null) {
-        return const SizedBox.shrink();
+        return EmptyData(title: "Today's overview", subtitle: "Not enough data to view");
       }
 
       return _buildOverviewContent(overview);

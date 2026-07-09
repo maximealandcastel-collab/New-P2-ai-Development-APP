@@ -77,6 +77,9 @@ class $AssetsIconsGen {
   AssetGenImage get emailIcon =>
       const AssetGenImage('assets/icons/email_icon.png');
 
+  /// File path: assets/icons/empty.svg
+  SvgGenImage get empty => const SvgGenImage('assets/icons/empty.svg');
+
   /// File path: assets/icons/exercise.svg
   SvgGenImage get exercise => const SvgGenImage('assets/icons/exercise.svg');
 
@@ -181,6 +184,7 @@ class $AssetsIconsGen {
     edit,
     email,
     emailIcon,
+    empty,
     exercise,
     file,
     history,
