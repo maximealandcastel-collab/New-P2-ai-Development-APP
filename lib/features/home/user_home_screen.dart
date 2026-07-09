@@ -13,11 +13,13 @@ import 'package:pler_to_pler_app/features/home/widgets/user_home_shimmer.dart';
 import 'package:pler_to_pler_app/features/home/widgets/week_date_picker.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class UserHomeScreen extends GetView<UserHomeController> {
+class UserHomeScreen extends StatelessWidget {
   const UserHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = UserHomeController.to;
+
     return Obx(() {
       final showShimmer = controller.showShimmer;
 

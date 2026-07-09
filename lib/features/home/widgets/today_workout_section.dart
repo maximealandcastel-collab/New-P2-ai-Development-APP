@@ -7,11 +7,13 @@ import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/workout_exercise_section.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TodayWorkoutSection extends GetView<UserHomeController> {
+class TodayWorkoutSection extends StatelessWidget {
   const TodayWorkoutSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = UserHomeController.to;
+
     return Obx(() {
       final mainWork = controller.plan?.mainWork;
       if (mainWork == null || mainWork.isEmpty) {

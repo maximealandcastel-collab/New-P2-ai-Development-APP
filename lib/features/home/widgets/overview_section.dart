@@ -8,11 +8,13 @@ import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class OverviewSection extends GetView<UserHomeController> {
+class OverviewSection extends StatelessWidget {
   const OverviewSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = UserHomeController.to;
+
     return Obx(() {
       final overview = controller.todayOverview.value;
       if (overview == null) {
