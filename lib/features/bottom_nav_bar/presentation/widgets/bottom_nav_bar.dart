@@ -13,6 +13,23 @@ class BottomNavBar extends StatelessWidget {
 
   const BottomNavBar({super.key, required this.navItems});
 
+  Widget _buildNavTapTarget(
+    BottomNavBarController controller,
+    int index,
+    NavItemModel navItem,
+  ) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (controller.selectedIndex != index) {
+          HapticFeedback.selectionClick();
+          controller.onChange(index);
+        }
+      },
+      child: BottomNavItem(index: index, navItem: navItem),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = BottomNavBarController.to;
@@ -31,53 +48,22 @@ class BottomNavBar extends StatelessWidget {
         ),
         child: LiquidGlass(
           shape: LiquidRoundedSuperellipse(borderRadius: 16.r),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              const slotCount = 5;
-              final slotWidth = constraints.maxWidth / slotCount;
-
-              void handlePointer(Offset localPosition) {
-                final slot = (localPosition.dx / slotWidth)
-                    .floor()
-                    .clamp(0, slotCount - 1);
-                final int? index = switch (slot) {
-                  0 => 0,
-                  1 => 1,
-                  2 => null,
-                  3 => 2,
-                  4 => 3,
-                  _ => null,
-                };
-                if (index != null && controller.selectedIndex != index) {
-                  HapticFeedback.selectionClick();
-                  controller.onChange(index);
-                }
-              }
-
-              return Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: (event) => handlePointer(event.localPosition),
-                onPointerMove: (event) => handlePointer(event.localPosition),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      BottomNavItem(index: 0, navItem: navItems[0]),
-                      BottomNavItem(index: 1, navItem: navItems[1]),
-                      GestureDetector(
-                        onTap: () =>
-                            NavFabWidget.show(context, controller.fabItems),
-                        child: Assets.icons.addButton
-                            .svg(height: 48.h, width: 48.w),
-                      ),
-                      BottomNavItem(index: 2, navItem: navItems[2]),
-                      BottomNavItem(index: 3, navItem: navItems[3]),
-                    ],
-                  ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavTapTarget(controller, 0, navItems[0]),
+                _buildNavTapTarget(controller, 1, navItems[1]),
+                GestureDetector(
+                  onTap: () =>
+                      NavFabWidget.show(context, controller.fabItems),
+                  child: Assets.icons.addButton.svg(height: 48.h, width: 48.w),
                 ),
-              );
-            },
+                _buildNavTapTarget(controller, 2, navItems[2]),
+                _buildNavTapTarget(controller, 3, navItems[3]),
+              ],
+            ),
           ),
         ),
       ),

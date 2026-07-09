@@ -73,12 +73,11 @@ class _BottomNavItemState extends State<BottomNavItem>
       final Color iconColor =
           isSelected ? selectedColor : AppColors.textSecondary;
 
-      return IgnorePointer(
-        child: ScaleTransition(
-          scale: _scale,
-          child: SizedBox(
-            width: 56.w,
-            child: Column(
+      return ScaleTransition(
+        scale: _scale,
+        child: SizedBox(
+          width: 56.w,
+          child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TweenAnimationBuilder<Color?>(
@@ -115,8 +114,7 @@ class _BottomNavItemState extends State<BottomNavItem>
               ],
             ),
           ),
-        ),
-      );
+        );
     });
   }
 }
