@@ -80,6 +80,18 @@ class HistoryScreen extends StatelessWidget {
                   ),
                 );
               case LoadingState.loaded:
+                if(controller.workouts.isEmpty){
+                  return SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 130.h),
+                    sliver: SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: EmptyDataWidget(
+                        message: 'Failed to load history. Please try again.',
+                        onRefresh: controller.refresh,
+                      ),
+                    ),
+                  );
+                }
                 return SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 130.h),
                   sliver: SliverList.builder(
