@@ -41,12 +41,15 @@ class LoginController extends GetxController {
     _loginState.value = LoadingState.loading;
 
     try {
-       await _authService.login(
+      final result = await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
-      final route = await _profileService.resolveInitialRoute();
+      final route = await _profileService.resolveInitialRoute(
+        isProfileCompleted: result.onboardingCompleted,
+        isSubscribed: result.isSubscribed,
+      );
       Get.offAllNamed(route);
     } catch (e) {
       _loginState.value = LoadingState.error;

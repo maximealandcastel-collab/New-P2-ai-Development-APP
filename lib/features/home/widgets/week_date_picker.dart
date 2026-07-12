@@ -54,7 +54,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
             bottom: 8.h,
             text: 'Daily workout progress',fontSize: 18.sp,fontWeight: FontWeight.w600),
         CustomContainer(
-          height: 80.h,
+          height: 84.h,
           paddingVertical: 4.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,

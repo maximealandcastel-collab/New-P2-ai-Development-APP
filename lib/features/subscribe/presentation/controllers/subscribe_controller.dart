@@ -13,6 +13,7 @@ import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_webview_screen.dart';
 
 class SubscribeController extends GetxController with PaginatedLoaderUi {
   final SubscribeServices _service;
@@ -34,14 +35,19 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   final RxInt _selectedIndex = 0.obs;
   final RxBool _isPromoApplied = false.obs;
   final RxBool _isApplyingPromo = false.obs;
+  final RxBool _isCheckingOut = false.obs;
   final RxString _appliedPromoCode = ''.obs;
 
   int get selected => _selected.value;
   int get selectedIndex => _selectedIndex.value;
   bool get isPromoApplied => _isPromoApplied.value;
   bool get isApplyingPromo => _isApplyingPromo.value;
+  bool get isCheckingOut => _isCheckingOut.value;
   String get appliedPromoCode => _appliedPromoCode.value;
   set selected(int val) => _selected.value = val;
+
+  /// `plans[0]` is the annual plan and `plans[1]` the monthly plan.
+  String get _selectedTier => selectedIndex == 0 ? 'annual' : 'monthly';
 
   void onChange(int index) {
     _selectedIndex.value = index;
@@ -72,6 +78,34 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     _isPromoApplied.value = false;
     _appliedPromoCode.value = '';
     promoCodeController.clear();
+  }
+
+  /// Creates a Stripe checkout session for the app default trainer plan and,
+  /// on success, opens the returned payment URL inside an in-app webview.
+  Future<void> createDefaultCheckout({String? promoCode}) async {
+    if (isCheckingOut) return;
+    try {
+      _isCheckingOut.value = true;
+      final checkout = await _service.createDefaultCheckout(
+        tier: _selectedTier,
+        promoCode: promoCode,
+      );
+
+      final paymentUrl = checkout.paymentUrl;
+      if (paymentUrl == null || paymentUrl.isEmpty) {
+        ToastMessageHelper.show('Unable to start payment. Please try again.');
+        return;
+      }
+
+      promoCodeController.clear();
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.to(() => PaymentWebViewScreen(paymentUrl: paymentUrl));
+    } catch (e) {
+      ToastMessageHelper.show(e.errorMessage);
+      if (kDebugMode) debugPrint('createDefaultCheckout error: $e');
+    } finally {
+      _isCheckingOut.value = false;
+    }
   }
 
   // ─── Loading States ───────────────────────────────────────────────────────
