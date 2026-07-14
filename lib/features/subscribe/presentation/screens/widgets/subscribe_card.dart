@@ -69,7 +69,7 @@ class SubscribeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '\$${plan.price.toStringAsFixed(2)}',
+                  plan.displayPrice,
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
