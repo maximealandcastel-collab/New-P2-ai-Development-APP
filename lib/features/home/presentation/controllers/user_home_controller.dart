@@ -47,6 +47,7 @@ class UserHomeController extends GetxController {
       await Future.wait([
         _workoutController.fetchTodayWorkout(silent: true),
         _workoutController.fetchTodayOverview(silent: true),
+        _workoutController.fetchMonthlyProgression(silent: true),
         if (Get.isRegistered<ProfileController>()) ProfileController.to.loadData(),
       ]);
     } catch (e) {

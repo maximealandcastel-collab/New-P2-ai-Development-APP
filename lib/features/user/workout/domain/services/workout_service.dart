@@ -1,6 +1,7 @@
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 
 class WorkoutService {
@@ -32,6 +33,10 @@ class WorkoutService {
 
   Future<WorkoutTodayOverviewModel?> getTodayOverview() {
     return _repository.getTodayOverview();
+  }
+
+  Future<List<WorkoutProgressionModel>> getMonthlyProgression() {
+    return _repository.getMonthlyProgression();
   }
 
   Future<List<WorkoutModel>> getWorkouts({

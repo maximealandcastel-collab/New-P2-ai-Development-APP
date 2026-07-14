@@ -1,10 +1,39 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 
 class GymSection extends StatelessWidget {
   const GymSection({super.key});
+
+  Future<void> _openNearGymMap() async {
+    final Uri googleMapsUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=gyms+near+me");
+    final Uri appleMapsUrl = Uri.parse("https://maps.apple.com/?q=gyms+near+me");
+
+    try {
+      if (Platform.isIOS) {
+        if (await canLaunchUrl(appleMapsUrl)) {
+          await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
+          return;
+        }
+      }
+      
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        ToastMessageHelper.show('Could not open map application.');
+      }
+    } catch (e) {
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        ToastMessageHelper.show('Could not open maps: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +53,13 @@ class GymSection extends StatelessWidget {
                 Expanded(child: CustomText(
                   textAlign: TextAlign.start,
                   text: 'Gyms',fontWeight: FontWeight.w600,)),
-                CustomText(
-                    textAlign: TextAlign.start,
-                    text: 'View All',fontWeight: FontWeight.w600,color: AppColors.primary),
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _openNearGymMap,
+                  child: CustomText(
+                      textAlign: TextAlign.start,
+                      text: 'Near Gym',fontWeight: FontWeight.w600,color: AppColors.primary),
+                ),
               ],
             ),
           ),

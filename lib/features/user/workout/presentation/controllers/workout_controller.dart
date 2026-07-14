@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller
 import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -23,6 +24,7 @@ class WorkoutController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
   final Rxn<WorkoutTodayOverviewModel> todayOverview = Rxn<WorkoutTodayOverviewModel>();
+  final RxList<WorkoutProgressionModel> monthlyProgression = <WorkoutProgressionModel>[].obs;
   String? _detailsWorkoutId;
 
   String? get detailsWorkoutId => _detailsWorkoutId;
@@ -31,6 +33,7 @@ class WorkoutController extends GetxController {
   final Rx<LoadingState> _generateLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _todayWorkoutLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _todayOverviewLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _monthlyProgressionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _detailsLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _startSessionLoadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _completeSessionLoadingState = LoadingState.initial.obs;
@@ -41,6 +44,7 @@ class WorkoutController extends GetxController {
   LoadingState get generateLoadingState => _generateLoadingState.value;
   LoadingState get todayWorkoutLoadingState => _todayWorkoutLoadingState.value;
   LoadingState get todayOverviewLoadingState => _todayOverviewLoadingState.value;
+  LoadingState get monthlyProgressionLoadingState => _monthlyProgressionLoadingState.value;
   LoadingState get detailsLoadingState => _detailsLoadingState.value;
   LoadingState get startSessionLoadingState => _startSessionLoadingState.value;
   LoadingState get completeSessionLoadingState =>
@@ -116,6 +120,26 @@ class WorkoutController extends GetxController {
         _todayOverviewLoadingState.value = LoadingState.error;
       }
       if (kDebugMode) debugPrint('fetchTodayOverview error: $e');
+    }
+  }
+
+  Future<void> fetchMonthlyProgression({bool silent = false}) async {
+    if (!silent) {
+      if (_monthlyProgressionLoadingState.value.isLoading) return;
+      _monthlyProgressionLoadingState.value = LoadingState.loading;
+    }
+
+    try {
+      final progression = await _service.getMonthlyProgression();
+      monthlyProgression.assignAll(progression);
+      if (!silent) {
+        _monthlyProgressionLoadingState.value = LoadingState.loaded;
+      }
+    } catch (e) {
+      if (!silent) {
+        _monthlyProgressionLoadingState.value = LoadingState.error;
+      }
+      if (kDebugMode) debugPrint('fetchMonthlyProgression error: $e');
     }
   }
 
@@ -423,7 +447,6 @@ class WorkoutController extends GetxController {
       _markExerciseCompletedLocally(exerciseId);
       await refreshWorkoutDetailsSilently();
       await refreshTodayOverviewSilently();
-      ToastMessageHelper.show('Exercise marked as completed');
     } catch (e) {
       _completeExerciseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);

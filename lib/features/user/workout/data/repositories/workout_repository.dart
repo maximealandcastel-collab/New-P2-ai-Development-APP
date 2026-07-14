@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 
 class WorkoutRepository {
   WorkoutRepository({required ApiService apiService}) : _apiService = apiService;
@@ -77,6 +78,24 @@ class WorkoutRepository {
       if (payload == null || payload['data'] == null) return null;
 
       return WorkoutTodayOverviewModel.fromJson(payload);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  Future<List<WorkoutProgressionModel>> getMonthlyProgression() async {
+    try {
+      final response = await _apiService.get(ApiConstants.workoutProgressionMonthly);
+      final data = response.data;
+      if (data == null) return [];
+
+      final payload = data is Map ? Map<String, dynamic>.from(data) : null;
+      if (payload == null || payload['data'] == null) return [];
+
+      final list = payload['data'] as List;
+      return WorkoutProgressionModel.listFromJson(list);
     } on AppException {
       rethrow;
     } catch (e) {
