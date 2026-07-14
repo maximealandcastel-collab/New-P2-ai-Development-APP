@@ -77,7 +77,7 @@ class AppRoute {
   static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
   static String aiInstructionScreen = "/aiInstructionScreen";
   static String trainAiScreen = "/trainAiScreen";
-  static String trainerUpgradeScreen = "/trainerUpgradeScreen";
+  static String paymentDetailsScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
   static String promoCodeScreen = "/promoCodeScreen";
   static String bottonNavBar = "/bottonNavBar";
@@ -141,7 +141,7 @@ class AppRoute {
     ),
     GetPage(name: trainAiScreen, page: () => TrainAiScreen()),
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
-    GetPage(name: trainerUpgradeScreen, page: () => TrainerUpgradeScreen()),
+    GetPage(name: paymentDetailsScreen, page: () => PaymentDetailsScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: promoCodeScreen, page: () => const PromoCodeScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),

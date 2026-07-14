@@ -120,7 +120,7 @@ class SubscribeSelectScreen extends StatelessWidget {
           CustomButton(
             onPressed: () {
               if (SubscribeController.to.selected == 0) {
-                Get.toNamed(AppRoute.trainerUpgradeScreen);
+                Get.toNamed(AppRoute.paymentDetailsScreen);
               } else {
                 Get.toNamed(AppRoute.findTrainerScreen);
               }

@@ -8,14 +8,14 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/sub
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TrainerUpgradeScreen extends StatefulWidget {
-  const TrainerUpgradeScreen({super.key});
+class PaymentDetailsScreen extends StatefulWidget {
+  const PaymentDetailsScreen({super.key});
 
   @override
-  State<TrainerUpgradeScreen> createState() => _TrainerUpgradeScreenState();
+  State<PaymentDetailsScreen> createState() => _PaymentDetailsScreenState();
 }
 
-class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
+class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = SubscribeController.to;
