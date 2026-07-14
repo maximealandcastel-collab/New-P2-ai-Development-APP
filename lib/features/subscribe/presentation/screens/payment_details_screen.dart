@@ -5,7 +5,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/plan_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/promo_code_dialog.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -17,7 +16,6 @@ class TrainerUpgradeScreen extends StatefulWidget {
 }
 
 class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
-
   @override
   Widget build(BuildContext context) {
     final controller = SubscribeController.to;
@@ -32,13 +30,17 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                 Center(child: Assets.images.logo.image(height: 110.h)),
                 CustomText(
                   top: 10.h,
-                  text: 'Unlock Your Full\nAi Fitness Experience',fontSize: 26.sp,fontWeight: FontWeight.w600,),
-                
+                  text: 'Unlock Your Full\nAi Fitness Experience',
+                  fontSize: 26.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+
                 CustomText(
                   top: 10.h,
-                    bottom: 20.h,
-                    text: 'Get personalized plans, expert guidance\nand real results.'),
-
+                  bottom: 20.h,
+                  text:
+                      'Get personalized plans, expert guidance\nand real results.',
+                ),
 
                 CustomContainer(
                   paddingAll: 16.r,
@@ -55,36 +57,30 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                         shrinkWrap: true,
                         itemCount: PlanModel.plans.length,
                         itemBuilder: (context, index) {
-                          return Obx(
-                                  () {
-                                return SubscribeCard(
-                                    plan: PlanModel.plans[index],
-                                    isSelected: controller.selectedIndex == index,
-                                    onTap: () =>  controller.onChange(index)
-                                );
-                              }
-                          );
+                          return Obx(() {
+                            return SubscribeCard(
+                              plan: PlanModel.plans[index],
+                              isSelected: controller.selectedIndex == index,
+                              onTap: () => controller.onChange(index),
+                            );
+                          });
                         },
-                      )
+                      ),
                     ],
                   ),
                 ),
 
                 SizedBox(height: 20.h),
                 // Upgrade Button
-                CustomButton(onPressed: () {
-                  controller.promoCodeController.clear();
-                  Get.dialog(const PromoCodeDialog());
-                }, label: "Upgrade Now"),
+                CustomButton(onPressed: () {}, label: "Upgrade Now"),
                 SizedBox(height: 16.h),
-                CustomText(text:
-                'Cancel anytime • No hidden fees',
+                CustomText(
+                  text: 'Cancel anytime • No hidden fees',
                   fontSize: 12.sp,
                   color: AppColors.textSecondary,
                 ),
 
                 SizedBox(height: 20.h),
-
               ],
             ),
           ),
@@ -100,7 +96,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                   shape: BoxShape.circle,
                   paddingAll: 8.r,
                   color: Colors.white,
-                  child:  Assets.icons.clean.svg(),
+                  child: Assets.icons.clean.svg(),
                 ),
               ),
             ),
