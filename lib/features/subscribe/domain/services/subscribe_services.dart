@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/default_checkout_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/repositories/subscribe_repository.dart';
@@ -40,6 +41,16 @@ class SubscribeServices {
     required String note,
   }) async {
     return await _repository.trainerRequest(trainerId: trainerId, note: note);
+  }
+
+  Future<DefaultCheckoutModel> createDefaultCheckout({
+    required String tier,
+    String? promoCode,
+  }) async {
+    return await _repository.createDefaultCheckout(
+      tier: tier,
+      promoCode: promoCode,
+    );
   }
 
   bool hasCache() {

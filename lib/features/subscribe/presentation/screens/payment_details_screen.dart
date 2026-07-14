@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_success_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/plan_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/promo_code_dialog.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -73,7 +73,8 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                 SizedBox(height: 20.h),
                 // Upgrade Button
                 CustomButton(onPressed: () {
-                  Get.to(() => const PaymentSuccessScreen());
+                  controller.promoCodeController.clear();
+                  Get.dialog(const PromoCodeDialog());
                 }, label: "Upgrade Now"),
                 SizedBox(height: 16.h),
                 CustomText(text:

@@ -112,6 +112,9 @@ class ApiConstants {
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
   static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
 
+  /// PAYMENT ──────────────────────────────────────────────
+  static const String defaultCheckout = '/api/v1/payment/checkout/default';
+
   /// ANAM VIDEO CALL ──────────────────────────────────────────────
   static const String anamUsage = '/api/v1/anam/usage';
   static const String anamSessionStart = '/api/v1/anam/session/start';

@@ -64,7 +64,15 @@ class ProfileService {
     return _repository.hasTrainerCache();
   }
 
-  Future<String> resolveInitialRoute() async {
+  /// Resolves where to land after login / app start.
+  ///
+  /// [isProfileCompleted] and [isSubscribed] come from the login response when
+  /// available; when omitted (e.g. splash auto-login) the cached profile is
+  /// used and subscription gating is skipped.
+  Future<String> resolveInitialRoute({
+    bool? isProfileCompleted,
+    bool? isSubscribed,
+  }) async {
     try {
       await fetchUserProfile();
     } on AppException {
@@ -74,9 +82,15 @@ class ProfileService {
     }
 
     final user = getCachedUserData();
-    if (user?.onboardingCompleted == true) {
-        return AppRoute.bottonNavBar;
+    final profileDone =
+        isProfileCompleted ?? (user?.onboardingCompleted == true);
+
+    if (!profileDone) {
+      return AppRoute.userCompleteProfileScreen;
     }
-    return AppRoute.userCompleteProfileScreen;
+    if (isSubscribed == false) {
+      return AppRoute.subscribeSelectScreen;
+    }
+    return AppRoute.bottonNavBar;
   }
 }

@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/features/authentication/data/models/login_result_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
 
@@ -57,7 +58,7 @@ class AuthRepository {
 
   // ─── Login ───────────────────────────────
 
-  Future<String> login({
+  Future<LoginResultModel> login({
     required String email,
     required String password,
   }) async {
@@ -68,20 +69,22 @@ class AuthRepository {
       );
 
       final responseData = response.data?['data'];
-      final accessToken = responseData?['token']?.toString();
+      final result = LoginResultModel.fromJson(
+        Map<String, dynamic>.from(responseData ?? {}),
+      );
       final userRole = responseData?['user']?['role']?.toString();
 
-      if (accessToken == null) {
+      if (result.token.isEmpty) {
         throw UnknownException('Access token not found');
       }
 
       await Future.wait([
-        _cacheService.put(AppConstants.accessToken, accessToken),
+        _cacheService.put(AppConstants.accessToken, result.token),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
       ]);
 
-      return accessToken;
+      return result;
     } on AppException {
       rethrow;
     } catch (e) {

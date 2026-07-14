@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/authentication/data/models/login_result_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_repository.dart';
@@ -8,7 +9,7 @@ class AuthService {
   AuthService({required AuthRepository repository}) : _repository = repository;
 
   /// ─── LOGIN ─────────────────────────────
-  Future<String> login({
+  Future<LoginResultModel> login({
     required String email,
     required String password,
   }) async {
