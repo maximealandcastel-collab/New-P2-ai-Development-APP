@@ -97,7 +97,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                   final isBuying = controller.isPurchasing;
 
                   return CustomButton(
-                    onPressed: isBuying ? null : () => controller.buySelectedPlan(),
+                    onPressed:  () => controller.buySelectedPlan(),
                     isLoading: isBuying,
                     label:  'Upgrade Now',);
                 }),
