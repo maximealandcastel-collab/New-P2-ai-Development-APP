@@ -49,13 +49,15 @@ class PaymentDetailsScreen extends StatelessWidget {
 
                       // ── Plan Cards ──────────────────────────────────────
                       Obx(() {
+                        final iapProducts = controller.products;
+                        final selectedIndex = controller.selectedIndex;
+
                         return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: PlanModel.plans.length,
                           itemBuilder: (context, index) {
                             // Merge store price when available
-                            final iapProducts = controller.products;
                             final plan = PlanModel.plans[index];
                             final productId =
                                 index == 0 ? kProductAnnual : kProductMonthly;
@@ -76,12 +78,10 @@ class PaymentDetailsScreen extends StatelessWidget {
                                     )
                                     : plan;
 
-                            return Obx(
-                              () => SubscribeCard(
-                                plan: displayPlan,
-                                isSelected: controller.selectedIndex == index,
-                                onTap: () => controller.onChange(index),
-                              ),
+                            return SubscribeCard(
+                              plan: displayPlan,
+                              isSelected: selectedIndex == index,
+                              onTap: () => controller.onChange(index),
                             );
                           },
                         );
@@ -97,9 +97,10 @@ class PaymentDetailsScreen extends StatelessWidget {
                   final isBuying = controller.isPurchasing;
 
                   return CustomButton(
-                    onPressed:  () => controller.buySelectedPlan(),
+                    onPressed: isBuying ? null : () => controller.buySelectedPlan(),
                     isLoading: isBuying,
-                    label:  'Upgrade Now',);
+                    label: 'Upgrade Now',
+                  );
                 }),
 
                 SizedBox(height: 16.h),
