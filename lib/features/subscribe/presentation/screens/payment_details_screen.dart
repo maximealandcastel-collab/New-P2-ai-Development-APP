@@ -49,17 +49,6 @@ class PaymentDetailsScreen extends StatelessWidget {
 
                       // ── Plan Cards ──────────────────────────────────────
                       Obx(() {
-                        final iapState = controller.iapLoadingState;
-
-                        if (iapState == LoadingState.loading) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-
                         return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
@@ -106,39 +95,11 @@ class PaymentDetailsScreen extends StatelessWidget {
                 // ── Upgrade Button ────────────────────────────────────────
                 Obx(() {
                   final isBuying = controller.isPurchasing;
-                  final iapAvailable = controller.iapAvailable;
-                  final iapLoaded =
-                      controller.iapLoadingState == LoadingState.loaded;
 
                   return CustomButton(
-                    onPressed:
-                        (isBuying || !iapAvailable || !iapLoaded)
-                            ? null
-                            : () => controller.buySelectedPlan(),
-                    label: isBuying ? 'Processing...' : 'Upgrade Now',
-                    child:
-                        isBuying
-                            ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 18.w,
-                                  height: 18.h,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(width: 10.w),
-                                CustomText(
-                                  text: 'Processing...',
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ],
-                            )
-                            : null,
-                  );
+                    onPressed: isBuying ? null : () => controller.buySelectedPlan(),
+                    isLoading: isBuying,
+                    label:  'Upgrade Now',);
                 }),
 
                 SizedBox(height: 16.h),

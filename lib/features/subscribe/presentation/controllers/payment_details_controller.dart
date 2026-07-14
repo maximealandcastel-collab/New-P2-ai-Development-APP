@@ -21,7 +21,7 @@ class PaymentDetailsController extends GetxController {
   final RxInt _selectedIndex = 0.obs;
 
   bool get iapAvailable => _iapAvailable.value;
-  List<ProductDetails> get products => _products;
+  RxList<ProductDetails> get products => _products;
   bool get isPurchasing => _isPurchasing.value;
   LoadingState get iapLoadingState => _iapLoadingState.value;
   int get selectedIndex => _selectedIndex.value;
