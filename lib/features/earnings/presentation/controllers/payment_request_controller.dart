@@ -22,8 +22,6 @@ class PaymentRequestController extends GetxController {
   final selectedMethod = 'stripe'.obs; // 'stripe' or 'paypal'
 
   // TextEditingControllers for forms
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
   final identifierController = TextEditingController();
   final amountController = TextEditingController();
   final noteController = TextEditingController();
@@ -55,8 +53,6 @@ class PaymentRequestController extends GetxController {
       _requestState.value = LoadingState.loaded;
       Get.back(canPop: true);
       Get.back(canPop: true);
-      nameController.clear();
-      emailController.clear();
       identifierController.clear();
       amountController.clear();
       noteController.clear();
@@ -69,8 +65,6 @@ class PaymentRequestController extends GetxController {
 
   @override
   void onClose() {
-    nameController.dispose();
-    emailController.dispose();
     identifierController.dispose();
     amountController.dispose();
     noteController.dispose();

@@ -55,38 +55,6 @@ class PaymentRequestScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Account Name
-                CustomTextField(
-                  labelColor: AppColors.textPrimary,
-                  labelText: 'Account name',
-                  controller: controller.nameController,
-                  hintText: 'Write here...',
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter account name';
-                    }
-                    return null;
-                  },
-                ),
-
-                // 2. Account Email
-                CustomTextField(
-                  labelColor: AppColors.textPrimary,
-                  labelText: 'Account email',
-                  controller: controller.emailController,
-                  hintText: 'eg: john@gmail.com',
-                  isEmail: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter account email';
-                    }
-                    if (!GetUtils.isEmail(value.trim())) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
-                ),
-
                 // 3. Payment Method
                 CustomText(
                   text: 'Payment method',
