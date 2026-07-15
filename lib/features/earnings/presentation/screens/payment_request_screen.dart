@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/earnings/presentation/controllers/payment_request_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -158,7 +159,7 @@ class PaymentRequestScreen extends StatelessWidget {
                   label: 'Save',
                   backgroundColor: AppColors.primary,
                   radius: 30.r,
-                  isLoading: controller.isLoading.value,
+                  isLoading: controller.requestState.isLoading,
                 );
               }),
             ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/earnings/domain/services/withdrawal_service.dart';
 
@@ -11,14 +11,18 @@ class PaymentRequestController extends GetxController {
 
   static PaymentRequestController get to => Get.find();
 
-  // State variables (all .obs)
+  // ─── State ───────────────────────────────
+  final _requestState = LoadingState.initial.obs;
+  LoadingState get requestState => _requestState.value;
+
+  final formKey = GlobalKey<FormState>();
+
   final accountName = ''.obs;
   final accountEmail = ''.obs;
   final selectedMethod = 'stripe'.obs; // 'stripe' or 'paypal'
   final paymentIdentifier = ''.obs; // email OR stripeAccountId depending on method
   final amount = ''.obs;
   final note = ''.obs;
-  final isLoading = false.obs;
 
   // TextEditingControllers for forms
   final nameController = TextEditingController();
@@ -45,65 +49,10 @@ class PaymentRequestController extends GetxController {
     paymentIdentifier.value = '';
   }
 
-  bool _validateFields() {
-    if (accountName.value.trim().isEmpty) {
-      _showValidationError('Account Name is required');
-      return false;
-    }
-    
-    final email = accountEmail.value.trim();
-    if (email.isEmpty) {
-      _showValidationError('Account Email is required');
-      return false;
-    }
-    if (!AppConstants.emailValidate.hasMatch(email)) {
-      _showValidationError('Please enter a valid Account Email');
-      return false;
-    }
-
-    final identifier = paymentIdentifier.value.trim();
-    if (identifier.isEmpty) {
-      final label = selectedMethod.value == 'stripe' ? 'Stripe Account ID' : 'Payment Email';
-      _showValidationError('$label is required');
-      return false;
-    }
-    if (selectedMethod.value == 'paypal' && !AppConstants.emailValidate.hasMatch(identifier)) {
-      _showValidationError('Please enter a valid PayPal Payment Email');
-      return false;
-    }
-
-    final amtStr = amount.value.trim();
-    if (amtStr.isEmpty) {
-      _showValidationError('Amount is required');
-      return false;
-    }
-    
-    final parsedAmt = double.tryParse(amtStr);
-    if (parsedAmt == null || parsedAmt <= 0) {
-      _showValidationError('Amount must be a valid positive number');
-      return false;
-    }
-
-    return true;
-  }
-
-  void _showValidationError(String message) {
-    Get.snackbar(
-      'Validation Error',
-      message,
-      backgroundColor: AppColors.primary,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
-  }
-
   Future<void> submitWithdrawal() async {
-    if (isLoading.value) return;
-    if (!_validateFields()) return;
+    if (_requestState.value == LoadingState.loading) return;
 
-    isLoading.value = true;
+    _requestState.value = LoadingState.loading;
 
     try {
       final parsedAmount = double.parse(amount.value.trim());
@@ -123,6 +72,12 @@ class PaymentRequestController extends GetxController {
 
       await _service.submitWithdrawal(body);
 
+      _requestState.value = LoadingState.loaded;
+
+      // Close the confirmation dialog
+      Get.back();
+
+      // Show success toast/snackbar
       Get.snackbar(
         'Success',
         'Payment request submitted successfully!',
@@ -133,11 +88,17 @@ class PaymentRequestController extends GetxController {
         borderRadius: 12,
       );
 
-      // Go back after a brief delay to allow user to see the success message
+      // Go back from the payment screen after a brief delay
       Future.delayed(const Duration(milliseconds: 1500), () {
         Get.back();
       });
     } catch (e) {
+      _requestState.value = LoadingState.error;
+      
+      // Close the confirmation dialog to allow correction
+      Get.back();
+
+      // Show error snackbar
       Get.snackbar(
         'Error',
         e.toString(),
@@ -147,8 +108,6 @@ class PaymentRequestController extends GetxController {
         margin: const EdgeInsets.all(16),
         borderRadius: 12,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 
