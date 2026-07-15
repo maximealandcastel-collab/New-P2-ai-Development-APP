@@ -35,6 +35,9 @@ import 'package:pler_to_pler_app/features/home/presentation/controllers/user_hom
 import 'package:pler_to_pler_app/features/home/data/repositories/trainer_dashboard_repository.dart';
 import 'package:pler_to_pler_app/features/home/domain/services/trainer_dashboard_service.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
+import 'package:pler_to_pler_app/features/settings/data/repositories/earnings_repository.dart';
+import 'package:pler_to_pler_app/features/settings/domain/services/earnings_service.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
@@ -354,6 +357,24 @@ class DependencyInjection {
     Get.lazyPut<TrainerHomeController>(
       () => TrainerHomeController(
         service: Get.find<TrainerDashboardService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsRepository>(
+      () => EarningsRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsService>(
+      () => EarningsService(repository: Get.find<EarningsRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsController>(
+      () => EarningsController(
+        service: Get.find<EarningsService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
