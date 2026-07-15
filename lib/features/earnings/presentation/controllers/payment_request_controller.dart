@@ -16,13 +16,7 @@ class PaymentRequestController extends GetxController {
   LoadingState get requestState => _requestState.value;
 
   final formKey = GlobalKey<FormState>();
-
-  final accountName = ''.obs;
-  final accountEmail = ''.obs;
   final selectedMethod = 'stripe'.obs; // 'stripe' or 'paypal'
-  final paymentIdentifier = ''.obs; // email OR stripeAccountId depending on method
-  final amount = ''.obs;
-  final note = ''.obs;
 
   // TextEditingControllers for forms
   final nameController = TextEditingController();
@@ -34,12 +28,6 @@ class PaymentRequestController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Synchronize text controllers with obs variables
-    nameController.addListener(() => accountName.value = nameController.text);
-    emailController.addListener(() => accountEmail.value = emailController.text);
-    identifierController.addListener(() => paymentIdentifier.value = identifierController.text);
-    amountController.addListener(() => amount.value = amountController.text);
-    noteController.addListener(() => note.value = noteController.text);
   }
 
   void selectMethod(String method) {
