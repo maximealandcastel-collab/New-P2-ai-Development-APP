@@ -16,36 +16,34 @@ class PaymentRequestScreen extends StatelessWidget {
 
     return SliverScaffold(
       appBar: const CustomSliverAppBar(title: 'Payment request'),
-      bottomNavigationBar: Obx(() {
-        return CustomButton(
-          onPressed: () {
-            if (controller.formKey.currentState?.validate() ?? false) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return Obx(
-                    () => CustomDialog(
-                      title: 'Confirm Payment',
-                      description: 'Are you sure you want to submit this payment request?',
-                      titleColor: AppColors.primary,
-                      rightButtonLabel: 'Confirm',
-                      rightButtonBgColor: AppColors.primary,
-                      isLoading: controller.requestState.isLoading,
-                      onTapLeftButton: () => Get.back(),
-                      onTapRightButton: () {
-                        controller.submitWithdrawal();
-                      },
-                    ),
-                  );
-                },
-              );
-            }
-          },
-          label: 'Save',
-          backgroundColor: AppColors.primary,
-          radius: 30.r,
-        );
-      }),
+      bottomNavigationBar: CustomButton(
+        onPressed: () {
+          if (controller.formKey.currentState?.validate() ?? false) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return Obx(
+                  () => CustomDialog(
+                    title: 'Confirm Payment',
+                    description: 'Are you sure you want to submit this payment request?',
+                    titleColor: AppColors.primary,
+                    rightButtonLabel: 'Confirm',
+                    rightButtonBgColor: AppColors.primary,
+                    isLoading: controller.requestState.isLoading,
+                    onTapLeftButton: () => Get.back(),
+                    onTapRightButton: () {
+                      controller.submitWithdrawal();
+                    },
+                  ),
+                );
+              },
+            );
+          }
+        },
+        label: 'Save',
+        backgroundColor: AppColors.primary,
+        radius: 30.r,
+      ),
       bodyList: [
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 40.h),
