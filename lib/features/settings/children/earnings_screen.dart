@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/transation_history_widget.dart';
@@ -132,7 +133,9 @@ class EarningsScreen extends StatelessWidget {
       ),
       bodyList: _buildSlivers(context, controller),
       bottomNavigationBar: CustomButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.toNamed(AppRoute.paymentRequestScreen);
+        },
         label: 'Withdraw',
         width: double.infinity,
       ),

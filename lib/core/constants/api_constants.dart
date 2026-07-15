@@ -118,6 +118,7 @@ class ApiConstants {
   static const String trainerEarnings = '/api/v1/withdrawal/earnings';
   static String trainerPayments({required int page, required int limit}) =>
       '/api/v1/withdrawal/payments?page=$page&limit=$limit';
+  static const String withdrawal = '/api/v1/withdrawal';
 
   /// PAYMENT ──────────────────────────────────────────────
   static const String defaultCheckout = '/api/v1/payment/checkout/default';

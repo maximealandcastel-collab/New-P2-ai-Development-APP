@@ -11,6 +11,7 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_p
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/ai_video_chat_connect_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
+import 'package:pler_to_pler_app/features/earnings/presentation/screens/payment_request_screen.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_call_controller.dart';
@@ -110,6 +111,7 @@ class AppRoute {
   static String workoutScreen = "/workoutScreen";
   static String workoutGeneratingScreen = "/workoutGeneratingScreen";
   static String workoutPlanDetailsScreen = "/workoutPlanDetailsScreen";
+  static String paymentRequestScreen = "/paymentRequestScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -149,6 +151,7 @@ class AppRoute {
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
+    GetPage(name: paymentRequestScreen, page: () => const PaymentRequestScreen()),
     GetPage(
       name: aiVideoChatConnectScreen,
       page: () => const AiVideoChatConnectScreen(),

@@ -38,6 +38,9 @@ import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_
 import 'package:pler_to_pler_app/features/settings/data/repositories/earnings_repository.dart';
 import 'package:pler_to_pler_app/features/settings/domain/services/earnings_service.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
+import 'package:pler_to_pler_app/features/earnings/data/repositories/withdrawal_repository.dart';
+import 'package:pler_to_pler_app/features/earnings/domain/services/withdrawal_service.dart';
+import 'package:pler_to_pler_app/features/earnings/presentation/controllers/payment_request_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
@@ -377,6 +380,18 @@ class DependencyInjection {
         service: Get.find<EarningsService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
+      fenix: true,
+    );
+    Get.lazyPut<WithdrawalRepository>(
+      () => WithdrawalRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<WithdrawalService>(
+      () => WithdrawalService(repository: Get.find<WithdrawalRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<PaymentRequestController>(
+      () => PaymentRequestController(service: Get.find<WithdrawalService>()),
       fenix: true,
     );
     Get.lazyPut<HistoryController>(
