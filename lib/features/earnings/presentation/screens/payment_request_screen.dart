@@ -16,153 +16,213 @@ class PaymentRequestScreen extends StatelessWidget {
 
     return SliverScaffold(
       appBar: const CustomSliverAppBar(title: 'Payment request'),
+      bottomNavigationBar: Obx(() {
+        return CustomButton(
+          onPressed: () {
+            if (controller.formKey.currentState?.validate() ?? false) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Obx(
+                    () => CustomDialog(
+                      title: 'Confirm Payment',
+                      description: 'Are you sure you want to submit this payment request?',
+                      titleColor: AppColors.primary,
+                      rightButtonLabel: 'Confirm',
+                      rightButtonBgColor: AppColors.primary,
+                      isLoading: controller.requestState.isLoading,
+                      onTapLeftButton: () => Get.back(),
+                      onTapRightButton: () {
+                        controller.submitWithdrawal();
+                      },
+                    ),
+                  );
+                },
+              );
+            }
+          },
+          label: 'Save',
+          backgroundColor: AppColors.primary,
+          radius: 30.r,
+          isLoading: controller.requestState.isLoading,
+        );
+      }),
       bodyList: [
         Padding(
           padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 40.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Account Name
-              CustomTextField(
-                labelColor: AppColors.textPrimary,
-                labelText: 'Account name',
-                controller: controller.nameController,
-                hintText: 'Write here...',
-              ),
+          child: Form(
+            key: controller.formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Account Name
+                CustomTextField(
+                  labelColor: AppColors.textPrimary,
+                  labelText: 'Account name',
+                  controller: controller.nameController,
+                  hintText: 'Write here...',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter account name';
+                    }
+                    return null;
+                  },
+                ),
 
-              // 2. Account Email
-              CustomTextField(
-                labelColor: AppColors.textPrimary,
-                labelText: 'Account email',
-                controller: controller.emailController,
-                hintText: 'eg: john@gmail.com',
-              ),
+                // 2. Account Email
+                CustomTextField(
+                  labelColor: AppColors.textPrimary,
+                  labelText: 'Account email',
+                  controller: controller.emailController,
+                  hintText: 'eg: john@gmail.com',
+                  isEmail: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter account email';
+                    }
+                    if (!GetUtils.isEmail(value.trim())) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
 
-              // 3. Payment Method
-              CustomText(
-                text: 'Payment method',
-                fontWeight: FontWeight.w600,
-                fontSize: 14.sp,
-                color: AppColors.textPrimary,
-                bottom: 8.h,
-                top: 16.h,
-                textAlign: TextAlign.start,
-              ),
-              Obx(() {
-                final isStripeSelected =
-                    controller.selectedMethod.value == 'stripe';
-                final isPaypalSelected =
-                    controller.selectedMethod.value == 'paypal';
+                // 3. Payment Method
+                CustomText(
+                  text: 'Payment method',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                  color: AppColors.textPrimary,
+                  bottom: 8.h,
+                  top: 16.h,
+                  textAlign: TextAlign.start,
+                ),
+                Obx(() {
+                  final isStripeSelected =
+                      controller.selectedMethod.value == 'stripe';
+                  final isPaypalSelected =
+                      controller.selectedMethod.value == 'paypal';
 
-                return Column(
-                  children: [
-                    // Stripe Selectable Card
-                    _buildMethodCard(
-                      label: 'Stripe',
-                      isSelected: isStripeSelected,
-                      onTap: () => controller.selectMethod('stripe'),
-                      icon: Container(
-                        width: 32.r,
-                        height: 32.r,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF635BFF),
-                          // Stripe blue/purple brand color
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: CustomText(
-                          text: 'S',
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                    ),
-
-                    // PayPal Selectable Card
-                    _buildMethodCard(
-                      label: 'Paypal',
-                      isSelected: isPaypalSelected,
-                      onTap: () => controller.selectMethod('paypal'),
-                      icon: Container(
-                        width: 32.r,
-                        height: 32.r,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF003087),
-                          // PayPal dark blue brand color
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: CustomText(
-                          text: 'P',
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-
-              // 4. Conditional Field based on selected method
-              Obx(() {
-                final method = controller.selectedMethod.value;
-                final isStripe = method == 'stripe';
-
-                return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Column(
-                    key: ValueKey(method),
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  return Column(
                     children: [
-                      CustomTextField(
-                        labelColor: AppColors.textPrimary,
-                        labelText: isStripe
-                            ? 'Stripe Account ID'
-                            : 'Payment Email',
-                        controller: controller.identifierController,
-                        hintText: isStripe
-                            ? 'eg: acct_xxxxx'
-                            : 'eg: john@gmail.com',
+                      // Stripe Selectable Card
+                      _buildMethodCard(
+                        label: 'Stripe',
+                        isSelected: isStripeSelected,
+                        onTap: () => controller.selectMethod('stripe'),
+                        icon: Container(
+                          width: 32.r,
+                          height: 32.r,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF635BFF),
+                            // Stripe blue/purple brand color
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: CustomText(
+                            text: 'S',
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ),
+
+                      // PayPal Selectable Card
+                      _buildMethodCard(
+                        label: 'Paypal',
+                        isSelected: isPaypalSelected,
+                        onTap: () => controller.selectMethod('paypal'),
+                        icon: Container(
+                          width: 32.r,
+                          height: 32.r,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF003087),
+                            // PayPal dark blue brand color
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: CustomText(
+                            text: 'P',
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16.sp,
+                          ),
+                        ),
                       ),
                     ],
+                  );
+                }),
+
+                // 4. Conditional Field based on selected method
+                Obx(() {
+                  final method = controller.selectedMethod.value;
+                  final isStripe = method == 'stripe';
+
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Column(
+                      key: ValueKey(method),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          labelColor: AppColors.textPrimary,
+                          labelText: isStripe
+                              ? 'Stripe Account ID'
+                              : 'Payment Email',
+                          controller: controller.identifierController,
+                          hintText: isStripe
+                              ? 'eg: acct_xxxxx'
+                              : 'eg: john@gmail.com',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return isStripe
+                                  ? 'Please enter Stripe Account ID'
+                                  : 'Please enter Payment Email';
+                            }
+                            if (!isStripe && !GetUtils.isEmail(value.trim())) {
+                              return 'Please enter a valid payment email';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+
+                // 5. Amount
+                CustomTextField(
+                  labelColor: AppColors.textPrimary,
+                  labelText: 'Amount',
+                  controller: controller.amountController,
+                  hintText: 'Eg: \$500',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
                   ),
-                );
-              }),
-
-              // 5. Amount
-              CustomTextField(
-                labelColor: AppColors.textPrimary,
-                labelText: 'Amount',
-                controller: controller.amountController,
-                hintText: 'Eg: \$500',
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter amount';
+                    }
+                    final amount = double.tryParse(value.trim());
+                    if (amount == null || amount <= 0) {
+                      return 'Please enter a valid amount greater than 0';
+                    }
+                    return null;
+                  },
                 ),
-              ),
 
-              // 6. Note / Any additional information
-              CustomTextField(
-                labelColor: AppColors.textPrimary,
-                labelText: 'Note / Any additional information',
-                controller: controller.noteController,
-                hintText: 'Write here...',
-              ),
+                // 6. Note / Any additional information
+                CustomTextField(
+                  labelColor: AppColors.textPrimary,
+                  labelText: 'Note / Any additional information',
+                  controller: controller.noteController,
+                  hintText: 'Write here...',
+                ),
 
-              SizedBox(height: 30.h),
-
-              // 7. Save Button
-              Obx(() {
-                return CustomButton(
-                  onPressed: controller.submitWithdrawal,
-                  label: 'Save',
-                  backgroundColor: AppColors.primary,
-                  radius: 30.r,
-                  isLoading: controller.requestState.isLoading,
-                );
-              }),
-            ],
+                SizedBox(height: 30.h),
+              ],
+            ),
           ),
         ).asSliver,
       ],
