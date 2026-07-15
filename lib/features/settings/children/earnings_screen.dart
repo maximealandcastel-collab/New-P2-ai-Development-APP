@@ -21,6 +21,7 @@ class EarningsScreen extends StatelessWidget {
     final controller = Get.find<EarningsController>();
 
     return SliverScaffold(
+      refreshEdgeOffset: MediaQuery.heightOf(context) * 0.15,
       onRefresh: controller.refresh,
       paginationList: controller.paymentsList,
       appBar: CustomSliverAppBar(
