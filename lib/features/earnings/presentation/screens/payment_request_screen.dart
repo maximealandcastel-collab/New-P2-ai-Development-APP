@@ -44,7 +44,6 @@ class PaymentRequestScreen extends StatelessWidget {
           label: 'Save',
           backgroundColor: AppColors.primary,
           radius: 30.r,
-          isLoading: controller.requestState.isLoading,
         );
       }),
       bodyList: [
