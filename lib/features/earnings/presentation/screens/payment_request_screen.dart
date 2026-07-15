@@ -208,7 +208,7 @@ class PaymentRequestScreen extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: isSelected ? AppColors.primary : const Color(0xFFCCCCCC),
+          color: isSelected ? AppColors.primary : AppColors.textSecondary,
           width: 2.r,
         ),
       ),
