@@ -61,8 +61,9 @@ class GymCardWidget extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
             child: CustomButton(
+              backgroundColor: AppColors.textSecondary.withValues(alpha: 0.7),
               onPressed: onJoinPressed,
-              label: 'Join',
+              label: 'Disable',
               width: 50.w,
               height: 15.h,
               fontSize: 8.sp,
