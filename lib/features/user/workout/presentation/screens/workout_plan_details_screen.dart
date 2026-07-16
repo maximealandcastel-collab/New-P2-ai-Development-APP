@@ -39,7 +39,7 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
                     ? 'Complete Session'
                     : 'Session Start',
                 isLoading: controller.isSessionInProgress
-                    ? controller.completeSessionLoadingState.isLoading
+                    ? false
                     : controller.startSessionLoadingState.isLoading,
                 onPressed: controller.onSessionAction,
               )

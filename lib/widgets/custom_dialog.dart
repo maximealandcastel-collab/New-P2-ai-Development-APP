@@ -4,12 +4,14 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class CustomDialog extends StatelessWidget {
-  final String title, description;
+  final String title;
+  final String?  description;
   final String? leftButtonLabel;
   final String? rightButtonLabel;
   final Color? rightButtonBgColor, rightButtonLabelColor;
   final Color? leftButtonBgColor, leftButtonLabelColor;
   final Color? titleColor;
+  final Widget? content;
   final VoidCallback onTapLeftButton;
   final VoidCallback onTapRightButton;
   final bool isLoading;
@@ -25,7 +27,8 @@ class CustomDialog extends StatelessWidget {
     this.rightButtonLabelColor = Colors.white,
     this.leftButtonBgColor = Colors.transparent,
     this.leftButtonLabelColor = AppColors.primary,
-    required this.description,
+    this.description,
+    this.content,
     this.titleColor = AppColors.error,
     this.isLoading = false,
   });
@@ -52,14 +55,16 @@ class CustomDialog extends StatelessWidget {
                 SizedBox(height: 6.h),
 
                 // Description Text
+                if(description != null)
                 CustomText(
                   left: 10.w,
                   right: 10.w,
-                  text: description,
+                  text: description!,
                   fontSize: 16.sp,
                   color: AppColors.textSecondary,
                   maxline: 2,
                 ),
+                ?content,
                 SizedBox(height: 32.h),
 
                 // Buttons

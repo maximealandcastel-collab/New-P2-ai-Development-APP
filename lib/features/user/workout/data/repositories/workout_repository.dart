@@ -130,10 +130,18 @@ class WorkoutRepository {
     }
   }
 
-  Future<void> completeWorkout(String workoutId) async {
+  Future<void> completeWorkout(
+    String workoutId, {
+    required String checkInResponse,
+    required int actualDurationMinutes,
+  }) async {
     try {
-      await _apiService.patch(
+      await _apiService.post(
         ApiConstants.workoutExerciseComplete(workoutId),
+        data: {
+          'checkInResponse': checkInResponse,
+          'actualDurationMinutes': actualDurationMinutes,
+        },
       );
     } on AppException {
       rethrow;

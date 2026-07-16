@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction_screen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
@@ -302,11 +303,13 @@ class AppRoute {
       page: () => const WorkoutPlanDetailsScreen(),
       binding: BindingsBuilder(() {
         final args = Get.arguments;
-        if (args is WorkoutModel) {
-          WorkoutController.to.initWorkoutDetails(args);
-        } else if (args is String && args.isNotEmpty) {
-          WorkoutController.to.fetchWorkoutById(args);
-        }
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (args is WorkoutModel) {
+            WorkoutController.to.initWorkoutDetails(args);
+          } else if (args is String && args.isNotEmpty) {
+            WorkoutController.to.fetchWorkoutById(args);
+          }
+        });
       }),
     ),
   ];

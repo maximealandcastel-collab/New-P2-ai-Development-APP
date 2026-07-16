@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
@@ -22,6 +23,8 @@ class WorkoutController extends GetxController {
   static WorkoutController get to => Get.find();
 
   final formKey = GlobalKey<FormState>();
+  final checkInResponseController = TextEditingController();
+  final actualDurationController = TextEditingController();
   final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
   final Rxn<WorkoutTodayOverviewModel> todayOverview = Rxn<WorkoutTodayOverviewModel>();
   final RxList<WorkoutProgressionModel> monthlyProgression = <WorkoutProgressionModel>[].obs;
@@ -196,15 +199,15 @@ class WorkoutController extends GetxController {
   }
 
   void openFullWorkoutPlan() {
-    final workout = workoutDetails.value;
-    if (workout == null) {
+    final workoutId = workoutDetails.value?.id;
+    if (workoutId == null || workoutId.isEmpty) {
       ToastMessageHelper.show('Workout plan not available');
       return;
     }
 
     Get.toNamed(
       AppRoute.workoutPlanDetailsScreen,
-      arguments: workout,
+      arguments: workoutId,
     );
   }
 
@@ -366,16 +369,32 @@ class WorkoutController extends GetxController {
   }
 
   void showCompleteSessionDialog() {
-    final checkInQuestion = plan?.checkInQuestion?.trim();
-    final description = checkInQuestion?.isNotEmpty == true
-        ? checkInQuestion!
-        : 'Are you sure you want to complete today\'s session?';
+    checkInResponseController.clear();
+    actualDurationController.clear();
 
     Get.dialog(
       Obx(
         () => CustomDialog(
-          title: 'Complete Session',
-          description: description,
+          title: 'Mark this session as completed',
+          description: "Did you complete today's session? What loads did you use and how hard was it (RPE 1-10)? Any pain or equipment issues?",
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomTextField(
+                controller: checkInResponseController,
+                contentPaddingVertical: 8.h,
+                hintText: 'what did you do?',
+                maxLines: 3,
+                minLines: 3,
+              ),
+              SizedBox(height: 12.h),
+              CustomTextField(
+                controller: actualDurationController,
+                hintText: 'actual duration (minutes)',
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
           titleColor: AppColors.primary,
           rightButtonLabel: 'Complete',
           rightButtonBgColor: AppColors.primary,
@@ -396,12 +415,30 @@ class WorkoutController extends GetxController {
       return;
     }
 
+    final checkInResponse = checkInResponseController.text.trim();
+    if (checkInResponse.isEmpty) {
+      ToastMessageHelper.show('Please describe what you did in this session');
+      return;
+    }
+
+    final actualDurationMinutes = int.tryParse(
+      actualDurationController.text.trim(),
+    );
+    if (actualDurationMinutes == null || actualDurationMinutes <= 0) {
+      ToastMessageHelper.show('Please enter a valid duration in minutes');
+      return;
+    }
+
     if (_completeSessionLoadingState.value.isLoading) return;
 
     _completeSessionLoadingState.value = LoadingState.loading;
 
     try {
-      await _service.completeWorkout(workoutId);
+      await _service.completeWorkout(
+        workoutId,
+        checkInResponse: checkInResponse,
+        actualDurationMinutes: actualDurationMinutes,
+      );
       workoutDetails.value?.status = 'completed';
       workoutDetails.refresh();
       _completeSessionLoadingState.value = LoadingState.loaded;
@@ -476,5 +513,12 @@ class WorkoutController extends GetxController {
         return;
       }
     }
+  }
+
+  @override
+  void onClose() {
+    checkInResponseController.dispose();
+    actualDurationController.dispose();
+    super.onClose();
   }
 }

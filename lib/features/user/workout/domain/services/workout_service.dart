@@ -59,8 +59,16 @@ class WorkoutService {
     return _repository.startWorkout(workoutId);
   }
 
-  Future<void> completeWorkout(String workoutId) {
-    return _repository.completeWorkout(workoutId);
+  Future<void> completeWorkout(
+    String workoutId, {
+    required String checkInResponse,
+    required int actualDurationMinutes,
+  }) {
+    return _repository.completeWorkout(
+      workoutId,
+      checkInResponse: checkInResponse,
+      actualDurationMinutes: actualDurationMinutes,
+    );
   }
 
   Future<void> completeExercise(String workoutId, String exerciseId) {
