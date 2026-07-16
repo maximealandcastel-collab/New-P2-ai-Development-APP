@@ -19,11 +19,22 @@ class AnamConnectController extends GetxController {
 
   final personaController = TextEditingController();
   final submitState = LoadingState.initial.obs;
+  final RxBool hasConfiguredPersona = false.obs;
+
+  String? get configuredPersonaId =>
+      _profileService.getCachedTrainerProfile()?.anamAI?.personaId?.trim();
 
   @override
   void onInit() {
     super.onInit();
     _loadSavedPersonaId();
+  }
+
+  void _updateConfiguredPersonaState() {
+    final anamAI = _profileService.getCachedTrainerProfile()?.anamAI;
+    final personaId = anamAI?.personaId?.trim() ?? '';
+    hasConfiguredPersona.value =
+        anamAI?.isEnabled == true && personaId.isNotEmpty;
   }
 
   Future<void> _loadSavedPersonaId() async {
@@ -34,7 +45,12 @@ class AnamConnectController extends GetxController {
         personaId = _profileService.getCachedTrainerProfile()?.anamAI?.personaId;
       } catch (_) {}
     }
-    if (personaId != null && personaId.isNotEmpty) {
+
+    _updateConfiguredPersonaState();
+
+    if (!hasConfiguredPersona.value &&
+        personaId != null &&
+        personaId.isNotEmpty) {
       personaController.text = personaId;
     }
   }
@@ -74,6 +90,7 @@ class AnamConnectController extends GetxController {
       );
 
       await _profileService.fetchTrainerProfile();
+      _updateConfiguredPersonaState();
       if (Get.isRegistered<ProfileController>()) {
         await ProfileController.to.loadData();
       }
