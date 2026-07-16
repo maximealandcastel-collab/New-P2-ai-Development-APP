@@ -16,42 +16,46 @@ class InvoicesScreen extends StatelessWidget {
     final controller = InvoicesController.to;
 
     return SliverScaffold(
-      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.12,
+      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.16,
       onRefresh: controller.refresh,
       paginationList: controller.invoicesList,
-      appBar: const CustomSliverAppBar(
+      appBar: CustomSliverAppBar(
         title: 'Invoices',
         pinned: true,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(56.h),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
+            child: Obx(
+              () => CustomContainer(
+                color: Colors.white,
+                radiusAll: 16.r,
+                paddingAll: 4.r,
+                child: Row(
+                  children: [
+                    _buildTabItem(
+                      controller: controller,
+                      label: 'All',
+                      index: 0,
+                    ),
+                    _buildTabItem(
+                      controller: controller,
+                      label: 'Received',
+                      index: 1,
+                    ),
+                    _buildTabItem(
+                      controller: controller,
+                      label: 'Pending',
+                      index: 2,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       bodyList: [
-        Obx(
-          () => CustomContainer(
-            horizontalMargin: 16,
-            verticalMargin: 6.h,
-            color: Colors.white,
-            radiusAll: 16.r,
-            paddingAll: 4.r,
-            child: Row(
-              children: [
-                _buildTabItem(
-                  controller: controller,
-                  label: 'All',
-                  index: 0,
-                ),
-                _buildTabItem(
-                  controller: controller,
-                  label: 'Received',
-                  index: 1,
-                ),
-                _buildTabItem(
-                  controller: controller,
-                  label: 'Pending',
-                  index: 2,
-                ),
-              ],
-            ),
-          ).asSliver,
-        ),
         Obx(() => _buildInvoiceList(controller)),
         PaginationLoaderSliver(controller: controller),
         SizedBox(height: 120.h).asSliver,
