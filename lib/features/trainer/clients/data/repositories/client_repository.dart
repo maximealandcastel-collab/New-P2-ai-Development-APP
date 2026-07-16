@@ -15,22 +15,28 @@ class ClientRepository {
   final ApiService _apiService;
   final CacheService _cacheService;
 
-  String _cacheKey(String status) =>
-      status == 'sent'
-          ? AppConstants.cacheTrainerClientsSent
-          : AppConstants.cacheTrainerClientsPaid;
+  String _cacheKey(String? status) {
+    switch (status) {
+      case 'sent':
+        return AppConstants.cacheTrainerClientsSent;
+      case 'paid':
+        return AppConstants.cacheTrainerClientsPaid;
+      default:
+        return AppConstants.cacheTrainerInvoicesAll;
+    }
+  }
 
   Future<List<ClientInvoiceModel>> getInvoices(
     int page,
     int limit, {
-    required String status,
+    String? status,
     String? search,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.trainerInvoices,
         queryParameters: {
-          'status': status,
+          if (status != null && status.isNotEmpty) 'status': status,
           'page': page,
           'limit': limit,
           if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
@@ -57,7 +63,7 @@ class ClientRepository {
     }
   }
 
-  List<ClientInvoiceModel> getCachedInvoices(String status) {
+  List<ClientInvoiceModel> getCachedInvoices(String? status) {
     try {
       final jsonList =
           _cacheService.get<List>(_cacheKey(status), defaultValue: []) ?? [];
@@ -72,7 +78,7 @@ class ClientRepository {
   Future<List<ClientInvoiceModel>> fetchMoreInvoices(
     int page,
     int limit, {
-    required String status,
+    String? status,
     String? search,
   }) async {
     final response = await getInvoices(
@@ -94,6 +100,6 @@ class ClientRepository {
     return response;
   }
 
-  bool hasCache(String status) =>
+  bool hasCache(String? status) =>
       _cacheService.containsKey(_cacheKey(status));
 }

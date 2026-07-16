@@ -116,6 +116,16 @@ class ClientInvoiceModel {
 
   bool get isPaid => status?.toLowerCase() == 'paid';
 
+  bool get isReceived => isPaid;
+
+  bool get isPending => status?.toLowerCase() == 'sent';
+
+  String get listSubtitle {
+    final text = description?.trim();
+    if (text != null && text.isNotEmpty) return text;
+    return subscriptionPeriod;
+  }
+
   String formatDate(String? isoDate) {
     if (isoDate == null || isoDate.isEmpty) return 'N/A';
     return TimeFormatHelper.formatDate(DateTime.parse(isoDate).toLocal());

@@ -37,7 +37,9 @@ import 'package:pler_to_pler_app/features/home/domain/services/trainer_dashboard
 import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
 import 'package:pler_to_pler_app/features/settings/data/repositories/earnings_repository.dart';
 import 'package:pler_to_pler_app/features/settings/domain/services/earnings_service.dart';
+import 'package:pler_to_pler_app/features/settings/domain/services/invoices_service.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoices_controller.dart';
 import 'package:pler_to_pler_app/features/earnings/data/repositories/withdrawal_repository.dart';
 import 'package:pler_to_pler_app/features/earnings/domain/services/withdrawal_service.dart';
 import 'package:pler_to_pler_app/features/earnings/presentation/controllers/payment_request_controller.dart';
@@ -378,6 +380,17 @@ class DependencyInjection {
     Get.lazyPut<EarningsController>(
       () => EarningsController(
         service: Get.find<EarningsService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<InvoicesService>(
+      () => InvoicesService(repository: Get.find<ClientRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<InvoicesController>(
+      () => InvoicesController(
+        service: Get.find<InvoicesService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,
