@@ -35,62 +35,37 @@ class GymModel {
     GymModel(
       id: '1',
       name: 'StrongFit Downtown',
-      imageUrl: 'https://picsum.photos/220/124?random=21',
+      imageUrl:
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=220&h=124&fit=crop&q=80',
       distanceKm: 0.8,
     ),
     GymModel(
       id: '2',
       name: 'Iron Pulse Gym',
-      imageUrl: 'https://picsum.photos/220/124?random=22',
+      imageUrl:
+          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=220&h=124&fit=crop&q=80',
       distanceKm: 1.2,
-    ),
-    GymModel(
-      id: '3',
-      name: 'Flex Zone Fitness',
-      imageUrl: 'https://picsum.photos/220/124?random=23',
-      distanceKm: 1.5,
     ),
     GymModel(
       id: '4',
       name: 'Core Strength Hub',
-      imageUrl: 'https://picsum.photos/220/124?random=24',
+      imageUrl:
+          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=220&h=124&fit=crop&q=80',
       distanceKm: 2.0,
-    ),
-    GymModel(
-      id: '5',
-      name: 'Peak Performance',
-      imageUrl: 'https://picsum.photos/220/124?random=25',
-      distanceKm: 2.4,
-    ),
-    GymModel(
-      id: '6',
-      name: 'Urban Fit Studio',
-      imageUrl: 'https://picsum.photos/220/124?random=26',
-      distanceKm: 2.8,
-    ),
-    GymModel(
-      id: '7',
-      name: 'PowerHouse Athletics',
-      imageUrl: 'https://picsum.photos/220/124?random=27',
-      distanceKm: 3.1,
     ),
     GymModel(
       id: '8',
       name: 'Elite Training Club',
-      imageUrl: 'https://picsum.photos/220/124?random=28',
+      imageUrl:
+          'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=220&h=124&fit=crop&q=80',
       distanceKm: 3.6,
     ),
     GymModel(
       id: '9',
       name: 'Active Life Center',
-      imageUrl: 'https://picsum.photos/220/124?random=29',
+      imageUrl:
+          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=220&h=124&fit=crop&q=80',
       distanceKm: 4.0,
-    ),
-    GymModel(
-      id: '10',
-      name: 'FitNation Express',
-      imageUrl: 'https://picsum.photos/220/124?random=30',
-      distanceKm: 4.5,
     ),
   ];
 }
