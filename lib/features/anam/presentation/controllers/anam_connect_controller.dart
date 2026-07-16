@@ -17,6 +17,7 @@ class AnamConnectController extends GetxController {
   final AnamService _anamService;
   final ProfileService _profileService;
 
+
   final personaController = TextEditingController();
   final submitState = LoadingState.initial.obs;
   final RxBool hasConfiguredPersona = false.obs;

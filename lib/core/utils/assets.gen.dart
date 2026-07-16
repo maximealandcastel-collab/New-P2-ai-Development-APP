@@ -27,6 +27,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/Payoneer.svg
   SvgGenImage get payoneer => const SvgGenImage('assets/icons/Payoneer.svg');
 
+  /// File path: assets/icons/Symbol.svg
+  SvgGenImage get symbol => const SvgGenImage('assets/icons/Symbol.svg');
+
   /// File path: assets/icons/add_button.svg
   SvgGenImage get addButton => const SvgGenImage('assets/icons/add_button.svg');
 
@@ -143,6 +146,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/star.svg
   SvgGenImage get star => const SvgGenImage('assets/icons/star.svg');
 
+  /// File path: assets/icons/stripe.svg
+  SvgGenImage get stripe => const SvgGenImage('assets/icons/stripe.svg');
+
   /// File path: assets/icons/sub_button.svg
   SvgGenImage get subButton => const SvgGenImage('assets/icons/sub_button.svg');
 
@@ -168,6 +174,7 @@ class $AssetsIconsGen {
     clients,
     contents,
     payoneer,
+    symbol,
     addButton,
     ai,
     aiChat,
@@ -205,6 +212,7 @@ class $AssetsIconsGen {
     send,
     setting,
     star,
+    stripe,
     subButton,
     subscribeIcons,
     trainer,
@@ -254,6 +262,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/success.png
   AssetGenImage get success => const AssetGenImage('assets/images/success.png');
 
+  /// File path: assets/images/support.png
+  AssetGenImage get support => const AssetGenImage('assets/images/support.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     appIcon,
@@ -266,6 +277,7 @@ class $AssetsImagesGen {
     onbordingTwoBgImg,
     setGoal,
     success,
+    support,
   ];
 }
 
