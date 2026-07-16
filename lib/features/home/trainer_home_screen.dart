@@ -60,9 +60,6 @@ class TrainerHomeScreen extends StatelessWidget {
       final newRolling7Days = stats?.newUsersThisWeek?.rolling7Days?.toString() ?? '0';
       final newCalendarWeek = stats?.newUsersThisWeek?.calendarWeek?.toString() ?? '0';
       final totalWorkoutBlocks = stats?.workoutBlocksStats?.total?.toString() ?? '0';
-
-      final isLoading = controller.showShimmer;
-
       return CustomContainer(
         radiusAll: 16.r,
         paddingAll: 14.r,
@@ -72,28 +69,11 @@ class TrainerHomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16.sp,
-                  bottom: 12.h,
-                  text: 'Client Overview',
-                ),
-                if (isLoading)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 12.h),
-                    child: SizedBox(
-                      height: 14.r,
-                      width: 14.r,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.r,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                      ),
-                    ),
-                  ),
-              ],
+            CustomText(
+              fontWeight: FontWeight.w600,
+              fontSize: 16.sp,
+              bottom: 12.h,
+              text: 'Client Overview',
             ),
             GridView.count(
               padding: EdgeInsets.zero,

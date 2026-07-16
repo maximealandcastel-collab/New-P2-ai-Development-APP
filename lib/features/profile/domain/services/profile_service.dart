@@ -86,9 +86,13 @@ class ProfileService {
         isProfileCompleted ?? (user?.onboardingCompleted == true);
 
     if (!profileDone) {
-      return AppRoute.userCompleteProfileScreen;
+      if(user?.role == 'user') {
+        return AppRoute.userCompleteProfileScreen;
+      }else{
+        return AppRoute.trainerCompleteProfileScreen;
+      }
     }
-    if (isSubscribed == false) {
+    if (isSubscribed == false && user?.role == 'user') {
       return AppRoute.subscribeSelectScreen;
     }
     return AppRoute.bottonNavBar;
