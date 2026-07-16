@@ -6,12 +6,12 @@ import 'package:pler_to_pler_app/widgets/widgets.dart';
 class EmptyData extends StatelessWidget {
   const EmptyData({
     super.key,
-    required this.title,
+     this.title,
     required this.subtitle,
     this.isRecommendation = true,
   });
 
-  final String title;
+  final String? title;
   final String subtitle;
   final bool isRecommendation;
 
@@ -24,13 +24,16 @@ class EmptyData extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomText(
-            textAlign: TextAlign.start,
-            text: title,
-            fontWeight: FontWeight.w600,
-            fontSize: 16.h,
-          ),
-          SizedBox(height: 16.h),
+          if(title != null)...[
+            CustomText(
+              textAlign: TextAlign.start,
+              text: title!,
+              fontWeight: FontWeight.w600,
+              fontSize: 16.h,
+            ),
+            SizedBox(height: 16.h),
+          ],
+
           Center(child: Assets.icons.empty.svg()),
           Center(
             child: CustomText(

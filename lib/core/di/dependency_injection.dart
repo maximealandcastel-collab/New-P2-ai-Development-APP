@@ -32,6 +32,15 @@ import 'package:pler_to_pler_app/features/contents/presentation/controllers/cont
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
+import 'package:pler_to_pler_app/features/home/data/repositories/trainer_dashboard_repository.dart';
+import 'package:pler_to_pler_app/features/home/domain/services/trainer_dashboard_service.dart';
+import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
+import 'package:pler_to_pler_app/features/settings/data/repositories/earnings_repository.dart';
+import 'package:pler_to_pler_app/features/settings/domain/services/earnings_service.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
+import 'package:pler_to_pler_app/features/earnings/data/repositories/withdrawal_repository.dart';
+import 'package:pler_to_pler_app/features/earnings/domain/services/withdrawal_service.dart';
+import 'package:pler_to_pler_app/features/earnings/presentation/controllers/payment_request_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/data/repositories/privacy_repository.dart';
@@ -335,6 +344,54 @@ class DependencyInjection {
     );
     Get.lazyPut<UserHomeController>(
       () => UserHomeController(workoutController: Get.find<WorkoutController>()),
+      fenix: true,
+    );
+    Get.lazyPut<TrainerDashboardRepository>(
+      () => TrainerDashboardRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<TrainerDashboardService>(
+      () => TrainerDashboardService(repository: Get.find<TrainerDashboardRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<TrainerHomeController>(
+      () => TrainerHomeController(
+        service: Get.find<TrainerDashboardService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsRepository>(
+      () => EarningsRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsService>(
+      () => EarningsService(repository: Get.find<EarningsRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<EarningsController>(
+      () => EarningsController(
+        service: Get.find<EarningsService>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<WithdrawalRepository>(
+      () => WithdrawalRepository(apiService: Get.find<ApiService>()),
+      fenix: true,
+    );
+    Get.lazyPut<WithdrawalService>(
+      () => WithdrawalService(repository: Get.find<WithdrawalRepository>()),
+      fenix: true,
+    );
+    Get.lazyPut<PaymentRequestController>(
+      () => PaymentRequestController(service: Get.find<WithdrawalService>()),
       fenix: true,
     );
     Get.lazyPut<HistoryController>(

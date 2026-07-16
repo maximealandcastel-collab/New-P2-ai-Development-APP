@@ -30,6 +30,7 @@ class ApiConstants {
   static const String userOnboarding = '/api/v1/auth/me/onboarding';
   static const String trainerProfile = '/api/v1/trainer';
   static const String trainerMe = '/api/v1/trainer/me';
+  static const String trainerDashboardStats = '/api/v1/trainer/me/dashboard-stats';
   static const String trainerRequest = '/api/v1/trainer-request';
   static const String trainerRequestAll = '/api/v1/trainer-request/all';
   static String acceptTrainerRequest(String requestId, String type) =>
@@ -112,6 +113,12 @@ class ApiConstants {
   static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
   static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
+
+  /// WITHDRAWAL / EARNINGS ──────────────────────────────────────────────
+  static const String trainerEarnings = '/api/v1/withdrawal/earnings';
+  static String trainerPayments({required int page, required int limit}) =>
+      '/api/v1/withdrawal/payments?page=$page&limit=$limit';
+  static const String withdrawal = '/api/v1/withdrawal';
 
   /// PAYMENT ──────────────────────────────────────────────
   static const String defaultCheckout = '/api/v1/payment/checkout/default';
