@@ -5,8 +5,8 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
-import 'package:pler_to_pler_app/features/settings/children/invoice_preview_screen.dart';
 import 'package:pler_to_pler_app/features/settings/domain/services/invoices_service.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/invoice_preview_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoice_preview_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 

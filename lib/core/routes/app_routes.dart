@@ -10,8 +10,6 @@ import 'package:pler_to_pler_app/features/profile/presentation/screens/edit_pers
 import 'package:pler_to_pler_app/features/profile/presentation/screens/profile_information_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
-import 'package:pler_to_pler_app/features/settings/children/ai_video_chat_connect_screen.dart';
-import 'package:pler_to_pler_app/features/settings/children/change_password_screen.dart';
 import 'package:pler_to_pler_app/features/earnings/presentation/screens/payment_request_screen.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/arguments/anam_call_args.dart';
@@ -19,7 +17,9 @@ import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_cal
 import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_connect_controller.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/screens/anam_call_screen.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
-import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/ai_video_chat_connect_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/change_password_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';

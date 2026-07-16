@@ -7,7 +7,7 @@ import 'package:pler_to_pler_app/features/profile/presentation/controllers/profi
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
-import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/widgets/confirmation_dialog.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 

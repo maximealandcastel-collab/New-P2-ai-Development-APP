@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
-import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
-import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
-import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/earnings_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/invoices_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/widgets/confirmation_dialog.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 

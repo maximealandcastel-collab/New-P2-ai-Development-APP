@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoices_controller.dart';
-import 'package:pler_to_pler_app/features/settings/widgets/invoice_card_shimmer.dart';
-import 'package:pler_to_pler_app/features/settings/widgets/invoice_card_widget.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/widgets/invoice_card_shimmer.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/widgets/invoice_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class InvoicesScreen extends StatelessWidget {
