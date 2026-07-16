@@ -5,10 +5,8 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
-import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/widgets/confirmation_dialog.dart';
-import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -41,7 +39,7 @@ class UserProfileScreen extends StatelessWidget {
             ),
             ListTileWidget(
               label: 'Manage devices',
-              onTap: () => Get.to(() => const ManageDevicesScreen()),
+              onTap: () => Get.toNamed(AppRoute.manageDevicesScreen),
             ),
           ],
         ).asSliverWithPadding(horizontal: 16.w),
@@ -54,15 +52,15 @@ class UserProfileScreen extends StatelessWidget {
           children: [
             ListTileWidget(
               label: 'Privacy Policy',
-              onTap: () => Get.to(
-                () => const PrivacyPolicyAllScreen(),
+              onTap: () => Get.toNamed(
+                AppRoute.privacyPolicyScreen,
                 arguments: {'title': 'Privacy Policy', 'key': 'privacy'},
               ),
             ),
             ListTileWidget(
               label: 'Terms of Service',
-              onTap: () => Get.to(
-                () => const PrivacyPolicyAllScreen(),
+              onTap: () => Get.toNamed(
+                AppRoute.privacyPolicyScreen,
                 arguments: {'title': 'Terms of Service', 'key': 'terms'},
               ),
             ),

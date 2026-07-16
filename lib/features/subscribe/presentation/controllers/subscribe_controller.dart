@@ -13,8 +13,6 @@ import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_webview_screen.dart';
-
 class SubscribeController extends GetxController with PaginatedLoaderUi {
   final SubscribeServices _service;
   final ConnectivityService _connectivityService;
@@ -99,7 +97,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
 
       promoCodeController.clear();
       if (Get.isDialogOpen ?? false) Get.back();
-      Get.to(() => PaymentWebViewScreen(paymentUrl: paymentUrl));
+      Get.toNamed(AppRoute.paymentWebViewScreen, arguments: paymentUrl);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       if (kDebugMode) debugPrint('createDefaultCheckout error: $e');

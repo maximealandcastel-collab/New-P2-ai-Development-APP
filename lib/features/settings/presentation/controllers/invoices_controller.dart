@@ -2,12 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/features/settings/domain/services/invoices_service.dart';
-import 'package:pler_to_pler_app/features/settings/presentation/children/invoice_preview_screen.dart';
-import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoice_preview_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 
 class InvoicesController extends GetxController with PaginatedLoaderUi {
@@ -121,12 +120,7 @@ class InvoicesController extends GetxController with PaginatedLoaderUi {
   }
 
   void onInvoiceTap(ClientInvoiceModel invoice) {
-    Get.to(
-      () => InvoicePreviewScreen(invoice: invoice),
-      binding: BindingsBuilder(() {
-        Get.put(InvoicePreviewController(invoice: invoice));
-      }),
-    );
+    Get.toNamed(AppRoute.invoicePreviewScreen, arguments: invoice);
   }
 
   @override

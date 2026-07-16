@@ -5,7 +5,6 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
-import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/custom_container.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
@@ -93,9 +92,7 @@ class FeedAppBarSliver extends StatelessWidget {
 
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Get.to(() => NotificationsScreen());
-                },
+                onTap: () => Get.toNamed(AppRoute.notificationsScreen),
                 child: CustomContainer(
                   paddingAll: 10.r,
                   color: Colors.white,

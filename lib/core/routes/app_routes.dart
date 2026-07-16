@@ -66,6 +66,17 @@ import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_plan_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_screen.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/earnings_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/invoice_preview_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/invoices_screen.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoice_preview_controller.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_webview_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/device_details_screen.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -113,6 +124,15 @@ class AppRoute {
   static String workoutGeneratingScreen = "/workoutGeneratingScreen";
   static String workoutPlanDetailsScreen = "/workoutPlanDetailsScreen";
   static String paymentRequestScreen = "/paymentRequestScreen";
+  static String earningsScreen = "/earningsScreen";
+  static String invoicesScreen = "/invoicesScreen";
+  static String invoicePreviewScreen = "/invoicePreviewScreen";
+  static String manageDevicesScreen = "/manageDevicesScreen";
+  static String addDeviceScreen = "/addDeviceScreen";
+  static String deviceDetailsScreen = "/deviceDetailsScreen";
+  static String notificationsScreen = "/notificationsScreen";
+  static String privacyPolicyScreen = "/privacyPolicyScreen";
+  static String paymentWebViewScreen = "/paymentWebViewScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -314,6 +334,46 @@ class AppRoute {
           }
         });
       }),
+    ),
+    GetPage(name: earningsScreen, page: () => const EarningsScreen()),
+    GetPage(name: invoicesScreen, page: () => const InvoicesScreen()),
+    GetPage(
+      name: invoicePreviewScreen,
+      page: () => InvoicePreviewScreen(
+        invoice: Get.arguments as ClientInvoiceModel,
+      ),
+      binding: BindingsBuilder(() {
+        Get.put(
+          InvoicePreviewController(
+            invoice: Get.arguments as ClientInvoiceModel,
+          ),
+        );
+      }),
+    ),
+    GetPage(
+      name: manageDevicesScreen,
+      page: () => const ManageDevicesScreen(),
+    ),
+    GetPage(name: addDeviceScreen, page: () => const AddDeviceScreen()),
+    GetPage(
+      name: deviceDetailsScreen,
+      page: () => DeviceDetailsScreen(
+        device: Get.arguments as DeviceModel,
+      ),
+    ),
+    GetPage(
+      name: notificationsScreen,
+      page: () => const NotificationsScreen(),
+    ),
+    GetPage(
+      name: privacyPolicyScreen,
+      page: () => const PrivacyPolicyAllScreen(),
+    ),
+    GetPage(
+      name: paymentWebViewScreen,
+      page: () => PaymentWebViewScreen(
+        paymentUrl: Get.arguments as String,
+      ),
     ),
   ];
 }
