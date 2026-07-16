@@ -17,6 +17,7 @@ import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_cal
 import 'package:pler_to_pler_app/features/anam/presentation/controllers/anam_connect_controller.dart';
 import 'package:pler_to_pler_app/features/anam/presentation/screens/anam_call_screen.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/settings/presentation/children/admin_support_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/ai_video_chat_connect_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/change_password_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/settings_screen.dart';
@@ -133,6 +134,7 @@ class AppRoute {
   static String notificationsScreen = "/notificationsScreen";
   static String privacyPolicyScreen = "/privacyPolicyScreen";
   static String paymentWebViewScreen = "/paymentWebViewScreen";
+  static String adminSupportScreen = "/adminSupportScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -368,6 +370,9 @@ class AppRoute {
     GetPage(
       name: privacyPolicyScreen,
       page: () => const PrivacyPolicyAllScreen(),
+    ),GetPage(
+      name: adminSupportScreen,
+      page: () => const AdminSupportScreen(),
     ),
     GetPage(
       name: paymentWebViewScreen,

@@ -72,7 +72,10 @@ class ProfileScreen extends StatelessWidget {
           label: 'Personal information',
           onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
         ),
-        ListTileWidget(label: 'Admin support', onTap: () {}),
+        ListTileWidget(
+          label: 'Admin support',
+          onTap: () => Get.toNamed(AppRoute.adminSupportScreen),
+        ),
         ListTileWidget(
           label: 'Settings',
           onTap: () => Get.toNamed(AppRoute.settingsScreen),
