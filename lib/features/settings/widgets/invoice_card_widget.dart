@@ -46,16 +46,16 @@ class InvoiceCardWidget extends StatelessWidget {
                 ),
                 CustomContainer(
                   radiusAll: 99.r,
-                  paddingVertical: 3.h,
-                  paddingHorizontal: 6.w,
+                  paddingVertical: 2.h,
+                  paddingHorizontal: 10.w,
                   color: isReceived ? AppColors.success : AppColors.primary,
                   child: Row(
                     children: [
                       isReceived
                           ? Assets.icons.recieved.svg()
-                          : Assets.icons.panding.svg(),
+                          : Assets.icons.panding.svg(colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn,),height: 14.r),
                       CustomText(
-                        text: isReceived ? 'Received' : 'Pending',
+                        text: isReceived ? ' Received' : ' Pending',
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,

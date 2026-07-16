@@ -36,34 +36,7 @@ class InvoicePreviewScreen extends StatelessWidget {
 
         return CustomButton(
           onPressed: isDownloading ? null : controller.downloadPdf,
-          child: isDownloading
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 20.h,
-                      width: 20.h,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        value: controller.downloadProgress > 0
-                            ? controller.downloadProgress
-                            : null,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.white,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    CustomText(
-                      text: 'Downloading $progressPercent%',
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16.sp,
-                    ),
-                  ],
-                )
-              : null,
-          label: isDownloading ? null : 'Download',
+          label: isDownloading ? 'Downloading $progressPercent%' : 'Download',
         );
       }),
 
