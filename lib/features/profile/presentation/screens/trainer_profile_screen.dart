@@ -27,7 +27,9 @@ class ProfileScreen extends StatelessWidget {
         appBar: CustomSliverAppBar(
           safeArea: false,
           expandedHeight: 270.h,
-          collapsedTitle: isLoading ? '' : trainer?.name ?? controller.userData?.fullName ?? '',
+          collapsedTitle: isLoading
+              ? ''
+              : trainer?.name ?? controller.userData?.fullName ?? '',
           foregroundColor: Colors.white,
           flexibleBackground: isLoading
               ? TrainerProfileShimmer.headerShimmer()
@@ -44,37 +46,40 @@ class ProfileScreen extends StatelessWidget {
     BuildContext context,
     TrainerDetailsModel? trainer,
   ) => [
-        SizedBox(height: 20.h).asSliver,
-        _buildBioCardWidget(
-          fontSize: 12.sp,
-          label: 'Bio',
-          value: StringFormat.valueOrNa(trainer?.bio),
-        ).asSliver,
-        _buildBioCardWidget(
-          label: 'Specialty',
-          value: StringFormat.specialtyOrNa(trainer?.specialty),
-        ).asSliver,
-        _buildBioCardWidget(
-          label: 'Certifications',
-          value: StringFormat.listOrNa(trainer?.certifications),
-        ).asSliver,
-        _buildBioCardWidget(
-          label: 'Trainer style tags',
-          value: StringFormat.listOrNa(trainer?.trainingStyleTags),
-        ).asSliver,
-        ContainerCard(
-          label: 'App',
-          children: [
-            ListTileWidget(label: 'My prompt', onTap: () {}),
-            ListTileWidget(label: 'Personal information', onTap: () {}),
-            ListTileWidget(label: 'Admin support', onTap: () {}),
-            ListTileWidget(
-              label: 'Settings',
-              onTap: () => Get.toNamed(AppRoute.settingsScreen),
-            ),
-          ],
-        ).asSliverWithPadding(horizontal: 16.w),
-      ];
+    SizedBox(height: 20.h).asSliver,
+    _buildBioCardWidget(
+      fontSize: 12.sp,
+      label: 'Bio',
+      value: StringFormat.valueOrNa(trainer?.bio),
+    ).asSliver,
+    _buildBioCardWidget(
+      label: 'Specialty',
+      value: StringFormat.specialtyOrNa(trainer?.specialty),
+    ).asSliver,
+    _buildBioCardWidget(
+      label: 'Certifications',
+      value: StringFormat.listOrNa(trainer?.certifications),
+    ).asSliver,
+    _buildBioCardWidget(
+      label: 'Trainer style tags',
+      value: StringFormat.listOrNa(trainer?.trainingStyleTags),
+    ).asSliver,
+    ContainerCard(
+      label: 'App',
+      children: [
+        ListTileWidget(label: 'My prompt', onTap: () {}),
+        ListTileWidget(
+          label: 'Personal information',
+          onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
+        ),
+        ListTileWidget(label: 'Admin support', onTap: () {}),
+        ListTileWidget(
+          label: 'Settings',
+          onTap: () => Get.toNamed(AppRoute.settingsScreen),
+        ),
+      ],
+    ).asSliverWithPadding(horizontal: 16.w),
+  ];
 
   Widget _buildBioCardWidget({
     required String label,
