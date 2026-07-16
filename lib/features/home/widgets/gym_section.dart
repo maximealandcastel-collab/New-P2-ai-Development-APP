@@ -10,25 +10,26 @@ class GymSection extends StatelessWidget {
   const GymSection({super.key});
 
   Future<void> _openNearGymMap() async {
-    final Uri googleMapsUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=gyms+near+me");
-    final Uri appleMapsUrl = Uri.parse("https://maps.apple.com/?q=gyms+near+me");
+    const query = 'gyms+near+me';
+    final googleMapsWebUrl = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$query',
+    );
+    final googleMapsAppUrl = Uri.parse('comgooglemaps://?q=$query');
 
     try {
-      if (Platform.isIOS) {
-        if (await canLaunchUrl(appleMapsUrl)) {
-          await launchUrl(appleMapsUrl, mode: LaunchMode.externalApplication);
-          return;
-        }
+      if (Platform.isIOS && await canLaunchUrl(googleMapsAppUrl)) {
+        await launchUrl(googleMapsAppUrl, mode: LaunchMode.externalApplication);
+        return;
       }
-      
-      if (await canLaunchUrl(googleMapsUrl)) {
-        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+
+      if (await canLaunchUrl(googleMapsWebUrl)) {
+        await launchUrl(googleMapsWebUrl, mode: LaunchMode.externalApplication);
       } else {
         ToastMessageHelper.show('Could not open map application.');
       }
     } catch (e) {
-      if (await canLaunchUrl(googleMapsUrl)) {
-        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      if (await canLaunchUrl(googleMapsWebUrl)) {
+        await launchUrl(googleMapsWebUrl, mode: LaunchMode.externalApplication);
       } else {
         ToastMessageHelper.show('Could not open maps: $e');
       }
