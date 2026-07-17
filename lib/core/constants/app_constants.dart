@@ -8,6 +8,7 @@ class AppConstants{
   static const String cacheTrainerProfile = "cacheTrainerProfile";
   static const String cacheTrainers = "cacheTrainers";
   static const String cacheCategories = "cacheCategories";
+  static const String cacheContentFeedPrefix = "cacheContentFeed:";
   static const String cacheExerciseBlocks = "cacheExerciseBlocks";
   static const String cacheTrainerClientsPaid = "cacheTrainerClientsPaid";
   static const String cacheTrainerClientsSent = "cacheTrainerClientsSent";

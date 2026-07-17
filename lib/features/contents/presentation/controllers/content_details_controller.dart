@@ -1,60 +1,58 @@
 import 'dart:async';
 
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:video_player/video_player.dart';
 
 class ContentDetailsController extends GetxController {
   ContentDetailsController({
     this.content,
     this.videoUrl,
   }) : assert(
-  content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
-  'Either content or videoUrl is required.',
-  );
+          content != null || (videoUrl != null && videoUrl.trim().isNotEmpty),
+          'Either content or videoUrl is required.',
+        );
 
   final ContentModel? content;
   final String? videoUrl;
 
-  late final Player player;
-  late final VideoController videoController;
+  CachedVideoPlayerPlus? _cachedPlayer;
   final Floating _floating = Floating();
 
   final RxDouble playbackSpeed = 1.0.obs;
   final RxBool pipAvailable = false.obs;
   final RxBool isLoadingMedia = true.obs;
   final RxString mediaError = ''.obs;
-  final RxList<SubtitleTrack> subtitleTracks = <SubtitleTrack>[].obs;
-  final Rxn<SubtitleTrack> selectedSubtitle = Rxn<SubtitleTrack>();
+  final RxBool isPlaying = false.obs;
+  final Rx<Duration> position = Duration.zero.obs;
+  final Rx<Duration> duration = Duration.zero.obs;
 
-  StreamSubscription<bool>? _completedSub;
   bool _isClosed = false;
+  VoidCallback? _videoListener;
 
   static const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
   static ContentDetailsController get to => Get.find<ContentDetailsController>();
 
+  VideoPlayerController? get videoPlayerController => _cachedPlayer?.controller;
+
+  bool get isVideoReady => _cachedPlayer?.isInitialized ?? false;
+
+  double get aspectRatio {
+    final controller = videoPlayerController;
+    if (controller == null || !controller.value.isInitialized) return 1;
+    final ratio = controller.value.aspectRatio;
+    return ratio == 0 ? 1 : ratio;
+  }
+
   @override
   void onInit() {
     super.onInit();
-    player = Player(
-      configuration: const PlayerConfiguration(
-        libass: true,
-      ),
-    );
-    videoController = VideoController(
-      player,
-      configuration: const VideoControllerConfiguration(
-        enableHardwareAcceleration: true,
-      ),
-    );
-    _listenTracks();
-    _listenPlaybackCompletion();
     _loadMedia();
     _checkPipAvailability();
   }
@@ -67,63 +65,34 @@ class ContentDetailsController extends GetxController {
     });
   }
 
-  void _listenTracks() {
-    player.stream.tracks.listen((tracks) {
-      subtitleTracks.assignAll(tracks.subtitle);
-    });
-    player.stream.track.listen((track) {
-      selectedSubtitle.value = track.subtitle.id == 'no' ? null : track.subtitle;
-    });
-  }
-
   Future<void> _loadMedia() async {
     isLoadingMedia.value = true;
     mediaError.value = '';
+    await _disposePlayer();
 
     try {
-      final Media? media;
-      if (content != null) {
-        media = ContentMediaResolver.mediaFromContent(content!);
-      } else {
-        final url = videoUrl?.trim() ?? '';
-        media = url.isEmpty ? null : ContentMediaResolver.mediaFromSource(url);
-      }
+      final player = content != null
+          ? ContentMediaResolver.createPlayerForContent(content!)
+          : ContentMediaResolver.createPlayerForSource(videoUrl!.trim());
 
-      if (media == null) {
+      if (player == null) {
         mediaError.value = 'No video available for this content.';
-        debugPrint('_loadMedia: media is null');
         return;
       }
 
-      debugPrint('_loadMedia: opening media → ${media.uri}');
-      await player.setPlaylistMode(PlaylistMode.loop);
-      await player.open(media, play: true);
-      debugPrint('_loadMedia: player opened successfully');
-      await player.setRate(playbackSpeed.value);
-      await _ensureAutoPlay();
-
-      // player stream থেকে error listen করো
-      player.stream.error.listen((error) {
-        debugPrint('_loadMedia player.stream.error → $error');
-        if (error.isNotEmpty) {
-          mediaError.value = 'Player error: $error';
-        }
-      });
-
-      // buffering state
-      player.stream.buffering.listen((isBuffering) {
-        debugPrint('_loadMedia player.stream.buffering → $isBuffering');
-      });
-
-      // playing state
-      player.stream.playing.listen((isPlaying) {
-        debugPrint('_loadMedia player.stream.playing → $isPlaying');
-      });
-
+      _cachedPlayer = player;
+      await _cachedPlayer!.initialize();
+      await videoPlayerController!.setLooping(true);
+      _attachVideoListener();
+      await videoPlayerController!.setPlaybackSpeed(playbackSpeed.value);
+      await videoPlayerController!.play();
+      isPlaying.value = true;
     } catch (error, stack) {
       mediaError.value = 'Unable to play this video.';
-      debugPrint('_loadMedia ERROR: $error');
-      debugPrint('_loadMedia STACK: $stack');
+      if (kDebugMode) {
+        debugPrint('_loadMedia ERROR: $error');
+        debugPrint('_loadMedia STACK: $stack');
+      }
     } finally {
       isLoadingMedia.value = false;
       if (mediaError.value.isEmpty) {
@@ -132,19 +101,17 @@ class ContentDetailsController extends GetxController {
     }
   }
 
-  void _listenPlaybackCompletion() {
-    _completedSub = player.stream.completed.listen((completed) async {
-      if (_isClosed || !completed) return;
-      await _replayFromStart();
-    });
-  }
+  Future<void> retryLoad() => _loadMedia();
 
   Future<void> _ensureAutoPlay() async {
     if (_isClosed || mediaError.value.isNotEmpty) return;
+    final controller = videoPlayerController;
+    if (controller == null || !controller.value.isInitialized) return;
 
     try {
-      if (!player.state.playing) {
-        await player.play();
+      if (!controller.value.isPlaying) {
+        await controller.play();
+        isPlaying.value = true;
       }
     } catch (error) {
       if (kDebugMode) {
@@ -153,17 +120,24 @@ class ContentDetailsController extends GetxController {
     }
   }
 
-  Future<void> _replayFromStart() async {
-    if (_isClosed || mediaError.value.isNotEmpty) return;
+  Future<void> togglePlayback() async {
+    final controller = videoPlayerController;
+    if (controller == null || !controller.value.isInitialized) return;
 
-    try {
-      await player.seek(Duration.zero);
-      await player.play();
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('ContentDetailsController._replayFromStart: $error');
-      }
+    if (controller.value.isPlaying) {
+      await controller.pause();
+      isPlaying.value = false;
+    } else {
+      await controller.play();
+      isPlaying.value = true;
     }
+  }
+
+  Future<void> seekTo(Duration target) async {
+    final controller = videoPlayerController;
+    if (controller == null || !controller.value.isInitialized) return;
+    await controller.seekTo(target);
+    position.value = target;
   }
 
   Future<void> _checkPipAvailability() async {
@@ -176,26 +150,9 @@ class ContentDetailsController extends GetxController {
 
   Future<void> setPlaybackSpeed(double speed) async {
     playbackSpeed.value = speed;
-    await player.setRate(speed);
-  }
-
-  Future<void> disableSubtitles() async {
-    selectedSubtitle.value = null;
-    await player.setSubtitleTrack(SubtitleTrack.no());
-  }
-
-  Future<void> selectSubtitle(SubtitleTrack track) async {
-    selectedSubtitle.value = track;
-    await player.setSubtitleTrack(track);
-  }
-
-  Future<void> loadExternalSubtitle(String source) async {
-    final uri = ContentMediaResolver.resolveUrl(source);
-    if (uri.isEmpty) return;
-
-    await player.setSubtitleTrack(
-      SubtitleTrack.uri(uri, title: 'External subtitle'),
-    );
+    final controller = videoPlayerController;
+    if (controller == null || !controller.value.isInitialized) return;
+    await controller.setPlaybackSpeed(speed);
   }
 
   Future<void> enterPictureInPicture() async {
@@ -212,21 +169,41 @@ class ContentDetailsController extends GetxController {
     }
   }
 
-  String subtitleLabel(SubtitleTrack track) {
-    final title = track.title?.trim();
-    if (title != null && title.isNotEmpty) return title;
+  void _attachVideoListener() {
+    _detachVideoListener();
+    final controller = videoPlayerController;
+    if (controller == null) return;
 
-    final language = track.language?.trim();
-    if (language != null && language.isNotEmpty) return language;
+    _videoListener = () {
+      if (_isClosed || !controller.value.isInitialized) return;
+      position.value = controller.value.position;
+      duration.value = controller.value.duration;
+      isPlaying.value = controller.value.isPlaying;
+    };
+    controller.addListener(_videoListener!);
+    _videoListener!();
+  }
 
-    return 'Subtitle ${track.id}';
+  void _detachVideoListener() {
+    final controller = videoPlayerController;
+    if (_videoListener != null && controller != null) {
+      controller.removeListener(_videoListener!);
+    }
+    _videoListener = null;
+  }
+
+  Future<void> _disposePlayer() async {
+    _detachVideoListener();
+    try {
+      await _cachedPlayer?.dispose();
+    } catch (_) {}
+    _cachedPlayer = null;
   }
 
   @override
   void onClose() {
     _isClosed = true;
-    unawaited(_completedSub?.cancel());
-    player.dispose();
+    unawaited(_disposePlayer());
     super.onClose();
   }
 }

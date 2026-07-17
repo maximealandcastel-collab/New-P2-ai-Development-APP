@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_details_info.dart';
+import 'package:pler_to_pler_app/features/contents/reels/presentation/widgets/reel_player.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -25,63 +25,17 @@ class ContentReelItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ContentController.to;
 
-    return Obx(() {
-      controller.reelMediaRevision.value;
-      final isActive = controller.currentReelIndex.value == index;
-      return GestureDetector(
-        onTap: isActive ? controller.toggleReelPlayback : null,
-        child: ColoredBox(
-          color: AppColors.backgroundDark,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              _buildMedia(controller),
-              _buildBottomInfo(context),
-              _buildSideActions(context, controller),
-              if (isActive && !controller.isReelPlaying.value)
-                _buildPauseIndicator(),
-              if (isActive && controller.reelMediaError.value.isNotEmpty)
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: CustomText(
-                      text: controller.reelMediaError.value,
-                      color: AppColors.textPrimary,
-                      fontSize: 14.sp,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
-  Widget _buildMedia(ContentController controller) {
-    final videoController = controller.reelVideoControllerFor(index);
-    final showVideo = videoController != null;
-
     return Stack(
       fit: StackFit.expand,
       children: [
-        const ColoredBox(color: AppColors.backgroundDark),
-        if (showVideo)
-          Video(
-            controller: videoController,
-            fit: BoxFit.contain,
-            fill: AppColors.backgroundDark,
-            controls: (_) => const SizedBox.shrink(),
-            subtitleViewConfiguration: SubtitleViewConfiguration(
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
+        ReelPlayer(
+          content: content,
+          index: index,
+          reelController: controller.reel,
+          contents: controller.contents,
+        ),
+        _buildBottomInfo(context),
+        _buildSideActions(context, controller),
       ],
     );
   }
@@ -97,7 +51,7 @@ class ContentReelItem extends StatelessWidget {
     return Positioned(
       left: 16.w,
       right: 88.w,
-      bottom: bottomInset,
+      bottom: bottomInset + 4.h,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -130,41 +84,44 @@ class ContentReelItem extends StatelessWidget {
   Widget _buildSideActions(BuildContext context, ContentController controller) {
     final bottomInset = MediaQuery.paddingOf(context).bottom + 16.h;
     final isTrainer = ProfileController.to.userData?.role == 'trainer';
-    final showTrainerActions =
-        isTrainer && controller.activeTab.value != ContentTab.defaultContent;
 
     return Positioned(
       right: 12.w,
       bottom: bottomInset,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildActionButton(
-            icon: Icons.info_outline_rounded,
-            label: 'Info',
-            onTap: () {
-              controller.pauseReel();
-              Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
-            },
-          ),
-          if (showTrainerActions) ...[
-            SizedBox(height: 16.h),
+      child: Obx(() {
+        final showTrainerActions =
+            isTrainer && controller.activeTab.value != ContentTab.defaultContent;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             _buildActionButton(
-              icon: Icons.edit_outlined,
-              label: 'Edit',
+              icon: Icons.info_outline_rounded,
+              label: 'Info',
               onTap: () {
-                Get.toNamed(AppRoute.createContentScreen, arguments: content);
+                controller.pauseReel();
+                Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
               },
             ),
-            SizedBox(height: 16.h),
-            _buildActionButton(
-              icon: Icons.delete_outline_rounded,
-              label: 'Delete',
-              onTap: () => _showDeleteDialog(context, controller),
-            ),
+            if (showTrainerActions) ...[
+              SizedBox(height: 16.h),
+              _buildActionButton(
+                icon: Icons.edit_outlined,
+                label: 'Edit',
+                onTap: () {
+                  Get.toNamed(AppRoute.createContentScreen, arguments: content);
+                },
+              ),
+              SizedBox(height: 16.h),
+              _buildActionButton(
+                icon: Icons.delete_outline_rounded,
+                label: 'Delete',
+                onTap: () => _showDeleteDialog(context, controller),
+              ),
+            ],
           ],
-        ],
-      ),
+        );
+      }),
     );
   }
 
@@ -193,24 +150,6 @@ class ContentReelItem extends StatelessWidget {
             color: AppColors.textWhite,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPauseIndicator() {
-    return Center(
-      child: Container(
-        width: 64.r,
-        height: 64.r,
-        decoration: BoxDecoration(
-          color: AppColors.backgroundLight.withValues(alpha: 0.75),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.play_arrow_rounded,
-          color: AppColors.textPrimary,
-          size: 36.r,
-        ),
       ),
     );
   }

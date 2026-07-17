@@ -4,9 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
@@ -14,29 +12,37 @@ import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
 import 'package:pler_to_pler_app/core/services/search_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:pler_to_pler_app/features/contents/core/reel_player_pool.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
+import 'package:pler_to_pler_app/features/contents/reels/presentation/controllers/reel_controller.dart';
+import 'package:pler_to_pler_app/features/contents/reels/presentation/controllers/reel_feed_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 enum ContentTab {
   defaultContent,
   myTrainer,
 }
 
+/// Orchestrates the contents screen: tabs, CRUD, search, and reels playback.
 class ContentController extends GetxController with PaginatedLoaderUi {
   ContentController({
     required ContentService service,
     required ConnectivityService connectivityService,
+    ReelController? reelController,
+    ReelFeedController? reelFeedController,
   })  : _service = service,
-        _connectivityService = connectivityService;
+        _connectivityService = connectivityService,
+        _reelController = reelController,
+        _reelFeedController = reelFeedController;
 
   final ContentService _service;
   final ConnectivityService _connectivityService;
+  ReelController? _reelController;
+  ReelFeedController? _reelFeedController;
 
   static ContentController get to => Get.find();
 
-  final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final Rx<LoadingState> _deleteLoadingState = LoadingState.initial.obs;
   final RxnString _selectedCategoryId = RxnString();
   final RxBool isSubmittingContent = false.obs;
@@ -48,36 +54,27 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   final searchController = TextEditingController();
   late final SearchService<ContentModel> search;
 
-  LoadingState get loadingState => _loadingState.value;
+  LoadingState get loadingState =>
+      reelFeed?.loadingState.value ?? LoadingState.initial;
   LoadingState get deleteLoadingState => _deleteLoadingState.value;
   String? get selectedCategoryId => _selectedCategoryId.value;
 
-  late final PaginatedList<ContentModel> contentList;
+  ReelFeedController? get reelFeed => _reelFeedController;
+  ReelController get reel => _reelController ??= Get.find<ReelController>();
 
-  List<ContentModel> get contents => contentList.items;
+  List<ContentModel> get contents => reelFeed?.items ?? const [];
 
-  late final PageController pageController;
-  late final ReelPlayerPool _reelPool;
-
-  final RxInt currentReelIndex = 0.obs;
-  final RxInt reelMediaRevision = 0.obs;
-  final RxString reelMediaError = ''.obs;
-  final RxBool isReelPlaying = true.obs;
+  late final PreloadPageController pageController;
 
   Worker? _navTabWorker;
   Worker? _connectivityWorker;
   bool _isClosed = false;
-  int _reelSyncGeneration = 0;
-  bool _isHandlingReelCompletion = false;
-
-  static const int _reelPaginationThreshold = 3;
-  final Map<String, List<ContentModel>> _contentCache = {};
 
   @override
   LoadingState get paginationContentState => loadingState;
 
   @override
-  PaginatedList<dynamic> get paginatedList => contentList;
+  PaginatedList<dynamic> get paginatedList => reelFeed!.feed;
 
   @override
   void onInit() {
@@ -87,19 +84,14 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     activeTab.value =
         isTrainer ? ContentTab.myTrainer : ContentTab.defaultContent;
 
-    contentList = PaginatedList<ContentModel>(
-      limit: 10,
+    _reelFeedController ??= ReelFeedController(
+      service: _service,
+      connectivityService: _connectivityService,
       fetchPage: _fetchContentPage,
     );
+
     search = SearchService(fetcher: _fetchSearch);
-    pageController = PageController();
-    _reelPool = ReelPlayerPool(
-      onStateChanged: () {
-        if (!_isClosed) reelMediaRevision.value++;
-      },
-      onReelCompleted: _onReelCompleted,
-    );
-    pageController.addListener(_onPageScroll);
+    pageController = PreloadPageController();
     _listenBottomNavVisibility();
 
     _connectivityWorker = ever(_connectivityService.isConnected, (isConnected) {
@@ -108,26 +100,15 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _loadData();
   }
 
-  VideoController? reelVideoControllerFor(int index) =>
-      _reelPool.videoControllerFor(index);
+  // --- Reel playback delegates ---
 
-  bool isReelReady(int index) => _reelPool.isReady(index);
+  RxInt get currentReelIndex => reel.currentIndex;
 
-  bool isReelOpening(int index) => _reelPool.isOpening(index);
-
-  void _onPageScroll() {
-    if (_isClosed || !pageController.hasClients) return;
-    if (_loadingState.value != LoadingState.loaded || contents.isEmpty) {
-      return;
-    }
-
-    final page = pageController.page;
-    if (page == null) return;
-
-    final index = page.round().clamp(0, contents.length - 1);
-    if (index == currentReelIndex.value) return;
-
-    unawaited(_activateReelAt(index));
+  void _schedulePlayReelAt(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isClosed) return;
+      unawaited(_activateReelAt(index));
+    });
   }
 
   Future<void> _activateReelAt(int index) async {
@@ -138,24 +119,11 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       return;
     }
 
-    if (_loadingState.value != LoadingState.loaded) return;
+    if (loadingState != LoadingState.loaded) return;
     if (index < 0 || index >= contents.length) return;
 
-    currentReelIndex.value = index;
-    reelMediaError.value = _reelPool.errorFor(index);
-    final generation = ++_reelSyncGeneration;
-
-    try {
-      await _reelPool.sync(index: index, contents: contents);
-      if (_isClosed || generation != _reelSyncGeneration) return;
-
-      reelMediaError.value = _reelPool.errorFor(index);
-      isReelPlaying.value = _reelPool.isReady(index);
-      reelMediaRevision.value++;
-      _maybeLoadMoreReels(index);
-    } catch (error) {
-      if (kDebugMode) debugPrint('_activateReelAt error: $error');
-    }
+    await reel.activateAt(index: index, contents: contents);
+    reelFeed?.maybeLoadMore(index);
   }
 
   void _listenBottomNavVisibility() {
@@ -163,151 +131,48 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _navTabWorker = ever<int>(navController.selectedIndexRx, (index) {
       if (_isClosed) return;
       if (index == BottomNavBarController.contentsTabIndex) {
-        _schedulePlayReelAt(currentReelIndex.value);
+        unawaited(reel.resume(contents: contents));
       } else {
-        pauseReel();
+        unawaited(reel.suspend());
       }
     });
   }
 
-  void _schedulePlayReelAt(int index) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_isClosed) return;
-      unawaited(_activateReelAt(index));
-    });
-  }
-
   Future<void> onReelPageChanged(int index) async {
-    if (index == currentReelIndex.value) {
-      _maybeLoadMoreReels(index);
-      return;
-    }
-    await _activateReelAt(index);
+    reelFeed?.maybeLoadMore(index);
+    await reel.onPageChanged(index: index, contents: contents);
   }
 
-  void _maybeLoadMoreReels(int index) {
-    if (contents.isEmpty) return;
-    if (index < contents.length - _reelPaginationThreshold) return;
-    if (!contentList.canLoadMore) return;
-    contentList.loadMore();
-  }
+  Future<void> pauseReel() => reel.pauseActive(userInitiated: true);
 
-  void _onReelCompleted() {
-    if (_isClosed || !pageController.hasClients || _isHandlingReelCompletion) {
-      return;
-    }
-
-    if (Get.find<BottomNavBarController>().selectedIndex !=
-        BottomNavBarController.contentsTabIndex) {
-      return;
-    }
-
-    _isHandlingReelCompletion = true;
-
-    final currentIndex = currentReelIndex.value;
-    final nextIndex = currentIndex + 1;
-
-    if (nextIndex < contents.length) {
-      unawaited(
-        _advanceToReel(nextIndex).whenComplete(_resetReelCompletionHandling),
-      );
-      return;
-    }
-
-    if (contentList.canLoadMore) {
-      contentList.loadMore().then((_) {
-        if (_isClosed || !pageController.hasClients) {
-          _resetReelCompletionHandling();
-          return;
-        }
-        final loadedNextIndex = currentReelIndex.value + 1;
-        if (loadedNextIndex < contents.length) {
-          unawaited(
-            _advanceToReel(loadedNextIndex)
-                .whenComplete(_resetReelCompletionHandling),
-          );
-        } else if (contents.length > 1) {
-          unawaited(
-            _advanceToReel(0).whenComplete(_resetReelCompletionHandling),
-          );
-        } else {
-          unawaited(
-            _replayCurrentReel().whenComplete(_resetReelCompletionHandling),
-          );
-        }
-      });
-      return;
-    }
-
-    if (contents.length > 1) {
-      unawaited(
-        _advanceToReel(0).whenComplete(_resetReelCompletionHandling),
-      );
-    } else {
-      unawaited(
-        _replayCurrentReel().whenComplete(_resetReelCompletionHandling),
-      );
-    }
-  }
-
-  void _resetReelCompletionHandling() {
-    _isHandlingReelCompletion = false;
-  }
-
-  Future<void> _advanceToReel(int index) async {
-    if (_isClosed || !pageController.hasClients) return;
-    if (index < 0 || index >= contents.length) return;
-
-    await pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  Future<void> _replayCurrentReel() async {
-    if (_isClosed) return;
-    isReelPlaying.value = true;
-    await _reelPool.replayActive();
-  }
-
-  Future<void> pauseReel() async {
-    await _reelPool.pauseActive();
-    if (!_isClosed) isReelPlaying.value = false;
-  }
-
-  Future<void> toggleReelPlayback() async {
-    if (_isClosed) return;
-    if (isReelPlaying.value) {
-      await pauseReel();
-    } else {
-      await _reelPool.playActive();
-      if (!_isClosed) isReelPlaying.value = true;
-    }
-  }
+  Future<void> toggleReelPlayback() => reel.togglePlayback();
 
   void _resetReelPosition() {
-    currentReelIndex.value = 0;
-    reelMediaError.value = '';
-    unawaited(_reelPool.reset());
+    unawaited(reel.reset());
     if (pageController.hasClients) {
       pageController.jumpToPage(0);
     }
   }
 
+  // --- Feed / pagination ---
+
   Future<List<ContentModel>> _fetchContentPage(int page, int limit) async {
+    final feedKey = _cacheKey(activeTab.value, _selectedCategoryId.value);
+
     if (activeTab.value == ContentTab.defaultContent) {
       return _service.fetchDefaultContent(
         page: page,
-        limit: 20,
-      );
-    } else {
-      return _service.fetchMyContent(
-        categoryId: _selectedCategoryId.value,
-        page: page,
         limit: limit,
+        feedKey: feedKey,
       );
     }
+
+    return _service.fetchMyContent(
+      categoryId: _selectedCategoryId.value,
+      page: page,
+      limit: limit,
+      feedKey: feedKey,
+    );
   }
 
   String _cacheKey(ContentTab tab, String? categoryId) {
@@ -315,97 +180,48 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     return categoryId == null ? 'myTrainer:all' : 'myTrainer:$categoryId';
   }
 
-  List<ContentModel> _getCachedContents(String key) =>
-      List<ContentModel>.from(_contentCache[key] ?? const []);
-
-  void _cacheForTab(
-    ContentTab tab,
-    String? categoryId,
-    List<ContentModel> items,
-  ) {
-    _contentCache[_cacheKey(tab, categoryId)] =
-        List<ContentModel>.from(items);
-  }
-
-  void _cacheCurrentTab() {
-    _cacheForTab(
-      activeTab.value,
-      _selectedCategoryId.value,
-      contentList.items,
+  Future<void> _cacheCurrentTab() async {
+    await _service.cacheFeed(
+      _cacheKey(activeTab.value, _selectedCategoryId.value),
+      contents,
     );
   }
 
-  void _invalidateCurrentCache() {
-    _contentCache.remove(
+  Future<void> _invalidateCurrentCache() async {
+    await _service.invalidateFeedCache(
       _cacheKey(activeTab.value, _selectedCategoryId.value),
     );
   }
 
   Future<void> _reloadFeedFromApi() async {
-    if (!_connectivityService.isConnected.value) return;
-
-    await contentList.loadFirst();
-    if (_isClosed) return;
-
-    _cacheCurrentTab();
-    _loadingState.value = LoadingState.loaded;
-    _resetReelPosition();
-    _schedulePlayReelAt(0);
+    await reelFeed!.reloadFromApi(
+      cacheKey: _cacheKey(activeTab.value, _selectedCategoryId.value),
+      onReloaded: () async {
+        if (_isClosed) return;
+        _resetReelPosition();
+        _schedulePlayReelAt(0);
+      },
+    );
   }
 
   Future<void> _loadData({bool showFullLoader = true}) async {
-    try {
-      final isOnline = _connectivityService.isConnected.value;
-      final cacheKey = _cacheKey(activeTab.value, _selectedCategoryId.value);
-      final hasCachedData = _contentCache.containsKey(cacheKey);
-      final cached = _getCachedContents(cacheKey);
+    final cacheKey = _cacheKey(activeTab.value, _selectedCategoryId.value);
 
-      if (showFullLoader) {
-        if (hasCachedData) {
-          contentList.items.value = cached;
-          _loadingState.value = LoadingState.loaded;
-          _resetReelPosition();
-          _schedulePlayReelAt(0);
-        } else {
-          contentList.items.clear();
-          _loadingState.value = LoadingState.loading;
-          unawaited(pauseReel());
-        }
-      }
+    await reelFeed!.load(cacheKey: cacheKey, showFullLoader: showFullLoader);
 
-      if (!isOnline) {
-        if (!hasCachedData && contents.isEmpty) {
-          _loadingState.value = LoadingState.offline;
-        }
-        return;
-      }
+    if (_isClosed) return;
 
-      await contentList.loadFirst();
-      if (_isClosed) return;
-      _cacheCurrentTab();
-      _loadingState.value = LoadingState.loaded;
+    if (loadingState == LoadingState.loaded) {
       _resetReelPosition();
       _schedulePlayReelAt(0);
-    } on AppException catch (e) {
-      if (!_contentCache.containsKey(
-        _cacheKey(activeTab.value, _selectedCategoryId.value),
-      )) {
-        _loadingState.value = LoadingState.error;
-      }
-      if (kDebugMode) debugPrint('fetchContents error: $e');
-    } catch (e) {
-      if (!_contentCache.containsKey(
-        _cacheKey(activeTab.value, _selectedCategoryId.value),
-      )) {
-        _loadingState.value = LoadingState.error;
-      }
-      if (kDebugMode) debugPrint('fetchContents error: $e');
+    } else if (loadingState == LoadingState.loading) {
+      unawaited(pauseReel());
     }
   }
 
   Future<void> changeTab(ContentTab tab) async {
     if (activeTab.value == tab) return;
-    _cacheCurrentTab();
+    await _cacheCurrentTab();
     activeTab.value = tab;
 
     _selectedCategoryId.value = null;
@@ -422,12 +238,13 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       search: query,
       page: 1,
       limit: 20,
+      cacheResults: false,
     );
   }
 
   Future<void> selectCategory(String? categoryId) async {
     if (_selectedCategoryId.value == categoryId) return;
-    _cacheCurrentTab();
+    await _cacheCurrentTab();
     _selectedCategoryId.value = categoryId;
     _resetReelPosition();
     await _loadData();
@@ -436,9 +253,18 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   Future<void> refresh() async {
     await pauseReel();
-    _invalidateCurrentCache();
-    await contentList.refreshWith(_reloadFeedFromApi);
+    await reelFeed!.refresh(
+      cacheKey: _cacheKey(activeTab.value, _selectedCategoryId.value),
+      onBeforeReload: _invalidateCurrentCache,
+      onReloaded: () async {},
+    );
+    _resetReelPosition();
+    _schedulePlayReelAt(0);
   }
+
+  @override
+  bool get showPaginationLoader =>
+      reelFeed?.feed.isLoadingMore.value ?? false;
 
   Future<void> createOrUpdateContent({
     required Map<String, dynamic> fields,
@@ -482,7 +308,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
         ToastMessageHelper.show('Content posted successfully');
       }
 
-      _invalidateCurrentCache();
+      await _invalidateCurrentCache();
       await _reloadFeedFromApi();
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
@@ -500,12 +326,13 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       await _service.deleteContent(contentId);
       _deleteLoadingState.value = LoadingState.loaded;
       if (Get.isDialogOpen ?? false) Get.back();
-      _invalidateCurrentCache();
+      await _invalidateCurrentCache();
       await _reloadFeedFromApi();
       if (contents.isNotEmpty) {
-        final nextIndex = currentReelIndex.value.clamp(0, contents.length - 1);
-        currentReelIndex.value = nextIndex;
-        unawaited(_reelPool.reset());
+        final nextIndex =
+            reel.currentIndex.value.clamp(0, contents.length - 1);
+        reel.currentIndex.value = nextIndex;
+        await reel.playerManager.reset();
         if (pageController.hasClients) {
           pageController.jumpToPage(nextIndex);
         }
@@ -521,13 +348,12 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   @override
   void onClose() {
     _isClosed = true;
-    pageController.removeListener(_onPageScroll);
     _navTabWorker?.dispose();
     _connectivityWorker?.dispose();
     pageController.dispose();
     searchController.dispose();
-    contentList.dispose();
-    unawaited(_reelPool.dispose());
+    reelFeed?.dispose();
+    unawaited(reel.disposePlayback());
     super.onClose();
   }
 }

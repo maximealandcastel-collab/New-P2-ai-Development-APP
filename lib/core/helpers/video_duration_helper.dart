@@ -1,23 +1,21 @@
-import 'package:media_kit/media_kit.dart';
+import 'dart:io';
+
+import 'package:video_player/video_player.dart';
 
 class VideoDurationHelper {
   VideoDurationHelper._();
 
   static Future<int?> fromFilePath(String path) async {
-    final player = Player(
-      configuration: const PlayerConfiguration(muted: true),
-    );
+    final controller = VideoPlayerController.file(File(path));
 
     try {
-      await player.open(Media('file://$path'), play: false);
-      final duration = await player.stream.duration
-          .firstWhere((value) => value > Duration.zero)
-          .timeout(const Duration(seconds: 15));
-      return duration.inSeconds;
+      await controller.initialize().timeout(const Duration(seconds: 15));
+      final seconds = controller.value.duration.inSeconds;
+      return seconds > 0 ? seconds : null;
     } catch (_) {
       return null;
     } finally {
-      await player.dispose();
+      await controller.dispose();
     }
   }
 }

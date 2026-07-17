@@ -29,6 +29,7 @@ import 'package:pler_to_pler_app/features/contents/domain/services/category_serv
 import 'package:pler_to_pler_app/features/contents/domain/services/content_service.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/category_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
+import 'package:pler_to_pler_app/features/contents/reels/presentation/controllers/reel_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
@@ -316,13 +317,17 @@ class DependencyInjection {
 
     /// Content
     Get.lazyPut<ContentRepository>(
-      () => ContentRepository(apiService: Get.find<ApiService>()),
+      () => ContentRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
       fenix: true,
     );
     Get.lazyPut<ContentService>(
       () => ContentService(repository: Get.find<ContentRepository>()),
       fenix: true,
     );
+    Get.lazyPut<ReelController>(ReelController.new, fenix: true);
     Get.lazyPut<ContentController>(
       () => ContentController(
         service: Get.find<ContentService>(),

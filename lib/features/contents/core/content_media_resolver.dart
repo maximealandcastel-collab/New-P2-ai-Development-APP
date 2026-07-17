@@ -1,15 +1,21 @@
+import 'dart:io';
+
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 
 class ContentMediaResolver {
   ContentMediaResolver._();
 
+  static void _log(String message) {
+    if (kDebugMode) debugPrint(message);
+  }
+
   static String resolveUrl(String? raw) {
     final value = raw?.trim() ?? '';
     if (value.isEmpty) {
-      debugPrint('ContentMediaResolver.resolveUrl: raw url is empty');
+      _log('ContentMediaResolver.resolveUrl: raw url is empty');
       return '';
     }
 
@@ -19,7 +25,7 @@ class ContentMediaResolver {
 
     if (value.startsWith('http://') || value.startsWith('https://')) {
       final resolved = Uri.parse(value).toString();
-      debugPrint('ContentMediaResolver.resolveUrl: absolute → $resolved');
+      _log('ContentMediaResolver.resolveUrl: absolute → $resolved');
       return resolved;
     }
 
@@ -33,44 +39,65 @@ class ContentMediaResolver {
       ],
     );
 
-    debugPrint('ContentMediaResolver.resolveUrl: resolved → ${resolved.toString()}');
+    _log('ContentMediaResolver.resolveUrl: resolved → ${resolved.toString()}');
     return resolved.toString();
   }
 
-  static Media? mediaFromContent(ContentModel content) {
-    debugPrint('ContentMediaResolver.mediaFromContent: videoUrl → ${content.videoUrl}');
-    final url = resolveUrl(content.videoUrl);
+  static String resolveVideoUrl(ContentModel content) {
+    return resolveUrl(content.videoUrl);
+  }
+
+  static String resolveThumbnailUrl(ContentModel content) {
+    return resolveUrl(content.thumbnailUrl);
+  }
+
+  /// Builds a cached player for any supported video source string.
+  static CachedVideoPlayerPlus createPlayerForUrl(
+    String url, {
+    String? cacheKey,
+  }) {
+    if (url.startsWith('file://')) {
+      final path = url.replaceFirst('file://', '');
+      return CachedVideoPlayerPlus.file(File(path));
+    }
+
+    if (url.startsWith('asset://')) {
+      final assetPath = url
+          .replaceFirst('asset:///', '')
+          .replaceFirst('asset://', '');
+      return CachedVideoPlayerPlus.asset(assetPath);
+    }
+
+    if (_looksLikeLocalPath(url)) {
+      return CachedVideoPlayerPlus.file(File(url));
+    }
+
+    return CachedVideoPlayerPlus.networkUrl(
+      Uri.parse(url),
+      cacheKey: cacheKey ?? url,
+      invalidateCacheIfOlderThan: const Duration(days: 7),
+    );
+  }
+
+  static CachedVideoPlayerPlus? createPlayerForContent(ContentModel content) {
+    final url = resolveVideoUrl(content);
     if (url.isEmpty) {
-      debugPrint('ContentMediaResolver.mediaFromContent: resolved url is empty, returning null');
+      _log('ContentMediaResolver.createPlayerForContent: empty url');
       return null;
     }
-    debugPrint('ContentMediaResolver.mediaFromContent: final media url → $url');
-    return Media(url);
+
+    _log('ContentMediaResolver.createPlayerForContent: $url');
+    return createPlayerForUrl(url, cacheKey: content.id ?? url);
   }
 
-  static Media mediaFromSource(String source) {
-    debugPrint('ContentMediaResolver.mediaFromSource: source → $source');
+  static CachedVideoPlayerPlus? createPlayerForSource(String source) {
     final url = resolveUrl(source);
-    if (url.startsWith('asset://')) {
-      final assetUrl = url.replaceFirst('asset://', 'asset:///');
-      debugPrint('ContentMediaResolver.mediaFromSource: asset url → $assetUrl');
-      return Media(assetUrl);
-    }
-    debugPrint('ContentMediaResolver.mediaFromSource: final media url → $url');
-    return Media(url);
+    if (url.isEmpty) return null;
+    return createPlayerForUrl(url, cacheKey: url);
   }
 
-  static Media mediaFromAsset(String assetPath) {
-    final normalized = assetPath.startsWith('assets/')
-        ? assetPath
-        : 'assets/$assetPath';
-    final url = 'asset:///$normalized';
-    debugPrint('ContentMediaResolver.mediaFromAsset: url → $url');
-    return Media(url);
-  }
-
-  static Media mediaFromFile(String filePath) {
-    debugPrint('ContentMediaResolver.mediaFromFile: filePath → $filePath');
-    return Media('file://$filePath');
+  static bool _looksLikeLocalPath(String url) {
+    if (url.startsWith('/')) return true;
+    return RegExp(r'^[A-Za-z]:\\').hasMatch(url);
   }
 }

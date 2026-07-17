@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/features/contents/core/content_hero_tags.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_details_controller.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_thumbnail_placeholder.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_video_player.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -20,6 +21,8 @@ class ContentVideoHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final thumbnailUrl = ContentMediaResolver.resolveThumbnailUrl(content);
+
     return ColoredBox(
       color: AppColors.backgroundLight,
       child: Align(
@@ -35,12 +38,18 @@ class ContentVideoHeader extends StatelessWidget {
                 child: ContentVideoPlayer(
                   controller: controller,
                   borderRadius: BorderRadius.circular(12.r),
-                  poster: CustomNetworkImage(
-                    width: double.infinity,
-                    height: double.infinity,
-                    imageUrl: ContentMediaResolver.resolveUrl(content.thumbnailUrl),
-                    fit: BoxFit.cover,
-                  ),
+                  poster: thumbnailUrl.isNotEmpty
+                      ? CustomNetworkImage(
+                          width: double.infinity,
+                          height: double.infinity,
+                          imageUrl: thumbnailUrl,
+                          fit: BoxFit.cover,
+                          backgroundColor: AppColors.backgroundDark,
+                          fallbackAsset: ContentThumbnailPlaceholder(
+                            title: content.title,
+                          ),
+                        )
+                      : ContentThumbnailPlaceholder(title: content.title),
                 ),
               ),
             ),

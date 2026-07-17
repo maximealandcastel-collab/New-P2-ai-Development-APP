@@ -4,13 +4,16 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_reel_item.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reels_overlay.dart';
+import 'package:pler_to_pler_app/features/contents/reels/core/reel_colors.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:preload_page_view/preload_page_view.dart' hide PageScrollPhysics;
 
 class ContentsScreen extends StatelessWidget {
   const ContentsScreen({super.key});
@@ -20,36 +23,18 @@ class ContentsScreen extends StatelessWidget {
     final contentController = ContentController.to;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: ReelColors.background,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Obx(() => _buildContentBody(context, contentController)),
+          Obx(() {
+            contentController.reelFeed!.loadingState.value;
+            contentController.reelFeed!.feed.items.length;
+            return _buildContentBody(context, contentController);
+          }),
           ContentsReelsOverlay(
             onSearchTap: () => _openSearch(context, contentController),
           ),
-          Obx(() {
-            if (!contentController.showPaginationLoader) {
-              return const SizedBox.shrink();
-            }
-
-            return Positioned(
-              left: 0,
-              right: 0,
-              bottom: 110.h,
-              child: Center(
-                child: CustomContainer(
-                  color: AppColors.backgroundLight.withValues(
-                    alpha: 0.92,
-                  ),
-                  radiusAll: 999.r,
-                  paddingHorizontal: 14.w,
-                  paddingVertical: 8.h,
-                  child: const CustomLoader(),
-                ),
-              ),
-            );
-          }),
         ],
       ),
     );
@@ -59,13 +44,10 @@ class ContentsScreen extends StatelessWidget {
     BuildContext context,
     ContentController contentController,
   ) {
-    switch (contentController.loadingState) {
+    switch (contentController.reelFeed!.loadingState.value) {
       case LoadingState.initial:
       case LoadingState.loading:
-        return const ColoredBox(
-          color: AppColors.backgroundDark,
-          child: Center(child: CustomLoader()),
-        );
+        return const ColoredBox(color: ReelColors.background);
       case LoadingState.offline:
       case LoadingState.error:
         return _buildEmptyState(contentController);
@@ -77,31 +59,39 @@ class ContentsScreen extends StatelessWidget {
         final isFirstReel = contentController.currentReelIndex.value == 0;
 
         return RefreshIndicator(
-          backgroundColor: AppColors.backgroundLight,
+          backgroundColor: ReelColors.background,
           color: AppColors.primary,
           edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
           onRefresh: contentController.refresh,
           notificationPredicate: (notification) =>
               isFirstReel && notification.depth == 0,
           child: ColoredBox(
-            color: AppColors.backgroundDark,
-            child: PageView.builder(
-              controller: contentController.pageController,
-              scrollDirection: Axis.vertical,
-              allowImplicitScrolling: true,
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: PageScrollPhysics(),
-              ),
-              itemCount: contentController.contents.length,
-              onPageChanged: contentController.onReelPageChanged,
-              itemBuilder: (context, index) {
-                final content = contentController.contents[index];
-                return ContentReelItem(content: content, index: index);
-              },
-            ),
+            color: ReelColors.background,
+            child: _buildReelPageView(contentController),
           ),
         );
     }
+  }
+
+  Widget _buildReelPageView(ContentController contentController) {
+    return PreloadPageView.builder(
+      controller: contentController.pageController,
+      scrollDirection: Axis.vertical,
+      preloadPagesCount: 1,
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: PageScrollPhysics(),
+      ),
+      itemCount: contentController.contents.length,
+      onPageChanged: contentController.onReelPageChanged,
+      itemBuilder: (context, index) {
+        final content = contentController.contents[index];
+        return ContentReelItem(
+          key: ValueKey(content.id ?? 'content_$index'),
+          content: content,
+          index: index,
+        );
+      },
+    );
   }
 
   Widget _buildEmptyState(ContentController contentController) {
@@ -124,7 +114,7 @@ class ContentsScreen extends StatelessWidget {
                 (content) => SearchModel(
                   model: content,
                   title: content.title ?? content.exerciseName,
-                  image: content.thumbnailUrl,
+                  image: ContentMediaResolver.resolveThumbnailUrl(content),
                   subtitle: content.categoryId?.category ?? content.difficulty,
                 ),
               )

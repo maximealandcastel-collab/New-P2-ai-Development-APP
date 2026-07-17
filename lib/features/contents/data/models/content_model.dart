@@ -73,7 +73,7 @@ class ContentModel {
     description = json['description'];
     contentType = json['contentType'];
     videoUrl = json['videoUrl'] ?? json['videoPath'];
-    thumbnailUrl = json['thumbnailUrl'];
+    thumbnailUrl = _readThumbnail(json);
     durationSeconds = json['durationSeconds'];
     exerciseName = json['exerciseName'];
     muscleGroups = json['muscleGroups']?.cast<String>();
@@ -126,5 +126,41 @@ class ContentModel {
       'equipment': equipment,
       'tags': tags,
     };
+  }
+
+  static String? _readThumbnail(Map<String, dynamic> json) {
+    const keys = [
+      'thumbnailUrl',
+      'thumbnailPath',
+      'thumbnail',
+      'coverImage',
+      'imageUrl',
+      'image',
+    ];
+
+    for (final key in keys) {
+      final value = json[key];
+      final resolved = _readMediaPath(value);
+      if (resolved != null) return resolved;
+    }
+
+    return null;
+  }
+
+  static String? _readMediaPath(dynamic value) {
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+
+    if (value is Map) {
+      for (final nestedKey in ['url', 'path', 'thumbnailUrl', 'thumbnailPath']) {
+        final nested = value[nestedKey];
+        if (nested is String && nested.trim().isNotEmpty) {
+          return nested.trim();
+        }
+      }
+    }
+
+    return null;
   }
 }

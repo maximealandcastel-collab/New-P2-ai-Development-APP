@@ -3,14 +3,24 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 
 class ContentRepository {
-  ContentRepository({required ApiService apiService}) : _apiService = apiService;
+  ContentRepository({
+    required ApiService apiService,
+    required CacheService cacheService,
+  })  : _apiService = apiService,
+        _cacheService = cacheService;
 
   final ApiService _apiService;
+  final CacheService _cacheService;
+
+  static String feedCacheKey(String feedKey) =>
+      '${AppConstants.cacheContentFeedPrefix}$feedKey';
 
   Future<List<ContentModel>> getMyContent({
     String? categoryId,
@@ -48,8 +58,7 @@ class ContentRepository {
         queryParameters: {
           'page': page,
           'limit': limit,
-          if(search != null && search.isNotEmpty)
-          'search': search,
+          if (search != null && search.isNotEmpty) 'search': search,
         },
       );
 
@@ -75,6 +84,44 @@ class ContentRepository {
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
+
+  List<ContentModel> getCachedFeed(String feedKey) {
+    try {
+      final jsonList = _cacheService.get<List>(
+            feedCacheKey(feedKey),
+            defaultValue: [],
+          ) ??
+          [];
+      return jsonList.map((json) => ContentModel.fromJson(json)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  bool hasFeedCache(String feedKey) =>
+      _cacheService.containsKey(feedCacheKey(feedKey));
+
+  Future<void> cacheFeed(String feedKey, List<ContentModel> items) async {
+    await _cacheService.put(
+      feedCacheKey(feedKey),
+      items.map((item) => item.toJson()).toList(),
+    );
+  }
+
+  Future<void> appendFeedCache(
+    String feedKey,
+    List<ContentModel> newItems,
+  ) async {
+    if (newItems.isEmpty) return;
+
+    final existing = getCachedFeed(feedKey);
+    final merged = [...existing, ...newItems];
+    await cacheFeed(feedKey, merged);
+  }
+
+  Future<void> invalidateFeedCache(String feedKey) async {
+    await _cacheService.delete(feedCacheKey(feedKey));
   }
 
   Future<void> createContent({
