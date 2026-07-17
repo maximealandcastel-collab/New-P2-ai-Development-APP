@@ -141,15 +141,7 @@ class _ContentsReelPageViewState extends State<ContentsReelPageView> {
                             Icons.refresh_rounded,
                             color: AppColors.textWhite,
                             size: 20.r,
-                          ),
-                          SizedBox(width: 8.w),
-                          CustomText(
-                            text: 'Tap to retry',
-                            fontSize: 14.sp,
-                            color: AppColors.textWhite,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ],
+                          ),],
                       ),
                     ),
                   )

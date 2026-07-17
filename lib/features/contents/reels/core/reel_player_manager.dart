@@ -38,6 +38,7 @@ class ReelPlayerManager {
     required int index,
     required List<ContentModel> contents,
     bool playActive = true,
+    bool prioritizeNextPreload = false,
   }) async {
     if (contents.isEmpty) return;
 
@@ -46,9 +47,14 @@ class ReelPlayerManager {
     final center = index.clamp(0, contents.length - 1);
     _activeIndex = center;
 
-    final keep = {center, if (center > 0) center - 1, if (center + 1 < contents.length) center + 1};
+    final keep = {
+      center,
+      if (center > 0) center - 1,
+      if (center + 1 < contents.length) center + 1,
+    };
 
     for (final key in _slots.keys.where((i) => !keep.contains(i)).toList()) {
+      if (op != _operationId) return;
       final slot = _slots.remove(key)!;
       await slot.cancel();
       slot.detach();
@@ -60,18 +66,27 @@ class ReelPlayerManager {
       contents[center],
       autoPlay: playActive,
       operationId: op,
+      isCenter: true,
+    );
+    if (op != _operationId) return;
+
+    await _ensureCenterReady(
+      center: center,
+      content: contents[center],
+      playActive: playActive,
+      operationId: op,
     );
     if (op != _operationId) return;
     _notify();
 
-    if (center + 1 < contents.length) {
-      unawaited(
-        _load(center + 1, contents[center + 1], operationId: op),
-      );
-    }
-    if (center > 0) {
-      unawaited(_load(center - 1, contents[center - 1], operationId: op));
-    }
+    unawaited(
+      _preloadNeighbors(
+        center: center,
+        contents: contents,
+        operationId: op,
+        prioritizeNext: prioritizeNextPreload,
+      ),
+    );
 
     if (op != _operationId) return;
 
@@ -80,7 +95,81 @@ class ReelPlayerManager {
     }
   }
 
-  Future<void> pauseActive() => _slots[_activeIndex]?.pause() ?? Future.value();
+  Future<void> _ensureCenterReady({
+    required int center,
+    required ContentModel content,
+    required bool playActive,
+    required int operationId,
+  }) async {
+    final slot = _slots[center];
+    final needsReload = slot == null ||
+        (!slot.isReady && slot.error.isEmpty && !slot.isLoading);
+
+    if (needsReload) {
+      if (slot != null) {
+        await _evictSlot(center, slot);
+      }
+      if (operationId != _operationId) return;
+
+      await _load(
+        center,
+        content,
+        autoPlay: playActive,
+        operationId: operationId,
+        isCenter: true,
+      );
+      if (operationId != _operationId) return;
+    }
+
+    final activeSlot = _slots[center];
+    if (activeSlot != null &&
+        activeSlot.isReady &&
+        playActive &&
+        operationId == _operationId) {
+      await activeSlot.play();
+    }
+  }
+
+  Future<void> _preloadNeighbors({
+    required int center,
+    required List<ContentModel> contents,
+    required int operationId,
+    required bool prioritizeNext,
+  }) async {
+    if (operationId != _operationId) return;
+
+    final activeSlot = _slots[center];
+    if (activeSlot == null || !activeSlot.isReady) return;
+
+    Future<void> preloadNext() async {
+      if (operationId != _operationId || center + 1 >= contents.length) return;
+      await _load(
+        center + 1,
+        contents[center + 1],
+        operationId: operationId,
+        isCenter: false,
+      );
+    }
+
+    Future<void> preloadPrev() async {
+      if (operationId != _operationId || center <= 0) return;
+      await _load(
+        center - 1,
+        contents[center - 1],
+        operationId: operationId,
+        isCenter: false,
+      );
+    }
+
+    if (prioritizeNext) {
+      await preloadNext();
+    } else {
+      await Future.wait([preloadNext(), preloadPrev()]);
+    }
+  }
+
+  Future<void> pauseActive() =>
+      _slots[_activeIndex]?.pause() ?? Future.value();
 
   Future<void> playActive() => _slots[_activeIndex]?.play() ?? Future.value();
 
@@ -91,7 +180,12 @@ class ReelPlayerManager {
       old.detach();
       _free.add(old);
     }
-    await _load(index, content, autoPlay: _activeIndex == index);
+    await _load(
+      index,
+      content,
+      autoPlay: _activeIndex == index,
+      isCenter: _activeIndex == index,
+    );
     _notify();
   }
 
@@ -108,6 +202,7 @@ class ReelPlayerManager {
   }
 
   Future<void> releaseAll() async {
+    _operationId++;
     for (final slot in [..._slots.values, ..._free]) {
       await slot.release();
     }
@@ -133,13 +228,14 @@ class ReelPlayerManager {
     ContentModel content, {
     bool autoPlay = false,
     int? operationId,
+    bool isCenter = false,
   }) async {
     final op = operationId ?? _operationId;
 
     var slot = _slots[index];
     if (slot == null) {
       if (op != _operationId) return;
-      slot = await _takeFreeSlot();
+      slot = await _takeFreeSlot(protectIndex: _activeIndex);
       if (op != _operationId) {
         _free.add(slot);
         return;
@@ -149,7 +245,9 @@ class ReelPlayerManager {
 
     await slot.load(index, content, autoPlay: autoPlay);
     if (op != _operationId) {
-      await _evictSlot(index, slot);
+      if (!isCenter || index != _activeIndex) {
+        await _evictSlot(index, slot);
+      }
       return;
     }
     _notify();
@@ -163,14 +261,21 @@ class ReelPlayerManager {
     _free.add(slot);
   }
 
-  Future<ReelVideoSlot> _takeFreeSlot() async {
+  Future<ReelVideoSlot> _takeFreeSlot({int? protectIndex}) async {
     if (_free.isNotEmpty) return _free.removeLast();
 
-    final active = _activeIndex;
-    if (active == null || _slots.isEmpty) return _createSlot();
+    final active = protectIndex ?? _activeIndex;
+    if (_slots.isEmpty) return _createSlot();
 
-    final farthest = _slots.entries.reduce(
-      (a, b) => (active - a.key).abs() > (active - b.key).abs() ? a : b,
+    final candidates = active == null
+        ? _slots.entries.toList()
+        : _slots.entries.where((entry) => entry.key != active).toList();
+
+    if (candidates.isEmpty) return _createSlot();
+
+    final anchor = active ?? candidates.first.key;
+    final farthest = candidates.reduce(
+      (a, b) => (anchor - a.key).abs() > (anchor - b.key).abs() ? a : b,
     );
     _slots.remove(farthest.key);
     await farthest.value.cancel();

@@ -9,6 +9,8 @@ class ReelVideoSlot {
   CachedVideoPlayerPlus? _player;
   VideoPlayerController? _controller;
   int _generation = 0;
+  Future<void>? _activeLoad;
+  bool _autoRetried = false;
 
   VoidCallback? onUpdated;
 
@@ -50,15 +52,29 @@ class ReelVideoSlot {
       return;
     }
 
-    if (isLoading) {
+    if (_activeLoad != null &&
+        index == targetIndex &&
+        sourceKey == cacheKey &&
+        !isReady &&
+        error.isEmpty) {
+      await _activeLoad;
       if (index == targetIndex &&
           sourceKey == cacheKey &&
-          !isReady &&
+          isReady &&
           error.isEmpty) {
+        if (autoPlay) {
+          await _controller?.play();
+        } else {
+          await _controller?.pause();
+        }
         return;
       }
+    }
+
+    if (isLoading) {
       _generation++;
       isLoading = false;
+      _activeLoad = null;
       _notifyState();
     }
 
@@ -68,8 +84,34 @@ class ReelVideoSlot {
     isReady = false;
     isLoading = true;
     error = '';
+    _autoRetried = false;
     _notifyState();
 
+    final loadFuture = _performLoad(
+      targetIndex: targetIndex,
+      url: url,
+      cacheKey: cacheKey,
+      autoPlay: autoPlay,
+      generation: generation,
+    );
+    _activeLoad = loadFuture;
+
+    try {
+      await loadFuture;
+    } finally {
+      if (_activeLoad == loadFuture) {
+        _activeLoad = null;
+      }
+    }
+  }
+
+  Future<void> _performLoad({
+    required int targetIndex,
+    required String url,
+    required String cacheKey,
+    required bool autoPlay,
+    required int generation,
+  }) async {
     await _dispose();
     if (generation != _generation) return;
 
@@ -96,11 +138,56 @@ class ReelVideoSlot {
       }
     } catch (e) {
       if (generation != _generation) return;
-      error = 'Unable to play this video.';
-      isReady = false;
-      _controller = null;
-      await _disposePlayer(player);
-      if (kDebugMode) debugPrint('ReelVideoSlot.load: $e');
+
+      if (!_autoRetried) {
+        _autoRetried = true;
+        await _disposePlayer(player);
+        player = null;
+        _player = null;
+        _controller = null;
+        isReady = false;
+        isLoading = true;
+        _notifyState();
+
+        try {
+          player = ContentMediaResolver.createPlayerForUrl(
+            url,
+            cacheKey: cacheKey,
+          );
+          _player = player;
+          await player.initialize();
+          if (generation != _generation) {
+            await player.dispose();
+            return;
+          }
+
+          final videoController = player.controller;
+          await videoController.setLooping(true);
+          _controller = videoController;
+          isReady = true;
+          error = '';
+
+          if (autoPlay) {
+            await videoController.play();
+          } else {
+            await videoController.seekTo(Duration.zero);
+            await videoController.pause();
+          }
+        } catch (retryError) {
+          if (generation != _generation) return;
+          error = 'Unable to play this video.';
+          isReady = false;
+          _controller = null;
+          await _disposePlayer(player);
+          if (kDebugMode) debugPrint('ReelVideoSlot.load retry: $retryError');
+        }
+      } else {
+        error = 'Unable to play this video.';
+        isReady = false;
+        _controller = null;
+        await _disposePlayer(player);
+        if (kDebugMode) debugPrint('ReelVideoSlot.load: $e');
+      }
     } finally {
       if (generation == _generation) {
         isLoading = false;
@@ -115,6 +202,8 @@ class ReelVideoSlot {
     isReady = false;
     _controller = null;
     error = '';
+    _activeLoad = null;
+    _autoRetried = false;
     await _dispose();
   }
 
@@ -145,6 +234,8 @@ class ReelVideoSlot {
     isLoading = false;
     error = '';
     _controller = null;
+    _activeLoad = null;
+    _autoRetried = false;
   }
 
   Future<void> release() async {

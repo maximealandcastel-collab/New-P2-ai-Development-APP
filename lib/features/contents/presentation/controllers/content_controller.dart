@@ -162,11 +162,11 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     });
   }
 
-  Future<void> onReelPageChanged(int index) async {
+  void onReelPageChanged(int index) {
     if (index >= contents.length) return;
 
     reelFeed?.maybeLoadMore(index);
-    await reel.onPageChanged(index: index, contents: contents);
+    unawaited(reel.onPageChanged(index: index, contents: contents));
   }
 
   Future<void> retryPagination() => reelFeed?.retryPagination() ?? Future.value();
