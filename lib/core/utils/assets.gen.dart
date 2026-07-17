@@ -27,14 +27,8 @@ class $AssetsIconsGen {
   /// File path: assets/icons/Payoneer.svg
   SvgGenImage get payoneer => const SvgGenImage('assets/icons/Payoneer.svg');
 
-  /// File path: assets/icons/Symbol.svg
-  SvgGenImage get symbol => const SvgGenImage('assets/icons/Symbol.svg');
-
   /// File path: assets/icons/add_button.svg
   SvgGenImage get addButton => const SvgGenImage('assets/icons/add_button.svg');
-
-  /// File path: assets/icons/ai.svg
-  SvgGenImage get ai => const SvgGenImage('assets/icons/ai.svg');
 
   /// File path: assets/icons/ai_chat.svg
   SvgGenImage get aiChat => const SvgGenImage('assets/icons/ai_chat.svg');
@@ -47,9 +41,6 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/calender.svg
   SvgGenImage get calender => const SvgGenImage('assets/icons/calender.svg');
-
-  /// File path: assets/icons/camera.svg
-  SvgGenImage get camera => const SvgGenImage('assets/icons/camera.svg');
 
   /// File path: assets/icons/category.svg
   SvgGenImage get category => const SvgGenImage('assets/icons/category.svg');
@@ -70,12 +61,6 @@ class $AssetsIconsGen {
   /// File path: assets/icons/delete.svg
   SvgGenImage get delete => const SvgGenImage('assets/icons/delete.svg');
 
-  /// File path: assets/icons/edit.svg
-  SvgGenImage get edit => const SvgGenImage('assets/icons/edit.svg');
-
-  /// File path: assets/icons/email.png
-  AssetGenImage get email => const AssetGenImage('assets/icons/email.png');
-
   /// File path: assets/icons/email_icon.png
   AssetGenImage get emailIcon =>
       const AssetGenImage('assets/icons/email_icon.png');
@@ -86,9 +71,6 @@ class $AssetsIconsGen {
   /// File path: assets/icons/exercise.svg
   SvgGenImage get exercise => const SvgGenImage('assets/icons/exercise.svg');
 
-  /// File path: assets/icons/file.svg
-  SvgGenImage get file => const SvgGenImage('assets/icons/file.svg');
-
   /// File path: assets/icons/history.svg
   SvgGenImage get history => const SvgGenImage('assets/icons/history.svg');
 
@@ -97,12 +79,6 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/message.svg
   SvgGenImage get message => const SvgGenImage('assets/icons/message.svg');
-
-  /// File path: assets/icons/missing.svg
-  SvgGenImage get missing => const SvgGenImage('assets/icons/missing.svg');
-
-  /// File path: assets/icons/more.svg
-  SvgGenImage get more => const SvgGenImage('assets/icons/more.svg');
 
   /// File path: assets/icons/note.svg
   SvgGenImage get note => const SvgGenImage('assets/icons/note.svg');
@@ -140,17 +116,8 @@ class $AssetsIconsGen {
   /// File path: assets/icons/send.svg
   SvgGenImage get send => const SvgGenImage('assets/icons/send.svg');
 
-  /// File path: assets/icons/setting.svg
-  SvgGenImage get setting => const SvgGenImage('assets/icons/setting.svg');
-
   /// File path: assets/icons/star.svg
   SvgGenImage get star => const SvgGenImage('assets/icons/star.svg');
-
-  /// File path: assets/icons/stripe.svg
-  SvgGenImage get stripe => const SvgGenImage('assets/icons/stripe.svg');
-
-  /// File path: assets/icons/sub_button.svg
-  SvgGenImage get subButton => const SvgGenImage('assets/icons/sub_button.svg');
 
   /// File path: assets/icons/subscribe_icons.svg
   SvgGenImage get subscribeIcons =>
@@ -170,39 +137,28 @@ class $AssetsIconsGen {
   /// File path: assets/icons/transfer.svg
   SvgGenImage get transfer => const SvgGenImage('assets/icons/transfer.svg');
 
-  /// File path: assets/icons/video_call.svg
-  SvgGenImage get videoCall => const SvgGenImage('assets/icons/video_call.svg');
-
   /// List of all assets
   List<dynamic> get values => [
     clients,
     contents,
     payoneer,
-    symbol,
     addButton,
-    ai,
     aiChat,
     arrowBack,
     attention,
     calender,
-    camera,
     category,
     check,
     clean,
     date,
     defultTrainer,
     delete,
-    edit,
-    email,
     emailIcon,
     empty,
     exercise,
-    file,
     history,
     home,
     message,
-    missing,
-    more,
     note,
     notification,
     panding,
@@ -214,16 +170,12 @@ class $AssetsIconsGen {
     recieved,
     request,
     send,
-    setting,
     star,
-    stripe,
-    subButton,
     subscribeIcons,
     supprtMail,
     trainer,
     trainerSubIcons,
     transfer,
-    videoCall,
   ];
 }
 
@@ -234,19 +186,8 @@ class $AssetsImagesGen {
   AssetGenImage get appIcon =>
       const AssetGenImage('assets/images/app_icon.png');
 
-  /// File path: assets/images/facility_app_logo.png
-  AssetGenImage get facilityAppLogo =>
-      const AssetGenImage('assets/images/facility_app_logo.png');
-
-  /// File path: assets/images/img_1.png
-  AssetGenImage get img1 => const AssetGenImage('assets/images/img_1.png');
-
   /// File path: assets/images/logo.png
   AssetGenImage get logo => const AssetGenImage('assets/images/logo.png');
-
-  /// File path: assets/images/onboarding_fore_bg_img.png
-  AssetGenImage get onboardingForeBgImg =>
-      const AssetGenImage('assets/images/onboarding_fore_bg_img.png');
 
   /// File path: assets/images/onboarding_one_bg_img.png
   AssetGenImage get onboardingOneBgImg =>
@@ -273,10 +214,7 @@ class $AssetsImagesGen {
   /// List of all assets
   List<AssetGenImage> get values => [
     appIcon,
-    facilityAppLogo,
-    img1,
     logo,
-    onboardingForeBgImg,
     onboardingOneBgImg,
     onboardingThreeBgImg,
     onbordingTwoBgImg,
