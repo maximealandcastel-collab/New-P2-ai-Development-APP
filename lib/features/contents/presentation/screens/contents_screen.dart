@@ -7,98 +7,134 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_reel_item.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reel_page_view.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reels_overlay.dart';
-import 'package:pler_to_pler_app/features/contents/reels/core/reel_colors.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
-import 'package:preload_page_view/preload_page_view.dart' hide PageScrollPhysics;
 
 class ContentsScreen extends StatelessWidget {
   const ContentsScreen({super.key});
 
+  static const _background = Color(0xFF000000);
+
   @override
   Widget build(BuildContext context) {
-    final contentController = ContentController.to;
+    final controller = ContentController.to;
 
     return Scaffold(
-      backgroundColor: ReelColors.background,
+      backgroundColor: _background,
       body: Stack(
         fit: StackFit.expand,
         children: [
           Obx(() {
-            contentController.reelFeed!.loadingState.value;
-            contentController.reelFeed!.feed.items.length;
-            return _buildContentBody(context, contentController);
+            controller.reelFeed!.loadingState.value;
+            return _buildBody(context, controller);
           }),
           ContentsReelsOverlay(
-            onSearchTap: () => _openSearch(context, contentController),
+            onSearchTap: () => _openSearch(context, controller),
           ),
+          _buildPaginationFooter(context),
         ],
       ),
     );
   }
 
-  Widget _buildContentBody(
-    BuildContext context,
-    ContentController contentController,
-  ) {
-    switch (contentController.reelFeed!.loadingState.value) {
+  Widget _buildBody(BuildContext context, ContentController controller) {
+    final state = controller.reelFeed!.loadingState.value;
+    final hasItems = controller.contents.isNotEmpty;
+
+    if (hasItems &&
+        (state == LoadingState.loaded || state == LoadingState.loading)) {
+      return _buildFeed(context, controller);
+    }
+
+    switch (state) {
       case LoadingState.initial:
       case LoadingState.loading:
-        return const ColoredBox(color: ReelColors.background);
-      case LoadingState.offline:
-      case LoadingState.error:
-        return _buildEmptyState(contentController);
-      case LoadingState.loaded:
-        if (contentController.contents.isEmpty) {
-          return _buildEmptyState(contentController);
-        }
-
-        final isFirstReel = contentController.currentReelIndex.value == 0;
-
-        return RefreshIndicator(
-          backgroundColor: ReelColors.background,
-          color: AppColors.primary,
-          edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
-          onRefresh: contentController.refresh,
-          notificationPredicate: (notification) =>
-              isFirstReel && notification.depth == 0,
-          child: ColoredBox(
-            color: ReelColors.background,
-            child: _buildReelPageView(contentController),
-          ),
+        return const ColoredBox(
+          color: _background,
+          child: Center(child: CustomLoader()),
         );
+      case LoadingState.offline:
+        return _emptyState(
+          controller,
+          'You are offline. Connect to the internet to load content.',
+        );
+      case LoadingState.error:
+        return _emptyState(
+          controller,
+          'Unable to load content. Pull down to retry.',
+        );
+      case LoadingState.loaded:
+        return _emptyState(controller);
     }
   }
 
-  Widget _buildReelPageView(ContentController contentController) {
-    return PreloadPageView.builder(
-      controller: contentController.pageController,
-      scrollDirection: Axis.vertical,
-      preloadPagesCount: 1,
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: PageScrollPhysics(),
-      ),
-      itemCount: contentController.contents.length,
-      onPageChanged: contentController.onReelPageChanged,
-      itemBuilder: (context, index) {
-        final content = contentController.contents[index];
-        return ContentReelItem(
-          key: ValueKey(content.id ?? 'content_$index'),
-          content: content,
-          index: index,
-        );
-      },
+  Widget _buildFeed(BuildContext context, ContentController controller) {
+    return RefreshIndicator(
+      backgroundColor: _background,
+      color: AppColors.primary,
+      edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
+      onRefresh: controller.refresh,
+      notificationPredicate: (n) =>
+          controller.currentReelIndex.value == 0 && n.depth == 0,
+      child: const ContentsReelPageView(),
     );
   }
 
-  Widget _buildEmptyState(ContentController contentController) {
+  Widget _buildPaginationFooter(BuildContext context) {
+    final bottom = MediaQuery.paddingOf(context).bottom;
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: bottom + 96.h,
+      child: Obx(() {
+        final controller = ContentController.to;
+        final feed = controller.reelFeed!;
+
+        if (feed.feed.loadMoreFailed.value) {
+          return Center(
+            child: GestureDetector(
+              onTap: controller.retryPagination,
+              child: CustomContainer(
+                color: AppColors.backgroundLight.withValues(alpha: 0.92),
+                radiusAll: 999.r,
+                paddingHorizontal: 14.w,
+                paddingVertical: 8.h,
+                child: CustomText(
+                  text: 'Tap to retry',
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (!controller.showPaginationLoader) {
+          return const SizedBox.shrink();
+        }
+
+        return Center(
+          child: CustomContainer(
+            color: AppColors.backgroundLight.withValues(alpha: 0.92),
+            radiusAll: 999.r,
+            paddingHorizontal: 14.w,
+            paddingVertical: 8.h,
+            child: const CustomLoader(),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _emptyState(ContentController controller, [String? message]) {
     return EmptyDataWidget(
-      message: 'No content available',
+      message: message ?? 'No content available',
       messageColor: AppColors.textWhite,
-      onRefresh: contentController.refresh,
+      onRefresh: controller.refresh,
     );
   }
 
@@ -107,7 +143,7 @@ class ContentsScreen extends StatelessWidget {
       context: context,
       delegate: SearchScreen(
         hintText: 'Search default exercises...',
-        onSearch: (String query) async {
+        onSearch: (query) async {
           await controller.search.search(query);
           return controller.search.results
               .map(

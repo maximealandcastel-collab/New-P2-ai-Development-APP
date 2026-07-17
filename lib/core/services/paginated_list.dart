@@ -42,12 +42,14 @@ class PaginatedList<T> {
   final RxBool isLoadingMore = false.obs;
   final RxBool hasMore = true.obs;
   final RxBool isRefreshing = false.obs;
+  final RxBool loadMoreFailed = false.obs;
 
   ScrollController? scrollController;
   ScrollPosition? _scrollPosition;
   bool _ownsScrollController = false;
   int _page = 1;
   bool _suppressAutoLoadMore = false;
+  bool _loadMoreInFlight = false;
 
   bool get canLoadMore =>
       hasMore.value &&
@@ -148,9 +150,11 @@ class PaginatedList<T> {
   Future<void> loadMore() => _loadMore();
 
   Future<void> _loadMore() async {
-    if (!canLoadMore) return;
+    if (!canLoadMore || _loadMoreInFlight) return;
 
+    _loadMoreInFlight = true;
     isLoadingMore.value = true;
+    loadMoreFailed.value = false;
     _page++;
 
     try {
@@ -159,8 +163,10 @@ class PaginatedList<T> {
       if (result.length < limit) hasMore.value = false;
     } catch (_) {
       _page--;
+      loadMoreFailed.value = true;
     } finally {
       isLoadingMore.value = false;
+      _loadMoreInFlight = false;
     }
   }
 

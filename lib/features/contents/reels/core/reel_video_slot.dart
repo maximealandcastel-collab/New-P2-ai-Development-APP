@@ -1,30 +1,24 @@
-import 'dart:async';
-
 import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:video_player/video_player.dart';
 
-/// Wraps a single [CachedVideoPlayerPlus] instance for one reel index.
-///
-/// Slots are reused by [ReelPlayerManager] to keep memory bounded while
-/// supporting preload of adjacent videos.
-class ReelVideoSlot extends ChangeNotifier {
-  CachedVideoPlayerPlus? _cachedPlayer;
+/// One cached video player for a reel index.
+class ReelVideoSlot {
+  CachedVideoPlayerPlus? _player;
+  VideoPlayerController? _controller;
+  int _generation = 0;
 
   int? index;
   String? sourceKey;
-  bool isInitialized = false;
-  bool isInitializing = false;
+  bool isReady = false;
+  bool isLoading = false;
   String error = '';
 
-  VideoPlayerController? get controller => _cachedPlayer?.controller;
+  VideoPlayerController? get controller => isReady ? _controller : null;
 
-  bool get hasPlayer => _cachedPlayer != null;
-
-  /// Loads [content] at [targetIndex]. Reuses the player when the source is unchanged.
-  Future<void> loadAt(
+  Future<void> load(
     int targetIndex,
     ContentModel content, {
     required bool autoPlay,
@@ -33,121 +27,123 @@ class ReelVideoSlot extends ChangeNotifier {
     final cacheKey = content.id ?? url;
 
     if (url.isEmpty) {
-      await _releasePlayer();
+      await cancel();
       index = targetIndex;
-      sourceKey = null;
-      isInitialized = false;
       error = 'No video available for this content.';
-      _notify();
       return;
     }
 
     if (index == targetIndex &&
         sourceKey == cacheKey &&
-        isInitialized &&
-        error.isEmpty &&
-        _cachedPlayer != null) {
+        isReady &&
+        error.isEmpty) {
       if (autoPlay) {
-        await controller?.play();
+        await _controller?.play();
       } else {
-        await controller?.pause();
+        await _controller?.pause();
       }
-      _notify();
       return;
     }
 
-    if (isInitializing && index == targetIndex) {
-      return;
-    }
+    if (isLoading) return;
 
+    final generation = ++_generation;
     index = targetIndex;
     sourceKey = cacheKey;
-    isInitialized = false;
+    isReady = false;
+    isLoading = true;
     error = '';
-    isInitializing = true;
-    _notify();
 
-    await _releasePlayer();
+    await _dispose();
+    if (generation != _generation) return;
 
+    CachedVideoPlayerPlus? player;
     try {
-      _cachedPlayer = ContentMediaResolver.createPlayerForUrl(
-        url,
-        cacheKey: cacheKey,
-      );
+      player = ContentMediaResolver.createPlayerForUrl(url, cacheKey: cacheKey);
+      _player = player;
+      await player.initialize();
+      if (generation != _generation) {
+        await player.dispose();
+        return;
+      }
 
-      await _cachedPlayer!.initialize();
-      await controller!.setLooping(true);
-      isInitialized = true;
+      final videoController = player.controller;
+      await videoController.setLooping(true);
+      _controller = videoController;
+      isReady = true;
 
       if (autoPlay) {
-        await controller!.play();
+        await videoController.play();
       } else {
-        await controller!.seekTo(Duration.zero);
-        await controller!.pause();
+        await videoController.seekTo(Duration.zero);
+        await videoController.pause();
       }
-    } catch (loadError) {
+    } catch (e) {
+      if (generation != _generation) return;
       error = 'Unable to play this video.';
-      isInitialized = false;
-      if (kDebugMode) {
-        debugPrint('ReelVideoSlot load error: $loadError');
-      }
+      isReady = false;
+      _controller = null;
+      await _disposePlayer(player);
+      if (kDebugMode) debugPrint('ReelVideoSlot.load: $e');
     } finally {
-      isInitializing = false;
-      _notify();
+      if (generation == _generation) isLoading = false;
     }
   }
 
+  Future<void> cancel() async {
+    _generation++;
+    isLoading = false;
+    isReady = false;
+    _controller = null;
+    error = '';
+    await _dispose();
+  }
+
   Future<void> play() async {
-    if (!isInitialized || controller == null) return;
+    if (!isReady) return;
     try {
-      await controller!.play();
+      await _controller?.play();
     } catch (_) {}
   }
 
   Future<void> pause() async {
-    if (controller == null) return;
     try {
-      await controller!.pause();
-    } catch (_) {}
-  }
-
-  Future<void> seekToStart() async {
-    if (!isInitialized || controller == null) return;
-    try {
-      await controller!.seekTo(Duration.zero);
-      await controller!.play();
+      await _controller?.pause();
     } catch (_) {}
   }
 
   Future<void> stop() async {
     await pause();
     try {
-      await controller?.seekTo(Duration.zero);
+      await _controller?.seekTo(Duration.zero);
     } catch (_) {}
   }
 
   void detach() {
     index = null;
     sourceKey = null;
-    isInitialized = false;
-    isInitializing = false;
+    isReady = false;
+    isLoading = false;
     error = '';
-    _notify();
+    _controller = null;
   }
 
   Future<void> release() async {
-    await _releasePlayer();
+    await cancel();
     detach();
   }
 
-  Future<void> _releasePlayer() async {
-    try {
-      await _cachedPlayer?.dispose();
-    } catch (_) {}
-    _cachedPlayer = null;
+  Future<void> _dispose() async {
+    final player = _player;
+    _player = null;
+    _controller = null;
+    await _disposePlayer(player);
   }
 
-  void _notify() {
-    if (hasListeners) notifyListeners();
+  Future<void> _disposePlayer(CachedVideoPlayerPlus? player) async {
+    if (player == null) return;
+    try {
+      await player.dispose();
+    } catch (_) {}
   }
 }

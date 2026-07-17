@@ -8,46 +8,40 @@ import 'package:pler_to_pler_app/features/contents/reels/core/reel_player_manage
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-/// Manages reel video lifecycle: preload, autoplay, pause, and app lifecycle.
-///
-/// Ensures only one [VideoPlayerController] plays at a time.
 class ReelController extends GetxController with WidgetsBindingObserver {
   ReelController({ReelPlayerManager? playerManager})
-      : _playerManager = playerManager ?? ReelPlayerManager();
+      : _player = playerManager ?? ReelPlayerManager();
 
-  final ReelPlayerManager _playerManager;
+  final ReelPlayerManager _player;
 
   final RxInt currentIndex = 0.obs;
   final RxBool isPlaying = true.obs;
   final RxBool isUserPaused = false.obs;
-
-  /// Play when mostly visible; pause only when mostly off-screen.
-  static const double _playVisibilityThreshold = 0.55;
-  static const double _pauseVisibilityThreshold = 0.25;
+  final RxInt slotVersion = 0.obs;
 
   bool _isClosed = false;
   bool _isActive = true;
   bool _wasPlayingBeforeBackground = false;
   int _syncGeneration = 0;
 
-  ReelPlayerManager get playerManager => _playerManager;
+  ReelPlayerManager get playerManager => _player;
 
   @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
+    _player.onUpdated = () => slotVersion.value++;
   }
 
   VideoPlayerController? videoControllerFor(int index) =>
-      _playerManager.controllerFor(index);
+      _player.controllerFor(index);
 
-  bool isReady(int index) => _playerManager.isReady(index);
+  bool isReady(int index) => _player.isReady(index);
 
-  String errorFor(int index) => _playerManager.errorFor(index);
+  String errorFor(int index) => _player.errorFor(index);
 
   bool isActiveIndex(int index) => currentIndex.value == index;
 
-  /// Activates playback for the feed at [index].
   Future<void> activateAt({
     required int index,
     required List<ContentModel> contents,
@@ -60,17 +54,16 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     final generation = ++_syncGeneration;
 
     try {
-      await _playerManager.sync(
+      await _player.sync(
         index: index,
         contents: contents,
         playActive: autoPlay && !isUserPaused.value,
       );
       if (_isClosed || generation != _syncGeneration) return;
-
       isPlaying.value =
-          _playerManager.isReady(index) && autoPlay && !isUserPaused.value;
+          _player.isReady(index) && autoPlay && !isUserPaused.value;
     } catch (error) {
-      if (kDebugMode) debugPrint('ReelController.activateAt error: $error');
+      if (kDebugMode) debugPrint('ReelController.activateAt: $error');
     }
   }
 
@@ -79,77 +72,69 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     required List<ContentModel> contents,
   }) async {
     if (index == currentIndex.value) return;
-
     isUserPaused.value = false;
     await activateAt(index: index, contents: contents);
   }
 
-  /// Visibility-based autoplay keeps playback during small scroll movements.
   void onVisibilityChanged({
     required int index,
     required VisibilityInfo info,
     required List<ContentModel> contents,
   }) {
-    if (_isClosed || !_isActive) return;
-    if (index != currentIndex.value) return;
+    if (_isClosed || !_isActive || index != currentIndex.value) return;
 
-    final fraction = info.visibleFraction;
-
-    if (fraction >= _playVisibilityThreshold) {
-      if (!isUserPaused.value &&
-          !isPlaying.value &&
-          _playerManager.isReady(index)) {
-        unawaited(_resumePlayback(index));
-      }
+    if (info.visibleFraction >= 0.55 &&
+        !isUserPaused.value &&
+        !isPlaying.value &&
+        _player.isReady(index)) {
+      unawaited(_player.playActive().then((_) {
+        if (!_isClosed) isPlaying.value = true;
+      }));
       return;
     }
 
-    if (fraction <= _pauseVisibilityThreshold && isPlaying.value) {
-      unawaited(_pausePlayback(index, userInitiated: false));
+    if (info.visibleFraction <= 0.25 && isPlaying.value) {
+      unawaited(_player.pauseActive().then((_) {
+        if (!_isClosed) isPlaying.value = false;
+      }));
     }
   }
 
   Future<void> togglePlayback() async {
     if (_isClosed) return;
-
     if (isPlaying.value) {
       isUserPaused.value = true;
-      await _pausePlayback(currentIndex.value, userInitiated: true);
+      await _player.pauseActive();
+      isPlaying.value = false;
     } else {
       isUserPaused.value = false;
-      await _resumePlayback(currentIndex.value);
+      await _player.playActive();
+      isPlaying.value = true;
     }
   }
 
   Future<void> pauseActive({bool userInitiated = false}) async {
     if (userInitiated) isUserPaused.value = true;
-    await _pausePlayback(currentIndex.value, userInitiated: userInitiated);
-  }
-
-  Future<void> playActive() async {
-    isUserPaused.value = false;
-    await _resumePlayback(currentIndex.value);
+    await _player.pauseActive();
+    isPlaying.value = false;
   }
 
   Future<void> retryAt(int index, List<ContentModel> contents) async {
     if (index < 0 || index >= contents.length) return;
-
-    await _playerManager.retryAt(index, contents[index]);
+    await _player.retryAt(index, contents[index]);
     if (index == currentIndex.value) {
-      isPlaying.value = _playerManager.isReady(index) && !isUserPaused.value;
+      isPlaying.value = _player.isReady(index) && !isUserPaused.value;
     }
   }
 
   Future<void> suspend() async {
     _isActive = false;
     _wasPlayingBeforeBackground = isPlaying.value;
-    await _playerManager.pauseActive();
+    await _player.pauseActive();
     isPlaying.value = false;
   }
 
-  Future<void> resume({
-    required List<ContentModel> contents,
-  }) async {
+  Future<void> resume({required List<ContentModel> contents}) async {
     _isActive = true;
     await activateAt(
       index: currentIndex.value,
@@ -162,11 +147,11 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     currentIndex.value = 0;
     isUserPaused.value = false;
     isPlaying.value = true;
-    await _playerManager.reset();
+    await _player.reset();
   }
 
   Future<void> disposePlayback() async {
-    await _playerManager.releaseAll();
+    await _player.releaseAll();
   }
 
   @override
@@ -179,40 +164,22 @@ class ReelController extends GetxController with WidgetsBindingObserver {
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         _wasPlayingBeforeBackground = isPlaying.value;
-        unawaited(_playerManager.pauseActive());
+        unawaited(_player.pauseActive());
         isPlaying.value = false;
-        break;
       case AppLifecycleState.resumed:
-        if (_isActive &&
-            _wasPlayingBeforeBackground &&
-            !isUserPaused.value) {
-          unawaited(_playerManager.playActive());
-          isPlaying.value = _playerManager.isReady(currentIndex.value);
+        if (_isActive && _wasPlayingBeforeBackground && !isUserPaused.value) {
+          unawaited(_player.playActive());
+          isPlaying.value = _player.isReady(currentIndex.value);
         }
-        break;
     }
-  }
-
-  Future<void> _pausePlayback(int index, {required bool userInitiated}) async {
-    if (!_playerManager.isActive(index)) return;
-    await _playerManager.pauseActive();
-    if (!_isClosed) isPlaying.value = false;
-  }
-
-  Future<void> _resumePlayback(int index) async {
-    if (!_playerManager.isActive(index) || !_playerManager.isReady(index)) {
-      return;
-    }
-    await _playerManager.playActive();
-    if (!_isClosed) isPlaying.value = true;
   }
 
   @override
   void onClose() {
     _isClosed = true;
+    _player.onUpdated = null;
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(_playerManager.releaseAll());
-    _playerManager.dispose();
+    unawaited(_player.releaseAll());
     super.onClose();
   }
 }

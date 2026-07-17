@@ -95,7 +95,9 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _listenBottomNavVisibility();
 
     _connectivityWorker = ever(_connectivityService.isConnected, (isConnected) {
-      if (isConnected && !_isClosed) _loadData();
+      if (isConnected && !_isClosed) {
+        _loadData(showFullLoader: contents.isEmpty);
+      }
     });
     _loadData();
   }
@@ -123,7 +125,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (index < 0 || index >= contents.length) return;
 
     await reel.activateAt(index: index, contents: contents);
-    reelFeed?.maybeLoadMore(index);
   }
 
   void _listenBottomNavVisibility() {
@@ -142,6 +143,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     reelFeed?.maybeLoadMore(index);
     await reel.onPageChanged(index: index, contents: contents);
   }
+
+  Future<void> retryPagination() => reelFeed?.retryPagination() ?? Future.value();
 
   Future<void> pauseReel() => reel.pauseActive(userInitiated: true);
 
@@ -211,9 +214,10 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
     if (_isClosed) return;
 
-    if (loadingState == LoadingState.loaded) {
-      _resetReelPosition();
-      _schedulePlayReelAt(0);
+    if (loadingState == LoadingState.loaded && contents.isNotEmpty) {
+      _schedulePlayReelAt(
+        reel.currentIndex.value.clamp(0, contents.length - 1),
+      );
     } else if (loadingState == LoadingState.loading) {
       unawaited(pauseReel());
     }
@@ -264,7 +268,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   @override
   bool get showPaginationLoader =>
-      reelFeed?.feed.isLoadingMore.value ?? false;
+      paginationContentState == LoadingState.loaded &&
+      (reelFeed?.showPaginationLoader ?? false);
 
   Future<void> createOrUpdateContent({
     required Map<String, dynamic> fields,

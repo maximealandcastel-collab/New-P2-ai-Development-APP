@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/contents/reels/core/reel_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentThumbnailPlaceholder extends StatelessWidget {
@@ -17,7 +16,7 @@ class ContentThumbnailPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: ReelColors.background,
+      color: Colors.black,
       child: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w),
