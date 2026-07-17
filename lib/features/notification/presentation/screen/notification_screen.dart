@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/notification/data/models/notification_model.dart';
-import 'package:pler_to_pler_app/features/notification/presentation/widgets/notification_card_widget.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class NotificationsScreen extends StatelessWidget {
