@@ -16,10 +16,11 @@ class AppColors {
   // Background Colors
   static const Color backgroundLight = Color(0xFFF0F0F0);
   static const Color backgroundDark = Color(0xFF121212);
-  static const Color primaryBackground = Color(0xFFFFFFFF);
+  static const Color primaryBackground = Color(0xFFFFFFFF);//#404040
 
   // Utility Colors
   static const Color success = Color(0xFF4CAF50);
   static const Color error = Color(0xFFB20000);
   static const Color info = Color(0xFF0063F7);
+  static const Color yellow = Color(0xFFC9A84C);
 }

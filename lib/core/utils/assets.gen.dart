@@ -156,6 +156,10 @@ class $AssetsIconsGen {
   SvgGenImage get subscribeIcons =>
       const SvgGenImage('assets/icons/subscribe_icons.svg');
 
+  /// File path: assets/icons/supprt_mail.svg
+  SvgGenImage get supprtMail =>
+      const SvgGenImage('assets/icons/supprt_mail.svg');
+
   /// File path: assets/icons/trainer.svg
   SvgGenImage get trainer => const SvgGenImage('assets/icons/trainer.svg');
 
@@ -215,6 +219,7 @@ class $AssetsIconsGen {
     stripe,
     subButton,
     subscribeIcons,
+    supprtMail,
     trainer,
     trainerSubIcons,
     transfer,
