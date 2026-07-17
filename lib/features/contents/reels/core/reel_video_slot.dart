@@ -10,6 +10,8 @@ class ReelVideoSlot {
   VideoPlayerController? _controller;
   int _generation = 0;
 
+  VoidCallback? onUpdated;
+
   int? index;
   String? sourceKey;
   bool isReady = false;
@@ -17,6 +19,8 @@ class ReelVideoSlot {
   String error = '';
 
   VideoPlayerController? get controller => isReady ? _controller : null;
+
+  void _notifyState() => onUpdated?.call();
 
   Future<void> load(
     int targetIndex,
@@ -30,6 +34,7 @@ class ReelVideoSlot {
       await cancel();
       index = targetIndex;
       error = 'No video available for this content.';
+      _notifyState();
       return;
     }
 
@@ -45,7 +50,17 @@ class ReelVideoSlot {
       return;
     }
 
-    if (isLoading) return;
+    if (isLoading) {
+      if (index == targetIndex &&
+          sourceKey == cacheKey &&
+          !isReady &&
+          error.isEmpty) {
+        return;
+      }
+      _generation++;
+      isLoading = false;
+      _notifyState();
+    }
 
     final generation = ++_generation;
     index = targetIndex;
@@ -53,6 +68,7 @@ class ReelVideoSlot {
     isReady = false;
     isLoading = true;
     error = '';
+    _notifyState();
 
     await _dispose();
     if (generation != _generation) return;
@@ -86,7 +102,10 @@ class ReelVideoSlot {
       await _disposePlayer(player);
       if (kDebugMode) debugPrint('ReelVideoSlot.load: $e');
     } finally {
-      if (generation == _generation) isLoading = false;
+      if (generation == _generation) {
+        isLoading = false;
+        _notifyState();
+      }
     }
   }
 

@@ -143,11 +143,13 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     );
   }
 
-  Future<void> reset() async {
-    currentIndex.value = 0;
+  Future<void> reset({int index = 0}) async {
+    _syncGeneration++;
+    currentIndex.value = index;
     isUserPaused.value = false;
     isPlaying.value = true;
     await _player.reset();
+    slotVersion.value++;
   }
 
   Future<void> disposePlayback() async {

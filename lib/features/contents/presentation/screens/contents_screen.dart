@@ -29,12 +29,12 @@ class ContentsScreen extends StatelessWidget {
         children: [
           Obx(() {
             controller.reelFeed!.loadingState.value;
+            controller.isReelBootstrapping.value;
             return _buildBody(context, controller);
           }),
           ContentsReelsOverlay(
             onSearchTap: () => _openSearch(context, controller),
           ),
-          _buildPaginationFooter(context),
         ],
       ),
     );
@@ -43,9 +43,11 @@ class ContentsScreen extends StatelessWidget {
   Widget _buildBody(BuildContext context, ContentController controller) {
     final state = controller.reelFeed!.loadingState.value;
     final hasItems = controller.contents.isNotEmpty;
+    final isBootstrapping = controller.isReelBootstrapping.value;
 
     if (hasItems &&
-        (state == LoadingState.loaded || state == LoadingState.loading)) {
+        state == LoadingState.loaded &&
+        !isBootstrapping) {
       return _buildFeed(context, controller);
     }
 
@@ -56,6 +58,14 @@ class ContentsScreen extends StatelessWidget {
           color: _background,
           child: Center(child: CustomLoader()),
         );
+      case LoadingState.loaded:
+        if (hasItems && isBootstrapping) {
+          return const ColoredBox(
+            color: _background,
+            child: Center(child: CustomLoader()),
+          );
+        }
+        return _emptyState(controller);
       case LoadingState.offline:
         return _emptyState(
           controller,
@@ -66,8 +76,6 @@ class ContentsScreen extends StatelessWidget {
           controller,
           'Unable to load content. Pull down to retry.',
         );
-      case LoadingState.loaded:
-        return _emptyState(controller);
     }
   }
 
@@ -80,53 +88,6 @@ class ContentsScreen extends StatelessWidget {
       notificationPredicate: (n) =>
           controller.currentReelIndex.value == 0 && n.depth == 0,
       child: const ContentsReelPageView(),
-    );
-  }
-
-  Widget _buildPaginationFooter(BuildContext context) {
-    final bottom = MediaQuery.paddingOf(context).bottom;
-
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: bottom + 96.h,
-      child: Obx(() {
-        final controller = ContentController.to;
-        final feed = controller.reelFeed!;
-
-        if (feed.feed.loadMoreFailed.value) {
-          return Center(
-            child: GestureDetector(
-              onTap: controller.retryPagination,
-              child: CustomContainer(
-                color: AppColors.backgroundLight.withValues(alpha: 0.92),
-                radiusAll: 999.r,
-                paddingHorizontal: 14.w,
-                paddingVertical: 8.h,
-                child: CustomText(
-                  text: 'Tap to retry',
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          );
-        }
-
-        if (!controller.showPaginationLoader) {
-          return const SizedBox.shrink();
-        }
-
-        return Center(
-          child: CustomContainer(
-            color: AppColors.backgroundLight.withValues(alpha: 0.92),
-            radiusAll: 999.r,
-            paddingHorizontal: 14.w,
-            paddingVertical: 8.h,
-            child: const CustomLoader(),
-          ),
-        );
-      }),
     );
   }
 

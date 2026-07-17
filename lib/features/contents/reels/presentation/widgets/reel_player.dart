@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/reels/presentation/controllers/reel_controller.dart';
@@ -39,7 +40,13 @@ class ReelPlayer extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Obx(() => _buildVideo(reelController.slotVersion.value)),
+            Obx(() {
+              reelController.slotVersion.value;
+              reelController.currentIndex.value;
+              final isOnline =
+                  Get.find<ConnectivityService>().isConnected.value;
+              return _buildVideo(isOnline: isOnline);
+            }),
             ReelPlayPauseOverlay(
               reelController: reelController,
               index: index,
@@ -50,13 +57,19 @@ class ReelPlayer extends StatelessWidget {
     );
   }
 
-  Widget _buildVideo(int _) {
+  Widget _buildVideo({required bool isOnline}) {
     final controller = reelController.videoControllerFor(index);
     final slot = reelController.playerManager.slotFor(index);
+    final isActive = reelController.isActiveIndex(index);
     final showError = slot != null &&
         slot.error.isNotEmpty &&
         !slot.isLoading &&
         controller == null;
+    final showLoader = isOnline &&
+        isActive &&
+        !showError &&
+        controller == null &&
+        (slot == null || slot.isLoading || !slot.isReady);
 
     return Stack(
       fit: StackFit.expand,
@@ -75,6 +88,11 @@ class ReelPlayer extends StatelessWidget {
           )
         else
           const ColoredBox(color: _background),
+        if (showLoader)
+          const ColoredBox(
+            color: _background,
+            child: Center(child: CustomLoader()),
+          ),
         if (showError) _buildError(slot.error),
       ],
     );

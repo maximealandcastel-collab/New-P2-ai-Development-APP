@@ -70,6 +70,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   Worker? _connectivityWorker;
   bool _isClosed = false;
 
+  final RxBool isReelBootstrapping = false.obs;
+
   @override
   LoadingState get paginationContentState => loadingState;
 
@@ -106,11 +108,32 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   RxInt get currentReelIndex => reel.currentIndex;
 
-  void _schedulePlayReelAt(int index) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  Future<void> _restartReelAt(
+    int index, {
+    bool showBootstrapLoader = false,
+  }) async {
+    if (_isClosed || contents.isEmpty) return;
+    if (loadingState != LoadingState.loaded) return;
+
+    final target = index.clamp(0, contents.length - 1);
+
+    if (showBootstrapLoader) {
+      isReelBootstrapping.value = true;
+    }
+    try {
+      await reel.reset(index: target);
       if (_isClosed) return;
-      unawaited(_activateReelAt(index));
-    });
+
+      if (pageController.hasClients) {
+        pageController.jumpToPage(target);
+      }
+
+      await _activateReelAt(target);
+    } finally {
+      if (showBootstrapLoader && !_isClosed) {
+        isReelBootstrapping.value = false;
+      }
+    }
   }
 
   Future<void> _activateReelAt(int index) async {
@@ -140,6 +163,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   }
 
   Future<void> onReelPageChanged(int index) async {
+    if (index >= contents.length) return;
+
     reelFeed?.maybeLoadMore(index);
     await reel.onPageChanged(index: index, contents: contents);
   }
@@ -150,12 +175,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   Future<void> toggleReelPlayback() => reel.togglePlayback();
 
-  void _resetReelPosition() {
-    unawaited(reel.reset());
-    if (pageController.hasClients) {
-      pageController.jumpToPage(0);
-    }
-  }
 
   // --- Feed / pagination ---
 
@@ -201,8 +220,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       cacheKey: _cacheKey(activeTab.value, _selectedCategoryId.value),
       onReloaded: () async {
         if (_isClosed) return;
-        _resetReelPosition();
-        _schedulePlayReelAt(0);
+        await _restartReelAt(0, showBootstrapLoader: true);
       },
     );
   }
@@ -215,8 +233,9 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (_isClosed) return;
 
     if (loadingState == LoadingState.loaded && contents.isNotEmpty) {
-      _schedulePlayReelAt(
+      await _restartReelAt(
         reel.currentIndex.value.clamp(0, contents.length - 1),
+        showBootstrapLoader: true,
       );
     } else if (loadingState == LoadingState.loading) {
       unawaited(pauseReel());
@@ -231,7 +250,10 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _selectedCategoryId.value = null;
     searchController.clear();
     search.clear();
-    _resetReelPosition();
+    await reel.reset();
+    if (pageController.hasClients) {
+      pageController.jumpToPage(0);
+    }
 
     await _loadData();
   }
@@ -250,20 +272,22 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     if (_selectedCategoryId.value == categoryId) return;
     await _cacheCurrentTab();
     _selectedCategoryId.value = categoryId;
-    _resetReelPosition();
+    await reel.reset();
+    if (pageController.hasClients) {
+      pageController.jumpToPage(0);
+    }
     await _loadData();
   }
 
   @override
   Future<void> refresh() async {
-    await pauseReel();
     await reelFeed!.refresh(
       cacheKey: _cacheKey(activeTab.value, _selectedCategoryId.value),
       onBeforeReload: _invalidateCurrentCache,
       onReloaded: () async {},
     );
-    _resetReelPosition();
-    _schedulePlayReelAt(0);
+    if (_isClosed || contents.isEmpty) return;
+    await _restartReelAt(0);
   }
 
   @override
@@ -336,12 +360,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       if (contents.isNotEmpty) {
         final nextIndex =
             reel.currentIndex.value.clamp(0, contents.length - 1);
-        reel.currentIndex.value = nextIndex;
-        await reel.playerManager.reset();
-        if (pageController.hasClients) {
-          pageController.jumpToPage(nextIndex);
-        }
-        _schedulePlayReelAt(nextIndex);
+        await _restartReelAt(nextIndex, showBootstrapLoader: true);
       }
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);

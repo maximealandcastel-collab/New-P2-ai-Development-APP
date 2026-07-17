@@ -68,7 +68,7 @@ class ReelFeedController {
       if (showFullLoader) {
         if (hasCachedData) {
           feed.items.assignAll(cached);
-          loadingState.value = LoadingState.loaded;
+          loadingState.value = LoadingState.loading;
         } else {
           feed.items.clear();
           loadingState.value = LoadingState.loading;
