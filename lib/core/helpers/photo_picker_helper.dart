@@ -98,6 +98,7 @@ class PhotoPickerHelper {
         onFilePicked(file);
       }
     } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: CustomText(
@@ -184,7 +185,7 @@ class PhotoPickerHelper {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             padding: EdgeInsets.all(16.r),
@@ -209,8 +210,9 @@ class PhotoPickerHelper {
       }) {
     return InkWell(
       onTap: () async {
+        final navigator = Navigator.of(context);
         final XFile? file = await _picker.pickImage(source: source);
-        Navigator.pop(context);
+        navigator.pop();
         if (file != null) onImagePicked(file);
       },
       borderRadius: BorderRadius.circular(12.r),
@@ -218,7 +220,7 @@ class PhotoPickerHelper {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             padding:  EdgeInsets.all(16.r),

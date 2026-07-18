@@ -8,7 +8,6 @@ import 'package:pler_to_pler_app/features/search/search_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/find_trainer_card.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/find_trainer_shimmer.dart';
-import 'package:pler_to_pler_app/widgets/custom_search_field.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class FindTrainerScreen extends StatelessWidget {

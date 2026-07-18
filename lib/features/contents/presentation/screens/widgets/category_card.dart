@@ -57,6 +57,7 @@ class ContentCard extends StatelessWidget {
                     details: details,
                     options: const ['Edit', 'Delete'],
                   ).then((value) {
+                    if (!context.mounted) return;
                     if (value == 'Edit') {
                       CategoryController.to.setEditCategory(category);
                       Get.toNamed(

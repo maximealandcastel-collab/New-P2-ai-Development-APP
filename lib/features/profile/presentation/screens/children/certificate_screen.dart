@@ -46,7 +46,7 @@ class CertificatesScreen extends StatelessWidget {
                 height: 100.r,
                 width: 100.r,
                 shape: BoxShape.circle,
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 child: Icon(Icons.add, size: 40.r, color: Colors.black),
               ),
             ),
@@ -130,7 +130,7 @@ class CertificatesScreen extends StatelessWidget {
               _buildLabel('Certificate type'),
               CustomContainer(
                 radiusAll: 12.r,
-                bordersColor: Colors.black.withOpacity(0.16),
+                bordersColor: Colors.black.withValues(alpha: 0.16),
                 paddingAll: 14.r,
                 marginBottom: 16.h,
                 child: Row(
@@ -138,7 +138,7 @@ class CertificatesScreen extends StatelessWidget {
                   children: [
                     CustomText(
                       text: 'Select a certificate type',
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                     ),
                     Icon(Icons.keyboard_arrow_down, color: Colors.grey, size: 24.r),
                   ],
@@ -158,7 +158,7 @@ class CertificatesScreen extends StatelessWidget {
               // Add Service Button (Matching gray state in image)
               CustomButton(
                 label: 'Add certificates',
-                backgroundColor: Colors.black.withOpacity(0.06),
+                backgroundColor: Colors.black.withValues(alpha: 0.06),
                 foregroundColor: Colors.grey.shade400,
                 radius: 12.r,
                 onPressed: () {

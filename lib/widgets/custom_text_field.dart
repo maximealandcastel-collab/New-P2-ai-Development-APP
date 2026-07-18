@@ -112,12 +112,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
     _focusedBorder = OutlineInputBorder(
       borderRadius: radius,
       borderSide: BorderSide(
-          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
+          width: 1, color: widget.borderColor ?? Colors.black.withValues(alpha: 0.16)),
     );
     _enabledBorder = OutlineInputBorder(
       borderRadius: radius,
       borderSide: BorderSide(
-          width: 1, color: widget.borderColor ?? Colors.black.withOpacity(0.16)),
+          width: 1, color: widget.borderColor ?? Colors.black.withValues(alpha: 0.16)),
     );
     _errorBorder = OutlineInputBorder(
       borderRadius: radius,
@@ -229,7 +229,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               hintText: widget.hintText,
               hintStyle: TextStyle(
                   fontFamily: widget.fontFamily ?? 'Figtree',
-                  color: widget.hintextColor ?? Colors.black.withOpacity(0.16),
+                  color: widget.hintextColor ?? Colors.black.withValues(alpha: 0.16),
                   fontSize: widget.hintextSize ?? 14.h,
                   fontWeight: FontWeight.w400),
               focusedBorder: widget.border ?? _focusedBorder,

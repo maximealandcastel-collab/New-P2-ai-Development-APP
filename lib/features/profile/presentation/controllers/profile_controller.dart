@@ -243,7 +243,7 @@ class ProfileController extends GetxController {
         fitnessLevelController.text.trim(),
       ),
       'availableEquipment': equipmentController.text.trim(),
-      if (trainingDays != null) 'trainingDaysPerWeek': trainingDays,
+      'trainingDaysPerWeek': ?trainingDays,
       'injuries': _injuries,
       'motivationStyle': motivationStyleController.text.trim(),
     };

@@ -89,10 +89,12 @@ class InvoicePreviewController extends GetxController {
         await Future<void>.delayed(const Duration(milliseconds: 250));
       }
 
-      await Share.shareXFiles(
-        [XFile(filePath)],
-        subject: invoice.description ?? 'Invoice',
-        text: invoice.clientName,
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(filePath)],
+          subject: invoice.description ?? 'Invoice',
+          text: invoice.clientName,
+        ),
       );
 
       _downloadState.value = LoadingState.loaded;

@@ -147,7 +147,7 @@ class SignalingClient {
     }
   }
 
-  void _handleError(error) {
+  void _handleError(Object error) {
     _logger.e('WebSocket error', error: error);
     _messageController.addError(ClientError(
       message: 'WebSocket error: ${error.toString()}',

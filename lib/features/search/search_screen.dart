@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/search/controller/search_controller.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/widgets/custom_search_theme.dart';

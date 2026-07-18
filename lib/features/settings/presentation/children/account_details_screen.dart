@@ -49,7 +49,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                 children: [
                   CustomText(text: 'Date of birth',fontWeight: FontWeight.w600),
                   CustomContainer(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     paddingAll: 8.r,
                     radiusAll: 8.r,
                     child: CustomText(text: '15 Feb 1996'),

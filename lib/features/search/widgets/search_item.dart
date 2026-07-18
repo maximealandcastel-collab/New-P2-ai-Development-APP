@@ -21,7 +21,7 @@ class SearchItem extends StatelessWidget {
     return ListView.separated(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 24.w),
       itemCount: results.length,
-      separatorBuilder: (_, __) => Divider(
+      separatorBuilder: (_, _) => Divider(
         height: 24.h,
         color: Colors.grey.shade200,
         indent: 16.w,

@@ -39,7 +39,7 @@ class ConfirmationDialog extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.close, size: 18.sp, color: Colors.black54),
@@ -89,7 +89,7 @@ class ConfirmationDialog extends StatelessWidget {
                         label: 'Cancel',
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
-                        bordersColor: Colors.black.withOpacity(0.1),
+                        bordersColor: Colors.black.withValues(alpha: 0.1),
                       ),
                       SizedBox(height: 12.h),
                     ],
@@ -99,7 +99,7 @@ class ConfirmationDialog extends StatelessWidget {
                       // If delete action, background is red. Otherwise, background is white (Logout style).
                       backgroundColor: isDeleteAction ? const Color(0xFFF04438) : Colors.white,
                       foregroundColor: isDeleteAction ? Colors.white : Colors.black,
-                      bordersColor: isDeleteAction ? null : Colors.black.withOpacity(0.1),
+                      bordersColor: isDeleteAction ? null : Colors.black.withValues(alpha: 0.1),
                     ),
                   ],
                 ),

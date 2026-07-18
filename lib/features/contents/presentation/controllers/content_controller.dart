@@ -127,13 +127,14 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       if (pageController.hasClients) {
         pageController.jumpToPage(target);
       }
-
-      await _activateReelAt(target);
     } finally {
       if (showBootstrapLoader && !_isClosed) {
         isReelBootstrapping.value = false;
       }
     }
+
+    if (_isClosed) return;
+    unawaited(_activateReelAt(target));
   }
 
   Future<void> _activateReelAt(int index) async {

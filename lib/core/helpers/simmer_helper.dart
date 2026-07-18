@@ -607,7 +607,7 @@ class ShimmerHelper {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   offset: const Offset(0, 1),
                   blurRadius: 5,
                 ),
@@ -694,7 +694,7 @@ class ShimmerHelper {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   offset: const Offset(0, 1),
                   blurRadius: 5,
                 ),

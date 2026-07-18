@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/content_thumbnail_placeholder.dart';
 import 'package:pler_to_pler_app/features/contents/reels/presentation/controllers/reel_controller.dart';
 import 'package:pler_to_pler_app/features/contents/reels/presentation/widgets/reel_play_pause_overlay.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -74,6 +77,7 @@ class ReelPlayer extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
+        if (controller == null) _buildPoster(),
         if (controller != null)
           Center(
             child: AspectRatio(
@@ -85,22 +89,38 @@ class ReelPlayer extends StatelessWidget {
                 key: ValueKey(slot?.sourceKey ?? index),
               ),
             ),
-          )
-        else
-          const ColoredBox(color: _background),
-        if (showLoader)
-          const ColoredBox(
-            color: _background,
-            child: Center(child: CustomLoader()),
           ),
+        if (showLoader)
+          const Center(child: CustomLoader()),
         if (showError) _buildError(slot.error),
+      ],
+    );
+  }
+
+  Widget _buildPoster() {
+    final thumbnailUrl = ContentMediaResolver.resolveThumbnailUrl(content);
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ContentThumbnailPlaceholder(
+          title: content.title,
+          showTitle: false,
+        ),
+        if (thumbnailUrl.isNotEmpty)
+          CachedNetworkImage(
+            imageUrl: thumbnailUrl,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => const SizedBox.shrink(),
+            errorWidget: (_, _, _) => const SizedBox.shrink(),
+          ),
       ],
     );
   }
 
   Widget _buildError(String message) {
     return ColoredBox(
-      color: _background,
+      color: _background.withValues(alpha: 0.72),
       child: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),

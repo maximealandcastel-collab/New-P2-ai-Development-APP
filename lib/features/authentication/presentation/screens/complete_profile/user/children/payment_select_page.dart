@@ -74,7 +74,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
                   width: double.infinity,
                   height: 40.h,
                   radiusAll: 12.r,
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   child: CustomText(
                     color: AppColors.textSecondary,
                     fontSize: 10.sp,

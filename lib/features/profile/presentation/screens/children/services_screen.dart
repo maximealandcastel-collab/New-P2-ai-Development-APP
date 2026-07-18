@@ -75,7 +75,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               height: 100.r,
               width: 100.r,
               shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               child: Icon(Icons.add, size: 40.r, color: Colors.black),
             ),
           ),
@@ -110,14 +110,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
               width: double.infinity,
               radiusAll: 12.r,
               color: Colors.transparent,
-              bordersColor: Colors.black.withOpacity(0.1), // Suggest using dotted_border package for exact look
+              bordersColor: Colors.black.withValues(alpha: 0.1), // Suggest using dotted_border package for exact look
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CustomContainer(
                     height: 24.r, width: 24.r,
                     shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     child: Icon(Icons.add, size: 16.r, color: Colors.black),
                   ),
                   SizedBox(width: 10.w),
@@ -248,7 +248,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
               CustomContainer(
                 radiusAll: 16.r,
-                color: Colors.black.withOpacity(0.04), // Subtle gray background
+                color: Colors.black.withValues(alpha: 0.04), // Subtle gray background
                 paddingAll: 16.r,
                 marginBottom: 24.h,
                 child: Row(
@@ -272,7 +272,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
               CustomButton(
                 label: 'Add service',
-                backgroundColor: Colors.black.withOpacity(0.06),
+                backgroundColor: Colors.black.withValues(alpha: 0.06),
                 foregroundColor: Colors.grey.shade400,
                 radius: 12.r,
                 onPressed: () {

@@ -72,7 +72,7 @@ class SearchItemEmpty extends StatelessWidget {
   Widget _buildList(List<String> history) {
     return ListView.separated(
       itemCount: history.length,
-      separatorBuilder: (_, __) =>
+      separatorBuilder: (_, _) =>
           Divider(height: 1, indent: 16.w, endIndent: 16.w,thickness: 0.1,),
       itemBuilder: (context, index) {
         final item = history[index];

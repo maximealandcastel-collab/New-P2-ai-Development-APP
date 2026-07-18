@@ -12,7 +12,7 @@ class SessionsCardWidget extends StatelessWidget {
     return CustomContainer(
       marginTop: 8.h,
       radiusAll: 12.r,
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       paddingHorizontal: 12.w,
       child: ListTile(
         contentPadding: EdgeInsets.zero,

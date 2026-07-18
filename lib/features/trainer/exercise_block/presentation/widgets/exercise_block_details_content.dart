@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/widgets/block_exercise_details_card.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/widgets/exercise_block_details_info.dart';

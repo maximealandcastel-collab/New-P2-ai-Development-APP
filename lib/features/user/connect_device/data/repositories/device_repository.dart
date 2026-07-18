@@ -83,8 +83,8 @@ class DeviceRepository {
         data: {
           'name': name,
           'serialNumber': serialNumber,
-          if (macAddress != null) 'macAddress': macAddress,
-          if (deviceType != null) 'deviceType': deviceType,
+          'macAddress': ?macAddress,
+          'deviceType': ?deviceType,
         },
       );
 

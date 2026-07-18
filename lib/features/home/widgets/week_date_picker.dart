@@ -79,7 +79,7 @@ class _WeekDatePickerState extends State<WeekDatePicker> {
             return ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: weekDates.length,
-              separatorBuilder: (_, __) => SizedBox(width: 8.w),
+              separatorBuilder: (_, _) => SizedBox(width: 8.w),
               itemBuilder: (context, index) {
                 final date = weekDates[index];
                 final isDisabled = _isUpcoming(date);

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/complete_profile_page_title.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
-import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/Intensity_option.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/intensity_option.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/widgets/duration_ruler_picker.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 

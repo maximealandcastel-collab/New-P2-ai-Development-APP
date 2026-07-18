@@ -29,7 +29,6 @@ class ContentsScreen extends StatelessWidget {
         children: [
           Obx(() {
             controller.reelFeed!.loadingState.value;
-            controller.isReelBootstrapping.value;
             return _buildBody(context, controller);
           }),
           ContentsReelsOverlay(
@@ -43,11 +42,8 @@ class ContentsScreen extends StatelessWidget {
   Widget _buildBody(BuildContext context, ContentController controller) {
     final state = controller.reelFeed!.loadingState.value;
     final hasItems = controller.contents.isNotEmpty;
-    final isBootstrapping = controller.isReelBootstrapping.value;
 
-    if (hasItems &&
-        state == LoadingState.loaded &&
-        !isBootstrapping) {
+    if (hasItems && state == LoadingState.loaded) {
       return _buildFeed(context, controller);
     }
 
@@ -59,12 +55,6 @@ class ContentsScreen extends StatelessWidget {
           child: Center(child: CustomLoader()),
         );
       case LoadingState.loaded:
-        if (hasItems && isBootstrapping) {
-          return const ColoredBox(
-            color: _background,
-            child: Center(child: CustomLoader()),
-          );
-        }
         return _emptyState(controller);
       case LoadingState.offline:
         return _emptyState(

@@ -2,7 +2,6 @@ import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import '../widgets/widgets.dart';
 
 
@@ -96,7 +95,7 @@ class ChatBubbleMessage extends StatelessWidget {
               child: SizedBox(
                 width: 180.w,
                 child: BubbleNormalImage(
-                  id: url ?? '',
+                  id: url,
                   image: Image.network(
                     '${ApiConstants.baseUrl}$url',
                     fit: BoxFit.cover,
