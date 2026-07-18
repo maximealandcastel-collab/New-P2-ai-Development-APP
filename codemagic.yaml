@@ -1,0 +1,154 @@
+# Codemagic CI/CD for P2P Fit Tech AI (pler_to_pler_app)
+#
+# Required once in Codemagic UI:
+# - App Store Connect API key integration (name must match ios-testflight below)
+# - iOS code signing: App Store cert + profile for com.p2pfittech.ai
+# - Android keystore reference named "keystore_reference" (android-release only)
+# - Enable "Increment build number" in project settings (use build number > last TestFlight)
+#
+# After pushing this file to git, Codemagic will pick up these workflows automatically.
+
+definitions:
+  env_versions: &env_versions
+    flutter: 3.41.4
+    xcode: latest
+    cocoapods: default
+
+  app_vars: &app_vars
+    APP_ID: com.p2pfittech.ai
+    PACKAGE_NAME: com.p2pfittech.ai
+
+  scripts:
+    - &install_dependencies
+      name: Install dependencies
+      script: |
+        set -e
+        flutter pub get
+        cd packages/anam_flutter_sdk && flutter pub get
+
+    - &analyze_project
+      name: Analyze project
+      script: |
+        set -e
+        flutter analyze
+        cd packages/anam_flutter_sdk && flutter analyze
+
+    - &run_tests
+      name: Run tests
+      script: |
+        set -e
+        flutter test
+
+    - &install_pods
+      name: Install CocoaPods
+      script: |
+        set -e
+        find . -name "Podfile" -not -path "./packages/anam_flutter_sdk/example/*" -execdir pod install \;
+
+workflows:
+  flutter-ci:
+    name: Flutter CI
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      <<: *env_versions
+      vars:
+        <<: *app_vars
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.pub-cache
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: "*"
+          include: true
+    scripts:
+      - *install_dependencies
+      - *analyze_project
+      - *run_tests
+
+  ios-testflight:
+    name: iOS TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      # Must match your App Store Connect integration name in Codemagic
+      app_store_connect: codemagic
+    environment:
+      <<: *env_versions
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.p2pfittech.ai
+      vars:
+        <<: *app_vars
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - *install_dependencies
+      - *analyze_project
+      - *run_tests
+      - *install_pods
+      - name: Build iOS IPA
+        script: |
+          set -e
+          flutter build ipa \
+            --release \
+            --build-number=$PROJECT_BUILD_NUMBER
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+
+  android-release:
+    name: Android Release
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      <<: *env_versions
+      android_signing:
+        - keystore_reference
+      vars:
+        <<: *app_vars
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.pub-cache
+        - $HOME/.gradle/caches
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - *install_dependencies
+      - *analyze_project
+      - *run_tests
+      - name: Build Android App Bundle
+        script: |
+          set -e
+          flutter build appbundle \
+            --release \
+            --build-number=$PROJECT_BUILD_NUMBER
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+      - build/app/outputs/flutter-apk/app-release.apk
+      - flutter_drive.log
