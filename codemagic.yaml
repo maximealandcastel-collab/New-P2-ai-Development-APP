@@ -23,6 +23,7 @@ definitions:
       name: Install dependencies
       script: |
         set -e
+        flutter config --no-enable-swift-package-manager
         flutter pub get
         cd packages/anam_flutter_sdk && flutter pub get
 
