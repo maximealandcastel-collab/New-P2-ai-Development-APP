@@ -1,14 +1,14 @@
 # Codemagic CI/CD — P2P Fit Tech AI (pler_to_pler_app)
 #
-# Uses Flutter + CocoaPods only (NO Shorebird).
+# iOS builds use: bash scripts/codemagic_ios_build.sh  (NOT Shorebird)
 #
-# Codemagic app settings:
-# 1. Enable "codemagic.yaml" / Configuration as code for this repo
-# 2. Delete or disable any Workflow Editor workflow that runs `shorebird release`
-# 3. Remove SHOREBIRD_TOKEN from environment variables (not used)
+# Before first yaml build in Codemagic UI:
+# 1. Start build → pick workflow: "iOS TestFlight (Flutter — NO Shorebird)"
+# 2. Delete Workflow Editor steps that run `shorebird release ios`
+# 3. Remove SHOREBIRD_TOKEN from environment variables
 # 4. App Store Connect integration name must match `app_store_connect` below
-# 5. iOS code signing: App Store cert + profile for com.p2pfittech.ai
-# 6. Enable "Increment build number" (PROJECT_BUILD_NUMBER > last TestFlight build)
+# 5. iOS signing: App Store cert + profile for com.p2pfittech.ai
+# 6. Enable "Increment build number" in Codemagic project settings
 
 definitions:
   env_versions: &env_versions
@@ -52,10 +52,7 @@ definitions:
       name: Build iOS IPA (TestFlight)
       script: |
         set -e
-        flutter build ipa \
-          --release \
-          --export-options-plist=$HOME/export_options.plist \
-          --build-number=$PROJECT_BUILD_NUMBER
+        bash scripts/codemagic_ios_build.sh
 
 workflows:
   flutter-ci:
@@ -83,7 +80,7 @@ workflows:
       - *run_tests
 
   ios-testflight:
-    name: iOS TestFlight
+    name: iOS TestFlight (Flutter — NO Shorebird)
     instance_type: mac_mini_m2
     max_build_duration: 120
     integrations:
@@ -120,8 +117,6 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        beta_groups:
-          - Internal Testers
 
   android-release:
     name: Android Release
