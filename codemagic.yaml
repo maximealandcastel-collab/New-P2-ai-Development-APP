@@ -9,17 +9,14 @@
 # 4. App Store Connect integration name must match `app_store_connect` below
 # 5. iOS signing: App Store cert + profile for com.p2pfittech.ai
 # 6. Enable "Increment build number" in Codemagic project settings
-
 definitions:
   env_versions: &env_versions
     flutter: 3.41.4
     xcode: latest
     cocoapods: default
-
   app_vars: &app_vars
     APP_ID: com.p2pfittech.ai
     PACKAGE_NAME: com.p2pfittech.ai
-
   scripts:
     - &disable_spm_and_install
       name: Install Flutter dependencies
@@ -28,32 +25,27 @@ definitions:
         flutter config --no-enable-swift-package-manager
         flutter pub get
         cd packages/anam_flutter_sdk && flutter pub get
-
     - &analyze_project
       name: Analyze project
       script: |
         set -e
         flutter analyze
         cd packages/anam_flutter_sdk && flutter analyze
-
     - &run_tests
       name: Run tests
       script: |
         set -e
         flutter test
-
     - &install_pods
       name: Install CocoaPods
       script: |
         set -e
         find . -name "Podfile" -not -path "./packages/anam_flutter_sdk/example/*" -execdir pod install \;
-
     - &build_ios_ipa
       name: Build iOS IPA (TestFlight)
       script: |
         set -e
         bash scripts/codemagic_ios_build.sh
-
 workflows:
   flutter-ci:
     name: Flutter CI
@@ -78,7 +70,6 @@ workflows:
       - *disable_spm_and_install
       - *analyze_project
       - *run_tests
-
   ios-testflight:
     name: iOS TestFlight (Flutter — NO Shorebird)
     instance_type: mac_mini_m2
@@ -90,6 +81,7 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.p2pfittech.ai
+        provisioning_profile_name: p2p_fit_tech_app_store_TL8PCV3S3F
       vars:
         <<: *app_vars
     cache:
@@ -117,7 +109,6 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-
   android-release:
     name: Android Release
     instance_type: mac_mini_m2
