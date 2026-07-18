@@ -2,6 +2,9 @@
 # Codemagic iOS TestFlight build — Flutter only (no Shorebird).
 set -eo pipefail
 
+# Generate export_options.plist from installed profiles
+xcode-project use-profiles
+
 EXPORT_PLIST="${HOME}/export_options.plist"
 BUILD_NUM="${PROJECT_BUILD_NUMBER:-${BUILD_NUMBER:-}}"
 
