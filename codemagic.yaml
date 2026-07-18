@@ -1,12 +1,14 @@
-# Codemagic CI/CD for P2P Fit Tech AI (pler_to_pler_app)
+# Codemagic CI/CD — P2P Fit Tech AI (pler_to_pler_app)
 #
-# Required once in Codemagic UI:
-# - App Store Connect API key integration (name must match ios-testflight below)
-# - iOS code signing: App Store cert + profile for com.p2pfittech.ai
-# - Android keystore reference named "keystore_reference" (android-release only)
-# - Enable "Increment build number" in project settings (use build number > last TestFlight)
+# Uses Flutter + CocoaPods only (NO Shorebird).
 #
-# After pushing this file to git, Codemagic will pick up these workflows automatically.
+# Codemagic app settings:
+# 1. Enable "codemagic.yaml" / Configuration as code for this repo
+# 2. Delete or disable any Workflow Editor workflow that runs `shorebird release`
+# 3. Remove SHOREBIRD_TOKEN from environment variables (not used)
+# 4. App Store Connect integration name must match `app_store_connect` below
+# 5. iOS code signing: App Store cert + profile for com.p2pfittech.ai
+# 6. Enable "Increment build number" (PROJECT_BUILD_NUMBER > last TestFlight build)
 
 definitions:
   env_versions: &env_versions
@@ -19,8 +21,8 @@ definitions:
     PACKAGE_NAME: com.p2pfittech.ai
 
   scripts:
-    - &install_dependencies
-      name: Install dependencies
+    - &disable_spm_and_install
+      name: Install Flutter dependencies
       script: |
         set -e
         flutter config --no-enable-swift-package-manager
@@ -46,6 +48,15 @@ definitions:
         set -e
         find . -name "Podfile" -not -path "./packages/anam_flutter_sdk/example/*" -execdir pod install \;
 
+    - &build_ios_ipa
+      name: Build iOS IPA (TestFlight)
+      script: |
+        set -e
+        flutter build ipa \
+          --release \
+          --export-options-plist=$HOME/export_options.plist \
+          --build-number=$PROJECT_BUILD_NUMBER
+
 workflows:
   flutter-ci:
     name: Flutter CI
@@ -67,7 +78,7 @@ workflows:
         - pattern: "*"
           include: true
     scripts:
-      - *install_dependencies
+      - *disable_spm_and_install
       - *analyze_project
       - *run_tests
 
@@ -76,7 +87,6 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 120
     integrations:
-      # Must match your App Store Connect integration name in Codemagic
       app_store_connect: codemagic
     environment:
       <<: *env_versions
@@ -97,16 +107,11 @@ workflows:
         - pattern: main
           include: true
     scripts:
-      - *install_dependencies
+      - *disable_spm_and_install
       - *analyze_project
       - *run_tests
       - *install_pods
-      - name: Build iOS IPA
-        script: |
-          set -e
-          flutter build ipa \
-            --release \
-            --build-number=$PROJECT_BUILD_NUMBER
+      - *build_ios_ipa
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
@@ -140,7 +145,7 @@ workflows:
         - pattern: main
           include: true
     scripts:
-      - *install_dependencies
+      - *disable_spm_and_install
       - *analyze_project
       - *run_tests
       - name: Build Android App Bundle
