@@ -1,3 +1,14 @@
+# Codemagic CI/CD — P2P Fit Tech AI (pler_to_pler_app)
+#
+# iOS builds use: bash scripts/codemagic_ios_build.sh  (NOT Shorebird)
+#
+# Before first yaml build in Codemagic UI:
+# 1. Start build → pick workflow: "iOS TestFlight (Flutter — NO Shorebird)"
+# 2. Delete Workflow Editor steps that run `shorebird release ios`
+# 3. Remove SHOREBIRD_TOKEN from environment variables
+# 4. App Store Connect integration name must match `app_store_connect` below
+# 5. iOS signing: App Store cert + profile for com.p2pfittech.ai
+# 6. Enable "Increment build number" in Codemagic project settings
 definitions:
   env_versions: &env_versions
     flutter: 3.41.4
