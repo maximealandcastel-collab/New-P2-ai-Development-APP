@@ -355,7 +355,6 @@ class ContentController extends GetxController with PaginatedLoaderUi {
       _deleteLoadingState.value = LoadingState.loading;
       await _service.deleteContent(contentId);
       _deleteLoadingState.value = LoadingState.loaded;
-      if (Get.isDialogOpen ?? false) Get.back();
       await _invalidateCurrentCache();
       await _reloadFeedFromApi();
       if (contents.isNotEmpty) {
@@ -363,6 +362,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
             reel.currentIndex.value.clamp(0, contents.length - 1);
         await _restartReelAt(nextIndex, showBootstrapLoader: true);
       }
+      Get.back(canPop: true);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _deleteLoadingState.value = LoadingState.error;
