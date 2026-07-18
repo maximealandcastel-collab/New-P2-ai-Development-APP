@@ -15,7 +15,8 @@ fi
 # Auto-increment build number from App Store Connect
 LATEST_BUILD=$(app-store-connect get-latest-build-number \
   --bundle-id com.p2pfittech.ai \
-  --platform IOS 2>/dev/null || echo "32")
+  --platform IOS \
+  --pre-release 2>/dev/null || echo "33")
 BUILD_NUM=$((LATEST_BUILD + 1))
 echo "Using build number: ${BUILD_NUM}"
 
