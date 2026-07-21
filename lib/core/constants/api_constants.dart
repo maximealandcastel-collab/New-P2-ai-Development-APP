@@ -114,6 +114,9 @@ class ApiConstants {
   static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
   static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
 
+  /// IAP ──────────────────────────────────────────────
+  static const String iapVerify = '/api/v1/iap/verify';
+
   /// WITHDRAWAL / EARNINGS ──────────────────────────────────────────────
   static const String trainerEarnings = '/api/v1/withdrawal/earnings';
   static String trainerPayments({required int page, required int limit}) =>

@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
+import 'package:pler_to_pler_app/features/subscribe/data/models/iap_verify_result_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
 class SubscribeRepository {
@@ -94,6 +95,37 @@ class SubscribeRepository {
           "note": note,
         },
       );
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
+  /// Verifies a store purchase with the backend before unlocking subscription.
+  Future<IapVerifyResultModel> verifyIap({
+    required String platform,
+    required String productId,
+    required String purchaseId,
+    required String verificationData,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        ApiConstants.iapVerify,
+        data: {
+          'platform': platform,
+          'productId': productId,
+          'purchaseId': purchaseId,
+          'verificationData': verificationData,
+        },
+      );
+
+      final data = response.data?['data'];
+      if (data is! Map) {
+        throw ParsingException('Invalid IAP verify response');
+      }
+
+      return IapVerifyResultModel.fromJson(Map<String, dynamic>.from(data));
     } on AppException {
       rethrow;
     } catch (e) {

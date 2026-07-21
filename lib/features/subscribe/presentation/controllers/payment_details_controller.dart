@@ -1,16 +1,30 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 
 const String kProductMonthly = 'month_1';
 const String kProductAnnual = 'year_1';
 const Set<String> _kProductIds = {kProductMonthly, kProductAnnual};
 
 class PaymentDetailsController extends GetxController {
+  PaymentDetailsController({
+    required SubscribeServices subscribeService,
+    required ProfileService profileService,
+  }) : _subscribeService = subscribeService,
+       _profileService = profileService;
+
+  final SubscribeServices _subscribeService;
+  final ProfileService _profileService;
+
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
 
   // ─── IAP States ───────────────────────────────────────────────────────────
@@ -167,18 +181,45 @@ class PaymentDetailsController extends GetxController {
 
   Future<void> _handleSuccessfulPurchase(PurchaseDetails purchase) async {
     try {
+      final purchaseId = purchase.purchaseID;
+      final verificationData =
+          purchase.verificationData.serverVerificationData;
+
+      if (purchaseId == null ||
+          purchaseId.isEmpty ||
+          verificationData.isEmpty) {
+        throw UnknownException('Missing purchase verification data');
+      }
+
+      // Unlock only after backend verifies with Apple / Google.
+      await _subscribeService.verifyIap(
+        platform: Platform.isIOS ? 'ios' : 'android',
+        productId: purchase.productID,
+        purchaseId: purchaseId,
+        verificationData: verificationData,
+      );
+
       if (purchase.pendingCompletePurchase) {
         await InAppPurchase.instance.completePurchase(purchase);
+      }
+
+      try {
+        await _profileService.fetchUserProfile();
+      } catch (_) {
+        // Navigation still proceeds; profile refresh is best-effort.
       }
 
       _isPurchasing.value = false;
       ToastMessageHelper.show('Subscription activated! Enjoy your plan 🎉');
       if (kDebugMode) {
-        debugPrint('Purchase complete: ${purchase.productID}');
+        debugPrint('Purchase verified: ${purchase.productID}');
       }
 
-      // Navigate away after successful purchase
       Get.offAllNamed(AppRoute.bottonNavBar);
+    } on AppException catch (e) {
+      _isPurchasing.value = false;
+      ToastMessageHelper.show(e.message);
+      if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');
     } catch (e) {
       _isPurchasing.value = false;
       ToastMessageHelper.show('Verification failed. Please contact support.');

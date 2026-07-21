@@ -5,7 +5,9 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/plan_model.dart';
+import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/payment_details_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -15,7 +17,12 @@ class PaymentDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(PaymentDetailsController());
+    final controller = Get.put(
+      PaymentDetailsController(
+        subscribeService: Get.find<SubscribeServices>(),
+        profileService: Get.find<ProfileService>(),
+      ),
+    );
     return CustomScaffold(
       body: Stack(
         children: [

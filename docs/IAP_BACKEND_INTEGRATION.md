@@ -151,16 +151,12 @@ Webhook ছাড়া first purchase কাজ করবে, কিন্ত�
 
 ---
 
-## Mobile (Flutter) — after backend ready
+## Mobile (Flutter)
 
-We will call verify **before** `completePurchase()`:
+Calls verify **before** `completePurchase()`:
 
 ```
 POST /api/v1/iap/verify
-→ success? complete purchase + go home
-→ fail? show error, do not unlock
+→ success? complete purchase + refresh profile + go home
+→ fail? show error, do not unlock / do not complete purchase
 ```
-
----
-
-**Backend team:** `POST /api/v1/iap/verify` implement করলেই payment flow start করা যাবে. Staging URL ready হলে জানাবেন।
