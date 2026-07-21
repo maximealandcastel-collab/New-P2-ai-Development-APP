@@ -66,8 +66,9 @@ class PaymentDetailsScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             // Merge store price when available
                             final plan = PlanModel.plans[index];
-                            final productId =
-                                index == 0 ? kProductAnnual : kProductMonthly;
+                            final productId = index == 0
+                                ? kProductAnnual
+                                : kProductMonthly;
 
                             ProductDetails? storeProduct;
                             try {
@@ -78,12 +79,9 @@ class PaymentDetailsScreen extends StatelessWidget {
                               storeProduct = null;
                             }
 
-                            final displayPlan =
-                                storeProduct != null
-                                    ? plan.copyWithStorePrice(
-                                      storeProduct.price,
-                                    )
-                                    : plan;
+                            final displayPlan = storeProduct != null
+                                ? plan.copyWithStorePrice(storeProduct.price)
+                                : plan;
 
                             return SubscribeCard(
                               plan: displayPlan,
@@ -104,8 +102,9 @@ class PaymentDetailsScreen extends StatelessWidget {
                   final isBuying = controller.purchaseLoadingState.isLoading;
 
                   return CustomButton(
-                    onPressed:
-                        isBuying ? null : () => controller.buySelectedPlan(),
+                    onPressed: isBuying
+                        ? null
+                        : () => controller.buySelectedPlan(),
                     isLoading: isBuying,
                     label: 'Upgrade Now',
                   );
