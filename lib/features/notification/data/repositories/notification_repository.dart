@@ -109,7 +109,7 @@ class NotificationRepository {
 
   Future<void> applyAllReadLocally() async {
     final cached = getCachedNotifications()
-        .map((item) => item.copyWith(isRead: true))
+        .map((item) => item.copyWith(isRead: true, isReadable: true))
         .toList();
     await saveNotifications(cached);
   }
@@ -125,31 +125,23 @@ class NotificationRepository {
       _cacheService.containsKey(AppConstants.cacheNotifications);
 
   List<NotificationModel> _parseNotifications(dynamic data) {
-    final list = _extractList(data);
-    return list
-        .whereType<Map>()
-        .map(
-          (item) => NotificationModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
-        .toList();
-  }
-
-  List<dynamic> _extractList(dynamic data) {
-    if (data is List) return data;
     if (data is Map) {
-      for (final key in [
-        'notifications',
-        'items',
-        'docs',
-        'results',
-        'data',
-      ]) {
-        final value = data[key];
-        if (value is List) return value;
-      }
+      return NotificationListPayload.fromJson(
+        Map<String, dynamic>.from(data),
+      ).notifications;
     }
+
+    if (data is List) {
+      return data
+          .whereType<Map>()
+          .map(
+            (item) => NotificationModel.fromJson(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .toList();
+    }
+
     return const [];
   }
 

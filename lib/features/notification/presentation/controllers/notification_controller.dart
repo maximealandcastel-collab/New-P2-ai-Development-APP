@@ -143,7 +143,7 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
     final previousCount = _unreadCount.value;
 
     notificationsList.items.value = previousItems
-        .map((item) => item.copyWith(isRead: true))
+        .map((item) => item.copyWith(isRead: true, isReadable: true))
         .toList();
     _unreadCount.value = 0;
 
