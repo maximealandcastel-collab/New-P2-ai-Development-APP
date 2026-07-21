@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +26,6 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
   static NotificationController get to => Get.find();
 
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
-  final Rx<LoadingState> _markReadState = LoadingState.initial.obs;
   final RxInt _unreadCount = 0.obs;
 
   late final PaginatedList<NotificationModel> notificationsList;
@@ -32,8 +33,10 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
   bool _listLoadStarted = false;
 
   LoadingState get loadingState => _loadingState.value;
-  LoadingState get markReadState => _markReadState.value;
   int get unreadCount => _unreadCount.value;
+  bool get hasUnread =>
+      _unreadCount.value > 0 ||
+      notificationsList.items.any((item) => !item.isRead);
   List<NotificationModel> get notifications => notificationsList.items;
   ScrollController? get scrollController => notificationsList.scrollController;
 
@@ -72,11 +75,15 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
     int page,
     int limit,
   ) async {
+    List<NotificationModel> result;
     if (page == 1) {
       await _service.fetchNotifications(page, limit);
-      return _service.getCachedNotifications();
+      result = _service.getCachedNotifications();
+    } else {
+      result = await _service.fetchMoreNotifications(page, limit);
     }
-    return _service.fetchMoreNotifications(page, limit);
+    notificationsList.hasMore.value = _service.lastHasMore;
+    return result;
   }
 
   Future<void> _loadData({bool showFullLoader = true}) async {
@@ -129,24 +136,28 @@ class NotificationController extends GetxController with PaginatedLoaderUi {
     }
   }
 
-  Future<void> markAllAsRead() async {
-    if (_markReadState.value.isLoading) return;
-    if (_unreadCount.value <= 0) return;
+  void markAllAsRead() {
+    if (!hasUnread) return;
 
-    try {
-      _markReadState.value = LoadingState.loading;
-      await _service.markAllAsRead();
+    final previousItems = List<NotificationModel>.from(notificationsList.items);
+    final previousCount = _unreadCount.value;
 
-      notificationsList.items.value = notificationsList.items
-          .map((item) => item.copyWith(isRead: true))
-          .toList();
-      _unreadCount.value = 0;
-      _markReadState.value = LoadingState.loaded;
-    } catch (e) {
-      _markReadState.value = LoadingState.error;
-      ToastMessageHelper.show(e.errorMessage);
-      if (kDebugMode) debugPrint('markAllAsRead error: $e');
-    }
+    notificationsList.items.value = previousItems
+        .map((item) => item.copyWith(isRead: true))
+        .toList();
+    _unreadCount.value = 0;
+
+    unawaited(_service.restoreNotifications(notificationsList.items));
+
+    unawaited(
+      _service.syncMarkAllAsRead().catchError((Object e) {
+        notificationsList.items.value = previousItems;
+        _unreadCount.value = previousCount;
+        unawaited(_service.restoreNotifications(previousItems));
+        ToastMessageHelper.show(e.errorMessage);
+        if (kDebugMode) debugPrint('markAllAsRead error: $e');
+      }),
+    );
   }
 
   @override

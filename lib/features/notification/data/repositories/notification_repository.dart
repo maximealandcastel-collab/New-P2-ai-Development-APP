@@ -22,7 +22,9 @@ class NotificationRepository {
         queryParameters: {'page': page, 'limit': limit},
       );
 
-      final notifications = _parseNotifications(response.data?['data']);
+      final payload = response.data?['data'];
+      final notifications = _parseNotifications(payload);
+      _lastHasMore = _parseHasMore(payload, notifications.length, limit);
 
       if (page == 1) {
         await _cacheService.put(
@@ -39,6 +41,10 @@ class NotificationRepository {
       throw UnknownException(e.toString());
     }
   }
+
+  bool? _lastHasMore;
+
+  bool get lastHasMore => _lastHasMore ?? false;
 
   Future<List<NotificationModel>> fetchMoreNotifications(
     int page,
@@ -93,18 +99,26 @@ class NotificationRepository {
     try {
       await _apiService.patch(ApiConstants.notificationsReadAll);
 
-      final cached = getCachedNotifications()
-          .map((item) => item.copyWith(isRead: true))
-          .toList();
-      await _cacheService.put(
-        AppConstants.cacheNotifications,
-        cached.map((item) => item.toJson()).toList(),
-      );
+      await applyAllReadLocally();
     } on AppException {
       rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
     }
+  }
+
+  Future<void> applyAllReadLocally() async {
+    final cached = getCachedNotifications()
+        .map((item) => item.copyWith(isRead: true))
+        .toList();
+    await saveNotifications(cached);
+  }
+
+  Future<void> saveNotifications(List<NotificationModel> items) async {
+    await _cacheService.put(
+      AppConstants.cacheNotifications,
+      items.map((item) => item.toJson()).toList(),
+    );
   }
 
   bool hasCache() =>
@@ -142,11 +156,31 @@ class NotificationRepository {
   int _parseUnreadCount(dynamic data) {
     if (data is num) return data.toInt();
     if (data is Map) {
-      for (final key in ['unreadCount', 'count', 'total']) {
+      for (final key in ['unreadCount', 'count', 'total', 'totalUnread']) {
         final value = data[key];
         if (value is num) return value.toInt();
       }
     }
     return 0;
+  }
+
+  bool _parseHasMore(dynamic data, int itemCount, int limit) {
+    if (data is Map) {
+      final pagination = data['pagination'];
+      if (pagination is Map) {
+        final nextPage = pagination['nextPage'];
+        if (nextPage != null) return true;
+        if (nextPage == null && pagination.containsKey('nextPage')) {
+          return false;
+        }
+
+        final currentPage = pagination['currentPage'];
+        final totalPage = pagination['totalPage'];
+        if (currentPage is num && totalPage is num) {
+          return currentPage.toInt() < totalPage.toInt();
+        }
+      }
+    }
+    return itemCount >= limit;
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_card_widget.dart';
@@ -18,30 +17,23 @@ class NotificationsScreen extends StatelessWidget {
     controller.ensureListLoaded();
 
     return SliverScaffold(
+      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.12,
       onRefresh: controller.refresh,
       paginationList: controller.notificationsList,
       appBar: CustomSliverAppBar(
         title: 'Notifications',
         actions: [
           Obx(() {
-            final hasUnread = controller.unreadCount > 0;
-            final isMarking = controller.markReadState.isLoading;
-            if (!hasUnread && !isMarking) return const SizedBox.shrink();
+            if (!controller.hasUnread) return const SizedBox.shrink();
 
             return TextButton(
-              onPressed: isMarking ? null : controller.markAllAsRead,
-              child: isMarking
-                  ? SizedBox(
-                      width: 18.w,
-                      height: 18.w,
-                      child: const CustomLoader(),
-                    )
-                  : CustomText(
-                      text: 'Mark all',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
+              onPressed: controller.markAllAsRead,
+              child: CustomText(
+                text: 'Mark all',
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
             );
           }),
         ],

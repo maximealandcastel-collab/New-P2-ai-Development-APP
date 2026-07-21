@@ -30,7 +30,16 @@ class NotificationService {
 
   bool hasCache() => _repository.hasCache();
 
+  bool get lastHasMore => _repository.lastHasMore;
+
   Future<int> getUnreadCount() => _repository.getUnreadCount();
 
-  Future<void> markAllAsRead() => _repository.markAllAsRead();
+  Future<void> applyAllReadLocally() => _repository.applyAllReadLocally();
+
+  Future<void> restoreNotifications(List<NotificationModel> items) =>
+      _repository.saveNotifications(items);
+
+  Future<void> syncMarkAllAsRead() => _repository.markAllAsRead();
+
+  Future<void> markAllAsRead() => syncMarkAllAsRead();
 }

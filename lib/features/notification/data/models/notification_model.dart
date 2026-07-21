@@ -2,49 +2,65 @@ import 'package:intl/intl.dart';
 
 class NotificationModel {
   final String id;
+  final String message;
+  final String date;
+  final bool isRead;
+  final String? createdAt;
+  final String? updatedAt;
+
+  /// Legacy/demo fields — kept for older payloads.
   final String title;
   final String action;
   final String target;
-  final String date;
   final String? preview;
   final String? imageUrl;
-  final bool isRead;
   final String? type;
-  final String? createdAt;
 
   const NotificationModel({
     required this.id,
-    required this.title,
-    required this.action,
-    required this.target,
+    required this.message,
     required this.date,
+    this.isRead = true,
+    this.createdAt,
+    this.updatedAt,
+    this.title = '',
+    this.action = '',
+    this.target = '',
     this.preview,
     this.imageUrl,
-    this.isRead = true,
     this.type,
-    this.createdAt,
   });
 
   bool get hasTarget => target.isNotEmpty;
 
-  bool get hasPreview => preview != null && preview!.isNotEmpty;
+  bool get hasPreview =>
+      (preview != null && preview!.isNotEmpty) ||
+      (message.isNotEmpty && !usesLegacyLayout);
 
   bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
 
   bool get hasAction => action.isNotEmpty;
 
+  bool get usesLegacyLayout =>
+      title.isNotEmpty || action.isNotEmpty || target.isNotEmpty;
+
+  String get displayMessage =>
+      message.isNotEmpty ? message : (preview ?? '');
+
   NotificationModel copyWith({bool? isRead}) {
     return NotificationModel(
       id: id,
+      message: message,
+      date: date,
+      isRead: isRead ?? this.isRead,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
       title: title,
       action: action,
       target: target,
-      date: date,
       preview: preview,
       imageUrl: imageUrl,
-      isRead: isRead ?? this.isRead,
       type: type,
-      createdAt: createdAt,
     );
   }
 
@@ -55,37 +71,45 @@ class NotificationModel {
         json['updatedAt']?.toString() ??
         '';
 
+    final message =
+        json['msg']?.toString() ??
+        json['message']?.toString() ??
+        json['body']?.toString() ??
+        '';
+
     final preview =
         json['preview']?.toString() ??
-        json['body']?.toString() ??
-        json['message']?.toString();
+        (message.isEmpty ? json['title']?.toString() : null);
 
     return NotificationModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      message: message,
+      date: _formatDisplayDate(rawCreatedAt),
+      isRead: json['isRead'] == true || json['read'] == true,
+      createdAt: rawCreatedAt.isEmpty ? null : rawCreatedAt,
+      updatedAt: json['updatedAt']?.toString(),
       title: json['title']?.toString() ?? '',
       action: json['action']?.toString() ?? '',
       target: json['target']?.toString() ?? '',
-      date: _formatDisplayDate(rawCreatedAt),
       preview: preview,
       imageUrl: json['imageUrl']?.toString() ?? json['image']?.toString(),
-      isRead: json['isRead'] == true || json['read'] == true,
       type: json['type']?.toString(),
-      createdAt: rawCreatedAt.isEmpty ? null : rawCreatedAt,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
+      'msg': message,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'isRead': isRead,
       'title': title,
       'action': action,
       'target': target,
-      'date': date,
       'preview': preview,
       'imageUrl': imageUrl,
-      'isRead': isRead,
       'type': type,
-      'createdAt': createdAt,
     };
   }
 

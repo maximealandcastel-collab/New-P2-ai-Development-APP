@@ -118,10 +118,9 @@ class ApiConstants {
   static const String iapVerify = '/api/v1/iap/verify';
 
   /// NOTIFICATIONS ──────────────────────────────────────────────
-  static const String notifications = '/api/v1/notifications';
-  static const String notificationsUnreadCount =
-      '/api/v1/notifications/unread-count';
-  static const String notificationsReadAll = '/api/v1/notifications/read-all';
+  static const String notifications = '/api/v1/notification';
+  static const String notificationsUnreadCount = '/api/v1/notification/unread-count';
+  static const String notificationsReadAll = '/api/v1/notification/read-all';
 
   /// WITHDRAWAL / EARNINGS ──────────────────────────────────────────────
   static const String trainerEarnings = '/api/v1/withdrawal/earnings';

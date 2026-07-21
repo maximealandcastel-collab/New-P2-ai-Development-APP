@@ -39,65 +39,9 @@ class NotificationCardWidget extends StatelessWidget {
             ),
           ],
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.black,
-                      fontFamily: FontFamily.figtree,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '${notification.title} ',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      if (notification.hasAction)
-                        TextSpan(
-                          text: '${notification.action} ',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      if (notification.hasTarget)
-                        TextSpan(
-                          text: '${notification.target} ',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      if (notification.date.isNotEmpty)
-                        TextSpan(
-                          text: '• ${notification.date}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (notification.hasPreview) ...[
-                  SizedBox(height: 8.h),
-                  Row(
-                    children: [
-                      Container(
-                        width: 2.w,
-                        height: 20.h,
-                        color: Colors.black12,
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: CustomText(
-                          text: notification.preview!,
-                          fontSize: 13.sp,
-                          color: Colors.grey,
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
+            child: notification.usesLegacyLayout
+                ? _buildLegacyContent()
+                : _buildMessageContent(),
           ),
           if (notification.hasImage) ...[
             SizedBox(width: 12.w),
@@ -111,6 +55,89 @@ class NotificationCardWidget extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildMessageContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          text: notification.displayMessage,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+          textAlign: TextAlign.start,
+        ),
+        if (notification.date.isNotEmpty) ...[
+          SizedBox(height: 6.h),
+          CustomText(
+            text: notification.date,
+            fontSize: 12.sp,
+            color: AppColors.textSecondary,
+            textAlign: TextAlign.start,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildLegacyContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.black,
+              fontFamily: FontFamily.figtree,
+            ),
+            children: [
+              TextSpan(
+                text: '${notification.title} ',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (notification.hasAction)
+                TextSpan(
+                  text: '${notification.action} ',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              if (notification.hasTarget)
+                TextSpan(
+                  text: '${notification.target} ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              if (notification.date.isNotEmpty)
+                TextSpan(
+                  text: '• ${notification.date}',
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+            ],
+          ),
+        ),
+        if (notification.hasPreview &&
+            notification.preview != notification.message) ...[
+          SizedBox(height: 8.h),
+          Row(
+            children: [
+              Container(
+                width: 2.w,
+                height: 20.h,
+                color: Colors.black12,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: CustomText(
+                  text: notification.preview!,
+                  fontSize: 13.sp,
+                  color: Colors.grey,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
