@@ -8,7 +8,7 @@
 # 3. Remove SHOREBIRD_TOKEN from environment variables
 # 4. App Store Connect integration name must match `app_store_connect` below
 # 5. iOS signing: App Store cert + profile for com.p2pfittech.ai
-# 6. Enable "Increment build number" in Codemagic project settings
+# 6. Keep Codemagic "Increment build number" OFF — script handles it via App Store Connect
 definitions:
   env_versions: &env_versions
     flutter: 3.41.4
@@ -17,6 +17,7 @@ definitions:
   app_vars: &app_vars
     APP_ID: com.p2pfittech.ai
     PACKAGE_NAME: com.p2pfittech.ai
+    APP_STORE_APPLE_ID: 6757503524
   scripts:
     - &disable_spm_and_install
       name: Install Flutter dependencies

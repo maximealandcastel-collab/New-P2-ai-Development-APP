@@ -2,13 +2,13 @@
 # Codemagic iOS TestFlight build — Flutter only (no Shorebird).
 set -eo pipefail
 
-BUNDLE_ID="com.p2pfittech.ai"
+APP_STORE_APPLE_ID="${APP_STORE_APPLE_ID:?APP_STORE_APPLE_ID must be set in Codemagic env vars}"
 
-# Get the highest build number across both TestFlight AND App Store
-# so we never collide regardless of which channel had the last upload
+# Highest build number across all versions on TestFlight AND App Store
 LATEST=$(app-store-connect get-latest-build-number \
-    --bundle-id "$BUNDLE_ID" \
-    --platform IOS 2>/dev/null || true)
+    "$APP_STORE_APPLE_ID" \
+    --platform IOS \
+    --all-versions 2>/dev/null || true)
 
 # Validate it's actually a number; default to 0 if missing/error
 if ! [[ "$LATEST" =~ ^[0-9]+$ ]]; then
