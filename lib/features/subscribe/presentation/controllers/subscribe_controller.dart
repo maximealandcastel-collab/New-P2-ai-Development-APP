@@ -27,84 +27,11 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
 
   final noteTEController = TextEditingController();
   final searchController = TextEditingController();
-  final promoCodeController = TextEditingController();
 
   final RxInt _selected = 0.obs;
-  final RxInt _selectedIndex = 0.obs;
-  final RxBool _isPromoApplied = false.obs;
-  final RxBool _isApplyingPromo = false.obs;
-  final RxBool _isCheckingOut = false.obs;
-  final RxString _appliedPromoCode = ''.obs;
 
   int get selected => _selected.value;
-  int get selectedIndex => _selectedIndex.value;
-  bool get isPromoApplied => _isPromoApplied.value;
-  bool get isApplyingPromo => _isApplyingPromo.value;
-  bool get isCheckingOut => _isCheckingOut.value;
-  String get appliedPromoCode => _appliedPromoCode.value;
   set selected(int val) => _selected.value = val;
-
-  /// `plans[0]` is the annual plan and `plans[1]` the monthly plan.
-  String get _selectedTier => selectedIndex == 0 ? 'annual' : 'monthly';
-
-  void onChange(int index) {
-    _selectedIndex.value = index;
-  }
-
-  Future<void> applyPromoCode({bool popOnSuccess = false}) async {
-    final code = promoCodeController.text.trim();
-    if (code.isEmpty) {
-      ToastMessageHelper.show('Please enter a promo code');
-      return;
-    }
-
-    try {
-      _isApplyingPromo.value = true;
-      // TODO: validate promo code via API when available.
-      _appliedPromoCode.value = code.toUpperCase();
-      _isPromoApplied.value = true;
-      ToastMessageHelper.show('Promo code applied successfully');
-      if (popOnSuccess && Get.currentRoute == AppRoute.promoCodeScreen) {
-        Get.back();
-      }
-    } finally {
-      _isApplyingPromo.value = false;
-    }
-  }
-
-  void removePromoCode() {
-    _isPromoApplied.value = false;
-    _appliedPromoCode.value = '';
-    promoCodeController.clear();
-  }
-
-  /// Creates a Stripe checkout session for the app default trainer plan and,
-  /// on success, opens the returned payment URL inside an in-app webview.
-  Future<void> createDefaultCheckout({String? promoCode}) async {
-    if (isCheckingOut) return;
-    try {
-      _isCheckingOut.value = true;
-      final checkout = await _service.createDefaultCheckout(
-        tier: _selectedTier,
-        promoCode: promoCode,
-      );
-
-      final paymentUrl = checkout.paymentUrl;
-      if (paymentUrl == null || paymentUrl.isEmpty) {
-        ToastMessageHelper.show('Unable to start payment. Please try again.');
-        return;
-      }
-
-      promoCodeController.clear();
-      if (Get.isDialogOpen ?? false) Get.back();
-      Get.toNamed(AppRoute.paymentWebViewScreen, arguments: paymentUrl);
-    } catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-      if (kDebugMode) debugPrint('createDefaultCheckout error: $e');
-    } finally {
-      _isCheckingOut.value = false;
-    }
-  }
 
   // ─── Loading States ───────────────────────────────────────────────────────
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
@@ -263,7 +190,6 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     trainersList.dispose();
     searchController.dispose();
     noteTEController.dispose();
-    promoCodeController.dispose();
     super.onClose();
   }
 }

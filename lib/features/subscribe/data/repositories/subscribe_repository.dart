@@ -3,7 +3,6 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
-import 'package:pler_to_pler_app/features/subscribe/data/models/default_checkout_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 
@@ -95,33 +94,6 @@ class SubscribeRepository {
           "note": note,
         },
       );
-    } on AppException {
-      rethrow;
-    } catch (e) {
-      throw UnknownException(e.toString());
-    }
-  }
-
-  Future<DefaultCheckoutModel> createDefaultCheckout({
-    required String tier,
-    String? promoCode,
-  }) async {
-    try {
-      final response = await _apiService.post(
-        ApiConstants.defaultCheckout,
-        data: {
-          "tier": tier,
-          if (promoCode != null && promoCode.trim().isNotEmpty)
-            "promoCode": promoCode.trim(),
-        },
-      );
-
-      final data = response.data;
-      if (data is Map && data['success'] == false) {
-        throw BadRequestException(data['message']?.toString());
-      }
-
-      return DefaultCheckoutModel.fromJson(data['data']);
     } on AppException {
       rethrow;
     } catch (e) {

@@ -120,9 +120,6 @@ class ApiConstants {
       '/api/v1/withdrawal/payments?page=$page&limit=$limit';
   static const String withdrawal = '/api/v1/withdrawal';
 
-  /// PAYMENT ──────────────────────────────────────────────
-  static const String defaultCheckout = '/api/v1/payment/checkout/default';
-
   /// ANAM VIDEO CALL ──────────────────────────────────────────────
   static const String anamUsage = '/api/v1/anam/usage';
   static const String anamSessionStart = '/api/v1/anam/session/start';

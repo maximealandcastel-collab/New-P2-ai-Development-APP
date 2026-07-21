@@ -33,7 +33,6 @@ import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_contr
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/promo_code_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_profile_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
@@ -73,7 +72,6 @@ import 'package:pler_to_pler_app/features/settings/presentation/children/earning
 import 'package:pler_to_pler_app/features/settings/presentation/children/invoice_preview_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoice_preview_controller.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_webview_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_model.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/device_details_screen.dart';
@@ -93,7 +91,6 @@ class AppRoute {
   static String trainAiScreen = "/trainAiScreen";
   static String paymentDetailsScreen = "/trainerUpgradeScreen";
   static String subscribeSelectScreen = "/subscribeSelectScreen";
-  static String promoCodeScreen = "/promoCodeScreen";
   static String bottonNavBar = "/bottonNavBar";
   static String findTrainerScreen = "/findTrainerScreen";
   static String trainerProfileScreen = "/trainerProfileScreen";
@@ -133,7 +130,6 @@ class AppRoute {
   static String deviceDetailsScreen = "/deviceDetailsScreen";
   static String notificationsScreen = "/notificationsScreen";
   static String privacyPolicyScreen = "/privacyPolicyScreen";
-  static String paymentWebViewScreen = "/paymentWebViewScreen";
   static String adminSupportScreen = "/adminSupportScreen";
 
   static List<GetPage> routes = [
@@ -168,7 +164,6 @@ class AppRoute {
     GetPage(name: aiInstructionScreen, page: () => AiInstructionScreen()),
     GetPage(name: paymentDetailsScreen, page: () => PaymentDetailsScreen()),
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
-    GetPage(name: promoCodeScreen, page: () => const PromoCodeScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
@@ -370,15 +365,9 @@ class AppRoute {
     GetPage(
       name: privacyPolicyScreen,
       page: () => const PrivacyPolicyAllScreen(),
-    ),GetPage(
+    ),    GetPage(
       name: adminSupportScreen,
       page: () => const AdminSupportScreen(),
-    ),
-    GetPage(
-      name: paymentWebViewScreen,
-      page: () => PaymentWebViewScreen(
-        paymentUrl: Get.arguments as String,
-      ),
     ),
   ];
 }
