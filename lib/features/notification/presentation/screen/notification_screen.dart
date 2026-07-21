@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/features/notification/data/models/notification_model.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_card_widget.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -9,23 +14,85 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = NotificationController.to;
+    controller.ensureListLoaded();
+
     return SliverScaffold(
+      onRefresh: controller.refresh,
+      paginationList: controller.notificationsList,
       appBar: CustomSliverAppBar(
         title: 'Notifications',
+        actions: [
+          Obx(() {
+            final hasUnread = controller.unreadCount > 0;
+            final isMarking = controller.markReadState.isLoading;
+            if (!hasUnread && !isMarking) return const SizedBox.shrink();
+
+            return TextButton(
+              onPressed: isMarking ? null : controller.markAllAsRead,
+              child: isMarking
+                  ? SizedBox(
+                      width: 18.w,
+                      height: 18.w,
+                      child: const CustomLoader(),
+                    )
+                  : CustomText(
+                      text: 'Mark all',
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+            );
+          }),
+        ],
       ),
       bodyList: [
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-          sliver: SliverList.separated(
-            itemCount: NotificationModel.demoNotifications.length,
-            separatorBuilder: (_, _) => SizedBox(height: 12.h),
-            itemBuilder: (context, index) {
-              return NotificationCardWidget(
-                notification: NotificationModel.demoNotifications[index],
+        Obx(() {
+          switch (controller.loadingState) {
+            case LoadingState.initial:
+            case LoadingState.loading:
+              return const NotificationShimmer().asSliver;
+            case LoadingState.offline:
+            case LoadingState.error:
+              return SliverPadding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+                sliver: SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: EmptyDataWidget(
+                    message:
+                        'Failed to load notifications. Please try again.',
+                    onRefresh: controller.refresh,
+                  ),
+                ),
               );
-            },
-          ),
-        ),
+            case LoadingState.loaded:
+              if (controller.notifications.isEmpty) {
+                return SliverPadding(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+                  sliver: SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyDataWidget(
+                      message: 'No notifications yet',
+                      onRefresh: controller.refresh,
+                    ),
+                  ),
+                );
+              }
+              return SliverPadding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                sliver: SliverList.separated(
+                  itemCount: controller.notifications.length,
+                  separatorBuilder: (_, _) => SizedBox(height: 12.h),
+                  itemBuilder: (context, index) {
+                    return NotificationCardWidget(
+                      notification: controller.notifications[index],
+                    );
+                  },
+                ),
+              );
+          }
+        }),
+        PaginationLoaderSliver(controller: controller),
         SizedBox(height: 120.h).asSliver,
       ],
     );

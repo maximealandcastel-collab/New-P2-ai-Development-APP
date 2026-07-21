@@ -66,6 +66,9 @@ import 'package:pler_to_pler_app/features/user/connect_device/domain/services/de
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/forget_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/change_password_controller.dart';
+import 'package:pler_to_pler_app/features/notification/data/repositories/notification_repository.dart';
+import 'package:pler_to_pler_app/features/notification/domain/services/notification_service.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 
 class DependencyInjection {
   DependencyInjection._();
@@ -435,6 +438,28 @@ class DependencyInjection {
     Get.lazyPut<PrivacyController>(
       () => PrivacyController(
         service: Get.find<PrivacyServices>(),
+        connectivityService: Get.find<ConnectivityService>(),
+      ),
+      fenix: true,
+    );
+
+    /// Notifications
+    Get.lazyPut<NotificationRepository>(
+      () => NotificationRepository(
+        apiService: Get.find<ApiService>(),
+        cacheService: Get.find<CacheService>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<NotificationService>(
+      () => NotificationService(
+        repository: Get.find<NotificationRepository>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut<NotificationController>(
+      () => NotificationController(
+        service: Get.find<NotificationService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
       fenix: true,

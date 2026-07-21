@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class NotificationModel {
   final String id;
   final String title;
@@ -6,6 +8,9 @@ class NotificationModel {
   final String date;
   final String? preview;
   final String? imageUrl;
+  final bool isRead;
+  final String? type;
+  final String? createdAt;
 
   const NotificationModel({
     required this.id,
@@ -15,6 +20,9 @@ class NotificationModel {
     required this.date,
     this.preview,
     this.imageUrl,
+    this.isRead = true,
+    this.type,
+    this.createdAt,
   });
 
   bool get hasTarget => target.isNotEmpty;
@@ -23,64 +31,71 @@ class NotificationModel {
 
   bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
 
-  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+  bool get hasAction => action.isNotEmpty;
+
+  NotificationModel copyWith({bool? isRead}) {
     return NotificationModel(
-      id: json['id']?.toString() ?? '',
+      id: id,
+      title: title,
+      action: action,
+      target: target,
+      date: date,
+      preview: preview,
+      imageUrl: imageUrl,
+      isRead: isRead ?? this.isRead,
+      type: type,
+      createdAt: createdAt,
+    );
+  }
+
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    final rawCreatedAt =
+        json['createdAt']?.toString() ??
+        json['date']?.toString() ??
+        json['updatedAt']?.toString() ??
+        '';
+
+    final preview =
+        json['preview']?.toString() ??
+        json['body']?.toString() ??
+        json['message']?.toString();
+
+    return NotificationModel(
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       action: json['action']?.toString() ?? '',
       target: json['target']?.toString() ?? '',
-      date: json['date']?.toString() ?? '',
-      preview: json['preview']?.toString(),
+      date: _formatDisplayDate(rawCreatedAt),
+      preview: preview,
       imageUrl: json['imageUrl']?.toString() ?? json['image']?.toString(),
+      isRead: json['isRead'] == true || json['read'] == true,
+      type: json['type']?.toString(),
+      createdAt: rawCreatedAt.isEmpty ? null : rawCreatedAt,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'title': title,
       'action': action,
       'target': target,
       'date': date,
       'preview': preview,
       'imageUrl': imageUrl,
+      'isRead': isRead,
+      'type': type,
+      'createdAt': createdAt,
     };
   }
 
-  static const List<NotificationModel> demoNotifications = [
-    NotificationModel(
-      id: '1',
-      title: 'Sam Alex',
-      action: 'commented on',
-      target: '5 days of losing body weight',
-      date: '8/12/25',
-      preview: 'A awesome tips',
-      imageUrl: 'https://picsum.photos/200/200?random=10',
-    ),
-    NotificationModel(
-      id: '2',
-      title: 'Liza Martine',
-      action: 'Messaged you',
-      target: '',
-      date: '8/12/25',
-      preview: 'I am getting pain on my knees, what should i do?',
-    ),
-    NotificationModel(
-      id: '3',
-      title: '40',
-      action: 'new view on',
-      target: '5 days of losing body weight',
-      date: '8/12/25',
-      preview: 'I am getting pain on my knees, what should i do?',
-      imageUrl: 'https://picsum.photos/200/200?random=11',
-    ),
-    NotificationModel(
-      id: '4',
-      title: '25',
-      action: 'new like on',
-      target: '5 days of losing body weight',
-      date: '8/12/25',
-      imageUrl: 'https://picsum.photos/200/200?random=12',
-    ),
-  ];
+  static String _formatDisplayDate(String raw) {
+    if (raw.isEmpty) return '';
+    try {
+      final parsed = DateTime.parse(raw).toLocal();
+      return DateFormat('M/d/yy').format(parsed);
+    } catch (_) {
+      return raw;
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/custom_container.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
@@ -93,15 +94,43 @@ class FeedAppBarSliver extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Get.toNamed(AppRoute.notificationsScreen),
-                child: CustomContainer(
-                  paddingAll: 10.r,
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  child: Assets.icons.notification.svg(
-                    height: 24.h,
-                    width: 24.w,
-                  ),
-                ),
+                child: Obx(() {
+                  final unread =
+                      NotificationController.to.unreadCount;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CustomContainer(
+                        paddingAll: 10.r,
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        child: Assets.icons.notification.svg(
+                          height: 24.h,
+                          width: 24.w,
+                        ),
+                      ),
+                      if (unread > 0)
+                        Positioned(
+                          top: -2.h,
+                          right: -2.w,
+                          child: CustomContainer(
+                            paddingHorizontal: unread > 9 ? 5.w : 0,
+                            height: 16.r,
+                            width: unread > 9 ? null : 16.r,
+                            radiusAll: 10.r,
+                            color: AppColors.error,
+                            alignment: Alignment.center,
+                            child: CustomText(
+                              text: unread > 99 ? '99+' : '$unread',
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
               ),
             ],
           ),
