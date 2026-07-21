@@ -137,43 +137,43 @@ class _ChatScreenState extends State<ChatScreen> {
     _prefetchAnamUsage();
   }
 
-  Widget _buildMessageSender() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Row(
-        children: [
-          Expanded(
-            child: CustomTextField(
-              validator: (_) => null,
-              controller: _messageController,
-              hintText: 'Type message...',
-            ),
-          ),
-          SizedBox(width: 10.w),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _sendMessage,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 6.h),
-              child: Assets.icons.send.svg(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildMessageSender() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: CustomTextField(
+  //             validator: (_) => null,
+  //             controller: _messageController,
+  //             hintText: 'Type message...',
+  //           ),
+  //         ),
+  //         SizedBox(width: 10.w),
+  //         GestureDetector(
+  //           behavior: HitTestBehavior.opaque,
+  //           onTap: _sendMessage,
+  //           child: Padding(
+  //             padding: EdgeInsets.only(bottom: 6.h),
+  //             child: Assets.icons.send.svg(),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
-
-    setState(() {
-      _dummyMessages.add({
-        "text": _messageController.text.trim(),
-        "time": "Now",
-        "isMe": true,
-      });
-    });
-    _messageController.clear();
-  }
+  // void _sendMessage() {
+  //   if (_messageController.text.trim().isEmpty) return;
+  //
+  //   setState(() {
+  //     _dummyMessages.add({
+  //       "text": _messageController.text.trim(),
+  //       "time": "Now",
+  //       "isMe": true,
+  //     });
+  //   });
+  //   _messageController.clear();
+  // }
 }
