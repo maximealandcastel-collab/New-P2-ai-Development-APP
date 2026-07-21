@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/profile/data/models/user_model.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
@@ -103,7 +104,7 @@ void main() {
   group('PaymentDetailsController Tests', () {
     test('initial state has correct default values', () {
       expect(controller.selectedIndex, 0);
-      expect(controller.isPurchasing, isFalse);
+      expect(controller.purchaseLoadingState, LoadingState.initial);
     });
 
     test('onChange updates selectedIndex correctly', () {

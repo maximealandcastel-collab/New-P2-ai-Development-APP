@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:pler_to_pler_app/core/enums/loading_state.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -101,10 +101,11 @@ class PaymentDetailsScreen extends StatelessWidget {
 
                 // ── Upgrade Button ────────────────────────────────────────
                 Obx(() {
-                  final isBuying = controller.isPurchasing;
+                  final isBuying = controller.purchaseLoadingState.isLoading;
 
                   return CustomButton(
-                    onPressed: isBuying ? null : () => controller.buySelectedPlan(),
+                    onPressed:
+                        isBuying ? null : () => controller.buySelectedPlan(),
                     isLoading: isBuying,
                     label: 'Upgrade Now',
                   );
@@ -119,7 +120,7 @@ class PaymentDetailsScreen extends StatelessWidget {
 
                 // ── IAP not available fallback ────────────────────────────
                 Obx(() {
-                  if (controller.iapLoadingState == LoadingState.error) {
+                  if (controller.iapLoadingState.isError) {
                     return Padding(
                       padding: EdgeInsets.only(top: 8.h),
                       child: CustomText(

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
+import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -30,14 +31,19 @@ class PaymentDetailsController extends GetxController {
   // ─── IAP States ───────────────────────────────────────────────────────────
   final _iapAvailable = false.obs;
   final _products = <ProductDetails>[].obs;
-  final _isPurchasing = false.obs;
-  final _iapLoadingState = LoadingState.initial.obs;
   final RxInt _selectedIndex = 0.obs;
 
+  final Rx<LoadingState> _iapLoadingState = LoadingState.initial.obs;
+  final Rx<LoadingState> _purchaseLoadingState = LoadingState.initial.obs;
+
   bool get iapAvailable => _iapAvailable.value;
+
   RxList<ProductDetails> get products => _products;
-  bool get isPurchasing => _isPurchasing.value;
+
   LoadingState get iapLoadingState => _iapLoadingState.value;
+
+  LoadingState get purchaseLoadingState => _purchaseLoadingState.value;
+
   int get selectedIndex => _selectedIndex.value;
 
   /// Returns the `ProductDetails` for the currently selected plan index.
@@ -122,7 +128,7 @@ class PaymentDetailsController extends GetxController {
   // ─── IAP: Buy ─────────────────────────────────────────────────────────────
   /// Call this from the "Upgrade Now" button.
   Future<void> buySelectedPlan() async {
-    if (_isPurchasing.value) return;
+    if (_purchaseLoadingState.value.isLoading) return;
 
     final product = selectedProduct;
     if (product == null) {
@@ -131,13 +137,13 @@ class PaymentDetailsController extends GetxController {
     }
 
     try {
-      _isPurchasing.value = true;
+      _purchaseLoadingState.value = LoadingState.loading;
       final param = PurchaseParam(productDetails: product);
 
       // Both plans are non-consumable subscriptions
       await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
     } catch (e) {
-      _isPurchasing.value = false;
+      _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Purchase failed. Please try again.');
       if (kDebugMode) debugPrint('buySelectedPlan error: $e');
     }
@@ -157,7 +163,7 @@ class PaymentDetailsController extends GetxController {
           break;
 
         case PurchaseStatus.error:
-          _isPurchasing.value = false;
+          _purchaseLoadingState.value = LoadingState.error;
           final errMsg =
               purchase.error?.message ?? 'Purchase failed. Please try again.';
           ToastMessageHelper.show(errMsg);
@@ -172,8 +178,10 @@ class PaymentDetailsController extends GetxController {
           break;
 
         case PurchaseStatus.canceled:
-          _isPurchasing.value = false;
-          if (kDebugMode) debugPrint('Purchase cancelled: ${purchase.productID}');
+          _purchaseLoadingState.value = LoadingState.initial;
+          if (kDebugMode) {
+            debugPrint('Purchase cancelled: ${purchase.productID}');
+          }
           break;
       }
     }
@@ -182,8 +190,7 @@ class PaymentDetailsController extends GetxController {
   Future<void> _handleSuccessfulPurchase(PurchaseDetails purchase) async {
     try {
       final purchaseId = purchase.purchaseID;
-      final verificationData =
-          purchase.verificationData.serverVerificationData;
+      final verificationData = purchase.verificationData.serverVerificationData;
 
       if (purchaseId == null ||
           purchaseId.isEmpty ||
@@ -209,7 +216,7 @@ class PaymentDetailsController extends GetxController {
         // Navigation still proceeds; profile refresh is best-effort.
       }
 
-      _isPurchasing.value = false;
+      _purchaseLoadingState.value = LoadingState.loaded;
       ToastMessageHelper.show('Subscription activated! Enjoy your plan 🎉');
       if (kDebugMode) {
         debugPrint('Purchase verified: ${purchase.productID}');
@@ -217,11 +224,11 @@ class PaymentDetailsController extends GetxController {
 
       Get.offAllNamed(AppRoute.bottonNavBar);
     } on AppException catch (e) {
-      _isPurchasing.value = false;
+      _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.message);
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');
     } catch (e) {
-      _isPurchasing.value = false;
+      _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Verification failed. Please contact support.');
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');
     }
