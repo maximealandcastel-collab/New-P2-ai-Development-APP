@@ -113,10 +113,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-            SafeArea(
-              top: false,
-              child: _buildMessageSender(),
-            ),
+            // SafeArea(
+            //   top: false,
+            //   child: _buildMessageSender(),
+            // ),
           ],
         ),
       ),
