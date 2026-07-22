@@ -89,8 +89,11 @@ class ContentReelItem extends StatelessWidget {
       right: 12.w,
       bottom: bottomInset,
       child: Obx(() {
+        // Read Rx first so Obx always has a dependency (avoids GetX error when
+        // isTrainer is false and the && short-circuits before .value).
+        final activeTab = controller.activeTab.value;
         final showTrainerActions =
-            isTrainer && controller.activeTab.value != ContentTab.defaultContent;
+            isTrainer && activeTab != ContentTab.defaultContent;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
