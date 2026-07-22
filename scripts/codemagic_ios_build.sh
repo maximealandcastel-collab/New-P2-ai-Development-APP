@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
-# Codemagic iOS TestFlight build — Flutter only (no Shorebird).
+# Codemagic iOS TestFlight build — Shorebird release (creates OTA baseline).
 set -eo pipefail
 
+export PATH="$HOME/.shorebird/bin:$PATH"
+
 APP_STORE_APPLE_ID="${APP_STORE_APPLE_ID:?APP_STORE_APPLE_ID must be set in Codemagic env vars}"
+FLUTTER_VERSION="${FLUTTER_VERSION:-3.41.4}"
+
+if ! command -v shorebird >/dev/null 2>&1; then
+  echo "Error: shorebird not found on PATH. Run the Install Shorebird step first."
+  exit 1
+fi
+
+if [[ -z "${SHOREBIRD_TOKEN:-}" ]]; then
+  echo "Error: SHOREBIRD_TOKEN is not set. Add it to the Codemagic 'shorebird' env group."
+  exit 1
+fi
 
 # Highest build number across all versions on TestFlight AND App Store
 LATEST=$(app-store-connect get-latest-build-number \
@@ -31,8 +44,11 @@ perl -i -pe "s/^version: .*/version: ${MARKETING}+${BUILD_NUM}/" pubspec.yaml
 
 echo "pubspec.yaml → version: ${MARKETING}+${BUILD_NUM}"
 
-# Generate export options from installed profiles
-xcode-project use-profiles
+# Generate export options from installed profiles.
+# manageAppVersionAndBuildNumber=false is required so Xcode does not bump the
+# build number on upload (which would break Shorebird patch matching).
+xcode-project use-profiles \
+  --custom-export-options={\"manageAppVersionAndBuildNumber\":false}
 EXPORT_PLIST="${HOME}/export_options.plist"
 
 if [[ ! -f "$EXPORT_PLIST" ]]; then
@@ -40,8 +56,9 @@ if [[ ! -f "$EXPORT_PLIST" ]]; then
   exit 1
 fi
 
-# Build — build-number must match what we wrote to pubspec
-flutter build ipa \
-  --release \
-  --export-options-plist="$EXPORT_PLIST" \
-  --build-number="$BUILD_NUM"
+# Shorebird release = IPA for TestFlight + baseline for future OTA patches
+shorebird release ios \
+  --flutter-version="$FLUTTER_VERSION" \
+  --build-name="$MARKETING" \
+  --build-number="$BUILD_NUM" \
+  --export-options-plist="$EXPORT_PLIST"

@@ -94,6 +94,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/lotties/
+    - shorebird.yaml
 
   fonts:
     - family: Figtree
