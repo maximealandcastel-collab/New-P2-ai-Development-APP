@@ -23,7 +23,13 @@ class PaymentDetailsScreen extends StatelessWidget {
         profileService: Get.find<ProfileService>(),
       ),
     );
-    return CustomScaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop && Get.isRegistered<PaymentDetailsController>()) {
+          Get.delete<PaymentDetailsController>();
+        }
+      },
+      child: CustomScaffold(
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -100,12 +106,15 @@ class PaymentDetailsScreen extends StatelessWidget {
                 // ── Upgrade Button ────────────────────────────────────────
                 Obx(() {
                   final isBuying = controller.purchaseLoadingState.isLoading;
+                  final isLoadingProducts =
+                      controller.iapLoadingState.isLoading;
+                  final canPurchase = controller.canPurchase;
 
                   return CustomButton(
-                    onPressed: isBuying
-                        ? null
-                        : () => controller.buySelectedPlan(),
-                    isLoading: isBuying,
+                    onPressed: canPurchase
+                        ? () => controller.buySelectedPlan()
+                        : null,
+                    isLoading: isBuying || isLoadingProducts,
                     label: 'Upgrade Now',
                   );
                 }),
@@ -119,19 +128,30 @@ class PaymentDetailsScreen extends StatelessWidget {
 
                 // ── IAP not available fallback ────────────────────────────
                 Obx(() {
-                  if (controller.iapLoadingState.isError) {
-                    return Padding(
-                      padding: EdgeInsets.only(top: 8.h),
-                      child: CustomText(
-                        text:
-                            'In-app purchase unavailable.\nPlease try again later.',
-                        fontSize: 12.sp,
-                        color: AppColors.error,
-                        textAlign: TextAlign.center,
-                      ),
-                    );
+                  if (!controller.iapLoadingState.isError) {
+                    return const SizedBox.shrink();
                   }
-                  return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: EdgeInsets.only(top: 12.h),
+                    child: Column(
+                      children: [
+                        CustomText(
+                          text:
+                              'Products unavailable right now.\nCheck your connection and try again.',
+                          fontSize: 12.sp,
+                          color: AppColors.error,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomButton(
+                          onPressed: () => controller.retryLoadProducts(),
+                          label: 'Retry',
+                          height: 40.h,
+                        ),
+                      ],
+                    ),
+                  );
                 }),
 
                 SizedBox(height: 20.h),
@@ -157,6 +177,7 @@ class PaymentDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

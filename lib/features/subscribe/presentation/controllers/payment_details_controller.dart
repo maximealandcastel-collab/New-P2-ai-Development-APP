@@ -27,6 +27,7 @@ class PaymentDetailsController extends GetxController {
   final ProfileService _profileService;
 
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
+  String? _lastPurchaseErrorToast;
 
   // ─── IAP States ───────────────────────────────────────────────────────────
   final _iapAvailable = false.obs;
@@ -46,15 +47,19 @@ class PaymentDetailsController extends GetxController {
 
   int get selectedIndex => _selectedIndex.value;
 
+  bool get canPurchase =>
+      !_purchaseLoadingState.value.isLoading &&
+      !_iapLoadingState.value.isLoading &&
+      selectedProduct != null;
+
   /// Returns the `ProductDetails` for the currently selected plan index.
   /// index 0 → annual, index 1 → monthly
   ProductDetails? get selectedProduct {
     final targetId = selectedIndex == 0 ? kProductAnnual : kProductMonthly;
-    try {
-      return _products.firstWhere((p) => p.id == targetId);
-    } catch (_) {
-      return null;
+    for (final product in _products) {
+      if (product.id == targetId) return product;
     }
+    return null;
   }
 
   void onChange(int index) {
@@ -81,7 +86,7 @@ class PaymentDetailsController extends GetxController {
       }
 
       // Listen to purchase updates
-      _purchaseSubscription = InAppPurchase.instance.purchaseStream.listen(
+      _purchaseSubscription ??= InAppPurchase.instance.purchaseStream.listen(
         _onPurchaseUpdate,
         onError: (e) {
           if (kDebugMode) debugPrint('Purchase stream error: $e');
@@ -95,7 +100,19 @@ class PaymentDetailsController extends GetxController {
     }
   }
 
+  Future<void> retryLoadProducts() => _loadProducts();
+
   Future<void> _loadProducts() async {
+    if (!_iapAvailable.value) {
+      final available = await InAppPurchase.instance.isAvailable();
+      _iapAvailable.value = available;
+      if (!available) {
+        _iapLoadingState.value = LoadingState.error;
+        return;
+      }
+    }
+
+    _iapLoadingState.value = LoadingState.loading;
     try {
       final response = await InAppPurchase.instance.queryProductDetails(
         _kProductIds,
@@ -114,8 +131,10 @@ class PaymentDetailsController extends GetxController {
             return 0;
           });
         _products.value = sorted;
+        _syncSelectedIndexToAvailableProduct();
         _iapLoadingState.value = LoadingState.loaded;
       } else {
+        _products.clear();
         _iapLoadingState.value = LoadingState.error;
         if (kDebugMode) debugPrint('No IAP products loaded.');
       }
@@ -125,14 +144,43 @@ class PaymentDetailsController extends GetxController {
     }
   }
 
+  void _syncSelectedIndexToAvailableProduct() {
+    if (selectedProduct != null) return;
+
+    final hasAnnual = _products.any((p) => p.id == kProductAnnual);
+    final hasMonthly = _products.any((p) => p.id == kProductMonthly);
+
+    if (hasAnnual) {
+      _selectedIndex.value = 0;
+    } else if (hasMonthly) {
+      _selectedIndex.value = 1;
+    }
+  }
+
   // ─── IAP: Buy ─────────────────────────────────────────────────────────────
   /// Call this from the "Upgrade Now" button.
   Future<void> buySelectedPlan() async {
     if (_purchaseLoadingState.value.isLoading) return;
 
-    final product = selectedProduct;
+    if (_iapLoadingState.value.isLoading) {
+      return;
+    }
+
+    var product = selectedProduct;
     if (product == null) {
-      ToastMessageHelper.show('Product not available. Please try again.');
+      // First query can fail (StoreKit not ready) — retry silently once.
+      await _loadProducts();
+      product = selectedProduct;
+    }
+
+    if (product == null) {
+      // Do not toast-spam: UI already shows error + retry.
+      if (kDebugMode) {
+        debugPrint(
+          'buySelectedPlan: product unavailable '
+          '(iapAvailable=$_iapAvailable, products=${_products.length})',
+        );
+      }
       return;
     }
 
@@ -140,7 +188,7 @@ class PaymentDetailsController extends GetxController {
       _purchaseLoadingState.value = LoadingState.loading;
       final param = PurchaseParam(productDetails: product);
 
-      // Both plans are non-consumable subscriptions
+      // Auto-renewable subscriptions use buyNonConsumable on both stores.
       await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
     } catch (e) {
       _purchaseLoadingState.value = LoadingState.error;
@@ -159,6 +207,7 @@ class PaymentDetailsController extends GetxController {
 
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
+          _lastPurchaseErrorToast = null;
           await _handleSuccessfulPurchase(purchase);
           break;
 
@@ -166,7 +215,12 @@ class PaymentDetailsController extends GetxController {
           _purchaseLoadingState.value = LoadingState.error;
           final errMsg =
               purchase.error?.message ?? 'Purchase failed. Please try again.';
-          ToastMessageHelper.show(errMsg);
+          // Unfinished store transactions can re-emit on every listen —
+          // only toast each distinct error once per session.
+          if (_lastPurchaseErrorToast != errMsg) {
+            _lastPurchaseErrorToast = errMsg;
+            ToastMessageHelper.show(errMsg);
+          }
           if (kDebugMode) {
             debugPrint(
               'Purchase error [${purchase.productID}]: ${purchase.error}',
@@ -222,6 +276,9 @@ class PaymentDetailsController extends GetxController {
         debugPrint('Purchase verified: ${purchase.productID}');
       }
 
+      if (Get.isRegistered<PaymentDetailsController>()) {
+        Get.delete<PaymentDetailsController>();
+      }
       Get.offAllNamed(AppRoute.bottonNavBar);
     } on AppException catch (e) {
       _purchaseLoadingState.value = LoadingState.error;
@@ -237,6 +294,7 @@ class PaymentDetailsController extends GetxController {
   @override
   void onClose() {
     _purchaseSubscription?.cancel();
+    _purchaseSubscription = null;
     super.onClose();
   }
 }

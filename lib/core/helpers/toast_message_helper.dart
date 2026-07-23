@@ -13,6 +13,9 @@ class ToastMessageHelper {
     }
 
     _lastShownAt = now;
+    if (Get.isSnackbarOpen) {
+      Get.closeAllSnackbars();
+    }
     Get.snackbar(
       'Notification',
       message,
