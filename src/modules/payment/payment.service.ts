@@ -92,27 +92,51 @@ export const verifyPayment = async (
   let verificationPassed = false;
 
   if (gateway === "stripe") {
-    //   try {
-    //     const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
-    //     if (
-    //       paymentIntent.status === "succeeded" &&
-    //       paymentIntent.amount === invoice.amount
-    //     ) {
-    //       verificationPassed = true;
-    //       gatewayResponse = paymentIntent;
-    //     } else {
-    //       throw new Error(
-    //         `Stripe verification failed. Status: ${paymentIntent.status}`,
-    //       );
-    //     }
-    //   } catch (err: any) {
-    //     throw new Error(`Stripe verification error: ${err.message}`);
-    //   }
-    verificationPassed = true;
+    // Real server-side verification with Stripe. The client can send either a
+    // Checkout Session id (cs_...) or a PaymentIntent id (pi_...).
+    if (!transactionId) {
+      throw new Error("transactionId is required for Stripe verification");
+    }
+    try {
+      if (transactionId.startsWith("cs_")) {
+        const session = await stripe.checkout.sessions.retrieve(transactionId);
+        const paidAmount = session.amount_total ?? 0;
+        if (
+          session.payment_status === "paid" &&
+          paidAmount === invoice.amount &&
+          session.metadata?.invoiceId === invoiceId
+        ) {
+          verificationPassed = true;
+          gatewayResponse = session;
+        } else {
+          throw new Error(
+            `Stripe verification failed. payment_status=${session.payment_status}, amount=${paidAmount}, expected=${invoice.amount}`,
+          );
+        }
+      } else {
+        const paymentIntent =
+          await stripe.paymentIntents.retrieve(transactionId);
+        if (
+          paymentIntent.status === "succeeded" &&
+          paymentIntent.amount === invoice.amount
+        ) {
+          verificationPassed = true;
+          gatewayResponse = paymentIntent;
+        } else {
+          throw new Error(
+            `Stripe verification failed. Status: ${paymentIntent.status}`,
+          );
+        }
+      }
+    } catch (err: any) {
+      throw new Error(`Stripe verification error: ${err.message}`);
+    }
   } else {
-    // bkash / nagad / other — trust Flutter for now
-    // TODO: add gateway-specific verification
-    verificationPassed = true;
+    // Unknown/unverifiable gateways are rejected — never grant access on
+    // an unverified claim from the client.
+    throw new Error(
+      `Unsupported payment gateway "${gateway}". Payment cannot be verified.`,
+    );
   }
 
   // 5. Save failed payment if verification failed

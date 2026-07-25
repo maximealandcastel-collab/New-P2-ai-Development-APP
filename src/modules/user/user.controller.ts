@@ -147,7 +147,51 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
   if (user.isDeleted) {
     throw new ApiError(404, "your account is deleted.");
   }
-  // await validateUserLockStatus(user);
+
+  // ── Brute-force gate ───────────────────────────────────────
+  // After 5 wrong passwords the account is locked for 15 minutes.
+  const now0 = new Date();
+  if (user.loginLockUntil && user.loginLockUntil > now0) {
+    const minutesLeft = Math.ceil(
+      (user.loginLockUntil.getTime() - now0.getTime()) / 60000,
+    );
+    throw new ApiError(
+      429,
+      `Too many failed login attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.`,
+    );
+  }
+
+  // Always verify the password BEFORE issuing any token or OTP.
+  const passwordOk = await argon2.verify(user.password as string, password);
+  if (!passwordOk) {
+    const attempts = (user.failedLoginAttempts || 0) + 1;
+    const MAX_ATTEMPTS = 5;
+    const LOCK_MINUTES = 15;
+    const update: any = { failedLoginAttempts: attempts };
+    if (attempts >= MAX_ATTEMPTS) {
+      update.loginLockUntil = new Date(Date.now() + LOCK_MINUTES * 60000);
+      update.failedLoginAttempts = 0;
+      await UserModel.updateOne({ _id: user._id }, update);
+      throw new ApiError(
+        429,
+        `Too many failed login attempts. Your account is locked for ${LOCK_MINUTES} minutes.`,
+      );
+    }
+    await UserModel.updateOne({ _id: user._id }, update);
+    throw new ApiError(
+      401,
+      `Wrong password! ${MAX_ATTEMPTS - attempts} attempt${MAX_ATTEMPTS - attempts === 1 ? "" : "s"} remaining before a temporary lock.`,
+    );
+  }
+
+  // Successful password — reset the failed-attempt counter
+  if (user.failedLoginAttempts || user.loginLockUntil) {
+    await UserModel.updateOne(
+      { _id: user._id },
+      { failedLoginAttempts: 0, loginLockUntil: null },
+    );
+  }
+
   const userId = user._id as string;
 
   const verifyToken = generateToken({
@@ -172,15 +216,13 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
       .catch((err) => {
         console.error("Error sending OTP email:", err);
       });
+    // Also deliver the OTP by SMS when the user has a phone number on file
+    if (user.phone) {
+      UserService.sendPhoneVerification(user.phone, otp).catch((err: any) => {
+        console.error("Error sending OTP SMS:", err?.message || err);
+      });
+    }
     return await saveOTP(email, otp);
-  }
-
-  const isPasswordValid = await argon2.verify(
-    user.password as string,
-    password,
-  );
-  if (!isPasswordValid) {
-    throw new ApiError(401, "Wrong password!");
   }
 
   if (fcmToken) {
@@ -267,7 +309,14 @@ export const forgotPassword = catchAsync(
     });
     const otp = generateOTP();
     // await setCache(email, otp, 300);
-    // await UserService.sendPhoneVerification(phone, otp);
+    // Deliver the reset code by SMS too, when a phone number is on file
+    if (user.phone) {
+      UserService.sendResetPasswordSMS(user.phone, Number(otp)).catch(
+        (err: any) => {
+          console.error("Error sending reset OTP SMS:", err?.message || err);
+        },
+      );
+    }
     await sendOTPEmailRegister(user.firstName, email, otp);
     await saveOTP(email, otp);
     // await saveOTP(email, otp); // Save OTP with expiration

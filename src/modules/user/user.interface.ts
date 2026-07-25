@@ -133,6 +133,9 @@ export interface IUser extends Document {
   isVerified: boolean;
   isDeleted: boolean;
   fcmToken?: string;
+  phone?: string;
+  failedLoginAttempts?: number;
+  loginLockUntil?: Date | null;
 
   // ── Fitness Profile ───────────────────────────────────────
   height?: number;

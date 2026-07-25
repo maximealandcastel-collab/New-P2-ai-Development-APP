@@ -126,6 +126,10 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, required: true, default: false },
     isDeleted: { type: Boolean, required: true, default: false },
     fcmToken: { type: String, required: false },
+    phone: { type: String, required: false, trim: true },
+    // ── Login security (brute-force gate) ─────────────────────
+    failedLoginAttempts: { type: Number, default: 0 },
+    loginLockUntil: { type: Date, default: null },
 
     // ── Fitness Profile ──────────────────────────────────────
     height: { type: Number, required: false },
