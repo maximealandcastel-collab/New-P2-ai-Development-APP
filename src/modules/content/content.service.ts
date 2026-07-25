@@ -59,6 +59,7 @@ export const getContentByTrainerService = async (
 
   const [data, total] = await Promise.all([
     ContentModel.find(query)
+      .select("-searchText")
       .populate("categoryId", "category slug")
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -114,6 +115,7 @@ export const getContentByCategoryService = async (
 
   const [data, total] = await Promise.all([
     ContentModel.find(query)
+      .select("-searchText")
       .populate("categoryId", "category slug")
       .sort({ createdAt: -1 })
       .skip(skip)

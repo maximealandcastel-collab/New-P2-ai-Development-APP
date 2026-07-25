@@ -3,6 +3,7 @@ import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import { Express, Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
+import { faststartInBackground } from "../utils/videoFaststart";
 
 /** iOS/Android videos can exceed default 50MB image limit */
 const CONTENT_VIDEO_MAX_SIZE =
@@ -151,7 +152,19 @@ export const handleContentUpload = (
   next: NextFunction,
 ) => {
   contentUpload(req, res, (err: unknown) => {
-    if (!err) return next();
+    if (!err) {
+      // Optimize the uploaded video for instant streaming (non-blocking).
+      // iPhone videos put their index at the end of the file, which forces
+      // players to download the whole video before playback starts.
+      const files = req.files as
+        | { video?: Express.Multer.File[] }
+        | undefined;
+      const videoFile = files?.video?.[0];
+      if (videoFile?.path) {
+        faststartInBackground(videoFile.path);
+      }
+      return next();
+    }
 
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {

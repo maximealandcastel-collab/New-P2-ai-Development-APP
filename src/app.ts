@@ -1,4 +1,5 @@
 // Import the 'express' module
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
@@ -15,24 +16,36 @@ import { InvoiceModel } from "./modules/invoice/invoice.model";
 const app: Application = express();
 app.use(logHttpRequests);
 
+// Gzip API responses (JSON lists shrink 5-10x). Videos/images are already
+// compressed formats and are skipped automatically by content-type.
+app.use(compression());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(
   cors({
-    origin: [
-      "*",
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://barber-admin-dashboard-mytf0qi4b-faisal-chowdhurys-projects.vercel.app",
-      "https://barber-admin-dashboard-knvz8p4zy-faisal-chowdhurys-projects.vercel.app",
-    ],
+    // "*" inside an origin array is matched literally and does NOT act as a
+    // wildcard — it silently broke CORS for the mobile/web clients. Reflect
+    // the request origin instead (required when credentials: true).
+    origin: true,
     credentials: true,
   }),
 );
 
-app.use(express.static("public"));
+// Static assets: long-lived browser caching. Uploaded media filenames are
+// timestamped (never reused), so they are safe to cache aggressively —
+// this stops clients from re-downloading videos/images on every visit.
+app.use(
+  "/media",
+  express.static("public/media", { maxAge: "365d", immutable: true }),
+);
+app.use(
+  "/images",
+  express.static("public/images", { maxAge: "365d", immutable: true }),
+);
+app.use(express.static("public", { maxAge: "1d" }));
 
 //application router
 app.use(router);
