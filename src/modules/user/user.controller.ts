@@ -164,20 +164,30 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
   // Always verify the password BEFORE issuing any token or OTP.
   const passwordOk = await argon2.verify(user.password as string, password);
   if (!passwordOk) {
-    const attempts = (user.failedLoginAttempts || 0) + 1;
     const MAX_ATTEMPTS = 5;
     const LOCK_MINUTES = 15;
-    const update: any = { failedLoginAttempts: attempts };
+    // Atomic increment so concurrent wrong attempts cannot undercount
+    const updated = await UserModel.findOneAndUpdate(
+      { _id: user._id },
+      { $inc: { failedLoginAttempts: 1 } },
+      { new: true, select: "failedLoginAttempts" },
+    );
+    const attempts = updated?.failedLoginAttempts || 1;
     if (attempts >= MAX_ATTEMPTS) {
-      update.loginLockUntil = new Date(Date.now() + LOCK_MINUTES * 60000);
-      update.failedLoginAttempts = 0;
-      await UserModel.updateOne({ _id: user._id }, update);
+      await UserModel.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            loginLockUntil: new Date(Date.now() + LOCK_MINUTES * 60000),
+            failedLoginAttempts: 0,
+          },
+        },
+      );
       throw new ApiError(
         429,
         `Too many failed login attempts. Your account is locked for ${LOCK_MINUTES} minutes.`,
       );
     }
-    await UserModel.updateOne({ _id: user._id }, update);
     throw new ApiError(
       401,
       `Wrong password! ${MAX_ATTEMPTS - attempts} attempt${MAX_ATTEMPTS - attempts === 1 ? "" : "s"} remaining before a temporary lock.`,
@@ -311,11 +321,10 @@ export const forgotPassword = catchAsync(
     // await setCache(email, otp, 300);
     // Deliver the reset code by SMS too, when a phone number is on file
     if (user.phone) {
-      UserService.sendResetPasswordSMS(user.phone, Number(otp)).catch(
-        (err: any) => {
-          console.error("Error sending reset OTP SMS:", err?.message || err);
-        },
-      );
+      // Send as string — numeric cast would drop leading zeros in the code
+      UserService.sendPhoneVerification(user.phone, otp).catch((err: any) => {
+        console.error("Error sending reset OTP SMS:", err?.message || err);
+      });
     }
     await sendOTPEmailRegister(user.firstName, email, otp);
     await saveOTP(email, otp);

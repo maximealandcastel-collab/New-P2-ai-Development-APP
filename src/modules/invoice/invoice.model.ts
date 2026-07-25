@@ -30,7 +30,7 @@ const invoiceSchema = new Schema<IInvoice>(
 
     status: {
       type: String,
-      enum: ["draft", "sent", "paid", "expired"],
+      enum: ["draft", "sent", "processing", "paid", "expired"],
       default: "draft",
     },
 
