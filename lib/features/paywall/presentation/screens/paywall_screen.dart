@@ -8,11 +8,12 @@ import 'package:p2p_fitness/core/utils/constants/app_sizer.dart';
 import 'package:p2p_fitness/core/utils/constants/app_sizes.dart';
 import 'package:p2p_fitness/core/utils/constants/image_path.dart';
 import 'package:p2p_fitness/features/paywall/controllers/paywall_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PaywallScreen extends StatelessWidget {
   PaywallScreen({super.key});
 
-  final controller = Get.put(PaywallController());
+  final controller = Get.find<PaywallController>();
 
   @override
   Widget build(BuildContext context) {
@@ -166,10 +167,17 @@ class PaywallScreen extends StatelessWidget {
                             : () async {
                                 final url = await controller.upgradeNow();
                                 if (url != null) {
-                                  // TODO: open [url] in the browser / webview
-                                  // (e.g. url_launcher: launchUrl(Uri.parse(url),
-                                  // mode: LaunchMode.externalApplication)).
-                                  log("Open Stripe checkout: $url");
+                                  log("Opening Stripe checkout: $url");
+                                  final launched = await launchUrl(
+                                    Uri.parse(url),
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                  if (!launched) {
+                                    Get.snackbar(
+                                      "Checkout failed",
+                                      "Could not open the payment page. Please try again.",
+                                    );
+                                  }
                                 }
                               },
                         child: controller.checkoutLoading.value

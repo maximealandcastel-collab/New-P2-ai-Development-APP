@@ -1,11 +1,12 @@
 class AppUrls {
   AppUrls._();
 
-  // static const String _baseUrl = 'https://employee-beryl.vercel.app/api/v1';
-  // static const String login = '$_baseUrl/auth/login';
-
-  /// TODO: point this at the production backend URL before release.
-  static const String baseUrl = 'http://localhost:5000/api/v1';
+  /// Backend base URL. Override per build with:
+  ///   flutter run --dart-define=API_BASE_URL=https://api.yourdomain.com/api/v1
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:5000/api/v1',
+  );
 
   // Promo codes
   static const String promoValidate = '$baseUrl/promo/validate';
