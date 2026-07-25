@@ -30,154 +30,155 @@ class PaymentDetailsScreen extends StatelessWidget {
         }
       },
       child: CustomScaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 60.h),
-                Center(child: Assets.images.logo.image(height: 110.h)),
-                CustomText(
-                  top: 10.h,
-                  text: 'Unlock Your Full\nAi Fitness Experience',
-                  fontSize: 26.sp,
-                  fontWeight: FontWeight.w600,
+        body: Stack(
+          children: [
+            RefreshIndicator(
+              color: AppColors.primary,
+              backgroundColor: AppColors.backgroundLight,
+              onRefresh: controller.refreshProducts,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
-                CustomText(
-                  top: 10.h,
-                  bottom: 20.h,
-                  text:
-                      'Get personalized plans, expert guidance\nand real results.',
-                ),
-                CustomContainer(
-                  paddingAll: 16.r,
-                  radiusAll: 20.r,
-                  width: double.infinity,
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      Assets.icons.subscribeIcons.svg(),
-                      SizedBox(height: 20.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 60.h),
+                    Center(child: Assets.images.logo.image(height: 110.h)),
+                    CustomText(
+                      top: 10.h,
+                      text: 'Unlock Your Full\nAi Fitness Experience',
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    CustomText(
+                      top: 10.h,
+                      bottom: 20.h,
+                      text:
+                          'Get personalized plans, expert guidance\nand real results.',
+                    ),
+                    CustomContainer(
+                      paddingAll: 16.r,
+                      radiusAll: 20.r,
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          Assets.icons.subscribeIcons.svg(),
+                          SizedBox(height: 20.h),
 
-                      // ── Plan Cards ──────────────────────────────────────
-                      Obx(() {
-                        final iapProducts = controller.products;
-                        final selectedIndex = controller.selectedIndex;
+                          // ── Plan Cards ──────────────────────────────────
+                          Obx(() {
+                            final iapProducts = controller.products;
+                            final selectedIndex = controller.selectedIndex;
 
-                        return ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: PlanModel.plans.length,
-                          itemBuilder: (context, index) {
-                            // Merge store price when available
-                            final plan = PlanModel.plans[index];
-                            final productId = index == 0
-                                ? kProductAnnual
-                                : kProductMonthly;
+                            return ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: PlanModel.plans.length,
+                              itemBuilder: (context, index) {
+                                // Merge store price when available
+                                final plan = PlanModel.plans[index];
+                                final productId = index == 0
+                                    ? kProductAnnual
+                                    : kProductMonthly;
 
-                            ProductDetails? storeProduct;
-                            try {
-                              storeProduct = iapProducts.firstWhere(
-                                (p) => p.id == productId,
-                              );
-                            } catch (_) {
-                              storeProduct = null;
-                            }
+                                ProductDetails? storeProduct;
+                                try {
+                                  storeProduct = iapProducts.firstWhere(
+                                    (p) => p.id == productId,
+                                  );
+                                } catch (_) {
+                                  storeProduct = null;
+                                }
 
-                            final displayPlan = storeProduct != null
-                                ? plan.copyWithStorePrice(storeProduct.price)
-                                : plan;
+                                final displayPlan = storeProduct != null
+                                    ? plan.copyWithStorePrice(
+                                        storeProduct.price,
+                                      )
+                                    : plan;
 
-                            return SubscribeCard(
-                              plan: displayPlan,
-                              isSelected: selectedIndex == index,
-                              onTap: () => controller.onChange(index),
+                                return SubscribeCard(
+                                  plan: displayPlan,
+                                  isSelected: selectedIndex == index,
+                                  onTap: () => controller.onChange(index),
+                                );
+                              },
                             );
-                          },
-                        );
-                      }),
-                    ],
-                  ),
-                ),
+                          }),
+                        ],
+                      ),
+                    ),
 
-                SizedBox(height: 20.h),
+                    SizedBox(height: 20.h),
 
-                // ── Upgrade Button ────────────────────────────────────────
-                Obx(() {
-                  final isBuying = controller.purchaseLoadingState.isLoading;
-                  final isLoadingProducts =
-                      controller.iapLoadingState.isLoading;
-                  final canPurchase = controller.canPurchase;
+                    // ── Upgrade Button ────────────────────────────────────
+                    Obx(() {
+                      final isBuying =
+                          controller.purchaseLoadingState.isLoading;
+                      final isLoadingProducts =
+                          controller.iapLoadingState.isLoading;
+                      final canPurchase = controller.canPurchase;
 
-                  return CustomButton(
-                    onPressed: canPurchase
-                        ? () => controller.buySelectedPlan()
-                        : null,
-                    isLoading: isBuying || isLoadingProducts,
-                    label: 'Upgrade Now',
-                  );
-                }),
+                      return CustomButton(
+                        onPressed: canPurchase
+                            ? () => controller.buySelectedPlan()
+                            : null,
+                        isLoading: isBuying || isLoadingProducts,
+                        label: 'Upgrade Now',
+                      );
+                    }),
 
-                SizedBox(height: 16.h),
-                CustomText(
-                  text: 'Cancel anytime • No hidden fees',
-                  fontSize: 12.sp,
-                  color: AppColors.textSecondary,
-                ),
+                    SizedBox(height: 16.h),
+                    CustomText(
+                      text: 'Cancel anytime • No hidden fees',
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                    ),
 
-                // ── IAP not available fallback ────────────────────────────
-                Obx(() {
-                  if (!controller.iapLoadingState.isError) {
-                    return const SizedBox.shrink();
-                  }
+                    // ── IAP not available fallback ────────────────────────
+                    Obx(() {
+                      if (!controller.iapLoadingState.isError) {
+                        return const SizedBox.shrink();
+                      }
 
-                  return Padding(
-                    padding: EdgeInsets.only(top: 12.h),
-                    child: Column(
-                      children: [
-                        CustomText(
+                      return Padding(
+                        padding: EdgeInsets.only(top: 12.h),
+                        child: CustomText(
                           text:
-                              'Products unavailable right now.\nCheck your connection and try again.',
+                              'Products unavailable right now.\nPull down to refresh and try again.',
                           fontSize: 12.sp,
                           color: AppColors.error,
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 10.h),
-                        CustomButton(
-                          onPressed: () => controller.retryLoadProducts(),
-                          label: 'Retry',
-                          height: 40.h,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+                      );
+                    }),
 
-                SizedBox(height: 20.h),
-              ],
-            ),
-          ),
-
-          // ── Close Button ────────────────────────────────────────────────
-          Positioned(
-            top: 6.h,
-            right: 0,
-            child: SafeArea(
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: CustomContainer(
-                  shape: BoxShape.circle,
-                  paddingAll: 8.r,
-                  color: Colors.white,
-                  child: Assets.icons.clean.svg(),
+                    SizedBox(height: 20.h),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            // ── Close Button ──────────────────────────────────────────────
+            Positioned(
+              top: 6.h,
+              right: 0,
+              child: SafeArea(
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: CustomContainer(
+                    shape: BoxShape.circle,
+                    paddingAll: 8.r,
+                    color: Colors.white,
+                    child: Assets.icons.clean.svg(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

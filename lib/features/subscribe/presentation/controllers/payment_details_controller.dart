@@ -85,7 +85,7 @@ class PaymentDetailsController extends GetxController {
         return;
       }
 
-      // Listen to purchase updates
+      // Listen early — unfinished store transactions can block product queries.
       _purchaseSubscription ??= InAppPurchase.instance.purchaseStream.listen(
         _onPurchaseUpdate,
         onError: (e) {
@@ -100,9 +100,12 @@ class PaymentDetailsController extends GetxController {
     }
   }
 
-  Future<void> retryLoadProducts() => _loadProducts();
+  /// Pull-to-refresh entry point.
+  Future<void> refreshProducts() => _loadProducts();
 
-  Future<void> _loadProducts() async {
+  /// StoreKit / Play Billing often return empty on the first query (store not
+  /// ready yet). Retry with short backoff before surfacing an error.
+  Future<void> _loadProducts({int maxAttempts = 3}) async {
     if (!_iapAvailable.value) {
       final available = await InAppPurchase.instance.isAvailable();
       _iapAvailable.value = available;
@@ -113,35 +116,49 @@ class PaymentDetailsController extends GetxController {
     }
 
     _iapLoadingState.value = LoadingState.loading;
-    try {
-      final response = await InAppPurchase.instance.queryProductDetails(
-        _kProductIds,
-      );
 
-      if (response.notFoundIDs.isNotEmpty && kDebugMode) {
-        debugPrint('IAP products not found: ${response.notFoundIDs}');
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final response = await InAppPurchase.instance.queryProductDetails(
+          _kProductIds,
+        );
+
+        if (response.notFoundIDs.isNotEmpty && kDebugMode) {
+          debugPrint(
+            'IAP products not found (attempt $attempt): ${response.notFoundIDs}',
+          );
+        }
+
+        if (response.productDetails.isNotEmpty) {
+          // Sort: annual first, monthly second – matches selectedIndex convention
+          final sorted = response.productDetails.toList()
+            ..sort((a, b) {
+              if (a.id == kProductAnnual) return -1;
+              if (b.id == kProductAnnual) return 1;
+              return 0;
+            });
+          _products.value = sorted;
+          _syncSelectedIndexToAvailableProduct();
+          _iapLoadingState.value = LoadingState.loaded;
+          return;
+        }
+
+        if (kDebugMode) {
+          debugPrint('No IAP products loaded (attempt $attempt/$maxAttempts).');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('_loadProducts error (attempt $attempt/$maxAttempts): $e');
+        }
       }
 
-      if (response.productDetails.isNotEmpty) {
-        // Sort: annual first, monthly second – matches selectedIndex convention
-        final sorted = response.productDetails.toList()
-          ..sort((a, b) {
-            if (a.id == kProductAnnual) return -1;
-            if (b.id == kProductAnnual) return 1;
-            return 0;
-          });
-        _products.value = sorted;
-        _syncSelectedIndexToAvailableProduct();
-        _iapLoadingState.value = LoadingState.loaded;
-      } else {
-        _products.clear();
-        _iapLoadingState.value = LoadingState.error;
-        if (kDebugMode) debugPrint('No IAP products loaded.');
+      if (attempt < maxAttempts) {
+        await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
       }
-    } catch (e) {
-      _iapLoadingState.value = LoadingState.error;
-      if (kDebugMode) debugPrint('_loadProducts error: $e');
     }
+
+    _products.clear();
+    _iapLoadingState.value = LoadingState.error;
   }
 
   void _syncSelectedIndexToAvailableProduct() {
@@ -174,7 +191,7 @@ class PaymentDetailsController extends GetxController {
     }
 
     if (product == null) {
-      // Do not toast-spam: UI already shows error + retry.
+      // Do not toast-spam: UI already shows error + pull-to-refresh.
       if (kDebugMode) {
         debugPrint(
           'buySelectedPlan: product unavailable '
