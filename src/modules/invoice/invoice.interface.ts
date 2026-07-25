@@ -1,6 +1,6 @@
 import { Document, Types } from "mongoose";
 
-export type TInvoiceStatus = "draft" | "sent" | "paid" | "expired";
+export type TInvoiceStatus = "draft" | "sent" | "processing" | "paid" | "expired";
 
 export interface IInvoice extends Document {
   userId: Types.ObjectId; // ref → User

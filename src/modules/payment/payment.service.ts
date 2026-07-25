@@ -69,17 +69,27 @@ export const verifyPayment = async (
   transactionId: string,
   gateway: string,
 ) => {
-  // 1. Find the invoice
-  const invoice = await InvoiceModel.findOne({
-    _id: invoiceId,
-    userId,
-    status: "sent",
-  });
+  // 1. Atomically claim the invoice (sent → processing) so concurrent
+  // duplicate requests cannot both grant a subscription.
+  const invoice = await InvoiceModel.findOneAndUpdate(
+    { _id: invoiceId, userId, status: "sent" },
+    { $set: { status: "processing" } },
+    { new: true },
+  );
   if (!invoice) throw new Error("Invoice not found or not in sent status");
+
+  // Helper: release the claim if verification fails so the user can retry
+  const releaseInvoice = async () => {
+    await InvoiceModel.updateOne(
+      { _id: invoiceId, status: "processing" },
+      { $set: { status: "sent" } },
+    ).catch(() => {});
+  };
 
   // 2. Check payment not already processed
   const existingPayment = await PaymentModel.findOne({ transactionId });
   if (existingPayment) {
+    await releaseInvoice();
     throw new Error("This transaction has already been processed");
   }
 
@@ -92,27 +102,71 @@ export const verifyPayment = async (
   let verificationPassed = false;
 
   if (gateway === "stripe") {
-    //   try {
-    //     const paymentIntent = await stripe.paymentIntents.retrieve(transactionId);
-    //     if (
-    //       paymentIntent.status === "succeeded" &&
-    //       paymentIntent.amount === invoice.amount
-    //     ) {
-    //       verificationPassed = true;
-    //       gatewayResponse = paymentIntent;
-    //     } else {
-    //       throw new Error(
-    //         `Stripe verification failed. Status: ${paymentIntent.status}`,
-    //       );
-    //     }
-    //   } catch (err: any) {
-    //     throw new Error(`Stripe verification error: ${err.message}`);
-    //   }
-    verificationPassed = true;
+    // Real server-side verification with Stripe. The client can send either a
+    // Checkout Session id (cs_...) or a PaymentIntent id (pi_...).
+    if (!transactionId) {
+      await releaseInvoice();
+      throw new Error("transactionId is required for Stripe verification");
+    }
+    try {
+      if (transactionId.startsWith("cs_")) {
+        const session = await stripe.checkout.sessions.retrieve(transactionId);
+        const paidAmount = session.amount_total ?? 0;
+        if (
+          session.payment_status === "paid" &&
+          paidAmount === invoice.amount &&
+          session.metadata?.invoiceId === invoiceId
+        ) {
+          verificationPassed = true;
+          gatewayResponse = session;
+        } else {
+          throw new Error(
+            `Stripe verification failed. payment_status=${session.payment_status}, amount=${paidAmount}, expected=${invoice.amount}`,
+          );
+        }
+      } else if (transactionId.startsWith("pi_")) {
+        const paymentIntent =
+          await stripe.paymentIntents.retrieve(transactionId);
+        // Bind the PaymentIntent to THIS invoice: either its own metadata
+        // carries the invoiceId, or it belongs to a Checkout Session whose
+        // metadata does. Amount alone is not enough.
+        let boundInvoiceId = paymentIntent.metadata?.invoiceId || null;
+        if (!boundInvoiceId) {
+          const sessions = await stripe.checkout.sessions.list({
+            payment_intent: transactionId,
+            limit: 1,
+          });
+          boundInvoiceId = sessions.data[0]?.metadata?.invoiceId || null;
+        }
+        if (
+          paymentIntent.status === "succeeded" &&
+          paymentIntent.amount === invoice.amount &&
+          paymentIntent.currency === (invoice.currency || "usd") &&
+          boundInvoiceId === invoiceId
+        ) {
+          verificationPassed = true;
+          gatewayResponse = paymentIntent;
+        } else {
+          throw new Error(
+            `Stripe verification failed. Status: ${paymentIntent.status}, invoice binding: ${boundInvoiceId === invoiceId ? "ok" : "mismatch"}`,
+          );
+        }
+      } else {
+        throw new Error(
+          "transactionId must be a Stripe Checkout Session (cs_...) or PaymentIntent (pi_...) id",
+        );
+      }
+    } catch (err: any) {
+      await releaseInvoice();
+      throw new Error(`Stripe verification error: ${err.message}`);
+    }
   } else {
-    // bkash / nagad / other — trust Flutter for now
-    // TODO: add gateway-specific verification
-    verificationPassed = true;
+    // Unknown/unverifiable gateways are rejected — never grant access on
+    // an unverified claim from the client.
+    await releaseInvoice();
+    throw new Error(
+      `Unsupported payment gateway "${gateway}". Payment cannot be verified.`,
+    );
   }
 
   // 5. Save failed payment if verification failed
@@ -132,6 +186,7 @@ export const verifyPayment = async (
       trainerAmountCents: commissionSplit.trainerAmountCents,
       gatewayResponse,
     });
+    await releaseInvoice();
     throw new Error("Payment verification failed");
   }
 
@@ -329,7 +384,9 @@ export const createDefaultCheckoutSession = async (
 
   // 7. Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
+    // Dynamic payment methods: lets Stripe show Apple Pay / Google Pay / Link
+    // automatically on supported devices (managed in the Stripe Dashboard).
+    // Hard-coding ["card"] suppressed the Apple Pay button at checkout.
     line_items: [
       {
         price_data: {

@@ -337,7 +337,9 @@ export const sendInvoice = async (trainerId: string, invoiceId: string) => {
 
   // 2. Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
+    // Dynamic payment methods: lets Stripe show Apple Pay / Google Pay / Link
+    // automatically on supported devices (managed in the Stripe Dashboard).
+    // Hard-coding ["card"] suppressed the Apple Pay button at checkout.
     line_items: [
       {
         price_data: {
