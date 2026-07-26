@@ -6,6 +6,12 @@ class ApiUrls {
 
   /// ============= all urls ===========>>>
 
+  /// ============= paywall / promo / checkout ===========>>>
+  static const String promoValidate = '/promo/validate';
+  static const String promoRedeem = '/promo/redeem';
+  static const String checkoutDefault = '/payments/checkout/default';
+
+
   static const String register = '/auth/create-account';
   static const String verifyOtp = '/auth/verify-otp';
   static const String login = '/auth/login';

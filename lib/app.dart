@@ -19,6 +19,8 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.instance.lightTheme,
           themeMode: ThemeMode.light,
           debugShowCheckedModeBanner: false,
+          defaultTransition: Transition.cupertino,
+          transitionDuration: const Duration(milliseconds: 260),
           initialRoute: AppRoute.init,
           getPages: AppRoute.routes,
           initialBinding: ControllerBinder(),
