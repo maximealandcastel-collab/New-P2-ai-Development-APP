@@ -2,20 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
-import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
 import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_button.dart';
-import 'package:pler_to_pler_app/widgets/custom_container.dart';
-import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
-import '../../widgets/custom_image_avatar.dart';
-
-
+// ─────────────────────────────────────────────────────────────────────────────
+// User Home — matches the original app layout:
+// greeting bar → Daily workout progress (week strip) → AI "Set your goal"
+// banner → Gyms near you → Today's overview → Today's assigned workout
 // ─────────────────────────────────────────────────────────────────────────────
 
 class UserHomeScreen extends StatelessWidget {
@@ -24,19 +17,21 @@ class UserHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-
+      backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FeedAppBar(),
-              _HeroBanner(),
-              SizedBox(height: 20.h),
-              _DailyToDoSection(),
-              SizedBox(height: 20.h),
-              _MotivationCards(),
+              _SectionTitle('Daily workout progress'),
+              const _WeekStrip(),
+              const _AiGoalBanner(),
+              const _GymsCard(),
+              SizedBox(height: 16.h),
+              const _EmptyDataCard(title: "Today's overview"),
+              SizedBox(height: 16.h),
+              const _EmptyDataCard(title: "Today's assigned workout"),
               SizedBox(height: 24.h),
             ],
           ),
@@ -46,17 +41,98 @@ class UserHomeScreen extends StatelessWidget {
   }
 }
 
-// ─── Hero Banner ─────────────────────────────────────────────────────────────
-class _HeroBanner extends StatelessWidget {
+// ─── Section title ────────────────────────────────────────────────────────────
+class _SectionTitle extends StatelessWidget {
+  final String text;
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 18.sp,
+          fontWeight: FontWeight.w700,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Week strip (Mon 20 … Sat 25) ────────────────────────────────────────────
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return SizedBox(
+      height: 82.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        itemCount: labels.length,
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        itemBuilder: (context, i) {
+          final day = monday.add(Duration(days: i));
+          final isToday = day.day == now.day && day.month == now.month;
+          return Container(
+            width: 62.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+              border: isToday
+                  ? Border.all(color: const Color(0xFFFF6B35), width: 1.4)
+                  : null,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  labels[i],
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  '${day.day}',
+                  style: TextStyle(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ─── AI goal banner ──────────────────────────────────────────────────────────
+class _AiGoalBanner extends StatelessWidget {
+  const _AiGoalBanner();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 160.h,
+      height: 148.h,
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
+          colors: [Color(0xFF6B7A99), Color(0xFF9AA5B8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -64,15 +140,13 @@ class _HeroBanner extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Background texture / subtle pattern
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.r),
-              child: CustomPaint(painter: _DotPatternPainter()),
-            ),
+          Positioned(
+            right: -6.w,
+            bottom: 0,
+            top: 0,
+            child: Icon(Icons.fitness_center,
+                size: 110.sp, color: Colors.white.withOpacity(0.15)),
           ),
-
-          // Text + button
           Padding(
             padding: EdgeInsets.all(20.w),
             child: Column(
@@ -88,35 +162,27 @@ class _HeroBanner extends StatelessWidget {
                     height: 1.4,
                   ),
                 ),
-                SizedBox(height: 16.h),
-                CustomButton(
-                  label: 'Find exercise plan',
-                  onPressed: () {
-                    Get.toNamed(AppRoute.workoutFinderFlow);
-                  },
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  radius: 24,
+                SizedBox(height: 14.h),
+                GestureDetector(
+                  onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 26.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24.r),
+                    ),
+                    child: Text(
+                      'Set your goal',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ),
               ],
-            ),
-          ),
-
-          // Athlete image (replace AssetImage with your asset)
-          Positioned(
-            right: -10.w,
-            bottom: 0,
-            child: SizedBox(
-              height: 155.h,
-              child: Image.network(
-                'https://i.imgur.com/placeholder.png', // replace with your asset: AssetImage('assets/images/athlete.png')
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => SizedBox(
-                  width: 110.w,
-                  child: Icon(Icons.directions_run,
-                      size: 90.sp, color: Colors.white24),
-                ),
-              ),
             ),
           ),
         ],
@@ -125,25 +191,14 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-// ─── Daily To-Do Section ──────────────────────────────────────────────────────
-class _DailyToDoSection extends StatelessWidget {
-  final List<_TaskItem> tasks = const [
-    _TaskItem(
-      label: 'Daily pushup',
-      current: 15,
-      total: 20,
-      unit: '',
-      displayCurrent: '15',
-      displayTotal: '20',
-    ),
-    _TaskItem(
-      label: 'Run  1 km',
-      current: 0.15,
-      total: 1.0,
-      unit: 'km',
-      displayCurrent: '0.15km',
-      displayTotal: '1km',
-    ),
+// ─── Gyms near you ───────────────────────────────────────────────────────────
+class _GymsCard extends StatelessWidget {
+  const _GymsCard();
+
+  static const _gyms = [
+    ('StrongFit Downtown', '0.8 km away'),
+    ('Iron Pulse Gym', '1.2 km away'),
+    ('Core Strength Hub', '2.0 km away'),
   ];
 
   @override
@@ -154,308 +209,163 @@ class _DailyToDoSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Daily to do ',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                    TextSpan(
-                      text: '(5/24)',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              Text('Gyms',
+                  style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black)),
+              Text('Near Gym',
+                  style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFFF6B35))),
             ],
           ),
-          SizedBox(height: 16.h),
-
-          // Task list
-          ...tasks.map((t) => _TaskRow(task: t)).toList(),
-
           SizedBox(height: 12.h),
+          SizedBox(
+            height: 150.h,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _gyms.length,
+              separatorBuilder: (_, __) => SizedBox(width: 12.w),
+              itemBuilder: (context, i) {
+                final (name, distance) = _gyms[i];
+                return SizedBox(
+                  width: 140.w,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.r),
+                        child: Container(
+                          height: 70.h,
+                          width: double.infinity,
+                          color: const Color(0xFF2B2B2B),
+                          child: Icon(Icons.fitness_center,
+                              color: Colors.white38, size: 30.sp),
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black)),
+                      SizedBox(height: 2.h),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined,
+                              size: 13.sp, color: Colors.black54),
+                          SizedBox(width: 2.w),
+                          Text(distance,
+                              style: TextStyle(
+                                  fontSize: 12.sp, color: Colors.black54)),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 3.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF9E9E9E),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Text('Disable',
+                            style: TextStyle(
+                                fontSize: 11.sp, color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-          // View all button
+// ─── Empty-state data card (Today's overview / assigned workout) ─────────────
+class _EmptyDataCard extends StatelessWidget {
+  final String title;
+  const _EmptyDataCard({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black)),
+          SizedBox(height: 20.h),
+          Center(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 32.r,
+                  backgroundColor: const Color(0xFFEDEDED),
+                  child: Icon(Icons.assignment_outlined,
+                      size: 28.sp, color: Colors.black45),
+                ),
+                SizedBox(height: 14.h),
+                Text('Not enough data to view',
+                    style:
+                        TextStyle(fontSize: 14.sp, color: Colors.black54)),
+              ],
+            ),
+          ),
+          SizedBox(height: 18.h),
           GestureDetector(
-            onTap: () {},
+            onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 12.h),
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
+                color: const Color(0xFFF2F2F2),
                 borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                    color: const Color(0xFFDDDDDD),
+                    style: BorderStyle.solid),
               ),
-              alignment: Alignment.center,
-              child: Text(
-                'View all',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13.sp,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TaskItem {
-  final String label;
-  final double current;
-  final double total;
-  final String unit;
-  final String displayCurrent;
-  final String displayTotal;
-
-  const _TaskItem({
-    required this.label,
-    required this.current,
-    required this.total,
-    required this.unit,
-    required this.displayCurrent,
-    required this.displayTotal,
-  });
-}
-
-class _TaskRow extends StatelessWidget {
-  final _TaskItem task;
-
-  const _TaskRow({required this.task});
-
-  @override
-  Widget build(BuildContext context) {
-    final progress = (task.current / task.total).clamp(0.0, 1.0);
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Label + value
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                task.label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14.sp,
-                  color: Colors.black87,
-                ),
-              ),
-              Text(
-                '${task.displayCurrent}/${task.displayTotal}',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7.h,
-              backgroundColor: const Color(0xFFEEEEEE),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFFF6B35),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Motivation Cards ─────────────────────────────────────────────────────────
-class _MotivationCards extends StatelessWidget {
-  final List<_CardData> cards = const [
-    _CardData(
-      headline: 'Get up.\nMove.\nTransform',
-      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400',
-    ),
-    _CardData(
-      headline: 'Every\nRep\nCounts',
-      imageUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=400',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        children: cards
-            .map(
-              (c) => Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                right: c == cards.last ? 0 : 10.w,
-              ),
-              child: _MotivationCard(data: c),
-            ),
-          ),
-        )
-            .toList(),
-      ),
-    );
-  }
-}
-
-class _CardData {
-  final String headline;
-  final String imageUrl;
-
-  const _CardData({required this.headline, required this.imageUrl});
-}
-
-class _MotivationCard extends StatelessWidget {
-  final _CardData data;
-
-  const _MotivationCard({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
-      child: SizedBox(
-        height: 200.h,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image
-            Image.network(
-              data.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: const Color(0xFF1A1A2E),
-              ),
-            ),
-
-            // Gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.65),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-
-            // Content
-            Padding(
-              padding: EdgeInsets.all(14.w),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    data.headline,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18.sp,
-                      height: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  _ShareButton(),
+                  Text('Recommendation',
+                      style: TextStyle(
+                          fontSize: 12.sp, color: Colors.black45)),
+                  SizedBox(height: 2.h),
+                  Text('Set your workout goal to get data',
+                      style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87)),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _ShareButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: Colors.white30),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.reply, color: Colors.white, size: 16.sp),
-            SizedBox(width: 6.w),
-            Text(
-              'Share',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Subtle dot pattern painter ───────────────────────────────────────────────
-class _DotPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    const spacing = 18.0;
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..style = PaintingStyle.fill;
-
-    for (double x = 0; x < size.width; x += spacing) {
-      for (double y = 0; y < size.height; y += spacing) {
-        canvas.drawCircle(Offset(x, y), 1.5, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
