@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/user/workout_find/presentation/ai_plan_result_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 
@@ -16,6 +17,7 @@ class AppRoute {
   static String workoutFinderFlow = "/workoutFinderFlow";
   static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
+  static String aiPlanResult = "/aiPlanResult";
   static String paywallScreen = "/paywallScreen";
 
   static List<GetPage> routes = [
@@ -25,6 +27,7 @@ class AppRoute {
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
     GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
+    GetPage(name: aiPlanResult, page: () => const AiPlanResultScreen()),
     GetPage(
       name: paywallScreen,
       page: () => PaywallScreen(),

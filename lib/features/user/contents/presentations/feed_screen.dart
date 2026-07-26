@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/features/user/contents/data/models.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
-import 'package:pler_to_pler_app/widgets/app_bar.dart';
-
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SCREEN 1 — FEED
+// SCREEN 1 — VIDEO FEED (Community / My Trainer)
+// Dark full-screen vertical video feed. Each page shows one exercise video.
+// TODO(backend): replace _videos with the exercise video library served from
+// object storage once the video files are uploaded (GET /content/videos).
 // ═══════════════════════════════════════════════════════════════════════════════
+
+class ExerciseVideo {
+  final String title;
+  final String? videoUrl; // network URL once backend serves the library
+  final String? thumbnailUrl;
+
+  const ExerciseVideo({required this.title, this.videoUrl, this.thumbnailUrl});
+}
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -19,214 +25,191 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  int _selectedTab = 0;
-  final List<String> _tabs = ['Relevant', 'Shorts', 'Updates', 'Tips &'];
+  int _selectedTab = 0; // 0 = Community, 1 = My Trainer
+  final PageController _pageController = PageController();
 
-  final List<VideoPost> _posts = const [
-    VideoPost(
-      title: 'Refreshing Workouts You Can Do Anywhere!',
-      category: 'Light workout',
-      views: '1.6k views',
-      imageUrl: 'https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=600',
-      isNew: true,
-    ),
-    VideoPost(
-      title: 'Energize Your Day with a 15-Minute Workout!',
-      category: 'Light workout',
-      views: '1.6k views',
-      imageUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=600',
-      isNew: true,
-    ),
-    VideoPost(
-      title: 'Simple Workouts to Lift Your Spirits!',
-      category: 'Light workout',
-      views: '1.6k views',
-      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
-      isNew: false,
-    ),
-    VideoPost(
-      title: 'Refreshing Workouts You Can Do Anywhere!',
-      category: 'Light workout',
-      views: '1.6k views',
-      imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600',
-      isNew: true,
-    ),
+  // Placeholder library — replaced by the real video folder when uploaded.
+  final List<ExerciseVideo> _communityVideos = const [
+    ExerciseVideo(title: '180 Jump Turns'),
+    ExerciseVideo(title: 'Air Squats'),
+    ExerciseVideo(title: 'Alternating Lunges'),
+    ExerciseVideo(title: 'Arm Circles'),
   ];
+
+  final List<ExerciseVideo> _trainerVideos = const [
+    ExerciseVideo(title: 'Bench Press Form'),
+    ExerciseVideo(title: 'Deadlift Setup'),
+  ];
+
+  List<ExerciseVideo> get _videos =>
+      _selectedTab == 0 ? _communityVideos : _trainerVideos;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      body: SafeArea(
-        child: Column(
-          children: [
-            FeedAppBar(),
-            SizedBox(height: 14.h),
-            _TabBar(
-              tabs: _tabs,
-              selected: _selectedTab,
-              onChanged: (i) => setState(() => _selectedTab = i),
-            ),
-            SizedBox(height: 14.h),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                itemCount: _posts.length,
-                itemBuilder: (_, i) => _VideoPostCard(
-                  post: _posts[i],
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const VideoDetailScreen(),
-                    ),
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // ── Full-screen vertical video pager ──
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: _videos.length,
+            itemBuilder: (_, i) => _VideoPage(video: _videos[i]),
+          ),
+
+          // ── Top tabs: Community | My Trainer + search ──
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  _TopTab(
+                    label: 'Community',
+                    selected: _selectedTab == 0,
+                    onTap: () => setState(() => _selectedTab = 0),
                   ),
-                ),
+                  SizedBox(width: 22.w),
+                  _TopTab(
+                    label: 'My Trainer',
+                    selected: _selectedTab == 1,
+                    onTap: () => setState(() => _selectedTab = 1),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      // TODO(backend): search across the video library
+                    },
+                    child: Icon(Icons.search,
+                        color: Colors.white, size: 26.sp),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-
-
-// ─── Tab Bar ──────────────────────────────────────────────────────────────────
-class _TabBar extends StatelessWidget {
-  final List<String> tabs;
-  final int selected;
-  final ValueChanged<int> onChanged;
-
-  const _TabBar({required this.tabs, required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: tabs.length,
-        itemBuilder: (_, i) {
-          final isSelected = i == selected;
-          return GestureDetector(
-            onTap: () => onChanged(i),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: EdgeInsets.only(right: 8.w),
-              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 7.h),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.black : Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-                boxShadow: isSelected
-                    ? []
-                    : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
-              ),
-              child: Text(
-                tabs[i],
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black54,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ─── Video Post Card ──────────────────────────────────────────────────────────
-class _VideoPostCard extends StatelessWidget {
-  final VideoPost post;
+class _TopTab extends StatelessWidget {
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
 
-  const _VideoPostCard({required this.post, required this.onTap});
+  const _TopTab(
+      {required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.only(bottom: 16.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Thumbnail
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                  child: Image.network(
-                    post.imageUrl,
-                    width: double.infinity,
-                    height: 190.h,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 190.h,
-                      color: const Color(0xFFEEEEEE),
-                      child: Icon(Icons.play_circle_outline, size: 48.sp, color: Colors.grey),
-                    ),
-                  ),
-                ),
-                if (post.isNew)
-                  Positioned(
-                    top: 10.h,
-                    left: 10.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF7A00),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Text(
-                        'New',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.white : Colors.white70,
+              fontSize: 17.sp,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             ),
-
-            // Meta
-            Padding(
-              padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    post.title,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '${post.category} · ${post.views}',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
-                  ),
-                ],
-              ),
+          ),
+          SizedBox(height: 5.h),
+          Container(
+            height: 3,
+            width: 34.w,
+            decoration: BoxDecoration(
+              color: selected ? Colors.white : Colors.transparent,
+              borderRadius: BorderRadius.circular(2),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _VideoPage extends StatelessWidget {
+  final ExerciseVideo video;
+
+  const _VideoPage({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // ── Video area (white letterboxed player) ──
+        Center(
+          child: AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Container(
+              color: Colors.white,
+              child: video.thumbnailUrl != null
+                  ? Image.network(video.thumbnailUrl!, fit: BoxFit.contain)
+                  : Center(
+                      child: Icon(Icons.fitness_center,
+                          size: 64.sp, color: Colors.grey.shade300),
+                    ),
+              // TODO(backend): swap for a looping video player once the
+              // exercise video files are uploaded to object storage.
+            ),
+          ),
+        ),
+
+        // ── Title bottom-left ──
+        Positioned(
+          left: 24.w,
+          bottom: 130.h,
+          child: Text(
+            video.title,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+        // ── Info button bottom-right ──
+        Positioned(
+          right: 20.w,
+          bottom: 150.h,
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const VideoDetailScreen()),
+                ),
+                child: Container(
+                  width: 46.w,
+                  height: 46.w,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.info_outline,
+                      color: Colors.black, size: 24.sp),
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                'Info',
+                style: TextStyle(color: Colors.white, fontSize: 12.sp),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

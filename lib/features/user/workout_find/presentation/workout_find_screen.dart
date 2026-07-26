@@ -525,7 +525,7 @@ class _LoadingStepState extends State<_LoadingStep>
     _rotation.addListener(() {
       if (_rotation.value > 0.85 && !_hasNavigated) {
         _hasNavigated = true;
-        Get.toNamed(AppRoute.createExercisePlan);
+        Get.toNamed(AppRoute.aiPlanResult);
       }
     });
   }
