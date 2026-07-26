@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Pler To Pler App</string>
+	<string>P2P FitTech AI</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,7 +22,13 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
+	<key>NSPhotoLibraryUsageDescription</key>
+<string>P2P FitTech AI needs access to your photo library so you can upload a profile photo, certificates, and workout content.</string>
+<key>NSCameraUsageDescription</key>
+<string>P2P FitTech AI needs camera access so you can take a photo for your profile or workout content.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>P2P FitTech AI needs microphone access when you record videos for workout content.</string>
+<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
