@@ -1,21 +1,30 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
+import 'package:video_player/video_player.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN 1 — VIDEO FEED (Community / My Trainer)
-// Dark full-screen vertical video feed. Each page shows one exercise video.
-// TODO(backend): replace _videos with the exercise video library served from
-// object storage once the video files are uploaded (GET /content/videos).
+// Dark full-screen vertical video feed. Each page shows one exercise video
+// streamed from the backend video library (GET /content/feed).
 // ═══════════════════════════════════════════════════════════════════════════════
 
 class ExerciseVideo {
   final String title;
-  final String? videoUrl; // network URL once backend serves the library
+  final String? videoUrl; // absolute network URL served by the backend
   final String? thumbnailUrl;
 
   const ExerciseVideo({required this.title, this.videoUrl, this.thumbnailUrl});
 }
+
+/// Server origin without the /api/v1 suffix — backend videoUrl values
+/// already start with /api/v1/... so they must not be double-prefixed.
+String _serverOrigin() =>
+    ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -28,18 +37,54 @@ class _FeedScreenState extends State<FeedScreen> {
   int _selectedTab = 0; // 0 = Community, 1 = My Trainer
   final PageController _pageController = PageController();
 
-  // Placeholder library — replaced by the real video folder when uploaded.
-  final List<ExerciseVideo> _communityVideos = const [
-    ExerciseVideo(title: '180 Jump Turns'),
-    ExerciseVideo(title: 'Air Squats'),
-    ExerciseVideo(title: 'Alternating Lunges'),
-    ExerciseVideo(title: 'Arm Circles'),
-  ];
+  bool _loading = true;
+  List<ExerciseVideo> _communityVideos = const [];
+  List<ExerciseVideo> _trainerVideos = const [];
 
-  final List<ExerciseVideo> _trainerVideos = const [
-    ExerciseVideo(title: 'Bench Press Form'),
-    ExerciseVideo(title: 'Deadlift Setup'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadFeed();
+  }
+
+  Future<void> _loadFeed() async {
+    try {
+      final response = await ApiClient.getData('/content/feed');
+      if (response.statusCode == 200 && response.body is Map) {
+        final data = (response.body as Map)['data'];
+        if (data is Map) {
+          List<ExerciseVideo> parse(dynamic list) {
+            if (list is! List) return const [];
+            final origin = _serverOrigin();
+            return list.whereType<Map>().map((v) {
+              final rawUrl = v['videoUrl']?.toString();
+              final rawThumb = v['thumbnailUrl']?.toString();
+              String? absolute(String? u) {
+                if (u == null || u.isEmpty) return null;
+                return u.startsWith('http') ? u : '$origin$u';
+              }
+
+              return ExerciseVideo(
+                title: v['title']?.toString() ?? 'Workout',
+                videoUrl: absolute(rawUrl),
+                thumbnailUrl: absolute(rawThumb),
+              );
+            }).toList();
+          }
+
+          setState(() {
+            _communityVideos = parse(data['community']);
+            _trainerVideos = parse(data['trainer']);
+            _loading = false;
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      log('feed load error: $e');
+    }
+    if (mounted) setState(() => _loading = false);
+  }
 
   List<ExerciseVideo> get _videos =>
       _selectedTab == 0 ? _communityVideos : _trainerVideos;
@@ -66,12 +111,26 @@ class _FeedScreenState extends State<FeedScreen> {
       body: Stack(
         children: [
           // ── Full-screen vertical video pager ──
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: _videos.length,
-            itemBuilder: (_, i) => _VideoPage(video: _videos[i]),
-          ),
+          if (_loading)
+            const Center(
+                child: CircularProgressIndicator(color: Colors.white))
+          else if (_videos.isEmpty)
+            Center(
+              child: Text(
+                _selectedTab == 1
+                    ? 'Your trainer hasn\'t posted videos yet'
+                    : 'No videos yet',
+                style: TextStyle(color: Colors.white70, fontSize: 16.sp),
+              ),
+            )
+          else
+            PageView.builder(
+              controller: _pageController,
+              scrollDirection: Axis.vertical,
+              itemCount: _videos.length,
+              itemBuilder: (_, i) =>
+                  _VideoPage(key: ValueKey('$_selectedTab-$i'), video: _videos[i]),
+            ),
 
           // ── Top tabs: Community | My Trainer + search ──
           SafeArea(
@@ -147,10 +206,48 @@ class _TopTab extends StatelessWidget {
   }
 }
 
-class _VideoPage extends StatelessWidget {
+class _VideoPage extends StatefulWidget {
   final ExerciseVideo video;
 
-  const _VideoPage({required this.video});
+  const _VideoPage({super.key, required this.video});
+
+  @override
+  State<_VideoPage> createState() => _VideoPageState();
+}
+
+class _VideoPageState extends State<_VideoPage> {
+  VideoPlayerController? _controller;
+  bool _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final url = widget.video.videoUrl;
+    if (url != null) {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(url))
+        ..setLooping(true)
+        ..initialize().then((_) {
+          if (mounted) {
+            setState(() => _ready = true);
+            _controller?.play();
+          }
+        }).catchError((e) {
+          log('video init error: $e');
+        });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    final c = _controller;
+    if (c == null || !_ready) return;
+    setState(() => c.value.isPlaying ? c.pause() : c.play());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,18 +255,30 @@ class _VideoPage extends StatelessWidget {
       children: [
         // ── Video area (white letterboxed player) ──
         Center(
-          child: AspectRatio(
-            aspectRatio: 4 / 3,
-            child: Container(
-              color: Colors.white,
-              child: video.thumbnailUrl != null
-                  ? Image.network(video.thumbnailUrl!, fit: BoxFit.contain)
-                  : Center(
-                      child: Icon(Icons.fitness_center,
-                          size: 64.sp, color: Colors.grey.shade300),
-                    ),
-              // TODO(backend): swap for a looping video player once the
-              // exercise video files are uploaded to object storage.
+          child: GestureDetector(
+            onTap: _togglePlay,
+            child: AspectRatio(
+              aspectRatio: 4 / 3,
+              child: Container(
+                color: Colors.white,
+                child: _ready && _controller != null
+                    ? FittedBox(
+                        fit: BoxFit.contain,
+                        clipBehavior: Clip.hardEdge,
+                        child: SizedBox(
+                          width: _controller!.value.size.width,
+                          height: _controller!.value.size.height,
+                          child: VideoPlayer(_controller!),
+                        ),
+                      )
+                    : widget.video.thumbnailUrl != null
+                        ? Image.network(widget.video.thumbnailUrl!,
+                            fit: BoxFit.contain)
+                        : Center(
+                            child: Icon(Icons.fitness_center,
+                                size: 64.sp, color: Colors.grey.shade300),
+                          ),
+              ),
             ),
           ),
         ),
@@ -179,7 +288,7 @@ class _VideoPage extends StatelessWidget {
           left: 24.w,
           bottom: 130.h,
           child: Text(
-            video.title,
+            widget.video.title,
             style: TextStyle(
               color: Colors.white,
               fontSize: 22.sp,

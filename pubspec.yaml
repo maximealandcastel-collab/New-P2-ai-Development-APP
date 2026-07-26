@@ -22,6 +22,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   pinput: ^6.0.1
   http: ^1.6.0
+  video_player: ^2.9.2
   mime_type: ^1.0.1
   shimmer: ^3.0.0
   shared_preferences: ^2.5.4
