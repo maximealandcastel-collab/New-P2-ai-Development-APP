@@ -28,6 +28,10 @@
 <string>P2P FitTech AI needs camera access so you can take a photo for your profile or workout content.</string>
 <key>NSMicrophoneUsageDescription</key>
 <string>P2P FitTech AI needs microphone access when you record videos for workout content.</string>
+<key>NSHealthShareUsageDescription</key>
+<string>P2P FitTech AI reads your steps, heart rate, calories, and workouts from Apple Health (including Apple Watch data) to track your fitness progress.</string>
+<key>NSHealthUpdateUsageDescription</key>
+<string>P2P FitTech AI can save completed workouts to Apple Health.</string>
 <key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

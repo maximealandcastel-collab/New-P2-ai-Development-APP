@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/services/health_sync_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MODEL
@@ -67,24 +68,48 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen>
 
   void _onDenyPermission() => setState(() => _state = _ScreenState.initial);
 
-  void _onAllowPermission() {
+  void _onAllowPermission() async {
     setState(() => _state = _ScreenState.scanning);
-    // Simulate scan delay → find device
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _state = _ScreenState.found);
-    });
+    // Ask the OS (Apple Health / Health Connect) for real permission
+    final granted = await HealthSyncService.instance.requestPermissions();
+    if (!mounted) return;
+    setState(() => _state = granted ? _ScreenState.found : _ScreenState.initial);
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Health access was denied. You can enable it in Settings.'),
+      ));
+    }
   }
 
-  void _onConnectDevice() {
+  void _onConnectDevice() async {
     setState(() => _device.status = _DeviceStatus.connecting);
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _device.status = _DeviceStatus.connected;
-          _state = _ScreenState.connected;
-        });
-      }
+    // Pair with the backend, then sync the last 7 days of health data
+    final deviceId = await HealthSyncService.instance.pairDevice();
+    Map<String, num>? summary;
+    if (deviceId != null) {
+      summary = await HealthSyncService.instance.syncMetrics(days: 7);
+    }
+    if (!mounted) return;
+    if (deviceId == null) {
+      setState(() {
+        _device.status = _DeviceStatus.notConnected;
+        _state = _ScreenState.found;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not connect. Check your internet and try again.'),
+      ));
+      return;
+    }
+    setState(() {
+      _device.status = _DeviceStatus.connected;
+      _state = _ScreenState.connected;
     });
+    if (summary != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            'Synced: ${summary['steps']} steps, avg HR ${summary['heartRate']}, ${summary['calories']} cal (7 days)'),
+      ));
+    }
   }
 
   @override

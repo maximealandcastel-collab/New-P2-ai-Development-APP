@@ -17,6 +17,10 @@ class ApiUrls {
   static const String promoRedeem = '/promo/redeem';
   static const String checkoutDefault = '/payments/checkout/default';
 
+  /// ============= device / watch sync ===========>>>
+  static const String devicePair = '/device/pair';
+  static String deviceMetrics(String deviceId) => '/device/$deviceId/metrics';
+
 
   static const String register = '/auth/create-account';
   static const String verifyOtp = '/auth/verify-otp';
