@@ -44,6 +44,15 @@ class _FeedScreenState extends State<FeedScreen> {
   List<ExerciseVideo> get _videos =>
       _selectedTab == 0 ? _communityVideos : _trainerVideos;
 
+  void _switchTab(int tab) {
+    if (tab == _selectedTab) return;
+    setState(() => _selectedTab = tab);
+    // Reset paging so the controller never points past the new list's length.
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(0);
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -74,13 +83,13 @@ class _FeedScreenState extends State<FeedScreen> {
                   _TopTab(
                     label: 'Community',
                     selected: _selectedTab == 0,
-                    onTap: () => setState(() => _selectedTab = 0),
+                    onTap: () => _switchTab(0),
                   ),
                   SizedBox(width: 22.w),
                   _TopTab(
                     label: 'My Trainer',
                     selected: _selectedTab == 1,
-                    onTap: () => setState(() => _selectedTab = 1),
+                    onTap: () => _switchTab(1),
                   ),
                   const Spacer(),
                   GestureDetector(
