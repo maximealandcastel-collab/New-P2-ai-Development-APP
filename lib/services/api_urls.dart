@@ -17,6 +17,11 @@ class ApiUrls {
   static const String promoRedeem = '/promo/redeem';
   static const String checkoutDefault = '/payments/checkout/default';
 
+  /// ============= workout goals / AI plan ===========>>>
+  static const String workoutCreate = '/workout';
+  static String workoutGenerate(String workoutId) => '/workout/$workoutId/generate';
+  static const String workoutToday = '/workout/today';
+
   /// ============= device / watch sync ===========>>>
   static const String devicePair = '/device/pair';
   static String deviceMetrics(String deviceId) => '/device/$deviceId/metrics';

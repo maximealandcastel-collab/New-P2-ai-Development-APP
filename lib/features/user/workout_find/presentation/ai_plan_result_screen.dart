@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI PLAN RESULT — shown after "Finding best workout plan for you"
@@ -38,8 +39,8 @@ class PlanStep {
 class AiPlanResultScreen extends StatelessWidget {
   const AiPlanResultScreen({super.key});
 
-  // Placeholder plan matching the design — replaced by the AI response.
-  static const List<PlanExercise> _mainWork = [
+  // Sample plan shown when the backend is unreachable (demo mode).
+  static const List<PlanExercise> _sampleMainWork = [
     PlanExercise(
       name: 'Bench Press',
       muscleGroup: 'Chest',
@@ -86,8 +87,55 @@ class AiPlanResultScreen extends StatelessWidget {
     ),
   ];
 
+  /// Parse the backend AI plan (passed via Get.arguments) or fall back to
+  /// the sample plan when running without a backend connection.
+  static List<PlanExercise> _parseMainWork(Map<String, dynamic>? plan) {
+    final raw = plan?['mainWork'];
+    if (raw is! List || raw.isEmpty) return _sampleMainWork;
+    return raw.whereType<Map>().map((e) {
+      final steps = (e['steps'] is List)
+          ? (e['steps'] as List).whereType<Map>().map((s) {
+              return PlanStep(
+                instruction: (s['instruction'] ?? s['text'] ?? '').toString(),
+                tip: (s['tip'] ?? s['tips'] ?? '').toString(),
+              );
+            }).toList()
+          : <PlanStep>[];
+      return PlanExercise(
+        name: (e['exerciseName'] ?? e['name'] ?? 'Exercise').toString(),
+        muscleGroup: (e['muscleGroup'] ?? '').toString(),
+        sets: '${e['sets'] ?? 3} sets',
+        reps: '${e['reps'] ?? '8-12'} reps',
+        rest: 'Rest ${e['restTime'] ?? '60s'}',
+        rpe: e['rpe'] != null ? 'RPE ${e['rpe']}' : 'RPE 7-8',
+        steps: steps,
+      );
+    }).toList();
+  }
+
+  static String _sectionText(Map<String, dynamic>? plan, String key,
+      String fallback) {
+    final raw = plan?[key];
+    if (raw is List && raw.isNotEmpty && raw.first is Map) {
+      final first = raw.first as Map;
+      return (first['instruction'] ?? fallback).toString();
+    }
+    return fallback;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final plan = Get.arguments is Map<String, dynamic>
+        ? Get.arguments as Map<String, dynamic>
+        : null;
+    final mainWork = _parseMainWork(plan);
+    final focusList = (plan?['thisWeekFocus'] is List)
+        ? (plan!['thisWeekFocus'] as List).map((e) => e.toString()).toList()
+        : const ['Chest'];
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
@@ -99,18 +147,19 @@ class AiPlanResultScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const _PlanHeader(
-                      date: '2026-07-02',
+                    _PlanHeader(
+                      date: dateStr,
                       title: 'Maintain Physique',
-                      subtitle:
-                          "Gabriel Rowling built today's session around your focus: chest.",
+                      subtitle: (plan?['coachNote'] as String?) ??
+                          "Your trainer built today's session around your focus.",
                     ),
                     SizedBox(height: 16.h),
-                    const _SectionCard(
+                    _SectionCard(
                       title: 'Warm up',
                       child: _NumberedItem(
                         index: 1,
-                        text: '5 minutes light cardio plus dynamic stretching',
+                        text: _sectionText(plan, 'warmUp',
+                            '5 minutes light cardio plus dynamic stretching'),
                         highlight: '5 minutes',
                       ),
                     ),
@@ -119,35 +168,38 @@ class AiPlanResultScreen extends StatelessWidget {
                       title: 'Main Work',
                       child: Column(
                         children: [
-                          for (int i = 0; i < _mainWork.length; i++) ...[
-                            _ExerciseCard(exercise: _mainWork[i]),
-                            if (i != _mainWork.length - 1)
+                          for (int i = 0; i < mainWork.length; i++) ...[
+                            _ExerciseCard(exercise: mainWork[i]),
+                            if (i != mainWork.length - 1)
                               SizedBox(height: 14.h),
                           ],
                         ],
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    const _SectionCard(
+                    _SectionCard(
                       title: 'Cool down',
                       child: _NumberedItem(
                         index: 1,
-                        text: 'Stretch the muscle groups you trained today',
+                        text: _sectionText(plan, 'coolDown',
+                            'Stretch the muscle groups you trained today'),
                         highlight: '5 minutes',
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    const _InfoCard(
+                    _InfoCard(
                       title: 'Nutrition Tip',
-                      body:
+                      body: (plan?['nutritionTip'] as String?) ??
                           'Stay hydrated and spread protein evenly across meals to support recovery.',
                     ),
                     SizedBox(height: 16.h),
-                    const _WeekFocusCard(focus: 'Chest'),
+                    _WeekFocusCard(focus: focusList.join(', ')),
                     SizedBox(height: 16.h),
-                    const _CheckInCard(
-                      duration: 10,
-                      question:
+                    _CheckInCard(
+                      duration:
+                          (plan?['estimatedDurationMinutes'] as num?)?.toInt() ??
+                              10,
+                      question: (plan?['checkInQuestion'] as String?) ??
                           "Did you complete today's session? What loads did you use and how hard was it (RPE 1-10)? Any pain or equipment issues?",
                     ),
                     SizedBox(height: 20.h),

@@ -5,6 +5,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
 
 // ─── Entry point ─────────────────────────────────────────────────────────────
 class WorkoutFinderFlow extends StatefulWidget {
@@ -47,6 +49,12 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   // ── Step 5: Intensity & Duration
   String _intensity = 'Medium';
   double _duration = 10;
+
+  String _slug(String v) => v
+      .toLowerCase()
+      .replaceAll('/', '_')
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+      .replaceAll(RegExp(r'^_|_$'), '');
 
   void _next() {
     if (_step < _totalSteps - 1) setState(() => _step++);
@@ -124,7 +132,25 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onNext: _next,
         );
       case 5:
-        return const _LoadingStep();
+        return _LoadingStep(
+          payload: {
+            "goal": _selectedGoals.isEmpty
+                ? ["general_fitness"]
+                : _selectedGoals.map(_slug).toList(),
+            "focusArea": _selectedAreas.isEmpty
+                ? ["full_body"]
+                : _selectedAreas.map(_slug).toList(),
+            "workout_environment": _selectedLocations.isEmpty
+                ? ["home"]
+                : _selectedLocations.map(_slug).toList(),
+            "equipment_availablity": _selectedEquipment.isEmpty
+                ? ["no_equipment"]
+                : _selectedEquipment.map(_slug).toList(),
+            "workout_intensity": [_intensity.toLowerCase()],
+            "duration": _duration.toInt(),
+            "date": DateTime.now().toIso8601String().split('T').first,
+          },
+        );
       default:
         return const SizedBox();
     }
@@ -502,7 +528,9 @@ class _IntensityDurationStep extends StatelessWidget {
 
 // ─── Step 6: Loading / Finding Plan ──────────────────────────────────────────
 class _LoadingStep extends StatefulWidget {
-  const _LoadingStep();
+  final Map<String, dynamic> payload;
+
+  const _LoadingStep({required this.payload});
 
   @override
   State<_LoadingStep> createState() => _LoadingStepState();
@@ -522,12 +550,37 @@ class _LoadingStepState extends State<_LoadingStep>
       duration: const Duration(seconds: 3),
     )..repeat();
     _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
-    _rotation.addListener(() {
-      if (_rotation.value > 0.85 && !_hasNavigated) {
-        _hasNavigated = true;
-        Get.offNamed(AppRoute.aiPlanResult);
+    _generatePlan();
+  }
+
+  /// Create the workout goal from the wizard answers, then generate the AI
+  /// plan. Body part, intensity and duration all feed the AI so every
+  /// combination produces a different session.
+  Future<void> _generatePlan() async {
+    Map<String, dynamic>? plan;
+    try {
+      final createRes =
+          await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
+      final workoutId = createRes.body is Map
+          ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
+          : null;
+      if (workoutId != null) {
+        final genRes = await ApiClient.postData(
+            ApiUrls.workoutGenerate(workoutId.toString()), {});
+        if (genRes.statusCode == 200 && genRes.body is Map) {
+          final data = genRes.body['data'];
+          if (data is Map<String, dynamic>) {
+            plan = (data['aiPlan'] ?? data['plan'] ?? data)
+                as Map<String, dynamic>?;
+          }
+        }
       }
-    });
+    } catch (_) {
+      // Backend unreachable — fall through to the sample plan.
+    }
+    if (!mounted || _hasNavigated) return;
+    _hasNavigated = true;
+    Get.offNamed(AppRoute.aiPlanResult, arguments: plan);
   }
 
   @override
