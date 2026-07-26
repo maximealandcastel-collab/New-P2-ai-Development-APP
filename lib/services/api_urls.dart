@@ -23,8 +23,8 @@ class ApiUrls {
   static const String workoutToday = '/workout/today';
 
   /// ============= device / watch sync ===========>>>
-  static const String devicePair = '/device/pair';
-  static String deviceMetrics(String deviceId) => '/device/$deviceId/metrics';
+  static const String devicePair = '/devices/pair';
+  static String deviceMetrics(String deviceId) => '/devices/$deviceId/metrics';
 
 
   static const String register = '/auth/create-account';

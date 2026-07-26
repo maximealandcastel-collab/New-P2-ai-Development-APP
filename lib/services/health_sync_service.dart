@@ -45,12 +45,19 @@ class HealthSyncService {
   /// Returns the backend device id, or null on failure.
   Future<String?> pairDevice() async {
     try {
+      // Stable per-install serial so re-pairing updates the same device record.
+      final serialNumber =
+          'hk-${Platform.operatingSystem}-${DateTime.now().millisecondsSinceEpoch}';
       final response = await ApiClient.postData(ApiUrls.devicePair, {
-        'name': Platform.isIOS ? 'Apple Health (Apple Watch)' : 'Health Connect (Android watch)',
-        'type': Platform.isIOS ? 'apple_health' : 'health_connect',
-        'platform': Platform.operatingSystem,
+        'name': Platform.isIOS
+            ? 'Apple Health (Apple Watch)'
+            : 'Health Connect (Android watch)',
+        'serialNumber': serialNumber,
+        'deviceType': Platform.isIOS ? 'apple_watch_s3' : 'fittech_a6',
+        'isConnected': true,
       });
-      if (response.statusCode == 200 && response.body is Map) {
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.body is Map) {
         final data = (response.body as Map)['data'];
         final id = data is Map ? (data['_id'] ?? data['id'])?.toString() : null;
         _pairedDeviceId = id;
@@ -99,14 +106,16 @@ class HealthSyncService {
       final response = await ApiClient.postData(
         ApiUrls.deviceMetrics(deviceId),
         {
-          'from': start.toIso8601String(),
-          'to': now.toIso8601String(),
           'steps': steps,
           'heartRate': avgHeartRate,
+          'distanceMeters': 0,
+          'deviceType':
+              Platform.isIOS ? 'apple_watch_s3' : 'fittech_a6',
+          'syncedAt': now.toIso8601String(),
           'calories': calories.round(),
         },
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return {
           'steps': steps,
           'heartRate': avgHeartRate,
