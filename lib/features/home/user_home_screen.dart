@@ -70,7 +70,7 @@ class _WeekStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final monday = now.subtract(Duration(days: now.weekday - 1));
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     return SizedBox(
       height: 82.h,
