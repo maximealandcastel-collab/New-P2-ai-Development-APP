@@ -1,13 +1,19 @@
 class ApiUrls {
   /// ============= base urls ===========>>>
+  ///
+  /// Override at build time:
+  ///   flutter build ipa \
+  ///     --dart-define=API_BASE_URL=https://<production-domain>:8099/api/v1 \
+  ///     --dart-define=SOCKET_URL=https://<production-domain>:8099
+  ///
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: "https://mihadhome8000.merinasib.shop/api/v1",
+    defaultValue: "https://71343b10-7e2a-46fe-9911-23503c873c85-00-184fe0kiyyq2s-ya1psx1i.kirk.replit.dev:8099/api/v1",
   );
   static const String imageBaseUrl = "$baseUrl/";
   static const String socketUrl = String.fromEnvironment(
     'SOCKET_URL',
-    defaultValue: "https://mihadhome8000.merinasib.shop",
+    defaultValue: "https://71343b10-7e2a-46fe-9911-23503c873c85-00-184fe0kiyyq2s-ya1psx1i.kirk.replit.dev:8099",
   );
 
   /// ============= all urls ===========>>>
