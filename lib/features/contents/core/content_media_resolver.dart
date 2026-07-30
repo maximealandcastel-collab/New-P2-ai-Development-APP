@@ -29,7 +29,7 @@ class ContentMediaResolver {
       return resolved;
     }
 
-    final base = Uri.parse(ApiConstants.baseUrl);
+    final base = Uri.parse(ApiConstants.mediaBaseUrl);
     final path = value.startsWith('/') ? value.substring(1) : value;
     final segments = path.split('/').where((segment) => segment.isNotEmpty);
     final resolved = base.replace(

@@ -17,7 +17,7 @@ class ContentDetailsScreen extends StatelessWidget {
     final controller = ContentDetailsController.to;
     final content = controller.content!;
 
-    debugPrint('content.videoUrl========>>>>: ${ApiConstants.baseUrl}${content.videoUrl}');
+    debugPrint('content.videoUrl========>>>>: ${ApiConstants.mediaBaseUrl}${content.videoUrl}');
 
     final page = SliverScaffold(
       appBar: CustomSliverAppBar(

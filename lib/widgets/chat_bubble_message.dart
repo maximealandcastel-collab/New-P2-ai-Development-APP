@@ -97,7 +97,7 @@ class ChatBubbleMessage extends StatelessWidget {
                 child: BubbleNormalImage(
                   id: url,
                   image: Image.network(
-                    '${ApiConstants.baseUrl}$url',
+                    '${ApiConstants.mediaBaseUrl}$url',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image),
                     loadingBuilder: (context, child, loadingProgress) {

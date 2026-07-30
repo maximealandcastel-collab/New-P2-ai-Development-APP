@@ -72,7 +72,7 @@ class CustomNetworkImage extends StatelessWidget {
     if (value.startsWith('http://') || value.startsWith('https://')) {
       return value;
     }
-    return '${ApiConstants.baseUrl}$value';
+    return '${ApiConstants.mediaBaseUrl}$value';
   }
 
   Widget _buildContainer(
