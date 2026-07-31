@@ -158,3 +158,40 @@ workflows:
       - build/app/outputs/bundle/release/*.aab
       - build/app/outputs/flutter-apk/app-release.apk
       - flutter_drive.log
+
+  ios-release-simple:
+    name: iOS Release → TestFlight (Simple)
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: Codemagic
+    environment:
+      flutter: 3.41.4
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.p2pfittech.ai
+      vars:
+        APP_ID: com.p2pfittech.ai
+    scripts:
+      - name: Install dependencies
+        script: |
+          set -e
+          flutter config --no-enable-swift-package-manager
+          flutter pub get
+          cd packages/anam_flutter_sdk && flutter pub get
+      - name: Install CocoaPods
+        script: |
+          set -e
+          find . -name "Podfile" -not -path "./packages/anam_flutter_sdk/example/*" -execdir pod install \;
+      - name: Build iOS IPA
+        script: |
+          set -e
+          flutter build ipa --release
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
