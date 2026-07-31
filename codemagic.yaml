@@ -169,12 +169,33 @@ workflows:
       flutter: 3.41.4
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.p2pfittech.ai
       vars:
         APP_ID: com.p2pfittech.ai
+        BUNDLE_ID: com.p2pfittech.ai
     scripts:
+      - name: Set up keychain
+        script: |
+          set -e
+          keychain initialize
+      - name: Fetch or create signing certificate and profile
+        script: |
+          set -e
+          # EC key required for Apple Distribution certificates
+          openssl ecparam -name prime256v1 -genkey -noout -out /tmp/cert_key.pem
+          # Uses integrations.app_store_connect for auth automatically
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key @file:/tmp/cert_key.pem \
+            --create \
+            --verbose
+      - name: Add certificates to keychain
+        script: |
+          set -e
+          keychain add-certificates
+      - name: Set up Xcode code signing
+        script: |
+          set -e
+          xcode-project use-profiles
       - name: Install dependencies
         script: |
           set -e
