@@ -175,6 +175,18 @@ workflows:
       vars:
         APP_ID: com.p2pfittech.ai
     scripts:
+      - name: Set up keychain
+        script: |
+          set -e
+          keychain initialize
+      - name: Add certificates to keychain
+        script: |
+          set -e
+          keychain add-certificates
+      - name: Set up Xcode code signing
+        script: |
+          set -e
+          xcode-project use-profiles
       - name: Install dependencies
         script: |
           set -e
