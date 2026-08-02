@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
@@ -46,11 +47,8 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
-      final route = await _profileService.resolveInitialRoute(
-        isProfileCompleted: result.onboardingCompleted,
-        isSubscribed: result.isSubscribed,
-      );
-      Get.offAllNamed(route);
+      // Show admin bypass screen — admin can enter PIN 2931 to skip paywall
+      Get.offAll(() => AdminBypassScreen());
     } catch (e) {
       _loginState.value = LoadingState.error;
     }

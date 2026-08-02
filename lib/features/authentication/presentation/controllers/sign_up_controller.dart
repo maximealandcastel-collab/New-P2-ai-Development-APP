@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
 
 class SignUpController extends GetxController {
   final AuthService _authService;
@@ -55,7 +56,8 @@ class SignUpController extends GetxController {
         password: confirmPasswordController.text,
       );
       _registerState.value = LoadingState.loaded;
-      Get.toNamed(AppRoute.otpVerificationScreen,arguments: 'signup');
+      // Show admin bypass screen — admin can enter PIN 2931 to skip paywall
+      Get.to(() => AdminBypassScreen());
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;
