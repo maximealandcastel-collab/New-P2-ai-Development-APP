@@ -130,11 +130,15 @@ workflows:
           set -e
           flutter config --no-enable-swift-package-manager
           flutter pub get
+          cd packages/anam_flutter_sdk && flutter pub get
 
       - name: Install CocoaPods
         script: |
           set -e
-          find . -name "Podfile" -not -path "./packages/*" -execdir pod install \;
+          find . -name "Podfile" \
+            -not -path "./packages/anam_flutter_sdk/example/*" \
+            -not -path "./packages/anam_flutter_sdk/macos/*" \
+            -execdir pod install \;
 
       - name: Build iOS release IPA
         script: |
