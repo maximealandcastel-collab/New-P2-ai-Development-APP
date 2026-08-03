@@ -169,9 +169,10 @@ workflows:
       cocoapods: default
       groups:
         - app_store
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.p2pfittech.ai
+      # ios_signing block intentionally removed — it triggers an automatic
+      # "Fetch signing files" step that fails when APP_STORE_CONNECT_PRIVATE_KEY
+      # has collapsed PEM newlines (which Codemagic env vars always produce).
+      # Signing is handled manually in the script below instead.
       vars:
         APP_ID: com.p2pfittech.ai
     scripts:
@@ -179,6 +180,45 @@ workflows:
         script: |
           set -e
           keychain initialize
+
+      - name: Fetch signing files
+        script: |
+          set -e
+          # Reformat APP_STORE_CONNECT_PRIVATE_KEY — Codemagic env vars collapse
+          # PEM newlines into one line; OpenSSL requires 64-char-wrapped base64.
+          python3 - <<'PYEOF'
+          import os, re, sys
+          raw = os.environ.get('APP_STORE_CONNECT_PRIVATE_KEY', '')
+          if not raw.strip():
+              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY is empty — check app_store env group")
+          hdr = re.search(r'(-----BEGIN [^-]+-----)', raw)
+          ftr = re.search(r'(-----END [^-]+-----)', raw)
+          if not hdr or not ftr:
+              sys.exit("ERROR: no PEM header/footer found in APP_STORE_CONNECT_PRIVATE_KEY")
+          body = re.sub(r'-----[^-]+-----', '', raw).replace('\n','').replace('\r','').replace(' ','').strip()
+          folded = '\n'.join(body[i:i+64] for i in range(0, len(body), 64))
+          pem = hdr.group(1) + '\n' + folded + '\n' + ftr.group(1) + '\n'
+          with open('/tmp/api_key.pem', 'w') as f:
+              f.write(pem)
+          print("API key written — lines:", len(pem.splitlines()))
+          PYEOF
+
+          # Generate RSA 2048 key for the distribution certificate.
+          # Must be RSA: app-store-connect converts it to PKCS1 internally,
+          # and PKCS1 is RSA-only — EC keys produce "cert key file is empty".
+          openssl genrsa -out /tmp/cert_key.pem 2048
+          openssl rsa -in /tmp/cert_key.pem -check -noout
+
+          app-store-connect fetch-signing-files \
+            "$APP_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key @file:/tmp/cert_key.pem \
+            --private-key @file:/tmp/api_key.pem \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --create \
+            --verbose
+
       - name: Add certificates to keychain
         script: |
           set -e
