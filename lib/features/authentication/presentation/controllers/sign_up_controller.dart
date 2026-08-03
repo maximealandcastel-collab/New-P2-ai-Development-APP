@@ -56,8 +56,7 @@ class SignUpController extends GetxController {
         password: confirmPasswordController.text,
       );
       _registerState.value = LoadingState.loaded;
-      // Show admin bypass screen — admin can enter PIN 2931 to skip paywall
-      Get.to(() => AdminBypassScreen());
+      Get.toNamed(AppRoute.otpVerificationScreen, arguments: 'signup');
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;
