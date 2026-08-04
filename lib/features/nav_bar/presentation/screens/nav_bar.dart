@@ -9,7 +9,8 @@ import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/widgets/nav_fab_widget.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_fab_widget.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/trainer_home_schedule_screen.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
 import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
@@ -118,15 +119,10 @@ class _NavBarState extends State<NavBar> {
                   // Centre FAB button
                   GestureDetector(
                     onTap: () {
-                      NavFabWidget.instance.show(
-                        context,
-                        onPostContent: () =>
-                            Get.to(() => const ContentPostScreen()),
-                        onAddSchedule: () =>
-                            Get.to(() => const FindTrainerScreen()),
-                        onAddExercise: () =>
-                            Get.to(() => const CreateExercisePlanScreen()),
-                      );
+                      final items = _role == 'Trainer'
+                          ? NavFabModel.trainerFabItems
+                          : NavFabModel.userFabItems;
+                      NavFabWidget.show(context, items);
                     },
                     child: Assets.icons.addButton.svg(
                       height: 48.h,
