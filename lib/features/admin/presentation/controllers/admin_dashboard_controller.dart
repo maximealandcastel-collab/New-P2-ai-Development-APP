@@ -2,39 +2,133 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 
-// ─── Lightweight models (inline — no separate file risk) ───────────────────
+// ─── Models ────────────────────────────────────────────────────────────────
 
-class AdminMetrics {
+class AdminOverview {
   final int totalUsers;
   final int todaySignups;
   final int weekSignups;
+  final int monthSignups;
+  final int verifiedUsers;
+  final int unverifiedUsers;
   final int activeSubscriptions;
   final int adminBypassUsers;
-  final List<Map<String, dynamic>> roleBreakdown;
 
-  AdminMetrics({
+  AdminOverview({
     required this.totalUsers,
     required this.todaySignups,
     required this.weekSignups,
+    required this.monthSignups,
+    required this.verifiedUsers,
+    required this.unverifiedUsers,
     required this.activeSubscriptions,
     required this.adminBypassUsers,
-    required this.roleBreakdown,
   });
 
-  factory AdminMetrics.fromJson(Map<String, dynamic> json) {
-    final overview = json['overview'] as Map<String, dynamic>? ?? {};
-    final roles = (json['roleBreakdown'] as List? ?? [])
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
-    return AdminMetrics(
-      totalUsers: (overview['totalUsers'] as num?)?.toInt() ?? 0,
-      todaySignups: (overview['todaySignups'] as num?)?.toInt() ?? 0,
-      weekSignups: (overview['weekSignups'] as num?)?.toInt() ?? 0,
-      activeSubscriptions: (overview['activeSubscriptions'] as num?)?.toInt() ?? 0,
-      adminBypassUsers: (overview['adminBypassUsers'] as num?)?.toInt() ?? 0,
-      roleBreakdown: roles,
-    );
-  }
+  factory AdminOverview.fromJson(Map<String, dynamic> j) => AdminOverview(
+        totalUsers: (j['totalUsers'] as num?)?.toInt() ?? 0,
+        todaySignups: (j['todaySignups'] as num?)?.toInt() ?? 0,
+        weekSignups: (j['weekSignups'] as num?)?.toInt() ?? 0,
+        monthSignups: (j['monthSignups'] as num?)?.toInt() ?? 0,
+        verifiedUsers: (j['verifiedUsers'] as num?)?.toInt() ?? 0,
+        unverifiedUsers: (j['unverifiedUsers'] as num?)?.toInt() ?? 0,
+        activeSubscriptions: (j['activeSubscriptions'] as num?)?.toInt() ?? 0,
+        adminBypassUsers: (j['adminBypassUsers'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class RoleCount {
+  final String role;
+  final int count;
+  RoleCount({required this.role, required this.count});
+  factory RoleCount.fromJson(Map<String, dynamic> j) => RoleCount(
+        role: j['role']?.toString() ?? '',
+        count: (j['count'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class SubCount {
+  final String tier;
+  final int count;
+  SubCount({required this.tier, required this.count});
+  factory SubCount.fromJson(Map<String, dynamic> j) => SubCount(
+        tier: j['tier']?.toString() ?? '',
+        count: (j['count'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class DailySignup {
+  final String date;
+  final int count;
+  DailySignup({required this.date, required this.count});
+  factory DailySignup.fromJson(Map<String, dynamic> j) => DailySignup(
+        date: j['date']?.toString() ?? '',
+        count: (j['count'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class RecentUser {
+  final String id;
+  final String email;
+  final String role;
+  final bool isVerified;
+  final String subscriptionTier;
+  final DateTime createdAt;
+
+  RecentUser({
+    required this.id,
+    required this.email,
+    required this.role,
+    required this.isVerified,
+    required this.subscriptionTier,
+    required this.createdAt,
+  });
+
+  factory RecentUser.fromJson(Map<String, dynamic> j) => RecentUser(
+        id: j['_id']?.toString() ?? '',
+        email: j['email']?.toString() ?? '',
+        role: j['role']?.toString() ?? '',
+        isVerified: j['isVerified'] == true,
+        subscriptionTier: j['subscriptionTier']?.toString() ?? 'free',
+        createdAt: j['createdAt'] != null
+            ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+      );
+}
+
+class AdminMetrics {
+  final AdminOverview overview;
+  final List<RoleCount> roleBreakdown;
+  final List<SubCount> subscriptionBreakdown;
+  final List<DailySignup> dailySignups;
+  final List<RecentUser> recentUsers;
+
+  AdminMetrics({
+    required this.overview,
+    required this.roleBreakdown,
+    required this.subscriptionBreakdown,
+    required this.dailySignups,
+    required this.recentUsers,
+  });
+
+  factory AdminMetrics.fromJson(Map<String, dynamic> json) => AdminMetrics(
+        overview: AdminOverview.fromJson(
+            (json['overview'] as Map<String, dynamic>?) ?? {}),
+        roleBreakdown: ((json['roleBreakdown'] as List?) ?? [])
+            .map((e) => RoleCount.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+        subscriptionBreakdown: ((json['subscriptionBreakdown'] as List?) ?? [])
+            .map((e) => SubCount.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+        dailySignups: ((json['dailySignups'] as List?) ?? [])
+            .map((e) =>
+                DailySignup.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+        recentUsers: ((json['recentUsers'] as List?) ?? [])
+            .map((e) =>
+                RecentUser.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+      );
 }
 
 class WithdrawalItem {
@@ -60,25 +154,24 @@ class WithdrawalItem {
 
   double get amountDollars => requestedAmountCents / 100.0;
   bool get isPending => status == 'pending';
-  bool get requiresApproval => isPending && requestedAmountCents >= 200000; // ≥ $2k
+  bool get requiresApproval => isPending && requestedAmountCents >= 200000;
 
-  factory WithdrawalItem.fromJson(Map<String, dynamic> json) {
-    return WithdrawalItem(
-      id: json['_id']?.toString() ?? '',
-      trainerId: json['trainerId']?.toString() ?? '',
-      requestedAmountCents: (json['requestedAmountCents'] as num?)?.toInt() ?? 0,
-      status: json['status']?.toString() ?? 'pending',
-      withdrawalMethod: json['withdrawalMethod']?.toString() ?? '',
-      paymentEmail: json['paymentEmail']?.toString() ?? '',
-      additionalNote: json['additionalNote']?.toString(),
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
-          : DateTime.now(),
-    );
-  }
+  factory WithdrawalItem.fromJson(Map<String, dynamic> json) => WithdrawalItem(
+        id: json['_id']?.toString() ?? '',
+        trainerId: json['trainerId']?.toString() ?? '',
+        requestedAmountCents:
+            (json['requestedAmountCents'] as num?)?.toInt() ?? 0,
+        status: json['status']?.toString() ?? 'pending',
+        withdrawalMethod: json['withdrawalMethod']?.toString() ?? '',
+        paymentEmail: json['paymentEmail']?.toString() ?? '',
+        additionalNote: json['additionalNote']?.toString(),
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+      );
 }
 
-// ─── Controller ────────────────────────────────────────────────────────────
+// ─── Controller ─────────────────────────────────────────────────────────────
 
 class AdminDashboardController extends GetxController {
   static AdminDashboardController get to => Get.find();
@@ -92,10 +185,9 @@ class AdminDashboardController extends GetxController {
     receiveTimeout: const Duration(seconds: 15),
   ));
 
-  // ─── State ───────────────────────────────────────────────────────────────
   final _metricsLoading = false.obs;
   final _withdrawalsLoading = false.obs;
-  final _actionLoading = ''.obs; // holds id of withdrawal being processed
+  final _actionLoading = ''.obs;
 
   bool get metricsLoading => _metricsLoading.value;
   bool get withdrawalsLoading => _withdrawalsLoading.value;
@@ -107,8 +199,6 @@ class AdminDashboardController extends GetxController {
 
   AdminMetrics? get metrics => _metrics.value;
   List<WithdrawalItem> get withdrawals => _withdrawals;
-  List<WithdrawalItem> get pendingLarge =>
-      _withdrawals.where((w) => w.requiresApproval).toList();
   String get error => _error.value;
 
   @override
@@ -127,9 +217,8 @@ class AdminDashboardController extends GetxController {
     try {
       final resp = await _dio.get('/api/v1/admin/metrics');
       if (resp.data['success'] == true) {
-        _metrics.value = AdminMetrics.fromJson(
-          resp.data['data'] as Map<String, dynamic>,
-        );
+        _metrics.value =
+            AdminMetrics.fromJson(resp.data['data'] as Map<String, dynamic>);
       }
     } catch (e) {
       _error.value = 'Could not load metrics';
@@ -160,7 +249,7 @@ class AdminDashboardController extends GetxController {
     try {
       await _dio.patch('/api/v1/withdrawal/$id/approve');
       _withdrawals.removeWhere((w) => w.id == id);
-      Get.snackbar('✅ Approved', 'Withdrawal approved successfully.',
+      Get.snackbar('✅ Approved', 'Withdrawal approved.',
           snackPosition: SnackPosition.BOTTOM);
     } catch (_) {
       Get.snackbar('Error', 'Could not approve withdrawal.',
@@ -176,7 +265,7 @@ class AdminDashboardController extends GetxController {
       await _dio.patch('/api/v1/withdrawal/$id/reject',
           data: {'adminNote': 'Rejected by admin'});
       _withdrawals.removeWhere((w) => w.id == id);
-      Get.snackbar('❌ Rejected', 'Withdrawal has been rejected.',
+      Get.snackbar('❌ Rejected', 'Withdrawal rejected.',
           snackPosition: SnackPosition.BOTTOM);
     } catch (_) {
       Get.snackbar('Error', 'Could not reject withdrawal.',
