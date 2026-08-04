@@ -133,7 +133,9 @@ class ReelVideoSlot {
       if (autoPlay) {
         await videoController.play();
       } else {
-        await videoController.seekTo(Duration.zero);
+        // Do NOT seekTo(zero) on neighbors — that triggers an unnecessary
+        // network read on the native layer. Just pause; position is already
+        // at the start for a freshly initialized controller.
         await videoController.pause();
       }
     } catch (e) {
@@ -170,7 +172,6 @@ class ReelVideoSlot {
           if (autoPlay) {
             await videoController.play();
           } else {
-            await videoController.seekTo(Duration.zero);
             await videoController.pause();
           }
         } catch (retryError) {

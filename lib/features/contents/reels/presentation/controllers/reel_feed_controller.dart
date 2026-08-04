@@ -21,8 +21,8 @@ class ReelFeedController {
     required ContentService service,
     required ConnectivityService connectivityService,
     required ReelFeedFetchPage fetchPage,
-    this.pageSize = 10,
-    this.paginationThreshold = 2,
+    this.pageSize = 20,       // larger pages mean fewer API round-trips
+    this.paginationThreshold = 5, // load more earlier to cover preload window
   })  : _service = service,
         _connectivityService = connectivityService,
         _fetchPage = fetchPage;

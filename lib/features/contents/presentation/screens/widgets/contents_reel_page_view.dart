@@ -90,7 +90,7 @@ class _ContentsReelPageViewState extends State<ContentsReelPageView> {
       child: PreloadPageView.builder(
         controller: controller.pageController,
         scrollDirection: Axis.vertical,
-        preloadPagesCount: 2,
+        preloadPagesCount: 3,
         physics: const AlwaysScrollableScrollPhysics(
           parent: PageScrollPhysics(),
         ),

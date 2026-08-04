@@ -11,7 +11,8 @@ class ReelPlayerManager {
 
   VoidCallback? onUpdated;
 
-  static const _slotCount = 3;
+  // 5-slot pool: current + 2 forward + 1 backward + 1 reserve for fast swipes
+  static const _slotCount = 5;
 
   final Map<int, ReelVideoSlot> _slots = {};
   final List<ReelVideoSlot> _free = [];
@@ -51,6 +52,7 @@ class ReelPlayerManager {
       center,
       if (center > 0) center - 1,
       if (center + 1 < contents.length) center + 1,
+      if (center + 2 < contents.length) center + 2, // 2-ahead look-ahead slot
     };
 
     for (final key in _slots.keys.where((i) => !keep.contains(i)).toList()) {
@@ -70,15 +72,9 @@ class ReelPlayerManager {
     );
     if (op != _operationId) return;
 
-    await _ensureCenterReady(
-      center: center,
-      content: contents[center],
-      playActive: playActive,
-      operationId: op,
-    );
-    if (op != _operationId) return;
-    _notify();
-
+    // Kick off neighbor preloads IMMEDIATELY — in parallel with center
+    // initialization. Neighbors load from disk cache or network concurrently
+    // so they are ready before the user swipes to them.
     unawaited(
       _preloadNeighbors(
         center: center,
@@ -87,6 +83,15 @@ class ReelPlayerManager {
         prioritizeNext: prioritizeNextPreload,
       ),
     );
+
+    await _ensureCenterReady(
+      center: center,
+      content: contents[center],
+      playActive: playActive,
+      operationId: op,
+    );
+    if (op != _operationId) return;
+    _notify();
 
     if (op != _operationId) return;
 
@@ -138,33 +143,25 @@ class ReelPlayerManager {
   }) async {
     if (operationId != _operationId) return;
 
-    final activeSlot = _slots[center];
-    if (activeSlot == null || !activeSlot.isReady) return;
+    // NOTE: no center-ready guard here — neighbors load concurrently with
+    // center so they are already buffered when the user swipes.
 
-    Future<void> preloadNext() async {
-      if (operationId != _operationId || center + 1 >= contents.length) return;
-      await _load(
-        center + 1,
-        contents[center + 1],
-        operationId: operationId,
-        isCenter: false,
-      );
-    }
-
-    Future<void> preloadPrev() async {
-      if (operationId != _operationId || center <= 0) return;
-      await _load(
-        center - 1,
-        contents[center - 1],
-        operationId: operationId,
-        isCenter: false,
-      );
+    Future<void> preloadAt(int idx) async {
+      if (operationId != _operationId || idx < 0 || idx >= contents.length) {
+        return;
+      }
+      await _load(idx, contents[idx], operationId: operationId, isCenter: false);
     }
 
     if (prioritizeNext) {
-      await preloadNext();
+      // Swipe-forward hint: next → next+1 → prev
+      await preloadAt(center + 1);
+      await Future.wait([preloadAt(center + 2), preloadAt(center - 1)]);
     } else {
-      await Future.wait([preloadNext(), preloadPrev()]);
+      // Default: next and prev concurrently, then next+1 look-ahead
+      await Future.wait([preloadAt(center + 1), preloadAt(center - 1)]);
+      if (operationId != _operationId) return;
+      await preloadAt(center + 2);
     }
   }
 
