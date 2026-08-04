@@ -95,8 +95,9 @@ workflows:
               except urllib.error.HTTPError as e:
                   return {"_error": e.code, "_body": e.read().decode()[:300]}
 
-          certs = api("GET", "/certificates?filter[certificateType]=IOS_DISTRIBUTION&limit=200")
-          dist = [c for c in certs.get("data",[]) if c.get("attributes",{}).get("certificateType") == "IOS_DISTRIBUTION"]
+          # Fetch ALL certs — Apple uses "DISTRIBUTION" not "IOS_DISTRIBUTION"
+          certs = api("GET", "/certificates?limit=200")
+          dist = [c for c in certs.get("data",[]) if "DISTRIBUTION" in c.get("attributes",{}).get("certificateType","")]
           print(f"Found {len(dist)} Distribution cert(s) — revoking all")
           for c in dist:
               r = api("DELETE", f"/certificates/{c['id']}")
