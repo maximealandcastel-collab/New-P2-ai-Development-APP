@@ -12,12 +12,16 @@ class BottomNavBarController extends GetxController {
   RxInt get selectedIndexRx => _selectedIndex;
 
   List<NavItemModel> get navItems {
-    final base = LoginController.to.isTrainer()
-        ? NavItemModel.trainerNavItems
-        : NavItemModel.userNavItems;
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
-    return isAdmin ? [...base, NavItemModel.adminNavItem] : base;
+    // Admin PIN bypasses role — always show trainer nav so Home lands on
+    // TrainerHomeScreen (client stats + sessions), with Admin tab appended.
+    if (isAdmin) {
+      return [...NavItemModel.trainerNavItems, NavItemModel.adminNavItem];
+    }
+    return LoginController.to.isTrainer()
+        ? NavItemModel.trainerNavItems
+        : NavItemModel.userNavItems;
   }
 
   List<NavFabModel> get fabItems =>
