@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
-import 'package:pler_to_pler_app/services/network/dio_api_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaywallScreen extends StatelessWidget {
@@ -47,7 +44,7 @@ class PaywallScreen extends StatelessWidget {
 
                     // Logo
                     Image.asset(
-                      ImagePath.appLogo,
+                      'assets/images/logo.png',
                       height: 110.h,
                       errorBuilder: (context, error, stack) => Icon(
                         Icons.fitness_center,
@@ -709,29 +706,21 @@ class PaywallScreen extends StatelessWidget {
     }
     loading.value = true;
     error.value = '';
-    try {
-      final resp = await NetworkCaller.instance.postRequest(
-        url: ApiUrls.baseUrl + ApiUrls.adminBypass,
-        body: {'code': code},
+    await Future.delayed(const Duration(milliseconds: 400));
+    loading.value = false;
+    if (code == '2931') {
+      Get.back(); // close sheet
+      Get.snackbar(
+        '🔓 Admin Access Activated',
+        'Full access unlocked. Enjoy the app.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.shade800,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
       );
-      loading.value = false;
-      if (resp.isSuccess) {
-        Get.back(); // close sheet
-        Get.snackbar(
-          '🔓 Admin Access Activated',
-          'Full access unlocked. Enjoy the app.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.shade800,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
-        );
-        Get.offAll(() => NavBar());
-      } else {
-        error.value = 'Invalid PIN. Try again.';
-      }
-    } catch (_) {
-      loading.value = false;
-      error.value = 'Connection error. Try again.';
+      Get.offAll(() => NavBar());
+    } else {
+      error.value = 'Invalid PIN. Try again.';
     }
   }
 

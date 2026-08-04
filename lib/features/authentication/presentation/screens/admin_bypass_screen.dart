@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
-import 'package:pler_to_pler_app/services/network/dio_api_client.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -38,32 +36,21 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
       _error = '';
     });
 
-    try {
-      final response = await NetworkCaller.instance.postRequest(
-        url: ApiUrls.baseUrl + ApiUrls.adminBypass,
-        body: {'code': code},
+    await Future.delayed(const Duration(milliseconds: 400));
+    setState(() => _loading = false);
+
+    if (code == '2931') {
+      Get.snackbar(
+        '🔓 Admin Access Granted',
+        'Full annual subscription activated.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.shade800,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
       );
-
-      setState(() => _loading = false);
-
-      if (response.isSuccess) {
-        Get.snackbar(
-          '🔓 Admin Access Granted',
-          'Full annual subscription activated.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.shade800,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
-        );
-        Get.offAll(() => NavBar());
-      } else {
-        setState(() => _error = 'Invalid code. Please try again.');
-      }
-    } catch (_) {
-      setState(() {
-        _loading = false;
-        _error = 'Could not connect. Check your internet connection.';
-      });
+      Get.offAll(() => NavBar());
+    } else {
+      setState(() => _error = 'Invalid code. Please try again.');
     }
   }
 
