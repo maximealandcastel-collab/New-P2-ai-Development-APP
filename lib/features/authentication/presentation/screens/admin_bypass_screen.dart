@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -40,6 +42,14 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
     setState(() => _loading = false);
 
     if (code == '2931') {
+      // Activate admin mode — registers service + controller if not already up
+      if (!Get.isRegistered<AdminModeService>()) {
+        Get.put(AdminModeService(), permanent: true);
+      }
+      AdminModeService.to.activate();
+      if (!Get.isRegistered<AdminDashboardController>()) {
+        Get.put(AdminDashboardController());
+      }
       Get.snackbar(
         '🔓 Admin Access Granted',
         'Full annual subscription activated.',

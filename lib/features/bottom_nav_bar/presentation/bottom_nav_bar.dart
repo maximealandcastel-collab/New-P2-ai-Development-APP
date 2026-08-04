@@ -10,16 +10,17 @@ class BottomNavBarMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = BottomNavBarController.to;
-    return Scaffold(
-      extendBody: true,
-      backgroundColor:  AppColors.backgroundLight,
-      body: Obx(
-        () => IndexedStack(
+    return Obx(() {
+      final items = controller.navItems;
+      return Scaffold(
+        extendBody: true,
+        backgroundColor: AppColors.backgroundLight,
+        body: IndexedStack(
           index: controller.selectedIndex,
-          children: controller.navItems.map((e) => e.screen).toList(),
+          children: items.map((e) => e.screen).toList(),
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(navItems: controller.navItems),
-    );
+        bottomNavigationBar: BottomNavBar(navItems: items),
+      );
+    });
   }
 }

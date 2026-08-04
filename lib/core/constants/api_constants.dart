@@ -73,6 +73,12 @@ class ApiConstants {
   static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
 
   /// CONTENT ──────────────────────────────────────────────
+  /// ADMIN ──────────────────────────────────────────────────────────────────
+  static const String adminMetrics = '/api/v1/admin/metrics';
+  static const String adminWithdrawals = '/api/v1/withdrawal/admin/all';
+  static String approveWithdrawal(String id) => '/api/v1/withdrawal/$id/approve';
+  static String rejectWithdrawal(String id) => '/api/v1/withdrawal/$id/reject';
+
   static const String myContent = '/api/v1/content/my-content';
   static const String content = '/api/v1/content/content';
   static String contentById(String contentId) => '/api/v1/content/content/$contentId';

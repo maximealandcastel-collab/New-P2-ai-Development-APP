@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:pler_to_pler_app/features/home/trainer_home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
@@ -41,6 +42,12 @@ class NavItemModel {
       screen: const RequestScreen(),
     ),
   ];
+
+  static NavItemModel get adminNavItem => NavItemModel(
+        label: 'Admin',
+        icon: Assets.icons.star.path,
+        screen: const AdminDashboardScreen(),
+      );
 
   static List<NavItemModel> userNavItems = [
     NavItemModel(

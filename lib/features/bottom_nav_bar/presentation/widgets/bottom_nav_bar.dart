@@ -62,6 +62,8 @@ class BottomNavBar extends StatelessWidget {
                 ),
                 _buildNavTapTarget(controller, 2, navItems[2]),
                 _buildNavTapTarget(controller, 3, navItems[3]),
+                if (navItems.length > 4)
+                  _buildNavTapTarget(controller, 4, navItems[4]),
               ],
             ),
           ),
