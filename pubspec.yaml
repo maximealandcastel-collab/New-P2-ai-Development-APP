@@ -92,6 +92,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/clinical/
     - assets/icons/
     - assets/lotties/
     - shorebird.yaml

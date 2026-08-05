@@ -31,6 +31,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/screens/re
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
+import 'package:pler_to_pler_app/features/smarter_care/presentation/screens/smarter_care_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
@@ -131,6 +132,7 @@ class AppRoute {
   static String notificationsScreen = "/notificationsScreen";
   static String privacyPolicyScreen = "/privacyPolicyScreen";
   static String adminSupportScreen = "/adminSupportScreen";
+  static String smarterCareScreen = "/smarterCareScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -368,6 +370,10 @@ class AppRoute {
     ),    GetPage(
       name: adminSupportScreen,
       page: () => const AdminSupportScreen(),
+    ),
+    GetPage(
+      name: smarterCareScreen,
+      page: () => const SmarterCareScreen(),
     ),
   ];
 }

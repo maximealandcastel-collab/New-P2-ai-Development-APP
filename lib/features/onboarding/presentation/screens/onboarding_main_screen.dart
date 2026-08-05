@@ -102,7 +102,7 @@ class OnboardingMainScreen extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 log("Skip");
-                Get.offAllNamed(AppRoute.loginScreen);
+                Get.offAllNamed(AppRoute.smarterCareScreen);
               },
               child: CustomText(
                 text: "Skip",
