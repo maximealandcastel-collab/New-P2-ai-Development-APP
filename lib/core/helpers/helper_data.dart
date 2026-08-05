@@ -11,8 +11,8 @@ class HelperData {
     return "$feet'$inches\" ($cm cm)";
   });
 
-  static final List<String> weightOptions = List.generate(66, (index) {
-    return '${35 + index} kg';
+  static final List<String> weightOptions = List.generate(321, (index) {
+    return '${80 + index} lb';
   });
 
   static const List<String> fitnessLevelOptions = [

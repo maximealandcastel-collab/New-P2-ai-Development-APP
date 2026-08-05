@@ -31,7 +31,7 @@ class PhysicalInfoPage extends StatelessWidget {
         ),
         MenuDropdownField(
           labelText: 'Weight',
-          hintText: 'Eg : 64 kg',
+          hintText: 'Eg : 150 lb',
           controller: controller.weightController,
           options: HelperData.weightOptions,
           validator: (value) {
