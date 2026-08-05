@@ -168,20 +168,13 @@ class _ChoiceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // P2P logo icon placeholder
-            Container(
-              width: 52.w,
-              height: 52.w,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              child: Center(
-                child: Icon(
-                  isComingSoon ? Icons.medical_services_outlined : Icons.fitness_center,
-                  color: AppColors.primary,
-                  size: 26.sp,
-                ),
+            // P2P logo
+            SizedBox(
+              width: 56.w,
+              height: 56.w,
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
               ),
             ),
             SizedBox(height: 12.h),
