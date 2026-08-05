@@ -87,7 +87,7 @@ class ApiConstants {
   static const String myContent = '/api/v1/content/my-content';
   static const String content = '/api/v1/content/content';
   static String contentById(String contentId) => '/api/v1/content/content/$contentId';
-  static const String defaultContent = '/api/v1/default-content';
+  static const String defaultContent = '/api/v1/content/feed';
   static String defaultContentById(String contentId) => '/api/v1/default-content/$contentId';
 
   /// WORKOUT ──────────────────────────────────────────────

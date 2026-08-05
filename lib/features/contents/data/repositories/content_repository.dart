@@ -55,15 +55,18 @@ class ContentRepository {
     try {
       final response = await _apiService.get(
         ApiConstants.defaultContent,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-          if (search != null && search.isNotEmpty) 'search': search,
-        },
+        // /api/v1/content/feed does not support pagination or search
+        // but we keep the signature consistent with the rest of the codebase.
       );
 
-      return (response.data['data'] as List)
-          .map((item) => ContentModel.fromJson(item))
+      // The feed response shape: { data: { community: [...], trainer: [...] } }
+      final data = response.data['data'];
+      final community = (data['community'] as List? ?? []);
+      final trainer   = (data['trainer']   as List? ?? []);
+      final merged    = [...community, ...trainer];
+
+      return merged
+          .map((item) => ContentModel.fromJson(item as Map<String, dynamic>))
           .toList();
     } on AppException {
       rethrow;
