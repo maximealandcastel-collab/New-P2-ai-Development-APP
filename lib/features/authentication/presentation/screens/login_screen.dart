@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/auth_switch_link.dart';
+import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -86,15 +89,217 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 18.h),
               AuthSwitchLink(
-                prompt: 'Don’t have an account? ',
+                prompt: 'Don't have an account? ',
                 actionLabel: 'Sign up',
                 onTap: () => Get.toNamed(AppRoute.signUpScreen),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 24.h),
+
+              // ── Partner / Affiliate login ──────────────────────────
+              GestureDetector(
+                onTap: () => _showPartnerLogin(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.handshake_outlined,
+                      size: 14.sp,
+                      color: Colors.grey.shade400,
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      'Partner / Affiliate Login',
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24.h),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showPartnerLogin(BuildContext context) {
+    final codeController = TextEditingController();
+    final loading = false.obs;
+    final error = ''.obs;
+
+    Get.bottomSheet(
+      Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 32.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.h,
+                  margin: EdgeInsets.only(bottom: 16.h),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(99.r),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Icon(Icons.handshake_outlined,
+                      color: AppColors.primary, size: 20.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Partner Login',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Icon(Icons.close,
+                        size: 20.sp, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                'Enter your partner code to access your earnings dashboard.',
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 13.sp,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              TextField(
+                controller: codeController,
+                keyboardType: TextInputType.text,
+                textCapitalization: TextCapitalization.characters,
+                obscureText: true,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20.sp, letterSpacing: 6),
+                decoration: InputDecoration(
+                  hintText: '• • • • •',
+                  hintStyle: TextStyle(
+                    fontSize: 18.sp,
+                    letterSpacing: 6,
+                    color: Colors.grey.shade400,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w, vertical: 16.h),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide:
+                        BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                ),
+              ),
+              Obx(() => error.value.isNotEmpty
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 8.h),
+                      child: Text(
+                        error.value,
+                        style: TextStyle(
+                            color: Colors.red.shade400, fontSize: 12.sp),
+                      ),
+                    )
+                  : const SizedBox.shrink()),
+              SizedBox(height: 20.h),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: loading.value
+                          ? null
+                          : () async {
+                              final code =
+                                  codeController.text.trim().toUpperCase();
+                              if (code.isEmpty) {
+                                error.value = 'Please enter your partner code';
+                                return;
+                              }
+                              loading.value = true;
+                              error.value = '';
+                              await Future.delayed(
+                                  const Duration(milliseconds: 350));
+                              loading.value = false;
+
+                              if (code == 'SAMIR') {
+                                if (!Get.isRegistered<AffiliateModeService>()) {
+                                  Get.put(AffiliateModeService(), permanent: true);
+                                }
+                                AffiliateModeService.to.activate(code);
+                                if (!Get.isRegistered<AffiliateDashboardController>()) {
+                                  Get.put(AffiliateDashboardController(
+                                      promoCode: code));
+                                }
+                                Get.back(); // close sheet
+                                Get.snackbar(
+                                  '💰 Partner Access Activated',
+                                  'Welcome Samir! Your earnings dashboard is ready.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: const Color(0xFF1A1A2E),
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                );
+                                Get.offAll(() => NavBar());
+                              } else {
+                                error.value = 'Invalid partner code.';
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: loading.value
+                          ? SizedBox(
+                              width: 22.w,
+                              height: 22.h,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Access Dashboard',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  )),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
     );
   }
 }
