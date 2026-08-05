@@ -144,7 +144,7 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          flutter build ipa --release --build-name=2.0.1 --build-number=49
+          flutter build ipa --release --build-name=2.1.0 --build-number=50
 
     artifacts:
       - build/ios/ipa/*.ipa
