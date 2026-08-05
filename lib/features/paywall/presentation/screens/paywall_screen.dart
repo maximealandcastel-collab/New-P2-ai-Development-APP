@@ -720,8 +720,8 @@ class PaywallScreen extends StatelessWidget {
       }
       Get.back(); // close sheet
       Get.snackbar(
-        '🔓 Admin Access Activated',
-        'Full access unlocked. Enjoy the app.',
+        '🔓 Founders Access Activated',
+        'Full Founders Access — lifetime admin privileges activated.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.shade800,
         colorText: Colors.white,

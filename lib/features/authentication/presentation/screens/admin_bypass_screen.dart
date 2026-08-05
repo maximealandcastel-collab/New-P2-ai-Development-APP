@@ -51,8 +51,8 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
         Get.put(AdminDashboardController());
       }
       Get.snackbar(
-        '🔓 Admin Access Granted',
-        'Full annual subscription activated.',
+        '🔓 Founders Access Granted',
+        'Full Founders Access — lifetime admin privileges activated.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.shade800,
         colorText: Colors.white,
