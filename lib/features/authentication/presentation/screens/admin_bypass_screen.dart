@@ -61,7 +61,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
         duration: const Duration(seconds: 3),
       );
       Get.offAll(() => NavBar());
-    } else if (code.toUpperCase() == 'SAMIR') {
+    } else if (code.toUpperCase() == '67') {
       // Activate affiliate / partner mode
       if (!Get.isRegistered<AffiliateModeService>()) {
         Get.put(AffiliateModeService(), permanent: true);

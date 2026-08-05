@@ -730,7 +730,7 @@ class PaywallScreen extends StatelessWidget {
         duration: const Duration(seconds: 3),
       );
       Get.offAll(() => NavBar());
-    } else if (code.toUpperCase() == 'SAMIR') {
+    } else if (code.toUpperCase() == '67') {
       if (!Get.isRegistered<AffiliateModeService>()) {
         Get.put(AffiliateModeService(), permanent: true);
       }

@@ -247,7 +247,7 @@ class LoginScreen extends StatelessWidget {
                                   const Duration(milliseconds: 350));
                               loading.value = false;
 
-                              if (code == 'SAMIR') {
+                              if (code == '67') {
                                 if (!Get.isRegistered<AffiliateModeService>()) {
                                   Get.put(AffiliateModeService(), permanent: true);
                                 }
