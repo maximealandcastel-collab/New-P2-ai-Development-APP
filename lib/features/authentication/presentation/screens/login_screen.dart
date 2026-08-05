@@ -89,7 +89,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 18.h),
               AuthSwitchLink(
-                prompt: 'Don't have an account? ',
+                prompt: "Don't have an account? ",
                 actionLabel: 'Sign up',
                 onTap: () => Get.toNamed(AppRoute.signUpScreen),
               ),
