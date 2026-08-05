@@ -180,10 +180,13 @@ class AdminUserModel {
   final String lastName;
   final String role;
   final bool isVerified;
+  final bool isSuspended;
   final String subscriptionTier;
   final DateTime? subscriptionEndDate;
   final DateTime createdAt;
   final String? referredByCode;
+  final String? profilePicture;
+  final String? phoneNumber;
 
   AdminUserModel({
     required this.id,
@@ -192,13 +195,34 @@ class AdminUserModel {
     required this.lastName,
     required this.role,
     required this.isVerified,
+    required this.isSuspended,
     required this.subscriptionTier,
     this.subscriptionEndDate,
     required this.createdAt,
     this.referredByCode,
+    this.profilePicture,
+    this.phoneNumber,
   });
 
   String get fullName => '$firstName $lastName'.trim();
+  bool get hasActiveSub =>
+      subscriptionEndDate != null &&
+      subscriptionEndDate!.isAfter(DateTime.now()) &&
+      subscriptionTier != 'free';
+
+  AdminUserModel copyWith({
+    String? role, bool? isVerified, bool? isSuspended, String? subscriptionTier,
+    DateTime? subscriptionEndDate,
+  }) => AdminUserModel(
+    id: id, email: email, firstName: firstName, lastName: lastName,
+    role: role ?? this.role,
+    isVerified: isVerified ?? this.isVerified,
+    isSuspended: isSuspended ?? this.isSuspended,
+    subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+    subscriptionEndDate: subscriptionEndDate ?? this.subscriptionEndDate,
+    createdAt: createdAt, referredByCode: referredByCode,
+    profilePicture: profilePicture, phoneNumber: phoneNumber,
+  );
 
   factory AdminUserModel.fromJson(Map<String, dynamic> j) => AdminUserModel(
         id: j['_id']?.toString() ?? '',
@@ -207,6 +231,7 @@ class AdminUserModel {
         lastName: j['lastName']?.toString() ?? '',
         role: j['role']?.toString() ?? 'user',
         isVerified: j['isVerified'] == true,
+        isSuspended: j['isDeleted'] == true,
         subscriptionTier: j['subscriptionTier']?.toString() ?? 'free',
         subscriptionEndDate: j['subscriptionEndDate'] != null
             ? DateTime.tryParse(j['subscriptionEndDate'].toString())
@@ -215,6 +240,8 @@ class AdminUserModel {
             ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
             : DateTime.now(),
         referredByCode: j['referredByCode']?.toString(),
+        profilePicture: j['profilePicture']?.toString(),
+        phoneNumber: j['phoneNumber']?.toString(),
       );
 }
 
@@ -373,18 +400,32 @@ class AdminDashboardController extends GetxController {
   Future<void> setRole(String userId, String role) async {
     try {
       await _dio.patch('/api/v1/admin/users/$userId/role', data: {'role': role});
-      final idx = _filteredUsers.indexWhere((u) => u.id == userId);
-      if (idx >= 0) {
-        final u = _filteredUsers[idx];
-        _filteredUsers[idx] = AdminUserModel(
-          id: u.id, email: u.email, firstName: u.firstName,
-          lastName: u.lastName, role: role, isVerified: u.isVerified,
-          subscriptionTier: u.subscriptionTier,
-          subscriptionEndDate: u.subscriptionEndDate,
-          createdAt: u.createdAt, referredByCode: u.referredByCode,
-        );
-      }
+      _updateUserInList(userId, (u) => u.copyWith(role: role));
       await fetchMetrics();
     } catch (_) {}
+  }
+
+  Future<void> suspendUser(String userId, bool suspend, {String reason = ''}) async {
+    try {
+      await _dio.patch('/api/v1/admin/users/$userId/suspend',
+          data: {'suspend': suspend, 'reason': reason});
+      _updateUserInList(userId, (u) => u.copyWith(isSuspended: suspend));
+      await fetchMetrics();
+    } catch (_) {}
+  }
+
+  Future<void> grantAccess(String userId, {String tier = 'annual', int days = 365}) async {
+    try {
+      await _dio.patch('/api/v1/admin/users/$userId/grant-access',
+          data: {'tier': tier, 'days': days});
+      final expiry = DateTime.now().add(Duration(days: days));
+      _updateUserInList(userId, (u) => u.copyWith(subscriptionTier: tier, subscriptionEndDate: expiry));
+      await fetchMetrics();
+    } catch (_) {}
+  }
+
+  void _updateUserInList(String userId, AdminUserModel Function(AdminUserModel) updater) {
+    final idx = _filteredUsers.indexWhere((u) => u.id == userId);
+    if (idx >= 0) _filteredUsers[idx] = updater(_filteredUsers[idx]);
   }
 }

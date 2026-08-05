@@ -10,7 +10,9 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = AdminDashboardController.to;
+    final c = Get.isRegistered<AdminDashboardController>()
+        ? AdminDashboardController.to
+        : Get.put(AdminDashboardController());
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,

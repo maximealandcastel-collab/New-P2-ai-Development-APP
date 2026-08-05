@@ -80,6 +80,11 @@ class ApiConstants {
 
   /// ADMIN ──────────────────────────────────────────────────────────────────
   static const String adminMetrics = '/api/v1/admin/metrics';
+  static const String adminUsers = '/api/v1/admin/users';
+  static String adminUserVerify(String id)  => '/api/v1/admin/users/$id/verify';
+  static String adminUserRole(String id)    => '/api/v1/admin/users/$id/role';
+  static String adminUserSuspend(String id) => '/api/v1/admin/users/$id/suspend';
+  static String adminUserGrant(String id)   => '/api/v1/admin/users/$id/grant-access';
   static const String adminWithdrawals = '/api/v1/withdrawal/admin/all';
   static String approveWithdrawal(String id) => '/api/v1/withdrawal/$id/approve';
   static String rejectWithdrawal(String id) => '/api/v1/withdrawal/$id/reject';

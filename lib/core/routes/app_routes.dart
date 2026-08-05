@@ -31,6 +31,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/screens/re
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
+import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/screens/admin_user_list_screen.dart';
 import 'package:pler_to_pler_app/features/smarter_care/presentation/screens/smarter_care_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
@@ -380,6 +381,11 @@ class AppRoute {
     GetPage(
       name: adminUserListScreen,
       page: () => const AdminUserListScreen(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<AdminDashboardController>()) {
+          Get.put(AdminDashboardController());
+        }
+      }),
     ),
   ];
 }
