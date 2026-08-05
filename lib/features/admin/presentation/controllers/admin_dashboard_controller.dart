@@ -382,17 +382,7 @@ class AdminDashboardController extends GetxController {
     try {
       await _dio.patch('/api/v1/admin/users/$userId/verify',
           data: {'isVerified': isVerified});
-      final idx = _filteredUsers.indexWhere((u) => u.id == userId);
-      if (idx >= 0) {
-        final u = _filteredUsers[idx];
-        _filteredUsers[idx] = AdminUserModel(
-          id: u.id, email: u.email, firstName: u.firstName,
-          lastName: u.lastName, role: u.role, isVerified: isVerified,
-          subscriptionTier: u.subscriptionTier,
-          subscriptionEndDate: u.subscriptionEndDate,
-          createdAt: u.createdAt, referredByCode: u.referredByCode,
-        );
-      }
+      _updateUserInList(userId, (u) => u.copyWith(isVerified: isVerified));
       await fetchMetrics();
     } catch (_) {}
   }
