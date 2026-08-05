@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 
@@ -111,48 +112,64 @@ class AdminDashboardScreen extends StatelessWidget {
                             value: m.overview.totalUsers.toString(),
                             icon: Icons.people_rounded,
                             color: const Color(0xFF4F46E5),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'all', 'title': 'All Users'}),
                           ),
                           _StatCard(
                             label: 'Today Signups',
                             value: m.overview.todaySignups.toString(),
                             icon: Icons.person_add_rounded,
                             color: const Color(0xFF059669),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'today', 'title': "Today's Signups"}),
                           ),
                           _StatCard(
                             label: 'This Week',
                             value: m.overview.weekSignups.toString(),
                             icon: Icons.trending_up_rounded,
                             color: const Color(0xFF0284C7),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'week', 'title': 'This Week'}),
                           ),
                           _StatCard(
                             label: 'This Month',
                             value: m.overview.monthSignups.toString(),
                             icon: Icons.calendar_month_rounded,
                             color: const Color(0xFF7C3AED),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'month', 'title': 'This Month'}),
                           ),
                           _StatCard(
                             label: 'Verified',
                             value: m.overview.verifiedUsers.toString(),
                             icon: Icons.verified_rounded,
                             color: const Color(0xFF059669),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'verified', 'title': 'Verified Users'}),
                           ),
                           _StatCard(
                             label: 'Unverified',
                             value: m.overview.unverifiedUsers.toString(),
                             icon: Icons.mark_email_unread_rounded,
                             color: const Color(0xFFD97706),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'unverified', 'title': 'Unverified Users'}),
                           ),
                           _StatCard(
                             label: 'Active Subs',
                             value: m.overview.activeSubscriptions.toString(),
                             icon: Icons.star_rounded,
                             color: const Color(0xFFF59E0B),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'active_subs', 'title': 'Active Subscribers'}),
                           ),
                           _StatCard(
                             label: 'Admin Bypass',
                             value: m.overview.adminBypassUsers.toString(),
                             icon: Icons.admin_panel_settings_rounded,
                             color: const Color(0xFFDC2626),
+                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+                                arguments: {'filter': 'admin_bypass', 'title': 'Admin Bypass Users'}),
                           ),
                         ],
                       ),
@@ -340,16 +357,20 @@ class _StatCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   const _StatCard(
       {required this.label,
       required this.value,
       required this.icon,
-      required this.color});
+      required this.color,
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -387,7 +408,7 @@ class _StatCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

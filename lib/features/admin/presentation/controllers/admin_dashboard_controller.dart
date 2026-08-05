@@ -171,6 +171,53 @@ class WithdrawalItem {
       );
 }
 
+// ─── AdminUserModel ──────────────────────────────────────────────────────────
+
+class AdminUserModel {
+  final String id;
+  final String email;
+  final String firstName;
+  final String lastName;
+  final String role;
+  final bool isVerified;
+  final String subscriptionTier;
+  final DateTime? subscriptionEndDate;
+  final DateTime createdAt;
+  final String? referredByCode;
+
+  AdminUserModel({
+    required this.id,
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.role,
+    required this.isVerified,
+    required this.subscriptionTier,
+    this.subscriptionEndDate,
+    required this.createdAt,
+    this.referredByCode,
+  });
+
+  String get fullName => '$firstName $lastName'.trim();
+
+  factory AdminUserModel.fromJson(Map<String, dynamic> j) => AdminUserModel(
+        id: j['_id']?.toString() ?? '',
+        email: j['email']?.toString() ?? '',
+        firstName: j['firstName']?.toString() ?? '',
+        lastName: j['lastName']?.toString() ?? '',
+        role: j['role']?.toString() ?? 'user',
+        isVerified: j['isVerified'] == true,
+        subscriptionTier: j['subscriptionTier']?.toString() ?? 'free',
+        subscriptionEndDate: j['subscriptionEndDate'] != null
+            ? DateTime.tryParse(j['subscriptionEndDate'].toString())
+            : null,
+        createdAt: j['createdAt'] != null
+            ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+        referredByCode: j['referredByCode']?.toString(),
+      );
+}
+
 // ─── Controller ─────────────────────────────────────────────────────────────
 
 class AdminDashboardController extends GetxController {
@@ -197,9 +244,16 @@ class AdminDashboardController extends GetxController {
   final _withdrawals = <WithdrawalItem>[].obs;
   final _error = ''.obs;
 
+  // Filtered user list (for drill-down screens)
+  final _filteredUsers = <AdminUserModel>[].obs;
+  final _filteredUsersLoading = false.obs;
+  final filterSearchQuery = ''.obs;
+
   AdminMetrics? get metrics => _metrics.value;
   List<WithdrawalItem> get withdrawals => _withdrawals;
   String get error => _error.value;
+  List<AdminUserModel> get filteredUsers => _filteredUsers;
+  bool get filteredUsersLoading => _filteredUsersLoading.value;
 
   @override
   void onInit() {
@@ -273,5 +327,64 @@ class AdminDashboardController extends GetxController {
     } finally {
       _actionLoading.value = '';
     }
+  }
+
+  Future<void> fetchFilteredUsers(String filter) async {
+    _filteredUsersLoading.value = true;
+    filterSearchQuery.value = '';
+    try {
+      final resp = await _dio.get(
+        '/api/v1/admin/users',
+        queryParameters: {'filter': filter, 'limit': 100},
+      );
+      if (resp.data['success'] == true) {
+        final list = (resp.data['data']['users'] as List? ?? [])
+            .map((e) => AdminUserModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+        _filteredUsers.assignAll(list);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Could not load users',
+          snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      _filteredUsersLoading.value = false;
+    }
+  }
+
+  Future<void> setVerified(String userId, bool isVerified) async {
+    try {
+      await _dio.patch('/api/v1/admin/users/$userId/verify',
+          data: {'isVerified': isVerified});
+      final idx = _filteredUsers.indexWhere((u) => u.id == userId);
+      if (idx >= 0) {
+        final u = _filteredUsers[idx];
+        _filteredUsers[idx] = AdminUserModel(
+          id: u.id, email: u.email, firstName: u.firstName,
+          lastName: u.lastName, role: u.role, isVerified: isVerified,
+          subscriptionTier: u.subscriptionTier,
+          subscriptionEndDate: u.subscriptionEndDate,
+          createdAt: u.createdAt, referredByCode: u.referredByCode,
+        );
+      }
+      await fetchMetrics();
+    } catch (_) {}
+  }
+
+  Future<void> setRole(String userId, String role) async {
+    try {
+      await _dio.patch('/api/v1/admin/users/$userId/role', data: {'role': role});
+      final idx = _filteredUsers.indexWhere((u) => u.id == userId);
+      if (idx >= 0) {
+        final u = _filteredUsers[idx];
+        _filteredUsers[idx] = AdminUserModel(
+          id: u.id, email: u.email, firstName: u.firstName,
+          lastName: u.lastName, role: role, isVerified: u.isVerified,
+          subscriptionTier: u.subscriptionTier,
+          subscriptionEndDate: u.subscriptionEndDate,
+          createdAt: u.createdAt, referredByCode: u.referredByCode,
+        );
+      }
+      await fetchMetrics();
+    } catch (_) {}
   }
 }
