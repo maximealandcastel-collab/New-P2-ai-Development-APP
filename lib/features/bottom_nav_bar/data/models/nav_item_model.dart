@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/screens/admin_dashboard_screen.dart';
+import 'package:pler_to_pler_app/features/affiliate/presentation/screens/affiliate_dashboard_screen.dart';
 import 'package:pler_to_pler_app/features/home/trainer_home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
@@ -47,6 +48,12 @@ class NavItemModel {
         label: 'Admin',
         icon: Assets.icons.star.path,
         screen: const AdminDashboardScreen(),
+      );
+
+  static NavItemModel get affiliateNavItem => NavItemModel(
+        label: 'Earnings',
+        icon: Assets.icons.star.path, // reuses star icon; swap if a wallet icon is available
+        screen: const AffiliateDashboardScreen(),
       );
 
   static List<NavItemModel> userNavItems = [

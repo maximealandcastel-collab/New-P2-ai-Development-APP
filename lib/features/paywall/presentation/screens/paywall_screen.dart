@@ -5,7 +5,9 @@ import 'package:pler_to_pler_app/widgets/custom_text.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
+import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -625,7 +627,7 @@ class PaywallScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               TextField(
                 controller: codeController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 obscureText: true,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 22.sp, letterSpacing: 8),
@@ -724,6 +726,24 @@ class PaywallScreen extends StatelessWidget {
         'Full Founders Access — lifetime admin privileges activated.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.shade800,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+      Get.offAll(() => NavBar());
+    } else if (code.toUpperCase() == 'SAMIR') {
+      if (!Get.isRegistered<AffiliateModeService>()) {
+        Get.put(AffiliateModeService(), permanent: true);
+      }
+      AffiliateModeService.to.activate(code);
+      if (!Get.isRegistered<AffiliateDashboardController>()) {
+        Get.put(AffiliateDashboardController(promoCode: code.toUpperCase()));
+      }
+      Get.back(); // close sheet
+      Get.snackbar(
+        '💰 Partner Access Activated',
+        'Welcome Samir! Your earnings dashboard is ready.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF1A1A2E),
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
       );

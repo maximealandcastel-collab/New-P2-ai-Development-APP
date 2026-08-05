@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
@@ -14,10 +15,16 @@ class BottomNavBarController extends GetxController {
   List<NavItemModel> get navItems {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
-    // Admin PIN bypasses role — always show trainer nav so Home lands on
-    // TrainerHomeScreen (client stats + sessions), with Admin tab appended.
+    final isAffiliate = Get.isRegistered<AffiliateModeService>() &&
+        AffiliateModeService.to.isAffiliate;
+
+    // Admin PIN: always show trainer nav + Admin tab at end.
     if (isAdmin) {
       return [...NavItemModel.trainerNavItems, NavItemModel.adminNavItem];
+    }
+    // Affiliate (partner) mode: full user nav + Earnings tab at end.
+    if (isAffiliate) {
+      return [...NavItemModel.userNavItems, NavItemModel.affiliateNavItem];
     }
     return LoginController.to.isTrainer()
         ? NavItemModel.trainerNavItems
