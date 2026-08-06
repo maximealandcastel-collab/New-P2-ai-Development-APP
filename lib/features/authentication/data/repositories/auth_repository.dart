@@ -27,18 +27,23 @@ class AuthRepository {
     required String gender,
     required String role,
     required String password,
+    String? referredByCode,
   }) async {
     try {
+      final body = <String, dynamic>{
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'password': password,
+        'gender': gender,
+        'role': role,
+      };
+      if (referredByCode != null && referredByCode.isNotEmpty) {
+        body['referredByCode'] = referredByCode.toUpperCase();
+      }
       final response = await _apiService.post(
         ApiConstants.register,
-        data: {
-          'firstName': firstName,
-          'lastName': lastName,
-          'email': email,
-          'password': password,
-          'gender': gender,
-          'role': role,
-        },
+        data: body,
       );
 
       final token = response.data?['data']['token'];

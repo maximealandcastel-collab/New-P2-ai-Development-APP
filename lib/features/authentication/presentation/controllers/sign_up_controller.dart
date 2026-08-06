@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
 
@@ -27,6 +28,8 @@ class SignUpController extends GetxController {
     text: kDebugMode ? '1qazxsw2' : '',
   );
   final confirmPasswordController = TextEditingController();
+  final referralCodeController = TextEditingController();
+  final showReferralField = false.obs;
 
   final registerFormKey = GlobalKey<FormState>();
 
@@ -48,6 +51,7 @@ class SignUpController extends GetxController {
 
     _registerState.value = LoadingState.loading;
     try {
+      final referral = referralCodeController.text.trim();
       await _authService.register(
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
@@ -55,7 +59,12 @@ class SignUpController extends GetxController {
         gender: genderController.text.trim().toLowerCase(),
         role: _selectedRole.value.toLowerCase(),
         password: confirmPasswordController.text,
+        referredByCode: referral.isNotEmpty ? referral : null,
       );
+      // Persist the referral code so the paywall can auto-apply 50% off
+      if (referral.isNotEmpty) {
+        await CacheService().put('pendingPromoCode', referral.toUpperCase());
+      }
       _registerState.value = LoadingState.loaded;
       Get.toNamed(
         AppRoute.phoneOtpWaitingScreen,
@@ -79,6 +88,7 @@ class SignUpController extends GetxController {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    referralCodeController.dispose();
     super.dispose();
   }
 }

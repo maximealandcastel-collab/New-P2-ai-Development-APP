@@ -112,6 +112,55 @@ class SignUpScreen extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 16.h),
+
+              // ── Referral / promo code ──────────────────────────────────
+              Obx(() => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => controller.showReferralField.toggle(),
+                    child: Row(
+                      children: [
+                        Icon(
+                          controller.showReferralField.value
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 20.sp,
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'Have a referral / promo code?',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (controller.showReferralField.value) ...[
+                    SizedBox(height: 10.h),
+                    CustomTextField(
+                      labelText: 'Referral Code',
+                      controller: controller.referralCodeController,
+                      hintText: 'e.g. SAMIR50',
+                      prefixIcon: Icon(Icons.card_giftcard, size: 24.sp),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      '✓ A valid code gives you 50% off your first subscription.',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
+              )),
+
               SizedBox(height: 24.h),
               Obx(() {
                 return CustomButton(
