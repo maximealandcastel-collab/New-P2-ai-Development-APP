@@ -8,6 +8,7 @@ class FindTrainerModel {
   List<String>? trainingStyleTags;
   SubscriptionPrice? subscriptionPrice;
   int? subscriberCount;
+  String? profileImage;
 
   FindTrainerModel({
     this.sId,
@@ -19,6 +20,7 @@ class FindTrainerModel {
     this.trainingStyleTags,
     this.subscriptionPrice,
     this.subscriberCount,
+    this.profileImage,
   });
 
   FindTrainerModel.fromJson(Map<String, dynamic> json) {
@@ -28,13 +30,14 @@ class FindTrainerModel {
         : null;
     name = json['name'];
     bio = json['bio'];
-    certifications = json['certifications'].cast<String>();
+    certifications = json['certifications']?.cast<String>();
     specialty = json['specialty'];
-    trainingStyleTags = json['trainingStyleTags'].cast<String>();
+    trainingStyleTags = json['trainingStyleTags']?.cast<String>();
     subscriptionPrice = json['subscriptionPrice'] != null
         ? SubscriptionPrice.fromJson(json['subscriptionPrice'])
         : null;
     subscriberCount = json['subscriberCount'];
+    profileImage = json['profileImage'];
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +55,7 @@ class FindTrainerModel {
       data['subscriptionPrice'] = subscriptionPrice!.toJson();
     }
     data['subscriberCount'] = subscriberCount;
+    data['profileImage'] = profileImage;
     return data;
   }
 }
@@ -71,8 +75,7 @@ class UserId {
     this.coverPicture,
   });
 
-
-   String get fullName => '$firstName $lastName';
+  String get fullName => '$firstName $lastName';
 
   UserId.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
