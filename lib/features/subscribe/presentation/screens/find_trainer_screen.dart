@@ -45,15 +45,22 @@ class FindTrainerScreen extends StatelessWidget {
                 onRefresh: controller.refresh,
               ).asFillRemainingSliver();
             case LoadingState.loaded:
-              return SliverList.separated(
-                itemCount: controller.trainers.length,
-                separatorBuilder: (_, _) => SizedBox(height: 10.h),
-                itemBuilder: (_, index) {
-                  return FindTrainerCard(
-                    trainer: controller.trainers[index],
-                  );
-                },
-              ).asPaddedSliver(horizontal: 16.h,
+              return SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.w,
+                    mainAxisSpacing: 10.h,
+                    childAspectRatio: 3 / 4.8,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, index) => FindTrainerCard(
+                      trainer: controller.trainers[index],
+                    ),
+                    childCount: controller.trainers.length,
+                  ),
+                ),
               );
           }
         }),
@@ -75,7 +82,8 @@ class FindTrainerScreen extends StatelessWidget {
                   model: trainer,
                   title: trainer.userId?.fullName,
                   image: trainer.userId?.profilePicture,
-                  subtitle: trainer.subscriptionPrice?.premium.toString(),
+                  subtitle:
+                      trainer.subscriptionPrice?.premium.toString(),
                 ),
               )
               .toList();
