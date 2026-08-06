@@ -73,10 +73,23 @@ class ApiConstants {
     static const String categoryCreate = '/api/v1/category/create';
     static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
 
+    /// CONTENT ──────────────────────────────────────────────
+    static const String myContent = '/api/v1/content/my-content';
+    static const String content = '/api/v1/content/content';
+    static String contentById(String id) => '/api/v1/content/content/$id';
+
+    /// DEFAULT CONTENT ──────────────────────────────────────────────
+    static const String defaultContent = '/api/v1/default-content';
+    static String defaultContentById(String id) => '/api/v1/default-content/$id';
+
     /// WORKOUT ──────────────────────────────────────────────
-    static const String workout = '/api/v1/workout';
-    static String workoutGenerate(String trainerId) =>
-        '/api/v1/workout/$trainerId/generate';
+    static const String workouts = '/api/v1/workout';
+    static const String workoutToday = '/api/v1/workout/today';
+    static const String workoutTodayOverview = '/api/v1/workout/today/overview';
+    static const String workoutProgressionMonthly = '/api/v1/workout/progression/monthly';
+    static String workoutById(String workoutId) => '/api/v1/workout/$workoutId';
+    static String workoutGenerate(String workoutId) =>
+        '/api/v1/workout/$workoutId/generate';
     static String workoutStart(String workoutId) =>
         '/api/v1/workout/$workoutId/start';
     static String workoutComplete(String workoutId, String exerciseId) =>
@@ -84,18 +97,13 @@ class ApiConstants {
     static String workoutExerciseComplete(String workoutId) =>
         '/api/v1/workout/$workoutId/complete';
 
-    /// AFFILIATE / PARTNER ────────────────────────────────────────────────────
+    /// AFFILIATE / PARTNER ─────────────────────────────────────────────────────
     static const String affiliateDashboard = '/api/v1/affiliate/dashboard';
     static const String affiliateReferrals = '/api/v1/affiliate/referrals';
     static const String affiliateWithdraw = '/api/v1/affiliate/withdraw';
 
     /// PROMO CODES ─────────────────────────────────────────────────────────────
-    /// POST body: { code } — validates a promo code and returns plan details.
-    /// Any non-empty code is accepted as a universal 50% off / 30-day free promo.
     static const String promoValidate = '/api/v1/promo/validate';
-
-    /// POST body: { code } — redeems a validated code and grants subscription
-    /// access directly (bypasses Apple IAP). Call after promoValidate succeeds.
     static const String promoRedeem = '/api/v1/promo/redeem';
 
     /// IAP ──────────────────────────────────────────────
@@ -106,7 +114,7 @@ class ApiConstants {
     static const String notificationsUnreadCount = '/api/v1/notification/unread-count';
     static const String notificationsReadAll = '/api/v1/notification/read-all';
 
-    /// PRIVACY / LEGAL ──────────────────────────────────────────────
+    /// PRIVACY / LEGAL ─────────────────────────────────────────────────────────
     static const String privacyPolicy = '/api/v1/privacy';
     static const String termsAndCondition = '/api/v1/terms';
     static const String aboutUs = '/api/v1/about';
@@ -124,7 +132,7 @@ class ApiConstants {
         '/api/v1/withdrawal/payments?page=$page&limit=$limit';
     static const String withdrawal = '/api/v1/withdrawal';
 
-    /// ANAM VIDEO CALL ──────────────────────────────────────────────
+    /// ANAM VIDEO CALL ─────────────────────────────────────────────────────────
     static const String anamUsage = '/api/v1/anam/usage';
     static const String anamSessionStart = '/api/v1/anam/session/start';
     static String anamSessionMessage(String dbSessionId) =>
