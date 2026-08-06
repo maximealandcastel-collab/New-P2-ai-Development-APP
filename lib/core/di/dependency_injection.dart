@@ -498,12 +498,12 @@ class DependencyInjection {
     try {
       Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
     } catch (e) {
-      debugPrint('[DI] BluetoothService init skipped: $e');
+      print('[DI] BluetoothService init skipped: $e');
     }
     try {
       Get.put<AppleWatchService>(AppleWatchService(), permanent: true);
     } catch (e) {
-      debugPrint('[DI] AppleWatchService init skipped: $e');
+      print('[DI] AppleWatchService init skipped: $e');
     }
 
     Get.lazyPut<DeviceRepository>(
