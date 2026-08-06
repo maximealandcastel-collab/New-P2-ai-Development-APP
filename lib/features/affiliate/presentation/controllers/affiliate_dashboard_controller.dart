@@ -121,8 +121,8 @@ class AffiliateReferral {
 class AffiliateDashboardController extends GetxController {
   static AffiliateDashboardController get to => Get.find();
 
-  final String promoCode;
-  AffiliateDashboardController({required this.promoCode});
+  String promoCode; // mutable: allows DI .new registration
+  AffiliateDashboardController({this.promoCode = ''});
 
   late final Dio _dio;
 
@@ -145,6 +145,11 @@ class AffiliateDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Pick up promoCode from navigation arguments when screen is pushed with args
+    final _navArgs = Get.arguments;
+    if (_navArgs is Map && (_navArgs['promoCode'] as String? ?? '').isNotEmpty) {
+      promoCode = _navArgs['promoCode'] as String;
+    }
     _dio = Dio(BaseOptions(
       baseUrl: ApiConstants.baseUrl,
       headers: {
