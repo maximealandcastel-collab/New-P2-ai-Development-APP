@@ -83,7 +83,17 @@ class ApiConstants {
     static String defaultContentById(String id) => '/api/v1/default-content/$id';
 
     /// WORKOUT ──────────────────────────────────────────────
-    static const String workouts = '/api/v1/workout';
+    /// POST — create a new workout goal
+    static const String workout = '/api/v1/workout';
+    /// GET list with optional filters
+    static String workouts({String? status, int page = 1, int limit = 10}) {
+      final q = [
+        if (status != null) 'status=$status',
+        'page=$page',
+        'limit=$limit',
+      ].join('&');
+      return '/api/v1/workout?$q';
+    }
     static const String workoutToday = '/api/v1/workout/today';
     static const String workoutTodayOverview = '/api/v1/workout/today/overview';
     static const String workoutProgressionMonthly = '/api/v1/workout/progression/monthly';
