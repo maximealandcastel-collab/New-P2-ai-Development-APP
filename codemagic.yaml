@@ -126,6 +126,19 @@ workflows:
           set -e
           xcode-project use-profiles
 
+      - name: Inject GoogleService-Info.plist
+        script: |
+          set -e
+          # GOOGLE_SERVICE_INFO_PLIST must be set in Codemagic → Environment variables
+          # as a "File" variable pointing to your GoogleService-Info.plist contents.
+          # Codemagic writes file variables to /tmp; copy to the iOS Runner folder.
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            cp "$GOOGLE_SERVICE_INFO_PLIST" ios/Runner/GoogleService-Info.plist
+            echo "GoogleService-Info.plist injected ✅"
+          else
+            echo "WARNING: GOOGLE_SERVICE_INFO_PLIST not set — push notifications will not work"
+          fi
+
       - name: Install Flutter dependencies
         script: |
           set -e
@@ -144,7 +157,7 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          flutter build ipa --release --build-name=2.3.0 --build-number=56
+          flutter build ipa --release --build-name=2.3.0 --build-number=57
 
     artifacts:
       - build/ios/ipa/*.ipa
