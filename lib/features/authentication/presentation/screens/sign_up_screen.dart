@@ -71,6 +71,19 @@ class SignUpScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.male, size: 24.sp),
               ),
               CustomTextField(
+                labelText: 'Phone Number',
+                controller: controller.phoneController,
+                hintText: "e.g. +12135551234",
+                prefixIcon: Icon(Icons.phone, size: 24.sp),
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
                 labelText: 'Email',
                 controller: controller.emailController,
                 hintText: "Enter your email address",

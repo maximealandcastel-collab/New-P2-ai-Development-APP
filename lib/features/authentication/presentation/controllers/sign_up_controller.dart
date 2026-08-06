@@ -19,6 +19,7 @@ class SignUpController extends GetxController {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final genderController = TextEditingController();
+  final phoneController = TextEditingController();
   final emailController = TextEditingController(
     text: kDebugMode ? 'dev.milon923@gmail.com' : '',
   );
@@ -56,7 +57,13 @@ class SignUpController extends GetxController {
         password: confirmPasswordController.text,
       );
       _registerState.value = LoadingState.loaded;
-      Get.toNamed(AppRoute.otpVerificationScreen, arguments: 'signup');
+      Get.toNamed(
+        AppRoute.phoneOtpWaitingScreen,
+        arguments: {
+          'phone': phoneController.text.trim(),
+          'role': _selectedRole.value.toLowerCase(),
+        },
+      );
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;
@@ -68,6 +75,7 @@ class SignUpController extends GetxController {
     firstNameController.dispose();
     lastNameController.dispose();
     genderController.dispose();
+    phoneController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();

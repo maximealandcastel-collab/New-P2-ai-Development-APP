@@ -34,6 +34,8 @@ import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboar
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/screens/admin_user_list_screen.dart';
 import 'package:pler_to_pler_app/features/smarter_care/presentation/screens/smarter_care_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/phone_otp_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/phone_otp_waiting_screen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 import 'package:pler_to_pler_app/features/splash/presentation/screens/splash_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/subscribe_select_screen.dart';
@@ -136,6 +138,7 @@ class AppRoute {
   static String adminSupportScreen = "/adminSupportScreen";
   static String smarterCareScreen = "/smarterCareScreen";
   static String adminUserListScreen = "/adminUserListScreen";
+  static String phoneOtpWaitingScreen = "/phoneOtpWaitingScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -384,6 +387,15 @@ class AppRoute {
       binding: BindingsBuilder(() {
         if (!Get.isRegistered<AdminDashboardController>()) {
           Get.put(AdminDashboardController());
+        }
+      }),
+    ),
+    GetPage(
+      name: phoneOtpWaitingScreen,
+      page: () => const PhoneOtpWaitingScreen(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<PhoneOtpController>()) {
+          Get.put(PhoneOtpController(api: Get.find()));
         }
       }),
     ),

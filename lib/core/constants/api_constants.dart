@@ -20,6 +20,8 @@ class ApiConstants {
   static const String resendOtp = '/api/v1/auth/resend-otp';
   static const String resetPassword = '/api/v1/auth/reset-password';
   static const String changePassword = '/api/v1/auth/change-password';
+  static const String phoneSendOtp = '/api/v1/auth/phone/send';
+  static const String phoneOtpStatus = '/api/v1/auth/phone/status';
   static const String accountDelete = '/api/v1/auth/account-delete';
   static const String uploadProfilePicture = '/api/v1/auth/upload-profile-picture';
   static const String uploadCoverPhoto = '/api/v1/auth/upload-cover-photo';
