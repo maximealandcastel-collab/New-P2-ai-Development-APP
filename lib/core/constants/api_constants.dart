@@ -79,8 +79,8 @@ class ApiConstants {
     static String contentById(String id) => '/api/v1/content/content/$id';
 
     /// DEFAULT CONTENT ──────────────────────────────────────────────
-    static const String defaultContent = '/api/v1/default-content';
-    static String defaultContentById(String id) => '/api/v1/default-content/$id';
+    static const String defaultContent = '/api/v1/content/feed';
+    static String defaultContentById(String id) => '/api/v1/content/content/$id';
 
     /// WORKOUT ──────────────────────────────────────────────
     /// POST — create a new workout goal
