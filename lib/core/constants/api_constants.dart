@@ -27,9 +27,6 @@ class ApiConstants {
     static const String uploadProfilePicture = '/api/v1/auth/upload-profile-picture';
     static const String uploadCoverPhoto = '/api/v1/auth/upload-cover-photo';
 
-
-
-
     /// USER ──────────────────────────────────────────────
     static const String userProfile = '/api/v1/auth/me';
     static const String userOnboarding = '/api/v1/auth/me/onboarding';
@@ -40,9 +37,11 @@ class ApiConstants {
     static const String trainerRequestAll = '/api/v1/trainer-request/all';
     static String acceptTrainerRequest(String requestId, String type) =>
         '/api/v1/trainer-request/$requestId/$type';
-    static String trainerKnowledgePack(String trainerId) => '/api/v1/trainer/$trainerId/knowledge-pack';
+    static String trainerKnowledgePack(String trainerId) =>
+        '/api/v1/trainer/$trainerId/knowledge-pack';
     static String trainerDetails(String trainerId) => '/api/v1/trainer/$trainerId';
-    static String trainers(int page,int limit) => '/api/v1/trainer?page=$page&limit=$limit';
+    static String trainers(int page, int limit) =>
+        '/api/v1/trainer?page=$page&limit=$limit';
 
     /// EXERCISE BLOCK ──────────────────────────────────────────────
     static String trainerBlocks(
@@ -67,25 +66,35 @@ class ApiConstants {
     /// INVOICE ──────────────────────────────────────────────
     static const String invoice = '/api/v1/invoice';
     static const String trainerInvoices = '/api/v1/invoice/trainer';
-    static String sendInvoice(String invoiceId) =>
-        '/api/v1/invoice/$invoiceId/send';
+    static String sendInvoice(String invoiceId) => '/api/v1/invoice/$invoiceId/send';
 
     /// CATEGORY ──────────────────────────────────────────────
     static const String categoryMy = '/api/v1/category/my';
     static const String categoryCreate = '/api/v1/category/create';
     static String categoryById(String categoryId) => '/api/v1/category/$categoryId';
 
-    /// CONTENT ──────────────────────────────────────────────
+    /// WORKOUT ──────────────────────────────────────────────
+    static const String workout = '/api/v1/workout';
+    static String workoutGenerate(String trainerId) =>
+        '/api/v1/workout/$trainerId/generate';
+    static String workoutStart(String workoutId) =>
+        '/api/v1/workout/$workoutId/start';
+    static String workoutComplete(String workoutId, String exerciseId) =>
+        '/api/v1/workout/$workoutId/exercises/$exerciseId/complete';
+    static String workoutExerciseComplete(String workoutId) =>
+        '/api/v1/workout/$workoutId/complete';
+
     /// AFFILIATE / PARTNER ────────────────────────────────────────────────────
     static const String affiliateDashboard = '/api/v1/affiliate/dashboard';
     static const String affiliateReferrals = '/api/v1/affiliate/referrals';
+    static const String affiliateWithdraw = '/api/v1/affiliate/withdraw';
 
-    /// PROMO CODES ──────────────────────────────────────────────────────────────
-    /// POST body: { code }  — validates a promo code and returns plan details.
+    /// PROMO CODES ─────────────────────────────────────────────────────────────
+    /// POST body: { code } — validates a promo code and returns plan details.
     /// Any non-empty code is accepted as a universal 50% off / 30-day free promo.
     static const String promoValidate = '/api/v1/promo/validate';
 
-    /// POST body: { code }  — redeems a validated code and grants subscription
+    /// POST body: { code } — redeems a validated code and grants subscription
     /// access directly (bypasses Apple IAP). Call after promoValidate succeeds.
     static const String promoRedeem = '/api/v1/promo/redeem';
 
@@ -97,6 +106,18 @@ class ApiConstants {
     static const String notificationsUnreadCount = '/api/v1/notification/unread-count';
     static const String notificationsReadAll = '/api/v1/notification/read-all';
 
+    /// PRIVACY / LEGAL ──────────────────────────────────────────────
+    static const String privacyPolicy = '/api/v1/privacy';
+    static const String termsAndCondition = '/api/v1/terms';
+    static const String aboutUs = '/api/v1/about';
+
+    /// DEVICE ──────────────────────────────────────────────
+    static const String userDevices = '/api/v1/devices';
+    static const String pairDevice = '/api/v1/devices/pair';
+    static String deviceStatus(String deviceId) => '/api/v1/devices/$deviceId/status';
+    static String unpairDevice(String deviceId) => '/api/v1/devices/$deviceId';
+    static String deviceMetrics(String deviceId) => '/api/v1/devices/$deviceId/metrics';
+
     /// WITHDRAWAL / EARNINGS ──────────────────────────────────────────────
     static const String trainerEarnings = '/api/v1/withdrawal/earnings';
     static String trainerPayments({required int page, required int limit}) =>
@@ -106,16 +127,12 @@ class ApiConstants {
     /// ANAM VIDEO CALL ──────────────────────────────────────────────
     static const String anamUsage = '/api/v1/anam/usage';
     static const String anamSessionStart = '/api/v1/anam/session/start';
-    /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
     static String anamSessionMessage(String dbSessionId) =>
         '/api/v1/anam/session/$dbSessionId/message';
-    /// [dbSessionId] comes from `POST /anam/session/start` → `data.dbSessionId`.
     static String anamSessionEnd(String dbSessionId) =>
         '/api/v1/anam/session/$dbSessionId/end';
-    static String trainerAnam(String trainerId) =>
-        '/api/v1/trainer/$trainerId/anam';
+    static String trainerAnam(String trainerId) => '/api/v1/trainer/$trainerId/anam';
 
-    ///
     static const String searchHistoryKey = '/searchHistoryKey';
     }
     
