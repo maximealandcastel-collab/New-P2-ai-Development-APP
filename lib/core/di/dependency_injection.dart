@@ -10,6 +10,9 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/phone_otp_controller.dart';
+import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
+import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/profile/data/repositories/profile_repository.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -473,8 +476,35 @@ class DependencyInjection {
       fenix: true,
     );
 
-    Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
-    Get.put<AppleWatchService>(AppleWatchService(), permanent: true);
+    // PhoneOtpController — required for sign-up phone verification waiting screen
+    Get.lazyPut<PhoneOtpController>(
+      () => PhoneOtpController(api: Get.find<ApiService>()),
+      fenix: true,
+    );
+
+    // AffiliateDashboardController — required for affiliate dashboard screen
+    Get.lazyPut<AffiliateDashboardController>(
+      AffiliateDashboardController.new,
+      fenix: true,
+    );
+
+    // AdminDashboardController — required for admin dashboard screen
+    Get.lazyPut<AdminDashboardController>(
+      AdminDashboardController.new,
+      fenix: true,
+    );
+
+    // Bluetooth/HealthKit wrapped — an init error must never crash the app
+    try {
+      Get.put<BluetoothService>(BluetoothService.instance, permanent: true);
+    } catch (e) {
+      debugPrint('[DI] BluetoothService init skipped: $e');
+    }
+    try {
+      Get.put<AppleWatchService>(AppleWatchService(), permanent: true);
+    } catch (e) {
+      debugPrint('[DI] AppleWatchService init skipped: $e');
+    }
 
     Get.lazyPut<DeviceRepository>(
       () => DeviceRepository(
