@@ -1,30 +1,21 @@
-    import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
     import 'package:get/get.dart';
     import 'package:pler_to_pler_app/core/di/dependency_injection.dart';
     import 'package:pler_to_pler_app/core/services/api_service.dart';
     import 'package:pler_to_pler_app/core/services/push_notification_service.dart';
-        import 'app.dart';
+    import 'app.dart';
 
     void main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Firebase init — wrapped so a config mismatch or network timeout on first
-    // launch never prevents the app from opening. Push notifications simply
-    // won't work if this fails, but the app will still run.
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    } catch (e) {
-      debugPrint('[Firebase] init error: $e');
-    }
+    // Firebase.initializeApp() removed — GoogleService-Info.plist not yet added (Task #37)
 
     await DependencyInjection.init();
 
-    // Push notifications — already non-blocking via catchError.
+    // Push notifications — no-op stub until Firebase is configured
     PushNotificationService.instance
         .init(Get.find<ApiService>())
-        .catchError((e) => debugPrint('[FCM] init error: $e'));
+        .catchError((e) => print('[FCM] init error: $e'));
 
     runApp(const MyApp());
     }
