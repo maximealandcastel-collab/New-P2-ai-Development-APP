@@ -1,119 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
-import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reel_page_view.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reels_overlay.dart';
-import 'package:pler_to_pler_app/features/search/model/search_model.dart';
-import 'package:pler_to_pler_app/features/search/search_screen.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentsScreen extends StatelessWidget {
   const ContentsScreen({super.key});
 
-  static const _background = Color(0xFF000000);
-
   @override
   Widget build(BuildContext context) {
-    final controller = ContentController.to;
-
     return Scaffold(
-      backgroundColor: _background,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Obx(() {
-            controller.reelFeed!.loadingState.value;
-            return _buildBody(context, controller);
-          }),
-          ContentsReelsOverlay(
-            onSearchTap: () => _openSearch(context, controller),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(BuildContext context, ContentController controller) {
-    final state = controller.reelFeed!.loadingState.value;
-    final hasItems = controller.contents.isNotEmpty;
-
-    if (hasItems && state == LoadingState.loaded) {
-      return _buildFeed(context, controller);
-    }
-
-    switch (state) {
-      case LoadingState.initial:
-      case LoadingState.loading:
-        return const ColoredBox(
-          color: _background,
-          child: Center(child: CustomLoader()),
-        );
-      case LoadingState.loaded:
-        return _emptyState(controller);
-      case LoadingState.offline:
-        return _emptyState(
-          controller,
-          'You are offline. Connect to the internet to load content.',
-        );
-      case LoadingState.error:
-        return _emptyState(
-          controller,
-          'Unable to load content. Pull down to retry.',
-        );
-    }
-  }
-
-  Widget _buildFeed(BuildContext context, ContentController controller) {
-    return RefreshIndicator(
-      backgroundColor: _background,
-      color: AppColors.primary,
-      edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
-      onRefresh: controller.refresh,
-      notificationPredicate: (n) =>
-          controller.currentReelIndex.value == 0 && n.depth == 0,
-      child: const ContentsReelPageView(),
-    );
-  }
-
-  Widget _emptyState(ContentController controller, [String? message]) {
-    return EmptyDataWidget(
-      message: message ?? 'No content available',
-      messageColor: AppColors.textWhite,
-      onRefresh: controller.refresh,
-    );
-  }
-
-  void _openSearch(BuildContext context, ContentController controller) {
-    showSearch(
-      context: context,
-      delegate: SearchScreen(
-        hintText: 'Search default exercises...',
-        onSearch: (query) async {
-          await controller.search.search(query);
-          return controller.search.results
-              .map(
-                (content) => SearchModel(
-                  model: content,
-                  title: content.title ?? content.exerciseName,
-                  image: ContentMediaResolver.resolveThumbnailUrl(content),
-                  subtitle: content.categoryId?.category ?? content.difficulty,
+      backgroundColor: AppColors.backgroundLight,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 80.w,
+                  height: 80.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.10),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.play_circle_outline_rounded,
+                    size: 42.sp,
+                    color: AppColors.primary,
+                  ),
                 ),
-              )
-              .toList();
-        },
-        onResultTap: (result) {
-          final content = result.model as ContentModel;
-          controller.search.clear();
-          controller.pauseReel();
-          Get.back();
-          Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
-        },
+                SizedBox(height: 24.h),
+                Text(
+                  'Coming Soon',
+                  style: TextStyle(
+                    fontSize: 26.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'We're putting the finishing touches on your video content library. Check back soon!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
