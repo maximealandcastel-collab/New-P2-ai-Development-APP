@@ -191,6 +191,15 @@ class AdminDashboardScreen extends StatelessWidget {
                                     count: r.count,
                                     total: m.overview.totalUsers,
                                     color: _roleColor(r.role),
+                                    onTap: r.role == 'admin'
+                                        ? null
+                                        : () => Get.toNamed(
+                                              AppRoute.adminUserListScreen,
+                                              arguments: {
+                                                'filter': r.role,
+                                                'title': '${_capitalize(r.role)}s',
+                                              },
+                                            ),
                                   ))
                               .toList(),
                         ),
@@ -210,6 +219,17 @@ class AdminDashboardScreen extends StatelessWidget {
                                     count: s.count,
                                     total: m.overview.totalUsers,
                                     color: _tierColor(s.tier),
+                                    onTap: s.count == 0
+                                        ? null
+                                        : () => Get.toNamed(
+                                              AppRoute.adminUserListScreen,
+                                              arguments: {
+                                                'filter': (s.tier == 'monthly' || s.tier == 'annual')
+                                                    ? 'active_subs'
+                                                    : 'all',
+                                                'title': '${_capitalize(s.tier)} Users',
+                                              },
+                                            ),
                                   ))
                               .toList(),
                         ),
@@ -421,11 +441,13 @@ class _BreakdownItem {
   final int count;
   final int total;
   final Color color;
+  final VoidCallback? onTap;
   const _BreakdownItem(
       {required this.label,
       required this.count,
       required this.total,
-      required this.color});
+      required this.color,
+      this.onTap});
   double get fraction => total == 0 ? 0 : count / total;
 }
 
@@ -449,7 +471,9 @@ class _BreakdownCard extends StatelessWidget {
       ),
       child: Column(
         children: items.map((item) {
-          return Padding(
+          return GestureDetector(
+            onTap: item.onTap,
+            child: Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: Column(
               children: [
@@ -587,7 +611,15 @@ class _RecentUserRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+        AppRoute.adminUserListScreen,
+        arguments: {
+          'filter': user.role == 'trainer' ? 'trainer' : 'all',
+          'title': user.role == 'trainer' ? 'Trainers' : 'All Users',
+        },
+      ),
+      child: Column(
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
@@ -669,6 +701,7 @@ class _RecentUserRow extends StatelessWidget {
               indent: 46.w,
               color: Colors.black.withOpacity(0.06)),
       ],
+    ),
     );
   }
 
@@ -811,3 +844,4 @@ class _WithdrawalCard extends StatelessWidget {
 
   String _formatDate(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
 }
+
