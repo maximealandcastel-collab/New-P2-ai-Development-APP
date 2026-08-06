@@ -18,6 +18,7 @@ import 'package:pler_to_pler_app/features/search/controller/search_controller.da
 import 'package:pler_to_pler_app/features/subscribe/data/repositories/subscribe_repository.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
+import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:pler_to_pler_app/features/anam/data/repositories/anam_repository.dart';
 import 'package:pler_to_pler_app/features/anam/domain/services/anam_service.dart';
 import 'package:pler_to_pler_app/features/ai/data/repositories/ai_repository.dart';
@@ -222,6 +223,13 @@ class DependencyInjection {
         service: Get.find<SubscribeServices>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
+      fenix: true,
+    );
+
+    // PaywallController must be in global DI — PaywallScreen calls
+    // Get.find<PaywallController>() as a class field (crashes if not registered).
+    Get.lazyPut<PaywallController>(
+      () => PaywallController(subscribeService: Get.find<SubscribeServices>()),
       fenix: true,
     );
 
