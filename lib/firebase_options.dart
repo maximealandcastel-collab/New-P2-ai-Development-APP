@@ -41,21 +41,21 @@ class DefaultFirebaseOptions {
   // ── iOS ──────────────────────────────────────────────────────────────────
   // Replace the TODO values with the real ones from GoogleService-Info.plist
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'TODO_PASTE_API_KEY',               // API_KEY
-    appId: 'TODO_PASTE_GOOGLE_APP_ID',          // GOOGLE_APP_ID
-    messagingSenderId: 'TODO_PASTE_GCG_SENDER_ID', // GCG_SENDER_ID
-    projectId: 'TODO_PASTE_PROJECT_ID',         // PROJECT_ID
-    storageBucket: 'TODO_PASTE_STORAGE_BUCKET', // STORAGE_BUCKET
-    iosBundleId: 'com.p2pfittech.ai',           // must match your bundle ID
+    apiKey: 'AIzaSyB5IAXgCJcW3Mkx9qFhnzGqsi0nHfaYd9Q',
+    appId: '1:159688135306:ios:81da0c6f879514c2ffd373',
+    messagingSenderId: '159688135306',
+    projectId: 'p2p-fittech-ai',
+    storageBucket: 'p2p-fittech-ai.firebasestorage.app',
+    iosBundleId: 'com.p2pfittech.ai',
   );
 
   // ── Android ──────────────────────────────────────────────────────────────
-  // Replace if you add Android to the Firebase project
+  // Add Android app in Firebase Console and replace these values when ready
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'TODO_PASTE_ANDROID_API_KEY',
     appId: 'TODO_PASTE_ANDROID_APP_ID',
-    messagingSenderId: 'TODO_PASTE_GCG_SENDER_ID',
-    projectId: 'TODO_PASTE_PROJECT_ID',
-    storageBucket: 'TODO_PASTE_STORAGE_BUCKET',
+    messagingSenderId: '159688135306',
+    projectId: 'p2p-fittech-ai',
+    storageBucket: 'p2p-fittech-ai.firebasestorage.app',
   );
 }
