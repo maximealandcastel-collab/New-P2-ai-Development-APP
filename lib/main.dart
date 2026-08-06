@@ -1,11 +1,9 @@
-import 'package:firebase_core/firebase_core.dart';
     import 'package:flutter/material.dart';
     import 'package:get/get.dart';
     import 'package:pler_to_pler_app/core/di/dependency_injection.dart';
     import 'package:pler_to_pler_app/core/services/api_service.dart';
     import 'package:pler_to_pler_app/core/services/push_notification_service.dart';
-    import 'package:pler_to_pler_app/firebase_options.dart';
-    import 'app.dart';
+        import 'app.dart';
 
     void main() async {
     WidgetsFlutterBinding.ensureInitialized();
