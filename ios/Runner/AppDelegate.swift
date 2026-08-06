@@ -1,52 +1,36 @@
 import Flutter
-import UIKit
-import FirebaseCore
-import FirebaseMessaging
-import UserNotifications
+    import UIKit
+    import UserNotifications
 
-@main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+    @main
+    @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
 
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    // Initialise Firebase before anything else
-    FirebaseApp.configure()
+    override func application(
+      _ application: UIApplication,
+      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+      // Firebase will be configured here once GoogleService-Info.plist is added (Task #37)
+      UNUserNotificationCenter.current().delegate = self
+      return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
 
-    // Register for APNs — the system will call didRegisterForRemoteNotificationsWithDeviceToken
-    UNUserNotificationCenter.current().delegate = self
-    application.registerForRemoteNotifications()
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+      GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    }
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
+    override func application(
+      _ application: UIApplication,
+      didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+      print("[APNs] Failed to register: \(error.localizedDescription)")
+    }
 
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-  }
-
-  // Hand the APNs device token directly to Firebase Messaging
-  override func application(
-    _ application: UIApplication,
-    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-  ) {
-    Messaging.messaging().apnsToken = deviceToken
-    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-  }
-
-  override func application(
-    _ application: UIApplication,
-    didFailToRegisterForRemoteNotificationsWithError error: Error
-  ) {
-    print("[APNs] Failed to register: \(error.localizedDescription)")
-  }
-
-  // Show notifications when the app is in the foreground
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    willPresent notification: UNNotification,
-    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-  ) {
-    completionHandler([.banner, .badge, .sound])
-  }
-}
+    override func userNotificationCenter(
+      _ center: UNUserNotificationCenter,
+      willPresent notification: UNNotification,
+      withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+      completionHandler([.banner, .badge, .sound])
+    }
+    }
+    
