@@ -34,6 +34,9 @@ class TrainerHomeController extends GetxController {
   final Rxn<TrainerDashboardStatsModel> _dashboardStats = Rxn<TrainerDashboardStatsModel>();
   TrainerDashboardStatsModel? get dashboardStats => _dashboardStats.value;
 
+  final RxList<TrainerClientPlanModel> _clientPlans = <TrainerClientPlanModel>[].obs;
+  List<TrainerClientPlanModel> get clientPlans => _clientPlans;
+
   @override
   void onInit() {
     super.onInit();

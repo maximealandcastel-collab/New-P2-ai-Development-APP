@@ -381,6 +381,7 @@ class DependencyInjection {
       () => TrainerHomeController(
         service: Get.find<TrainerDashboardService>(),
         connectivityService: Get.find<ConnectivityService>(),
+        apiService: Get.find<ApiService>(),
       ),
       fenix: true,
     );
