@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/home/data/models/trainer_workout_plan_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
 
@@ -30,6 +31,9 @@ class UserHomeController extends GetxController {
 
   void openFullWorkoutPlan() => _workoutController.openFullWorkoutPlan();
 
+  TrainerWorkoutPlanModel? get trainerPlan => _workoutController.trainerPlan;
+  bool get hasTrainerPlan => _workoutController.hasTrainerPlan;
+
   @override
   void onInit() {
     super.onInit();
@@ -46,6 +50,7 @@ class UserHomeController extends GetxController {
     try {
       await Future.wait([
         _workoutController.fetchTodayWorkout(silent: true),
+        _workoutController.fetchTrainerPlan(silent: true),
         _workoutController.fetchTodayOverview(silent: true),
         _workoutController.fetchMonthlyProgression(silent: true),
         if (Get.isRegistered<ProfileController>()) ProfileController.to.loadData(),
