@@ -387,11 +387,5 @@ class AppRoute {
         }
       }),
     ),
-      binding: BindingsBuilder(() {
-        if (!Get.isRegistered<PhoneOtpController>()) {
-          Get.put(PhoneOtpController(api: Get.find()));
-        }
-      }),
-    ),
   ];
 }
