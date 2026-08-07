@@ -504,6 +504,7 @@ class _BreakdownCard extends StatelessWidget {
                 ),
               ],
             ),
+            ),
           );
         }).toList(),
       ),
@@ -844,4 +845,5 @@ class _WithdrawalCard extends StatelessWidget {
 
   String _formatDate(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
 }
+
 
