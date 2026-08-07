@@ -1,281 +1,262 @@
 import 'dart:async';
-    import 'dart:io';
+import 'dart:io';
 
-    import 'package:flutter/foundation.dart';
-    import 'package:get/get.dart';
-    import 'package:in_app_purchase/in_app_purchase.dart';
-    import 'package:pler_to_pler_app/core/constants/api_constants.dart';
-    import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
-    import 'package:pler_to_pler_app/core/services/api_service.dart';
-    import 'package:pler_to_pler_app/core/services/cache_service.dart';
-    import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
-    import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
 
-    const String kPaywallProductMonthly = 'month_1';
-    const String kPaywallProductAnnual = 'year_1';
-    const Set<String> _kPaywallProductIds = {
-    kPaywallProductMonthly,
-    kPaywallProductAnnual,
-    };
+const String _monthlyId = 'month_1';
+const String _annualId = 'year_1';
+const Set<String> _productIds = {_monthlyId, _annualId};
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // PaywallController
-    //
-    // Handles two purchase paths:
-    //   1. Promo path  — any code entered during sign-up (or manually) is sent to
-    //                    POST /promo/validate; if accepted, POST /promo/redeem
-    //                    grants 30 days free access without touching Apple IAP.
-    //   2. Apple IAP   — standard in_app_purchase flow when no promo is active.
-    //
-    // On onReady() the controller checks Hive for a 'pendingPromoCode' written
-    // by SignUpController after registration and auto-applies it.
-    // ─────────────────────────────────────────────────────────────────────────────
+class PaywallController extends GetxController {
+  // ─── IAP ────────────────────────────────────────────────────
+  final _iap = InAppPurchase.instance;
+  StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
-    class PaywallController extends GetxController {
-    final SubscribeServices _subscribeService;
-    final ApiService _apiService = ApiService();
-    final CacheService _cacheService = CacheService();
+  final products = <ProductDetails>[].obs;
+  final iapAvailable = false.obs;
+  final purchaseLoading = false.obs;
+  final purchaseError = "".obs;
 
-    PaywallController({required SubscribeServices subscribeService})
-        : _subscribeService = subscribeService;
+  // App Store price strings (populated once products load)
+  final annualPriceStr = r'$50.00'.obs;
+  final monthlyPriceStr = r'$19.99'.obs;
 
-    StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
+  // ─── Plan selection ─────────────────────────────────────────
+  final selectedPlan = "annual".obs;
+  void selectPlan(String plan) => selectedPlan.value = plan;
 
-    // ── Plan selection ─────────────────────────────────────────────────────────
-    final selectedPlan = kPaywallProductMonthly.obs;
+  // ─── Promo code ─────────────────────────────────────────────
+  final promoController = TextEditingController();
+  final showPromoField = false.obs;
+  final promoLoading = false.obs;
+  final appliedPromoCode = "".obs;
+  final promoError = "".obs;
+  final promoPlanLabel = "".obs;
 
-    void selectPlan(String planKey) => selectedPlan.value = planKey;
+  void togglePromoField() {
+    showPromoField.value = !showPromoField.value;
+    promoError.value = "";
+  }
 
-    // ── IAP states ─────────────────────────────────────────────────────────────
-    final _iapAvailable = false.obs;
-    final _products = <ProductDetails>[].obs;
-    final purchaseLoading = false.obs;
-    final purchaseError = ''.obs;
+  bool get hasPromo => appliedPromoCode.value.isNotEmpty;
 
-    bool get iapAvailable => _iapAvailable.value;
-    List<ProductDetails> get products => _products;
+  /// Fallback display prices (used if App Store products haven't loaded yet)
+  double get annualPrice => hasPromo ? 25.00 : 50.00;
+  double get monthlyPrice => hasPromo ? 9.99 : 19.99;
 
-    ProductDetails? get selectedProduct {
-      for (final p in _products) {
-        if (p.id == selectedPlan.value) return p;
-      }
-      return null;
-    }
+  // ─── Lifecycle ──────────────────────────────────────────────
+  @override
+  void onInit() {
+    super.onInit();
+    _initIAP();
+  }
 
-    // ── Promo code ─────────────────────────────────────────────────────────────
-    final appliedPromoCode = ''.obs;
-    final promoLoading = false.obs;
-    final promoError = ''.obs;
+  Future<void> _initIAP() async {
+    final available = await _iap.isAvailable();
+    iapAvailable.value = available;
+    if (!available) return;
 
-    bool get hasPromo => appliedPromoCode.value.isNotEmpty;
-
-    // ── Lifecycle ──────────────────────────────────────────────────────────────
-    @override
-    void onReady() {
-      super.onReady();
-      _initIAP();
-      _autoApplyPendingPromo();
-    }
-
-    @override
-    void onClose() {
-      _purchaseSubscription?.cancel();
-      super.onClose();
-    }
-
-    // ── Promo: auto-apply code stored during sign-up ───────────────────────────
-    Future<void> _autoApplyPendingPromo() async {
-      final pending = _cacheService.get<String>('pendingPromoCode');
-      if (pending != null && pending.isNotEmpty) {
-        await applyPromoCode(pending);
-      }
-    }
-
-    /// Validates [code] with the backend. Any non-empty code is accepted and
-    /// grants 30 days free access (50 % off the monthly plan).
-    Future<void> applyPromoCode(String code) async {
-      final trimmed = code.trim().toUpperCase();
-      if (trimmed.isEmpty) return;
-
-      promoLoading.value = true;
-      promoError.value = '';
-
-      try {
-        await _apiService.post(
-          ApiConstants.promoValidate,
-          data: {'code': trimmed},
-        );
-        appliedPromoCode.value = trimmed;
-        promoError.value = '';
-      } catch (e) {
-        promoError.value = 'Code could not be applied. Please try again.';
-        appliedPromoCode.value = '';
-      } finally {
-        promoLoading.value = false;
-      }
-    }
-
-    void removePromoCode() {
-      appliedPromoCode.value = '';
-      promoError.value = '';
-    }
-
-    // ── Purchase: main CTA ─────────────────────────────────────────────────────
-    Future<void> upgradeNow() async {
-      if (purchaseLoading.value) return;
-
-      if (hasPromo) {
-        await _redeemPromoCode();
-      } else {
-        await _startIapPurchase();
-      }
-    }
-
-    // ── Promo redemption (bypasses Apple IAP) ──────────────────────────────────
-    Future<void> _redeemPromoCode() async {
-      purchaseLoading.value = true;
-      purchaseError.value = '';
-
-      try {
-        await _apiService.post(
-          ApiConstants.promoRedeem,
-          data: {'code': appliedPromoCode.value},
-        );
-
-        // Clear the stored code so it won't re-apply on next launch
-        await _cacheService.delete('pendingPromoCode');
-        appliedPromoCode.value = '';
-
-        ToastMessageHelper.show(
-            'Your promo has been applied — enjoy 30 days free!');
-        Get.offAll(() => NavBar());
-      } catch (e) {
-        purchaseError.value =
-            'Could not apply your promo code. Try purchasing directly below.';
-      } finally {
+    // Listen to purchase updates from the store
+    _purchaseSub = _iap.purchaseStream.listen(
+      _onPurchaseUpdate,
+      onError: (Object e) {
         purchaseLoading.value = false;
+        purchaseError.value = "Purchase stream error. Please try again.";
+      },
+    );
+
+    // Load product details from App Store / Google Play
+    final ProductDetailsResponse response =
+        await _iap.queryProductDetails(_productIds);
+    if (response.productDetails.isNotEmpty) {
+      products.assignAll(response.productDetails);
+      for (final p in response.productDetails) {
+        if (p.id == _annualId) annualPriceStr.value = p.price;
+        if (p.id == _monthlyId) monthlyPriceStr.value = p.price;
       }
     }
+  }
 
-    // ── IAP: initialise ────────────────────────────────────────────────────────
-    Future<void> _initIAP() async {
-      try {
-        final available = await InAppPurchase.instance.isAvailable();
-        _iapAvailable.value = available;
-        if (!available) return;
+  // ─── Purchase ───────────────────────────────────────────────
+  Future<void> upgradeNow() async {
+    purchaseError.value = "";
 
-        _purchaseSubscription ??= InAppPurchase.instance.purchaseStream.listen(
-          _onPurchaseUpdate,
-          onError: (e) {
-            if (kDebugMode) debugPrint('Purchase stream error: $e');
-          },
+    if (!iapAvailable.value) {
+      purchaseError.value =
+          "In-app purchases are not available on this device.";
+      return;
+    }
+
+    final selectedId =
+        selectedPlan.value == "annual" ? _annualId : _monthlyId;
+    final ProductDetails? product =
+        products.firstWhereOrNull((p) => p.id == selectedId);
+
+    if (product == null) {
+      purchaseError.value =
+          "Could not load subscription details. Please try again.";
+      return;
+    }
+
+    purchaseLoading.value = true;
+    final PurchaseParam param = PurchaseParam(productDetails: product);
+    // buyNonConsumable handles auto-renewable subscriptions on iOS & Android
+    await _iap.buyNonConsumable(purchaseParam: param);
+    // purchaseLoading is cleared inside _onPurchaseUpdate
+  }
+
+  Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      switch (purchase.status) {
+        case PurchaseStatus.pending:
+          purchaseLoading.value = true;
+          break;
+
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          await _verifyWithBackend(purchase);
+          if (purchase.pendingCompletePurchase) {
+            await _iap.completePurchase(purchase);
+          }
+          break;
+
+        case PurchaseStatus.error:
+          purchaseLoading.value = false;
+          purchaseError.value =
+              purchase.error?.message ?? "Purchase failed. Please try again.";
+          break;
+
+        case PurchaseStatus.canceled:
+          purchaseLoading.value = false;
+          break;
+      }
+    }
+  }
+
+  Future<void> _verifyWithBackend(PurchaseDetails purchase) async {
+    try {
+      final body = <String, dynamic>{
+        "platform": Platform.isIOS ? "ios" : "android",
+        "productId": purchase.productID,
+        "purchaseId": purchase.purchaseID ?? purchase.productID,
+        "verificationData":
+            purchase.verificationData.serverVerificationData,
+      };
+
+      final response = await ApiClient.postData(ApiUrls.iapVerify, body);
+
+      if (response.statusCode == 200) {
+        purchaseLoading.value = false;
+        // If a promo code was applied, redeem it server-side now
+        if (hasPromo) await _redeemPromo();
+        Get.snackbar(
+          "You're subscribed!",
+          "Welcome to P2P FitTech AI. Full access unlocked.",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
         );
-
-        await _loadProducts();
-      } catch (e) {
-        if (kDebugMode) debugPrint('_initIAP error: $e');
-      }
-    }
-
-    Future<void> _loadProducts({int maxAttempts = 3}) async {
-      for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          final response = await InAppPurchase.instance.queryProductDetails(
-            _kPaywallProductIds,
-          );
-          if (response.productDetails.isNotEmpty) {
-            _products.value = response.productDetails;
-            return;
-          }
-          if (kDebugMode) {
-            debugPrint(
-                'No IAP products (attempt $attempt/$maxAttempts). Not found: ${response.notFoundIDs}');
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('_loadProducts attempt $attempt error: $e');
-          }
-        }
-        if (attempt < maxAttempts) {
-          await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
-        }
-      }
-    }
-
-    // ── IAP: trigger purchase ──────────────────────────────────────────────────
-    Future<void> _startIapPurchase() async {
-      final product = selectedProduct;
-      if (product == null) {
+        Get.back();
+      } else {
+        purchaseLoading.value = false;
         purchaseError.value =
-            'Store products are loading. Please wait a moment and try again.';
+            "Purchase verified by Apple but our server could not activate your plan. "
+            "Please contact support — you will not be charged twice.";
+      }
+    } catch (_) {
+      purchaseLoading.value = false;
+      purchaseError.value =
+          "Could not reach our server to activate your plan. "
+          "Please contact support if you were charged.";
+    }
+  }
+
+  Future<void> _redeemPromo() async {
+    try {
+      await ApiClient.postData(
+          ApiUrls.promoRedeem, {"code": appliedPromoCode.value});
+    } catch (_) {
+      // Non-fatal: subscription is active regardless
+    }
+  }
+
+  // ─── Promo code ─────────────────────────────────────────────
+  Future<void> applyPromoCode() async {
+    final code = promoController.text.trim().toUpperCase();
+    if (code.isEmpty) {
+      promoError.value = "Please enter a promo code";
+      return;
+    }
+    promoLoading.value = true;
+    promoError.value = "";
+    try {
+      // 1. Validate the code
+      final response =
+          await ApiClient.postData(ApiUrls.promoValidate, {"code": code});
+      if (response.statusCode != 200) {
+        promoError.value = (response.statusText ?? "").isNotEmpty
+            ? response.statusText!
+            : "This code is invalid or has already been used";
         return;
       }
 
-      purchaseLoading.value = true;
-      purchaseError.value = '';
+      final data = response.body;
+      final codeData = (data is Map && data["data"] is Map)
+          ? data["data"] as Map
+          : <String, dynamic>{};
+      final codeType = (codeData["type"] ?? "").toString();
+      promoPlanLabel.value = (codeData["label"] ?? "").toString();
+      appliedPromoCode.value = code;
 
-      try {
-        final param = PurchaseParam(productDetails: product);
-        await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
-        // Result arrives via _onPurchaseUpdate
-      } catch (e) {
-        purchaseLoading.value = false;
-        purchaseError.value = 'Purchase could not be started. Please try again.';
-        if (kDebugMode) debugPrint('_startIapPurchase error: $e');
-      }
-    }
-
-    // ── IAP: handle purchase stream ────────────────────────────────────────────
-    Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
-      for (final purchase in purchases) {
-        switch (purchase.status) {
-          case PurchaseStatus.purchased:
-          case PurchaseStatus.restored:
-            await _verifyAndGrant(purchase);
-          case PurchaseStatus.error:
-            purchaseLoading.value = false;
-            purchaseError.value =
-                purchase.error?.message ?? 'Purchase failed. Please try again.';
-          case PurchaseStatus.canceled:
-            purchaseLoading.value = false;
-          case PurchaseStatus.pending:
-            break;
-        }
-
-        if (purchase.pendingCompletePurchase) {
-          await InAppPurchase.instance.completePurchase(purchase);
-        }
-      }
-    }
-
-    // ── IAP: verify receipt with backend → grant access ────────────────────────
-    Future<void> _verifyAndGrant(PurchaseDetails purchase) async {
-      try {
-        final verificationData =
-            purchase.verificationData.serverVerificationData;
-        final platform = Platform.isIOS ? 'apple_iap' : 'google_play';
-
-        final result = await _subscribeService.verifyIap(
-          platform: platform,
-          productId: purchase.productID,
-          purchaseId: purchase.purchaseID ?? '',
-          verificationData: verificationData,
-        );
-
-        purchaseLoading.value = false;
-
-        if (result.isSubscribed) {
-          ToastMessageHelper.show('Welcome! Your subscription is now active.');
+      // 2. Website codes (purchased on p2pfitechai.com) — redeem directly,
+      //    no IAP needed since the customer already paid on the website.
+      if (codeType == "website") {
+        final redeemResp =
+            await ApiClient.postData(ApiUrls.promoRedeem, {"code": code});
+        if (redeemResp.statusCode == 200 || redeemResp.statusCode == 201) {
+          Get.snackbar(
+            "Access Unlocked! 🎉",
+            promoPlanLabel.value.isNotEmpty
+                ? "${promoPlanLabel.value} is now active."
+                : "Your access is now active. Welcome!",
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 4),
+          );
           Get.offAll(() => NavBar());
         } else {
-          purchaseError.value =
-              'Purchase processed but subscription could not be activated. Please contact support.';
+          final msg = (redeemResp.body is Map)
+              ? (redeemResp.body["message"] ?? "Could not redeem code. It may already be used.")
+              : "Could not redeem code. Please try again.";
+          promoError.value = msg.toString();
+          appliedPromoCode.value = "";
         }
-      } catch (e) {
-        purchaseLoading.value = false;
-        purchaseError.value = 'Verification failed. Please restart the app.';
-        if (kDebugMode) debugPrint('_verifyAndGrant error: $e');
+        return;
       }
+
+      // 3. Affiliate / other codes — apply discount to IAP price as before
+      showPromoField.value = false;
+    } catch (_) {
+      promoError.value = "Could not verify the code. Please try again.";
+      appliedPromoCode.value = "";
+    } finally {
+      promoLoading.value = false;
     }
-    }
-    
+  }
+
+  void removePromoCode() {
+    appliedPromoCode.value = "";
+    promoPlanLabel.value = "";
+    promoController.clear();
+    promoError.value = "";
+  }
+
+  @override
+  void onClose() {
+    _purchaseSub?.cancel();
+    promoController.dispose();
+    super.onClose();
+  }
+}
