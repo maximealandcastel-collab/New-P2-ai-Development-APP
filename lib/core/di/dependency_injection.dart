@@ -232,7 +232,7 @@ class DependencyInjection {
     // PaywallController must be in global DI — PaywallScreen calls
     // Get.find<PaywallController>() as a class field (crashes if not registered).
     Get.lazyPut<PaywallController>(
-      () => PaywallController(subscribeService: Get.find<SubscribeServices>()),
+      () => PaywallController(),
       fenix: true,
     );
 
