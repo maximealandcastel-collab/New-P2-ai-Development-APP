@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
+import 'package:pler_to_pler_app/features/home/widgets/trainer_client_plans_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/clients_controller.dart';
@@ -43,6 +44,8 @@ class TrainerHomeScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildClientOverviewSection(homeController),
+                SizedBox(height: 8.h),
+                const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
                 _buildTodaySessionsSection(clientsController),
               ]),
