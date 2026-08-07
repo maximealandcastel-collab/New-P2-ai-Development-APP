@@ -121,6 +121,7 @@ class ApiConstants {
 
     /// TRAINER WORKOUT PLANS ───────────────────────────────────────────────
     static const String trainerWorkoutPlans = '/api/v1/workout-plan/my-plans';
+    static const String trainerMyWorkoutPlans = '/api/v1/workout-plan/trainer/my-plans';
 
     /// NOTIFICATIONS ──────────────────────────────────────────────
     static const String notifications = '/api/v1/notification';
