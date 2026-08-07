@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/repositories/workout_repository.dart';
+import 'package:pler_to_pler_app/features/home/data/models/trainer_workout_plan_model.dart';
 
 class WorkoutService {
   WorkoutService({required WorkoutRepository repository})
@@ -73,5 +74,9 @@ class WorkoutService {
 
   Future<void> completeExercise(String workoutId, String exerciseId) {
     return _repository.completeExercise(workoutId, exerciseId);
+  }
+
+  Future<TrainerWorkoutPlanModel?> getTrainerPlan() {
+    return _repository.getTrainerPlan();
   }
 }
