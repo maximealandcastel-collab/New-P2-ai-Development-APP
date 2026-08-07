@@ -170,7 +170,7 @@ class _BookTrainerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = PaywallController.to;
+    final ctrl = Get.find<PaywallController>();
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
