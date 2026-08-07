@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/home/widgets/gym_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/overview_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/today_workout_section.dart';
+import 'package:pler_to_pler_app/features/home/widgets/trainer_plan_section.dart';
 import 'package:pler_to_pler_app/features/home/widgets/user_home_shimmer.dart';
 import 'package:pler_to_pler_app/features/home/widgets/week_date_picker.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -59,6 +60,8 @@ class UserHomeScreen extends StatelessWidget {
       GymSection().asSliverWithPadding(horizontal: 16.w),
       OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
       const TodayWorkoutSection()
+          .asSliverWithPadding(horizontal: 16.w),
+      const TrainerPlanSection()
           .asSliverWithPadding(horizontal: 16.w),
     ];
   }
