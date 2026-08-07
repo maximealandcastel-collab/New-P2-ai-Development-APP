@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/helpers/dialog_show_helper.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
-import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/subscribe_controller.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class FindTrainerCard extends StatelessWidget {
   final FindTrainerModel? trainer;
@@ -16,9 +14,6 @@ class FindTrainerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = SubscribeController.to;
-
-    // Prefer the trainer's dedicated headshot; fall back to user avatar
     final photoUrl =
         (trainer?.profileImage?.isNotEmpty == true)
             ? trainer!.profileImage!
@@ -33,7 +28,7 @@ class FindTrainerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         child: Stack(
           children: [
-            // ── Full-bleed photo ──────────────────────────────────────────
+            // Full-bleed photo
             Positioned.fill(
               child: photoUrl.isNotEmpty
                   ? Image.network(
@@ -44,7 +39,7 @@ class FindTrainerCard extends StatelessWidget {
                   : _placeholder(),
             ),
 
-            // ── Gradient overlay ─────────────────────────────────────────
+            // Gradient overlay
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -63,7 +58,7 @@ class FindTrainerCard extends StatelessWidget {
               ),
             ),
 
-            // ── Text + action ─────────────────────────────────────────────
+            // Text + Book button
             Positioned(
               bottom: 0,
               left: 0,
@@ -74,7 +69,6 @@ class FindTrainerCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Name
                     Text(
                       trainer?.name ?? trainer?.userId?.fullName ?? '',
                       style: TextStyle(
@@ -86,10 +80,7 @@ class FindTrainerCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-
                     SizedBox(height: 3.h),
-
-                    // Specialty
                     Text(
                       StringFormat.formatSpecialty(trainer?.specialty ?? ''),
                       style: TextStyle(
@@ -100,8 +91,6 @@ class FindTrainerCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-
-                    // Top 2 certifications
                     if ((trainer?.certifications ?? []).isNotEmpty) ...[
                       SizedBox(height: 4.h),
                       ...(trainer!.certifications!.take(2).map(
@@ -117,26 +106,22 @@ class FindTrainerCard extends StatelessWidget {
                         ),
                       )),
                     ],
-
                     SizedBox(height: 10.h),
 
-                    // Request pill button
+                    // Book Trainer pill
                     GestureDetector(
-                      onTap: () => _showRequestSheet(context, controller),
+                      onTap: () => _showBookSheet(context),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 12.w,
                           vertical: 5.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.35),
-                          ),
                         ),
                         child: Text(
-                          'Request',
+                          'Book Trainer',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 10.sp,
@@ -158,42 +143,167 @@ class FindTrainerCard extends StatelessWidget {
   Widget _placeholder() => Container(
         color: const Color(0xFF1E1E1E),
         child: Center(
-          child: Icon(
-            Icons.person,
-            color: Colors.white30,
-            size: 40.sp,
-          ),
+          child: Icon(Icons.person, color: Colors.white30, size: 40.sp),
         ),
       );
 
-  void _showRequestSheet(
-    BuildContext context,
-    SubscribeController controller,
-  ) {
+  void _showBookSheet(BuildContext context) {
     showModalBottomSheet(
-      backgroundColor: Colors.white,
-      elevation: 2,
       context: context,
-      builder: (context) {
-        return Obx(
-          () => DialogShowHelper.showBottomSheet(
-            context,
-            title: 'Trainer request',
-            content: CustomTextField(
-              controller: controller.noteTEController,
-              contentPaddingVertical: 10.h,
-              labelText: 'Note :',
-              hintText: 'Write a short message ',
-              maxLines: 5,
-              minLines: 5,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _BookTrainerSheet(
+        trainerName: trainer?.name ?? trainer?.userId?.fullName ?? 'Trainer',
+        photoUrl: (trainer?.profileImage?.isNotEmpty == true)
+            ? trainer!.profileImage!
+            : (trainer?.userId?.profilePicture ?? ''),
+      ),
+    );
+  }
+}
+
+class _BookTrainerSheet extends StatelessWidget {
+  final String trainerName;
+  final String photoUrl;
+
+  const _BookTrainerSheet({required this.trainerName, required this.photoUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = PaywallController.to;
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 36.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            width: 40.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2.r),
             ),
-            buttonLabel: 'Request trainer',
-            isLoading: controller.requestLoadingState.isLoading,
-            onTapConfirm: () =>
-                controller.requestTrainer(trainer?.sId ?? ''),
           ),
-        );
-      },
+          SizedBox(height: 20.h),
+
+          // Trainer avatar + name
+          photoUrl.isNotEmpty
+              ? CircleAvatar(
+                  radius: 36.r,
+                  backgroundImage: NetworkImage(photoUrl),
+                )
+              : CircleAvatar(
+                  radius: 36.r,
+                  backgroundColor: AppColors.primary.withOpacity(0.15),
+                  child: Icon(Icons.person, size: 36.sp, color: AppColors.primary),
+                ),
+          SizedBox(height: 12.h),
+          Text(
+            trainerName,
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Personal Trainer',
+            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+          ),
+          SizedBox(height: 24.h),
+
+          // Price card
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20.r),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() => Text(
+                  ctrl.monthlyPriceStr.value,
+                  style: TextStyle(
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                  ),
+                )),
+                Text(
+                  '/ month',
+                  style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+                ),
+                SizedBox(height: 16.h),
+                ...[
+                  'AI-guided workout plans',
+                  'Direct trainer messaging',
+                  'Progress tracking & analytics',
+                  'Cancel anytime',
+                ].map((b) => Padding(
+                  padding: EdgeInsets.only(bottom: 8.h),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle,
+                          color: AppColors.primary, size: 16.r),
+                      SizedBox(width: 8.w),
+                      Text(b,
+                          style: TextStyle(
+                              fontSize: 13.sp, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
+          SizedBox(height: 20.h),
+
+          // Book button
+          Obx(() => SizedBox(
+            width: double.infinity,
+            height: 52.h,
+            child: ElevatedButton(
+              onPressed: ctrl.purchaseLoading.value
+                  ? null
+                  : () {
+                      ctrl.selectPlan('monthly');
+                      ctrl.upgradeNow();
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+              ),
+              child: ctrl.purchaseLoading.value
+                  ? SizedBox(
+                      width: 22.w,
+                      height: 22.h,
+                      child: const CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2),
+                    )
+                  : Text(
+                      'Book Trainer',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+            ),
+          )),
+          SizedBox(height: 8.h),
+          Text(
+            'Billed monthly · Cancel anytime',
+            style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
