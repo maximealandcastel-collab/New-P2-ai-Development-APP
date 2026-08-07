@@ -41,7 +41,7 @@ class ContentsScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 12.h),
                 Text(
-                  'We're putting the finishing touches on your video content library. Check back soon!',
+                  "We're putting the finishing touches on your video content library. Check back soon!",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14.sp,
