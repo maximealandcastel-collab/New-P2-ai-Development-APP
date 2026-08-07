@@ -5,16 +5,22 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/home/data/models/trainer_dashboard_stats_model.dart';
 import 'package:pler_to_pler_app/features/home/domain/services/trainer_dashboard_service.dart';
+import 'package:pler_to_pler_app/features/home/data/models/trainer_client_plan_model.dart';
+import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/services/api_service.dart';
 
 class TrainerHomeController extends GetxController {
   TrainerHomeController({
     required TrainerDashboardService service,
     required ConnectivityService connectivityService,
+    required ApiService apiService,
   })  : _service = service,
-        _connectivityService = connectivityService;
+        _connectivityService = connectivityService,
+        _apiService = apiService;
 
   final TrainerDashboardService _service;
   final ConnectivityService _connectivityService;
+  final ApiService _apiService;
 
   static TrainerHomeController get to => Get.find();
 
@@ -65,6 +71,7 @@ class TrainerHomeController extends GetxController {
     try {
       final stats = await _service.getDashboardStats();
       _dashboardStats.value = stats;
+      fetchClientPlans();
       _loadingState.value = LoadingState.loaded;
     } catch (e) {
       if (!hasUsableCache) {
@@ -78,4 +85,17 @@ class TrainerHomeController extends GetxController {
 
   @override
   Future<void> refresh() => loadData(isRefresh: true);
+
+  Future<void> fetchClientPlans() async {
+    try {
+      final response = await _apiService.get(ApiConstants.trainerMyWorkoutPlans);
+      final data = response.data;
+      if (data == null) return;
+      final payload = data is Map ? Map<String, dynamic>.from(data) : null;
+      if (payload == null) return;
+      _clientPlans.assignAll(TrainerClientPlanModel.listFromApiResponse(payload));
+    } catch (e) {
+      if (kDebugMode) debugPrint('fetchClientPlans error: $e');
+    }
+  }
 }
