@@ -10,7 +10,6 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/reset_pass_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/phone_otp_controller.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -473,12 +472,6 @@ class DependencyInjection {
         service: Get.find<NotificationService>(),
         connectivityService: Get.find<ConnectivityService>(),
       ),
-      fenix: true,
-    );
-
-    // PhoneOtpController — required for sign-up phone verification waiting screen
-    Get.lazyPut<PhoneOtpController>(
-      () => PhoneOtpController(api: Get.find<ApiService>()),
       fenix: true,
     );
 

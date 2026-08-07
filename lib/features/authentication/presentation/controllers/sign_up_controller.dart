@@ -67,11 +67,8 @@ class SignUpController extends GetxController {
       }
       _registerState.value = LoadingState.loaded;
       Get.toNamed(
-        AppRoute.phoneOtpWaitingScreen,
-        arguments: {
-          'phone': phoneController.text.trim(),
-          'role': _selectedRole.value.toLowerCase(),
-        },
+        AppRoute.otpVerificationScreen,
+        arguments: 'signup',
       );
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
