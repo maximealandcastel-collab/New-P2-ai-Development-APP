@@ -17,6 +17,7 @@ class TrainerDetailsModel {
   int? iV;
   AnamAI? anamAI;
   bool? isDefault;
+  String? profileImage;
 
   TrainerDetailsModel(
       {this.sId,
@@ -35,7 +36,8 @@ class TrainerDetailsModel {
         this.updatedAt,
         this.iV,
         this.anamAI,
-        this.isDefault});
+        this.isDefault,
+        this.profileImage,});
 
   TrainerDetailsModel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -63,6 +65,7 @@ class TrainerDetailsModel {
     anamAI =
     json['anamAI'] != null ? AnamAI.fromJson(json['anamAI']) : null;
     isDefault = json['isDefault'];
+    profileImage = json['profileImage'];
   }
 
   Map<String, dynamic> toJson() {
@@ -90,6 +93,7 @@ class TrainerDetailsModel {
       data['anamAI'] = anamAI!.toJson();
     }
     data['isDefault'] = isDefault;
+    data['profileImage'] = profileImage;
     return data;
   }
 }

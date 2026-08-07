@@ -40,6 +40,7 @@ class CustomTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatter;
   final int? minLines;
   final InputBorder? border;
+  final List<String>? autofillHints;
 
   const CustomTextField(
       {super.key,
@@ -73,7 +74,7 @@ class CustomTextField extends StatefulWidget {
         this.fontFamily,
         this.textInputAction,
         this.inputFormatter,
-        this.minLines, this.maxLines, this.border, this.labelColor, this.onFieldSubmitted});
+        this.minLines, this.maxLines, this.border, this.labelColor, this.onFieldSubmitted, this.autofillHints,});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -172,6 +173,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           inputFormatters: widget.inputFormatter,
           textInputAction: widget.textInputAction,
+          autofillHints: widget.autofillHints,
           obscuringCharacter: widget.obscure!,
           autovalidateMode: AutovalidateMode.onUnfocus,
           minLines: widget.isPassword ? 1 : (widget.minLines ?? 1),

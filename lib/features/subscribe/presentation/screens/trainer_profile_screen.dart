@@ -61,7 +61,7 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
             height: 210.h,
             fit: BoxFit.cover,
             width: double.infinity,
-            imageUrl: '',
+            imageUrl: userData?.profileImage ?? '',
           ),
           Positioned(
             top: 132.h,
@@ -78,7 +78,7 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
                     height: 124.r,
                     width: 124.r,
                     boxShape: BoxShape.circle,
-                    imageUrl: '',
+                    imageUrl: userData?.profileImage ?? '',
                   ),
                 ),
                 CustomText(

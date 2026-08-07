@@ -51,6 +51,7 @@ class LoginScreen extends StatelessWidget {
                 controller: controller.emailController,
                 hintText: "Enter your email address",
                 prefixIcon: Icon(Icons.email, size: 24.sp),
+                autofillHints: const [AutofillHints.email],
               ),
               CustomTextField(
                 labelText: 'Password',
@@ -58,6 +59,7 @@ class LoginScreen extends StatelessWidget {
                 hintText: "Enter your password",
                 prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
                 isPassword: true,
+                autofillHints: const [AutofillHints.password],
               ),
               SizedBox(
                 width: double.infinity,
@@ -125,6 +127,7 @@ class LoginScreen extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 
