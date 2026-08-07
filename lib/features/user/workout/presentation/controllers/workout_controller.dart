@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/arguments/video_player_args.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/home/data/models/trainer_workout_plan_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
@@ -28,6 +29,7 @@ class WorkoutController extends GetxController {
   final Rxn<WorkoutModel> workoutDetails = Rxn<WorkoutModel>();
   final Rxn<WorkoutTodayOverviewModel> todayOverview = Rxn<WorkoutTodayOverviewModel>();
   final RxList<WorkoutProgressionModel> monthlyProgression = <WorkoutProgressionModel>[].obs;
+  final Rxn<TrainerWorkoutPlanModel> _trainerPlan = Rxn<TrainerWorkoutPlanModel>();
   String? _detailsWorkoutId;
 
   String? get detailsWorkoutId => _detailsWorkoutId;
@@ -72,6 +74,8 @@ class WorkoutController extends GetxController {
       workoutDetails.value != null && (plan?.mainWork?.isNotEmpty ?? false);
 
   bool get hasTodayOverview => todayOverview.value != null;
+  TrainerWorkoutPlanModel? get trainerPlan => _trainerPlan.value;
+  bool get hasTrainerPlan => _trainerPlan.value != null;
 
   bool get isSessionInProgress =>
       workoutDetails.value?.status == 'in_progress';
@@ -515,7 +519,15 @@ class WorkoutController extends GetxController {
     }
   }
 
-  @override
+  Future<void> fetchTrainerPlan({bool silent = false}) async {
+    try {
+      _trainerPlan.value = await _service.getTrainerPlan();
+    } catch (e) {
+      if (kDebugMode) debugPrint('fetchTrainerPlan error: \$e');
+    }
+  }
+
+    @override
   void onClose() {
     checkInResponseController.dispose();
     actualDurationController.dispose();
