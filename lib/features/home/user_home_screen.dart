@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/home/widgets/gym_section.dart';
@@ -44,7 +43,7 @@ class UserHomeScreen extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Get.toNamed(AppRoute.workoutScreen),
-                child: Assets.images.setGoal.image(),
+                child: const _WorkoutSplitBanner(),
               ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
             if (showShimmer) ...UserHomeShimmer.slivers() else ..._buildContent(),
             SizedBox(height: 16.h).asSliver,
@@ -59,10 +58,78 @@ class UserHomeScreen extends StatelessWidget {
     return [
       GymSection().asSliverWithPadding(horizontal: 16.w),
       OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
-      const TodayWorkoutSection()
-          .asSliverWithPadding(horizontal: 16.w),
-      const TrainerPlanSection()
-          .asSliverWithPadding(horizontal: 16.w),
+      const TodayWorkoutSection().asSliverWithPadding(horizontal: 16.w),
+      const TrainerPlanSection().asSliverWithPadding(horizontal: 16.w),
     ];
+  }
+}
+
+/// Replaces the old 'Set your goal' image asset with a Flutter widget
+/// so the button text can be updated without regenerating image assets.
+class _WorkoutSplitBanner extends StatelessWidget {
+  const _WorkoutSplitBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 148.h,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF6B7A99), Color(0xFF9AA5B8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -6.w,
+            bottom: 0,
+            top: 0,
+            child: Icon(
+              Icons.fitness_center,
+              size: 110.sp,
+              color: Colors.white.withOpacity(0.13),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Leverage power of AI to find\nworkout that fits your needs',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: 14.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24.r),
+                  ),
+                  child: Text(
+                    'Create my workout split',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
