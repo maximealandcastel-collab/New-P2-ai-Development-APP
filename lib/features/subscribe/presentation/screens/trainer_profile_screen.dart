@@ -134,7 +134,7 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen> {
       isScrollControlled: true,
       builder: (_) => _BookTrainerSheet(
         trainerName: userData?.name ?? 'Trainer',
-        photoUrl: '',
+        photoUrl: userData?.profileImage ?? '',
       ),
     );
   }
