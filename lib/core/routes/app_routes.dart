@@ -79,6 +79,7 @@ import 'package:pler_to_pler_app/features/user/connect_device/data/models/device
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/add_device_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/device_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/screens/manage_devices_screen.dart';
+import 'package:pler_to_pler_app/features/community/presentation/screens/before_after_screen.dart';
 
 class AppRoute {
   static String init = "/";
@@ -136,6 +137,7 @@ class AppRoute {
   static String adminSupportScreen = "/adminSupportScreen";
   static String smarterCareScreen = "/smarterCareScreen";
   static String adminUserListScreen = "/adminUserListScreen";
+  static String beforeAfterScreen = "/beforeAfterScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -386,6 +388,10 @@ class AppRoute {
           Get.put(AdminDashboardController());
         }
       }),
+    ),
+    GetPage(
+      name: beforeAfterScreen,
+      page: () => const BeforeAfterScreen(),
     ),
   ];
 }

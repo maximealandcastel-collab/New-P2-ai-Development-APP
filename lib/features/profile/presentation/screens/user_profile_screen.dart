@@ -41,6 +41,10 @@ class UserProfileScreen extends StatelessWidget {
               label: 'Manage devices',
               onTap: () => Get.toNamed(AppRoute.manageDevicesScreen),
             ),
+            ListTileWidget(
+              label: 'Post Before & After',
+              onTap: () => Get.toNamed(AppRoute.beforeAfterScreen),
+            ),
           ],
         ).asSliverWithPadding(horizontal: 16.w),
 
@@ -75,7 +79,7 @@ class UserProfileScreen extends StatelessWidget {
                     onConfirm: LoginController.to.logout,
                   ),
                 );
-              }, // Triggering the UI dialog
+              },
             ),
             ListTileWidget(
               label: 'Delete my account',
