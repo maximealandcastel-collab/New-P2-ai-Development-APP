@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:image_picker/image_picker.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
@@ -45,7 +45,7 @@ class BeforeAfterController extends GetxController {
     isSuccess.value = false;
 
     try {
-      final token = CacheService.to.getString(AppConstants.accessToken);
+      final token = CacheService().get<String>(AppConstants.accessToken) ?? '';
 
       final formData = FormData.fromMap({
         'beforeImage': await MultipartFile.fromFile(
