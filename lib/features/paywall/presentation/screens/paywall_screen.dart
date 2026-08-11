@@ -496,76 +496,70 @@ class PaywallScreen extends StatelessWidget {
       }
 
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: controller.togglePromoField,
-            child: CustomText(
-              text: "Have a promo code?",
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-              decoration: TextDecoration.underline,
-              decorationColor: AppColors.primary,
-            ),
+          CustomText(
+            text: "Promo code",
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
           ),
-          if (controller.showPromoField.value) ...[
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller.promoController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: InputDecoration(
-                      hintText: "Enter promo code",
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12.w, vertical: 12.h),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                            color: AppColors.textFormFieldBorder),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: AppColors.primary),
-                      ),
+          SizedBox(height: 6.h),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.promoController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: "Enter promo code",
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12.w, vertical: 12.h),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: AppColors.textFormFieldBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
-                SizedBox(width: 8.w),
-                SizedBox(
-                  height: 46.h,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+              ),
+              SizedBox(width: 8.w),
+              SizedBox(
+                height: 46.h,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: controller.promoLoading.value
-                        ? null
-                        : controller.applyPromoCode,
-                    child: controller.promoLoading.value
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : CustomText(
-                            text: "Apply",
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textWhite,
+                  ),
+                  onPressed: controller.promoLoading.value
+                      ? null
+                      : controller.applyPromoCode,
+                  child: controller.promoLoading.value
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
                           ),
-                  ),
+                        )
+                      : CustomText(
+                          text: "Apply",
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textWhite,
+                        ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
           if (controller.promoError.value.isNotEmpty) ...[
             SizedBox(height: 6.h),
             CustomText(
