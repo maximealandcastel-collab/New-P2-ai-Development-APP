@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/paywall/presentation/screens/paywall_screen.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
 class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -60,7 +61,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
       final route = await Get.find<ProfileService>().resolveInitialRoute();
       Get.offAllNamed(route);
     } else {
-      Get.offAllNamed(AppRoute.onboardingMainScreen);
+      Get.offAll(() => PaywallScreen());
     }
     //Get.offAllNamed(AppRoute.subscribeSelectScreen);
   }

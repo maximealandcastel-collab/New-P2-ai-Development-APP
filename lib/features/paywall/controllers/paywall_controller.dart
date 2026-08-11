@@ -231,7 +231,7 @@ class PaywallController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4),
           );
-          Get.offAll(() => NavBar());
+          Get.offAllNamed(AppRoute.onboardingMainScreen);
         } else {
           final msg = (redeemResp.body is Map)
               ? (redeemResp.body["message"] ?? "Could not redeem code. It may already be used.")
@@ -301,7 +301,7 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        Get.offAll(() => NavBar());
+        Get.offAllNamed(AppRoute.onboardingMainScreen);
       } else {
         final msg = (redeemResp.body is Map)
             ? (redeemResp.body["message"] ??

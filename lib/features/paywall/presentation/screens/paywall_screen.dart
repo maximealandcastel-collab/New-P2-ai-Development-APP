@@ -111,7 +111,7 @@ class PaywallScreen extends StatelessWidget {
                             () => _planCard(
                               planKey: "monthly",
                               title: "Monthly Plan",
-                              subtitle: "Billed every month",
+                              subtitle: "3-day free trial, then billed monthly",
                               price: controller.monthlyPrice,
                               badge: null,
                               mostPopular: false,
@@ -187,7 +187,7 @@ class PaywallScreen extends StatelessWidget {
                                 ),
                               )
                             : CustomText(
-                                text: "Upgrade Now",
+                                text: "Start 3-Day Free Trial",
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textWhite,
