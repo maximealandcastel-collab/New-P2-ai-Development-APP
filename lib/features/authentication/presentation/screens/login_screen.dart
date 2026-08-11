@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/paywall/presentation/screens/paywall_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/auth_switch_link.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
@@ -92,7 +93,7 @@ class LoginScreen extends StatelessWidget {
               AuthSwitchLink(
                 prompt: "Don't have an account? ",
                 actionLabel: 'Sign up',
-                onTap: () => Get.toNamed(AppRoute.signUpScreen),
+                onTap: () => Get.to(() => PaywallScreen()),
               ),
               SizedBox(height: 24.h),
 
