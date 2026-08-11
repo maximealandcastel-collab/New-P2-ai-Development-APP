@@ -21,6 +21,7 @@ class PaywallScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            // ── Scrollable content ────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -44,37 +45,39 @@ class PaywallScreen extends StatelessWidget {
                       ),
                     ),
 
+                    SizedBox(height: 4.h),
+
                     // Logo
                     Image.asset(
                       'assets/images/app_logo.png',
-                      height: 110.h,
+                      height: 90.h,
                       errorBuilder: (context, error, stack) => Icon(
                         Icons.fitness_center,
                         size: 64.sp,
                         color: AppColors.primary,
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 14.h),
 
                     // Headline
                     CustomText(
                       text: "Unlock Your Full\nAi Fitness Experience",
-                      fontSize: 28.sp,
+                      fontSize: 26.sp,
                       fontWeight: FontWeight.w700,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 8.h),
                     CustomText(
                       text:
                           "Get personalized plans, expert guidance\nand real results.",
-                      fontSize: 15.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: AppColors.textSecondary,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 18.h),
 
-                    // White card with features + plans + promo
+                    // White card — features + plan
                     Container(
                       padding: EdgeInsets.all(16.w),
                       decoration: BoxDecoration(
@@ -86,78 +89,18 @@ class PaywallScreen extends StatelessWidget {
                           _featureIconsRow(),
                           SizedBox(height: 20.h),
 
-                          // Annual plan
-                          Obx(
-                            () => _planCard(
-                              planKey: "annual",
-                              title: "Annual Plan",
-                              subtitle: "Billed once a year",
-                              price: controller.annualPrice,
-                              badge: "Save 50%",
-                              mostPopular: true,
-                              bullets: const [
-                                "Everything in monthly",
-                                "AI-guided plans & workouts",
-                                "Track progress & analytics",
-                                "Access to all core features",
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 12.h),
-
-                          // Monthly plan
-                          Obx(
-                            () => _planCard(
-                              planKey: "monthly",
-                              title: "Monthly Plan",
-                              subtitle: "3-day free trial, then billed monthly",
-                              price: controller.monthlyPrice,
-                              badge: null,
-                              mostPopular: false,
-                              bullets: const [
-                                "AI-guided plans & workouts",
-                                "Track progress & analytics",
-                                "Access to all core features",
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
-
-                          _promoCodeSection(),
-                          SizedBox(height: 12.h),
-                          GestureDetector(
-                            onTap: () => _showAdminBypassSheet(context),
-                            child: CustomText(
-                              text: 'Activate Admin Access',
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                              textAlign: TextAlign.center,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.textSecondary,
-                            ),
-                          ),
+                          // Annual plan only
+                          Obx(() => _planCard()),
                         ],
                       ),
                     ),
                     SizedBox(height: 16.h),
-
-                    // Trust badges
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _trustBadge(Icons.lock_outline, "Secure Payment"),
-                        _trustBadge(Icons.shield_outlined, "Cancel Anytime"),
-                        _trustBadge(Icons.headset_mic_outlined, "24/7 Support"),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
                   ],
                 ),
               ),
             ),
 
-            // Upgrade button + terms
+            // ── CTA button + terms ────────────────────────────────────
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
               child: Column(
@@ -195,7 +138,6 @@ class PaywallScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 6.h),
-                  // Purchase error message
                   Obx(() => controller.purchaseError.value.isNotEmpty
                       ? Padding(
                           padding: EdgeInsets.only(bottom: 6.h),
@@ -250,31 +192,23 @@ class PaywallScreen extends StatelessWidget {
     );
   }
 
-  // ---------------- Widgets ----------------
+  // ── Feature icons ─────────────────────────────────────────────────────────
 
   Widget _featureIconsRow() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _featureIcon(Icons.fitness_center, "AI Personal\nTrainer",
-            "Coaching that adapts to you"),
-        _divider(),
+            "Coaching that\nadapts to you"),
         _featureIcon(Icons.assignment_turned_in_outlined, "Smart\nWorkouts",
-            "Plans built for your goals"),
-        _divider(),
+            "Plans built for\nyour goals"),
         _featureIcon(Icons.insights_outlined, "Track\nProgress",
-            "See results and stay motivated"),
-        _divider(),
+            "See results and\nstay motivated"),
         _featureIcon(Icons.stadium_outlined, "Gyms &\nCommunity",
-            "Access gyms and connect"),
+            "Access gyms and\nconnect"),
       ],
     );
   }
-
-  Widget _divider() => Container(
-        width: 1,
-        height: 70.h,
-        color: const Color(0xFFEDEDED),
-      );
 
   Widget _featureIcon(IconData icon, String title, String subtitle) {
     return Expanded(
@@ -308,269 +242,84 @@ class PaywallScreen extends StatelessWidget {
     );
   }
 
-  Widget _planCard({
-    required String planKey,
-    required String title,
-    required String subtitle,
-    required double price,
-    required List<String> bullets,
-    String? badge,
-    bool mostPopular = false,
-  }) {
-    final selected = controller.selectedPlan.value == planKey;
+  // ── Annual plan card ──────────────────────────────────────────────────────
+
+  Widget _planCard() {
     final discounted = controller.hasPromo;
 
-    return GestureDetector(
-      onTap: () => controller.selectPlan(planKey),
-      child: Container(
-        padding: EdgeInsets.all(14.w),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFFFFF8F1) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected ? AppColors.primary : const Color(0xFFE5E5E5),
-            width: selected ? 2 : 1.2,
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8F1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary, width: 2),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.radio_button_checked,
+            color: AppColors.primary,
+            size: 22.sp,
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  selected
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_off,
-                  color: selected
-                      ? AppColors.primary
-                      : const Color(0xFFBDBDBD),
-                  size: 22.sp,
+                CustomText(
+                  text: "Annual Plan",
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
                 ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomText(
-                        text: title,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      CustomText(
-                        text: subtitle,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    CustomText(
-                      text: "\$${price.toStringAsFixed(2)}",
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.w800,
-                    ),
-                    if (discounted)
-                      CustomText(
-                        text: "50% off applied",
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.success,
-                      )
-                    else if (badge != null)
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 3.h),
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: CustomText(
-                          text: badge,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textWhite,
-                        ),
-                      ),
-                  ],
+                CustomText(
+                  text: "Billed once a year",
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
                 ),
               ],
             ),
-            SizedBox(height: 10.h),
-            ...bullets.map(
-              (b) => Padding(
-                padding: EdgeInsets.only(bottom: 5.h),
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle_outline,
-                        color: AppColors.primary, size: 16.sp),
-                    SizedBox(width: 6.w),
-                    Expanded(
-                      child: CustomText(
-                        text: b,
-                        fontSize: 12.sp,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              CustomText(
+                text: discounted
+                    ? "\$${controller.annualPrice.toStringAsFixed(2)}"
+                    : controller.annualPriceStr.value,
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w800,
               ),
-            ),
-            if (mostPopular) ...[
-              SizedBox(height: 6.h),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                    horizontal: 12.w, vertical: 8.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9E3CC),
-                  borderRadius: BorderRadius.circular(10),
+              if (discounted)
+                CustomText(
+                  text: "50% off applied",
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.success,
+                )
+              else
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.success,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: CustomText(
+                    text: "Save 50%",
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textWhite,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.local_fire_department,
-                        color: AppColors.primary, size: 16.sp),
-                    SizedBox(width: 6.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          text: "Most Popular",
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        CustomText(
-                          text: "Great for getting started",
-                          fontSize: 10.sp,
-                          color: AppColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
             ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _promoCodeSection() {
-    return Obx(() {
-      // Applied state — green chip with remove option
-      if (controller.hasPromo) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-              horizontal: 12.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF7EC),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.success),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle, color: AppColors.success, size: 18.sp),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: CustomText(
-                  text:
-                      "Code applied: ${controller.appliedPromoCode.value}",
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              GestureDetector(
-                onTap: controller.removePromoCode,
-                child: Icon(Icons.close,
-                    size: 18.sp, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        );
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomText(
-            text: "Promo code",
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-          ),
-          SizedBox(height: 6.h),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller.promoController,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: InputDecoration(
-                    hintText: "Enter promo code",
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12.w, vertical: 12.h),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: AppColors.textFormFieldBorder),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: AppColors.primary),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              SizedBox(
-                height: 46.h,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: controller.promoLoading.value
-                      ? null
-                      : controller.applyPromoCode,
-                  child: controller.promoLoading.value
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : CustomText(
-                          text: "Apply",
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textWhite,
-                        ),
-                ),
-              ),
-            ],
-          ),
-          if (controller.promoError.value.isNotEmpty) ...[
-            SizedBox(height: 6.h),
-            CustomText(
-              text: controller.promoError.value,
-              fontSize: 12.sp,
-              color: AppColors.error,
-            ),
-          ],
-        ],
-      );
-    });
-  }
+  // ── Admin bypass (hidden — triggered programmatically if needed) ──────────
 
   void _showAdminBypassSheet(BuildContext context) {
     final codeController = TextEditingController();
@@ -592,7 +341,6 @@ class PaywallScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // drag handle
               Center(
                 child: Container(
                   width: 40.w,
@@ -606,7 +354,8 @@ class PaywallScreen extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: AppColors.primary, size: 20.sp),
+                  Icon(Icons.shield_outlined,
+                      color: AppColors.primary, size: 20.sp),
                   SizedBox(width: 8.w),
                   CustomText(
                     text: 'Admin Access',
@@ -616,7 +365,8 @@ class PaywallScreen extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: Icon(Icons.close, size: 20.sp, color: AppColors.textSecondary),
+                    child: Icon(Icons.close,
+                        size: 20.sp, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -635,15 +385,21 @@ class PaywallScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 22.sp, letterSpacing: 8),
                 decoration: InputDecoration(
                   hintText: '• • • •',
-                  hintStyle: TextStyle(fontSize: 18.sp, letterSpacing: 6, color: Colors.grey.shade400),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  hintStyle: TextStyle(
+                      fontSize: 18.sp,
+                      letterSpacing: 6,
+                      color: Colors.grey.shade400),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w, vertical: 16.h),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: AppColors.textFormFieldBorder),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFD9D9D9)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary),
                   ),
                 ),
                 onSubmitted: (_) async {
@@ -675,13 +431,15 @@ class PaywallScreen extends StatelessWidget {
                       onPressed: loading.value
                           ? null
                           : () async {
-                              await _activateAdminCode(codeController, loading, error);
+                              await _activateAdminCode(
+                                  codeController, loading, error);
                             },
                       child: loading.value
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
                             )
                           : CustomText(
                               text: 'Activate Admin',
@@ -713,10 +471,13 @@ class PaywallScreen extends StatelessWidget {
     loading.value = true;
     error.value = '';
     try {
-      final resp = await ApiClient.postData(ApiUrls.baseUrl + ApiUrls.adminBypass, {'code': code});
+      final resp = await ApiClient.postData(
+        ApiUrls.baseUrl + ApiUrls.adminBypass,
+        {'code': code},
+      );
       loading.value = false;
       if (resp.statusCode == 200) {
-        Get.back(); // close sheet
+        Get.back();
         Get.snackbar(
           '🔓 Admin Access Activated',
           'Full access unlocked. Enjoy the app.',
@@ -734,6 +495,8 @@ class PaywallScreen extends StatelessWidget {
       error.value = 'Connection error. Try again.';
     }
   }
+
+  // ── Already a member? ─────────────────────────────────────────────────────
 
   Widget _alreadyMemberSection() {
     return Container(
@@ -854,21 +617,6 @@ class PaywallScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _trustBadge(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 16.sp, color: AppColors.textSecondary),
-        SizedBox(width: 4.w),
-        CustomText(
-          text: label,
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textSecondary,
-        ),
-      ],
     );
   }
 }
