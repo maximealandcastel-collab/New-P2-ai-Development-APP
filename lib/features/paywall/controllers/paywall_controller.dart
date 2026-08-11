@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
