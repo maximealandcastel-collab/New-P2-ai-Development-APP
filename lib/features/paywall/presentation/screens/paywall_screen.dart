@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
-import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
-import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
-import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
-import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/dio_api_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaywallScreen extends StatelessWidget {
@@ -48,7 +47,7 @@ class PaywallScreen extends StatelessWidget {
 
                     // Logo
                     Image.asset(
-                      'assets/images/logo.png',
+                      ImagePath.appLogo,
                       height: 110.h,
                       errorBuilder: (context, error, stack) => Icon(
                         Icons.fitness_center,
@@ -161,8 +160,7 @@ class PaywallScreen extends StatelessWidget {
 
             // Upgrade button + terms
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                  16.w, 4.h, 16.w, 12.h),
+              padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 8.h),
               child: Column(
                 children: [
                   Obx(
@@ -197,7 +195,7 @@ class PaywallScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 6.h),
                   // Purchase error message
                   Obx(() => controller.purchaseError.value.isNotEmpty
                       ? Padding(
@@ -211,12 +209,19 @@ class PaywallScreen extends StatelessWidget {
                           ),
                         )
                       : const SizedBox.shrink()),
+                  CustomText(
+                    text: "Cancel anytime  •  No hidden fees",
+                    fontSize: 12.sp,
+                    color: AppColors.textSecondary,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomText(
                         text: "By continuing, you agree to our ",
-                        fontSize: 12.sp,
+                        fontSize: 11.sp,
                         color: AppColors.textSecondary,
                       ),
                       GestureDetector(
@@ -226,7 +231,7 @@ class PaywallScreen extends StatelessWidget {
                         ),
                         child: CustomText(
                           text: "Terms of Service",
-                          fontSize: 12.sp,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
                         ),
@@ -236,6 +241,10 @@ class PaywallScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── Already a member? ─────────────────────────────────────
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+            _alreadyMemberSection(),
           ],
         ),
       ),
@@ -627,7 +636,7 @@ class PaywallScreen extends StatelessWidget {
               SizedBox(height: 20.h),
               TextField(
                 controller: codeController,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.number,
                 obscureText: true,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 22.sp, letterSpacing: 8),
@@ -710,47 +719,152 @@ class PaywallScreen extends StatelessWidget {
     }
     loading.value = true;
     error.value = '';
-    await Future.delayed(const Duration(milliseconds: 400));
-    loading.value = false;
-    if (code == '2931') {
-      if (!Get.isRegistered<AdminModeService>()) {
-        Get.put(AdminModeService(), permanent: true);
-      }
-      AdminModeService.to.activate();
-      if (!Get.isRegistered<AdminDashboardController>()) {
-        Get.put(AdminDashboardController());
-      }
-      Get.back(); // close sheet
-      Get.snackbar(
-        '🔓 Founders Access Activated',
-        'Full Founders Access — lifetime admin privileges activated.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.shade800,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+    try {
+      final resp = await NetworkCaller.instance.postRequest(
+        url: ApiUrls.baseUrl + ApiUrls.adminBypass,
+        body: {'code': code},
       );
-      Get.offAll(() => NavBar());
-    } else if (code.toUpperCase() == '67') {
-      if (!Get.isRegistered<AffiliateModeService>()) {
-        Get.put(AffiliateModeService(), permanent: true);
+      loading.value = false;
+      if (resp.isSuccess) {
+        Get.back(); // close sheet
+        Get.snackbar(
+          '🔓 Admin Access Activated',
+          'Full access unlocked. Enjoy the app.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.shade800,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        Get.offAll(() => NavBar());
+      } else {
+        error.value = 'Invalid PIN. Try again.';
       }
-      AffiliateModeService.to.activate(code);
-      if (!Get.isRegistered<AffiliateDashboardController>()) {
-        Get.put(AffiliateDashboardController(promoCode: code.toUpperCase()));
-      }
-      Get.back(); // close sheet
-      Get.snackbar(
-        '💰 Partner Access Activated',
-        'Welcome Samir! Your earnings dashboard is ready.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF1A1A2E),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      Get.offAll(() => NavBar());
-    } else {
-      error.value = 'Invalid PIN. Try again.';
+    } catch (_) {
+      loading.value = false;
+      error.value = 'Connection error. Try again.';
     }
+  }
+
+  Widget _alreadyMemberSection() {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 20.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 42.w,
+                height: 42.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDEFE0),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.person_outline,
+                    color: AppColors.primary, size: 22.sp),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      text: "Already a member?",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    SizedBox(height: 2.h),
+                    CustomText(
+                      text:
+                          "Enter your access code to continue to the app.",
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                      maxline: 2,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.accessCodeController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: "Enter your access code",
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 14.w, vertical: 13.h),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDDDDDD)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDDDDDD)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Obx(
+                () => SizedBox(
+                  height: 50.h,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 18.w),
+                    ),
+                    onPressed: controller.accessCodeLoading.value
+                        ? null
+                        : controller.redeemAccessCode,
+                    child: controller.accessCodeLoading.value
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                        : CustomText(
+                            text: "Continue",
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textWhite,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Obx(
+            () => controller.accessCodeError.value.isNotEmpty
+                ? Padding(
+                    padding: EdgeInsets.only(top: 6.h),
+                    child: CustomText(
+                      text: controller.accessCodeError.value,
+                      fontSize: 12.sp,
+                      color: AppColors.error,
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _trustBadge(IconData icon, String label) {

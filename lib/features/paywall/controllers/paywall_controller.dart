@@ -30,13 +30,18 @@ class PaywallController extends GetxController {
   final selectedPlan = "annual".obs;
   void selectPlan(String plan) => selectedPlan.value = plan;
 
-  // ─── Promo code ─────────────────────────────────────────────
+  // ─── Promo code (inside card — affiliate/discount codes) ────
   final promoController = TextEditingController();
   final showPromoField = false.obs;
   final promoLoading = false.obs;
   final appliedPromoCode = "".obs;
   final promoError = "".obs;
   final promoPlanLabel = "".obs;
+
+  // ─── Access code (bottom bar — website purchase codes) ──────
+  final accessCodeController = TextEditingController();
+  final accessCodeLoading = false.obs;
+  final accessCodeError = "".obs;
 
   void togglePromoField() {
     showPromoField.value = !showPromoField.value;
@@ -254,10 +259,68 @@ class PaywallController extends GetxController {
     promoError.value = "";
   }
 
+  // ─── Access code redemption (bottom bar) ────────────────────
+  // Called when the user taps "Continue" in the "Already a member?" section.
+  // Validates the code (no auth needed) then redeems it (requires JWT).
+  // Website trial codes skip IAP entirely — the customer already paid online.
+  Future<void> redeemAccessCode() async {
+    final code = accessCodeController.text.trim().toUpperCase();
+    if (code.isEmpty) {
+      accessCodeError.value = "Please enter your access code";
+      return;
+    }
+    accessCodeLoading.value = true;
+    accessCodeError.value = "";
+    try {
+      // Step 1 — validate (public, no auth required)
+      final validateResp =
+          await ApiClient.postData(ApiUrls.promoValidate, {"code": code});
+      if (validateResp.statusCode != 200) {
+        accessCodeError.value =
+            (validateResp.statusText ?? "").isNotEmpty
+                ? validateResp.statusText!
+                : "Invalid or expired access code";
+        return;
+      }
+
+      final data = validateResp.body;
+      final codeData = (data is Map && data["data"] is Map)
+          ? data["data"] as Map
+          : <String, dynamic>{};
+      final label = (codeData["label"] ?? "").toString();
+
+      // Step 2 — redeem (requires user JWT; user must be logged in)
+      final redeemResp =
+          await ApiClient.postData(ApiUrls.promoRedeem, {"code": code});
+      if (redeemResp.statusCode == 200 || redeemResp.statusCode == 201) {
+        Get.snackbar(
+          "Access Unlocked! 🎉",
+          label.isNotEmpty
+              ? "$label is now active."
+              : "Welcome! Your access is now active.",
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+        );
+        Get.offAll(() => NavBar());
+      } else {
+        final msg = (redeemResp.body is Map)
+            ? (redeemResp.body["message"] ??
+                "Code may already be used or is not valid for your account.")
+            : "Could not redeem code. Please try again.";
+        accessCodeError.value = msg.toString();
+      }
+    } catch (_) {
+      accessCodeError.value = "Could not verify the code. Please try again.";
+    } finally {
+      accessCodeLoading.value = false;
+    }
+  }
+
   @override
   void onClose() {
     _purchaseSub?.cancel();
     promoController.dispose();
+    accessCodeController.dispose();
     super.onClose();
   }
 }
