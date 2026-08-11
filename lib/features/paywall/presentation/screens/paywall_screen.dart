@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/dio_api_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaywallScreen extends StatelessWidget {
@@ -45,7 +47,7 @@ class PaywallScreen extends StatelessWidget {
 
                     // Logo
                     Image.asset(
-                      'assets/images/app_icon.png',
+                      ImagePath.appLogo,
                       height: 110.h,
                       errorBuilder: (context, error, stack) => Icon(
                         Icons.fitness_center,
