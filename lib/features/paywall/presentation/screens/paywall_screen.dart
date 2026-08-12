@@ -283,13 +283,19 @@ class PaywallScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(
-                text: discounted
-                    ? "\$${controller.annualPrice.toStringAsFixed(2)}"
-                    : controller.annualPriceStr.value,
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w800,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: discounted
+                        ? "\$${controller.annualPrice.toStringAsFixed(2)}"
+                        : controller.annualPriceStr.value,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ],
               ),
+              SizedBox(height: 2.h),
               if (discounted)
                 CustomText(
                   text: "50% off applied",
@@ -298,20 +304,30 @@ class PaywallScreen extends StatelessWidget {
                   color: AppColors.success,
                 )
               else
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.success,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: CustomText(
-                    text: "Save 50%",
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textWhite,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 3.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: CustomText(
+                        text: "Save 50%",
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textWhite,
+                      ),
+                    ),
+                  ],
                 ),
+              SizedBox(height: 2.h),
+              CustomText(
+                text: "vs \$19.99/mo",
+                fontSize: 10.sp,
+                color: AppColors.textSecondary,
+              ),
             ],
           ),
         ],
