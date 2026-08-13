@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 
