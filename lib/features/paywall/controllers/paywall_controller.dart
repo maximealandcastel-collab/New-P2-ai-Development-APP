@@ -166,7 +166,8 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        Get.back();
+        // Navigate to signup so the new subscriber creates their account
+        Get.offAllNamed(AppRoute.signUpScreen);
       } else {
         purchaseLoading.value = false;
         purchaseError.value =
