@@ -90,7 +90,7 @@ class PaywallScreen extends StatelessWidget {
                     SizedBox(height: 24.h),
 
                     // ── CTA Button ────────────────────────────────
-                    SizedBox(
+                    Obx(() => SizedBox(
                       width: double.infinity,
                       height: 54.h,
                       child: ElevatedButton(
@@ -100,17 +100,41 @@ class PaywallScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        onPressed: () => Get.offAllNamed(AppRoute.signUpScreen),
-                        child: CustomText(
-                          text: "Start 7-Day Free Trial",
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textWhite,
-                        ),
+                        onPressed: controller.purchaseLoading.value
+                            ? null
+                            : () => controller.upgradeNow(),
+                        child: controller.purchaseLoading.value
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : CustomText(
+                                text: "Start 7-Day Free Trial",
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textWhite,
+                              ),
                       ),
-                    ),
+                    )),
 
                     SizedBox(height: 8.h),
+
+                    // Purchase error message
+                    Obx(() => controller.purchaseError.value.isNotEmpty
+                        ? Padding(
+                            padding: EdgeInsets.only(bottom: 6.h),
+                            child: CustomText(
+                              text: controller.purchaseError.value,
+                              fontSize: 12.sp,
+                              color: AppColors.error,
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : const SizedBox.shrink()),
 
                     CustomText(
                       text: "Cancel anytime  •  No hidden fees",
