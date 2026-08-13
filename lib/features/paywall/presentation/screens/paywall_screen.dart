@@ -25,19 +25,20 @@ class PaywallScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Scrollable top section ────────────────────────────
+            // ── Scrollable content ────────────────────────────────
             Expanded(
-              child: Padding(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 16.h),
 
                     // Logo — multiply blend removes the white square background
                     Image.asset(
                       'assets/images/app_logo.png',
-                      height: 76.h,
+                      height: 80.h,
                       color: Colors.white,
                       colorBlendMode: BlendMode.multiply,
                       errorBuilder: (_, __, ___) => Icon(
@@ -47,7 +48,7 @@ class PaywallScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 12.h),
 
                     // Headline
                     CustomText(
@@ -57,7 +58,7 @@ class PaywallScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 6.h),
 
                     CustomText(
                       text:
@@ -67,27 +68,27 @@ class PaywallScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 20.h),
 
                     // Feature icons
                     _featureIconsRow(),
 
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 20.h),
 
                     // ── 3 Month Plan (default selected) ───────────
                     Obx(() => _threeMonthCard()),
 
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 10.h),
 
                     // ── Annual Plan ───────────────────────────────
                     Obx(() => _annualCard()),
 
-                    const Spacer(),
+                    SizedBox(height: 24.h),
 
                     // ── CTA Button ────────────────────────────────
                     SizedBox(
                       width: double.infinity,
-                      height: 52.h,
+                      height: 54.h,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -105,7 +106,7 @@ class PaywallScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: 6.h),
+                    SizedBox(height: 8.h),
 
                     CustomText(
                       text: "Cancel anytime  •  No hidden fees",
@@ -114,7 +115,7 @@ class PaywallScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    SizedBox(height: 3.h),
+                    SizedBox(height: 4.h),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +140,7 @@ class PaywallScreen extends StatelessWidget {
                       ],
                     ),
 
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 16.h),
                   ],
                 ),
               ),
