@@ -34,10 +34,12 @@ class PaywallScreen extends StatelessWidget {
                   children: [
                     SizedBox(height: 8.h),
 
-                    // Logo
+                    // Logo — multiply blend removes the white square background
                     Image.asset(
                       'assets/images/app_logo.png',
                       height: 76.h,
+                      color: Colors.white,
+                      colorBlendMode: BlendMode.multiply,
                       errorBuilder: (_, __, ___) => Icon(
                         Icons.fitness_center,
                         size: 56.sp,
