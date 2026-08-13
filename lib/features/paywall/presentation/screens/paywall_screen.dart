@@ -15,157 +15,138 @@ class PaywallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Default to 3-month plan on first open
+    if (controller.selectedPlan.value == "annual") {
+      controller.selectedPlan.value = "monthly";
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F2),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // ── Close button ─────────────────────────────────────
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    margin: EdgeInsets.only(top: 8.h),
-                    padding: EdgeInsets.all(8.w),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.close,
-                        size: 20.sp, color: AppColors.textPrimary),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 6.h),
-
-              // ── Logo ─────────────────────────────────────────────
-              Image.asset(
-                'assets/images/app_logo.png',
-                height: 80.h,
-                errorBuilder: (context, error, stack) => Icon(
-                  Icons.fitness_center,
-                  size: 60.sp,
-                  color: AppColors.primary,
-                ),
-              ),
-
-              SizedBox(height: 10.h),
-
-              // ── Headline ─────────────────────────────────────────
-              CustomText(
-                text: "Unlock Your Full\nAi Fitness Experience",
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 6.h),
-
-              CustomText(
-                text: "Get personalized plans, expert guidance\nand real results.",
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary,
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 14.h),
-
-              // ── White card — features + plan ─────────────────────
-              Container(
-                padding: EdgeInsets.all(14.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
+        child: Column(
+          children: [
+            // ── Scrollable top section ────────────────────────────
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(height: 8.h),
+
+                    // Logo
+                    Image.asset(
+                      'assets/images/app_logo.png',
+                      height: 76.h,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.fitness_center,
+                        size: 56.sp,
+                        color: AppColors.primary,
+                      ),
+                    ),
+
+                    SizedBox(height: 8.h),
+
+                    // Headline
+                    CustomText(
+                      text: "Unlock Your Full\nAi Fitness Experience",
+                      fontSize: 23.sp,
+                      fontWeight: FontWeight.w700,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 4.h),
+
+                    CustomText(
+                      text:
+                          "Get personalized plans, expert guidance\nand real results.",
+                      fontSize: 13.sp,
+                      color: AppColors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 12.h),
+
+                    // Feature icons
                     _featureIconsRow(),
-                    SizedBox(height: 16.h),
-                    Obx(() => _planCard()),
+
+                    SizedBox(height: 12.h),
+
+                    // ── 3 Month Plan (default selected) ───────────
+                    Obx(() => _threeMonthCard()),
+
+                    SizedBox(height: 8.h),
+
+                    // ── Annual Plan ───────────────────────────────
+                    Obx(() => _annualCard()),
+
+                    const Spacer(),
+
+                    // ── CTA Button ────────────────────────────────
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52.h,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () => Get.offAll(() => NavBar()),
+                        child: CustomText(
+                          text: "Start 7-Day Free Trial",
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textWhite,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 6.h),
+
+                    CustomText(
+                      text: "Cancel anytime  •  No hidden fees",
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 3.h),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomText(
+                          text: "By continuing, you agree to our ",
+                          fontSize: 11.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                        GestureDetector(
+                          onTap: () => launchUrl(
+                            Uri.parse(ApiUrls.termsOfService),
+                            mode: LaunchMode.externalApplication,
+                          ),
+                          child: CustomText(
+                            text: "Terms of Service",
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 10.h),
                   ],
                 ),
               ),
+            ),
 
-              const Spacer(),
-
-              // ── CTA button ───────────────────────────────────────
-              Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  height: 54.h,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    onPressed: controller.purchaseLoading.value
-                        ? null
-                        : () => Get.offAll(() => NavBar()),
-                    child: controller.purchaseLoading.value
-                        ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
-                        : CustomText(
-                            text: "Start 7-Day Free Trial",
-                            fontSize: 17.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textWhite,
-                          ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 6.h),
-
-              // ── Cancel / terms ───────────────────────────────────
-              CustomText(
-                text: "Cancel anytime  •  No hidden fees",
-                fontSize: 12.sp,
-                color: AppColors.textSecondary,
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: 4.h),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: "By continuing, you agree to our ",
-                    fontSize: 11.sp,
-                    color: AppColors.textSecondary,
-                  ),
-                  GestureDetector(
-                    onTap: () => launchUrl(
-                      Uri.parse(ApiUrls.termsOfService),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                    child: CustomText(
-                      text: "Terms of Service",
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 16.h),
-            ],
-          ),
+            // ── Already a member (pinned at bottom) ───────────────
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+            _alreadyMemberSection(),
+          ],
         ),
       ),
     );
@@ -194,21 +175,21 @@ class PaywallScreen extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(10.w),
+            padding: EdgeInsets.all(9.w),
             decoration: BoxDecoration(
               color: const Color(0xFFFDEFE0),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 22.sp),
+            child: Icon(icon, color: AppColors.primary, size: 20.sp),
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: 5.h),
           CustomText(
             text: title,
             fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.h),
           CustomText(
             text: subtitle,
             fontSize: 9.sp,
@@ -221,84 +202,300 @@ class PaywallScreen extends StatelessWidget {
     );
   }
 
-  // ── Annual plan card ───────────────────────────────────────────────────────
+  // ── 3 Month Plan card ──────────────────────────────────────────────────────
 
-  Widget _planCard() {
-    final discounted = controller.hasPromo;
-
-    return Container(
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8F1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary, width: 2),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.radio_button_checked,
-            color: AppColors.primary,
-            size: 22.sp,
+  Widget _threeMonthCard() {
+    final selected = controller.selectedPlan.value == "monthly";
+    return GestureDetector(
+      onTap: () => controller.selectPlan("monthly"),
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppColors.primary : const Color(0xFFDDDDDD),
+            width: selected ? 2 : 1,
           ),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 2.h),
+              child: Icon(
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: selected ? AppColors.primary : const Color(0xFFBBBBBB),
+                size: 22.sp,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: "3 Month Plan",
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  SizedBox(height: 1.h),
+                  CustomText(
+                    text: "7-Day Free Trial",
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
+                  CustomText(
+                    text: "\$19.99 for 3 months after trial",
+                    fontSize: 11.sp,
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 CustomText(
-                  text: "Annual Plan",
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.w700,
+                  text: "\$19.99",
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.w800,
                 ),
-                CustomText(
-                  text: "Billed once a year",
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              CustomText(
-                text: discounted
-                    ? "\$${controller.annualPrice.toStringAsFixed(2)}"
-                    : controller.annualPriceStr.value,
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w800,
-              ),
-              SizedBox(height: 2.h),
-              if (discounted)
-                CustomText(
-                  text: "50% off applied",
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.success,
-                )
-              else
+                SizedBox(height: 3.h),
                 Container(
                   padding:
                       EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    color: AppColors.success,
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: CustomText(
+                    text: "7-Day Free Trial",
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                CustomText(
+                  text: "\$6.65/mo",
+                  fontSize: 10.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Annual Plan card ───────────────────────────────────────────────────────
+
+  Widget _annualCard() {
+    final selected = controller.selectedPlan.value == "annual";
+    return GestureDetector(
+      onTap: () => controller.selectPlan("annual"),
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppColors.primary : const Color(0xFFDDDDDD),
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 2.h),
+              child: Icon(
+                selected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: selected ? AppColors.primary : const Color(0xFFBBBBBB),
+                size: 22.sp,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: "Annual Plan",
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  SizedBox(height: 1.h),
+                  CustomText(
+                    text: "Billed once a year",
+                    fontSize: 12.sp,
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                CustomText(
+                  text: "\$49.99",
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.w800,
+                ),
+                SizedBox(height: 3.h),
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF34C759),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: CustomText(
                     text: "Save 50%",
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textWhite,
+                    color: Colors.white,
                   ),
                 ),
-              SizedBox(height: 2.h),
-              CustomText(
-                text: "vs \$19.99/mo",
-                fontSize: 10.sp,
-                color: AppColors.textSecondary,
+                SizedBox(height: 2.h),
+                CustomText(
+                  text: "vs \$19.99/mo",
+                  fontSize: 10.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Already a member ───────────────────────────────────────────────────────
+
+  Widget _alreadyMemberSection() {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 18.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDEFE0),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.person_outline,
+                    color: AppColors.primary, size: 20.sp),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      text: "Already a member?",
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    SizedBox(height: 2.h),
+                    CustomText(
+                      text: "Enter your access code to continue to the app.",
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                      maxline: 2,
+                    ),
+                  ],
+                ),
               ),
             ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.accessCodeController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: "Enter your access code",
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 14.w, vertical: 12.h),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDDDDDD)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFDDDDDD)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Obx(
+                () => SizedBox(
+                  height: 48.h,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 18.w),
+                    ),
+                    onPressed: controller.accessCodeLoading.value
+                        ? null
+                        : controller.redeemAccessCode,
+                    child: controller.accessCodeLoading.value
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                        : CustomText(
+                            text: "Continue",
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textWhite,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Obx(
+            () => controller.accessCodeError.value.isNotEmpty
+                ? Padding(
+                    padding: EdgeInsets.only(top: 6.h),
+                    child: CustomText(
+                      text: controller.accessCodeError.value,
+                      fontSize: 12.sp,
+                      color: AppColors.error,
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
