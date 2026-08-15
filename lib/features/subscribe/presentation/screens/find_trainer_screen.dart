@@ -332,9 +332,13 @@ class FindTrainerScreen extends StatelessWidget {
 
               default:
                 return CustomScrollView(slivers: [
-                  // ── ⭐ Featured Coaches ───────────────────────────────────
+                  // ── ⭐ Featured Coaches (shown only when no filter active) ──
                   SliverToBoxAdapter(
-                    child: Padding(
+                    child: Obx(() {
+                      final noFilter = controller.selectedSpecialty.value == 'all' &&
+                          controller.selectedGender.value == 'all';
+                      if (!noFilter) return const SizedBox.shrink();
+                      return Padding(
                       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
                       child: Row(
                         children: [
@@ -372,8 +376,10 @@ class FindTrainerScreen extends StatelessWidget {
                   ),
                   SliverToBoxAdapter(
                     child: Obx(() {
+                      final noFilter = controller.selectedSpecialty.value == 'all' &&
+                          controller.selectedGender.value == 'all';
                       final pinned = controller.pinnedTrainers;
-                      if (pinned.isEmpty) return SizedBox(height: 8.h);
+                      if (!noFilter || pinned.isEmpty) return SizedBox(height: 8.h);
                       return SizedBox(
                         height: 270.h,
                         child: ListView.separated(
