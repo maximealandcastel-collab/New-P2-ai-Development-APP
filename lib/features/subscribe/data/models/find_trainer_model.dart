@@ -9,6 +9,7 @@ class FindTrainerModel {
   SubscriptionPrice? subscriptionPrice;
   int? subscriberCount;
   String? profileImage;
+  String? gender;
 
   FindTrainerModel({
     this.sId,
@@ -21,6 +22,7 @@ class FindTrainerModel {
     this.subscriptionPrice,
     this.subscriberCount,
     this.profileImage,
+    this.gender,
   });
 
   FindTrainerModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class FindTrainerModel {
         : null;
     subscriberCount = json['subscriberCount'];
     profileImage = json['profileImage'];
+    gender = json['gender'];
   }
 
   Map<String, dynamic> toJson() {
@@ -56,6 +59,7 @@ class FindTrainerModel {
     }
     data['subscriberCount'] = subscriberCount;
     data['profileImage'] = profileImage;
+    data['gender'] = gender;
     return data;
   }
 }
