@@ -5,6 +5,8 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
+import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -55,6 +57,14 @@ class ApiService {
         onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
             await _cacheService.clear();
+            // Send user back to login — never leave them stuck on a broken screen.
+            Future<void>.delayed(Duration.zero, () {
+              try {
+                ToastMessageHelper.show(
+                    'Session expired — please sign in again.');
+                Get.offAllNamed('/loginScreen');
+              } catch (_) {}
+            });
           }
           return handler.next(error);
         },
