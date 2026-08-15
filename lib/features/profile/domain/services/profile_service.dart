@@ -76,8 +76,11 @@ class ProfileService {
     try {
       await fetchUserProfile();
     } on AppException {
+      // If the profile fetch fails and there is no cached data the user is
+      // effectively unauthenticated — send them to login, NOT to the nav bar.
+      // Sending to bottonNavBar with no token causes a chain of 401s.
       if (!hasCache()) {
-        return AppRoute.bottonNavBar;
+        return AppRoute.loginScreen;
       }
     }
 
