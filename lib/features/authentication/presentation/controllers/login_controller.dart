@@ -8,7 +8,9 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
+import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
@@ -47,8 +49,17 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
-      // Show admin bypass screen — admin can enter PIN 2931 to skip paywall
-      Get.offAll(() => AdminBypassScreen());
+      // Auto-activate admin mode for users whose backend role is 'admin'
+      if (_authService.getRole() == 'admin') {
+        if (!Get.isRegistered<AdminModeService>()) {
+          Get.put(AdminModeService());
+        }
+        AdminModeService.to.activate();
+        Get.offAll(() => const NavBar());
+      } else {
+        // All other roles go through the bypass screen (PIN optional)
+        Get.offAll(() => AdminBypassScreen());
+      }
     } catch (e) {
       _loginState.value = LoadingState.error;
     }
