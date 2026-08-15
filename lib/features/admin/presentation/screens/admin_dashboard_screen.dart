@@ -7,26 +7,6 @@ import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 
-Widget _buildToggleTab(String label, bool active, BuildContext context) {
-  return AnimatedContainer(
-    duration: const Duration(milliseconds: 180),
-    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-    decoration: BoxDecoration(
-      color: active ? const Color(0xFFFF6B1A) : Colors.transparent,
-      borderRadius: BorderRadius.circular(8.r),
-    ),
-    child: Text(
-      label,
-      style: TextStyle(
-        fontSize: 11.sp,
-        fontWeight: FontWeight.w800,
-        color: active ? Colors.white : Colors.grey.shade600,
-        letterSpacing: 0.3,
-      ),
-    ),
-  );
-}
-
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
@@ -46,6 +26,14 @@ class AdminDashboardScreen extends StatelessWidget {
             physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics()),
             slivers: [
+              // ── Admin | User toggle ──────────────────────────────────
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 16, bottom: 4),
+                  child: _AdminUserToggle(),
+                ),
+              ),
+
               // ── Header ──────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
@@ -76,36 +64,6 @@ class AdminDashboardScreen extends StatelessWidget {
                                   color: AppColors.textSecondary)),
                         ],
                       ),
-                      SizedBox(width: 12.w),
-                      // ── User | Admin view toggle ──────────────────
-                      Obx(() {
-                        final svc = Get.isRegistered<AdminModeService>()
-                            ? AdminModeService.to
-                            : null;
-                        if (svc == null) return const SizedBox.shrink();
-                        return GestureDetector(
-                          onTap: () {
-                            svc.toggleView();
-                            if (Get.isRegistered<BottomNavBarController>()) {
-                              BottomNavBarController.to.resetIndex();
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(3.w),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildToggleTab('User', svc.viewAsUser, context),
-                                _buildToggleTab('Admin', !svc.viewAsUser, context),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
                       const Spacer(),
                       Obx(() => c.metricsLoading
                           ? SizedBox(
@@ -898,4 +856,85 @@ class _WithdrawalCard extends StatelessWidget {
   String _formatDate(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
 }
 
+// ─── Admin | User segmented toggle ───────────────────────────────────────────
 
+class _AdminUserToggle extends StatelessWidget {
+  const _AdminUserToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final svc = Get.isRegistered<AdminModeService>()
+          ? AdminModeService.to
+          : null;
+      if (svc == null) return const SizedBox.shrink();
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFFF6B1A), width: 1.5),
+              borderRadius: BorderRadius.circular(30.r),
+              color: Colors.white,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── Admin tab (outlined — current location) ──────────
+                GestureDetector(
+                  onTap: () => svc.setViewAsUser(false),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 36.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.r),
+                        bottomLeft: Radius.circular(30.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Admin',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFFF6B1A),
+                      ),
+                    ),
+                  ),
+                ),
+                // ── User tab (orange filled — tap to preview) ─────────
+                GestureDetector(
+                  onTap: () {
+                    svc.setViewAsUser(true);
+                    if (Get.isRegistered<BottomNavBarController>()) {
+                      BottomNavBarController.to.resetIndex();
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 36.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF6B1A),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
+                    child: Text(
+                      'User',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
