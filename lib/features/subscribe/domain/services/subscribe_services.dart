@@ -10,27 +10,38 @@ class SubscribeServices {
   SubscribeServices({required SubscribeRepository repository})
     : _repository = repository;
 
-  Future<void> fetchPolls(int currentPage, int limit, {String? search}) async {
+  Future<void> fetchPolls(
+    int currentPage,
+    int limit, {
+    String? search,
+    String? specialty,
+    String? gender,
+  }) async {
     try {
-      await Future.wait([
-        _repository.getTrainers(currentPage, limit, search: search),
-      ]);
+      await _repository.getTrainers(
+        currentPage,
+        limit,
+        search: search,
+        specialty: specialty,
+        gender: gender,
+      );
     } on AppException {
-      if (!_repository.hasCache()) {
-        rethrow;
-      }
+      if (!_repository.hasCache()) rethrow;
     } catch (e) {
       throw UnknownException(e.toString());
     }
   }
 
-  Future<List<FindTrainerModel>> fetchMorePolls(int offset, int limit) async {
-    return await _repository.fetchMoreTrainer(offset, limit);
+  Future<List<FindTrainerModel>> fetchMorePolls(
+    int offset,
+    int limit, {
+    String? specialty,
+    String? gender,
+  }) async {
+    return await _repository.fetchMoreTrainer(offset, limit, specialty: specialty, gender: gender);
   }
 
-  List<FindTrainerModel> getCachedTrainers() {
-    return _repository.getCachedTrainers();
-  }
+  List<FindTrainerModel> getCachedTrainers() => _repository.getCachedTrainers();
 
   Future<TrainerDetailsModel> trainerDetails(String trainerId) async {
     return await _repository.trainerDetails(trainerId);
@@ -57,7 +68,5 @@ class SubscribeServices {
     );
   }
 
-  bool hasCache() {
-    return _repository.hasCache();
-  }
+  bool hasCache() => _repository.hasCache();
 }
