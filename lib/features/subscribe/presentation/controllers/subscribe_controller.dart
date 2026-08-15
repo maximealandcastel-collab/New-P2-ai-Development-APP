@@ -133,10 +133,10 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
       await Future.wait([
         trainersList.loadFirst(),
         _service
-            .fetchPolls(1, 150, gender: 'female', specialty: spec)
+            .fetchPolls(1, 150, gender: 'female', specialty: spec, skipPinned: true)
             .then((r) => femaleTrainers.value = r),
         _service
-            .fetchPolls(1, 150, gender: 'male', specialty: spec)
+            .fetchPolls(1, 150, gender: 'male', specialty: spec, skipPinned: true)
             .then((r) => maleTrainers.value = r),
       ]);
       _loadingState.value = LoadingState.loaded;
