@@ -26,10 +26,8 @@ class AdminDashboardScreen extends StatelessWidget {
             physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics()),
             slivers: [
-              // ── Admin | User toggle ──────────────────────────────────
               // Top spacing clears the floating Trainer|User pill overlay
               const SliverToBoxAdapter(child: SizedBox(height: 56)),
-              ),
 
               // ── Header ──────────────────────────────────────────────
               SliverToBoxAdapter(
