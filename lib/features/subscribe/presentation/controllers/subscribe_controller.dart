@@ -54,6 +54,10 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   List<FindTrainerModel> get trainers => trainersList.items;
   ScrollController? get scrollController => trainersList.scrollController;
 
+  // ─── Gender-split lists: 150 women + 150 men ─────────────────────────────
+  final RxList<FindTrainerModel> femaleTrainers = <FindTrainerModel>[].obs;
+  final RxList<FindTrainerModel> maleTrainers   = <FindTrainerModel>[].obs;
+
   @override
   LoadingState get paginationContentState => loadingState;
 
@@ -95,11 +99,13 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     await _loadData(showFullLoader: true);
   }
 
-  // ─── Always fetch fresh from API — never serve stale cached data ──────────
+  // ─── Always fetch fresh — gender split 150 women + 150 men ─────────────────
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
       if (showFullLoader) {
         trainersList.items.clear();
+        femaleTrainers.clear();
+        maleTrainers.clear();
         _loadingState.value = LoadingState.loading;
       }
 
@@ -107,6 +113,14 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         final cached = _service.getCachedTrainers();
         if (cached.isNotEmpty) {
           trainersList.items.value = cached;
+          femaleTrainers.value = cached
+              .where((t) => t.gender?.toLowerCase() == 'female')
+              .take(150)
+              .toList();
+          maleTrainers.value = cached
+              .where((t) => t.gender?.toLowerCase() == 'male')
+              .take(150)
+              .toList();
           _loadingState.value = LoadingState.loaded;
         } else {
           _loadingState.value = LoadingState.offline;
@@ -114,7 +128,17 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         return;
       }
 
-      await trainersList.loadFirst();
+      // Fetch 150 women + 150 men + main search list in parallel
+      final spec = selectedSpecialty.value == 'all' ? null : selectedSpecialty.value;
+      await Future.wait([
+        trainersList.loadFirst(),
+        _service
+            .fetchPolls(1, 150, gender: 'female', specialty: spec)
+            .then((r) => femaleTrainers.value = r),
+        _service
+            .fetchPolls(1, 150, gender: 'male', specialty: spec)
+            .then((r) => maleTrainers.value = r),
+      ]);
       _loadingState.value = LoadingState.loaded;
     } on AppException catch (e) {
       final cached = _service.getCachedTrainers();
