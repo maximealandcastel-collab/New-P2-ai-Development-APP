@@ -22,6 +22,7 @@ import 'package:pler_to_pler_app/features/settings/presentation/children/ai_vide
 import 'package:pler_to_pler_app/features/settings/presentation/children/change_password_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/settings_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/find_trainer_screen.dart';
+import 'package:pler_to_pler_app/features/subscribe/presentation/screens/trainer_match_screen.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/payment_details_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/user/user_complete_profile_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/forgot_screen.dart';
@@ -138,6 +139,7 @@ class AppRoute {
   static String smarterCareScreen = "/smarterCareScreen";
   static String adminUserListScreen = "/adminUserListScreen";
   static String beforeAfterScreen = "/beforeAfterScreen";
+  static String trainerMatchScreen = "/trainerMatchScreen";
 
   static List<GetPage> routes = [
     GetPage(
@@ -173,6 +175,7 @@ class AppRoute {
     GetPage(name: subscribeSelectScreen, page: () => SubscribeSelectScreen()),
     GetPage(name: bottonNavBar, page: () => BottomNavBarMain()),
     GetPage(name: findTrainerScreen, page: () => FindTrainerScreen()),
+    GetPage(name: trainerMatchScreen, page: () => const TrainerMatchScreen()),
     GetPage(name: trainerProfileScreen, page: () => TrainerProfileScreen()),
     GetPage(name: userProfileScreen, page: () => UserProfileScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
