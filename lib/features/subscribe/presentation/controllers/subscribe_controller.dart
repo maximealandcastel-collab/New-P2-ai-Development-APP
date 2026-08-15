@@ -67,7 +67,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   void onInit() {
     super.onInit();
     trainersList = PaginatedList<FindTrainerModel>(
-      limit: 10,
+      limit: 50, // Show top 50 — Find Trainer headline shows 1,000+ on app
       fetchPage: _fetchTrainersPage,
     );
     search = SearchService(fetcher: _fetchSearch);
@@ -77,15 +77,13 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     _loadData();
   }
 
+  /// Direct API fetch — no cache read-back that could serve stale data.
   Future<List<FindTrainerModel>> _fetchTrainersPage(int page, int limit) async {
-    final spec = selectedSpecialty.value == 'all' ? null : selectedSpecialty.value;
-    final gen  = selectedGender.value    == 'all' ? null : selectedGender.value;
-    if (page == 1) {
-      await _service.fetchPolls(page, limit,
-          search: searchController.text, specialty: spec, gender: gen);
-      return _service.getCachedTrainers();
-    }
-    return _service.fetchMorePolls(page, limit, specialty: spec, gender: gen);
+    final spec        = selectedSpecialty.value == 'all' ? null : selectedSpecialty.value;
+    final gen         = selectedGender.value    == 'all' ? null : selectedGender.value;
+    final searchQuery = page == 1 ? searchController.text : null;
+    return _service.fetchPolls(page, limit,
+        search: searchQuery, specialty: spec, gender: gen);
   }
 
   // ─── Filter ───────────────────────────────────────────────────────────────
@@ -97,37 +95,28 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     await _loadData(showFullLoader: true);
   }
 
-  // ─── Poll List ────────────────────────────────────────────────────────────
+  // ─── Always fetch fresh from API — never serve stale cached data ──────────
   Future<void> _loadData({bool showFullLoader = true}) async {
     try {
-      final cached     = _service.getCachedTrainers();
-      final hasCached  = cached.isNotEmpty;
-      final isFiltered = selectedSpecialty.value != 'all' || selectedGender.value != 'all';
-      final isOnline   = _connectivityService.isConnected.value;
-
       if (showFullLoader) {
-        if (hasCached && !isFiltered) {
+        trainersList.items.clear();
+        _loadingState.value = LoadingState.loading;
+      }
+
+      if (!_connectivityService.isConnected.value) {
+        final cached = _service.getCachedTrainers();
+        if (cached.isNotEmpty) {
           trainersList.items.value = cached;
           _loadingState.value = LoadingState.loaded;
         } else {
-          trainersList.items.clear();
-          _loadingState.value = LoadingState.loading;
+          _loadingState.value = LoadingState.offline;
         }
-      }
-
-      if (!isOnline) {
-        if (!hasCached) _loadingState.value = LoadingState.offline;
         return;
       }
 
-      try {
-        await trainersList.loadFirst();
-        _loadingState.value = LoadingState.loaded;
-      } on AppException catch (e) {
-        if (!hasCached) _loadingState.value = LoadingState.error;
-        if (kDebugMode) debugPrint('Fetch error: $e');
-      }
-    } catch (e) {
+      await trainersList.loadFirst();
+      _loadingState.value = LoadingState.loaded;
+    } on AppException catch (e) {
       final cached = _service.getCachedTrainers();
       if (cached.isNotEmpty) {
         trainersList.items.value = cached;
@@ -135,22 +124,21 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
       } else {
         _loadingState.value = LoadingState.error;
       }
-      if (kDebugMode) debugPrint('Unexpected error: ${e.toString()}');
+      if (kDebugMode) debugPrint('_loadData AppException: $e');
+    } catch (e) {
+      _loadingState.value = LoadingState.error;
+      if (kDebugMode) debugPrint('_loadData error: $e');
     }
   }
 
   Future<List<FindTrainerModel>> _fetchSearch(String query) async {
-    final fromCache = _service
-        .getCachedTrainers()
-        .where((a) => a.name?.toLowerCase().contains(query.toLowerCase()) ?? false)
-        .toList();
-    if (fromCache.isNotEmpty) return fromCache;
-    if (!_connectivityService.isConnected.value) return [];
-    await _service.fetchPolls(1, 20, search: query);
-    return _service
-        .getCachedTrainers()
-        .where((a) => a.name?.toLowerCase().contains(query.toLowerCase()) ?? false)
-        .toList();
+    if (!_connectivityService.isConnected.value) {
+      return _service
+          .getCachedTrainers()
+          .where((a) => a.name?.toLowerCase().contains(query.toLowerCase()) ?? false)
+          .toList();
+    }
+    return _service.fetchPolls(1, 20, search: query);
   }
 
   @override
@@ -186,7 +174,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _requestLoadingState.value = LoadingState.error;
-      if (kDebugMode) debugPrint(' error: $e');
+      if (kDebugMode) debugPrint('requestTrainer error: $e');
     }
   }
 
