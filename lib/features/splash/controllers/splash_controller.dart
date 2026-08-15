@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
 class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -57,6 +58,16 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     await Future.delayed(const Duration(milliseconds: 500));
 
     if (LoginController.to.isLoggedIn()) {
+      // Re-activate admin mode for the owner account on every app restart.
+      // This ensures trainer+admin nav is always shown after a cold launch.
+      const _ownerEmails = {'pmoney78q@gmail.com'};
+      final _cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
+      if (_ownerEmails.contains(_cachedEmail)) {
+        if (!Get.isRegistered<AdminModeService>()) {
+          Get.put(AdminModeService());
+        }
+        AdminModeService.to.activate();
+      }
       final route = await Get.find<ProfileService>().resolveInitialRoute();
       Get.offAllNamed(route);
     } else {
