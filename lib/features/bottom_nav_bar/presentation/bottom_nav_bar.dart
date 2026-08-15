@@ -30,82 +30,98 @@ class BottomNavBarMain extends StatelessWidget {
             bottomNavigationBar: BottomNavBar(navItems: items),
           ),
 
-          // ── Admin toggle pill — always visible when admin is signed in ─────
+          // ── Admin Trainer | User segmented toggle ────────────────────────
           if (isAdmin)
             Positioned(
               top: MediaQuery.of(context).padding.top + 6,
               left: 0,
               right: 0,
               child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    AdminModeService.to.setViewAsUser(!AdminModeService.to.viewAsUser);
-                    BottomNavBarController.to.resetIndex();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-                    decoration: BoxDecoration(
-                      color: viewUser
-                          ? const Color(0xFFFF6B1A)
-                          : const Color(0xFF1A1A1A),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border: viewUser
-                          ? null
-                          : Border.all(
-                              color: const Color(0xFFFF6B1A), width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.35),
-                          blurRadius: 14,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          viewUser
-                              ? Icons.shield_rounded
-                              : Icons.swap_horiz_rounded,
-                          color: viewUser
-                              ? Colors.white
-                              : const Color(0xFFFF6B1A),
-                          size: 13.sp,
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          viewUser ? 'Admin Preview' : 'Admin Mode',
-                          style: TextStyle(
+                child: Container(
+                  padding: EdgeInsets.all(3.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    borderRadius: BorderRadius.circular(24.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.40),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ── Trainer side ─────────────────────────────────────
+                      GestureDetector(
+                        onTap: viewUser
+                            ? () {
+                                AdminModeService.to.setViewAsUser(false);
+                                BottomNavBarController.to.resetIndex();
+                              }
+                            : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 18.w, vertical: 8.h),
+                          decoration: BoxDecoration(
                             color: viewUser
-                                ? Colors.white
+                                ? Colors.transparent
                                 : const Color(0xFFFF6B1A),
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.3,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Text(
+                            'Trainer',
+                            style: TextStyle(
+                              color: viewUser
+                                  ? Colors.white38
+                                  : Colors.white,
+                              fontSize: 12.sp,
+                              fontWeight: viewUser
+                                  ? FontWeight.w500
+                                  : FontWeight.w800,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        Container(
-                          width: 1,
-                          height: 12.h,
-                          color: viewUser ? Colors.white38 : Colors.white24,
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          viewUser ? 'Back to Admin' : 'Preview as User',
-                          style: TextStyle(
-                            color: viewUser ? Colors.white : Colors.white70,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
+                      ),
+                      // ── User side ────────────────────────────────────────
+                      GestureDetector(
+                        onTap: !viewUser
+                            ? () {
+                                AdminModeService.to.setViewAsUser(true);
+                                BottomNavBarController.to.resetIndex();
+                              }
+                            : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 18.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            color: viewUser
+                                ? const Color(0xFFFF6B1A)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Text(
+                            'User',
+                            style: TextStyle(
+                              color: viewUser
+                                  ? Colors.white
+                                  : Colors.white38,
+                              fontSize: 12.sp,
+                              fontWeight: viewUser
+                                  ? FontWeight.w800
+                                  : FontWeight.w500,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 4.w),
-                        Icon(Icons.arrow_forward_ios_rounded,
-                            color: viewUser ? Colors.white : Colors.white54,
-                            size: 9.sp),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
