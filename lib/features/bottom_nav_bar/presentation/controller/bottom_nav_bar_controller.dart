@@ -15,14 +15,21 @@ class BottomNavBarController extends GetxController {
   List<NavItemModel> get navItems {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
+    final viewAsUser = isAdmin &&
+        Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.viewAsUser;
     final isAffiliate = Get.isRegistered<AffiliateModeService>() &&
         AffiliateModeService.to.isAffiliate;
 
-    // Admin PIN: always show trainer nav + Admin tab at end.
+    // Admin browsing as a regular user — show standard user nav
+    if (viewAsUser) {
+      return NavItemModel.userNavItems;
+    }
+    // Admin mode: trainer nav + Admin tab
     if (isAdmin) {
       return [...NavItemModel.trainerNavItems, NavItemModel.adminNavItem];
     }
-    // Affiliate (partner) mode: full user nav + Earnings tab at end.
+    // Affiliate (partner) mode: full user nav + Earnings tab
     if (isAffiliate) {
       return [...NavItemModel.userNavItems, NavItemModel.affiliateNavItem];
     }
