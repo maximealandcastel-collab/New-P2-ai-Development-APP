@@ -37,7 +37,12 @@ class BottomNavBarMain extends StatelessWidget {
               left: 0,
               right: 0,
               child: Center(
-                child: Container(
+                child: GestureDetector(
+                  // Opaque hit-test: eat ALL touches in the pill bounding box
+                  // so gaps between buttons never pass through to the screen behind
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {},
+                  child: Container(
                   padding: EdgeInsets.all(3.r),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1A1A),
@@ -125,6 +130,7 @@ class BottomNavBarMain extends StatelessWidget {
                   ),
                 ),
               ),
+                ), // close GestureDetector(opaque) wrapper
             ),
         ],
       );
