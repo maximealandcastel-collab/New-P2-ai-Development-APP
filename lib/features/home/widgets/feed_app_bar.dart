@@ -73,7 +73,7 @@ class FeedAppBarSliver extends StatelessWidget {
                         textAlign: TextAlign.start,
                         maxline: 1,
                         textOverflow: TextOverflow.ellipsis,
-                        text: 'Hi ${controller.userData?.firstName}!',
+                        text: 'Hi ${controller.userData?.firstName?.isNotEmpty == true ? controller.userData!.firstName! : controller.userData?.preferredName?.isNotEmpty == true ? controller.userData!.preferredName! : "there"}!',
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
                       );
