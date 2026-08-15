@@ -27,11 +27,8 @@ class AdminDashboardScreen extends StatelessWidget {
                 parent: BouncingScrollPhysics()),
             slivers: [
               // ── Admin | User toggle ──────────────────────────────────
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 16, bottom: 4),
-                  child: _AdminUserToggle(),
-                ),
+              // Top spacing clears the floating Trainer|User pill overlay
+              const SliverToBoxAdapter(child: SizedBox(height: 56)),
               ),
 
               // ── Header ──────────────────────────────────────────────
@@ -938,3 +935,4 @@ class _AdminUserToggle extends StatelessWidget {
     });
   }
 }
+
