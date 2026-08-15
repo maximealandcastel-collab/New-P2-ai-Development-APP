@@ -26,12 +26,14 @@ class SubscribeRepository {
     String? search,
     String? specialty,
     String? gender,
+    bool skipPinned = false,
   }) async {
     try {
       final params = <String, dynamic>{};
       if (search != null && search.isNotEmpty) params['search'] = search;
       if (specialty != null && specialty != 'all') params['specialty'] = specialty;
       if (gender != null && gender != 'all') params['gender'] = gender;
+      if (skipPinned) params['skipPinned'] = 'true';
 
       final response = await _apiService.get(
         ApiConstants.trainers(page, limit),
