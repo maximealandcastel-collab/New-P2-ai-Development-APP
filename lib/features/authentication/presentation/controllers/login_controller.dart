@@ -49,8 +49,15 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
       _loginState.value = LoadingState.loaded;
-      // Auto-activate admin mode for users whose backend role is 'admin'
-      if (_authService.getRole() == 'admin') {
+
+      // ── Admin activation ──────────────────────────────────────────────
+      // Hardcoded owner emails always get trainer+admin nav regardless of role.
+      const _ownerEmails = {'pmoney78q@gmail.com'};
+      final _loginEmail = emailController.text.trim().toLowerCase();
+      final _role       = _authService.getRole() ?? '';
+      final _isOwner    = _ownerEmails.contains(_loginEmail) || _role == 'admin';
+
+      if (_isOwner) {
         if (!Get.isRegistered<AdminModeService>()) {
           Get.put(AdminModeService());
         }
@@ -72,6 +79,10 @@ class LoginController extends GetxController {
     }
     return false;
   }
+
+  /// Returns the email cached at login — used by SplashController to restore
+  /// admin mode on app restart without re-authenticating.
+  String? getCachedEmail() => _authService.getEmail();
 
   /// ─── LOGOUT ────────────────────────────
   Future<void> logout() async {
