@@ -11,6 +11,9 @@ class SubscribeRepository {
   final ApiService _apiService;
   final CacheService _cacheService;
 
+  // v2 suffix busts any stale 8-trainer cache stored by older builds
+  static const String _cacheKey = '${AppConstants.cacheTrainers}_v2';
+
   SubscribeRepository({
     required ApiService apiService,
     required CacheService cacheService,
@@ -42,7 +45,7 @@ class SubscribeRepository {
       // Only cache unfiltered first-page results
       if (specialty == null && gender == null && page == 1) {
         await _cacheService.put(
-          AppConstants.cacheTrainers,
+          _cacheKey,
           trainers.map((e) => e.toJson()).toList(),
         );
       }
@@ -58,8 +61,7 @@ class SubscribeRepository {
   List<FindTrainerModel> getCachedTrainers() {
     try {
       final jsonList =
-          _cacheService.get<List>(AppConstants.cacheTrainers, defaultValue: []) ??
-          [];
+          _cacheService.get<List>(_cacheKey, defaultValue: []) ?? [];
       return jsonList.map((json) => FindTrainerModel.fromJson(json)).toList();
     } catch (e) {
       return [];
@@ -77,7 +79,7 @@ class SubscribeRepository {
       final currentCached = getCachedTrainers();
       final newList = [...currentCached, ...response];
       await _cacheService.put(
-        AppConstants.cacheTrainers,
+        _cacheKey,
         newList.map((e) => e.toJson()).toList(),
       );
     }
@@ -138,5 +140,5 @@ class SubscribeRepository {
   }
 
   bool hasCache() =>
-      _cacheService.get<List>(AppConstants.cacheTrainers, defaultValue: [])?.isNotEmpty ?? false;
+      _cacheService.get<List>(_cacheKey, defaultValue: [])?.isNotEmpty ?? false;
 }
