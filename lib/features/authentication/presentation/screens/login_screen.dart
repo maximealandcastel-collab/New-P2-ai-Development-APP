@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/paywall/presentation/screens/paywall_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
@@ -61,20 +62,65 @@ class LoginScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
                 isPassword: true,
               ),
-              SizedBox(
-                width: double.infinity,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Get.toNamed(AppRoute.forgotScreen);
-                  },
-                  child: CustomText(
-                    text: "Forgot password?",
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                    textAlign: TextAlign.end,
-                  ),
+              // ── Save Login  +  Forgot password row ───────────────────
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.w),
+                child: Row(
+                  children: [
+                    // Save Login checkbox
+                    Obx(() => GestureDetector(
+                      onTap: controller.toggleSaveLogin,
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            width: 20.w,
+                            height: 20.w,
+                            decoration: BoxDecoration(
+                              color: controller.saveLogin.value
+                                  ? AppColors.primary
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: controller.saveLogin.value
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary,
+                                width: 1.5,
+                              ),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: controller.saveLogin.value
+                                ? Icon(Icons.check,
+                                    size: 14.sp, color: Colors.white)
+                                : null,
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(
+                            'Save Login',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                    const Spacer(),
+                    // Forgot password
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Get.toNamed(AppRoute.forgotScreen),
+                      child: CustomText(
+                        text: "Forgot password?",
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textSecondary,
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 24.h),
@@ -306,3 +352,4 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
+
