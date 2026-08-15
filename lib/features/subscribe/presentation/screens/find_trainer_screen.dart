@@ -398,85 +398,81 @@ class FindTrainerScreen extends StatelessWidget {
 
                   SliverToBoxAdapter(child: SizedBox(height: 20.h)),
 
-                  // ── Women section ────────────────────────────────────
+                  // ── Women + Men sections (reactive to gender filter) ───
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
-                      child: Row(
+                    child: Obx(() {
+                      final gender    = controller.selectedGender.value;
+                      final showFemale = gender == 'all' || gender == 'female';
+                      final showMale   = gender == 'all' || gender == 'male';
+                      final females   = controller.femaleTrainers;
+                      final males     = controller.maleTrainers;
+
+                      Widget _grid(List items, Widget Function(int) builder) =>
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10.w,
+                              mainAxisSpacing: 10.h,
+                              childAspectRatio: 3 / 5.2,
+                            ),
+                            itemCount: items.length,
+                            itemBuilder: (_, i) => builder(i),
+                          );
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('👩‍💪', style: TextStyle(fontSize: 18.sp)),
-                          SizedBox(width: 8.w),
-                          Text('Women Trainers',
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white)),
-                          const Spacer(),
-                          Text('${controller.femaleTrainers.length}',
-                              style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: _kOrange,
-                                  fontWeight: FontWeight.w700)),
+                          if (showFemale) ...[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+                              child: Row(children: [
+                                Text('👩‍💪', style: TextStyle(fontSize: 18.sp)),
+                                SizedBox(width: 8.w),
+                                Text('Women Trainers',
+                                    style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                const Spacer(),
+                                Text('${females.length}',
+                                    style: TextStyle(
+                                        fontSize: 13.sp,
+                                        color: _kOrange,
+                                        fontWeight: FontWeight.w700)),
+                              ]),
+                            ),
+                            _grid(females, (i) => FindTrainerCard(trainer: females[i])),
+                          ],
+                          if (showMale) ...[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  16.w, showFemale ? 24.h : 12.h, 16.w, 8.h),
+                              child: Row(children: [
+                                Text('💪', style: TextStyle(fontSize: 18.sp)),
+                                SizedBox(width: 8.w),
+                                Text('Men Trainers',
+                                    style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                                const Spacer(),
+                                Text('${males.length}',
+                                    style: TextStyle(
+                                        fontSize: 13.sp,
+                                        color: _kOrange,
+                                        fontWeight: FontWeight.w700)),
+                              ]),
+                            ),
+                            _grid(males, (i) => FindTrainerCard(trainer: males[i])),
+                          ],
+                          SizedBox(height: 130.h),
                         ],
-                      ),
-                    ),
+                      );
+                    }),
                   ),
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10.w,
-                        mainAxisSpacing: 10.h,
-                        childAspectRatio: 3 / 5.2,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (_, index) =>
-                            FindTrainerCard(trainer: controller.femaleTrainers[index]),
-                        childCount: controller.femaleTrainers.length,
-                      ),
-                    ),
-                  ),
-                  // ── Men section ──────────────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 8.h),
-                      child: Row(
-                        children: [
-                          Text('💪', style: TextStyle(fontSize: 18.sp)),
-                          SizedBox(width: 8.w),
-                          Text('Men Trainers',
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white)),
-                          const Spacer(),
-                          Text('${controller.maleTrainers.length}',
-                              style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: _kOrange,
-                                  fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10.w,
-                        mainAxisSpacing: 10.h,
-                        childAspectRatio: 3 / 5.2,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (_, index) =>
-                            FindTrainerCard(trainer: controller.maleTrainers[index]),
-                        childCount: controller.maleTrainers.length,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 130.h).asSliver,
                 ]);
             }
           }),
