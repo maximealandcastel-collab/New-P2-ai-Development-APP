@@ -96,4 +96,7 @@ class AuthService {
   String? getRole() => _repository.getRole();
 
   String? getGender() => _repository.getGender();
+
+  /// Email cached at login — used to restore admin mode on app restart.
+  String? getEmail() => _repository.getEmail();
 }
