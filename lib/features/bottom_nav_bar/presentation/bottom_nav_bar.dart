@@ -60,7 +60,7 @@ class BottomNavBarMain extends StatelessWidget {
                                 AdminModeService.to.setViewAsUser(false);
                                 BottomNavBarController.to.resetIndex();
                               }
-                            : null,
+                            : () {}, // already on Trainer side — absorb the tap
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut,
@@ -94,7 +94,7 @@ class BottomNavBarMain extends StatelessWidget {
                                 AdminModeService.to.setViewAsUser(true);
                                 BottomNavBarController.to.resetIndex();
                               }
-                            : null,
+                            : () {}, // already on User side — absorb the tap
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut,
@@ -131,3 +131,4 @@ class BottomNavBarMain extends StatelessWidget {
     });
   }
 }
+
