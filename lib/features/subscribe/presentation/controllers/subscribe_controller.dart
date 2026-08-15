@@ -58,6 +58,9 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
   final RxList<FindTrainerModel> femaleTrainers = <FindTrainerModel>[].obs;
   final RxList<FindTrainerModel> maleTrainers   = <FindTrainerModel>[].obs;
 
+  // ─── Featured: top-8 built-in / pinned trainers ──────────────────────────
+  final RxList<FindTrainerModel> pinnedTrainers = <FindTrainerModel>[].obs;
+
   @override
   LoadingState get paginationContentState => loadingState;
 
@@ -108,6 +111,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         trainersList.items.clear();
         femaleTrainers.clear();
         maleTrainers.clear();
+        // Don't clear pinnedTrainers on filter refresh — they never change
         _loadingState.value = LoadingState.loading;
       }
 
@@ -130,7 +134,7 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         return;
       }
 
-      // Fetch 150 women + 150 men + main search list in parallel
+      // Fetch 150 women + 150 men + featured 8 + main search list in parallel
       final spec = selectedSpecialty.value == 'all' ? null : selectedSpecialty.value;
       await Future.wait([
         trainersList.loadFirst(),
@@ -140,6 +144,11 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
         _service
             .fetchPolls(1, 150, gender: 'male', specialty: spec, skipPinned: true)
             .then((r) => maleTrainers.value = r),
+        // Always fetch the 8 featured built-in coaches regardless of active filter
+        if (pinnedTrainers.isEmpty)
+          _service
+              .fetchPolls(1, 8)
+              .then((r) => pinnedTrainers.value = r),
       ]);
       _loadingState.value = LoadingState.loaded;
     } on AppException catch (e) {
@@ -212,3 +221,4 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     super.onClose();
   }
 }
+
