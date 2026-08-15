@@ -55,9 +55,12 @@ class ApiService {
         },
 
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
+          final status = error.response?.statusCode;
+          // 401 = standard Unauthorized; 498 = legacy "session expired" code
+          // the server sends when a JWT is missing or expired. Both mean the
+          // same thing to the client: the user must re-authenticate.
+          if (status == 401 || status == 498) {
             await _cacheService.clear();
-            // Send user back to login — never leave them stuck on a broken screen.
             Future<void>.delayed(Duration.zero, () {
               try {
                 ToastMessageHelper.show(
