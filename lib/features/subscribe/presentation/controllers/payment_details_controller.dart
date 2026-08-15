@@ -296,7 +296,7 @@ class PaymentDetailsController extends GetxController {
       if (Get.isRegistered<PaymentDetailsController>()) {
         Get.delete<PaymentDetailsController>();
       }
-      Get.offAllNamed(AppRoute.bottonNavBar);
+      Get.offAllNamed(AppRoute.trainerMatchScreen);
     } on AppException catch (e) {
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.message);
