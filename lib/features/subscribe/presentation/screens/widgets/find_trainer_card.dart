@@ -149,7 +149,9 @@ class FindTrainerCard extends StatelessWidget {
       'boxing':            'Combat Sports',
       'nutrition':         'Cardio & Nutrition',
     };
-    return map[s] ?? s.replaceAll('_', ' ').toCapitalized();
+    final words = s.replaceAll('_', ' ').split(' ');
+    final cap = words.map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1)).join(' ');
+    return map[s] ?? cap;
   }
 
   Widget _placeholder(String name) => Container(
