@@ -10,7 +10,7 @@ import 'package:pler_to_pler_app/features/authentication/domain/services/auth_se
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
@@ -62,7 +62,7 @@ class LoginController extends GetxController {
           Get.put(AdminModeService());
         }
         AdminModeService.to.activate();
-        Get.offAll(() => const NavBar());
+        Get.offAll(() => const BottomNavBarMain());
       } else {
         // All other roles go through the bypass screen (PIN optional)
         Get.offAll(() => AdminBypassScreen());
@@ -117,3 +117,4 @@ class LoginController extends GetxController {
   }
 
 }
+
