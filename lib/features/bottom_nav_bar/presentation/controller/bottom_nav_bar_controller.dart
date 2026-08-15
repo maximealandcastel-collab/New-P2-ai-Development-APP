@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
@@ -8,10 +9,28 @@ import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_mo
 class BottomNavBarController extends GetxController {
   static BottomNavBarController get to => Get.find();
 
-  final RxInt _selectedIndex = 0.obs;
-  int get selectedIndex => _selectedIndex.value;
-  RxInt get selectedIndexRx => _selectedIndex;
+  // ── Per-mode tab indices (preserved across mode switches) ─────────────────
+  // Admin stack and user stack each remember which tab the user was on.
+  // Switching Admin ↔ User restores where you were, not index 0 every time.
+  final RxInt _adminIndex = 0.obs;
+  final RxInt _userIndex  = 0.obs;
 
+  int get adminIndex => _adminIndex.value;
+  int get userIndex  => _userIndex.value;
+
+  /// Legacy accessor — resolves to the active mode's current index.
+  int get selectedIndex {
+    final isAdmin = Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin;
+    final viewUser = isAdmin && AdminModeService.to.viewAsUser;
+    return (isAdmin && !viewUser) ? _adminIndex.value : _userIndex.value;
+  }
+
+  /// Legacy Rx accessor used by BottomNavBar widget.
+  RxInt get selectedIndexRx =>
+      _isAdminMode() ? _adminIndex : _userIndex;
+
+  // ── Nav items (used by external callers, not by BottomNavBarMain) ─────────
   List<NavItemModel> get navItems {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
@@ -21,16 +40,8 @@ class BottomNavBarController extends GetxController {
     final isAffiliate = Get.isRegistered<AffiliateModeService>() &&
         AffiliateModeService.to.isAffiliate;
 
-    // Admin browsing as a regular user — show standard user nav
-    if (viewAsUser) {
-      return NavItemModel.userNavItems;
-    }
-    // Admin mode: Dashboard home (real platform metrics) + trainer tools.
-    // No separate Admin tab — the Home IS the full admin dashboard.
-    if (isAdmin) {
-      return NavItemModel.adminNavItems;
-    }
-    // Affiliate (partner) mode: full user nav + Earnings tab
+    if (viewAsUser) return NavItemModel.userNavItems;
+    if (isAdmin)    return NavItemModel.adminNavItems;
     if (isAffiliate) {
       return [...NavItemModel.userNavItems, NavItemModel.affiliateNavItem];
     }
@@ -46,15 +57,47 @@ class BottomNavBarController extends GetxController {
 
   static const int contentsTabIndex = 2;
 
+  // ── Tab selection ─────────────────────────────────────────────────────────
   void onChange(int index) {
-    _selectedIndex.value = index;
+    if (_isAdminMode()) {
+      _adminIndex.value = index;
+    } else {
+      _userIndex.value = index;
+    }
   }
 
   void goToContentsTab() {
-    _selectedIndex.value = contentsTabIndex;
+    if (_isAdminMode()) {
+      _adminIndex.value = contentsTabIndex;
+    } else {
+      _userIndex.value = contentsTabIndex;
+    }
   }
 
+  /// Restore admin tab position when switching to Admin mode.
+  void switchToAdmin() {
+    if (kDebugMode) debugPrint('[ADMIN] Dashboard state restored (tab $_adminIndex)');
+    // Index is already saved in _adminIndex — nothing to do.
+    // The Offstage flip in BottomNavBarMain makes admin stack visible.
+  }
+
+  /// Restore user tab position when switching to User mode.
+  void switchToUser() {
+    if (kDebugMode) debugPrint('[USER] User state restored (tab $_userIndex)');
+    // Index is already saved in _userIndex — nothing to do.
+  }
+
+  /// Reset both stacks to tab 0 (used on logout / hard reset).
   void resetIndex() {
-    _selectedIndex.value = 0;
+    _adminIndex.value = 0;
+    _userIndex.value  = 0;
+  }
+
+  // ── Private helpers ───────────────────────────────────────────────────────
+  bool _isAdminMode() {
+    final isAdmin = Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin;
+    final viewUser = isAdmin && AdminModeService.to.viewAsUser;
+    return isAdmin && !viewUser;
   }
 }
