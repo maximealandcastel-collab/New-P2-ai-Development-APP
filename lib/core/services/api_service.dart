@@ -12,6 +12,7 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   late Dio _dio;
   late CacheService _cacheService;
+  bool _handlingExpiredSession = false;
 
   factory ApiService() => _instance;
 
@@ -56,13 +57,12 @@ class ApiService {
 
         onError: (error, handler) async {
           final status = error.response?.statusCode;
-          // 401 = standard Unauthorized; 498 = legacy "session expired" code
-          // the server sends when a JWT is missing or expired. Both mean the
-          // same thing to the client: the user must re-authenticate.
-          //
-          // ⚠️ Skip auth endpoints — a 401 on /auth/login means wrong
-          // password, NOT an expired session. Never redirect to login
-          // from the login screen itself.
+          // 401 / 498 = expired or missing JWT.
+          // Rules:
+          //  1. Never redirect from auth endpoints (wrong password ≠ expired session).
+          //  2. Never redirect when already on login/splash/onboarding.
+          //  3. Only ONE redirect per expiry event — use a flag to deduplicate
+          //     multiple concurrent 4xx responses (e.g. 5 controllers fire at once).
           final path = error.requestOptions.path;
           final isAuthEndpoint = path.contains('/auth/login') ||
               path.contains('/auth/register') ||
@@ -71,12 +71,9 @@ class ApiService {
               path.contains('/auth/resend-otp') ||
               path.contains('/auth/reset-password');
 
-          if ((status == 401 || status == 498) && !isAuthEndpoint) {
+          if ((status == 401 || status == 498) && !isAuthEndpoint && !_handlingExpiredSession) {
+            _handlingExpiredSession = true;
             await _cacheService.clear();
-            // Don't show the toast or redirect when the app is still on the
-            // splash or login screen — those screens handle their own navigation.
-            // Only interrupt the user with a toast when they were actively using
-            // the app and their session expired mid-session.
             final currentRoute = Get.currentRoute;
             final isPreAuthScreen =
                 currentRoute.isEmpty ||
@@ -85,14 +82,15 @@ class ApiService {
                 currentRoute.contains('login') ||
                 currentRoute.contains('onboarding');
             if (!isPreAuthScreen) {
-              Future<void>.delayed(Duration.zero, () {
-                try {
-                  ToastMessageHelper.show(
-                      'Session expired — please sign in again.');
-                  Get.offAllNamed('/loginScreen');
-                } catch (_) {}
-              });
+              try {
+                ToastMessageHelper.show('Session expired — please sign in again.');
+                Get.offAllNamed('/loginScreen');
+              } catch (_) {}
             }
+            // Reset after 5 s so future real session-expiry events are handled.
+            Future.delayed(const Duration(seconds: 5), () {
+              _handlingExpiredSession = false;
+            });
           }
           return handler.next(error);
         },
