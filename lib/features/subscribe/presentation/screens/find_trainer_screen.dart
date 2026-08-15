@@ -10,63 +10,254 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/find_trainer_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
+// ─── Filter definitions ───────────────────────────────────────────────────
+const _genderFilters = [
+  _Filter(id: 'all',    emoji: '👥', label: 'All'),
+  _Filter(id: 'male',   emoji: '♂',  label: 'Male'),
+  _Filter(id: 'female', emoji: '♀',  label: 'Female'),
+];
+
+const _specialtyFilters = [
+  _Filter(id: 'all',               emoji: '⚡', label: 'All Goals'),
+  _Filter(id: 'weight_loss',       emoji: '🔥', label: 'Weight Loss'),
+  _Filter(id: 'muscle_gain',       emoji: '💪', label: 'Muscle'),
+  _Filter(id: 'boxing',            emoji: '🥊', label: 'Combat'),
+  _Filter(id: 'maintain_physique', emoji: '🧘', label: 'Abs'),
+  _Filter(id: 'nutrition',         emoji: '🏃', label: 'Cardio'),
+];
+
+class _Filter {
+  final String id, emoji, label;
+  const _Filter({required this.id, required this.emoji, required this.label});
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────
 class FindTrainerScreen extends StatelessWidget {
   const FindTrainerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = SubscribeController.to;
+    final controller = Get.find<SubscribeController>();
 
-    return SliverScaffold(
-      appBar: CustomSliverAppBar(
-        expandedHeight: 134.h,
-        title: 'Find trainer',
-        flexiblePaddingTop: 16.h,
-        flexibleChild: CustomSearchField(
-          readOnly: true,
-          onTap: () => _openSearch(context, controller),
-          searchController: controller.searchController,
-          hintText: 'Search trainer by name or needs',
-        ),
-      ),
-      onRefresh: controller.refresh,
-      refreshEdgeOffset: MediaQuery.sizeOf(context).height * 0.1,
-      paginationList: controller.trainersList,
-      bodyList: [
-        Obx(() {
-          switch (controller.loadingState) {
-            case LoadingState.initial:
-            case LoadingState.loading:
-              return const FindTrainerShimmer().asSliver;
-            case LoadingState.offline:
-            case LoadingState.error:
-              return EmptyDataWidget(
-                message: 'Failed to load trainers. Please try again.',
-                onRefresh: controller.refresh,
-              ).asFillRemainingSliver();
-            case LoadingState.loaded:
-              return SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10.w,
-                    mainAxisSpacing: 10.h,
-                    childAspectRatio: 3 / 4.8,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SafeArea(
+        child: NestedScrollView(
+          headerSliverBuilder: (context, _) => [
+            // ── App bar ──────────────────────────────────────────────
+            SliverAppBar(
+              backgroundColor: const Color(0xFFF5F5F5),
+              elevation: 0,
+              pinned: true,
+              centerTitle: true,
+              leading: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  margin: EdgeInsets.all(10.r),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (_, index) => FindTrainerCard(
-                      trainer: controller.trainers[index],
+                  child: Icon(Icons.chevron_left, size: 22.sp, color: Colors.black87),
+                ),
+              ),
+              title: Text(
+                'Find trainer',
+                style: TextStyle(
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ),
+
+            // ── Search bar ───────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
+                child: GestureDetector(
+                  onTap: () => _openSearch(context, controller),
+                  child: Container(
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2))],
                     ),
-                    childCount: controller.trainers.length,
+                    child: Row(children: [
+                      SizedBox(width: 16.w),
+                      Icon(Icons.search, color: Colors.grey.shade400, size: 20.sp),
+                      SizedBox(width: 10.w),
+                      Text('Search trainer by name or needs',
+                        style: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp)),
+                    ]),
                   ),
                 ),
-              );
-          }
-        }),
-        PaginationLoaderSliver(controller: controller),
-        SizedBox(height: 130.h).asSliver,
-      ],
+              ),
+            ),
+
+            // ── Gender filter row ─────────────────────────────────────
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 38.h,
+                child: Obx(() => ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  itemCount: _genderFilters.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                  itemBuilder: (_, i) {
+                    final f = _genderFilters[i];
+                    final active = controller.selectedGender.value == f.id;
+                    return GestureDetector(
+                      onTap: () => controller.filterBy(
+                        specialty: controller.selectedSpecialty.value,
+                        gender: f.id,
+                      ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          color: active ? const Color(0xFFFF6B1A) : Colors.white,
+                          borderRadius: BorderRadius.circular(20.r),
+                          boxShadow: [BoxShadow(
+                            color: active
+                                ? const Color(0xFFFF6B1A).withOpacity(0.35)
+                                : Colors.black.withOpacity(0.06),
+                            blurRadius: active ? 8 : 4,
+                          )],
+                        ),
+                        child: Text(
+                          '${f.emoji} ${f.label}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w800,
+                            color: active ? Colors.white : Colors.black54,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )),
+              ),
+            ),
+
+            SliverToBoxAdapter(child: SizedBox(height: 10.h)),
+
+            // ── Specialty filter row ──────────────────────────────────
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 38.h,
+                child: Obx(() => ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  itemCount: _specialtyFilters.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                  itemBuilder: (_, i) {
+                    final f = _specialtyFilters[i];
+                    final active = controller.selectedSpecialty.value == f.id;
+                    return GestureDetector(
+                      onTap: () => controller.filterBy(
+                        specialty: f.id,
+                        gender: controller.selectedGender.value,
+                      ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          color: active ? const Color(0xFF1A1A2E) : Colors.white,
+                          borderRadius: BorderRadius.circular(20.r),
+                          boxShadow: [BoxShadow(
+                            color: active
+                                ? Colors.black.withOpacity(0.3)
+                                : Colors.black.withOpacity(0.06),
+                            blurRadius: active ? 8 : 4,
+                          )],
+                        ),
+                        child: Text(
+                          '${f.emoji} ${f.label}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w800,
+                            color: active ? Colors.white : Colors.black54,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )),
+              ),
+            ),
+
+            SliverToBoxAdapter(child: SizedBox(height: 14.h)),
+          ],
+
+          // ── Trainer grid body ─────────────────────────────────────────
+          body: Obx(() {
+            switch (controller.loadingState) {
+              case LoadingState.loading:
+              case LoadingState.initial:
+                return CustomScrollView(slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
+                        childAspectRatio: 3 / 5.2,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (_, __) => const FindTrainerShimmer(),
+                        childCount: 6,
+                      ),
+                    ),
+                  ),
+                ]);
+              case LoadingState.error:
+                return CustomScrollView(slivers: [
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.wifi_off_rounded, size: 48.sp, color: Colors.grey.shade300),
+                        SizedBox(height: 12.h),
+                        Text('Could not load trainers', style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500)),
+                        SizedBox(height: 16.h),
+                        ElevatedButton(
+                          onPressed: controller.refresh,
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B1A),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))),
+                          child: Text('Try again', style: TextStyle(color: Colors.white, fontSize: 13.sp)),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ]);
+              default:
+                return CustomScrollView(slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
+                        childAspectRatio: 3 / 5.2,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (_, index) => FindTrainerCard(trainer: controller.trainers[index]),
+                        childCount: controller.trainers.length,
+                      ),
+                    ),
+                  ),
+                  PaginationLoaderSliver(controller: controller),
+                  SizedBox(height: 130.h).asSliver,
+                ]);
+            }
+          }),
+        ),
+      ),
     );
   }
 
@@ -77,23 +268,17 @@ class FindTrainerScreen extends StatelessWidget {
         onSearch: (String query) async {
           await controller.search.search(query);
           return controller.search.results
-              .map(
-                (trainer) => SearchModel(
-                  model: trainer,
-                  title: trainer.userId?.fullName,
-                  image: trainer.userId?.profilePicture,
-                  subtitle:
-                      trainer.subscriptionPrice?.premium.toString(),
-                ),
-              )
+              .map((trainer) => SearchModel(
+                    model: trainer,
+                    title: trainer.userId?.fullName,
+                    image: trainer.userId?.profilePicture,
+                    subtitle: trainer.subscriptionPrice?.premium.toString(),
+                  ))
               .toList();
         },
         onResultTap: (result) {
           controller.search.clear();
-          Get.toNamed(
-            AppRoute.trainerProfileScreen,
-            arguments: result.model.sId as String,
-          );
+          Get.toNamed(AppRoute.trainerProfileScreen, arguments: result.model.sId as String);
         },
       ),
     );
