@@ -86,8 +86,10 @@ class SubscribeController extends GetxController with PaginatedLoaderUi {
     final spec        = selectedSpecialty.value == 'all' ? null : selectedSpecialty.value;
     final gen         = selectedGender.value    == 'all' ? null : selectedGender.value;
     final searchQuery = page == 1 ? searchController.text : null;
+    // Skip pinned top-8 when any filter active — shows fresh authentic faces
+    final skipPinned  = spec != null || gen != null;
     return _service.fetchPolls(page, limit,
-        search: searchQuery, specialty: spec, gender: gen);
+        search: searchQuery, specialty: spec, gender: gen, skipPinned: skipPinned);
   }
 
   // ─── Filter ───────────────────────────────────────────────────────────────
