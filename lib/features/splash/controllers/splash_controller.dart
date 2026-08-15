@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
@@ -14,14 +15,12 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
   late Animation<double> scaleAnimation;
   late Animation<double> fadeAnimation;
 
-  // Observable index to switch between splash1, splash2, splash3
   var currentImageIndex = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    // Duration is now for EACH image (e.g., 1 second each)
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -38,42 +37,61 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     _runSplashSequence();
   }
 
-  /// Sequential animation for 3 images
   void _runSplashSequence() async {
-    // 1. First Image
+    // ── Splash animation ──────────────────────────────────────────────────
     currentImageIndex.value = 0;
     await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 200));
 
-    // 2. Second Image
-    await animationController.reverse(); // Smooth transition out
+    await animationController.reverse();
     currentImageIndex.value = 1;
-    await animationController.forward(); // Smooth transition in
+    await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 200));
 
-    // 3. Third Image
     await animationController.reverse();
     currentImageIndex.value = 2;
     await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    if (LoginController.to.isLoggedIn()) {
-      // Re-activate admin mode for the owner account on every app restart.
-      // This ensures trainer+admin nav is always shown after a cold launch.
-      const _ownerEmails = {'pmoney78q@gmail.com'};
-      final _cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
-      if (_ownerEmails.contains(_cachedEmail)) {
-        if (!Get.isRegistered<AdminModeService>()) {
-          Get.put(AdminModeService());
-        }
-        AdminModeService.to.activate();
-      }
-      final route = await Get.find<ProfileService>().resolveInitialRoute();
-      Get.offAllNamed(route);
-    } else {
+    // ── Auth routing ──────────────────────────────────────────────────────
+    await _resolveRoute();
+  }
+
+  Future<void> _resolveRoute() async {
+    final isLoggedIn = LoginController.to.isLoggedIn();
+
+    if (!isLoggedIn) {
       Get.offAllNamed(AppRoute.onboardingMainScreen);
+      return;
     }
-    //Get.offAllNamed(AppRoute.subscribeSelectScreen);
+
+    // Check whether the user opted into "Save Login".
+    // If they didn't, clear the session and send them to login.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sessionPersisted = prefs.getBool('sessionPersisted') ?? false;
+      if (!sessionPersisted) {
+        // No saved-login consent — force fresh login.
+        await LoginController.to.logout();
+        return;
+      }
+    } catch (_) {
+      // If prefs fail, fall through and allow the restored session.
+    }
+
+    // ── Restore admin mode for the owner account ─────────────────────────
+    const ownerEmails = {'pmoney78q@gmail.com'};
+    final cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
+    if (ownerEmails.contains(cachedEmail)) {
+      if (!Get.isRegistered<AdminModeService>()) {
+        Get.put(AdminModeService());
+      }
+      // activate() restores the admin's last saved dashboard mode (admin or user).
+      await AdminModeService.to.activate();
+    }
+
+    final route = await Get.find<ProfileService>().resolveInitialRoute();
+    Get.offAllNamed(route);
   }
 
   @override
