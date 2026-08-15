@@ -73,13 +73,26 @@ class ApiService {
 
           if ((status == 401 || status == 498) && !isAuthEndpoint) {
             await _cacheService.clear();
-            Future<void>.delayed(Duration.zero, () {
-              try {
-                ToastMessageHelper.show(
-                    'Session expired — please sign in again.');
-                Get.offAllNamed('/loginScreen');
-              } catch (_) {}
-            });
+            // Don't show the toast or redirect when the app is still on the
+            // splash or login screen — those screens handle their own navigation.
+            // Only interrupt the user with a toast when they were actively using
+            // the app and their session expired mid-session.
+            final currentRoute = Get.currentRoute;
+            final isPreAuthScreen =
+                currentRoute.isEmpty ||
+                currentRoute == '/' ||
+                currentRoute.contains('splash') ||
+                currentRoute.contains('login') ||
+                currentRoute.contains('onboarding');
+            if (!isPreAuthScreen) {
+              Future<void>.delayed(Duration.zero, () {
+                try {
+                  ToastMessageHelper.show(
+                      'Session expired — please sign in again.');
+                  Get.offAllNamed('/loginScreen');
+                } catch (_) {}
+              });
+            }
           }
           return handler.next(error);
         },
