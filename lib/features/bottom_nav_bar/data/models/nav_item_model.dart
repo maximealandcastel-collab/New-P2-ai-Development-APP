@@ -50,6 +50,32 @@ class NavItemModel {
         screen: const AdminDashboardScreen(),
       );
 
+  /// Nav items for the admin account — Dashboard (real platform data) first,
+  /// then the standard trainer tools (Clients, Contents, Request).
+  /// No separate "Admin" tab needed because Home IS the dashboard.
+  static List<NavItemModel> adminNavItems = [
+    NavItemModel(
+      label: 'Home',
+      icon: Assets.icons.home.path,
+      screen: const AdminDashboardScreen(),
+    ),
+    NavItemModel(
+      label: 'Clients',
+      icon: Assets.icons.clients.path,
+      screen: const ClientsScreen(),
+    ),
+    NavItemModel(
+      label: 'Contents',
+      icon: Assets.icons.contents.path,
+      screen: const ContentsScreen(),
+    ),
+    NavItemModel(
+      label: 'Request',
+      icon: Assets.icons.request.path,
+      screen: const RequestScreen(),
+    ),
+  ];
+
   static NavItemModel get affiliateNavItem => NavItemModel(
         label: 'Earnings',
         icon: Assets.icons.star.path, // reuses star icon; swap if a wallet icon is available
