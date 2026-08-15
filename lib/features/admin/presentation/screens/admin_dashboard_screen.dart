@@ -3,7 +3,29 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+
+Widget _buildToggleTab(String label, bool active, BuildContext context) {
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 180),
+    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+    decoration: BoxDecoration(
+      color: active ? const Color(0xFFFF6B1A) : Colors.transparent,
+      borderRadius: BorderRadius.circular(8.r),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w800,
+        color: active ? Colors.white : Colors.grey.shade600,
+        letterSpacing: 0.3,
+      ),
+    ),
+  );
+}
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -54,6 +76,36 @@ class AdminDashboardScreen extends StatelessWidget {
                                   color: AppColors.textSecondary)),
                         ],
                       ),
+                      SizedBox(width: 12.w),
+                      // ── User | Admin view toggle ──────────────────
+                      Obx(() {
+                        final svc = Get.isRegistered<AdminModeService>()
+                            ? AdminModeService.to
+                            : null;
+                        if (svc == null) return const SizedBox.shrink();
+                        return GestureDetector(
+                          onTap: () {
+                            svc.toggleView();
+                            if (Get.isRegistered<BottomNavBarController>()) {
+                              BottomNavBarController.to.resetIndex();
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(3.w),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildToggleTab('User', svc.viewAsUser, context),
+                                _buildToggleTab('Admin', !svc.viewAsUser, context),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
                       const Spacer(),
                       Obx(() => c.metricsLoading
                           ? SizedBox(
