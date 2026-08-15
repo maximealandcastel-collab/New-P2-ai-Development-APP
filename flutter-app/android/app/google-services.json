@@ -1,0 +1,30 @@
+{
+  "_comment": "PLACEHOLDER FILE — replace with the real google-services.json downloaded from Firebase Console before building. Steps: 1) Go to https://console.firebase.google.com → your P2P FitTech AI project. 2) Project Settings → Your apps → Android app (package: com.p2pfittechai.app). 3) Click google-services.json → Download. 4) Replace this file (keep it in android/app/). 5) Do NOT commit this to a public repo.",
+  "project_info": {
+    "project_number": "REPLACE_WITH_PROJECT_NUMBER",
+    "project_id": "REPLACE_WITH_PROJECT_ID",
+    "storage_bucket": "REPLACE_WITH_PROJECT_ID.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REPLACE_WITH_MOBILESDK_APP_ID",
+        "android_client_info": {
+          "package_name": "com.p2pfittechai.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "REPLACE_WITH_ANDROID_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
