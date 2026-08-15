@@ -102,17 +102,60 @@ class FindTrainerScreen extends StatelessWidget {
               ),
             ),
 
-            // ── Filter by goal ────────────────────────────────────────
+            // ── Filter by goal + disclosure ──────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 4.h, 0, 0),
-                child: Text(
-                  'Filter by goal',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black54,
-                  ),
+                padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Filter by goal',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    GestureDetector(
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          backgroundColor: const Color(0xFF1C1C1E),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.r)),
+                          title: Text('Filters & Find My Match',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15.sp)),
+                          content: Text(
+                            'Tap a specialty chip to browse trainers by training style. '
+                            'Tap a gender chip to filter by women or men.\n\n'
+                            'When a filter is active we skip our featured trainers '
+                            'so you always see fresh, authentic coaches from our full network.\n\n'
+                            '🎯 Find My Match instantly picks your ideal trainer '
+                            'based on your goals and fitness level — no scrolling needed.',
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13.sp,
+                                height: 1.5),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Got it',
+                                  style: TextStyle(
+                                      color: const Color(0xFFFF6B00),
+                                      fontWeight: FontWeight.w700)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      child: Icon(Icons.info_outline_rounded,
+                          size: 15.sp, color: Colors.black38),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -176,25 +219,65 @@ class FindTrainerScreen extends StatelessWidget {
               ),
             ),
 
-            // ── 1,000+ headline ───────────────────────────────────────
+            // ── Find My Match pill + 1,000+ badge ─────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 6.h),
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(fontSize: 12.sp, color: Colors.black45),
-                    children: [
-                      TextSpan(
-                        text: '1,000+ ',
-                        style: TextStyle(
-                          color: _kOrange,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13.sp,
+                padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
+                child: Row(
+                  children: [
+                    // 🎯 Find My Match — auto-picks the ideal trainer
+                    GestureDetector(
+                      onTap: () => Get.toNamed(AppRoute.trainerMatchScreen),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.w, vertical: 9.h),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                              colors: [Color(0xFFFF6B00), Color(0xFFFF8C42)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight),
+                          borderRadius: BorderRadius.circular(22.r),
+                          boxShadow: [
+                            BoxShadow(
+                                color: const Color(0xFFFF6B00).withOpacity(0.32),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3))
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('🎯', style: TextStyle(fontSize: 15.sp)),
+                            SizedBox(width: 6.w),
+                            Text('Find My Match',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13.sp,
+                                    letterSpacing: -0.2)),
+                          ],
                         ),
                       ),
-                      const TextSpan(text: 'trainers in our network — 150 women · 150 men'),
-                    ],
-                  ),
+                    ),
+                    const Spacer(),
+                    // 1,000+ badge (compact)
+                    RichText(
+                      text: TextSpan(
+                        style:
+                            TextStyle(fontSize: 11.sp, color: Colors.black45),
+                        children: [
+                          TextSpan(
+                            text: '1,000+ ',
+                            style: TextStyle(
+                                color: _kOrange,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 12.sp),
+                          ),
+                          const TextSpan(text: '150 ♀ · 150 ♂'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
