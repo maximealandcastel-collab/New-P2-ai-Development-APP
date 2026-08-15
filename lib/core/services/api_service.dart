@@ -59,7 +59,19 @@ class ApiService {
           // 401 = standard Unauthorized; 498 = legacy "session expired" code
           // the server sends when a JWT is missing or expired. Both mean the
           // same thing to the client: the user must re-authenticate.
-          if (status == 401 || status == 498) {
+          //
+          // ⚠️ Skip auth endpoints — a 401 on /auth/login means wrong
+          // password, NOT an expired session. Never redirect to login
+          // from the login screen itself.
+          final path = error.requestOptions.path;
+          final isAuthEndpoint = path.contains('/auth/login') ||
+              path.contains('/auth/register') ||
+              path.contains('/auth/forget-password') ||
+              path.contains('/auth/verify-otp') ||
+              path.contains('/auth/resend-otp') ||
+              path.contains('/auth/reset-password');
+
+          if ((status == 401 || status == 498) && !isAuthEndpoint) {
             await _cacheService.clear();
             Future<void>.delayed(Duration.zero, () {
               try {
