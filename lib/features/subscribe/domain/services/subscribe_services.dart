@@ -18,6 +18,7 @@ class SubscribeServices {
     String? search,
     String? specialty,
     String? gender,
+    bool skipPinned = false,
   }) async {
     try {
       return await _repository.getTrainers(
@@ -26,6 +27,7 @@ class SubscribeServices {
         search: search,
         specialty: specialty,
         gender: gender,
+        skipPinned: skipPinned,
       );
     } on AppException {
       if (!_repository.hasCache()) rethrow;
