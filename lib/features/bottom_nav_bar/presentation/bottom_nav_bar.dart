@@ -30,8 +30,8 @@ class BottomNavBarMain extends StatelessWidget {
             bottomNavigationBar: BottomNavBar(navItems: items),
           ),
 
-          // ── Admin Preview banner (only in user-preview mode) ──────
-          if (viewUser)
+          // ── Admin toggle pill — always visible when admin is signed in ─────
+          if (isAdmin)
             Positioned(
               top: MediaQuery.of(context).padding.top + 6,
               left: 0,
@@ -39,18 +39,24 @@ class BottomNavBarMain extends StatelessWidget {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    AdminModeService.to.setViewAsUser(false);
+                    AdminModeService.to.setViewAsUser(!AdminModeService.to.viewAsUser);
                     BottomNavBarController.to.resetIndex();
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF6B1A),
+                      color: viewUser
+                          ? const Color(0xFFFF6B1A)
+                          : const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(20.r),
+                      border: viewUser
+                          ? null
+                          : Border.all(
+                              color: const Color(0xFFFF6B1A), width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.28),
-                          blurRadius: 12,
+                          color: Colors.black.withOpacity(0.35),
+                          blurRadius: 14,
                           offset: const Offset(0, 3),
                         ),
                       ],
@@ -58,13 +64,22 @@ class BottomNavBarMain extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.shield_rounded,
-                            color: Colors.white, size: 13.sp),
+                        Icon(
+                          viewUser
+                              ? Icons.shield_rounded
+                              : Icons.swap_horiz_rounded,
+                          color: viewUser
+                              ? Colors.white
+                              : const Color(0xFFFF6B1A),
+                          size: 13.sp,
+                        ),
                         SizedBox(width: 5.w),
                         Text(
-                          'Admin Preview',
+                          viewUser ? 'Admin Preview' : 'Admin Mode',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: viewUser
+                                ? Colors.white
+                                : const Color(0xFFFF6B1A),
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.3,
@@ -74,20 +89,21 @@ class BottomNavBarMain extends StatelessWidget {
                         Container(
                           width: 1,
                           height: 12.h,
-                          color: Colors.white38,
+                          color: viewUser ? Colors.white38 : Colors.white24,
                         ),
                         SizedBox(width: 8.w),
                         Text(
-                          'Back to Admin',
+                          viewUser ? 'Back to Admin' : 'Preview as User',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: viewUser ? Colors.white : Colors.white70,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         SizedBox(width: 4.w),
                         Icon(Icons.arrow_forward_ios_rounded,
-                            color: Colors.white, size: 9.sp),
+                            color: viewUser ? Colors.white : Colors.white54,
+                            size: 9.sp),
                       ],
                     ),
                   ),
