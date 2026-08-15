@@ -25,7 +25,7 @@ class SubscribeRepository {
     String? gender,
   }) async {
     try {
-      final params = <String, dynamic>{'catalogOnly': 'true'};
+      final params = <String, dynamic>{};
       if (search != null && search.isNotEmpty) params['search'] = search;
       if (specialty != null && specialty != 'all') params['specialty'] = specialty;
       if (gender != null && gender != 'all') params['gender'] = gender;
