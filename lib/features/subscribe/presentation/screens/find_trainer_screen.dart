@@ -101,7 +101,7 @@ class FindTrainerScreen extends StatelessWidget {
             // ── Gender filter row ─────────────────────────────────────
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 38.h,
+                height: 44.h,
                 child: Obx(() => ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -117,23 +117,26 @@ class FindTrainerScreen extends StatelessWidget {
                       ),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                         decoration: BoxDecoration(
                           color: active ? const Color(0xFFFF6B1A) : Colors.white,
-                          borderRadius: BorderRadius.circular(20.r),
-                          boxShadow: [BoxShadow(
-                            color: active
-                                ? const Color(0xFFFF6B1A).withOpacity(0.35)
-                                : Colors.black.withOpacity(0.06),
-                            blurRadius: active ? 8 : 4,
-                          )],
+                          borderRadius: BorderRadius.circular(22.r),
+                          border: active
+                              ? null
+                              : Border.all(color: const Color(0xFFD0D0D0), width: 1.5),
+                          boxShadow: active
+                              ? [BoxShadow(
+                                  color: const Color(0xFFFF6B1A).withOpacity(0.35),
+                                  blurRadius: 8,
+                                )]
+                              : null,
                         ),
                         child: Text(
                           '${f.emoji} ${f.label}',
                           style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w800,
-                            color: active ? Colors.white : Colors.black54,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                            color: active ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
@@ -148,7 +151,7 @@ class FindTrainerScreen extends StatelessWidget {
             // ── Specialty filter row ──────────────────────────────────
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 38.h,
+                height: 44.h,
                 child: Obx(() => ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -164,23 +167,26 @@ class FindTrainerScreen extends StatelessWidget {
                       ),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                         decoration: BoxDecoration(
                           color: active ? const Color(0xFF1A1A2E) : Colors.white,
-                          borderRadius: BorderRadius.circular(20.r),
-                          boxShadow: [BoxShadow(
-                            color: active
-                                ? Colors.black.withOpacity(0.3)
-                                : Colors.black.withOpacity(0.06),
-                            blurRadius: active ? 8 : 4,
-                          )],
+                          borderRadius: BorderRadius.circular(22.r),
+                          border: active
+                              ? null
+                              : Border.all(color: const Color(0xFFD0D0D0), width: 1.5),
+                          boxShadow: active
+                              ? [BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 8,
+                                )]
+                              : null,
                         ),
                         child: Text(
                           '${f.emoji} ${f.label}',
                           style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w800,
-                            color: active ? Colors.white : Colors.black54,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                            color: active ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
