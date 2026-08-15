@@ -112,7 +112,6 @@ class FindTrainerScreen extends StatelessWidget {
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black54,
-                    letterSpacing: 0.1,
                   ),
                 ),
               ),
@@ -150,7 +149,6 @@ class FindTrainerScreen extends StatelessWidget {
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black54,
-                    letterSpacing: 0.1,
                   ),
                 ),
               ),
@@ -178,7 +176,30 @@ class FindTrainerScreen extends StatelessWidget {
               ),
             ),
 
-            SliverToBoxAdapter(child: SizedBox(height: 8.h)),
+            // ── 1,000+ headline ───────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 6.h),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 12.sp, color: Colors.black45),
+                    children: [
+                      TextSpan(
+                        text: '1,000+ ',
+                        style: TextStyle(
+                          color: _kOrange,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                      const TextSpan(text: 'trainers in our network — showing top 50'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(child: SizedBox(height: 4.h)),
           ],
 
           // ── Trainer grid ─────────────────────────────────────────────
@@ -205,20 +226,26 @@ class FindTrainerScreen extends StatelessWidget {
                 ]);
 
               case LoadingState.offline:
-                return Center(child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.wifi_off_rounded, size: 48.sp, color: Colors.grey.shade300),
-                    SizedBox(height: 12.h),
-                    Text('Could not load trainers', style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500)),
-                    SizedBox(height: 12.h),
-                    ElevatedButton(
-                      onPressed: controller.refresh,
-                      style: ElevatedButton.styleFrom(backgroundColor: _kOrange, shape: StadiumBorder()),
-                      child: Text('Try again', style: TextStyle(color: Colors.white, fontSize: 13.sp)),
-                    ),
-                  ],
-                ));
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.wifi_off_rounded, size: 48.sp, color: Colors.grey.shade300),
+                      SizedBox(height: 12.h),
+                      Text('Could not load trainers',
+                          style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500)),
+                      SizedBox(height: 12.h),
+                      ElevatedButton(
+                        onPressed: controller.refresh,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: _kOrange,
+                            shape: const StadiumBorder()),
+                        child: Text('Try again',
+                            style: TextStyle(color: Colors.white, fontSize: 13.sp)),
+                      ),
+                    ],
+                  ),
+                );
 
               default:
                 return CustomScrollView(slivers: [
@@ -237,7 +264,6 @@ class FindTrainerScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  PaginationLoaderSliver(controller: controller),
                   SizedBox(height: 130.h).asSliver,
                 ]);
             }
@@ -264,7 +290,8 @@ class FindTrainerScreen extends StatelessWidget {
         },
         onResultTap: (result) {
           controller.search.clear();
-          Get.toNamed(AppRoute.trainerProfileScreen, arguments: result.model.sId as String);
+          Get.toNamed(AppRoute.trainerProfileScreen,
+              arguments: result.model.sId as String);
         },
       ),
     );
@@ -277,7 +304,8 @@ class _FilterChip extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
 
-  const _FilterChip({required this.filter, required this.active, required this.onTap});
+  const _FilterChip(
+      {required this.filter, required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +321,14 @@ class _FilterChip extends StatelessWidget {
             color: active ? _kOrange : const Color(0xFFD8D8D8),
             width: active ? 2.0 : 1.0,
           ),
-          boxShadow: active ? [] : [const BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
+          boxShadow: active
+              ? []
+              : [
+                  const BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 3,
+                      offset: Offset(0, 1))
+                ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
