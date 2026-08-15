@@ -85,6 +85,7 @@ class AuthRepository {
 
       await Future.wait([
         _cacheService.put(AppConstants.accessToken, result.token),
+        _cacheService.put('cacheUserEmail', email.toLowerCase()),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
       ]);
@@ -260,6 +261,11 @@ class AuthRepository {
 
   String? getRole() {
     return _cacheService.get<String>(AppConstants.cacheUserRole);
+  }
+
+  /// Returns the email cached at login — used to restore admin mode on restart.
+  String? getEmail() {
+    return _cacheService.get<String>('cacheUserEmail');
   }
 
   String? getGender() {
