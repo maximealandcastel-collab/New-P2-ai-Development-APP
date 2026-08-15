@@ -25,9 +25,10 @@ class BottomNavBarController extends GetxController {
     if (viewAsUser) {
       return NavItemModel.userNavItems;
     }
-    // Admin mode: trainer nav + Admin tab
+    // Admin mode: Dashboard home (real platform metrics) + trainer tools.
+    // No separate Admin tab — the Home IS the full admin dashboard.
     if (isAdmin) {
-      return [...NavItemModel.trainerNavItems, NavItemModel.adminNavItem];
+      return NavItemModel.adminNavItems;
     }
     // Affiliate (partner) mode: full user nav + Earnings tab
     if (isAffiliate) {
