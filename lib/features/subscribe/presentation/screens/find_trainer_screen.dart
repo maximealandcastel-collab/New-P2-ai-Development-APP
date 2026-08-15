@@ -332,6 +332,66 @@ class FindTrainerScreen extends StatelessWidget {
 
               default:
                 return CustomScrollView(slivers: [
+                  // ── ⭐ Featured Coaches ───────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 4.h),
+                      child: Row(
+                        children: [
+                          Text('⭐', style: TextStyle(fontSize: 17.sp)),
+                          SizedBox(width: 6.w),
+                          Text(
+                            'Featured Coaches',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                            decoration: BoxDecoration(
+                              color: _kOrange,
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Text(
+                              'TOP PICKS',
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Obx(() {
+                      final pinned = controller.pinnedTrainers;
+                      if (pinned.isEmpty) return SizedBox(height: 8.h);
+                      return SizedBox(
+                        height: 270.h,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
+                          itemCount: pinned.length,
+                          separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                          itemBuilder: (_, i) => SizedBox(
+                            width: 168.w,
+                            child: FindTrainerCard(trainer: pinned[i]),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+
+                  SliverToBoxAdapter(child: SizedBox(height: 20.h)),
+
                   // ── Women section ────────────────────────────────────
                   SliverToBoxAdapter(
                     child: Padding(
@@ -495,3 +555,4 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
+
