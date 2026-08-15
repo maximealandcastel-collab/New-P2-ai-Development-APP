@@ -194,6 +194,7 @@ class ProfileRepository {
     final body = <String, dynamic>{
       'firstName': pick('firstName', user?.firstName),
       'lastName': pick('lastName', user?.lastName),
+      'bio': pick('bio', user?.bio),
       'dateOfBirth': pick('dateOfBirth', user?.dateOfBirth),
       'gender': resolveGender(),
       'height': pick('height', user?.height),
