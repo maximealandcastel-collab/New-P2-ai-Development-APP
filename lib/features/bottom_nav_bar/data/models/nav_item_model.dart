@@ -21,6 +21,7 @@ class NavItemModel {
     required this.screen,
   });
 
+  /// Trainer nav — the base experience shared with admin.
   static List<NavItemModel> trainerNavItems = [
     NavItemModel(
       label: 'Home',
@@ -50,14 +51,14 @@ class NavItemModel {
         screen: const AdminDashboardScreen(),
       );
 
-  /// Nav items for the admin account — Dashboard (real platform data) first,
-  /// then the standard trainer tools (Clients, Contents, Request).
-  /// No separate "Admin" tab needed because Home IS the dashboard.
+  /// Admin nav — all trainer screens PLUS the Admin analytics tab.
+  /// The admin experiences the full trainer workflow and has live platform
+  /// analytics one tab away. Nothing is replaced; Admin is additive.
   static List<NavItemModel> adminNavItems = [
     NavItemModel(
       label: 'Home',
       icon: Assets.icons.home.path,
-      screen: const AdminDashboardScreen(),
+      screen: const TrainerHomeScreen(),   // same Home as trainer
     ),
     NavItemModel(
       label: 'Clients',
@@ -74,11 +75,16 @@ class NavItemModel {
       icon: Assets.icons.request.path,
       screen: const RequestScreen(),
     ),
+    NavItemModel(
+      label: 'Admin',
+      icon: Assets.icons.star.path,
+      screen: const AdminDashboardScreen(), // live analytics — additive tab
+    ),
   ];
 
   static NavItemModel get affiliateNavItem => NavItemModel(
         label: 'Earnings',
-        icon: Assets.icons.star.path, // reuses star icon; swap if a wallet icon is available
+        icon: Assets.icons.star.path,
         screen: const AffiliateDashboardScreen(),
       );
 
