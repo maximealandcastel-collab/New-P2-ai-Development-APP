@@ -27,7 +27,7 @@ workflows:
 
       - name: Fetch signing files
         script: |
-        set -e
+          set -e
 
           # 1. Reformat App Store Connect API key (.p8 files are PKCS8 — PRIVATE KEY header)
           python3 - <<'PYEOF'
