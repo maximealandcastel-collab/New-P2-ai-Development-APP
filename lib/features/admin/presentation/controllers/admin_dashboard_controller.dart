@@ -298,10 +298,10 @@ class AdminDashboardController extends GetxController {
         // Prefer the admin-specific JWT issued by the bypass endpoint;
         // fall back to the regular bearer token for backwards compatibility.
         var token = await PrefsHelper.getString(_kAdminTokenKey);
-        if (token.isEmpty) {
+        if (token?.isEmpty ?? true) {
           token = await PrefsHelper.getString('bearerToken');
         }
-        if (token.isNotEmpty) {
+        if (token?.isNotEmpty ?? false) {
           options.headers['Authorization'] = 'Bearer $token';
         }
         handler.next(options);
