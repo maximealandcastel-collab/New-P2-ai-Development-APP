@@ -2,8 +2,14 @@ class ApiConstants {
     /// Override at run time, e.g.:
     /// `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:4001`
     //static const String baseUrl = 'https://fit-tech-ai.replit.app';
-    static const String baseUrl = 'https://fit-tech-ai.replit.app';
-    static const String mediaBaseUrl = 'https://fit-tech-ai.replit.app';
+    static const String baseUrl = String.fromEnvironment(
+      'API_ORIGIN',
+      defaultValue: 'https://p2pfitechai.com',
+    );
+    static const String mediaBaseUrl = String.fromEnvironment(
+      'API_ORIGIN',
+      defaultValue: 'https://p2pfitechai.com',
+    );
 
     /// ─── Auth Marker ───────────────────────────
     static const String requiresAuthHeader = 'X-Requires-Auth';
