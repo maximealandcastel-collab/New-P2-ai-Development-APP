@@ -1,13 +1,20 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+
+/// Key used to read/store the admin-specific JWT token.
+/// Must match the constant declared in AdminDashboardController.
+const String _kAdminTokenKey = 'adminToken';
 
 class AdminBypassScreen extends StatefulWidget {
   final bool fromLogin;
@@ -28,6 +35,53 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
     super.dispose();
   }
 
+  /// Calls the backend /auth/admin-bypass endpoint with the user's current JWT.
+  /// On success the backend upgrades the account to admin role and returns a
+  /// dedicated admin JWT that subsequent API calls use via Bearer auth.
+  Future<bool> _callBackendBypass(String code) async {
+    final userToken = await PrefsHelper.getString('bearerToken');
+    if (userToken.isEmpty) {
+      setState(() => _error = 'You must be logged in to activate admin mode.');
+      return false;
+    }
+
+    try {
+      final dio = Dio(BaseOptions(
+        baseUrl: ApiConstants.baseUrl,
+        connectTimeout: const Duration(seconds: 12),
+        receiveTimeout: const Duration(seconds: 12),
+      ));
+
+      final response = await dio.post(
+        '/api/v1/auth/admin-bypass',
+        data: {'code': code},
+        options: Options(headers: {
+          'Authorization': 'Bearer $userToken',
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      final data = response.data as Map<String, dynamic>?;
+      if (data?['success'] == true) {
+        // Persist the admin-specific JWT so AdminDashboardController can use it
+        final adminToken = data!['data']?['token'] as String?;
+        if (adminToken != null && adminToken.isNotEmpty) {
+          await PrefsHelper.setString(_kAdminTokenKey, adminToken);
+        }
+        return true;
+      }
+      setState(() => _error = data?['message']?.toString() ?? 'Activation failed.');
+      return false;
+    } on DioException catch (e) {
+      final msg = (e.response?.data as Map<String, dynamic>?)?['message']?.toString();
+      setState(() => _error = msg ?? 'Could not reach the server. Try again.');
+      return false;
+    } catch (_) {
+      setState(() => _error = 'Unexpected error. Please try again.');
+      return false;
+    }
+  }
+
   Future<void> _activate() async {
     final code = _codeController.text.trim();
     if (code.isEmpty) {
@@ -40,29 +94,9 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
       _error = '';
     });
 
-    await Future.delayed(const Duration(milliseconds: 400));
-    setState(() => _loading = false);
-
-    if (code == '2931') {
-      // Activate admin mode — registers service + controller if not already up
-      if (!Get.isRegistered<AdminModeService>()) {
-        Get.put(AdminModeService(), permanent: true);
-      }
-      AdminModeService.to.activate();
-      if (!Get.isRegistered<AdminDashboardController>()) {
-        Get.put(AdminDashboardController());
-      }
-      Get.snackbar(
-        '🔓 Founders Access Granted',
-        'Full Founders Access — lifetime admin privileges activated.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.shade800,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      Get.offAll(() => NavBar());
-    } else if (code.toUpperCase() == '67') {
-      // Activate affiliate / partner mode
+    if (code.toUpperCase() == '67') {
+      // ── Affiliate / partner mode (local-only, no backend call) ──
+      setState(() => _loading = false);
       if (!Get.isRegistered<AffiliateModeService>()) {
         Get.put(AffiliateModeService(), permanent: true);
       }
@@ -79,9 +113,31 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
         duration: const Duration(seconds: 3),
       );
       Get.offAll(() => NavBar());
-    } else {
-      setState(() => _error = 'Invalid code. Please try again.');
+      return;
     }
+
+    // ── Admin mode — validate with the backend ──
+    final ok = await _callBackendBypass(code);
+    setState(() => _loading = false);
+
+    if (!ok) return; // error already set in _callBackendBypass
+
+    if (!Get.isRegistered<AdminModeService>()) {
+      Get.put(AdminModeService(), permanent: true);
+    }
+    AdminModeService.to.activate();
+    if (!Get.isRegistered<AdminDashboardController>()) {
+      Get.put(AdminDashboardController());
+    }
+    Get.snackbar(
+      '🔓 Founders Access Granted',
+      'Full Founders Access — lifetime admin privileges activated.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.shade800,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+    );
+    Get.offAll(() => NavBar());
   }
 
   void _skip() {
@@ -109,19 +165,23 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                         'Admin Access',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 26.sp,
+                          fontSize: 28.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 6.h),
+                      SizedBox(height: 4.h),
                       Text(
-                        'Enter your admin code to unlock full access.',
+                        'Enter your access code',
                         style: TextStyle(
-                          color: Colors.grey.shade400,
+                          color: Colors.grey.shade500,
                           fontSize: 14.sp,
                         ),
                       ),
                     ],
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.grey.shade600),
+                    onPressed: _skip,
                   ),
                 ],
               ),
@@ -129,41 +189,38 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
               SizedBox(height: 48.h),
 
               // Code input
-              Text(
-                'Admin Code',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              TextField(
-                controller: _codeController,
-                keyboardType: TextInputType.text,
-                obscureText: true,
-                style: TextStyle(color: Colors.white, fontSize: 18.sp),
-                decoration: InputDecoration(
-                  hintText: '••••',
-                  hintStyle: TextStyle(color: Colors.grey.shade600),
-                  filled: true,
-                  fillColor: Colors.grey.shade900,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide.none,
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: _error.isNotEmpty
+                        ? Colors.red.shade800
+                        : Colors.grey.shade800,
+                    width: 1,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
                 ),
-                onSubmitted: (_) => _activate(),
+                child: TextField(
+                  controller: _codeController,
+                  obscureText: true,
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _activate(),
+                  decoration: InputDecoration(
+                    hintText: 'Access code',
+                    hintStyle: TextStyle(color: Colors.grey.shade600),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.w, vertical: 14.h),
+                    border: InputBorder.none,
+                    prefixIcon: Icon(Icons.lock_outline,
+                        color: Colors.grey.shade600, size: 20.sp),
+                  ),
+                ),
               ),
 
               if (_error.isNotEmpty) ...[
-                SizedBox(height: 8.h),
+                SizedBox(height: 10.h),
                 Text(
                   _error,
                   style: TextStyle(color: Colors.red.shade400, fontSize: 13.sp),
@@ -183,11 +240,12 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
                     ),
+                    disabledBackgroundColor: AppColors.primary.withOpacity(0.4),
                   ),
                   child: _loading
                       ? SizedBox(
-                          width: 22.w,
-                          height: 22.h,
+                          width: 20.w,
+                          height: 20.w,
                           child: const CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
