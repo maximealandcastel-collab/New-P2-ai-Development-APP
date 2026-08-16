@@ -27,7 +27,7 @@ workflows:
 
       - name: Fetch signing files
         script: |
-          set -e
+        set -e
 
           # 1. Reformat App Store Connect API key (.p8 files are PKCS8 — PRIVATE KEY header)
           python3 - <<'PYEOF'
@@ -49,70 +49,9 @@ workflows:
           openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
           echo "Cert key generated"
 
-          # 3. Revoke ALL existing Distribution certs via Apple REST API
-          python3 - <<'PYEOF'
-          import os, subprocess, base64, json, time, urllib.request, urllib.error, sys
-
-          def b64url(data):
-              if isinstance(data, str): data = data.encode()
-              return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
-
-          key_id   = os.environ['APP_STORE_CONNECT_KEY_IDENTIFIER']
-          issuer   = os.environ['APP_STORE_CONNECT_ISSUER_ID']
-          now      = int(time.time())
-          hdr      = b64url(json.dumps({"alg":"ES256","kid":key_id,"typ":"JWT"},separators=(',',':')))
-          pay      = b64url(json.dumps({"iss":issuer,"iat":now,"exp":now+1200,"aud":"appstoreconnect-v1"},separators=(',',':')))
-          msg      = f"{hdr}.{pay}"
-
-          r = subprocess.run(['openssl','dgst','-sha256','-sign','/tmp/api_key.pem'],
-                             input=msg.encode(), capture_output=True)
-          if r.returncode != 0:
-              sys.exit(f"JWT sign failed: {r.stderr.decode()[:200]}")
-          der = r.stdout
-
-          def read_len(d, pos):
-              l = d[pos]; pos += 1
-              if l & 0x80:
-                  n = l & 0x7f; l = int.from_bytes(d[pos:pos+n],'big'); pos += n
-              return l, pos
-          pos = 1
-          _, pos = read_len(der, pos)
-          assert der[pos] == 0x02; pos += 1
-          rl, pos = read_len(der, pos)
-          rv = der[pos:pos+rl]; pos += rl
-          assert der[pos] == 0x02; pos += 1
-          sl, pos = read_len(der, pos)
-          sv = der[pos:pos+sl]
-          def pad32(b):
-              b = b.lstrip(b'\x00')
-              return (b'\x00' * (32 - len(b))) + b
-          sig = b64url(pad32(rv) + pad32(sv))
-          jwt = f"{msg}.{sig}"
-
-          BASE = "https://api.appstoreconnect.apple.com/v1"
-          headers = {"Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
-
-          def api(method, path, body=None):
-              url = BASE + path
-              data = json.dumps(body).encode() if body else None
-              req = urllib.request.Request(url, data=data, headers=headers, method=method)
-              try:
-                  with urllib.request.urlopen(req) as r:
-                      return json.loads(r.read()) if r.status not in (204,) else {}
-              except urllib.error.HTTPError as e:
-                  return {"_error": e.code, "_body": e.read().decode()[:300]}
-
-          # Fetch ALL certs — Apple uses "DISTRIBUTION" not "IOS_DISTRIBUTION"
-          certs = api("GET", "/certificates?limit=200")
-          dist = [c for c in certs.get("data",[]) if "DISTRIBUTION" in c.get("attributes",{}).get("certificateType","")]
-          print(f"Found {len(dist)} Distribution cert(s) — revoking all")
-          for c in dist:
-              r = api("DELETE", f"/certificates/{c['id']}")
-              print(f"  Revoked {c['id']}: {r}")
-          print("Done revoking")
-          PYEOF
-
-          # 4. Fetch (or create) signing files
+          # 3. Fetch (or create) signing files — no cert revocation needed.
+          #    --create: creates a new Distribution cert only when none exists.
+          #    Codemagic keeps the cert across builds; Apple limit = 2 active certs.
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --type IOS_APP_STORE \
