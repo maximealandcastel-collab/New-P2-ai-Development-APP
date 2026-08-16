@@ -8,123 +8,116 @@ import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/c
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-/// Trainer's messaging inbox — shows every subscriber they have an active
-/// channel with, ordered by most-recently-active.
-///
-/// Subscribers: tapping a row opens [ChatScreen] wired to the real Stream channel.
 class TrainerInboxScreen extends StatefulWidget {
   const TrainerInboxScreen({super.key});
-
   @override
   State<TrainerInboxScreen> createState() => _TrainerInboxScreenState();
 }
 
 class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
   final StreamChatService _svc = StreamChatService.instance;
+  List<Channel> _channels = [];
+  bool _loading = true;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    if (!_svc.isConnected) {
-      _svc.initFromBackend();
+    _init();
+  }
+
+  Future<void> _init() async {
+    if (!_svc.isConnected) await _svc.initFromBackend();
+    await _loadChannels();
+  }
+
+  Future<void> _loadChannels() async {
+    if (!mounted) return;
+    setState(() { _loading = true; _hasError = false; });
+    try {
+      if (!_svc.isConnected) { setState(() { _loading = false; }); return; }
+      final myId = _svc.client.state.currentUser?.id ?? '';
+      if (myId.isEmpty) { setState(() { _loading = false; }); return; }
+      final results = await _svc.client.queryChannels(
+        filter: Filter.and([
+          Filter.equal('type', 'messaging'),
+          Filter.in_('members', [myId]),
+        ]),
+        sort: const [SortOption('last_message_at', direction: SortOption.DESC)],
+        paginationParams: const PaginationParams(limit: 30),
+      ).first;
+      if (mounted) setState(() { _channels = results; _loading = false; });
+    } catch (_) {
+      if (mounted) setState(() { _hasError = true; _loading = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_svc.isConnected) {
-      return Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: _appBar(),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final myId = _svc.client.state.currentUser?.id ?? '';
-
-    return StreamChatCore(
-      client: _svc.client,
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: _appBar(),
-        body: ChannelListCore(
-          filter: Filter.and([
-            Filter.equal('type', 'messaging'),
-            Filter.in_('members', [myId]),
-          ]),
-          sort: const [SortOption('last_message_at', direction: SortOption.DESC)],
-          limit: 30,
-          errorBuilder: (context, error) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.wifi_off_rounded, size: 48.r, color: AppColors.textSecondary),
-                SizedBox(height: 12.h),
-                CustomText(text: 'Could not load messages', color: AppColors.textSecondary),
-                SizedBox(height: 8.h),
-                TextButton(onPressed: () => setState(() {}), child: const Text('Retry')),
-              ],
-            ),
-          ),
-          loadingBuilder: (context) => ListView.separated(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            itemCount: 8,
-            separatorBuilder: (_, __) => Divider(height: 1.h, color: Colors.grey.shade200),
-            itemBuilder: (_, __) => _ShimmerRow(),
-          ),
-          emptyBuilder: (context) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.chat_bubble_outline_rounded, size: 64.r, color: AppColors.textSecondary),
-                SizedBox(height: 16.h),
-                CustomText(
-                  text: 'No conversations yet',
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-                SizedBox(height: 8.h),
-                CustomText(
-                  text: 'Open a client\'s profile and tap\n"Message" to start a chat.',
-                  textAlign: TextAlign.center,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          listBuilder: (context, channels) => RefreshIndicator(
-            color: AppColors.primary,
-            onRefresh: () async => () => setState(() {})(),
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(vertical: 4.h),
-              itemCount: channels.length,
-              separatorBuilder: (_, __) => Divider(
-                height: 1.h,
-                indent: 72.w,
-                color: Colors.grey.shade200,
-              ),
-              itemBuilder: (context, index) =>
-                  _ChannelTile(channel: channels[index], myId: myId),
-            ),
-          ),
-        ),
-      ),
+    final myId = _svc.isConnected ? (_svc.client.state.currentUser?.id ?? '') : '';
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: _appBar(),
+      body: _loading
+          ? _shimmerList()
+          : _hasError
+              ? _errorView()
+              : _channels.isEmpty
+                  ? _emptyView()
+                  : RefreshIndicator(
+                      color: AppColors.primary,
+                      onRefresh: _loadChannels,
+                      child: ListView.separated(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        itemCount: _channels.length,
+                        separatorBuilder: (_, __) => Divider(
+                          height: 1.h, indent: 72.w, color: Colors.grey.shade200),
+                        itemBuilder: (context, index) =>
+                            _ChannelTile(channel: _channels[index], myId: myId),
+                      ),
+                    ),
     );
   }
 
+  Widget _shimmerList() => ListView.separated(
+    padding: EdgeInsets.symmetric(vertical: 8.h),
+    itemCount: 8,
+    separatorBuilder: (_, __) => Divider(height: 1.h, color: Colors.grey.shade200),
+    itemBuilder: (_, __) => _ShimmerRow(),
+  );
+
+  Widget _errorView() => Center(
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Icon(Icons.wifi_off_rounded, size: 48.r, color: AppColors.textSecondary),
+      SizedBox(height: 12.h),
+      CustomText(text: 'Could not load messages', color: AppColors.textSecondary),
+      SizedBox(height: 8.h),
+      TextButton(onPressed: _loadChannels, child: const Text('Retry')),
+    ]),
+  );
+
+  Widget _emptyView() => Center(
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Icon(Icons.chat_bubble_outline_rounded, size: 64.r, color: AppColors.textSecondary),
+      SizedBox(height: 16.h),
+      CustomText(text: 'No conversations yet', fontSize: 18.sp, fontWeight: FontWeight.w600),
+      SizedBox(height: 8.h),
+      CustomText(
+        text: 'Open a client's profile and tap\n"Message" to start a chat.',
+        textAlign: TextAlign.center,
+        color: AppColors.textSecondary,
+      ),
+    ]),
+  );
+
   AppBar _appBar() => AppBar(
-        backgroundColor: AppColors.backgroundLight,
-        elevation: 0,
-        title: CustomText(
-          text: 'Messages',
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-        ),
-        centerTitle: false,
-      );
+    backgroundColor: AppColors.backgroundLight,
+    elevation: 0,
+    title: CustomText(text: 'Messages', fontSize: 18.sp, fontWeight: FontWeight.w600),
+    centerTitle: false,
+  );
 }
 
-// ─── Individual channel row ───────────────────────────────────────────────────
 class _ChannelTile extends StatelessWidget {
   const _ChannelTile({required this.channel, required this.myId});
   final Channel channel;

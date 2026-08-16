@@ -114,6 +114,12 @@ class LoginController extends GetxController {
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+  /// Returns the cached login email (used by chat/notification screens).
+  String? getCachedEmail() {
+    final e = emailController.text.trim();
+    return e.isEmpty ? null : e;
+  }
+
 
   bool isTrainer() => _authService.getRole() == 'trainer';
 

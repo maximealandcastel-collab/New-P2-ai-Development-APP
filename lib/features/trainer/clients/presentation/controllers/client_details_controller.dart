@@ -23,7 +23,7 @@ class ClientDetailsController extends GetxController {
       arguments: ChatScreenArgs(
         displayName: invoice.clientName,
         subtitle: 'subscriber',
-        otherUserId: invoice.userId?.sId,
+        otherUserId: invoice.userId?.id,
         otherUserImage: invoice.userId?.profilePicture,
       ),
     );
