@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -5,55 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:video_player/video_player.dart';
 
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
+import 'package:pler_to_pler_app/features/contents/reels/core/reel_player_manager.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// CONTENTS SCREEN — TikTok-style vertical video feed
+// CONTENTS SCREEN  ·  TikTok-style vertical video feed
+//
+// Architecture:
+//  • ReelPlayerManager owns ALL VideoPlayerController instances.
+//    It keeps a 5-slot pool: current + 2 forward + 1 backward + 1 reserve.
+//    Every other slot is disposed → only ONE video plays at a time.
+//  • _switchTab() calls pauseActive() before swapping state so there is
+//    never ghost audio playing from the previous tab.
+//  • WidgetsBindingObserver pauses / resumes on background / foreground.
 // ═══════════════════════════════════════════════════════════════════════════════
-
-class _FeedVideo {
-  final String title;
-  final String videoUrl;
-  const _FeedVideo({required this.title, required this.videoUrl});
-}
-
-/// Server origin (strips /api/v1 suffix).
-String _origin() => ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
-
-String _absolute(String u) =>
-    u.startsWith('http') ? u : '${_origin()}$u';
-
-/// Fetch the feed using the http package — reliable, no GetConnect quirks.
-Future<Map<String, dynamic>?> _fetchFeed() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('accessToken') ?? '';
-    final uri = Uri.parse('${ApiUrls.baseUrl}/content/feed');
-    final res = await http.get(uri, headers: {
-      'Content-Type': 'application/json',
-      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
-    }).timeout(const Duration(seconds: 15));
-    if (res.statusCode == 200) {
-      return json.decode(res.body) as Map<String, dynamic>;
-    }
-    log('feed: HTTP ${res.statusCode}');
-  } catch (e) {
-    log('feed fetch error: $e');
-  }
-  return null;
-}
-
-List<_FeedVideo> _parseVideos(dynamic list) {
-  if (list is! List) return const [];
-  return list.whereType<Map>().map((v) {
-    final rawUrl = v['videoUrl']?.toString() ?? '';
-    return _FeedVideo(
-      title: v['title']?.toString() ?? 'Workout',
-      videoUrl: rawUrl.isEmpty ? '' : _absolute(rawUrl),
-    );
-  }).where((v) => v.videoUrl.isNotEmpty).toList();
-}
 
 class ContentsScreen extends StatefulWidget {
   const ContentsScreen({super.key});
@@ -62,131 +31,304 @@ class ContentsScreen extends StatefulWidget {
   State<ContentsScreen> createState() => _ContentsScreenState();
 }
 
-class _ContentsScreenState extends State<ContentsScreen> {
-  int _tab = 0;
+class _ContentsScreenState extends State<ContentsScreen>
+    with WidgetsBindingObserver {
+  // ── Player manager (single source of truth for all controllers) ────────────
+  late final ReelPlayerManager _mgr = ReelPlayerManager(
+    onUpdated: _onMgrUpdate,
+  );
+
+  // ── Page / tab ─────────────────────────────────────────────────────────────
   final PageController _pageCtrl = PageController();
+  int _tab = 0;         // 0 = Community, 1 = My Trainer
   int _currentPage = 0;
 
+  // ── Feed state ─────────────────────────────────────────────────────────────
   bool _loading = true;
   String? _error;
-  List<_FeedVideo> _community = const [];
-  List<_FeedVideo> _trainer = const [];
+  List<ContentModel> _community = const [];
+  List<ContentModel> _trainerVideos = const [];
 
+  List<ContentModel> get _videos => _tab == 0 ? _community : _trainerVideos;
+
+  // ──────────────────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
-    _pageCtrl.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
+    _pageCtrl.addListener(_onPageScroll);
     _loadFeed();
-  }
-
-  void _onScroll() {
-    final page = _pageCtrl.page?.round() ?? 0;
-    if (page != _currentPage) setState(() => _currentPage = page);
-  }
-
-  Future<void> _loadFeed() async {
-    setState(() { _loading = true; _error = null; });
-    final data = await _fetchFeed();
-    if (!mounted) return;
-    if (data == null) {
-      setState(() { _loading = false; _error = 'Could not load videos. Pull down to retry.'; });
-      return;
-    }
-    final feedData = data['data'];
-    setState(() {
-      _loading = false;
-      if (feedData is Map) {
-        _community = _parseVideos(feedData['community']);
-        _trainer   = _parseVideos(feedData['trainer']);
-      }
-    });
-  }
-
-  List<_FeedVideo> get _videos => _tab == 0 ? _community : _trainer;
-
-  void _switchTab(int tab) {
-    if (tab == _tab) return;
-    setState(() { _tab = tab; _currentPage = 0; });
-    if (_pageCtrl.hasClients) _pageCtrl.jumpToPage(0);
   }
 
   @override
   void dispose() {
-    _pageCtrl.removeListener(_onScroll);
+    WidgetsBinding.instance.removeObserver(this);
+    _pageCtrl.removeListener(_onPageScroll);
     _pageCtrl.dispose();
+    _mgr.releaseAll(); // dispose every slot before leaving screen
     super.dispose();
   }
 
+  // ── App lifecycle: pause on background, resume on foreground ───────────────
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        _mgr.pauseActive();
+        break;
+      case AppLifecycleState.resumed:
+        _mgr.playActive();
+        break;
+      case AppLifecycleState.hidden:
+        _mgr.pauseActive();
+        break;
+    }
+  }
+
+  // ── Manager rebuild callback ───────────────────────────────────────────────
+  void _onMgrUpdate() {
+    if (mounted) setState(() {});
+  }
+
+  // ── PageView listener: sync manager whenever page changes ─────────────────
+  void _onPageScroll() {
+    final page = _pageCtrl.page?.round() ?? 0;
+    if (page != _currentPage) {
+      _currentPage = page;
+      unawaited(_mgr.sync(
+        index: page,
+        contents: _videos,
+        prioritizeNextPreload: true,
+      ));
+    }
+  }
+
+  // ── Fetch feed from backend ────────────────────────────────────────────────
+  Future<void> _loadFeed() async {
+    setState(() { _loading = true; _error = null; });
+    final t0 = DateTime.now();
+    log('[ContentsScreen] fetch start');
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken') ?? '';
+      final uri   = Uri.parse('${ApiUrls.baseUrl}/content/feed');
+
+      final res = await http.get(uri, headers: {
+        'Content-Type': 'application/json',
+        if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+      }).timeout(const Duration(seconds: 15));
+
+      final ms = DateTime.now().difference(t0).inMilliseconds;
+      log('[ContentsScreen] fetch done ${ms}ms  status=${res.statusCode}');
+
+      if (res.statusCode == 200) {
+        final body     = json.decode(res.body) as Map<String, dynamic>;
+        final feedData = body['data'] as Map<String, dynamic>?;
+        if (feedData != null) {
+          final community = _parseList(feedData['community']);
+          final trainer   = _parseList(feedData['trainer']);
+          log('[ContentsScreen] community=${community.length}  trainer=${trainer.length}');
+
+          if (!mounted) return;
+          setState(() {
+            _community      = community;
+            _trainerVideos  = trainer;
+            _loading        = false;
+            _currentPage    = 0;
+          });
+
+          if (_videos.isNotEmpty) {
+            unawaited(_mgr.sync(index: 0, contents: _videos));
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      log('[ContentsScreen] fetch error: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _loading = false;
+        _error   = 'Could not load videos.\nTap to retry.';
+      });
+    }
+  }
+
+  /// Parse a raw JSON list into ContentModel, filtering out entries with no
+  /// playable URL. Mux HLS takes priority; legacy videoUrl is the fallback.
+  List<ContentModel> _parseList(dynamic raw) {
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(ContentModel.fromJson)
+        .where((c) => c.hasMuxHls || (c.videoUrl?.isNotEmpty ?? false))
+        .toList();
+  }
+
+  // ── Switch Community ↔ My Trainer ──────────────────────────────────────────
+  void _switchTab(int tab) {
+    if (tab == _tab) return;
+    _mgr.pauseActive(); // stop audio before changing the video list
+    setState(() { _tab = tab; _currentPage = 0; });
+    if (_pageCtrl.hasClients) _pageCtrl.jumpToPage(0);
+    if (_videos.isNotEmpty) {
+      unawaited(_mgr.sync(index: 0, contents: _videos));
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // BUILD
+  // ──────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // ── Body ─────────────────────────────────────────────────────
-          if (_loading)
-            const Center(child: CircularProgressIndicator(color: Colors.white))
-          else if (_error != null)
-            Center(
-              child: GestureDetector(
-                onTap: _loadFeed,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32.w),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.refresh_rounded, color: Colors.white54, size: 40),
-                      SizedBox(height: 12.h),
-                      Text(_error!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white54, fontSize: 14.sp, height: 1.5)),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          else if (_videos.isEmpty)
-            Center(
-              child: Text(
-                _tab == 1
-                    ? 'No trainer videos yet.\nSubscribe to a trainer to unlock their content.'
-                    : 'No videos yet.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white54, fontSize: 15.sp, height: 1.6),
-              ),
-            )
-          else
-            // Only mount the current page's video — swipe activates the next
-            PageView.builder(
-              controller: _pageCtrl,
-              scrollDirection: Axis.vertical,
-              itemCount: _videos.length,
-              itemBuilder: (ctx, i) => _VideoPage(
-                video: _videos[i],
-                active: i == _currentPage,
-              ),
-            ),
+      body: Stack(children: [
+        _buildBody(context),
+        _buildTabPills(context),
+      ]),
+    );
+  }
 
-          // ── Pill tabs ─────────────────────────────────────────────────
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 12,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(3.r),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(24.r),
-                ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  _pill('Community', 0),
-                  _pill('My Trainer', 1),
-                ]),
-              ),
+  // ── Body ───────────────────────────────────────────────────────────────────
+  Widget _buildBody(BuildContext context) {
+    if (_loading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white54, strokeWidth: 2),
+      );
+    }
+    if (_error != null) {
+      return GestureDetector(
+        onTap: _loadFeed,
+        child: Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.refresh_rounded, color: Colors.white38, size: 46),
+            SizedBox(height: 14.h),
+            Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white54, fontSize: 14.sp, height: 1.6),
+            ),
+          ]),
+        ),
+      );
+    }
+    if (_videos.isEmpty) {
+      return Center(
+        child: Text(
+          _tab == 1
+            ? 'No trainer videos yet.\nSubscribe to a trainer to see their content.'
+            : 'No community videos yet.\nCheck back soon.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white54, fontSize: 15.sp, height: 1.6),
+        ),
+      );
+    }
+    return PageView.builder(
+      controller: _pageCtrl,
+      scrollDirection: Axis.vertical,
+      itemCount: _videos.length,
+      itemBuilder: (ctx, i) => _buildVideoPage(i),
+    );
+  }
+
+  // ── Individual video page (controller lives in _mgr, not here) ─────────────
+  Widget _buildVideoPage(int index) {
+    final slot  = _mgr.slotFor(index);
+    final ctrl  = _mgr.controllerFor(index);
+    final video = _videos[index];
+
+    final isReady   = slot?.isReady ?? false;
+    final isLoading = slot?.isLoading ?? (slot == null);
+    final hasError  = slot != null && slot.error.isNotEmpty;
+
+    return GestureDetector(
+      // Tap to toggle play / pause
+      onTap: () {
+        if (ctrl == null) return;
+        if (ctrl.value.isPlaying) {
+          ctrl.pause();
+        } else {
+          ctrl.play();
+        }
+        setState(() {});
+      },
+      child: Stack(fit: StackFit.expand, children: [
+        const ColoredBox(color: Colors.black),
+
+        // ── Video ──────────────────────────────────────────────────────
+        if (isReady && ctrl != null)
+          FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width:  ctrl.value.size.width,
+              height: ctrl.value.size.height,
+              child: VideoPlayer(ctrl),
             ),
           ),
-        ],
+
+        // ── Loading spinner (only while genuinely initialising) ────────
+        if (isLoading && !isReady && !hasError)
+          const Center(
+            child: CircularProgressIndicator(
+              color: Colors.white30, strokeWidth: 2),
+          ),
+
+        // ── Error state ────────────────────────────────────────────────
+        if (hasError)
+          Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.play_circle_outline_rounded,
+                  color: Colors.white30, size: 52),
+              const SizedBox(height: 8),
+              const Text(
+                'Unable to play this video',
+                style: TextStyle(color: Colors.white30, fontSize: 13),
+              ),
+            ]),
+          ),
+
+        // ── Title overlay ──────────────────────────────────────────────
+        Positioned(
+          left: 16, right: 80, bottom: 110,
+          child: Text(
+            video.title ?? '',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              shadows: [Shadow(blurRadius: 8, color: Colors.black87)],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ]),
+    );
+  }
+
+  // ── Community / My Trainer pills ───────────────────────────────────────────
+  Widget _buildTabPills(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 12,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.all(3.r),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            _pill('Community', 0),
+            _pill('My Trainer', 1),
+          ]),
+        ),
       ),
     );
   }
@@ -202,131 +344,15 @@ class _ContentsScreenState extends State<ContentsScreen> {
           color: active ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20.r),
         ),
-        child: Text(label, style: TextStyle(
-          color: active ? Colors.black : Colors.white70,
-          fontSize: 13.sp,
-          fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-        )),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Single video page — only initialises the player when active=true
-// ─────────────────────────────────────────────────────────────────────────────
-class _VideoPage extends StatefulWidget {
-  final _FeedVideo video;
-  final bool active;
-  const _VideoPage({required this.video, required this.active});
-
-  @override
-  State<_VideoPage> createState() => _VideoPageState();
-}
-
-class _VideoPageState extends State<_VideoPage> {
-  VideoPlayerController? _ctrl;
-  bool _ready = false;
-  bool _showIcon = false;
-  bool _iconIsPlay = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.active) _initPlayer();
-  }
-
-  @override
-  void didUpdateWidget(_VideoPage old) {
-    super.didUpdateWidget(old);
-    if (widget.active && !old.active) {
-      // Page became active — start player
-      if (_ctrl == null) _initPlayer(); else _ctrl!.play();
-    } else if (!widget.active && old.active) {
-      // Page left — pause to save bandwidth
-      _ctrl?.pause();
-    }
-  }
-
-  Future<void> _initPlayer() async {
-    try {
-      final ctrl = VideoPlayerController.networkUrl(
-        Uri.parse(widget.video.videoUrl),
-      );
-      await ctrl.initialize();
-      if (!mounted) { ctrl.dispose(); return; }
-      ctrl.setLooping(true);
-      ctrl.play();
-      setState(() { _ctrl = ctrl; _ready = true; });
-    } catch (e) {
-      log('video init error: $e');
-    }
-  }
-
-  @override
-  void dispose() {
-    _ctrl?.dispose();
-    super.dispose();
-  }
-
-  void _togglePlay() {
-    if (_ctrl == null || !_ready) return;
-    final willPlay = !_ctrl!.value.isPlaying;
-    willPlay ? _ctrl!.play() : _ctrl!.pause();
-    setState(() { _showIcon = true; _iconIsPlay = willPlay; });
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) setState(() => _showIcon = false);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _togglePlay,
-      child: Stack(fit: StackFit.expand, children: [
-        // Black base
-        const ColoredBox(color: Colors.black),
-
-        // Video
-        if (_ready && _ctrl != null)
-          FittedBox(
-            fit: BoxFit.cover,
-            child: SizedBox(
-              width: _ctrl!.value.size.width,
-              height: _ctrl!.value.size.height,
-              child: VideoPlayer(_ctrl!),
-            ),
-          ),
-
-        // Spinner while loading
-        if (!_ready)
-          const Center(child: CircularProgressIndicator(color: Colors.white54)),
-
-        // Pause/play flash
-        if (_showIcon)
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
-              child: Icon(
-                _iconIsPlay ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                color: Colors.white, size: 52,
-              ),
-            ),
-          ),
-
-        // Title
-        Positioned(
-          left: 16, right: 80, bottom: 110,
-          child: Text(widget.video.title,
-            style: const TextStyle(
-              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600,
-              shadows: [Shadow(blurRadius: 8, color: Colors.black87)],
-            ),
-            maxLines: 2, overflow: TextOverflow.ellipsis,
+        child: Text(
+          label,
+          style: TextStyle(
+            color:      active ? Colors.black : Colors.white70,
+            fontSize:   13.sp,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
-      ]),
+      ),
     );
   }
 }
