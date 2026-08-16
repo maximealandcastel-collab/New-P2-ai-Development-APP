@@ -92,12 +92,9 @@ class LoginController extends GetxController {
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
 
-      if (ownerEmails.contains(loginEmail)) {
-        Get.offAll(() => BottomNavBarMain());
-        return;
-      }
-
-      if (role == 'admin') {
+      // Owner accounts and admins both route through AdminBypassScreen so the
+      // Admin ↔ User mode toggle is available for testing both experiences.
+      if (role == 'admin' || ownerEmails.contains(loginEmail)) {
         Get.offAll(() => AdminBypassScreen());
         return;
       }
