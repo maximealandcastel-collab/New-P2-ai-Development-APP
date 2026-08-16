@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
+import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 
 class BottomNavBarController extends GetxController {
   static BottomNavBarController get to => Get.find();
@@ -67,6 +68,13 @@ class BottomNavBarController extends GetxController {
 
   // ── Tab selection ─────────────────────────────────────────────────────────
   void onChange(int index) {
+    // Pause video when navigating away from the Contents tab
+    final prevIndex = _isAdminMode() ? _adminIndex.value : _userIndex.value;
+    if (prevIndex == contentsTabIndex && index != contentsTabIndex) {
+      if (Get.isRegistered<ContentController>()) {
+        ContentController.to.pauseReel().ignore();
+      }
+    }
     if (_isAdminMode()) {
       _adminIndex.value = index;
     } else {
