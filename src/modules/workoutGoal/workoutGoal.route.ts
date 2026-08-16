@@ -30,7 +30,7 @@ const router = Router();
 // DELETE /workouts/:id          → delete pending workout
 
 // Trainers can also use the workout generator (e.g. owner testing the feature)
-const workoutRoles = ["user", "trainer"];
+const workoutRoles = ["user", "trainer"] as const;
 
 router.post("/", guardRole(workoutRoles), createWorkout);
 router.get("/", guardRole(workoutRoles), getUserWorkouts);
