@@ -29,18 +29,21 @@ const router = Router();
 // GET    /workouts/:id          → get single workout
 // DELETE /workouts/:id          → delete pending workout
 
-router.post("/", guardRole("user"), createWorkout);
-router.get("/", guardRole("user"), getUserWorkouts);
-router.get("/today", guardRole("user"), getTodaysWorkout); // ← must stay before /:id
-router.get("/today/overview", guardRole("user"), getTodaysOverview); // ← must stay before /:id
-router.get("/progression/monthly", guardRole("user"), getMonthlyProgression); // ← must stay before /:id
-router.get("/:id", guardRole("user"), getWorkout);
-router.delete("/:id", guardRole("user"), deleteWorkout);
+// Trainers can also use the workout generator (e.g. owner testing the feature)
+const workoutRoles = ["user", "trainer"];
+
+router.post("/", guardRole(workoutRoles), createWorkout);
+router.get("/", guardRole(workoutRoles), getUserWorkouts);
+router.get("/today", guardRole(workoutRoles), getTodaysWorkout); // ← must stay before /:id
+router.get("/today/overview", guardRole(workoutRoles), getTodaysOverview); // ← must stay before /:id
+router.get("/progression/monthly", guardRole(workoutRoles), getMonthlyProgression); // ← must stay before /:id
+router.get("/:id", guardRole(workoutRoles), getWorkout);
+router.delete("/:id", guardRole(workoutRoles), deleteWorkout);
 
 // ── AI Plan generation ────────────────────────────────────────
 // POST /workouts/:id/generate → trigger AI to generate plan
 
-router.post("/:id/generate", guardRole("user"), generatePlan);
+router.post("/:id/generate", guardRole(workoutRoles), generatePlan);
 
 // ── Session lifecycle ─────────────────────────────────────────
 // PATCH  /workouts/:id/start
@@ -48,13 +51,13 @@ router.post("/:id/generate", guardRole("user"), generatePlan);
 // POST   /workouts/:id/complete
 // PATCH  /workouts/:id/skip
 
-router.patch("/:id/start", guardRole("user"), startSession);
+router.patch("/:id/start", guardRole(workoutRoles), startSession);
 router.patch(
   "/:id/exercises/:exerciseId/complete",
-  guardRole("user"),
+  guardRole(workoutRoles),
   completeExercise,
 );
-router.post("/:id/complete", guardRole("user"), completeSession);
-router.patch("/:id/skip", guardRole("user"), skipSession);
+router.post("/:id/complete", guardRole(workoutRoles), completeSession);
+router.patch("/:id/skip", guardRole(workoutRoles), skipSession);
 
 export const WorkoutRoutes = router;
