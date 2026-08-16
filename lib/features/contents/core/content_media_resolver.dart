@@ -43,11 +43,33 @@ class ContentMediaResolver {
     return resolved.toString();
   }
 
+  /// Phase 19 fallback logic:
+  ///   1. Mux HLS  (https://stream.mux.com/{playbackId}.m3u8) — adaptive, CDN, no buffering
+  ///   2. Legacy videoUrl — GCS MP4 stream with Range support
+  ///   3. Empty string — slot shows error state
   static String resolveVideoUrl(ContentModel content) {
-    return resolveUrl(content.videoUrl);
+    if (content.hasMuxHls) {
+      final muxUrl = 'https://stream.mux.com/${content.muxPlaybackId}.m3u8';
+      _log('ContentMediaResolver.resolveVideoUrl: Mux HLS → $muxUrl');
+      return muxUrl;
+    }
+    final legacy = resolveUrl(content.videoUrl);
+    _log('ContentMediaResolver.resolveVideoUrl: legacy → $legacy');
+    return legacy;
   }
 
+  /// Returns a thumbnail URL.
+  /// Prefers Mux auto-generated poster (sharp first frame, served from CDN)
+  /// over the stored thumbnailUrl, which may be missing for legacy content.
   static String resolveThumbnailUrl(ContentModel content) {
+    // Mux poster: free, generated automatically, served from image.mux.com CDN
+    if (content.hasMuxHls) {
+      final muxThumb =
+          'https://image.mux.com/${content.muxPlaybackId}/thumbnail.jpg'
+          '?time=0&width=480&fit_mode=smartcrop';
+      _log('ContentMediaResolver.resolveThumbnailUrl: Mux → $muxThumb');
+      return muxThumb;
+    }
     return resolveUrl(content.thumbnailUrl);
   }
 
@@ -72,9 +94,14 @@ class ContentMediaResolver {
       return CachedVideoPlayerPlus.file(File(url));
     }
 
+    // HLS streams (.m3u8) and MP4s both work via networkUrl.
+    // On iOS, AVPlayer handles HLS natively — no additional setup needed.
+    // On Android, ExoPlayer handles both.
     return CachedVideoPlayerPlus.networkUrl(
       Uri.parse(url),
       cacheKey: cacheKey ?? url,
+      // HLS manifests are tiny; MP4 segments are already compact.
+      // 7-day cache is safe: content IDs are stable identifiers.
       invalidateCacheIfOlderThan: const Duration(days: 7),
     );
   }
