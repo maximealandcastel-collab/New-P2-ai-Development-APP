@@ -40,7 +40,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
   /// dedicated admin JWT that subsequent API calls use via Bearer auth.
   Future<bool> _callBackendBypass(String code) async {
     final userToken = await PrefsHelper.getString('bearerToken');
-    if (userToken.isEmpty) {
+    if ((userToken?.isEmpty ?? true)) {
       setState(() => _error = 'You must be logged in to activate admin mode.');
       return false;
     }
