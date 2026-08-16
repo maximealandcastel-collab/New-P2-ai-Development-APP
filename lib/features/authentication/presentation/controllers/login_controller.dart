@@ -12,6 +12,7 @@ import 'package:pler_to_pler_app/features/profile/domain/services/profile_servic
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
+import 'package:pler_to_pler_app/services/stream_chat_service.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
@@ -36,7 +37,7 @@ class LoginController extends GetxController {
   LoadingState get loginState => _loginState.value;
   String get selectedRole => _selectedRole.value;
 
-  static const _kSaveLoginKey = 'saveLogin'; // SharedPreferences key
+  static const _kSaveLoginKey = 'saveLogin';
 
   final loginFormKey = GlobalKey<FormState>();
   final emailController    = TextEditingController(text: kDebugMode ? 'gabriel@trainer.com' : '');
@@ -48,7 +49,6 @@ class LoginController extends GetxController {
     _restoreSaveLoginPreference();
   }
 
-  /// Restore "Save Login" checkbox state from SharedPreferences.
   Future<void> _restoreSaveLoginPreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -56,7 +56,6 @@ class LoginController extends GetxController {
     } catch (_) {}
   }
 
-  /// Persist "Save Login" selection every time the user toggles it.
   Future<void> toggleSaveLogin() async {
     saveLogin.value = !saveLogin.value;
     try {
@@ -77,9 +76,6 @@ class LoginController extends GetxController {
       );
       _loginState.value = LoadingState.loaded;
 
-      // ── Persist "Save Login" flag ─────────────────────────────────────
-      // If the user opted in, mark the session as persistent so the
-      // SplashController can skip login on the next cold launch.
       final prefs = await SharedPreferences.getInstance();
       if (saveLogin.value) {
         await prefs.setBool('sessionPersisted', true);
@@ -87,80 +83,51 @@ class LoginController extends GetxController {
         await prefs.remove('sessionPersisted');
       }
 
-      // ── Admin activation ──────────────────────────────────────────────
-      // Hardcoded owner emails always get trainer+admin nav regardless of role.
+      // ── Connect Stream Chat in the background (non-blocking) ─────────────
+      // We fire-and-forget so login navigation is instant; the chat screen
+      // itself also calls initFromBackend() as a safety net.
+      StreamChatService.instance.initFromBackend().ignore();
+
       const ownerEmails = {'pmoney78q@gmail.com'};
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
-      final isOwner     = ownerEmails.contains(loginEmail) || role == 'admin';
 
-      if (isOwner) {
-        if (!Get.isRegistered<AdminModeService>()) {
-          await Get.putAsync(() async => AdminModeService());
-        }
-        // activate() restores the admin's last saved dashboard mode.
-        // Default is User UX — admin sees the real customer experience first.
-        await AdminModeService.to.activate();
-        Get.offAll(() => const BottomNavBarMain());
-      } else {
-        // All other roles go through the bypass screen (PIN optional)
-        Get.offAll(() => AdminBypassScreen());
+      if (ownerEmails.contains(loginEmail)) {
+        Get.offAll(() => const BottomNavBar());
+        return;
       }
+
+      if (role == 'admin') {
+        Get.offAll(() => AdminBypassScreen());
+        return;
+      }
+
+      Get.offAll(() => const BottomNavBar());
+    } on NoInternetException {
+      _loginState.value = LoadingState.error;
+      ToastMessageHelper.show('No internet connection');
+    } on UnAuthorizedException {
+      _loginState.value = LoadingState.error;
+      ToastMessageHelper.show('Invalid email or password');
     } catch (e) {
       _loginState.value = LoadingState.error;
-      if (kDebugMode) debugPrint('[Login] error: $e');
+      ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
-  bool isTrainer() {
-    final role = _authService.getRole();
-    if (role != null) {
-      return role == 'trainer';
-    }
-    return false;
-  }
+  bool isTrainer() => _authService.getRole() == 'trainer';
 
-  /// Returns the email cached at login — used by SplashController to restore
-  /// admin mode on app restart without re-authenticating.
-  String? getCachedEmail() => _authService.getEmail();
-
-  /// ─── LOGOUT ────────────────────────────
   Future<void> logout() async {
-    Get.back();
-    // Clear "Save Login" persistence so cold launch goes to login screen.
+    try {
+      await StreamChatService.instance.disconnect();
+    } catch (_) {}
+    try {
+      await _authService.logout();
+    } catch (_) {}
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('sessionPersisted');
     } catch (_) {}
-    // Deactivate admin mode if needed.
-    if (Get.isRegistered<AdminModeService>()) {
-      await AdminModeService.to.deactivate();
-    }
-    await _authService.logout();
-    Get.offAllNamed(AppRoute.loginScreen);
-  }
-
-  /// ─── DELETE ACCOUNT ────────────────────
-  Future<void> deleteAccount() async {
-    Get.back();
-    try {
-      await _authService.deleteAccount();
-      Get.offAllNamed(AppRoute.loginScreen);
-    } on AppException catch (e) {
-      ToastMessageHelper.show(e.errorMessage);
-    } catch (e) {
-      ToastMessageHelper.show('Failed to delete account. Please try again.');
-      if (kDebugMode) debugPrint('Delete account error: $e');
-    }
-  }
-
-  /// ─── IS LOGGED IN ──────────────────────
-  bool isLoggedIn() => _authService.isLoggedIn();
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
+    Get.offAllNamed(AppRoutes.login);
   }
 }
