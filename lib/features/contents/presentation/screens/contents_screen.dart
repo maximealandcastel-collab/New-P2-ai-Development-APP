@@ -1,119 +1,326 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
-import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reel_page_view.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/widgets/contents_reels_overlay.dart';
-import 'package:pler_to_pler_app/features/search/model/search_model.dart';
-import 'package:pler_to_pler_app/features/search/search_screen.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:video_player/video_player.dart';
 
-class ContentsScreen extends StatelessWidget {
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENTS SCREEN — TikTok-style vertical video feed
+// Dark full-screen vertical swipe feed. Each page shows one exercise video
+// streamed from the backend video library (GET /content/feed).
+// Community tab  → workout reels from all trainers
+// My Trainer tab → videos from the subscriber's assigned trainer
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _FeedVideo {
+  final String title;
+  final String? videoUrl;
+  final String? thumbnailUrl;
+  const _FeedVideo({required this.title, this.videoUrl, this.thumbnailUrl});
+}
+
+/// Server origin without the /api/v1 suffix — used for relative media URLs.
+String _origin() => ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
+
+String? _absolute(String? u) {
+  if (u == null || u.isEmpty) return null;
+  return u.startsWith('http') ? u : '${_origin()}$u';
+}
+
+/// GET helper — reads the stored token from SharedPreferences and calls the
+/// backend. Uses GetConnect (already in the dependency tree via get:).
+Future<Response> _get(String path) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('accessToken');
+  final connect = GetConnect();
+  return connect.get(
+    '${ApiUrls.baseUrl}$path',
+    headers: {
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    },
+  );
+}
+
+class ContentsScreen extends StatefulWidget {
   const ContentsScreen({super.key});
 
-  static const _background = Color(0xFF000000);
+  @override
+  State<ContentsScreen> createState() => _ContentsScreenState();
+}
+
+class _ContentsScreenState extends State<ContentsScreen> {
+  int _tab = 0; // 0 = Community, 1 = My Trainer
+  final PageController _pageCtrl = PageController();
+
+  bool _loading = true;
+  List<_FeedVideo> _community = const [];
+  List<_FeedVideo> _trainer = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFeed();
+  }
+
+  Future<void> _loadFeed() async {
+    try {
+      final response = await _get('/content/feed');
+      if (response.statusCode == 200 && response.body is Map) {
+        final data = (response.body as Map)['data'];
+        if (data is Map) {
+          List<_FeedVideo> parse(dynamic list) {
+            if (list is! List) return const [];
+            return list.whereType<Map>().map((v) => _FeedVideo(
+              title: v['title']?.toString() ?? 'Workout',
+              videoUrl: _absolute(v['videoUrl']?.toString()),
+              thumbnailUrl: _absolute(v['thumbnailUrl']?.toString()),
+            )).toList();
+          }
+          setState(() {
+            _community = parse(data['community']);
+            _trainer = parse(data['trainer']);
+            _loading = false;
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      log('feed load error: $e');
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  List<_FeedVideo> get _videos => _tab == 0 ? _community : _trainer;
+
+  void _switchTab(int tab) {
+    if (tab == _tab) return;
+    setState(() => _tab = tab);
+    if (_pageCtrl.hasClients) _pageCtrl.jumpToPage(0);
+  }
+
+  @override
+  void dispose() {
+    _pageCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final controller = ContentController.to;
-
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: Colors.black,
       body: Stack(
-        fit: StackFit.expand,
         children: [
-          Obx(() {
-            controller.reelFeed!.loadingState.value;
-            return _buildBody(context, controller);
-          }),
-          ContentsReelsOverlay(
-            onSearchTap: () => _openSearch(context, controller),
+          // ── Full-screen vertical video pager ──────────────────────────
+          if (_loading)
+            const Center(child: CircularProgressIndicator(color: Colors.white))
+          else if (_videos.isEmpty)
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.w),
+                child: Text(
+                  _tab == 1
+                      ? 'No trainer videos yet.\nSubscribe to a trainer to see their content.'
+                      : 'No community videos available yet.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 15.sp,
+                    height: 1.6,
+                  ),
+                ),
+              ),
+            )
+          else
+            PageView.builder(
+              controller: _pageCtrl,
+              scrollDirection: Axis.vertical,
+              itemCount: _videos.length,
+              itemBuilder: (ctx, i) => _VideoPage(video: _videos[i]),
+            ),
+
+          // ── Top pill tabs ─────────────────────────────────────────────
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.all(3.r),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _pill('Community', 0),
+                    _pill('My Trainer', 1),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, ContentController controller) {
-    final state = controller.reelFeed!.loadingState.value;
-    final hasItems = controller.contents.isNotEmpty;
-
-    if (hasItems && state == LoadingState.loaded) {
-      return _buildFeed(context, controller);
-    }
-
-    switch (state) {
-      case LoadingState.initial:
-      case LoadingState.loading:
-        return const ColoredBox(
-          color: _background,
-          child: Center(child: CustomLoader()),
-        );
-      case LoadingState.loaded:
-        return _emptyState(controller);
-      case LoadingState.offline:
-        return _emptyState(
-          controller,
-          'You are offline. Connect to the internet to load content.',
-        );
-      case LoadingState.error:
-        return _emptyState(
-          controller,
-          'Unable to load content. Pull down to retry.',
-        );
-    }
-  }
-
-  Widget _buildFeed(BuildContext context, ContentController controller) {
-    return RefreshIndicator(
-      backgroundColor: _background,
-      color: AppColors.primary,
-      edgeOffset: MediaQuery.paddingOf(context).top + 96.h,
-      onRefresh: controller.refresh,
-      notificationPredicate: (n) =>
-          controller.currentReelIndex.value == 0 && n.depth == 0,
-      child: const ContentsReelPageView(),
+  Widget _pill(String label, int index) {
+    final active = _tab == index;
+    return GestureDetector(
+      onTap: () => _switchTab(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: active ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: active ? Colors.black : Colors.white70,
+            fontSize: 13.sp,
+            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ),
     );
   }
+}
 
-  Widget _emptyState(ContentController controller, [String? message]) {
-    return EmptyDataWidget(
-      message: message ?? 'No content available',
-      messageColor: AppColors.textWhite,
-      onRefresh: controller.refresh,
-    );
+// ─────────────────────────────────────────────────────────────────────────────
+// Single full-screen video page
+// ─────────────────────────────────────────────────────────────────────────────
+class _VideoPage extends StatefulWidget {
+  final _FeedVideo video;
+  const _VideoPage({required this.video});
+
+  @override
+  State<_VideoPage> createState() => _VideoPageState();
+}
+
+class _VideoPageState extends State<_VideoPage> {
+  VideoPlayerController? _ctrl;
+  bool _ready = false;
+  bool _tapped = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
   }
 
-  void _openSearch(BuildContext context, ContentController controller) {
-    showSearch(
-      context: context,
-      delegate: SearchScreen(
-        hintText: 'Search default exercises...',
-        onSearch: (query) async {
-          await controller.search.search(query);
-          return controller.search.results
-              .map(
-                (content) => SearchModel(
-                  model: content,
-                  title: content.title ?? content.exerciseName,
-                  image: ContentMediaResolver.resolveThumbnailUrl(content),
-                  subtitle: content.categoryId?.category ?? content.difficulty,
+  Future<void> _init() async {
+    final url = widget.video.videoUrl;
+    if (url == null || url.isEmpty) return;
+    try {
+      _ctrl = VideoPlayerController.networkUrl(Uri.parse(url))
+        ..setLooping(true)
+        ..initialize().then((_) {
+          if (mounted) {
+            setState(() => _ready = true);
+            _ctrl!.play();
+          }
+        });
+    } catch (e) {
+      log('video init error: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    if (_ctrl == null) return;
+    setState(() {
+      _tapped = true;
+      _ctrl!.value.isPlaying ? _ctrl!.pause() : _ctrl!.play();
+    });
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() => _tapped = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _togglePlay,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Thumbnail while video loads
+          if (widget.video.thumbnailUrl != null && !_ready)
+            Image.network(
+              widget.video.thumbnailUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  const ColoredBox(color: Colors.black),
+            )
+          else if (!_ready)
+            const ColoredBox(color: Colors.black),
+
+          // Video
+          if (_ready && _ctrl != null)
+            FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: _ctrl!.value.size.width,
+                height: _ctrl!.value.size.height,
+                child: VideoPlayer(_ctrl!),
+              ),
+            ),
+
+          // Loading spinner
+          if (!_ready)
+            const Center(
+              child: CircularProgressIndicator(color: Colors.white54),
+            ),
+
+          // Pause/play icon flash on tap
+          if (_tapped)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.black45,
+                  shape: BoxShape.circle,
                 ),
-              )
-              .toList();
-        },
-        onResultTap: (result) {
-          final content = result.model as ContentModel;
-          controller.search.clear();
-          controller.pauseReel();
-          Get.back();
-          Get.toNamed(AppRoute.contentDetailsScreen, arguments: content);
-        },
+                child: Icon(
+                  _ctrl?.value.isPlaying ?? false
+                      ? Icons.play_arrow_rounded
+                      : Icons.pause_rounded,
+                  color: Colors.white,
+                  size: 48,
+                ),
+              ),
+            ),
+
+          // Title overlay at bottom
+          Positioned(
+            left: 16,
+            right: 80,
+            bottom: 100,
+            child: Text(
+              widget.video.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                shadows: [Shadow(blurRadius: 8, color: Colors.black87)],
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
