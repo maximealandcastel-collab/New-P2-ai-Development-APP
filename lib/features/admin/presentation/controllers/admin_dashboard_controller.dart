@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 
 // ─── Models ────────────────────────────────────────────────────────────────
 
@@ -247,14 +248,18 @@ class AdminUserModel {
 
 // ─── Controller ─────────────────────────────────────────────────────────────
 
+/// Key used to persist the admin-specific JWT returned by the bypass endpoint.
+/// Separate from the regular user token so admin sessions survive re-logins.
+const String _kAdminTokenKey = 'adminToken';
+
 class AdminDashboardController extends GetxController {
   static AdminDashboardController get to => Get.find();
 
-  static const _adminKey = '2931';
-
+  /// Dio instance — auth header is injected per-request by the interceptor
+  /// so token refreshes / late stores are picked up automatically.
   final _dio = Dio(BaseOptions(
     baseUrl: ApiConstants.baseUrl,
-    headers: {'x-admin-key': _adminKey, 'Content-Type': 'application/json'},
+    headers: {'Content-Type': 'application/json'},
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
   ));
@@ -285,6 +290,23 @@ class AdminDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Attach a request interceptor that reads the stored admin JWT
+    // (or falls back to the regular session token) before every call.
+    // This avoids the need to cache the token at construction time.
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Prefer the admin-specific JWT issued by the bypass endpoint;
+        // fall back to the regular bearer token for backwards compatibility.
+        var token = await PrefsHelper.getString(_kAdminTokenKey);
+        if (token.isEmpty) {
+          token = await PrefsHelper.getString('bearerToken');
+        }
+        if (token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        handler.next(options);
+      },
+    ));
     loadAll();
   }
 
