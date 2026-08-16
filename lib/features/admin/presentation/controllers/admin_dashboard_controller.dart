@@ -259,7 +259,10 @@ class AdminDashboardController extends GetxController {
   /// so token refreshes / late stores are picked up automatically.
   final _dio = Dio(BaseOptions(
     baseUrl: ApiConstants.baseUrl,
-    headers: {'Content-Type': 'application/json'},
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-key': const String.fromEnvironment('ADMIN_KEY', defaultValue: '2931'),
+    },
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
   ));
