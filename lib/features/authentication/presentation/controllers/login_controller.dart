@@ -93,7 +93,7 @@ class LoginController extends GetxController {
       final role        = _authService.getRole() ?? '';
 
       if (ownerEmails.contains(loginEmail)) {
-        Get.offAll(() => BottomNavBar());
+        Get.offAll(() => BottomNavBarMain());
         return;
       }
 
@@ -102,7 +102,7 @@ class LoginController extends GetxController {
         return;
       }
 
-      Get.offAll(() => BottomNavBar());
+      Get.offAll(() => BottomNavBarMain());
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
