@@ -3,13 +3,6 @@ workflows:
     name: iOS Release → TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-          source: true
     environment:
       flutter: stable
       xcode: latest
@@ -45,14 +38,12 @@ workflows:
           print("API key written")
           PYEOF
 
-          # 2. Generate a fresh RSA cert key on this machine
+          # 2. Generate a fresh RSA cert key on this machine (avoids cross-platform issues)
           openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
           echo "Cert key generated"
 
-          # 3. Revoke all existing Distribution certs so the fresh RSA key
-          #    (generated in step 2) can be used to create a new cert.
-          #    Cloud CI generates a new key on every ephemeral machine, so
-          #    old certs will never match — we must clear them first.
+          # 3. Revoke ALL existing Distribution certs via Apple REST API directly
+          #    (bypasses Codemagic CLI type-filter bugs)
           python3 - <<'PYEOF'
           import os, subprocess, base64, json, time, urllib.request, urllib.error, sys
 
@@ -67,54 +58,64 @@ workflows:
           pay      = b64url(json.dumps({"iss":issuer,"iat":now,"exp":now+1200,"aud":"appstoreconnect-v1"},separators=(',',':')))
           msg      = f"{hdr}.{pay}"
 
+          # Sign with openssl — produces DER-encoded ECDSA signature
           r = subprocess.run(['openssl','dgst','-sha256','-sign','/tmp/api_key.pem'],
                              input=msg.encode(), capture_output=True)
           if r.returncode != 0:
               sys.exit(f"JWT sign failed: {r.stderr.decode()[:200]}")
           der = r.stdout
 
+          # Parse DER SEQUENCE { INTEGER r, INTEGER s } → raw 64-byte R||S
           def read_len(d, pos):
               l = d[pos]; pos += 1
               if l & 0x80:
                   n = l & 0x7f; l = int.from_bytes(d[pos:pos+n],'big'); pos += n
               return l, pos
           pos = 1
-          _, pos = read_len(der, pos)
+          _, pos = read_len(der, pos)          # SEQUENCE length
           assert der[pos] == 0x02; pos += 1
           rl, pos = read_len(der, pos)
           rv = der[pos:pos+rl]; pos += rl
           assert der[pos] == 0x02; pos += 1
           sl, pos = read_len(der, pos)
           sv = der[pos:pos+sl]
-          def pad32(b):
-              b = b.lstrip(b'\x00')
-              return (b'\x00' * (32 - len(b))) + b
-          sig = b64url(pad32(rv) + pad32(sv))
-          jwt = f"{msg}.{sig}"
+          rv = rv.lstrip(b'\x00').rjust(32, b'\x00')
+          sv = sv.lstrip(b'\x00').rjust(32, b'\x00')
+          jwt = f"{msg}.{b64url(rv+sv)}"
+          print("JWT ok")
 
-          BASE = "https://api.appstoreconnect.apple.com/v1"
-          headers = {"Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}
+          # List ALL certificates, filter distribution types locally
+          url = 'https://api.appstoreconnect.apple.com/v1/certificates?limit=200'
+          req = urllib.request.Request(url, headers={'Authorization': f'Bearer {jwt}'})
+          try:
+              resp = urllib.request.urlopen(req, timeout=30)
+              certs = json.loads(resp.read()).get('data', [])
+          except urllib.error.HTTPError as e:
+              print(f"List certs HTTP {e.code}: {e.read().decode()[:200]}")
+              certs = []
 
-          def api(method, path, body=None):
-              url = BASE + path
-              data = json.dumps(body).encode() if body else None
-              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+          print(f"Found {len(certs)} Distribution cert(s)")
+          for cert in certs:
+              cid   = cert['id']
+              ctype = cert['attributes']['certificateType']
+              print(f"  Deleting {cid} ({ctype})")
+              dreq = urllib.request.Request(
+                  f'https://api.appstoreconnect.apple.com/v1/certificates/{cid}',
+                  method='DELETE',
+                  headers={'Authorization': f'Bearer {jwt}'}
+              )
               try:
-                  with urllib.request.urlopen(req) as r:
-                      return json.loads(r.read()) if r.status not in (204,) else {}
+                  urllib.request.urlopen(dreq, timeout=30)
+                  print(f"  Deleted ok")
               except urllib.error.HTTPError as e:
-                  return {"_error": e.code, "_body": e.read().decode()[:300]}
+                  print(f"  Delete failed {e.code}: {e.read().decode()[:100]}")
 
-          certs = api("GET", "/certificates?limit=200")
-          dist = [c for c in certs.get("data",[]) if "DISTRIBUTION" in c.get("attributes",{}).get("certificateType","")]
-          print(f"Found {len(dist)} Distribution cert(s) — revoking all before fresh create")
-          for c in dist:
-              r = api("DELETE", f"/certificates/{c['id']}")
-              print(f"  Revoked {c['id']}: {r}")
-          print("Done revoking")
+          if certs:
+              print("Waiting 8s for Apple API to propagate…")
+              time.sleep(8)
           PYEOF
 
-          # 4. Fetch (or create) signing files using the fresh cert key.
+          # 4. Fetch (or create) signing cert + provisioning profile
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --type IOS_APP_STORE \
@@ -135,38 +136,21 @@ workflows:
           set -e
           xcode-project use-profiles
 
-      - name: Inject GoogleService-Info.plist
-        script: |
-          set -e
-          # GOOGLE_SERVICE_INFO_PLIST must be set in Codemagic → Environment variables
-          # as a "File" variable pointing to your GoogleService-Info.plist contents.
-          # Codemagic writes file variables to /tmp; copy to the iOS Runner folder.
-          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
-            cp "$GOOGLE_SERVICE_INFO_PLIST" ios/Runner/GoogleService-Info.plist
-            echo "GoogleService-Info.plist injected ✅"
-          else
-            echo "WARNING: GOOGLE_SERVICE_INFO_PLIST not set — push notifications will not work"
-          fi
-
       - name: Install Flutter dependencies
         script: |
           set -e
           flutter config --no-enable-swift-package-manager
           flutter pub get
-          cd packages/anam_flutter_sdk && flutter pub get
 
       - name: Install CocoaPods
         script: |
           set -e
-          find . -name "Podfile" \
-            -not -path "./packages/anam_flutter_sdk/example/*" \
-            -not -path "./packages/anam_flutter_sdk/macos/*" \
-            -execdir pod install \;
+          find . -name "Podfile" -not -path "./packages/*" -execdir pod install \;
 
       - name: Build iOS release IPA
         script: |
           set -e
-          flutter build ipa --release
+          flutter build ipa --release --build-name=2.0.0 --build-number=74
 
     artifacts:
       - build/ios/ipa/*.ipa
