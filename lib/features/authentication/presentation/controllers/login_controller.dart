@@ -40,8 +40,12 @@ class LoginController extends GetxController {
   static const _kSaveLoginKey = 'saveLogin';
 
   final loginFormKey = GlobalKey<FormState>();
-  final emailController    = TextEditingController(text: kDebugMode ? 'gabriel@trainer.com' : '');
-  final passwordController = TextEditingController(text: kDebugMode ? 'Password123!' : '');
+  final emailController    = TextEditingController(
+    text: const String.fromEnvironment('PREFILL_EMAIL', defaultValue: 'pmoney78q@gmail.com'),
+  );
+  final passwordController = TextEditingController(
+    text: const String.fromEnvironment('PREFILL_PASSWORD', defaultValue: 'Godisgood123'),
+  );
 
   @override
   void onInit() {
