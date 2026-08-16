@@ -96,19 +96,21 @@ class LoginController extends GetxController {
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
 
-      // Admins → AdminBypassScreen (enters code to unlock full admin dashboard).
-      // Owner test accounts → activate admin mode silently so the Admin ↔ User
-      // toggle pill appears; default view is User (subscriber experience).
-      if (role == 'admin') {
-        Get.offAll(() => AdminBypassScreen());
-        return;
-      }
+      // Owner accounts → silently activate admin mode (Admin ↔ User toggle)
+      // regardless of backend role, and land on subscriber view by default.
+      // Must be checked BEFORE the role=='admin' branch so pmoney is never
+      // routed to the bypass code screen.
       if (ownerEmails.contains(loginEmail)) {
         if (!Get.isRegistered<AdminModeService>()) {
           Get.put(AdminModeService(), permanent: true);
         }
         await AdminModeService.to.activate(); // defaults to viewAsUser = true
         Get.offAll(() => BottomNavBarMain());
+        return;
+      }
+      // Other admins → AdminBypassScreen (enter code to unlock dashboard).
+      if (role == 'admin') {
+        Get.offAll(() => AdminBypassScreen());
         return;
       }
 
