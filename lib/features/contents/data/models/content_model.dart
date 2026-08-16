@@ -41,6 +41,20 @@ class ContentModel {
   String? createdAt;
   String? updatedAt;
 
+  // ── Mux video infrastructure (Phase 2) ───────────────────────
+  // When muxPlaybackId is set and processingStatus == 'ready',
+  // the player uses HLS: https://stream.mux.com/{muxPlaybackId}.m3u8
+  // Falls back to legacy videoUrl during migration.
+  String? muxPlaybackId;
+  String? muxAssetId;
+  String? processingStatus; // 'pending'|'uploading'|'processing'|'ready'|'failed'|'legacy'
+
+  /// True when this content has a live Mux HLS stream ready to play.
+  bool get hasMuxHls =>
+      muxPlaybackId != null &&
+      muxPlaybackId!.isNotEmpty &&
+      processingStatus == 'ready';
+
   ContentModel({
     this.id,
     this.trainerId,
@@ -61,6 +75,9 @@ class ContentModel {
     this.viewCount,
     this.createdAt,
     this.updatedAt,
+    this.muxPlaybackId,
+    this.muxAssetId,
+    this.processingStatus,
   });
 
   ContentModel.fromJson(Map<String, dynamic> json) {
@@ -85,6 +102,10 @@ class ContentModel {
     viewCount = json['viewCount'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    // Mux fields
+    muxPlaybackId    = json['muxPlaybackId'] as String?;
+    muxAssetId       = json['muxAssetId'] as String?;
+    processingStatus = json['processingStatus'] as String?;
   }
 
   Map<String, dynamic> toJson() {
@@ -108,6 +129,9 @@ class ContentModel {
       'viewCount': viewCount,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'muxPlaybackId': muxPlaybackId,
+      'muxAssetId': muxAssetId,
+      'processingStatus': processingStatus,
     };
   }
 
@@ -148,19 +172,12 @@ class ContentModel {
   }
 
   static String? _readMediaPath(dynamic value) {
-    if (value is String && value.trim().isNotEmpty) {
-      return value.trim();
-    }
-
+    if (value == null) return null;
+    if (value is String && value.isNotEmpty) return value;
     if (value is Map) {
-      for (final nestedKey in ['url', 'path', 'thumbnailUrl', 'thumbnailPath']) {
-        final nested = value[nestedKey];
-        if (nested is String && nested.trim().isNotEmpty) {
-          return nested.trim();
-        }
-      }
+      final url = value['url'] ?? value['path'] ?? value['src'];
+      if (url is String && url.isNotEmpty) return url;
     }
-
     return null;
   }
 }
