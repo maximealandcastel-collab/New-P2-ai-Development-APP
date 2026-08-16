@@ -56,6 +56,7 @@ dependencies:
   mime_type: ^1.0.1
   flutter_spinkit: ^5.2.2
   socket_io_client: ^3.1.4
+  stream_chat_flutter_core: ^9.7.0
 
 
 dependency_overrides:
@@ -76,7 +77,7 @@ dev_dependencies:
 
 flutter_gen:
   output: lib/core/utils/
-  line_length: 80 # Optional (default: 80)
+  line_length: 80
   integrations:
     flutter_svg: true
     lottie: true
