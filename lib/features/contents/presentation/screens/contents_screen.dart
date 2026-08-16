@@ -2,8 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
-import 'package:pler_to_pler_app/services/network/api_client.dart';
 import 'package:video_player/video_player.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -21,12 +22,27 @@ class _FeedVideo {
   const _FeedVideo({required this.title, this.videoUrl, this.thumbnailUrl});
 }
 
-/// Server origin without the /api/v1 suffix.
+/// Server origin without the /api/v1 suffix — used for relative media URLs.
 String _origin() => ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
 
 String? _absolute(String? u) {
   if (u == null || u.isEmpty) return null;
   return u.startsWith('http') ? u : '${_origin()}$u';
+}
+
+/// GET helper — reads the stored token from SharedPreferences and calls the
+/// backend. Uses GetConnect (already in the dependency tree via get:).
+Future<Response> _get(String path) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('accessToken');
+  final connect = GetConnect();
+  return connect.get(
+    '${ApiUrls.baseUrl}$path',
+    headers: {
+      'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    },
+  );
 }
 
 class ContentsScreen extends StatefulWidget {
@@ -52,7 +68,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
 
   Future<void> _loadFeed() async {
     try {
-      final response = await ApiClient.getData('/content/feed');
+      final response = await _get('/content/feed');
       if (response.statusCode == 200 && response.body is Map) {
         final data = (response.body as Map)['data'];
         if (data is Map) {
@@ -103,12 +119,19 @@ class _ContentsScreenState extends State<ContentsScreen> {
             const Center(child: CircularProgressIndicator(color: Colors.white))
           else if (_videos.isEmpty)
             Center(
-              child: Text(
-                _tab == 1
-                    ? 'No trainer videos yet.\nSubscribe to a trainer to see their content.'
-                    : 'No community videos available yet.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.w),
+                child: Text(
+                  _tab == 1
+                      ? 'No trainer videos yet.\nSubscribe to a trainer to see their content.'
+                      : 'No community videos available yet.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 15.sp,
+                    height: 1.6,
+                  ),
+                ),
               ),
             )
           else
@@ -184,7 +207,7 @@ class _VideoPage extends StatefulWidget {
 class _VideoPageState extends State<_VideoPage> {
   VideoPlayerController? _ctrl;
   bool _ready = false;
-  bool _tapped = false; // show pause icon briefly on tap
+  bool _tapped = false;
 
   @override
   void initState() {
@@ -264,22 +287,18 @@ class _VideoPageState extends State<_VideoPage> {
           // Pause/play icon flash on tap
           if (_tapped)
             Center(
-              child: AnimatedOpacity(
-                opacity: _tapped ? 1 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Colors.black45,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _ctrl?.value.isPlaying ?? false
-                        ? Icons.play_arrow_rounded
-                        : Icons.pause_rounded,
-                    color: Colors.white,
-                    size: 48,
-                  ),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.black45,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _ctrl?.value.isPlaying ?? false
+                      ? Icons.play_arrow_rounded
+                      : Icons.pause_rounded,
+                  color: Colors.white,
+                  size: 48,
                 ),
               ),
             ),
