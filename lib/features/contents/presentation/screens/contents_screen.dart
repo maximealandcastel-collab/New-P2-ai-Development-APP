@@ -13,20 +13,6 @@ import 'package:pler_to_pler_app/features/contents/data/models/content_model.dar
 import 'package:pler_to_pler_app/features/contents/reels/core/reel_player_manager.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CONTENTS SCREEN  ·  TikTok-style vertical video feed
-//
-// Architecture:
-//  • ReelPlayerManager owns ALL VideoPlayerController instances.
-//    It keeps a 5-slot pool: current + 2 forward + 1 backward + 1 reserve.
-//    Every other slot is disposed → only ONE video plays at a time.
-//  • VisibilityDetector fires the moment the screen is hidden — tab switch,
-//    back navigation, modal on top — and calls pauseActive() immediately.
-//    This is the fix for ghost audio when leaving the Contents tab.
-//  • WidgetsBindingObserver handles app background / foreground.
-//  • _switchTab() calls pauseActive() before swapping the video list.
-// ═══════════════════════════════════════════════════════════════════════════════
-
 class ContentsScreen extends StatefulWidget {
   const ContentsScreen({super.key});
 
@@ -36,17 +22,14 @@ class ContentsScreen extends StatefulWidget {
 
 class _ContentsScreenState extends State<ContentsScreen>
     with WidgetsBindingObserver {
-  // ── Player manager ─────────────────────────────────────────────────────────
   late final ReelPlayerManager _mgr = ReelPlayerManager(
     onUpdated: _onMgrUpdate,
   );
 
-  // ── Page / tab ─────────────────────────────────────────────────────────────
   final PageController _pageCtrl = PageController();
   int _tab = 0;
   int _currentPage = 0;
 
-  // ── Feed state ─────────────────────────────────────────────────────────────
   bool _loading = true;
   String? _error;
   List<ContentModel> _community = const [];
@@ -54,7 +37,6 @@ class _ContentsScreenState extends State<ContentsScreen>
 
   List<ContentModel> get _videos => _tab == 0 ? _community : _trainerVideos;
 
-  // ──────────────────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
@@ -72,7 +54,6 @@ class _ContentsScreenState extends State<ContentsScreen>
     super.dispose();
   }
 
-  // ── App background / foreground ────────────────────────────────────────────
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -92,7 +73,6 @@ class _ContentsScreenState extends State<ContentsScreen>
     if (mounted) setState(() {});
   }
 
-  // ── Page scroll ────────────────────────────────────────────────────────────
   void _onPageScroll() {
     final page = _pageCtrl.page?.round() ?? 0;
     if (page != _currentPage) {
@@ -105,7 +85,6 @@ class _ContentsScreenState extends State<ContentsScreen>
     }
   }
 
-  // ── Feed fetch ─────────────────────────────────────────────────────────────
   Future<void> _loadFeed() async {
     setState(() { _loading = true; _error = null; });
     final t0 = DateTime.now();
@@ -163,7 +142,6 @@ class _ContentsScreenState extends State<ContentsScreen>
         .toList();
   }
 
-  // ── Tab switch ─────────────────────────────────────────────────────────────
   void _switchTab(int tab) {
     if (tab == _tab) return;
     _mgr.pauseActive();
@@ -174,21 +152,14 @@ class _ContentsScreenState extends State<ContentsScreen>
     }
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // BUILD
-  // ──────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    // VisibilityDetector fires whenever this screen's visible area changes.
-    // visibleFraction == 0 → screen is fully hidden (tab switched, screen
-    // pushed on top, etc.) → pause immediately so audio doesn't bleed through.
     return VisibilityDetector(
       key: const Key('contents-screen'),
       onVisibilityChanged: (info) {
         if (info.visibleFraction == 0) {
           _mgr.pauseActive();
         } else if (info.visibleFraction == 1) {
-          // Only resume when fully visible — not during animation
           _mgr.playActive();
         }
       },
@@ -202,7 +173,6 @@ class _ContentsScreenState extends State<ContentsScreen>
     );
   }
 
-  // ── Body ───────────────────────────────────────────────────────────────────
   Widget _buildBody(BuildContext context) {
     if (_loading) {
       return const Center(
@@ -241,11 +211,9 @@ class _ContentsScreenState extends State<ContentsScreen>
     );
   }
 
-  // ── Single video page ──────────────────────────────────────────────────────
   Widget _buildVideoPage(int index) {
     final slot  = _mgr.slotFor(index);
     final ctrl  = _mgr.controllerFor(index);
-    final video = _videos[index];
 
     final isReady   = slot?.isReady ?? false;
     final isLoading = slot?.isLoading ?? (slot == null);
@@ -274,30 +242,13 @@ class _ContentsScreenState extends State<ContentsScreen>
           const Center(child: CircularProgressIndicator(color: Colors.white30, strokeWidth: 2)),
 
         if (hasError)
-          Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.play_circle_outline_rounded, color: Colors.white30, size: 52),
-              const SizedBox(height: 8),
-              const Text('Unable to play this video',
-                style: TextStyle(color: Colors.white30, fontSize: 13)),
-            ]),
+          const Center(
+            child: Icon(Icons.play_circle_outline_rounded, color: Colors.white30, size: 52),
           ),
-
-        Positioned(
-          left: 16, right: 80, bottom: 110,
-          child: Text(video.title ?? '',
-            style: const TextStyle(
-              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600,
-              shadows: [Shadow(blurRadius: 8, color: Colors.black87)],
-            ),
-            maxLines: 2, overflow: TextOverflow.ellipsis,
-          ),
-        ),
       ]),
     );
   }
 
-  // ── Tab pills ──────────────────────────────────────────────────────────────
   Widget _buildTabPills(BuildContext context) {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 12,
