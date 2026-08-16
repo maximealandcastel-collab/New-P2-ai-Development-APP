@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/features/admin/presentation/screens/admin_dashb
 import 'package:pler_to_pler_app/features/affiliate/presentation/screens/affiliate_dashboard_screen.dart';
 import 'package:pler_to_pler_app/features/home/trainer_home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
+import 'package:pler_to_pler_app/features/messaging/trainer_inbox_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/clients_screen.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/contents_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_screen.dart';
@@ -21,7 +22,7 @@ class NavItemModel {
     required this.screen,
   });
 
-  /// Trainer nav — the base experience shared with admin.
+  /// Trainer nav — Home · Clients · Contents · Request · Messages
   static List<NavItemModel> trainerNavItems = [
     NavItemModel(
       label: 'Home',
@@ -43,6 +44,11 @@ class NavItemModel {
       icon: Assets.icons.request.path,
       screen: const RequestScreen(),
     ),
+    NavItemModel(
+      label: 'Messages',
+      icon: Assets.icons.message.path,
+      screen: const TrainerInboxScreen(),
+    ),
   ];
 
   static NavItemModel get adminNavItem => NavItemModel(
@@ -58,7 +64,7 @@ class NavItemModel {
     NavItemModel(
       label: 'Home',
       icon: Assets.icons.home.path,
-      screen: const TrainerHomeScreen(),   // same Home as trainer
+      screen: const TrainerHomeScreen(),
     ),
     NavItemModel(
       label: 'Clients',
@@ -78,7 +84,7 @@ class NavItemModel {
     NavItemModel(
       label: 'Admin',
       icon: Assets.icons.star.path,
-      screen: const AdminDashboardScreen(), // live analytics — additive tab
+      screen: const AdminDashboardScreen(),
     ),
   ];
 
