@@ -28,34 +28,26 @@ class ChatScreenArgs {
     this.otherUserImage,
   });
 
-  /// Display name shown in the app-bar.
   final String displayName;
-
-  /// Subtitle shown under the display name (e.g. "subscriber", "trainer").
   final String subtitle;
-
-  /// Whether to show the AI video-call button (subscriber side only).
   final bool isAnamEnabled;
-
-  /// Trainer mongo _id — used to open an Anam AI video call.
   final String? trainerId;
-
-  // ── Stream Chat ───────────────────────────────────────────────────────────
-
-  /// Stream channel ID.  If null the screen shows a loading / setup state.
   final String? channelId;
-
-  /// Stream channel type — almost always 'messaging'.
   final String channelType;
-
-  /// Stream user ID of the other participant (trainer or subscriber).
   final String? otherUserId;
-
-  /// Avatar URL for the other participant (shown in the app-bar).
   final String? otherUserImage;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Design constants matching the reference screenshot
+const _kBgColor        = Color(0xFFEEEEEE);   // light gray background
+const _kReceivedBg     = Color(0xFF2C2C2E);   // dark charcoal bubble
+const _kReceivedText   = Colors.white;
+const _kSentBg         = Colors.white;
+const _kSentText       = Color(0xFF1C1C1E);
+const _kTimestampColor = Color(0xFF8E8E93);
+const _kInputBg        = Colors.white;
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -76,7 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _sending      = false;
   List<Message> _messages = [];
 
-  // ── Anam AI call ─────────────────────────────────────────────────────────
   bool get _canStartAiCall =>
       !LoginController.to.isTrainer() &&
       _args.isAnamEnabled &&
@@ -99,25 +90,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _initChannel() async {
     final svc = StreamChatService.instance;
-
-    // Connect to Stream if not already connected
+    if (!svc.isConnected) await svc.initFromBackend();
     if (!svc.isConnected) {
-      await svc.initFromBackend();
-    }
-
-    if (!svc.isConnected) {
-      // Still not connected — nothing to show
       if (mounted) setState(() => _channelReady = false);
       return;
     }
 
     String? cid = _args.channelId;
-
-    // If no channel ID yet, ask the backend to create one (trainer-side flow)
     if ((cid == null || cid.isEmpty) && _args.otherUserId != null) {
       cid = await svc.ensureChannel(subscriberId: _args.otherUserId!);
     }
-
     if (cid == null || cid.isEmpty) {
       if (mounted) setState(() => _channelReady = false);
       return;
@@ -125,15 +107,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final ch = svc.client.channel(_args.channelType, id: cid);
     await ch.watch();
-
-    _channel = ch;
+    _channel  = ch;
     _messages = List<Message>.from(ch.state?.messages ?? []);
-
-    _msgSub = ch.state?.messagesStream.listen((msgs) {
+    _msgSub   = ch.state?.messagesStream.listen((msgs) {
       if (mounted) setState(() => _messages = msgs);
       _scrollToBottom();
     });
-
     if (mounted) setState(() => _channelReady = true);
     _scrollToBottom();
   }
@@ -153,10 +132,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty || _channel == null || _sending) return;
-
     setState(() => _sending = true);
     _messageController.clear();
-
     try {
       await _channel!.sendMessage(Message(text: text));
     } catch (_) {
@@ -175,78 +152,146 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // BUILD
+  // ─────────────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: _kBgColor,
       resizeToAvoidBottomInset: true,
-      appBar: CustomAppBar(
-        centerTitle: false,
-        titleWidget: Row(
-          children: [
-            if (_args.otherUserImage != null)
-              Padding(
-                padding: EdgeInsets.only(right: 8.w),
-                child: CircleAvatar(
-                  radius: 18.r,
-                  backgroundImage: NetworkImage(_args.otherUserImage!),
-                ),
-              ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomText(
-                  left: 8.w,
-                  textAlign: TextAlign.start,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  text: _args.displayName,
-                ),
-                CustomText(
-                  left: 8.w,
-                  fontSize: 12.sp,
-                  textAlign: TextAlign.start,
-                  color: AppColors.textSecondary,
-                  text: _args.subtitle,
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          if (_canStartAiCall)
-            IconButton(
-              onPressed: _onAiCallTap,
-              icon: Assets.icons.aiChat.svg(),
-            ),
+      appBar: _buildAppBar(context),
+      body: Column(
+        children: [
+          Expanded(child: _buildBody()),
+          _buildInputBar(),
         ],
-      ),
-      body: KeyboardDismissOnTap(
-        child: Column(
-          children: [
-            // ── Message list ──────────────────────────────────────────────
-            Expanded(child: _buildBody()),
-            // ── Input bar ─────────────────────────────────────────────────
-            if (_channelReady) _buildInputBar(),
-          ],
-        ),
       ),
     );
   }
 
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: GestureDetector(
+        onTap: () => Get.back(),
+        child: Padding(
+          padding: EdgeInsets.all(10.r),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEEEEE),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chevron_left_rounded,
+              size: 22.r,
+              color: const Color(0xFF1C1C1E),
+            ),
+          ),
+        ),
+      ),
+      titleSpacing: 0,
+      title: Row(
+        children: [
+          if (_args.otherUserImage != null)
+            CircleAvatar(
+              radius: 18.r,
+              backgroundImage: NetworkImage(_args.otherUserImage!),
+            )
+          else
+            CircleAvatar(
+              radius: 18.r,
+              backgroundColor: const Color(0xFFE0E0E0),
+              child: Icon(Icons.person_rounded,
+                  size: 20.r, color: const Color(0xFF8E8E93)),
+            ),
+          SizedBox(width: 10.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _args.displayName,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1C1C1E),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              Text(
+                _channelReady ? 'Active now' : _args.subtitle,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w400,
+                  color: _channelReady
+                      ? const Color(0xFF34C759)  // green = online
+                      : _kTimestampColor,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        if (_canStartAiCall)
+          Padding(
+            padding: EdgeInsets.only(right: 12.w),
+            child: GestureDetector(
+              onTap: _onAiCallTap,
+              child: Container(
+                width: 38.w,
+                height: 38.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEEEEEE),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.videocam_rounded,
+                    size: 20.r, color: const Color(0xFF1C1C1E)),
+              ),
+            ),
+          )
+        else
+          Padding(
+            padding: EdgeInsets.only(right: 12.w),
+            child: Container(
+              width: 38.w,
+              height: 38.w,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEEEEEE),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.videocam_rounded,
+                  size: 20.r, color: const Color(0xFF1C1C1E)),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ─── Body ─────────────────────────────────────────────────────────────────
+
   Widget _buildBody() {
     if (!_channelReady) {
       return Center(
-        child: _channel == null
+        child: _channel == null && !_channelReady
             ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 2.5,
+                  ),
                   SizedBox(height: 16.h),
-                  CustomText(
-                    text: 'Setting up chat…',
-                    color: AppColors.textSecondary,
+                  Text(
+                    'Connecting…',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: _kTimestampColor,
+                    ),
                   ),
                 ],
               )
@@ -254,17 +299,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.chat_bubble_outline_rounded,
-                      size: 56.r, color: AppColors.textSecondary),
+                      size: 56.r, color: _kTimestampColor),
                   SizedBox(height: 16.h),
-                  CustomText(
-                    text: 'Chat unavailable',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                  Text(
+                    'Chat unavailable',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: _kSentText,
+                    ),
                   ),
                   SizedBox(height: 8.h),
-                  CustomText(
-                    text: 'Please check your connection and try again.',
-                    color: AppColors.textSecondary,
+                  Text(
+                    'Please check your connection and try again.',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: _kTimestampColor,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -277,18 +328,20 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.waving_hand_rounded,
-                size: 48.r, color: AppColors.primary.withOpacity(0.6)),
+            Text('👋', style: TextStyle(fontSize: 48.sp)),
             SizedBox(height: 12.h),
-            CustomText(
-              text: 'Say hello to ${_args.displayName}!',
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
+            Text(
+              'Say hello to ${_args.displayName}!',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: _kSentText,
+              ),
             ),
             SizedBox(height: 6.h),
-            CustomText(
-              text: 'Messages, workout plans, and meal plans\nwill all appear here.',
-              color: AppColors.textSecondary,
+            Text(
+              'Messages and workout plans\nwill appear here.',
+              style: TextStyle(fontSize: 13.sp, color: _kTimestampColor),
               textAlign: TextAlign.center,
             ),
           ],
@@ -300,20 +353,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg  = _messages[index];
         final isMe = msg.user?.id == myId;
         final time = _formatTime(msg.createdAt.toLocal());
 
-        // Plan attachment card
         if (msg.attachments.isNotEmpty) {
           return _PlanCard(message: msg, isMe: isMe, time: time);
         }
-
-        return ChatBubbleMessage(
-          text: msg.text,
+        return _buildMessageBubble(
+          text: msg.text ?? '',
           time: time,
           isMe: isMe,
         );
@@ -321,54 +372,160 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildInputBar() {
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundLight,
-          border: Border(
-            top: BorderSide(color: AppColors.borderColor, width: 1),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
-                validator: (_) => null,
-                controller: _messageController,
-                hintText: 'Type a message…',
-                onFieldSubmitted: (_) => _sendMessage(),
-              ),
+  /// Renders a single chat bubble matching the design screenshot:
+  /// • received  — dark charcoal pill, white text, timestamp below-left
+  /// • sent      — white pill, dark text, timestamp below-right
+  Widget _buildMessageBubble({
+    required String text,
+    required String time,
+    required bool isMe,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          // ── Bubble ──────────────────────────────────────────────────
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(Get.context!).size.width * 0.72,
             ),
-            SizedBox(width: 10.w),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _sending ? null : _sendMessage,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 6.h),
-                child: _sending
-                    ? SizedBox(
-                        width: 24.w, height: 24.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primary,
-                        ),
+            decoration: BoxDecoration(
+              color: isMe ? _kSentBg : _kReceivedBg,
+              borderRadius: BorderRadius.only(
+                topLeft:     Radius.circular(20.r),
+                topRight:    Radius.circular(20.r),
+                bottomLeft:  Radius.circular(isMe ? 20.r : 4.r),
+                bottomRight: Radius.circular(isMe ? 4.r  : 20.r),
+              ),
+              boxShadow: isMe
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       )
-                    : Assets.icons.send.svg(),
+                    ]
+                  : null,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 10.h,
+            ),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
+                color: isMe ? _kSentText : _kReceivedText,
+                height: 1.35,
               ),
             ),
-          ],
+          ),
+          // ── Timestamp ───────────────────────────────────────────────
+          Padding(
+            padding: EdgeInsets.only(
+              top: 4.h,
+              left: isMe ? 0 : 4.w,
+              right: isMe ? 4.w : 0,
+            ),
+            child: Text(
+              time,
+              style: TextStyle(
+                fontSize: 11.sp,
+                color: _kTimestampColor,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Input bar ────────────────────────────────────────────────────────────
+
+  Widget _buildInputBar() {
+    return Container(
+      color: _kInputBg,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Text field
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _kBgColor,
+                    borderRadius: BorderRadius.circular(24.r),
+                  ),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                  child: TextField(
+                    controller: _messageController,
+                    minLines: 1,
+                    maxLines: 4,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: _kSentText,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Message…',
+                      hintStyle: TextStyle(
+                        fontSize: 15.sp,
+                        color: _kTimestampColor,
+                      ),
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              // Send button
+              GestureDetector(
+                onTap: _sending ? null : _sendMessage,
+                child: Container(
+                  width: 42.w,
+                  height: 42.w,
+                  decoration: BoxDecoration(
+                    color: _kReceivedBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: _sending
+                      ? Padding(
+                          padding: EdgeInsets.all(11.r),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 20.r,
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   String _formatTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+    final hour   = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 
   Future<void> _onAiCallTap() async {
@@ -386,6 +543,7 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 // ─── Workout / Meal plan attachment card ─────────────────────────────────────
+
 class _PlanCard extends StatelessWidget {
   const _PlanCard({
     required this.message,
@@ -404,63 +562,87 @@ class _PlanCard extends StatelessWidget {
     final title      = attachment.title ?? message.text ?? '';
     final body       = attachment.text  ?? '';
 
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
-        constraints: BoxConstraints(maxWidth: 280.w),
-        decoration: BoxDecoration(
-          color: isWorkout
-              ? AppColors.primary.withOpacity(0.1)
-              : Colors.green.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: isWorkout ? AppColors.primary.withOpacity(0.3) : Colors.green.withOpacity(0.3),
-          ),
-        ),
-        padding: EdgeInsets.all(12.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.72,
+            ),
+            decoration: BoxDecoration(
+              color: isWorkout
+                  ? AppColors.primary.withOpacity(0.08)
+                  : Colors.green.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: isWorkout
+                    ? AppColors.primary.withOpacity(0.25)
+                    : Colors.green.withOpacity(0.25),
+                width: 1,
+              ),
+            ),
+            padding: EdgeInsets.all(14.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isWorkout ? '💪' : '🥗',
-                    style: TextStyle(fontSize: 18.sp)),
-                SizedBox(width: 6.w),
-                Expanded(
+                Row(
+                  children: [
+                    Text(isWorkout ? '💪' : '🥗',
+                        style: TextStyle(fontSize: 16.sp)),
+                    SizedBox(width: 6.w),
+                    Text(
+                      isWorkout ? 'Workout Plan' : 'Meal Plan',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isWorkout
+                            ? AppColors.primary
+                            : Colors.green[700],
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1C1C1E),
+                  ),
+                ),
+                if (body.isNotEmpty) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    body,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: const Color(0xFF3C3C43),
+                      height: 1.4,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                SizedBox(height: 8.h),
+                Align(
+                  alignment: Alignment.bottomRight,
                   child: Text(
-                    isWorkout ? 'Workout Plan' : 'Meal Plan',
+                    time,
                     style: TextStyle(
                       fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isWorkout ? AppColors.primary : Colors.green[700],
-                      letterSpacing: 0.5,
+                      color: const Color(0xFF8E8E93),
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 6.h),
-            Text(title,
-                style: TextStyle(
-                    fontSize: 14.sp, fontWeight: FontWeight.w600)),
-            if (body.isNotEmpty) ...[
-              SizedBox(height: 4.h),
-              Text(body,
-                  style: TextStyle(
-                      fontSize: 12.sp, color: Colors.black87),
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis),
-            ],
-            SizedBox(height: 6.h),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(time,
-                  style: TextStyle(
-                      fontSize: 10.sp, color: Colors.black45)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
