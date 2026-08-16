@@ -25,6 +25,10 @@ class ClientsController extends GetxController with PaginatedLoaderUi {
   static ClientsController get to => Get.find();
 
   final searchController = TextEditingController();
+
+  /// Top-level tab: 0 = Clients list, 1 = Balance dashboard
+  final RxInt topTab = 0.obs;
+
   final RxInt _selectedTab = 0.obs;
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
 
@@ -57,6 +61,12 @@ class ClientsController extends GetxController with PaginatedLoaderUi {
       if (isConnected) _loadData();
     });
     _loadData();
+  }
+
+  /// Switch between Clients (0) and Balance (1) top-level tabs.
+  void onTopTabSelected(int index) {
+    if (topTab.value == index) return;
+    topTab.value = index;
   }
 
   Future<List<ClientInvoiceModel>> _fetchClientsPage(int page, int limit) async {
@@ -126,10 +136,8 @@ class ClientsController extends GetxController with PaginatedLoaderUi {
   Future<List<ClientInvoiceModel>> _fetchSearch(String query) async {
     final fromCache = _service
         .getCachedInvoices()
-        .where(
-          (invoice) =>
-              invoice.clientName.toLowerCase().contains(query.toLowerCase()),
-        )
+        .where((invoice) =>
+            invoice.clientName.toLowerCase().contains(query.toLowerCase()))
         .toList();
     if (fromCache.isNotEmpty) return fromCache;
     if (!_connectivityService.isConnected.value) return [];
