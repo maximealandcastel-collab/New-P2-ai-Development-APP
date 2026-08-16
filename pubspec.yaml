@@ -60,6 +60,7 @@ dependencies:
 
 
 dependency_overrides:
+  dio: 5.7.0
   flutter_cache_manager:
     git:
       url: https://github.com/Baseflow/flutter_cache_manager.git

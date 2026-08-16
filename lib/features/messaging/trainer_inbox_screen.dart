@@ -21,12 +21,10 @@ class TrainerInboxScreen extends StatefulWidget {
 
 class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
   final StreamChatService _svc = StreamChatService.instance;
-  late final ChannelListController _listController;
 
   @override
   void initState() {
     super.initState();
-    _listController = ChannelListController();
     if (!_svc.isConnected) {
       _svc.initFromBackend();
     }
@@ -50,7 +48,6 @@ class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
         backgroundColor: AppColors.backgroundLight,
         appBar: _appBar(),
         body: ChannelListCore(
-          channelListController: _listController,
           filter: Filter.and([
             Filter.equal('type', 'messaging'),
             Filter.in_('members', [myId]),
@@ -65,14 +62,14 @@ class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
                 SizedBox(height: 12.h),
                 CustomText(text: 'Could not load messages', color: AppColors.textSecondary),
                 SizedBox(height: 8.h),
-                TextButton(onPressed: _listController.loadData, child: const Text('Retry')),
+                TextButton(onPressed: () => setState(() {}), child: const Text('Retry')),
               ],
             ),
           ),
           loadingBuilder: (context) => ListView.separated(
             padding: EdgeInsets.symmetric(vertical: 8.h),
             itemCount: 8,
-            separatorBuilder: (_, __) => Divider(height: 1.h, color: AppColors.borderColor),
+            separatorBuilder: (_, __) => Divider(height: 1.h, color: Colors.grey.shade200),
             itemBuilder: (_, __) => _ShimmerRow(),
           ),
           emptyBuilder: (context) => Center(
@@ -97,14 +94,14 @@ class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
           ),
           listBuilder: (context, channels) => RefreshIndicator(
             color: AppColors.primary,
-            onRefresh: () async => _listController.loadData(),
+            onRefresh: () async => () => setState(() {})(),
             child: ListView.separated(
               padding: EdgeInsets.symmetric(vertical: 4.h),
               itemCount: channels.length,
               separatorBuilder: (_, __) => Divider(
                 height: 1.h,
                 indent: 72.w,
-                color: AppColors.borderColor,
+                color: Colors.grey.shade200,
               ),
               itemBuilder: (context, index) =>
                   _ChannelTile(channel: channels[index], myId: myId),
@@ -198,7 +195,7 @@ class _ChannelTile extends StatelessWidget {
                           text: lastText,
                           fontSize: 13.sp,
                           color: AppColors.textSecondary,
-                          maxLines: 1,
+                          maxline: 1,
                         ),
                       ),
                       if (unreadCount > 0)
