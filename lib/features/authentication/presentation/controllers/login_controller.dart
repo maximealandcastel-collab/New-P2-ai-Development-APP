@@ -93,7 +93,7 @@ class LoginController extends GetxController {
       final role        = _authService.getRole() ?? '';
 
       if (ownerEmails.contains(loginEmail)) {
-        Get.offAll(() => const BottomNavBar());
+        Get.offAll(() => BottomNavBar());
         return;
       }
 
@@ -102,11 +102,11 @@ class LoginController extends GetxController {
         return;
       }
 
-      Get.offAll(() => const BottomNavBar());
+      Get.offAll(() => BottomNavBar());
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
-    } on UnAuthorizedException {
+    } on AppException catch (e) when (e.errorCode == 'UNAUTHORIZED') {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('Invalid email or password');
     } catch (e) {
@@ -114,6 +114,19 @@ class LoginController extends GetxController {
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+  /// Returns true if a user is currently signed in.
+  bool isLoggedIn() => _authService.getRole() != null;
+
+  /// Deletes the account server-side then logs out.
+  Future<void> deleteAccount() async {
+    try {
+      await _profileService.deleteAccount();
+    } catch (_) {
+      // proceed with local logout even if server call fails
+    }
+    await logout();
+  }
+
   /// Returns the cached login email (used by chat/notification screens).
   String? getCachedEmail() {
     final e = emailController.text.trim();
@@ -134,6 +147,6 @@ class LoginController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('sessionPersisted');
     } catch (_) {}
-    Get.offAllNamed(AppRoutes.login);
+    Get.offAllNamed(AppRoute.login);
   }
 }

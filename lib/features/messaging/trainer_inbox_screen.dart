@@ -43,7 +43,6 @@ class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
           Filter.equal('type', 'messaging'),
           Filter.in_('members', [myId]),
         ]),
-        sort: const [SortOption('last_message_at', direction: SortOption.DESC)],
         paginationParams: const PaginationParams(limit: 30),
       ).first;
       if (mounted) setState(() { _channels = results; _loading = false; });
@@ -103,7 +102,7 @@ class _TrainerInboxScreenState extends State<TrainerInboxScreen> {
       CustomText(text: 'No conversations yet', fontSize: 18.sp, fontWeight: FontWeight.w600),
       SizedBox(height: 8.h),
       CustomText(
-        text: 'Open a client's profile and tap\n"Message" to start a chat.',
+        text: "Open a client's profile and tap\n\"Message\" to start a chat.",
         textAlign: TextAlign.center,
         color: AppColors.textSecondary,
       ),

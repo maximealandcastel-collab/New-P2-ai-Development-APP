@@ -179,3 +179,11 @@ class ServerException extends AppException {
     return super.toString();
   }
 }
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+class UnAuthorizedException extends AppException {
+  UnAuthorizedException([String? details])
+      : super('Invalid email or password',
+            details: details, errorCode: 'UNAUTHORIZED');
+}
