@@ -2,12 +2,12 @@ class ApiUrls {
   /// ============= base urls ===========>>>
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: "https://fit-tech-ai.replit.app/api/v1",
+    defaultValue: "https://p2pfitechai.com/api/v1",
   );
   static const String imageBaseUrl = "$baseUrl/";
   static const String socketUrl = String.fromEnvironment(
     'SOCKET_URL',
-    defaultValue: "https://fit-tech-ai.replit.app",
+    defaultValue: "https://p2pfitechai.com",
   );
 
   // ============= Stream Chat ===========>>>
@@ -26,7 +26,7 @@ class ApiUrls {
   static const String updateBroadcast  = '/updates/broadcast';
   static const String userPost         = '/user-posts';
 
-  static const String termsOfService = 'https://fit-tech-ai.replit.app/p2p-website/terms';
+  static const String termsOfService = 'https://p2pfitechai.com/p2p-website/terms';
 
   // ============= workout goals / AI plan ===========>>>
   static const String workoutCreate  = '/workout';
