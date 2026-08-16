@@ -50,10 +50,18 @@ class BottomNavBarController extends GetxController {
         : NavItemModel.userNavItems;
   }
 
-  List<NavFabModel> get fabItems =>
-      LoginController.to.isTrainer()
-          ? NavFabModel.trainerFabItems
-          : NavFabModel.userFabItems;
+  List<NavFabModel> get fabItems {
+    // When admin is viewing as a subscriber/user, always show user actions
+    // (Find Trainer, Add exercise plan) not trainer-only options.
+    final isAdmin = Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin;
+    if (isAdmin && AdminModeService.to.viewAsUser) {
+      return NavFabModel.userFabItems;
+    }
+    return LoginController.to.isTrainer()
+        ? NavFabModel.trainerFabItems
+        : NavFabModel.userFabItems;
+  }
 
   static const int contentsTabIndex = 2;
 
