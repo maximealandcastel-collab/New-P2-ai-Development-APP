@@ -106,7 +106,7 @@ class LoginController extends GetxController {
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
-    } on AppException catch (e) when (e.errorCode == 'UNAUTHORIZED') {
+    } on UnAuthorizedException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('Invalid email or password');
     } catch (e) {
@@ -119,11 +119,6 @@ class LoginController extends GetxController {
 
   /// Deletes the account server-side then logs out.
   Future<void> deleteAccount() async {
-    try {
-      await _profileService.deleteAccount();
-    } catch (_) {
-      // proceed with local logout even if server call fails
-    }
     await logout();
   }
 
@@ -147,6 +142,6 @@ class LoginController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('sessionPersisted');
     } catch (_) {}
-    Get.offAllNamed(AppRoute.login);
+    Get.offAllNamed(AppRoute.loginScreen);
   }
 }
