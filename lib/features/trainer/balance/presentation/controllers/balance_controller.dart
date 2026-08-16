@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/trainer/balance/data/models/balance_model.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
-import 'package:pler_to_pler_app/services/network/network_caller.dart';
+import 'package:pler_to_pler_app/services/network/dio_api_client.dart';
 
 class BalanceController extends GetxController {
   static BalanceController get to => Get.find();
