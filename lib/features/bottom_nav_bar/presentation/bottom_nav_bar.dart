@@ -16,6 +16,13 @@ import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/bo
 ///   • AdminDashboardController.onInit() fires ONCE, never again on toggle.
 ///   • No API storm when the admin flips between Admin ↔ User mode.
 ///   • Each mode preserves its own tab position, scroll state, and loaded data.
+///
+/// ROLE-AWARE NAV:
+/// ctrl.navItems resolves the correct tab set per role:
+///   trainer  → trainerNavItems  (Home · Clients · Contents · Request · Messages)
+///   subscriber → userNavItems   (Home · History · Contents · Trainer)
+///   affiliate  → userNavItems + Earnings tab
+///   admin      → adminNavItems  (trainer tabs + Admin analytics)
 class BottomNavBarMain extends StatelessWidget {
   const BottomNavBarMain({super.key});
 
@@ -28,10 +35,12 @@ class BottomNavBarMain extends StatelessWidget {
           AdminModeService.to.isAdmin;
       final viewUser = isAdmin && AdminModeService.to.viewAsUser;
 
-      // Active nav items for the bottom bar UI only — not for IndexedStack
+      // Role-aware nav items: admin gets adminNavItems; everyone else gets
+      // the items the controller resolves for their role (trainer / subscriber
+      // / affiliate). This ensures trainers see the Messages tab automatically.
       final activeItems = (isAdmin && !viewUser)
           ? NavItemModel.adminNavItems
-          : NavItemModel.userNavItems;
+          : ctrl.navItems;
 
       return Stack(
         children: [
@@ -50,13 +59,13 @@ class BottomNavBarMain extends StatelessWidget {
                         NavItemModel.adminNavItems.map((e) => e.screen).toList(),
                   ),
                 ),
-                // User stack — always mounted, invisible when admin mode active
+                // User stack — role-aware: mounts trainer screens for trainers,
+                // subscriber screens for subscribers, etc.
                 Offstage(
                   offstage: isAdmin && !viewUser,
                   child: IndexedStack(
                     index: ctrl.userIndex,
-                    children:
-                        NavItemModel.userNavItems.map((e) => e.screen).toList(),
+                    children: ctrl.navItems.map((e) => e.screen).toList(),
                   ),
                 ),
               ],
@@ -94,35 +103,36 @@ class BottomNavBarMain extends StatelessWidget {
                       children: [
                         // ── Admin side ──────────────────────────────────
                         GestureDetector(
-                          onTap: viewUser
-                              ? () {
+                          onTap: !viewUser
+                              ? () {}
+                              : () {
                                   if (kDebugMode) {
                                     debugPrint('[MODE] Admin selected');
                                   }
                                   AdminModeService.to.setViewAsUser(false);
                                   ctrl.switchToAdmin();
-                                }
-                              : () {}, // already on Admin — absorb tap
+                                },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeInOut,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 18.w, vertical: 8.h),
                             decoration: BoxDecoration(
-                              color: viewUser
-                                  ? Colors.transparent
-                                  : const Color(0xFFFF6B1A),
+                              color: !viewUser
+                                  ? const Color(0xFFFF6B1A)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(20.r),
                             ),
                             child: Text(
                               'Admin',
                               style: TextStyle(
-                                color:
-                                    viewUser ? Colors.white38 : Colors.white,
+                                color: !viewUser
+                                    ? Colors.white
+                                    : Colors.white38,
                                 fontSize: 12.sp,
-                                fontWeight: viewUser
-                                    ? FontWeight.w500
-                                    : FontWeight.w800,
+                                fontWeight: !viewUser
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
                                 letterSpacing: 0.2,
                               ),
                             ),
