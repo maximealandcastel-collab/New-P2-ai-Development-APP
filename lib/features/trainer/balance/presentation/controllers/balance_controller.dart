@@ -55,8 +55,8 @@ class BalanceController extends GetxController {
       final response = await NetworkCaller.instance.getRequest(
         url: '${ApiUrls.baseUrl}/withdrawal/earnings',
       );
-      if (response.isSuccess && response.responseData != null) {
-        final data = response.responseData as Map<String, dynamic>;
+      if (response.isSuccess && response.responseBody != null) {
+        final data = response.responseBody as Map<String, dynamic>;
         _earnings.value = TrainerEarningsModel.fromJson(data);
         return true;
       }
@@ -72,8 +72,8 @@ class BalanceController extends GetxController {
       final response = await NetworkCaller.instance.getRequest(
         url: '${ApiUrls.baseUrl}/withdrawal/payments',
       );
-      if (response.isSuccess && response.responseData != null) {
-        final list = response.responseData as List<dynamic>;
+      if (response.isSuccess && response.responseBody != null) {
+        final list = response.responseBody as List<dynamic>;
         _subscribers.value = list
             .map((e) => TrainerSubscriberPaymentModel.fromJson(
                 e as Map<String, dynamic>))

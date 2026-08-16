@@ -1,7 +1,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
-import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NetworkResponseModel {
   final int statusCode;
@@ -80,7 +80,7 @@ class NetworkCaller {
 
   /// Initialize or refresh bearer token from storage
   Future<void> updateToken() async {
-    _cachedBearerToken = await PrefsHelper.getString('token');
+    _cachedBearerToken = (await SharedPreferences.getInstance()).getString('token') ?? '';
     log.i('🔑 Token updated');
   }
 
@@ -96,7 +96,7 @@ class NetworkCaller {
 
   /// Build request headers with optional bearer token
   Future<Map<String, String>> _getHeaders([Map<String, String>? customHeaders]) async {
-    _cachedBearerToken = await PrefsHelper.getString('token');
+    _cachedBearerToken = (await SharedPreferences.getInstance()).getString('token') ?? '';
     print(_cachedBearerToken);
     final headers = <String, String>{
       'Content-Type': 'application/json',
