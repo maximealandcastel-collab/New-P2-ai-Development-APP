@@ -6,6 +6,8 @@ import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
@@ -17,6 +19,12 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // When admin is in User-mode toggle, show subscriber profile instead of trainer fields
+    if (Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin &&
+        AdminModeService.to.viewAsUser) {
+      return const UserProfileScreen();
+    }
     final controller = ProfileController.to;
 
     return Obx(() {
