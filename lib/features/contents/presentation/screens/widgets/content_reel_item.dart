@@ -34,6 +34,7 @@ class ContentReelItem extends StatelessWidget {
           reelController: controller.reel,
           contents: controller.contents,
         ),
+        _buildBottomInfo(context),
         _buildSideActions(context, controller),
       ],
     );
