@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/profile_flexible_background.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/trainer_details_model.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/trainer_profile_shimmer.dart';
@@ -29,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Obx(() {
       final isLoading = controller.loadingState.isLoading;
-      final trainer = controller.trainerData;
+      final trainer   = controller.trainerData;
 
       return SliverScaffold(
         appBar: CustomSliverAppBar(
@@ -45,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         bodyList: isLoading
             ? TrainerProfileShimmer.contentSlivers()
-            : _buildSlivers(context, trainer),
+            : _buildSlivers(context, trainer, controller),
       );
     });
   }
@@ -53,65 +53,398 @@ class ProfileScreen extends StatelessWidget {
   List<Widget> _buildSlivers(
     BuildContext context,
     TrainerDetailsModel? trainer,
-  ) => [
-    SizedBox(height: 20.h).asSliver,
-    _buildBioCardWidget(
-      fontSize: 12.sp,
-      label: 'Bio',
-      value: StringFormat.valueOrNa(trainer?.bio),
-    ).asSliver,
-    _buildBioCardWidget(
-      label: 'Specialty',
-      value: StringFormat.specialtyOrNa(trainer?.specialty),
-    ).asSliver,
-    _buildBioCardWidget(
-      label: 'Certifications',
-      value: StringFormat.listOrNa(trainer?.certifications),
-    ).asSliver,
-    _buildBioCardWidget(
-      label: 'Trainer style tags',
-      value: StringFormat.listOrNa(trainer?.trainingStyleTags),
-    ).asSliver,
-    ContainerCard(
-      label: 'App',
-      children: [
-        ListTileWidget(label: 'My prompt', onTap: () {}),
-        ListTileWidget(
-          label: 'Personal information',
+    ProfileController controller,
+  ) {
+    // Access code — fall back to a sensible default when not yet set in profile
+    const accessCode = 'MAXP210';
+
+    return [
+      SizedBox(height: 16.h).asSliver,
+
+      // ── Access Code Card ───────────────────────────────────────────────
+      _AccessCodeCard(code: accessCode)
+          .asSliverWithPadding(horizontal: 16.w),
+      SizedBox(height: 24.h).asSliver,
+
+      // ── Business & Clients ─────────────────────────────────────────────
+      _SectionHeader(title: 'Business & Clients').asSliver,
+      SizedBox(height: 10.h).asSliver,
+      _MenuSection(items: [
+        _MenuItem(
+          icon: Icons.attach_money_rounded,
+          iconBg: const Color(0xFFDCFCE7),
+          iconColor: const Color(0xFF16A34A),
+          title: 'Earnings & Payouts',
+          subtitle: 'Track your revenue and payouts',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.people_alt_rounded,
+          iconBg: const Color(0xFFEDE9FE),
+          iconColor: const Color(0xFF7C3AED),
+          title: 'Clients',
+          subtitle: 'Manage your clients and progress',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.calendar_today_rounded,
+          iconBg: const Color(0xFFFFF7ED),
+          iconColor: const Color(0xFFEA580C),
+          title: 'Sessions & Packages',
+          subtitle: 'Manage sessions and packages',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.play_circle_filled_rounded,
+          iconBg: const Color(0xFFF3E8FF),
+          iconColor: const Color(0xFF9333EA),
+          title: 'Content & Video Library',
+          subtitle: 'Upload and manage your content',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.smart_toy_rounded,
+          iconBg: const Color(0xFFDCFCE7),
+          iconColor: const Color(0xFF16A34A),
+          title: 'AI Coach / AI Video Chat',
+          subtitle: 'Configure your AI coaching',
+          badge: 'AI Ready',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.trending_up_rounded,
+          iconBg: const Color(0xFFEFF6FF),
+          iconColor: const Color(0xFF2563EB),
+          title: 'Performance Analytics',
+          subtitle: 'View your performance insights',
+          badge: 'This Month',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.receipt_long_rounded,
+          iconBg: const Color(0xFFFFF7ED),
+          iconColor: const Color(0xFFEA580C),
+          title: 'Invoices & Statements',
+          subtitle: 'View and download invoices',
+          onTap: () {},
+        ),
+      ]).asSliverWithPadding(horizontal: 16.w),
+      SizedBox(height: 24.h).asSliver,
+
+      // ── Account & Support ──────────────────────────────────────────────
+      _SectionHeader(title: 'Account & Support').asSliver,
+      SizedBox(height: 10.h).asSliver,
+      _MenuSection(items: [
+        _MenuItem(
+          icon: Icons.person_rounded,
+          iconBg: const Color(0xFFEFF6FF),
+          iconColor: const Color(0xFF2563EB),
+          title: 'Profile & Trainer Info',
+          subtitle: 'Manage your profile, bio and specialties',
+          badge: 'Complete',
           onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
         ),
-        ListTileWidget(
-          label: 'Admin support',
-          onTap: () => Get.toNamed(AppRoute.adminSupportScreen),
-        ),
-        ListTileWidget(
-          label: 'Settings',
+        _MenuItem(
+          icon: Icons.settings_rounded,
+          iconBg: const Color(0xFFF3F4F6),
+          iconColor: const Color(0xFF6B7280),
+          title: 'Account & Settings',
+          subtitle: 'Manage your account and preferences',
           onTap: () => Get.toNamed(AppRoute.settingsScreen),
         ),
-      ],
-    ).asSliverWithPadding(horizontal: 16.w),
-  ];
+        _MenuItem(
+          icon: Icons.headset_mic_rounded,
+          iconBg: const Color(0xFFFFF7ED),
+          iconColor: const Color(0xFFEA580C),
+          title: 'Admin Support',
+          subtitle: 'Get help from the P2P FitTech AI team',
+          badge: 'Contact',
+          onTap: () => Get.toNamed(AppRoute.adminSupportScreen),
+        ),
+      ]).asSliverWithPadding(horizontal: 16.w),
+      SizedBox(height: 24.h).asSliver,
 
-  Widget _buildBioCardWidget({
-    required String label,
-    required String value,
-    double? fontSize,
-  }) {
+      // ── Quick Actions ──────────────────────────────────────────────────
+      _SectionHeader(title: 'Quick Actions').asSliver,
+      SizedBox(height: 10.h).asSliver,
+      _MenuSection(items: [
+        _MenuItem(
+          icon: Icons.edit_rounded,
+          iconBg: const Color(0xFFF0FDF4),
+          iconColor: const Color(0xFF16A34A),
+          title: 'Edit Profile',
+          subtitle: 'Update your photo and details',
+          onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
+        ),
+        _MenuItem(
+          icon: Icons.share_rounded,
+          iconBg: const Color(0xFFEFF6FF),
+          iconColor: const Color(0xFF2563EB),
+          title: 'Share Trainer Profile',
+          subtitle: 'Share your page with clients',
+          onTap: () {},
+        ),
+        _MenuItem(
+          icon: Icons.logout_rounded,
+          iconBg: const Color(0xFFFFF1F2),
+          iconColor: const Color(0xFFE11D48),
+          title: 'Logout',
+          subtitle: 'Sign out of your account',
+          onTap: () => LoginController.to.logout(),
+        ),
+      ]).asSliverWithPadding(horizontal: 16.w),
+
+      SizedBox(height: 48.h).asSliver,
+    ];
+  }
+}
+
+// ── Access Code Card ───────────────────────────────────────────────────────
+
+class _AccessCodeCard extends StatelessWidget {
+  final String code;
+  const _AccessCodeCard({required this.code});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'YOUR ACCESS CODE',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFEA580C),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  SizedBox(height: 5.h),
+                  Row(
+                    children: [
+                      Text(
+                        code,
+                        style: TextStyle(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: code));
+                          ToastMessageHelper.show('Code copied!');
+                        },
+                        child: Icon(
+                          Icons.copy_rounded,
+                          size: 18.sp,
+                          color: const Color(0xFFEA580C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 15.sp,
+              color: const Color(0xFFD1D5DB),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Section Header ─────────────────────────────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomText(text: label, color: AppColors.textSecondary, bottom: 6.h),
-          CustomText(
-            textAlign: TextAlign.start,
-            text: value,
-            fontSize: fontSize ?? 16.sp,
-            fontWeight: FontWeight.w500,
-            bottom: 10.h,
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 17.sp,
+          fontWeight: FontWeight.w700,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Menu Section (grouped white card) ─────────────────────────────────────
+
+class _MenuSection extends StatelessWidget {
+  final List<_MenuItem> items;
+  const _MenuSection({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Column(
+        children: items.asMap().entries.map((e) {
+          final isLast = e.key == items.length - 1;
+          return _MenuTile(item: e.value, isLast: isLast);
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ── Menu Tile ──────────────────────────────────────────────────────────────
+
+class _MenuTile extends StatelessWidget {
+  final _MenuItem item;
+  final bool isLast;
+  const _MenuTile({required this.item, required this.isLast});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: item.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
+            child: Row(
+              children: [
+                // Colored icon square
+                Container(
+                  width: 42.w,
+                  height: 42.w,
+                  decoration: BoxDecoration(
+                    color: item.iconBg,
+                    borderRadius: BorderRadius.circular(11.r),
+                  ),
+                  child: Icon(item.icon, color: item.iconColor, size: 21.sp),
+                ),
+                SizedBox(width: 13.w),
+                // Title + subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: TextStyle(
+                          fontSize: 14.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        item.subtitle,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Badge pill
+                if (item.badge != null) ...[
+                  SizedBox(width: 6.w),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Text(
+                      item.badge!,
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFEA580C),
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(width: 6.w),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 12.5.sp,
+                  color: const Color(0xFFD1D5DB),
+                ),
+              ],
+            ),
+          ),
+          if (!isLast)
+            Divider(
+              height: 1,
+              thickness: 1,
+              indent: 69.w,
+              color: const Color(0xFFF3F4F6),
+            ),
         ],
       ),
     );
   }
+}
+
+// ── Data class ─────────────────────────────────────────────────────────────
+
+class _MenuItem {
+  final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final String? badge;
+  final VoidCallback onTap;
+
+  const _MenuItem({
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    this.badge,
+    required this.onTap,
+  });
 }
