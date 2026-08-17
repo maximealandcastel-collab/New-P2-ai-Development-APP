@@ -69,5 +69,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>P2P FitTech AI needs microphone access when you record videos for workout content.</string>
 </dict>
 </plist>
