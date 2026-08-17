@@ -78,27 +78,11 @@ class _WorkoutSplitBanner extends StatelessWidget {
     Widget build(BuildContext context) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
-        child: Stack(
-          children: [
-            Image.asset(
-              'assets/images/workout_split_banner.png',
-              width: double.infinity,
-              height: 112.h,
-              fit: BoxFit.cover,
-            ),
-            Positioned(
-              top: 8,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B1A),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text('\u2713 UPDATED', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-              ),
-            ),
-          ],
+        child: Image.asset(
+          'assets/images/workout_split_banner.png',
+          width: double.infinity,
+          height: 112.h,
+          fit: BoxFit.cover,
         ),
       );
     }
