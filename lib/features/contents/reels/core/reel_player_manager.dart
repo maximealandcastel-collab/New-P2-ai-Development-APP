@@ -48,6 +48,13 @@ class ReelPlayerManager {
     final center = index.clamp(0, contents.length - 1);
     _activeIndex = center;
 
+    // Immediately silence all slots before the new video loads.
+    // Without this, neighbor pre-loads can fire play() concurrently and
+    // bleed audio over the incoming video.
+    for (final slot in _slots.values) {
+      unawaited(slot.pause());
+    }
+
     final keep = {
       center,
       if (center > 0) center - 1,
