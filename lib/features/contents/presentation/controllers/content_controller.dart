@@ -153,7 +153,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
 
   void _listenBottomNavVisibility() {
     final navController = Get.find<BottomNavBarController>();
-    _navTabWorker = ever<int>(navController.selectedIndexRx, (index) {
+    _navTabWorker = ever<int>(navController.tabChangedSignal, (index) {
       if (_isClosed) return;
       if (index == BottomNavBarController.contentsTabIndex) {
         unawaited(reel.resume(contents: contents));
