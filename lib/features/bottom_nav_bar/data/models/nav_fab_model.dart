@@ -14,6 +14,7 @@ class NavFabModel {
     required this.onTap,
   });
 
+  // ── Trainer FAB — only shown when role=trainer AND not in viewAsUser mode ──
   static List<NavFabModel> get trainerFabItems => [
         NavFabModel(
           label: 'Content category',
@@ -32,14 +33,15 @@ class NavFabModel {
         ),
       ];
 
+  // ── User FAB — shown for subscribers, and for owner when in viewAsUser mode ──
   static List<NavFabModel> get userFabItems => [
         NavFabModel(
-          label: 'Find Trainer',
+          label: 'Find My Trainer',
           icon: Assets.icons.person.path,
           onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
         ),
         NavFabModel(
-          label: 'Add exercise plan',
+          label: 'Generate Workout',
           icon: Assets.icons.exercise.path,
           onTap: () => Get.toNamed(AppRoute.workoutScreen),
         ),
