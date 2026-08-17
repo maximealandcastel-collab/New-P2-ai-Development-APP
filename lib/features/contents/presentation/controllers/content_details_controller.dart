@@ -4,12 +4,13 @@ import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:video_player/video_player.dart';
 
-class ContentDetailsController extends GetxController {
+class ContentDetailsController extends GetxController with WidgetsBindingObserver {
   ContentDetailsController({
     this.content,
     this.videoUrl,
@@ -33,6 +34,7 @@ class ContentDetailsController extends GetxController {
   final Rx<Duration> duration = Duration.zero.obs;
 
   bool _isClosed = false;
+  bool _pausedExternally = false; // set when tab switch or app background pauses the video
   VoidCallback? _videoListener;
 
   static const playbackSpeeds = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
@@ -53,6 +55,7 @@ class ContentDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     _loadMedia();
     _checkPipAvailability();
   }
@@ -68,6 +71,7 @@ class ContentDetailsController extends GetxController {
   Future<void> _loadMedia() async {
     isLoadingMedia.value = true;
     mediaError.value = '';
+    _pausedExternally = false; // fresh load always auto-plays
     await _disposePlayer();
 
     try {
@@ -104,7 +108,7 @@ class ContentDetailsController extends GetxController {
   Future<void> retryLoad() => _loadMedia();
 
   Future<void> _ensureAutoPlay() async {
-    if (_isClosed || mediaError.value.isNotEmpty) return;
+    if (_isClosed || _pausedExternally || mediaError.value.isNotEmpty) return;
     final controller = videoPlayerController;
     if (controller == null || !controller.value.isInitialized) return;
 
@@ -128,6 +132,7 @@ class ContentDetailsController extends GetxController {
       await controller.pause();
       isPlaying.value = false;
     } else {
+      _pausedExternally = false; // user explicitly resumed
       await controller.play();
       isPlaying.value = true;
     }
@@ -200,9 +205,31 @@ class ContentDetailsController extends GetxController {
     _cachedPlayer = null;
   }
 
+  /// Pause the video immediately. Safe to call from outside the controller
+  /// (e.g. tab switch, app background). Sets [_pausedExternally] so that
+  /// [_ensureAutoPlay] does not auto-resume until the user taps play.
+  void pauseVideo() {
+    _pausedExternally = true;
+    final ctrl = videoPlayerController;
+    if (ctrl != null && ctrl.value.isInitialized && ctrl.value.isPlaying) {
+      ctrl.pause();
+      isPlaying.value = false;
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      pauseVideo();
+    }
+  }
+
   @override
   void onClose() {
     _isClosed = true;
+    WidgetsBinding.instance.removeObserver(this);
     unawaited(_disposePlayer());
     super.onClose();
   }
