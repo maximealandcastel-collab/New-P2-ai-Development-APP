@@ -15,6 +15,10 @@ class BottomNavBarController extends GetxController {
   final RxInt _adminIndex = 0.obs;
   final RxInt _userIndex  = 0.obs;
 
+  // Unified signal — fires for both admin and user tab changes
+  final RxInt _tabChangedSignal = 0.obs;
+  RxInt get tabChangedSignal => _tabChangedSignal;
+
   int get adminIndex => _adminIndex.value;
   int get userIndex  => _userIndex.value;
 
@@ -64,6 +68,7 @@ class BottomNavBarController extends GetxController {
     } else {
       _userIndex.value = index;
     }
+    _tabChangedSignal.value = index; // unified — ContentController suspend/resume
   }
 
   void goToContentsTab() {
