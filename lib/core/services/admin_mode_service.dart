@@ -23,6 +23,7 @@ class AdminModeService extends GetxController {
 
   bool get isAdmin    => _isAdmin.value;
   bool get viewAsUser => _viewAsUser.value;
+  RxBool get viewAsUserRx => _viewAsUser; // for ever() workers
 
   /// Called once when an admin account successfully authenticates.
   /// Restores the last dashboard mode the admin had selected.
