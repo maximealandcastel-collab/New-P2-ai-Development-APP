@@ -150,7 +150,7 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          flutter build ipa --release --build-name=2.9.0 --build-number=168 --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 --dart-define=API_ORIGIN=https://p2pfitechai.com --dart-define=SOCKET_URL=https://p2pfitechai.com --dart-define=PREFILL_EMAIL=pmoney78q@gmail.com --dart-define=PREFILL_PASSWORD=Godisgood123
+          flutter build ipa --release --build-name=2.9.0 --build-number=169 --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 --dart-define=API_ORIGIN=https://p2pfitechai.com --dart-define=SOCKET_URL=https://p2pfitechai.com --dart-define=PREFILL_EMAIL=pmoney78q@gmail.com --dart-define=PREFILL_PASSWORD=Godisgood123
 
     artifacts:
       - build/ios/ipa/*.ipa
