@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
