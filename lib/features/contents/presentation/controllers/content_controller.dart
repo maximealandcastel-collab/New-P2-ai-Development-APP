@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/paginated_loader_ui.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
@@ -67,6 +68,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   late final PreloadPageController pageController;
 
   Worker? _navTabWorker;
+  Worker? _modeWorker;
   Worker? _connectivityWorker;
   bool _isClosed = false;
 
@@ -161,6 +163,13 @@ class ContentController extends GetxController with PaginatedLoaderUi {
         unawaited(reel.suspend());
       }
     });
+    // Suspend video whenever the admin toggles between Trainer and User mode
+    // so audio never bleeds across the mode switch.
+    if (Get.isRegistered<AdminModeService>()) {
+      _modeWorker = ever<bool>(AdminModeService.to.viewAsUserRx, (_) {
+        if (!_isClosed) unawaited(reel.suspend());
+      });
+    }
   }
 
   void onReelPageChanged(int index) {
