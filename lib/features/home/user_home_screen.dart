@@ -39,12 +39,6 @@ class UserHomeScreen extends StatelessWidget {
                 debugPrint('Selected: $date');
               },
             ).asSliver,
-            if (controller.todayOverview.value == null)
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Get.toNamed(AppRoute.workoutScreen),
-                child: const _WorkoutSplitBanner(),
-              ).asSliverWithPadding(horizontal: 16.w, vertical: 10.h),
             if (showShimmer) ...UserHomeShimmer.slivers() else ..._buildContent(),
             SizedBox(height: 16.h).asSliver,
             SliverToBoxAdapter(child: SizedBox(height: 120.h)),
@@ -57,6 +51,11 @@ class UserHomeScreen extends StatelessWidget {
   List<Widget> _buildContent() {
     return [
       GymSection().asSliverWithPadding(horizontal: 16.w),
+      GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Get.toNamed(AppRoute.workoutScreen),
+        child: const _WorkoutSplitBanner(),
+      ).asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
       OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
       const TodayWorkoutSection().asSliverWithPadding(horizontal: 16.w),
       const TrainerPlanSection().asSliverWithPadding(horizontal: 16.w),
@@ -64,72 +63,185 @@ class UserHomeScreen extends StatelessWidget {
   }
 }
 
-/// Replaces the old 'Set your goal' image asset with a Flutter widget
-/// so the button text can be updated without regenerating image assets.
+// ─── Workout Split Banner ───────────────────────────────────────────────────
+// Matches the branded P2P design: dark left panel + orange right panel with
+// diagonal cut and icon grid. Always visible on the user home screen.
 class _WorkoutSplitBanner extends StatelessWidget {
   const _WorkoutSplitBanner();
+
+  static const _dark   = Color(0xFF141414);
+  static const _orange = Color(0xFFFD7B00);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 148.h,
+      height: 168.h,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6B7A99), Color(0xFF9AA5B8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -6.w,
-            bottom: 0,
-            top: 0,
-            child: Icon(
-              Icons.fitness_center,
-              size: 110.sp,
-              color: Colors.white.withOpacity(0.13),
-            ),
+        color: _dark,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
           ),
-          Padding(
-            padding: EdgeInsets.all(20.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Leverage power of AI to find\nworkout that fits your needs',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                    height: 1.4,
-                  ),
-                ),
-                SizedBox(height: 14.h),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24.r),
-                  ),
-                  child: Text(
-                    'Create my workout split',
+        ],
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: Row(
+        children: [
+          // ── Left: text + CTA ───────────────────────────────────────────
+          Expanded(
+            flex: 58,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(18.w, 16.h, 8.w, 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'CREATE YOUR',
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
+                      color: Colors.white70,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.8,
                     ),
                   ),
+                  SizedBox(height: 2.h),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'WORKOUT\n',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w900,
+                            height: 1.15,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'SPLIT',
+                          style: TextStyle(
+                            color: _orange,
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 7.h),
+                  Text(
+                    'Design a plan that fits your goals,\nyour body, and your lifestyle.',
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 9.5.sp,
+                      height: 1.45,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      // GET STARTED pill
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(22.r),
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'GET STARTED',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                            SizedBox(width: 5.w),
+                            Icon(Icons.arrow_forward_rounded,
+                                color: Colors.white, size: 11.sp),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'P2P FIT TECH AI',
+                    style: TextStyle(
+                      color: _orange,
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Right: orange panel with diagonal cut + icons ─────────────
+          Expanded(
+            flex: 42,
+            child: ClipPath(
+              clipper: _DiagonalClipper(),
+              child: Container(
+                color: _orange,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _iconTile(Icons.calendar_month_rounded),
+                      SizedBox(height: 10.h),
+                      _iconTile(Icons.fitness_center_rounded),
+                      SizedBox(height: 10.h),
+                      _iconTile(Icons.track_changes_rounded),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _iconTile(IconData icon) {
+    return Container(
+      width: 40.r,
+      height: 40.r,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Icon(icon, color: Colors.white, size: 22.r),
+    );
+  }
+}
+
+/// Clips the orange right panel with an angled left edge to match the
+/// diagonal split seen in the mockup.
+class _DiagonalClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(28, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(_DiagonalClipper _) => false;
 }
