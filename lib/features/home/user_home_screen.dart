@@ -70,148 +70,145 @@ class UserHomeScreen extends StatelessWidget {
 }
 
 // ─── Workout Split Banner ───────────────────────────────────────────────────
-// Matches the branded P2P design: dark left panel + orange right panel with
-// diagonal cut and icon grid. Always visible on the user home screen.
+// Slim branded card: P2P logo + title + orange accent panel. Always visible.
 class _WorkoutSplitBanner extends StatelessWidget {
   const _WorkoutSplitBanner();
 
-  static const _dark   = Color(0xFF141414);
+  static const _dark   = Color(0xFF0F0F0F);
   static const _orange = Color(0xFFFD7B00);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 168.h,
+      height: 112.h,
       decoration: BoxDecoration(
         color: _dark,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       clipBehavior: Clip.hardEdge,
       child: Row(
         children: [
-          // ── Left: text + CTA ───────────────────────────────────────────
+          // ── Left: logo + title + CTA ───────────────────────────────────
           Expanded(
-            flex: 58,
+            flex: 60,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(18.w, 16.h, 8.w, 16.h),
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 8.w, 14.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'CREATE YOUR',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.8,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'WORKOUT\n',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.w900,
-                            height: 1.15,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'SPLIT',
-                          style: TextStyle(
-                            color: _orange,
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 7.h),
-                  Text(
-                    'Design a plan that fits your goals,\nyour body, and your lifestyle.',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 9.5.sp,
-                      height: 1.45,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
+                  // Brand row: logo + name
                   Row(
                     children: [
-                      // GET STARTED pill
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(22.r),
-                          border: Border.all(color: Colors.white24, width: 1),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/images/p2p_logo.jpg',
+                          width: 24.r,
+                          height: 24.r,
+                          fit: BoxFit.cover,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      ),
+                      SizedBox(width: 7.w),
+                      Text(
+                        'P2P FIT TECH AI',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Headline
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'CREATE YOUR',
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.8,
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
                           children: [
-                            Text(
-                              'GET STARTED',
+                            TextSpan(
+                              text: 'WORKOUT ',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.6,
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w900,
+                                height: 1.1,
                               ),
                             ),
-                            SizedBox(width: 5.w),
-                            Icon(Icons.arrow_forward_rounded,
-                                color: Colors.white, size: 11.sp),
+                            TextSpan(
+                              text: 'SPLIT',
+                              style: TextStyle(
+                                color: _orange,
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'P2P FIT TECH AI',
-                    style: TextStyle(
+                  // CTA pill
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 5.h,
+                    ),
+                    decoration: BoxDecoration(
                       color: _orange,
-                      fontSize: 7.5.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.5,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Text(
+                      'GET STARTED  →',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-
-          // ── Right: orange panel with diagonal cut + icons ─────────────
-          Expanded(
-            flex: 42,
-            child: ClipPath(
-              clipper: _DiagonalClipper(),
-              child: Container(
-                color: _orange,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _iconTile(Icons.calendar_month_rounded),
-                      SizedBox(height: 10.h),
-                      _iconTile(Icons.fitness_center_rounded),
-                      SizedBox(height: 10.h),
-                      _iconTile(Icons.track_changes_rounded),
-                    ],
-                  ),
+          // ── Right: diagonal orange gradient panel ──────────────────────
+          ClipPath(
+            clipper: _DiagonalClipper(),
+            child: Container(
+              width: 108.w,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFE9A2E), Color(0xFFFD7B00)],
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.fitness_center_rounded,
+                  color: Colors.white,
+                  size: 34.r,
                 ),
               ),
             ),
@@ -220,27 +217,14 @@ class _WorkoutSplitBanner extends StatelessWidget {
       ),
     );
   }
-
-  Widget _iconTile(IconData icon) {
-    return Container(
-      width: 40.r,
-      height: 40.r,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.22),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Icon(icon, color: Colors.white, size: 22.r),
-    );
-  }
 }
 
-/// Clips the orange right panel with an angled left edge to match the
-/// diagonal split seen in the mockup.
+/// Clips the orange right panel with an angled left edge.
 class _DiagonalClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-    path.moveTo(28, 0);
+    path.moveTo(26, 0);
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
