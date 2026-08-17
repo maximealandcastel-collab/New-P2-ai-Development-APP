@@ -25,7 +25,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
   final RxInt slotVersion = 0.obs;
 
   bool _isClosed = false;
-  bool _isActive = true;
+  bool _isActive = false; // stays false until user navigates to content tab
   bool _wasPlayingBeforeBackground = false;
   int _syncGeneration = 0;
 
