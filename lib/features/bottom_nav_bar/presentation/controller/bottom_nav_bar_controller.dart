@@ -10,8 +10,6 @@ class BottomNavBarController extends GetxController {
   static BottomNavBarController get to => Get.find();
 
   // ── Per-mode tab indices (preserved across mode switches) ─────────────────
-  // Admin stack and user stack each remember which tab the user was on.
-  // Switching Admin ↔ User restores where you were, not index 0 every time.
   final RxInt _adminIndex = 0.obs;
   final RxInt _userIndex  = 0.obs;
 
@@ -22,7 +20,6 @@ class BottomNavBarController extends GetxController {
   int get adminIndex => _adminIndex.value;
   int get userIndex  => _userIndex.value;
 
-  /// Legacy accessor — resolves to the active mode's current index.
   int get selectedIndex {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
@@ -30,11 +27,10 @@ class BottomNavBarController extends GetxController {
     return (isAdmin && !viewUser) ? _adminIndex.value : _userIndex.value;
   }
 
-  /// Legacy Rx accessor used by BottomNavBar widget.
   RxInt get selectedIndexRx =>
       _isAdminMode() ? _adminIndex : _userIndex;
 
-  // ── Nav items (used by external callers, not by BottomNavBarMain) ─────────
+  // ── Nav items ─────────────────────────────────────────────────────────────
   List<NavItemModel> get navItems {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
@@ -54,10 +50,21 @@ class BottomNavBarController extends GetxController {
         : NavItemModel.userNavItems;
   }
 
-  List<NavFabModel> get fabItems =>
-      LoginController.to.isTrainer()
-          ? NavFabModel.trainerFabItems
-          : NavFabModel.userFabItems;
+  /// FAB items are role-aware AND mode-aware.
+  /// When owner is in viewAsUser mode, always show user FAB — never trainer.
+  /// This is a hardcoded gate so trainer actions never leak to the user view.
+  List<NavFabModel> get fabItems {
+    final isAdmin = Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin;
+    // Owner in User-mode preview → subscriber FAB only
+    if (isAdmin && AdminModeService.to.viewAsUser) {
+      return NavFabModel.userFabItems;
+    }
+    // Regular role check for non-admin sessions
+    return LoginController.to.isTrainer()
+        ? NavFabModel.trainerFabItems
+        : NavFabModel.userFabItems;
+  }
 
   static const int contentsTabIndex = 2;
 
@@ -68,7 +75,7 @@ class BottomNavBarController extends GetxController {
     } else {
       _userIndex.value = index;
     }
-    _tabChangedSignal.value = index; // unified — ContentController suspend/resume
+    _tabChangedSignal.value = index;
   }
 
   void goToContentsTab() {
@@ -79,26 +86,19 @@ class BottomNavBarController extends GetxController {
     }
   }
 
-  /// Restore admin tab position when switching to Admin mode.
   void switchToAdmin() {
     if (kDebugMode) debugPrint('[ADMIN] Dashboard state restored (tab $_adminIndex)');
-    // Index is already saved in _adminIndex — nothing to do.
-    // The Offstage flip in BottomNavBarMain makes admin stack visible.
   }
 
-  /// Restore user tab position when switching to User mode.
   void switchToUser() {
     if (kDebugMode) debugPrint('[USER] User state restored (tab $_userIndex)');
-    // Index is already saved in _userIndex — nothing to do.
   }
 
-  /// Reset both stacks to tab 0 (used on logout / hard reset).
   void resetIndex() {
     _adminIndex.value = 0;
     _userIndex.value  = 0;
   }
 
-  // ── Private helpers ───────────────────────────────────────────────────────
   bool _isAdminMode() {
     final isAdmin = Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin;
