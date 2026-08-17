@@ -92,6 +92,16 @@ class ReelPlayer extends StatelessWidget {
           ),
         // No spinner in reel — poster thumbnail shows while video buffers (clean UX)
         if (showError) _buildError(slot.error),
+        // Black strip covers the "Coach Max Session N" watermark burned into source videos
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SizedBox(
+            height: 36,
+            child: ColoredBox(color: _background),
+          ),
+        ),
       ],
     );
   }
