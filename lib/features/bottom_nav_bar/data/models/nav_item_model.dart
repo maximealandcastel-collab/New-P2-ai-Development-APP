@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/c
 import 'package:pler_to_pler_app/features/contents/presentation/screens/contents_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/request/presentation/screens/request_screen.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/screens/history_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/gyms_screen.dart';
 import 'package:pler_to_pler_app/features/user/trainer/presentation/screens/user_trainer_screen.dart';
 
 class NavItemModel {
@@ -48,6 +49,11 @@ class NavItemModel {
       label: 'Messages',
       icon: Assets.icons.message.path,
       screen: const TrainerInboxScreen(),
+    ),
+    NavItemModel(
+      label: 'Gyms',
+      icon: Assets.icons.request.path,
+      screen: const GymsScreen(),
     ),
   ];
 
@@ -114,6 +120,11 @@ class NavItemModel {
       label: 'Trainer',
       icon: Assets.icons.trainer.path,
       screen: const UserTrainerScreen(),
+    ),
+    NavItemModel(
+      label: 'Gyms',
+      icon: Assets.icons.request.path,
+      screen: const GymsScreen(),
     ),
   ];
 }
