@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/services/audio_focus_service.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/contents/reels/core/reel_player_manager.dart';
@@ -28,6 +30,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
   bool _isActive = false; // stays false until user navigates to content tab
   bool _wasPlayingBeforeBackground = false;
   int _syncGeneration = 0;
+  StreamSubscription<AudioInterruptionEvent>? _interruptionSub;
 
   int? _pendingIndex;
   List<ContentModel>? _pendingContents;
@@ -40,6 +43,29 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
     _player.onUpdated = () => slotVersion.value++;
+
+    // Configure AVAudioSession / AudioFocus at controller start
+    unawaited(AudioFocusService.instance.configure());
+
+    // Pause reel on system interruptions (phone calls, Siri, alarms)
+    _interruptionSub = AudioFocusService.instance.interruptionStream.listen(
+      (event) {
+        if (_isClosed) return;
+        if (event.begin) {
+          _wasPlayingBeforeBackground = isPlaying.value;
+          unawaited(_player.pauseActive());
+          isPlaying.value = false;
+          debugPrint('[VIDEO] app paused (audio interruption)');
+        } else if (_isActive &&
+            _wasPlayingBeforeBackground &&
+            !isUserPaused.value &&
+            (event.type == AudioInterruptionType.pause ||
+                event.type == AudioInterruptionType.unknown)) {
+          unawaited(_player.playActive());
+          isPlaying.value = _player.isReady(currentIndex.value);
+        }
+      },
+    );
   }
 
   VideoPlayerController? videoControllerFor(int index) =>
@@ -82,6 +108,10 @@ class ReelController extends GetxController with WidgetsBindingObserver {
         if (_isClosed || generation != _syncGeneration) return;
       }
 
+      if (shouldPlay && _player.isReady(index)) {
+        await AudioFocusService.instance.activate(); // claim audio focus
+        debugPrint('[VIDEO] activate: ${contents.length > index ? (contents[index].id ?? index.toString()) : index.toString()}');
+      }
       isPlaying.value = _player.isReady(index) && shouldPlay;
     } catch (error) {
       if (kDebugMode) debugPrint('ReelController.activateAt: $error');
@@ -181,7 +211,9 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     _isActive = false;
     _wasPlayingBeforeBackground = isPlaying.value;
     await _player.pauseActive();
+    await AudioFocusService.instance.deactivate(); // release iOS audio focus
     isPlaying.value = false;
+    debugPrint('[VIDEO] route hidden');
   }
 
   Future<void> resume({required List<ContentModel> contents}) async {
@@ -221,9 +253,12 @@ class ReelController extends GetxController with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
         _wasPlayingBeforeBackground = isPlaying.value;
         unawaited(_player.pauseActive());
+        unawaited(AudioFocusService.instance.deactivate());
         isPlaying.value = false;
+        debugPrint('[VIDEO] app paused');
       case AppLifecycleState.resumed:
         if (_isActive && _wasPlayingBeforeBackground && !isUserPaused.value) {
+          unawaited(AudioFocusService.instance.activate());
           unawaited(_player.playActive());
           isPlaying.value = _player.isReady(currentIndex.value);
         }
@@ -235,9 +270,11 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     _isClosed = true;
     _pendingIndex = null;
     _pendingContents = null;
+    _interruptionSub?.cancel();
     _player.onUpdated = null;
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_player.releaseAll());
+    unawaited(AudioFocusService.instance.deactivate());
     super.onClose();
   }
 }
