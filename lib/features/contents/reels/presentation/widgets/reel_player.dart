@@ -90,8 +90,7 @@ class ReelPlayer extends StatelessWidget {
               ),
             ),
           ),
-        if (showLoader)
-          const Center(child: CustomLoader()),
+        // No spinner in reel — poster thumbnail shows while video buffers (clean UX)
         if (showError) _buildError(slot.error),
       ],
     );
