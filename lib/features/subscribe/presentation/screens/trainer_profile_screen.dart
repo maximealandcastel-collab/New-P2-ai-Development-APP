@@ -49,7 +49,7 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
   }
 
   String _tier(TrainerDetailsModel? t) {
-    final price = t?.subscriptionPrice?.monthly ?? 0;
+    final price = t?.subscriptionPrice?.paid ?? 0;
     if (price >= 49) return 'Elite';
     if (price >= 29) return 'Pro';
     return 'Standard';
@@ -58,8 +58,8 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final loading = _ctrl.detailsLoadingState.isInitial ||
-          _ctrl.detailsLoadingState.isLoading;
+      final loading = _ctrl.detailsLoadingState == LoadingState.initial ||
+          _ctrl.detailsLoadingState == LoadingState.loading;
       final trainer = _ctrl.trainerDetails;
 
       if (loading) {
@@ -254,7 +254,7 @@ class _SubBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final price = trainer?.subscriptionPrice?.monthly ?? 49;
+    final price = trainer?.subscriptionPrice?.paid ?? 49;
     return Container(
       margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
       color: Colors.black,
@@ -269,7 +269,7 @@ class _SubBanner extends StatelessWidget {
           SizedBox(width: 12.w),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('You're Subscribed',
+              Text("You're Subscribed",
                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14.sp)),
               Text('Renews next month · \$${price.toStringAsFixed(0)}/mo',
                   style: TextStyle(color: Colors.white54, fontSize: 11.sp)),
@@ -289,7 +289,7 @@ class _BookBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final price = trainer?.subscriptionPrice?.monthly ?? 19.99;
+    final price = trainer?.subscriptionPrice?.paid ?? 19.99;
     return Container(
       color: Colors.black,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
