@@ -89,7 +89,13 @@ class AdminModeService extends GetxController {
     _removePillOverlay();
 
     final overlayCtx = Get.overlayContext;
-    if (overlayCtx == null) return;
+    if (overlayCtx == null) {
+      // Navigator overlay not ready yet — defer to the next frame and retry.
+      // This happens when activate() is called during login before the widget
+      // tree is fully mounted.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _insertPillOverlay());
+      return;
+    }
 
     _pillEntry = OverlayEntry(builder: _buildPill);
     Overlay.of(overlayCtx).insert(_pillEntry!);
