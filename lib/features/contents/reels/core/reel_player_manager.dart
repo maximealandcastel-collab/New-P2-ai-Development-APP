@@ -48,11 +48,11 @@ class ReelPlayerManager {
     final center = index.clamp(0, contents.length - 1);
     _activeIndex = center;
 
-    // Immediately silence all slots before the new video loads.
-    // Without this, neighbor pre-loads can fire play() concurrently and
-    // bleed audio over the incoming video.
+    // Immediately silence ALL slots — pause + hard-mute — before the new
+    // video loads. Without this, neighbor pre-loads can race and bleed audio.
     for (final slot in _slots.values) {
       unawaited(slot.pause());
+      unawaited(slot.setVolume(0));
     }
 
     final keep = {
@@ -103,7 +103,10 @@ class ReelPlayerManager {
     if (op != _operationId) return;
 
     for (final entry in _slots.entries) {
-      if (entry.key != center) await entry.value.pause();
+      if (entry.key != center) {
+        await entry.value.pause();
+        unawaited(entry.value.setVolume(0));
+      }
     }
   }
 
@@ -172,8 +175,12 @@ class ReelPlayerManager {
     }
   }
 
-  Future<void> pauseActive() =>
-      _slots[_activeIndex]?.pause() ?? Future.value();
+  Future<void> pauseActive() async {
+    final slot = _slots[_activeIndex];
+    if (slot == null) return;
+    await slot.pause();
+    unawaited(slot.setVolume(0)); // hard-mute so audio can never bleed
+  }
 
   Future<void> playActive() => _slots[_activeIndex]?.play() ?? Future.value();
 
