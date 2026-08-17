@@ -105,6 +105,8 @@ class LoginController extends GetxController {
           Get.put(AdminModeService(), permanent: true);
         }
         await AdminModeService.to.activate(); // defaults to viewAsUser = true
+        // Always persist owner session — pill must survive cold restarts regardless of saveLogin toggle
+        await prefs.setBool('sessionPersisted', true);
         Get.offAll(() => BottomNavBarMain());
         return;
       }
