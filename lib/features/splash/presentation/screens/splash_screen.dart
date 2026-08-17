@@ -5,9 +5,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/splash/controllers/splash_controller.dart';
 
-// Injected at build time via --dart-define=BUILD_NUMBER=$BUILD_NUMBER
-const _kBuild = String.fromEnvironment('BUILD_NUMBER', defaultValue: 'dev');
-
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key});
 
@@ -43,19 +40,6 @@ class SplashScreen extends StatelessWidget {
             ),
           );
         }),
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 28.h),
-        child: Center(
-          child: Text(
-            'P2P FIT TECH · v2.9.0 · #$_kBuild',
-            style: TextStyle(
-              color: Colors.grey.shade400,
-              fontSize: 11.sp,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
       ),
     );
   }
