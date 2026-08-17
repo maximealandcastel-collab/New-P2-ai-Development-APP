@@ -221,6 +221,12 @@ class ReelVideoSlot {
     } catch (_) {}
   }
 
+  Future<void> setVolume(double volume) async {
+    try {
+      await _controller?.setVolume(volume);
+    } catch (_) {}
+  }
+
   Future<void> stop() async {
     await pause();
     try {
