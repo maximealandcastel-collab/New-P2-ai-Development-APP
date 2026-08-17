@@ -39,7 +39,7 @@ class UserHomeScreen extends StatelessWidget {
                 debugPrint('Selected: $date');
               },
             ).asSliver,
-            if (showShimmer) ...UserHomeShimmer.slivers() else ..._buildContent(),
+            if (showShimmer) ...UserHomeShimmer.slivers() else ..._buildContent(controller),
             SizedBox(height: 16.h).asSliver,
             SliverToBoxAdapter(child: SizedBox(height: 120.h)),
           ],
@@ -48,16 +48,22 @@ class UserHomeScreen extends StatelessWidget {
     });
   }
 
-  List<Widget> _buildContent() {
+  List<Widget> _buildContent(UserHomeController controller) {
+    final hasWorkout = controller.todayOverview.value != null;
     return [
       GymSection().asSliverWithPadding(horizontal: 16.w),
+      // Workout split banner — always visible so users can regenerate their plan
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Get.toNamed(AppRoute.workoutScreen),
         child: const _WorkoutSplitBanner(),
       ).asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
-      OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
-      const TodayWorkoutSection().asSliverWithPadding(horizontal: 16.w),
+      // Today's overview + workout details only appear after the user has
+      // created their workout plan for the first time
+      if (hasWorkout) ...[
+        OverviewSection().asSliverWithPadding(horizontal: 16.w, vertical: 14.h),
+        const TodayWorkoutSection().asSliverWithPadding(horizontal: 16.w),
+      ],
       const TrainerPlanSection().asSliverWithPadding(horizontal: 16.w),
     ];
   }
