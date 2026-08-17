@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
-import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+
+// ─── Theme ──────────────────────────────────────────────────────────────────
+const _bg         = Color(0xFF0B0F1A);
+const _cardBg     = Color(0xFF161B2E);
+const _cardBorder = Color(0xFF252A40);
+const _orange     = Color(0xFFF97316);
+const _green      = Color(0xFF22C55E);
+const _blue       = Color(0xFF3B82F6);
+const _purple     = Color(0xFFA855F7);
+const _pink       = Color(0xFFEC4899);
+const _yellow     = Color(0xFFEAB308);
+const _tPrim      = Colors.white;
+const _tSec       = Color(0xFF9CA3AF);
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -17,737 +27,163 @@ class AdminDashboardScreen extends StatelessWidget {
         : Get.put(AdminDashboardController());
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: _bg,
       body: SafeArea(
         child: RefreshIndicator(
-          color: AppColors.primary,
+          color: _orange,
+          backgroundColor: _cardBg,
           onRefresh: c.loadAll,
           child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics()),
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
             slivers: [
-              // Top spacing clears the floating Trainer|User pill overlay
+              // Clears the Trainer|User pill overlay
               const SliverToBoxAdapter(child: SizedBox(height: 56)),
-
-              // ── Header ──────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 16.h),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: Icon(Icons.shield_rounded,
-                            color: AppColors.primary, size: 22.sp),
-                      ),
-                      SizedBox(width: 12.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Admin Dashboard',
-                              style: TextStyle(
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary)),
-                          Text('P2P FitTech AI',
-                              style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: AppColors.textSecondary)),
-                        ],
-                      ),
-                      const Spacer(),
-                      Obx(() => c.metricsLoading
-                          ? SizedBox(
-                              width: 18.w,
-                              height: 18.w,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: AppColors.primary))
-                          : IconButton(
-                              icon: Icon(Icons.refresh_rounded,
-                                  color: AppColors.textSecondary, size: 22.sp),
-                              onPressed: c.loadAll,
-                            )),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Metrics body ─────────────────────────────────────────
-              Obx(() {
-                if (c.metricsLoading && c.metrics == null) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 60.h),
-                      child: Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary)),
-                    ),
-                  );
-                }
-                final m = c.metrics;
-                if (m == null) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.w),
-                      child: Text(
-                          c.error.isNotEmpty ? c.error : 'No data available',
-                          style: TextStyle(color: AppColors.textSecondary)),
-                    ),
-                  );
-                }
-
-                return SliverList(
-                  delegate: SliverChildListDelegate([
-                    // ── Overview grid ─────────────────────────────────
-                    _SectionHeader(title: 'Overview'),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: 12.w,
-                        mainAxisSpacing: 12.h,
-                        childAspectRatio: 1.55,
-                        children: [
-                          _StatCard(
-                            label: 'Total Users',
-                            value: m.overview.totalUsers.toString(),
-                            icon: Icons.people_rounded,
-                            color: const Color(0xFF4F46E5),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'all', 'title': 'All Users'}),
-                          ),
-                          _StatCard(
-                            label: 'Today Signups',
-                            value: m.overview.todaySignups.toString(),
-                            icon: Icons.person_add_rounded,
-                            color: const Color(0xFF059669),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'today', 'title': "Today's Signups"}),
-                          ),
-                          _StatCard(
-                            label: 'This Week',
-                            value: m.overview.weekSignups.toString(),
-                            icon: Icons.trending_up_rounded,
-                            color: const Color(0xFF0284C7),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'week', 'title': 'This Week'}),
-                          ),
-                          _StatCard(
-                            label: 'This Month',
-                            value: m.overview.monthSignups.toString(),
-                            icon: Icons.calendar_month_rounded,
-                            color: const Color(0xFF7C3AED),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'month', 'title': 'This Month'}),
-                          ),
-                          _StatCard(
-                            label: 'Verified',
-                            value: m.overview.verifiedUsers.toString(),
-                            icon: Icons.verified_rounded,
-                            color: const Color(0xFF059669),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'verified', 'title': 'Verified Users'}),
-                          ),
-                          _StatCard(
-                            label: 'Unverified',
-                            value: m.overview.unverifiedUsers.toString(),
-                            icon: Icons.mark_email_unread_rounded,
-                            color: const Color(0xFFD97706),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'unverified', 'title': 'Unverified Users'}),
-                          ),
-                          _StatCard(
-                            label: 'Active Subs',
-                            value: m.overview.activeSubscriptions.toString(),
-                            icon: Icons.star_rounded,
-                            color: const Color(0xFFF59E0B),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'active_subs', 'title': 'Active Subscribers'}),
-                          ),
-                          _StatCard(
-                            label: 'Admin Bypass',
-                            value: m.overview.adminBypassUsers.toString(),
-                            icon: Icons.admin_panel_settings_rounded,
-                            color: const Color(0xFFDC2626),
-                            onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
-                                arguments: {'filter': 'admin_bypass', 'title': 'Admin Bypass Users'}),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 24.h),
-
-                    // ── Role breakdown ────────────────────────────────
-                    if (m.roleBreakdown.isNotEmpty) ...[
-                      _SectionHeader(title: 'Users by Role'),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: _BreakdownCard(
-                          items: m.roleBreakdown
-                              .map((r) => _BreakdownItem(
-                                    label: _capitalize(r.role),
-                                    count: r.count,
-                                    total: m.overview.totalUsers,
-                                    color: _roleColor(r.role),
-                                    onTap: r.role == 'admin'
-                                        ? null
-                                        : () => Get.toNamed(
-                                              AppRoute.adminUserListScreen,
-                                              arguments: {
-                                                'filter': r.role,
-                                                'title': '${_capitalize(r.role)}s',
-                                              },
-                                            ),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                    ],
-
-                    // ── Subscription breakdown ────────────────────────
-                    if (m.subscriptionBreakdown.isNotEmpty) ...[
-                      _SectionHeader(title: 'Subscription Tiers'),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: _BreakdownCard(
-                          items: m.subscriptionBreakdown
-                              .map((s) => _BreakdownItem(
-                                    label: _capitalize(s.tier),
-                                    count: s.count,
-                                    total: m.overview.totalUsers,
-                                    color: _tierColor(s.tier),
-                                    onTap: s.count == 0
-                                        ? null
-                                        : () => Get.toNamed(
-                                              AppRoute.adminUserListScreen,
-                                              arguments: {
-                                                'filter': (s.tier == 'monthly' || s.tier == 'annual')
-                                                    ? 'active_subs'
-                                                    : 'all',
-                                                'title': '${_capitalize(s.tier)} Users',
-                                              },
-                                            ),
-                                  ))
-                              .toList(),
-                        ),
-                      ),
-                      SizedBox(height: 20.h),
-                    ],
-
-                    // ── Daily signups chart ───────────────────────────
-                    if (m.dailySignups.isNotEmpty) ...[
-                      _SectionHeader(title: 'Daily Signups (Recent)'),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: _DailySignupsChart(days: m.dailySignups),
-                      ),
-                      SizedBox(height: 20.h),
-                    ],
-
-                    // ── Recent users ──────────────────────────────────
-                    if (m.recentUsers.isNotEmpty) ...[
-                      _SectionHeader(title: 'Recent Users'),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16.r),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2))
-                            ],
-                          ),
-                          child: Column(
-                            children: m.recentUsers
-                                .asMap()
-                                .entries
-                                .map((entry) => _RecentUserRow(
-                                      user: entry.value,
-                                      isLast:
-                                          entry.key == m.recentUsers.length - 1,
-                                    ))
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                    ],
-                  ]),
-                );
-              }),
-
-              // ── Withdrawals ──────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: _SectionHeader(title: 'Trainer Withdrawals'),
-              ),
-
-              Obx(() {
-                if (c.withdrawalsLoading && c.withdrawals.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24.h),
-                      child: Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary)),
-                    ),
-                  );
-                }
-                if (c.withdrawals.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-                      child: Text('No withdrawal requests yet.',
-                          style: TextStyle(
-                              color: AppColors.textSecondary, fontSize: 14.sp)),
-                    ),
-                  );
-                }
-                return SliverPadding(
-                  padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 120.h),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _WithdrawalCard(
-                          withdrawal: c.withdrawals[index], controller: c),
-                      childCount: c.withdrawals.length,
-                    ),
-                  ),
-                );
-              }),
+              // ── Header ────────────────────────────────────────────────────
+              SliverToBoxAdapter(child: _DashHeader(c: c)),
+              // ── KPI Grid ──────────────────────────────────────────────────
+              Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c))),
+              // ── Live Activity Feed ────────────────────────────────────────
+              Obx(() => SliverToBoxAdapter(child: _ActivityFeed(c: c))),
+              // ── Quick Actions ─────────────────────────────────────────────
+              SliverToBoxAdapter(child: _QuickActions(c: c)),
+              // ── Revenue Overview ──────────────────────────────────────────
+              Obx(() => SliverToBoxAdapter(child: _RevenueOverview(c: c))),
+              // ── Trainer Management ────────────────────────────────────────
+              Obx(() => SliverToBoxAdapter(child: _TrainerManagement(c: c))),
+              // ── Pending Withdrawals ───────────────────────────────────────
+              Obx(() => SliverToBoxAdapter(child: _Withdrawals(c: c))),
+              const SliverToBoxAdapter(child: SizedBox(height: 64)),
             ],
           ),
         ),
       ),
     );
   }
-
-  Color _roleColor(String role) {
-    switch (role) {
-      case 'trainer':
-        return const Color(0xFF4F46E5);
-      case 'admin':
-        return const Color(0xFFDC2626);
-      default:
-        return const Color(0xFF059669);
-    }
-  }
-
-  Color _tierColor(String tier) {
-    switch (tier) {
-      case 'premium':
-        return const Color(0xFFF59E0B);
-      case 'pro':
-        return const Color(0xFF7C3AED);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
-
-  String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
-// ─── Section header ─────────────────────────────────────────────────────────
+// ─── Header ──────────────────────────────────────────────────────────────────
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
+class _DashHeader extends StatelessWidget {
+  final AdminDashboardController c;
+  const _DashHeader({required this.c});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 10.h),
-      child: Text(title,
-          style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary)),
-    );
-  }
-}
-
-// ─── Stat card ───────────────────────────────────────────────────────────────
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _StatCard(
-      {required this.label,
-      required this.value,
-      required this.icon,
-      required this.color,
-      this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+      child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(6.w),
+            width: 42.w, height: 42.w,
             decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8.r)),
-            child: Icon(icon, color: color, size: 18.sp),
+              color: _orange.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Icon(Icons.shield_rounded, color: _orange, size: 22.sp),
           ),
+          SizedBox(width: 12.w),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value,
-                  style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary)),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 11.sp, color: AppColors.textSecondary)),
+              Text('Admin Dashboard',
+                  style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: _tPrim)),
+              Text('P2P FitTech AI · Live',
+                  style: TextStyle(fontSize: 11.sp, color: _tSec)),
             ],
           ),
+          const Spacer(),
+          Obx(() => c.metricsLoading
+              ? SizedBox(width: 18.w, height: 18.w,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: _orange))
+              : GestureDetector(
+                  onTap: c.loadAll,
+                  child: Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      color: _cardBg, borderRadius: BorderRadius.circular(10.r),
+                      border: Border.all(color: _cardBorder),
+                    ),
+                    child: Icon(Icons.refresh_rounded, color: _tSec, size: 18.sp),
+                  ))),
         ],
-      ),
-    ));
-  }
-}
-
-// ─── Breakdown card (roles / tiers) ─────────────────────────────────────────
-
-class _BreakdownItem {
-  final String label;
-  final int count;
-  final int total;
-  final Color color;
-  final VoidCallback? onTap;
-  const _BreakdownItem(
-      {required this.label,
-      required this.count,
-      required this.total,
-      required this.color,
-      this.onTap});
-  double get fraction => total == 0 ? 0 : count / total;
-}
-
-class _BreakdownCard extends StatelessWidget {
-  final List<_BreakdownItem> items;
-  const _BreakdownCard({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
-        ],
-      ),
-      child: Column(
-        children: items.map((item) {
-          return GestureDetector(
-            onTap: item.onTap,
-            child: Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item.label,
-                        style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary)),
-                    Text(item.count.toString(),
-                        style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w700,
-                            color: item.color)),
-                  ],
-                ),
-                SizedBox(height: 6.h),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
-                  child: LinearProgressIndicator(
-                    value: item.fraction,
-                    minHeight: 6.h,
-                    backgroundColor: Colors.black.withOpacity(0.06),
-                    valueColor: AlwaysStoppedAnimation<Color>(item.color),
-                  ),
-                ),
-              ],
-            ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
 }
 
-// ─── Daily signups mini-chart (custom bars, no external deps) ───────────────
+// ─── KPI Grid (2×3) ──────────────────────────────────────────────────────────
 
-class _DailySignupsChart extends StatelessWidget {
-  final List<DailySignup> days;
-  const _DailySignupsChart({required this.days});
+class _KpiGrid extends StatelessWidget {
+  final AdminDashboardController c;
+  const _KpiGrid({required this.c});
 
   @override
   Widget build(BuildContext context) {
-    final maxCount =
-        days.fold<int>(1, (m, d) => d.count > m ? d.count : m);
+    final m = c.metrics;
+    final trainerCount = m?.roleBreakdown
+        .where((r) => r.role == 'trainer').fold(0, (s, r) => s + r.count) ?? 0;
+    final userCount = m?.roleBreakdown
+        .where((r) => r.role == 'user').fold(0, (s, r) => s + r.count) ?? 0;
+    final activeSubs = m?.overview.activeSubscriptions ?? 0;
+    final todayNew = m?.overview.todaySignups ?? 0;
+    final weekNew = m?.overview.weekSignups ?? 0;
+    final verified = m?.overview.verifiedUsers ?? 0;
 
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
-        ],
-      ),
+    final cards = [
+      _KpiData('👥', 'TOTAL TRAINERS', '$trainerCount', '+$weekNew this week', _blue, const Color(0xFF1E3A5F)),
+      _KpiData('🏃', 'ACTIVE USERS', '$userCount', '+$todayNew today', _green, const Color(0xFF0F2D1A)),
+      _KpiData('💰', 'ACTIVE SUBS', '$activeSubs', 'Paying members', _orange, const Color(0xFF2D1A00)),
+      _KpiData('🎯', 'VERIFIED', '$verified', 'Email confirmed', _purple, const Color(0xFF1F0D33)),
+      _KpiData('📊', 'NEW THIS WEEK', '$weekNew', 'Signups this week', _pink, const Color(0xFF2D0D1F)),
+      _KpiData('📱', 'NEW TODAY', '$todayNew', 'Signups today', _yellow, const Color(0xFF2D2200)),
+    ];
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
-          SizedBox(
-            height: 80.h,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: days.map((d) {
-                final frac = maxCount == 0 ? 0.0 : d.count / maxCount;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 3.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (d.count > 0)
-                          Text(d.count.toString(),
-                              style: TextStyle(
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary)),
-                        SizedBox(height: 3.h),
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(4.r)),
-                          child: Container(
-                            height: (frac * 55.h).clamp(4.0, 55.h),
-                            color: AppColors.primary
-                                .withOpacity(0.2 + frac * 0.8),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Row(
-            children: days.map((d) {
-              final parts = d.date.split('-');
-              final label =
-                  parts.length >= 3 ? '${parts[1]}/${parts[2]}' : d.date;
-              return Expanded(
-                child: Text(label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 9.sp, color: AppColors.textSecondary)),
-              );
-            }).toList(),
-          ),
+          Row(children: [
+            Expanded(child: _KpiCard(data: cards[0])),
+            SizedBox(width: 10.w),
+            Expanded(child: _KpiCard(data: cards[1])),
+          ]),
+          SizedBox(height: 10.h),
+          Row(children: [
+            Expanded(child: _KpiCard(data: cards[2])),
+            SizedBox(width: 10.w),
+            Expanded(child: _KpiCard(data: cards[3])),
+          ]),
+          SizedBox(height: 10.h),
+          Row(children: [
+            Expanded(child: _KpiCard(data: cards[4])),
+            SizedBox(width: 10.w),
+            Expanded(child: _KpiCard(data: cards[5])),
+          ]),
+          SizedBox(height: 20.h),
         ],
       ),
     );
   }
 }
 
-// ─── Recent user row ─────────────────────────────────────────────────────────
-
-class _RecentUserRow extends StatelessWidget {
-  final RecentUser user;
-  final bool isLast;
-  const _RecentUserRow({required this.user, required this.isLast});
-
-  Color get _roleColor {
-    switch (user.role) {
-      case 'trainer':
-        return const Color(0xFF4F46E5);
-      case 'admin':
-        return const Color(0xFFDC2626);
-      default:
-        return const Color(0xFF059669);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.toNamed(
-        AppRoute.adminUserListScreen,
-        arguments: {
-          'filter': user.role == 'trainer' ? 'trainer' : 'all',
-          'title': user.role == 'trainer' ? 'Trainers' : 'All Users',
-        },
-      ),
-      child: Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 16.r,
-                backgroundColor: _roleColor.withOpacity(0.12),
-                child: Text(
-                  user.email.isNotEmpty
-                      ? user.email[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
-                      color: _roleColor),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(user.email,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary)),
-                    Row(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 2.h),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 6.w, vertical: 1.h),
-                          decoration: BoxDecoration(
-                              color: _roleColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4.r)),
-                          child: Text(user.role,
-                              style: TextStyle(
-                                  fontSize: 9.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: _roleColor)),
-                        ),
-                        if (!user.isVerified) ...[
-                          SizedBox(width: 4.w),
-                          Container(
-                            margin: EdgeInsets.only(top: 2.h),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 6.w, vertical: 1.h),
-                            decoration: BoxDecoration(
-                                color: const Color(0xFFD97706).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4.r)),
-                            child: Text('unverified',
-                                style: TextStyle(
-                                    fontSize: 9.sp,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFFD97706))),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                _formatDate(user.createdAt),
-                style: TextStyle(
-                    fontSize: 10.sp, color: AppColors.textSecondary),
-              ),
-            ],
-          ),
-        ),
-        if (!isLast)
-          Divider(
-              height: 1,
-              thickness: 0.5,
-              indent: 46.w,
-              color: Colors.black.withOpacity(0.06)),
-      ],
-    ),
-    );
-  }
-
-  String _formatDate(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
+class _KpiData {
+  final String emoji, label, value, sub;
+  final Color accent, bg;
+  const _KpiData(this.emoji, this.label, this.value, this.sub, this.accent, this.bg);
 }
 
-// ─── Withdrawal card ─────────────────────────────────────────────────────────
-
-class _WithdrawalCard extends StatelessWidget {
-  final WithdrawalItem withdrawal;
-  final AdminDashboardController controller;
-  const _WithdrawalCard({required this.withdrawal, required this.controller});
-
-  Color get _statusColor {
-    switch (withdrawal.status) {
-      case 'approved':
-        return const Color(0xFF059669);
-      case 'rejected':
-        return const Color(0xFFDC2626);
-      case 'paid':
-        return const Color(0xFF4F46E5);
-      default:
-        return const Color(0xFFD97706);
-    }
-  }
+class _KpiCard extends StatelessWidget {
+  final _KpiData data;
+  const _KpiCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2)),
-        ],
+        color: data.bg,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: data.accent.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,101 +191,612 @@ class _WithdrawalCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('\$${withdrawal.amountDollars.toStringAsFixed(2)}',
-                  style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary)),
+              Text(data.emoji, style: TextStyle(fontSize: 20.sp)),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 decoration: BoxDecoration(
-                    color: _statusColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(20.r)),
-                child: Text(withdrawal.status.toUpperCase(),
-                    style: TextStyle(
-                        color: _statusColor,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5)),
+                  color: data.accent.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Text('LIVE',
+                    style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: data.accent)),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
-          Text(
-            '${withdrawal.withdrawalMethod.toUpperCase()} • ${withdrawal.paymentEmail}',
-            style:
-                TextStyle(color: AppColors.textSecondary, fontSize: 12.sp),
+          SizedBox(height: 10.h),
+          Text(data.value,
+              style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w800, color: data.accent)),
+          SizedBox(height: 2.h),
+          Text(data.label,
+              style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.5)),
+          SizedBox(height: 2.h),
+          Text(data.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Live Activity Feed ───────────────────────────────────────────────────────
+
+class _ActivityFeed extends StatelessWidget {
+  final AdminDashboardController c;
+  const _ActivityFeed({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final users = c.metrics?.recentUsers ?? [];
+    final items = users.take(8).toList();
+
+    return _DarkSection(
+      title: 'Live Activity Feed',
+      icon: Icons.bolt_rounded,
+      iconColor: _orange,
+      child: Column(
+        children: items.map((u) {
+          final isTrainer = u.role == 'trainer';
+          final isSub = u.subscriptionTier != 'free' && u.subscriptionTier.isNotEmpty;
+          final typeLabel = isTrainer ? 'trainer' : isSub ? 'purchase' : 'signup';
+          final typeColor = isTrainer ? _blue : isSub ? _green : _purple;
+          final mins = DateTime.now().difference(u.createdAt).inMinutes;
+          final timeStr = mins < 60 ? '${mins}m ago'
+              : mins < 1440 ? '${mins ~/ 60}h ago' : '${mins ~/ 1440}d ago';
+          return _ActivityRow(
+            typeLabel: typeLabel,
+            typeColor: typeColor,
+            title: isTrainer ? 'Trainer joined' : isSub ? 'New subscriber' : 'New signup',
+            subtitle: u.email,
+            time: timeStr,
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _ActivityRow extends StatelessWidget {
+  final String typeLabel, title, subtitle, time;
+  final Color typeColor;
+  const _ActivityRow({
+    required this.typeLabel,
+    required this.typeColor,
+    required this.title,
+    required this.subtitle,
+    required this.time,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 14.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            decoration: BoxDecoration(
+              color: typeColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Text(typeLabel,
+                style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: typeColor)),
           ),
-          SizedBox(height: 4.h),
-          Text(_formatDate(withdrawal.createdAt),
-              style:
-                  TextStyle(color: AppColors.textSecondary, fontSize: 11.sp)),
-          if (withdrawal.additionalNote?.isNotEmpty == true) ...[
-            SizedBox(height: 6.h),
-            Text('"${withdrawal.additionalNote}"',
-                style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12.sp,
-                    fontStyle: FontStyle.italic)),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+                Text(subtitle, style: TextStyle(fontSize: 11.sp, color: _tSec)),
+              ],
+            ),
+          ),
+          Text(time, style: TextStyle(fontSize: 11.sp, color: _tSec)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Quick Actions ────────────────────────────────────────────────────────────
+
+class _QuickActions extends StatelessWidget {
+  final AdminDashboardController c;
+  const _QuickActions({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final pending = c.withdrawals.where((w) => w.status == 'pending').length;
+    final actions = [
+      _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
+          () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'trainer', 'title': 'Trainers'})),
+      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null, const Color(0xFFDC2626),
+          () {}),
+      _QaData('User Management', null, _purple,
+          () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'all', 'title': 'All Users'})),
+      _QaData('Send Platform Announcement', null, const Color(0xFF059669), () {}),
+      _QaData('Export Revenue Report', 'This month', const Color(0xFFD97706), () {}),
+    ];
+
+    return _DarkSection(
+      title: 'Quick Actions',
+      icon: Icons.bolt_rounded,
+      iconColor: _orange,
+      child: Column(
+        children: actions.map((a) => _QaButton(data: a)).toList(),
+      ),
+    );
+  }
+}
+
+class _QaData {
+  final String label;
+  final String? badge;
+  final Color color;
+  final VoidCallback onTap;
+  const _QaData(this.label, this.badge, this.color, this.onTap);
+}
+
+class _QaButton extends StatelessWidget {
+  final _QaData data;
+  const _QaButton({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: data.onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: data.color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: data.color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(data.label,
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: data.color)),
+            ),
+            if (data.badge != null)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: data.color.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Text(data.badge!,
+                    style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: data.color)),
+              ),
+            if (data.badge == null)
+              Icon(Icons.arrow_forward_ios_rounded, size: 13.sp, color: data.color),
           ],
-          if (withdrawal.requiresApproval) ...[
-            SizedBox(height: 14.h),
-            Obx(() {
-              final loading = controller.actionLoading == withdrawal.id;
-              return Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed:
-                          loading ? null : () => controller.approve(withdrawal.id),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF059669),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 10.h),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r)),
-                      ),
-                      child: loading
-                          ? SizedBox(
-                              width: 16.w,
-                              height: 16.w,
-                              child: const CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : Text('Approve',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13.sp)),
-                    ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Revenue Overview ─────────────────────────────────────────────────────────
+
+class _RevenueOverview extends StatelessWidget {
+  final AdminDashboardController c;
+  const _RevenueOverview({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final overview = c.metrics?.overview;
+    final subBreakdown = c.metrics?.subscriptionBreakdown ?? [];
+    final monthlyCount = subBreakdown.where((s) => s.tier == 'monthly').fold(0, (s, r) => s + r.count);
+    final annualCount  = subBreakdown.where((s) => s.tier == 'annual').fold(0, (s, r) => s + r.count);
+    final daily = c.metrics?.dailySignups ?? [];
+    final last7 = daily.length > 7 ? daily.sublist(daily.length - 7) : daily;
+    final maxCount = last7.isEmpty ? 1 : last7.map((d) => d.count).reduce((a, b) => a > b ? a : b);
+
+    final statCards = [
+      _StatCard('TOTAL USERS', '${overview?.totalUsers ?? 0}', 'All time', _blue),
+      _StatCard('ACTIVE SUBS', '${overview?.activeSubscriptions ?? 0}', 'Currently active', _green),
+      _StatCard('MONTHLY PLANS', '$monthlyCount', 'Monthly billing', _purple),
+      _StatCard('ANNUAL PLANS', '$annualCount', 'Annual billing', _orange),
+    ];
+
+    return _DarkSection(
+      title: 'Platform Overview',
+      icon: Icons.trending_up_rounded,
+      iconColor: _green,
+      child: Column(
+        children: [
+          // 2×2 stat grid
+          Row(children: [
+            Expanded(child: _MiniStat(s: statCards[0])),
+            SizedBox(width: 10.w),
+            Expanded(child: _MiniStat(s: statCards[1])),
+          ]),
+          SizedBox(height: 10.h),
+          Row(children: [
+            Expanded(child: _MiniStat(s: statCards[2])),
+            SizedBox(width: 10.w),
+            Expanded(child: _MiniStat(s: statCards[3])),
+          ]),
+          SizedBox(height: 20.h),
+          // Daily signups chart
+          Row(
+            children: [
+              Icon(Icons.bar_chart_rounded, color: _orange, size: 16.sp),
+              SizedBox(width: 6.w),
+              Text('Daily Signups (Last 7 days)',
+                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+            ],
+          ),
+          SizedBox(height: 14.h),
+          SizedBox(
+            height: 100.h,
+            child: last7.isEmpty
+                ? Center(child: Text('No data yet', style: TextStyle(color: _tSec, fontSize: 12.sp)))
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: last7.map((d) {
+                      final ratio = maxCount == 0 ? 0.0 : d.count / maxCount;
+                      final dateStr = d.date.length >= 10
+                          ? d.date.substring(5, 10).replaceAll('-', '/')
+                          : d.date;
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 3.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text('${d.count}',
+                                  style: TextStyle(fontSize: 9.sp, color: _tSec, fontWeight: FontWeight.w600)),
+                              SizedBox(height: 3.h),
+                              Container(
+                                height: (80 * ratio).clamp(4.0, 80.0).h,
+                                decoration: BoxDecoration(
+                                  color: _orange,
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(4.r)),
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(dateStr,
+                                  style: TextStyle(fontSize: 8.sp, color: _tSec),
+                                  textAlign: TextAlign.center),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          loading ? null : () => controller.reject(withdrawal.id),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFDC2626),
-                        side: const BorderSide(color: Color(0xFFDC2626)),
-                        padding: EdgeInsets.symmetric(vertical: 10.h),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r)),
-                      ),
-                      child: Text('Reject',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 13.sp)),
-                    ),
-                  ),
-                ],
-              );
-            }),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard {
+  final String label, value, sub;
+  final Color color;
+  const _StatCard(this.label, this.value, this.sub, this.color);
+}
+
+class _MiniStat extends StatelessWidget {
+  final _StatCard s;
+  const _MiniStat({required this.s});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: s.color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: s.color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(s.value,
+              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: s.color)),
+          Text(s.label,
+              style: TextStyle(fontSize: 9.5.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.4)),
+          Text(s.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Trainer Management ───────────────────────────────────────────────────────
+
+class _TrainerManagement extends StatelessWidget {
+  final AdminDashboardController c;
+  const _TrainerManagement({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final allUsers = c.metrics?.recentUsers ?? [];
+    final trainers = allUsers.where((u) => u.role == 'trainer').toList();
+    final active  = trainers.where((u) => u.isVerified).length;
+    final pending = trainers.where((u) => !u.isVerified).length;
+
+    return _DarkSection(
+      title: 'Trainer Management',
+      icon: Icons.people_alt_rounded,
+      iconColor: _blue,
+      trailing: GestureDetector(
+        onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'trainer', 'title': 'Trainers'}),
+        child: Text('View All',
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: _orange)),
+      ),
+      child: Column(
+        children: [
+          // Filter tabs
+          Row(
+            children: [
+              _FilterTab(label: 'All', count: trainers.length, active: true),
+              SizedBox(width: 8.w),
+              _FilterTab(label: 'Active', count: active, active: false),
+              SizedBox(width: 8.w),
+              _FilterTab(label: 'Pending', count: pending, active: false, badge: true),
+            ],
+          ),
+          SizedBox(height: 14.h),
+          // Column headers
+          Row(
+            children: ['TRAINER', 'STATUS'].map((h) => Expanded(
+              child: Text(h,
+                  style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: _tSec, letterSpacing: 0.5)),
+            )).toList(),
+          ),
+          Divider(color: _cardBorder, height: 16.h),
+          // Trainer rows
+          if (trainers.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Center(child: Text('No trainers in recent data', style: TextStyle(color: _tSec, fontSize: 12.sp))),
+            )
+          else
+            ...trainers.take(6).map((u) => _TrainerRow(user: u)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterTab extends StatelessWidget {
+  final String label;
+  final int count;
+  final bool active;
+  final bool badge;
+  const _FilterTab({required this.label, required this.count, required this.active, this.badge = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: active ? _orange : _cardBg,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: active ? _orange : _cardBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label,
+              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
+                  color: active ? Colors.white : _tSec)),
+          if (badge && count > 0) ...[
+            SizedBox(width: 5.w),
+            Container(
+              width: 18.w, height: 18.w,
+              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              child: Center(child: Text('$count',
+                  style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white))),
+            ),
+          ] else if (count > 0 && !active) ...[
+            SizedBox(width: 5.w),
+            Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
           ],
         ],
       ),
     );
   }
-
-  String _formatDate(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
 }
 
+class _TrainerRow extends StatelessWidget {
+  final RecentUser user;
+  const _TrainerRow({required this.user});
 
+  @override
+  Widget build(BuildContext context) {
+    final joined = '${user.createdAt.month}/${user.createdAt.year}';
+    final statusLabel = user.isVerified ? 'Active' : 'Pending';
+    final statusColor = user.isVerified ? _green : _yellow;
 
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: _cardBorder))),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(user.email.split('@').first,
+                    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+                Text('Joined $joined', style: TextStyle(fontSize: 10.sp, color: _tSec)),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: statusColor.withValues(alpha: 0.4)),
+            ),
+            child: Text(statusLabel,
+                style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: statusColor)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Withdrawals ──────────────────────────────────────────────────────────────
+
+class _Withdrawals extends StatelessWidget {
+  final AdminDashboardController c;
+  const _Withdrawals({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final withdrawals = c.withdrawals;
+    if (withdrawals.isEmpty && !c.withdrawalsLoading) return const SizedBox.shrink();
+
+    return _DarkSection(
+      title: 'Pending Withdrawals',
+      icon: Icons.account_balance_wallet_rounded,
+      iconColor: _orange,
+      child: c.withdrawalsLoading
+          ? Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: Center(child: CircularProgressIndicator(color: _orange, strokeWidth: 2)),
+            )
+          : Column(
+              children: withdrawals.map((w) => _WithdrawalCard(w: w, c: c)).toList(),
+            ),
+    );
+  }
+}
+
+class _WithdrawalCard extends StatelessWidget {
+  final WithdrawalItem w;
+  final AdminDashboardController c;
+  const _WithdrawalCard({required this.w, required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final loading = c.actionLoading == w.id;
+      return Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: _cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(w.trainerName ?? 'Trainer',
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+                      Text('${w.createdAt != null ? _fmt(w.createdAt!) : ''} · ${w.method ?? ''}',
+                          style: TextStyle(fontSize: 11.sp, color: _tSec)),
+                    ],
+                  ),
+                ),
+                Text('\$${w.amount.toStringAsFixed(0)}',
+                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: _orange)),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: loading ? null : () => c.approve(w.id),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF059669),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                    ),
+                    child: loading
+                        ? SizedBox(width: 16.w, height: 16.w,
+                            child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : Text('Approve', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: loading ? null : () => c.reject(w.id),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFDC2626),
+                      side: const BorderSide(color: Color(0xFFDC2626)),
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                    ),
+                    child: Text('Reject', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  String _fmt(DateTime dt) => '${dt.month}/${dt.day}/${dt.year}';
+}
+
+// ─── Shared Section Wrapper ───────────────────────────────────────────────────
+
+class _DarkSection extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color iconColor;
+  final Widget child;
+  final Widget? trailing;
+
+  const _DarkSection({
+    required this.title,
+    required this.icon,
+    required this.iconColor,
+    required this.child,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: _cardBg,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: _cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: iconColor, size: 18.sp),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(title,
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _tPrim)),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
+          SizedBox(height: 16.h),
+          child,
+        ],
+      ),
+    );
+  }
+}
