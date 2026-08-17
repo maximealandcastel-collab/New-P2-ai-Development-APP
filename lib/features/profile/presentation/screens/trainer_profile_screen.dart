@@ -19,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // When admin is in User-mode toggle, show subscriber profile instead of trainer fields
+    // When admin is in User-mode toggle, show subscriber profile
     if (Get.isRegistered<AdminModeService>() &&
         AdminModeService.to.isAdmin &&
         AdminModeService.to.viewAsUser) {
@@ -55,15 +55,13 @@ class ProfileScreen extends StatelessWidget {
     TrainerDetailsModel? trainer,
     ProfileController controller,
   ) {
-    // Access code — fall back to a sensible default when not yet set in profile
     const accessCode = 'MAXP210';
 
     return [
       SizedBox(height: 16.h).asSliver,
 
       // ── Access Code Card ───────────────────────────────────────────────
-      _AccessCodeCard(code: accessCode)
-          .asSliverWithPadding(horizontal: 16.w),
+      _AccessCodeCard(code: accessCode).asSliverWithPadding(horizontal: 16.w),
       SizedBox(height: 24.h).asSliver,
 
       // ── Business & Clients ─────────────────────────────────────────────
@@ -76,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFF16A34A),
           title: 'Earnings & Payouts',
           subtitle: 'Track your revenue and payouts',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.earningsScreen),
         ),
         _MenuItem(
           icon: Icons.people_alt_rounded,
@@ -84,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFF7C3AED),
           title: 'Clients',
           subtitle: 'Manage your clients and progress',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.clientDetailsScreen),
         ),
         _MenuItem(
           icon: Icons.calendar_today_rounded,
@@ -92,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFFEA580C),
           title: 'Sessions & Packages',
           subtitle: 'Manage sessions and packages',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.paymentRequestScreen),
         ),
         _MenuItem(
           icon: Icons.play_circle_filled_rounded,
@@ -100,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFF9333EA),
           title: 'Content & Video Library',
           subtitle: 'Upload and manage your content',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.createContentScreen),
         ),
         _MenuItem(
           icon: Icons.smart_toy_rounded,
@@ -109,7 +107,7 @@ class ProfileScreen extends StatelessWidget {
           title: 'AI Coach / AI Video Chat',
           subtitle: 'Configure your AI coaching',
           badge: 'AI Ready',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.aiVideoChatConnectScreen),
         ),
         _MenuItem(
           icon: Icons.trending_up_rounded,
@@ -126,7 +124,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFFEA580C),
           title: 'Invoices & Statements',
           subtitle: 'View and download invoices',
-          onTap: () {},
+          onTap: () => Get.toNamed(AppRoute.invoicesScreen),
         ),
       ]).asSliverWithPadding(horizontal: 16.w),
       SizedBox(height: 24.h).asSliver,
@@ -177,12 +175,12 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => Get.toNamed(AppRoute.profileInformationScreen),
         ),
         _MenuItem(
-          icon: Icons.share_rounded,
+          icon: Icons.lock_rounded,
           iconBg: const Color(0xFFEFF6FF),
           iconColor: const Color(0xFF2563EB),
-          title: 'Share Trainer Profile',
-          subtitle: 'Share your page with clients',
-          onTap: () {},
+          title: 'Change Password',
+          subtitle: 'Update your account password',
+          onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
         ),
         _MenuItem(
           icon: Icons.logout_rounded,
@@ -193,7 +191,6 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => LoginController.to.logout(),
         ),
       ]).asSliverWithPadding(horizontal: 16.w),
-
       SizedBox(height: 48.h).asSliver,
     ];
   }
@@ -207,73 +204,44 @@ class _AccessCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'YOUR ACCESS CODE',
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFEA580C),
-                      letterSpacing: 0.8,
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('YOUR ACCESS CODE',
+                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600,
+                        color: const Color(0xFFEA580C), letterSpacing: 0.8)),
+                SizedBox(height: 5.h),
+                Row(
+                  children: [
+                    Text(code,
+                        style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700,
+                            color: Colors.black, letterSpacing: 1.5)),
+                    SizedBox(width: 10.w),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: code));
+                        ToastMessageHelper.show('Code copied!');
+                      },
+                      child: Icon(Icons.copy_rounded, size: 18.sp, color: const Color(0xFFEA580C)),
                     ),
-                  ),
-                  SizedBox(height: 5.h),
-                  Row(
-                    children: [
-                      Text(
-                        code,
-                        style: TextStyle(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: code));
-                          ToastMessageHelper.show('Code copied!');
-                        },
-                        child: Icon(
-                          Icons.copy_rounded,
-                          size: 18.sp,
-                          color: const Color(0xFFEA580C),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 15.sp,
-              color: const Color(0xFFD1D5DB),
-            ),
-          ],
-        ),
+          ),
+          Icon(Icons.arrow_forward_ios_rounded, size: 15.sp, color: const Color(0xFFD1D5DB)),
+        ],
       ),
     );
   }
@@ -289,19 +257,13 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 17.sp,
-          fontWeight: FontWeight.w700,
-          color: Colors.black,
-        ),
-      ),
+      child: Text(title,
+          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
     );
   }
 }
 
-// ── Menu Section (grouped white card) ─────────────────────────────────────
+// ── Menu Section ───────────────────────────────────────────────────────────
 
 class _MenuSection extends StatelessWidget {
   final List<_MenuItem> items;
@@ -314,13 +276,7 @@ class _MenuSection extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         children: items.asMap().entries.map((e) {
@@ -331,8 +287,6 @@ class _MenuSection extends StatelessWidget {
     );
   }
 }
-
-// ── Menu Tile ──────────────────────────────────────────────────────────────
 
 class _MenuTile extends StatelessWidget {
   final _MenuItem item;
@@ -350,101 +304,56 @@ class _MenuTile extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
             child: Row(
               children: [
-                // Colored icon square
                 Container(
-                  width: 42.w,
-                  height: 42.w,
-                  decoration: BoxDecoration(
-                    color: item.iconBg,
-                    borderRadius: BorderRadius.circular(11.r),
-                  ),
+                  width: 42.w, height: 42.w,
+                  decoration: BoxDecoration(color: item.iconBg, borderRadius: BorderRadius.circular(11.r)),
                   child: Icon(item.icon, color: item.iconColor, size: 21.sp),
                 ),
                 SizedBox(width: 13.w),
-                // Title + subtitle
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item.title,
-                        style: TextStyle(
-                          fontSize: 14.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
+                      Text(item.title,
+                          style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w600, color: Colors.black)),
                       SizedBox(height: 2.h),
-                      Text(
-                        item.subtitle,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: const Color(0xFF9CA3AF),
-                        ),
-                      ),
+                      Text(item.subtitle, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF9CA3AF))),
                     ],
                   ),
                 ),
-                // Badge pill
                 if (item.badge != null) ...[
                   SizedBox(width: 6.w),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF7ED),
                       borderRadius: BorderRadius.circular(20.r),
                     ),
-                    child: Text(
-                      item.badge!,
-                      style: TextStyle(
-                        fontSize: 10.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFEA580C),
-                      ),
-                    ),
+                    child: Text(item.badge!,
+                        style: TextStyle(fontSize: 10.5.sp, fontWeight: FontWeight.w600, color: const Color(0xFFEA580C))),
                   ),
                 ],
                 SizedBox(width: 6.w),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 12.5.sp,
-                  color: const Color(0xFFD1D5DB),
-                ),
+                Icon(Icons.arrow_forward_ios_rounded, size: 12.5.sp, color: const Color(0xFFD1D5DB)),
               ],
             ),
           ),
           if (!isLast)
-            Divider(
-              height: 1,
-              thickness: 1,
-              indent: 69.w,
-              color: const Color(0xFFF3F4F6),
-            ),
+            Divider(height: 1, thickness: 1, indent: 69.w, color: const Color(0xFFF3F4F6)),
         ],
       ),
     );
   }
 }
 
-// ── Data class ─────────────────────────────────────────────────────────────
-
 class _MenuItem {
   final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
+  final Color iconBg, iconColor;
+  final String title, subtitle;
   final String? badge;
   final VoidCallback onTap;
-
   const _MenuItem({
-    required this.icon,
-    required this.iconBg,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    this.badge,
-    required this.onTap,
+    required this.icon, required this.iconBg, required this.iconColor,
+    required this.title, required this.subtitle, this.badge, required this.onTap,
   });
 }
