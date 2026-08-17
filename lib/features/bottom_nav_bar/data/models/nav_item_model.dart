@@ -23,7 +23,7 @@ class NavItemModel {
     required this.screen,
   });
 
-  /// Trainer nav — Home · Clients · Contents · Request · Messages
+  /// Trainer nav — Home · Clients · Gyms · Contents · Request · Messages
   static List<NavItemModel> trainerNavItems = [
     NavItemModel(
       label: 'Home',
@@ -34,6 +34,11 @@ class NavItemModel {
       label: 'Clients',
       icon: Assets.icons.clients.path,
       screen: const ClientsScreen(),
+    ),
+    NavItemModel(
+      label: 'Gyms',
+      icon: Assets.icons.note.path,
+      screen: const GymsScreen(),
     ),
     NavItemModel(
       label: 'Contents',
@@ -49,11 +54,6 @@ class NavItemModel {
       label: 'Messages',
       icon: Assets.icons.message.path,
       screen: const TrainerInboxScreen(),
-    ),
-    NavItemModel(
-      label: 'Gyms',
-      icon: Assets.icons.request.path,
-      screen: const GymsScreen(),
     ),
   ];
 
@@ -112,6 +112,11 @@ class NavItemModel {
       screen: const HistoryScreen(),
     ),
     NavItemModel(
+      label: 'Gyms',
+      icon: Assets.icons.note.path,
+      screen: const GymsScreen(),
+    ),
+    NavItemModel(
       label: 'Contents',
       icon: Assets.icons.contents.path,
       screen: const ContentsScreen(),
@@ -120,11 +125,6 @@ class NavItemModel {
       label: 'Trainer',
       icon: Assets.icons.trainer.path,
       screen: const UserTrainerScreen(),
-    ),
-    NavItemModel(
-      label: 'Gyms',
-      icon: Assets.icons.request.path,
-      screen: const GymsScreen(),
     ),
   ];
 }
