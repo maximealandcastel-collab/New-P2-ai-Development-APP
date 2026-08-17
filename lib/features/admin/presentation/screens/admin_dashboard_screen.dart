@@ -574,12 +574,12 @@ class _WithdrawalCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(w.trainerName ?? 'Trainer',
+              Text(w.trainerId,
                   style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _tPrim)),
-              Text('${w.createdAt != null ? _fmt(w.createdAt!) : ''} · ${w.method ?? ''}',
+              Text('${w.createdAt != null ? _fmt(w.createdAt!) : ''} · ${w.withdrawalMethod}',
                   style: TextStyle(fontSize: 11.sp, color: _tSec)),
             ])),
-            Text('\$${w.amount.toStringAsFixed(0)}',
+            Text('\$${w.amountDollars.toStringAsFixed(0)}',
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: _orange)),
           ]),
           SizedBox(height: 12.h),
