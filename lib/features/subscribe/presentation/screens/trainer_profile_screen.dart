@@ -434,7 +434,7 @@ class _OverviewTab extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _SectionTitle('This Week's Plan'),
+            _SectionTitle("This Week's Plan"),
             Text('View All >', style: TextStyle(fontSize: 13.sp, color: _orange, fontWeight: FontWeight.w600)),
           ],
         ),
