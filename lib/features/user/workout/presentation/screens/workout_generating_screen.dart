@@ -36,7 +36,7 @@ class _WorkoutGeneratingScreenState extends State<WorkoutGeneratingScreen>
   // ── Step metadata ───────────────────────────────────────────────────────
   static const _stepMeta = [
     (icon: Icons.search_rounded,       label: 'Analyzing your fitness goals…'),
-    (icon: Icons.architecture_rounded, label: 'Building your workout structure…'),
+    (icon: Icons.layers_rounded, label: 'Building your workout structure…'),
     (icon: Icons.tune_rounded,         label: 'Personalizing your exercises…'),
   ];
 
