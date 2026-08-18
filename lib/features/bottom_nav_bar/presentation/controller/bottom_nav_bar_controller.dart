@@ -91,12 +91,16 @@ class BottomNavBarController extends GetxController {
         ContentDetailsController.to.pauseVideo();
       }
     } catch (_) {}
-    // Pause feed reel — stops audio when user leaves the Contents tab
-    try {
-      if (Get.isRegistered<ContentController>()) {
-        ContentController.to.reel.pauseActive();
-      }
-    } catch (_) {}
+    // Mute/unmute reel based on destination tab — eliminates audio bleed
+      try {
+        if (Get.isRegistered<ContentController>()) {
+          if (index == contentsTabIndex) {
+            ContentController.to.reel.playActive();   // unmute — user is on Contents
+          } else {
+            ContentController.to.reel.pauseActive();  // mute   — user left Contents
+          }
+        }
+      } catch (_) {}
 
     if (_isAdminMode()) {
       _adminIndex.value = index;
