@@ -41,10 +41,10 @@ class LoginController extends GetxController {
 
   final loginFormKey = GlobalKey<FormState>();
   final emailController    = TextEditingController(
-    text: const String.fromEnvironment('PREFILL_EMAIL', defaultValue: 'pmoney78q@gmail.com'),
+    text: const String.fromEnvironment('PREFILL_EMAIL', defaultValue: ''),
   );
   final passwordController = TextEditingController(
-    text: const String.fromEnvironment('PREFILL_PASSWORD', defaultValue: 'Godisgood123'),
+    text: const String.fromEnvironment('PREFILL_PASSWORD', defaultValue: ''),
   );
 
   @override
@@ -120,9 +120,9 @@ class LoginController extends GetxController {
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
-    } on UnAuthorizedException {
+    } on UnAuthorizedException catch (e) {
       _loginState.value = LoadingState.error;
-      ToastMessageHelper.show('Invalid email or password');
+      ToastMessageHelper.show(e.details ?? e.message);
     } catch (e) {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
