@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
-import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
-import 'package:pler_to_pler_app/features/user/user_profile/presentation/user_profile_screen.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 
 // ─── Feed App Bar ─────────────────────────────────────────────────────────────
 class FeedAppBar extends StatefulWidget {
@@ -26,7 +26,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
   }
   Future<void> getRole()async{
     String? role = await PrefsHelper.getString('role');
-    _role = role;
+    _role = role ?? '';
     setState(() {});
   }
   @override
@@ -38,7 +38,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
           // Avatar
           GestureDetector(
             onTap: (){
-              Get.to(() =>_role=='Trainer'? ProfileScreen(): UserProfileScreen());
+              Get.to(() =>_role=='Trainer'? TrainerProfileScreen(): UserProfileScreen());
             },
             child: CircleAvatar(
               radius: 22.r,
