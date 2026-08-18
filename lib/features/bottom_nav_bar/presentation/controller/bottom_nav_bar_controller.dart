@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -91,13 +92,15 @@ class BottomNavBarController extends GetxController {
         ContentDetailsController.to.pauseVideo();
       }
     } catch (_) {}
-    // Mute/unmute reel based on destination tab — eliminates audio bleed
+    // Suspend/resume reel via its proper API — keeps isPlaying in sync,
+      // kills audio AND the hallucinating pause button when leaving Contents tab
       try {
         if (Get.isRegistered<ContentController>()) {
+          final cc = ContentController.to;
           if (index == contentsTabIndex) {
-            ContentController.to.reel.playActive();   // unmute — user is on Contents
+            unawaited(cc.reel.resume(contents: cc.contents));
           } else {
-            ContentController.to.reel.pauseActive();  // mute   — user left Contents
+            unawaited(cc.reel.suspend());
           }
         }
       } catch (_) {}
