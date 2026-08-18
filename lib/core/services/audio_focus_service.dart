@@ -33,7 +33,10 @@ class AudioFocusService {
         // apps while feed is playing, and is silenced when feed suspends.
         avAudioSessionCategory: AVAudioSessionCategory.playback,
         avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.defaultToSpeaker,
+            // defaultToSpeaker removed: forces routing through spatial-audio
+            // pipeline on 13 Pro Max, delaying setActive(false) teardown.
+            // Standard routing (none) responds immediately to deactivation.
+            AVAudioSessionCategoryOptions.none,
         avAudioSessionMode: AVAudioSessionMode.moviePlayback,
         avAudioSessionRouteSharingPolicy:
             AVAudioSessionRouteSharingPolicy.defaultPolicy,
