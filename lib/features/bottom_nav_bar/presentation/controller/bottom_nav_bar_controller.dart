@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
@@ -69,6 +70,18 @@ class BottomNavBarController extends GetxController {
   }
 
   static const int contentsTabIndex = 2;
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        if (Get.isRegistered<ContentController>()) {
+          ContentController.to.reel.pauseActive();
+        }
+      } catch (_) {}
+    });
+  }
 
   // ── Tab selection ─────────────────────────────────────────────────────────
   void onChange(int index) {
