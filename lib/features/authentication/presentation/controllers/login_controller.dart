@@ -96,17 +96,28 @@ class LoginController extends GetxController {
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
 
-      // Owner accounts → silently activate admin mode (Admin ↔ User toggle)
-      // regardless of backend role, and land on subscriber view by default.
-      // Must be checked BEFORE the role=='admin' branch so pmoney is never
-      // routed to the bypass code screen.
-      if (ownerEmails.contains(loginEmail)) {
-        if (!Get.isRegistered<AdminModeService>()) {
-          Get.put(AdminModeService(), permanent: true);
+      // Owner accounts → always land on main nav with pill; never bypass screen.
+        if (ownerEmails.contains(loginEmail)) {
+          await prefs.setBool('sessionPersisted', true);
+          if (!Get.isRegistered<AdminModeService>()) {
+            Get.put(AdminModeService(), permanent: true);
+          }
+          await AdminModeService.to.activate();
+          Get.offAll(() => BottomNavBarMain());
+          return;
         }
-        await AdminModeService.to.activate(); // defaults to viewAsUser = true
-        // Always persist owner session — pill must survive cold restarts regardless of saveLogin toggle
-        await prefs.setBool('sessionPersisted', true);
+        // Other admin accounts → AdminBypassScreen (enter code to unlock dashboard).
+        if (role == 'admin') {
+          Get.offAll(() => AdminBypassScreen());
+          return;
+        }
+        // All trainers get the Trainer|User toggle pill — no special account needed.
+        if (role == 'trainer') {
+          if (!Get.isRegistered<AdminModeService>()) {
+            Get.put(AdminModeService(), permanent: true);
+          }
+          await AdminModeService.to.activate();
+        }
         Get.offAll(() => BottomNavBarMain());
         return;
       }
