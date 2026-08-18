@@ -2,26 +2,24 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
-import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   final controller = Get.find<LoginController>();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       body: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: controller.loginFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -36,7 +34,7 @@ class LoginScreen extends StatelessWidget {
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(height:40.h),
+              SizedBox(height: 40.h),
               Container(
                 padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
@@ -81,14 +79,12 @@ class LoginScreen extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
               SizedBox(height: 4.h),
-            CustomTextField(
-                  controller: controller.passwordController,
-                  hintText: "Enter your password",
-                  prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
-                  isPassword: true,
-
-                ),
-
+              CustomTextField(
+                controller: controller.passwordController,
+                hintText: "Enter your password",
+                prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
+                isPassword: true,
+              ),
               SizedBox(height: 12.h),
               SizedBox(
                 width: double.infinity,
@@ -106,20 +102,14 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 24.h),
-              Obx((){
-                String role = controller.selectedTab.value;
-                return  CustomButton(
+              Obx(() {
+                final loading = controller.loginState == LoadingState.loading;
+                return CustomButton(
                   label: "Sign in",
-                  onPressed: controller.isLoading.value ? null
-                      : () async {
-                          log(role);
-                          await PrefsHelper.setString('role', role);
-                          await controller.handleLogin(); // navigates on success internally
-                        },
-                  isLoading: controller.isLoading.value,
+                  onPressed: loading ? null : () => controller.login(),
+                  isLoading: loading,
                 );
-               }
-              ),
+              }),
               SizedBox(height: 16.h),
               Row(
                 children: [
@@ -154,7 +144,7 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomText(
-                text: "Don’t have an account? ",
+                text: "Don't have an account? ",
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
                 color: AppColors.textSecondary,
@@ -185,20 +175,18 @@ Widget _helperTabBar({
 }) {
   return Obx(
     () => GestureDetector(
-      onTap: () {
-        controller.changeTab(text);
-      },
+      onTap: () => controller.setRole(text),
       child: Container(
         padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
-          color: controller.selectedTab.value == text
+          color: controller.selectedRole == text
               ? AppColors.textPrimary
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: CustomText(
-          color: controller.selectedTab.value == text ?
-              AppColors.textWhite
+          color: controller.selectedRole == text
+              ? AppColors.textWhite
               : AppColors.textSecondary,
           text: text,
           fontSize: 16.sp,
