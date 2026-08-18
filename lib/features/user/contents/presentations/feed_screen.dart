@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
+import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
@@ -44,11 +45,30 @@ class _FeedScreenState extends State<FeedScreen> {
   List<ExerciseVideo> _trainerVideos = const [];
 
   VideoPlaybackManager get _vpm => Get.find<VideoPlaybackManager>();
+  Worker? _navWorker;
+
+  // Contents tab is index 2 in the user nav bar.
+  static const _contentsTabIndex = 2;
 
   @override
   void initState() {
     super.initState();
-    _vpm.enterVideoModule(); // allow playback only while this screen is active
+
+    // Enter immediately — we are visible right now.
+    _vpm.enterVideoModule();
+
+    // Watch nav-bar index in real time.
+    // IndexedStack keeps this widget alive when tabs switch, so dispose()
+    // is never called on tab change — this worker is the only reliable hook.
+    final navController = Get.find<NavBarController>();
+    _navWorker = ever(navController.selectedIndex, (int index) {
+      if (index == _contentsTabIndex) {
+        _vpm.enterVideoModule();
+      } else {
+        _vpm.exitVideoModule();
+      }
+    });
+
     _loadFeed();
   }
 
@@ -105,7 +125,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void dispose() {
-    _vpm.exitVideoModule(); // hard-stop + disallow playback the moment we leave
+    _navWorker?.dispose(); // cancel the ever() worker
+    _vpm.exitVideoModule(); // final hard-stop if widget is truly destroyed
     _pageController.dispose();
     super.dispose();
   }
