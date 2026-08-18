@@ -33,14 +33,15 @@ class AdminModeService extends GetxController {
   bool get viewAsUser => _viewAsUser.value;
   RxBool get viewAsUserRx => _viewAsUser;
 
-  /// Called once when an admin account successfully authenticates.
+  /// Called once when a trainer or admin account successfully authenticates.
+  /// Inserts the global Trainer|User toggle pill visible on every screen.
   Future<void> activate() async {
     _isAdmin.value    = true;
     isAdminActive.value = true;
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString(_kPrefKey) ?? 'user';
+      final saved = prefs.getString(_kPrefKey) ?? 'admin';
       _viewAsUser.value = (saved != 'admin');
       if (kDebugMode) {
         debugPrint('[AdminMode] activated — mode: ${_viewAsUser.value ? "user" : "admin"}');
