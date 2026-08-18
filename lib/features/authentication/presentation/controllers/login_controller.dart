@@ -36,6 +36,8 @@ class LoginController extends GetxController {
 
   LoadingState get loginState => _loginState.value;
   String get selectedRole => _selectedRole.value;
+  /// Set the active role tab on the login screen ('Trainer' or 'User').
+  void setRole(String role) => _selectedRole.value = role;
 
   static const _kSaveLoginKey = 'saveLogin';
 
