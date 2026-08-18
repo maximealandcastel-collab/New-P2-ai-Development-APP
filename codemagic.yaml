@@ -3,14 +3,6 @@ workflows:
     name: iOS Release → TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-          source: true
-      cancel_previous_builds: true
     environment:
       flutter: stable
       xcode: latest
