@@ -3,6 +3,14 @@ workflows:
     name: iOS Release → TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - appstore
+      vars:
+        BUNDLE_ID: com.p2pfittech.ai
 
     scripts:
       - name: Set up keychain
