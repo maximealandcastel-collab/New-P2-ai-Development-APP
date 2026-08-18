@@ -589,7 +589,7 @@ class _LoadingStepState extends State<_LoadingStep>
           backgroundColor: Colors.redAccent,
         ),
       );
-      setState(() => _isGenerating = false);
+      setState(() {}); // rebuild to stop the loading animation
       return;
     }
     _hasNavigated = true;
