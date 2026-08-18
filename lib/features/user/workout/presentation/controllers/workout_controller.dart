@@ -272,14 +272,28 @@ class WorkoutController extends GetxController {
   }
 
   Map<String, dynamic> _buildBody() {
+    // Backend requires every field to be non-empty.
+    // Provide the same defaults WorkoutFindScreen uses so users who skip
+    // a step don't get a silent failure from the backend.
+    // Date must be date-only (YYYY-MM-DD) — backend rejects full ISO timestamps.
     return {
-      'goal': List<String>.from(selectedGoals),
-      'focusArea': List<String>.from(selectedFocusAreas),
-      'workout_environment': List<String>.from(selectedEnvironments),
-      'equipment_availablity': List<String>.from(selectedEquipment),
-      'workout_intensity': List<String>.from(selectedIntensities),
+      'goal': selectedGoals.isEmpty
+          ? ['general_fitness']
+          : List<String>.from(selectedGoals),
+      'focusArea': selectedFocusAreas.isEmpty
+          ? ['full_body']
+          : List<String>.from(selectedFocusAreas),
+      'workout_environment': selectedEnvironments.isEmpty
+          ? ['home']
+          : List<String>.from(selectedEnvironments),
+      'equipment_availablity': selectedEquipment.isEmpty
+          ? ['no_equipment']
+          : List<String>.from(selectedEquipment),
+      'workout_intensity': selectedIntensities.isEmpty
+          ? ['medium']
+          : List<String>.from(selectedIntensities),
       'duration': selectedDuration.value,
-      'date': workoutDate.toIso8601String(),
+      'date': DateTime.now().toUtc().toIso8601String().split('T').first,
     };
   }
 
