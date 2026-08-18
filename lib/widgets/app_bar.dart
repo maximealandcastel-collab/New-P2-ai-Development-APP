@@ -4,7 +4,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart' show ProfileScreen;
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
 
 // ─── Feed App Bar ─────────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
           // Avatar
           GestureDetector(
             onTap: (){
-              Get.to(() =>_role=='Trainer'? TrainerProfileScreen(): UserProfileScreen());
+              Get.to(() =>_role=='Trainer'? ProfileScreen(): UserProfileScreen());
             },
             child: CircleAvatar(
               radius: 22.r,
