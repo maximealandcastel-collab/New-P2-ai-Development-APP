@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/controller
 import 'package:pler_to_pler_app/features/profile/presentation/screens/widgets/list_tile_widget.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/widgets/confirmation_dialog.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -59,6 +60,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   isSpacer: false,
                 ),
+              if (LoginController.to.isTrainer())
+                Obx(() {
+                  final active   = Get.isRegistered<AdminModeService>();
+                  final viewUser = active && AdminModeService.to.viewAsUser;
+                  return ListTileWidget(
+                    label: viewUser ? 'Switch to Trainer View' : 'Preview as User',
+                    onTap: () async {
+                      if (!Get.isRegistered<AdminModeService>()) {
+                        Get.put(AdminModeService(), permanent: true);
+                        await AdminModeService.to.activate();
+                      } else {
+                        AdminModeService.to.toggleView();
+                      }
+                    },
+                    isSpacer: false,
+                  );
+                }),
             ],
           ).asSliverWithPadding(horizontal: 16.w),
 
