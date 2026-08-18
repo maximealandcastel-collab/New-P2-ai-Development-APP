@@ -182,11 +182,6 @@ class ReelPlayerManager {
     await Future.wait([slot.pause(), slot.setVolume(0)]); // hard-mute so audio can never bleed
   }
 
-  /// Mutes and pauses every slot — call when leaving the Contents tab.
-  Future<void> pauseAll() async {
-    await Future.wait(_slots.values.map((s) => Future.wait([s.pause(), s.setVolume(0)])));
-  }
-
   Future<void> playActive() => _slots[_activeIndex]?.play() ?? Future.value();
 
   Future<void> retryAt(int index, ContentModel content) async {
