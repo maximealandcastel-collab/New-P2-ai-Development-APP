@@ -17,7 +17,7 @@ class ToastMessageHelper {
       Get.closeAllSnackbars();
     }
     Get.snackbar(
-      'Notification',
+      'Error',
       message,
       snackPosition: SnackPosition.TOP,
     );
