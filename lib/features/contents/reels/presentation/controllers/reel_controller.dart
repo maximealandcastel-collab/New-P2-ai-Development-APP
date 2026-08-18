@@ -96,7 +96,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
         playActive: shouldPlay,
         prioritizeNextPreload: _connectivity.shouldPrioritizeNextVideoPreload,
       );
-      if (_isClosed || generation != _syncGeneration) return;
+      if (_isClosed || generation != _syncGeneration || !_isActive) return;
 
       if (!_player.isReady(index) && _player.errorFor(index).isEmpty) {
         await _player.sync(
@@ -105,7 +105,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
           playActive: shouldPlay,
           prioritizeNextPreload: _connectivity.shouldPrioritizeNextVideoPreload,
         );
-        if (_isClosed || generation != _syncGeneration) return;
+        if (_isClosed || generation != _syncGeneration || !_isActive) return;
       }
 
       if (shouldPlay && _player.isReady(index)) {
@@ -210,8 +210,14 @@ class ReelController extends GetxController with WidgetsBindingObserver {
   Future<void> suspend() async {
     _isActive = false;
     _wasPlayingBeforeBackground = isPlaying.value;
-    await _player.pauseActive();
-    await AudioFocusService.instance.deactivate(); // release iOS audio focus
+    // Run pauseActive + deactivate in parallel — mutes the player AND
+    // releases iOS audio focus simultaneously. On 13 Pro Max (spatial audio
+    // hardware) sequential calls left a brief window where the session was
+    // still active while the player was responding, causing audible bleed.
+    await Future.wait([
+      _player.pauseActive(),
+      AudioFocusService.instance.deactivate(),
+    ]);
     isPlaying.value = false;
     debugPrint('[VIDEO] route hidden');
   }
