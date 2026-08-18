@@ -166,8 +166,7 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        // Navigate to signup so the new subscriber creates their account
-        Get.offAllNamed(AppRoute.signUpScreen);
+        Get.offAll(() => const NavBar());
       } else {
         purchaseLoading.value = false;
         purchaseError.value =
@@ -233,7 +232,7 @@ class PaywallController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4),
           );
-          Get.offAllNamed(AppRoute.signUpScreen);
+          Get.offAll(() => const NavBar());
         } else {
           final msg = (redeemResp.body is Map)
               ? (redeemResp.body["message"] ?? "Could not redeem code. It may already be used.")
@@ -303,7 +302,7 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        Get.offAllNamed(AppRoute.signUpScreen);
+        Get.offAll(() => const NavBar());
       } else {
         final msg = (redeemResp.body is Map)
             ? (redeemResp.body["message"] ??
