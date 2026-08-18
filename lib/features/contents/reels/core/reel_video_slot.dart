@@ -45,7 +45,7 @@ class ReelVideoSlot {
         isReady &&
         error.isEmpty) {
       if (autoPlay) {
-        await _controller?.setVolume(1.0);
+        await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
         await _controller?.play();
       } else {
         await _controller?.setVolume(0.0);
@@ -65,7 +65,7 @@ class ReelVideoSlot {
           isReady &&
           error.isEmpty) {
         if (autoPlay) {
-          await _controller?.setVolume(1.0);
+          await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
           await _controller?.play();
         } else {
           await _controller?.setVolume(0.0);
@@ -135,7 +135,7 @@ class ReelVideoSlot {
       isReady = true;
 
       if (autoPlay) {
-        await videoController.setVolume(1.0);
+        await videoController.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
         await videoController.play();
       } else {
         // Do NOT seekTo(zero) on neighbors — that triggers an unnecessary
@@ -176,7 +176,7 @@ class ReelVideoSlot {
           error = '';
 
           if (autoPlay) {
-            await videoController.setVolume(1.0);
+            await videoController.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
             await videoController.play();
           } else {
             await videoController.setVolume(0.0);
@@ -219,7 +219,7 @@ class ReelVideoSlot {
   Future<void> play() async {
     if (!isReady) return;
     try {
-      await _controller?.setVolume(1.0);
+      await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
       await _controller?.play();
     } catch (_) {}
   }
