@@ -46,4 +46,7 @@ class AppColors {
   /// textformfield border color
 
   static const Color textFormFieldBorder = Color(0xFFD9D9D9);
+
+  // Misc named colors
+  static const Color colorE6E6E6 = Color(0xFFE6E6E6);
 }
