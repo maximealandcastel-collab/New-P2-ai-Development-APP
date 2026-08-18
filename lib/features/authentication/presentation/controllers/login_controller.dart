@@ -119,16 +119,7 @@ class LoginController extends GetxController {
           await AdminModeService.to.activate();
         }
         Get.offAll(() => BottomNavBarMain());
-        return;
-      }
-      // Other admins → AdminBypassScreen (enter code to unlock dashboard).
-      if (role == 'admin') {
-        Get.offAll(() => AdminBypassScreen());
-        return;
-      }
-
-      Get.offAll(() => BottomNavBarMain());
-    } on NoInternetException {
+          } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
     } on UnAuthorizedException {
