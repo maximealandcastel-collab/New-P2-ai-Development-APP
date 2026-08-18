@@ -91,6 +91,19 @@ class AuthRepository {
       ]);
 
       return result;
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final serverMsg = (e.response?.data is Map)
+          ? (e.response!.data as Map)['message']?.toString()
+          : null;
+      if (statusCode == 401) throw UnAuthorizedException(serverMsg);
+      if (e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw NoInternetException();
+      }
+      throw UnknownException(serverMsg ?? e.message ?? 'Network error');
     } on AppException {
       rethrow;
     } catch (e) {
