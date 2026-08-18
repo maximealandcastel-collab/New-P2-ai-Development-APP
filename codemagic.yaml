@@ -160,7 +160,7 @@ workflows:
           set -e
           rm -rf ~/Library/Developer/Xcode/DerivedData
           flutter clean
-          flutter build ipa --release --build-name=3.1.0 --build-number=$((BUILD_NUMBER + 1000)) --dart-define=BUILD_NUMBER=$((BUILD_NUMBER + 1000)) --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 --dart-define=API_ORIGIN=https://p2pfitechai.com --dart-define=SOCKET_URL=https://p2pfitechai.com --dart-define=PREFILL_EMAIL=pmoney78q@gmail.com --dart-define=PREFILL_PASSWORD=Godisgood123
+          flutter build ipa --release --build-name=3.1 --build-number=$((BUILD_NUMBER + 1000)) --dart-define=BUILD_NUMBER=$((BUILD_NUMBER + 1000)) --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 --dart-define=API_ORIGIN=https://p2pfitechai.com --dart-define=SOCKET_URL=https://p2pfitechai.com --dart-define=PREFILL_EMAIL=pmoney78q@gmail.com --dart-define=PREFILL_PASSWORD=Godisgood123
 
     artifacts:
       - build/ios/ipa/*.ipa
