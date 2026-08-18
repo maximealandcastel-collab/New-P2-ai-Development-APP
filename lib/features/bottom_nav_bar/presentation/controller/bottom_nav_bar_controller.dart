@@ -98,9 +98,9 @@ class BottomNavBarController extends GetxController {
         if (Get.isRegistered<ContentController>()) {
           final cc = ContentController.to;
           if (index == contentsTabIndex) {
-            unawaited(cc.reel.resume(contents: cc.contents));
+            cc.reel.resume(contents: cc.contents).catchError((_) {});
           } else {
-            unawaited(cc.reel.suspend());
+            cc.reel.suspend().catchError((_) {});
           }
         }
       } catch (_) {}
