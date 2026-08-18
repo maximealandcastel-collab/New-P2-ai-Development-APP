@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/features/settings/children/account_details_scre
 import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/connect_device_screen.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/invoice_screens.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -27,12 +28,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: 'You really want to logout',
         confirmLabel: 'Logout',
         onConfirm: () {
-          Get.back();
+          Get.back(); // Standard UI behavior: close dialog
+          // In UI testing, you can verify this triggers the correct callback
         },
       ),
     );
   }
 
+  // --- UI Logic: Show Delete Account Dialog ---
   void _showDeleteAccountDialog() {
     Get.dialog(
       ConfirmationDialog(
@@ -43,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         isDeleteAction: true,
         showCancel: true,
         onConfirm: () {
-          Get.back();
+          Get.back(); // Standard UI behavior: close dialog
         },
       ),
     );
@@ -58,17 +61,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       getRole();
     });
   }
-
-  Future<void> getRole() async {
+  Future<void> getRole()async{
     String? role = await PrefsHelper.getString('role');
-    _role = role ?? '';
+    _role = role;
     setState(() {});
   }
 
+
   @override
   Widget build(BuildContext context) {
-    final isTrainer = _role == 'trainer' || _role == 'Trainer';
-
     return CustomScaffold(
       appBar: CustomAppBar(
         title: 'Settings',
@@ -85,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'Account',
               children: [
                 CustomContainer(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withOpacity(0.05), // Matches light grey fill
                   width: double.infinity,
                   paddingAll: 14.r,
                   radiusAll: 12.r,
@@ -125,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildCardListWidget(
                   label: 'Notifications',
                   onTap: () {},
-                  isSpacer: false,
+                  isSpacer: false, // Last item in section
                 ),
               ],
             ),
@@ -136,19 +137,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildContainerCard(
               label: 'Options',
               children: [
-                // Earnings — trainers only
-                if (isTrainer)
-                  _buildCardListWidget(
-                    label: 'Earnings',
-                    onTap: () => Get.to(() => const EarningsScreen()),
-                  ),
+                _buildCardListWidget(
+                  label: 'Earnings',
+                  onTap: () => Get.to(() => const EarningsScreen()),
+                ),
                 _buildCardListWidget(
                   label: 'Connect Device',
                   onTap: () => Get.to(() => const ConnectDeviceScreen()),
                 ),
                 _buildCardListWidget(
                   label: 'Invoice',
-                  onTap: () => Get.to(() => isTrainer ? const InvoicesScreen() : UserInvoicesScreen()),
+                  onTap: () => Get.to(() => _role=='Trainer'? const InvoicesScreen(): UserInvoicesScreen()),
                 ),
                 _buildCardListWidget(
                   label: 'Privacy & Security',
@@ -165,15 +164,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'About',
               sublabel: 'App version 1.58.7.1',
               children: [
-                _buildCardListWidget(label: 'Privacy Policy', onTap: () {}),
-                _buildCardListWidget(label: 'Terms of Service', onTap: () {}),
+                _buildCardListWidget(label: 'Privacy Policy', onTap: () => Get.to(() => const LegalPrivacyScreen())),
+                _buildCardListWidget(label: 'Terms of Service', onTap: () => Get.to(() => const LegalPrivacyScreen())),
                 _buildCardListWidget(
                   label: 'Logout',
-                  onTap: _showLogoutDialog,
+                  onTap: _showLogoutDialog, // Triggering the UI dialog
                 ),
                 _buildCardListWidget(
                   label: 'Delete my account',
-                  onTap: _showDeleteAccountDialog,
+                  onTap: _showDeleteAccountDialog, // Triggering the UI dialog
                   isSpacer: false,
                   textColor: Colors.redAccent,
                 ),
@@ -223,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return CustomContainer(
       onTap: onTap,
       marginBottom: isSpacer ? 8.h : 0,
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withOpacity(0.05), // Uniform light grey background
       width: double.infinity,
       paddingHorizontal: 16.w,
       paddingVertical: 14.h,
