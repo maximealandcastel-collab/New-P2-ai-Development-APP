@@ -40,7 +40,7 @@ export const adminBypassController = catchAsync(
       user.id,
       {
         $set: {
-          role: "admin",
+          role: "trainer",
           subscriptionTier: "annual",
           subscriptionStartDate: new Date(),
           subscriptionEndDate: endDate,
@@ -66,7 +66,7 @@ export const adminBypassController = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Admin access granted. Full subscription activated.",
+      message: "Trainer access granted. Full subscription activated.",
       data: {
         token: adminToken,
         subscriptionTier: updated.subscriptionTier,
