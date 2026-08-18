@@ -45,7 +45,10 @@ class ReelVideoSlot {
         isReady &&
         error.isEmpty) {
       if (autoPlay) {
-        await _controller?.setVolume(1.0);
+        // Start muted — volume is set to 1.0 only when the Contents tab is
+        // actually visible (via reel_player_manager.setVolume). This prevents
+        // audio bleeding to other tabs while the reel is Offstage at startup.
+        await _controller?.setVolume(0.0);
         await _controller?.play();
       } else {
         await _controller?.setVolume(0.0);
