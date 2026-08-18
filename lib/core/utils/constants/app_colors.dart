@@ -49,4 +49,5 @@ class AppColors {
 
   // Misc named colors
   static const Color colorE6E6E6 = Color(0xFFE6E6E6);
+  static const Color yellow = Color(0xFFFFEB3B);
 }
