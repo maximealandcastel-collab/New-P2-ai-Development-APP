@@ -3,6 +3,14 @@ workflows:
     name: iOS Release → TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+      cancel_previous_builds: true
     environment:
       flutter: stable
       xcode: latest
@@ -43,7 +51,6 @@ workflows:
           echo "Cert key generated"
 
           # 3. Revoke ALL existing Distribution certs via Apple REST API directly
-          #    (bypasses Codemagic CLI type-filter bugs)
           python3 - <<'PYEOF'
           import os, subprocess, base64, json, time, urllib.request, urllib.error, sys
 
@@ -58,21 +65,19 @@ workflows:
           pay      = b64url(json.dumps({"iss":issuer,"iat":now,"exp":now+1200,"aud":"appstoreconnect-v1"},separators=(',',':')))
           msg      = f"{hdr}.{pay}"
 
-          # Sign with openssl — produces DER-encoded ECDSA signature
           r = subprocess.run(['openssl','dgst','-sha256','-sign','/tmp/api_key.pem'],
                              input=msg.encode(), capture_output=True)
           if r.returncode != 0:
               sys.exit(f"JWT sign failed: {r.stderr.decode()[:200]}")
           der = r.stdout
 
-          # Parse DER SEQUENCE { INTEGER r, INTEGER s } → raw 64-byte R||S
           def read_len(d, pos):
               l = d[pos]; pos += 1
               if l & 0x80:
                   n = l & 0x7f; l = int.from_bytes(d[pos:pos+n],'big'); pos += n
               return l, pos
           pos = 1
-          _, pos = read_len(der, pos)          # SEQUENCE length
+          _, pos = read_len(der, pos)
           assert der[pos] == 0x02; pos += 1
           rl, pos = read_len(der, pos)
           rv = der[pos:pos+rl]; pos += rl
@@ -84,7 +89,6 @@ workflows:
           jwt = f"{msg}.{b64url(rv+sv)}"
           print("JWT ok")
 
-          # List ALL certificates, filter distribution types locally
           url = 'https://api.appstoreconnect.apple.com/v1/certificates?limit=200'
           req = urllib.request.Request(url, headers={'Authorization': f'Bearer {jwt}'})
           try:
