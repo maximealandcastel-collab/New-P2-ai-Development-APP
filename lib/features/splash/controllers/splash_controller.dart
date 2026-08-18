@@ -58,6 +58,19 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
   }
 
   Future<void> _resolveRoute() async {
+    // ── Privacy / Terms acceptance gate ─────────────────────────────────
+    // Must be accepted before the user sees any other screen.
+    // SharedPreferences key: 'privacyAccepted' (bool).
+    final prefs = await SharedPreferences.getInstance();
+    final privacyAccepted = prefs.getBool('privacyAccepted') ?? false;
+    if (!privacyAccepted) {
+      Get.offAllNamed(
+        AppRoute.privacyPolicyScreen,
+        arguments: {'title': 'Privacy Policy & Terms', 'key': 'privacy', 'consent': true},
+      );
+      return;
+    }
+
     final isLoggedIn = LoginController.to.isLoggedIn();
 
     if (!isLoggedIn) {
