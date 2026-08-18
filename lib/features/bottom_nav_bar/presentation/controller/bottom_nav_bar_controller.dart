@@ -79,7 +79,7 @@ class BottomNavBarController extends GetxController {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         try {
           if (Get.isRegistered<ContentController>()) {
-            ContentController.to.reel.pauseAll();
+            ContentController.to.reel.pauseActive();
           }
         } catch (_) {}
       });
@@ -96,7 +96,7 @@ class BottomNavBarController extends GetxController {
     // Pause feed reel — stops audio when user leaves the Contents tab
     try {
       if (Get.isRegistered<ContentController>()) {
-        ContentController.to.reel.pauseAll();
+        ContentController.to.reel.pauseActive();
       }
     } catch (_) {}
 
