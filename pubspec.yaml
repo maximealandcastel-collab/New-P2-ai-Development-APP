@@ -57,7 +57,7 @@ dependencies:
   flutter_spinkit: ^5.2.2
   socket_io_client: ^3.1.4
   audio_session: ^0.2.4
-  stream_chat_flutter_core: ^10.3.0
+  stream_chat_flutter_core: ^9.28.0
   geolocator: ^13.0.2
 
 
