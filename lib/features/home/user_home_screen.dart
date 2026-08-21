@@ -32,6 +32,8 @@ class UserHomeScreen extends StatelessWidget {
               SizedBox(height: 16.h),
               const _GymsCard(),
               SizedBox(height: 16.h),
+              const _GenerateWorkoutBanner(),
+              SizedBox(height: 16.h),
               _SectionTitle("Today's overview"),
               const _TodaysOverviewCard(),
               SizedBox(height: 24.h),
@@ -75,20 +77,23 @@ class _WeekStrip extends StatelessWidget {
     const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     return SizedBox(
-      height: 82.h,
+      height: 72.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: labels.length,
-        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, i) {
           final day = monday.add(Duration(days: i));
           final isToday = day.day == now.day && day.month == now.month;
           return Container(
-            width: 62.w,
+            width: 50.w,   // compact square proportions
             decoration: BoxDecoration(
               color: isToday ? const Color(0xFFFF6B35) : Colors.white,
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: isToday
+                  ? [BoxShadow(color: const Color(0xFFFF6B35).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]
+                  : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 1))],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -96,20 +101,18 @@ class _WeekStrip extends StatelessWidget {
                 Text(
                   labels[i],
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     color: isToday ? Colors.white70 : Colors.black45,
-                    fontWeight: FontWeight.w400, // lighter — SF Pro regular
+                    fontWeight: FontWeight.w400,
                     letterSpacing: 0.2,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 4.h),
                 Text(
                   '${day.day}',
                   style: TextStyle(
-                    fontSize: 17.sp,
-                    fontWeight: isToday
-                        ? FontWeight.w700   // bold on selected
-                        : FontWeight.w500,  // medium on rest — crisper iOS feel
+                    fontSize: 16.sp,
+                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
                     color: isToday ? Colors.white : Colors.black87,
                   ),
                 ),
@@ -248,8 +251,13 @@ class _GymsCard extends StatelessWidget {
 }
 
 // ─── Generate Workout Split banner ───────────────────────────────────────────
+// Aquas/teal blue with real battle-ropes photo — male & female training.
 class _GenerateWorkoutBanner extends StatelessWidget {
   const _GenerateWorkoutBanner();
+
+  static const _ropePhoto =
+      'https://images.unsplash.com/photo-1549060279-7e168fcee0c2'
+      '?w=500&h=200&fit=crop&crop=center&q=80';
 
   @override
   Widget build(BuildContext context) {
@@ -257,72 +265,81 @@ class _GenerateWorkoutBanner extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        height: 160.h,
+        height: 148.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
-          color: const Color(0xFF1A1A1A),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF006D77), Color(0xFF00BCD4)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20.r),
           child: Stack(
+            fit: StackFit.expand,
             children: [
-              // Orange diagonal accent
+              // Battle-ropes photo faded in from the right
               Positioned(
                 right: 0,
                 top: 0,
                 bottom: 0,
+                width: 210.w,
+                child: ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.transparent, Colors.white],
+                    stops: [0.0, 0.55],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: Image.network(
+                    _ropePhoto,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+              // Subtle teal overlay on left keeps text legible
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 220.w,
                 child: Container(
-                  width: 160.w,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.transparent, Color(0xFFFF6B35)],
+                      colors: [Color(0xFF006D77), Colors.transparent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
                   ),
                 ),
               ),
-              // Silhouette placeholder
-              Positioned(
-                right: 10.w,
-                bottom: 0,
-                child: Icon(
-                  Icons.directions_run,
-                  size: 110.sp,
-                  color: Colors.white.withOpacity(0.18),
-                ),
-              ),
-              // Content
+              // Text content
               Padding(
-                padding: EdgeInsets.all(18.w),
+                padding: EdgeInsets.fromLTRB(18.w, 0, 18.w, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'GENERATE',
-                      style: TextStyle(
-                        color: const Color(0xFFFF6B35),
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    Text(
-                      'WORKOUT\nSPLIT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.w900,
-                        height: 1.1,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      'Get a custom workout plan\ntailored to your goals.',
+                      'AI POWERED',
                       style: TextStyle(
                         color: Colors.white60,
-                        fontSize: 11.sp,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Generate My\nWorkout Split',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19.sp,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
                       ),
                     ),
                     SizedBox(height: 12.h),
@@ -330,26 +347,26 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                           horizontal: 14.w, vertical: 8.h),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF6B35),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.auto_awesome,
-                              color: Colors.white, size: 13.sp),
+                              color: Color(0xFF006D77), size: 13.sp),
                           SizedBox(width: 6.w),
                           Text(
-                            'Generate Workout Split',
+                            'Get My Plan',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Color(0xFF006D77),
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(width: 4.w),
                           Icon(Icons.arrow_forward,
-                              color: Colors.white, size: 13.sp),
+                              color: Color(0xFF006D77), size: 12.sp),
                         ],
                       ),
                     ),
