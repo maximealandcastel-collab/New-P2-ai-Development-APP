@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -196,17 +197,21 @@ class _GymsCard extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.r),
-                        child: SizedBox(
+                        child: CachedNetworkImage(
+                          imageUrl: photo,
                           height: 75.h,
                           width: double.infinity,
-                          child: Image.network(
-                            photo,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              color: const Color(0xFF2B2B2B),
-                              child: Icon(Icons.fitness_center,
-                                  color: Colors.white38, size: 30.sp),
-                            ),
+                          fit: BoxFit.cover,
+                          fadeInDuration: const Duration(milliseconds: 280),
+                          placeholder: (_, __) => Container(
+                            height: 75.h,
+                            color: const Color(0xFFE8E8E8),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
+                            height: 75.h,
+                            color: const Color(0xFF2B2B2B),
+                            child: Icon(Icons.fitness_center,
+                                color: Colors.white38, size: 30.sp),
                           ),
                         ),
                       ),
@@ -291,10 +296,12 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                     stops: [0.0, 0.42],
                   ).createShader(b),
                   blendMode: BlendMode.dstIn,
-                  child: Image.network(
-                    _ropePhoto,
+                  child: CachedNetworkImage(
+                    imageUrl: _ropePhoto,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    fadeInDuration: const Duration(milliseconds: 350),
+                    placeholder: (_, __) => const ColoredBox(color: Color(0xFF2A2A2A)),
+                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
                   ),
                 ),
               ),
