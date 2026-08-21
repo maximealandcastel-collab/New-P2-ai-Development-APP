@@ -1,13 +1,18 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_fab_widget.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_item_widget.dart';
 
+/// BottomNavBar
+///
+/// Uses BackdropFilter (frosted glass) instead of liquid_glass_renderer.
+/// liquid_glass_renderer's LiquidGlass layer consumed all pointer events,
+/// making every tab tap a no-op. BackdropFilter is transparent to touches.
 class BottomNavBar extends StatelessWidget {
   final List<NavItemModel> navItems;
 
@@ -41,23 +46,37 @@ class BottomNavBar extends StatelessWidget {
         12.w,
         MediaQuery.of(context).padding.bottom + 8.h,
       ),
-      child: LiquidGlassLayer(
-        settings: LiquidGlassSettings(
-          blur: 3,
-          glassColor: Colors.black.withValues(alpha: 0.06),
-        ),
-        child: LiquidGlass(
-          shape: LiquidRoundedSuperellipse(borderRadius: 16.r),
-          child: Padding(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            decoration: BoxDecoration(
+              // Smooth frosted-glass white — matches the photo 2 UX direction
+              color: Colors.white.withOpacity(0.78),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.5),
+                width: 0.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             padding: EdgeInsets.symmetric(vertical: 10.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavTapTarget(controller, 0, navItems[0]),
                 _buildNavTapTarget(controller, 1, navItems[1]),
+                // Centre FAB
                 GestureDetector(
-                  onTap: () =>
-                      NavFabWidget.show(context, controller.fabItems),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => NavFabWidget.show(context, controller.fabItems),
                   child: Assets.icons.addButton.svg(height: 48.h, width: 48.w),
                 ),
                 _buildNavTapTarget(controller, 2, navItems[2]),

@@ -55,7 +55,7 @@ class _GymsScreenState extends State<GymsScreen> {
     if (position != null && mounted) {
       setState(() {
         _sortedGyms = _locationService.sortByDistance(
-          List.from(EnterpriseGymModel.activatedPartners),
+          List.from(EnterpriseGymModel.partners),
           position,
         );
       });
