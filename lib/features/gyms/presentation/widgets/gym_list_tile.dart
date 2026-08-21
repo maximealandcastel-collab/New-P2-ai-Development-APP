@@ -179,12 +179,14 @@ class GymListTile extends StatelessWidget {
                             Icon(Icons.lock_outline_rounded,
                                 size: 10.sp, color: Colors.black38),
                             SizedBox(width: 4.w),
-                            Text(
-                              'Coming Soon',
-                              style: TextStyle(
-                                color: Colors.black38,
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
+                            Flexible(
+                              child: Text(
+                                gym.statusLabel ?? 'Coming Soon',
+                                style: TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],

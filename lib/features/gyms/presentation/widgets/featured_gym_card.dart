@@ -195,12 +195,15 @@ class FeaturedGymCard extends StatelessWidget {
                         Icon(Icons.lock_outline_rounded,
                             size: 14.sp, color: Colors.black38),
                         SizedBox(width: 6.w),
-                        Text(
-                          'Coming Soon',
-                          style: TextStyle(
-                            color: Colors.black38,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
+                        Flexible(
+                          child: Text(
+                            gym.statusLabel ?? 'Coming Soon',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black38,
+                              fontSize: gym.statusLabel != null ? 11.sp : 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],

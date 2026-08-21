@@ -20,6 +20,9 @@ class EnterpriseGymModel {
   final double lat;
   final double lng;
   double? distanceMi;
+  /// Override the default "Coming Soon" badge on locked gyms.
+  /// Null = show "Coming Soon" (default for all gyms).
+  final String? statusLabel;
 
   EnterpriseGymModel({
     required this.id,
@@ -41,6 +44,7 @@ class EnterpriseGymModel {
     this.lat = 0.0,
     this.lng = 0.0,
     this.distanceMi,
+    this.statusLabel,
   });
 
   String get distanceLabel {
@@ -389,6 +393,7 @@ class EnterpriseGymModel {
       zipCode: '10022',
       lat: 40.7580,
       lng: -73.9855,
+      statusLabel: 'Targeted integration — partnership not yet established.',
     ),
     EnterpriseGymModel(
       id: 'barrys',
