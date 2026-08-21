@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -43,7 +44,7 @@ class ClientInfoCard extends StatelessWidget {
               CircleAvatar(
                 radius: 22.r,
                 backgroundImage: clientImageUrl != null
-                    ? NetworkImage(clientImageUrl!)
+                    ? CachedNetworkImageProvider(clientImageUrl!)
                     : null,
                 backgroundColor: Colors.grey.shade200,
                 child: clientImageUrl == null

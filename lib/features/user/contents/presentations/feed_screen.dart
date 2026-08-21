@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -312,8 +313,13 @@ class _VideoPageState extends State<_VideoPage> {
                         ),
                       )
                     : widget.video.thumbnailUrl != null
-                        ? Image.network(widget.video.thumbnailUrl!,
-                            fit: BoxFit.contain)
+                        ? CachedNetworkImage(
+                            imageUrl: widget.video.thumbnailUrl!,
+                            fit: BoxFit.contain,
+                            fadeInDuration: const Duration(milliseconds: 280),
+                            placeholder: (_, __) => const ColoredBox(color: Color(0xFF1A1A1A)),
+                            errorWidget: (_, __, ___) => const ColoredBox(color: Color(0xFF1A1A1A)),
+                          )
                         : Center(
                             child: Icon(Icons.fitness_center,
                                 size: 64.sp, color: Colors.grey.shade300),

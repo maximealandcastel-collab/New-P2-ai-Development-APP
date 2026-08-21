@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -28,7 +29,7 @@ class ContentDetailsScreen extends StatelessWidget {
                   color: Colors.black,
                   image: (content['image'] as String?)?.isNotEmpty == true
                       ? DecorationImage(
-                          image: NetworkImage(content['image'] as String),
+                          image: CachedNetworkImageProvider(content['image'] as String),
                           fit: BoxFit.cover,
                           onError: (_, __) {},
                         )

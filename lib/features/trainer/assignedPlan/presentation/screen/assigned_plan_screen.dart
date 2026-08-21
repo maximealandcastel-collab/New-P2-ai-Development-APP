@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../widgets/custom_app_bar.dart';
@@ -427,7 +428,13 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12.r),
-            child: Image.network('https://picsum.photos/100', width: 60.w, height: 60.w, fit: BoxFit.cover),
+            child: CachedNetworkImage(
+              imageUrl: 'https://picsum.photos/100',
+              width: 60.w, height: 60.w, fit: BoxFit.cover,
+              fadeInDuration: const Duration(milliseconds: 280),
+              placeholder: (_, __) => Container(width: 60.w, height: 60.w, color: const Color(0xFFEEEEEE)),
+              errorWidget: (_, __, ___) => Container(width: 60.w, height: 60.w, color: const Color(0xFFEEEEEE)),
+            ),
           ),
           SizedBox(width: 12.w),
           Column(

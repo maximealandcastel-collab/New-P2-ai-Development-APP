@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../widgets/custom_app_bar.dart';
@@ -141,11 +142,14 @@ class NotificationsScreen extends StatelessWidget {
             SizedBox(width: 12.w),
             ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
-              child: Image.network(
-                data['image'],
+              child: CachedNetworkImage(
+                imageUrl: data['image'] ?? '',
                 width: 50.w,
                 height: 50.w,
                 fit: BoxFit.cover,
+                fadeInDuration: const Duration(milliseconds: 280),
+                placeholder: (_, __) => Container(width: 50.w, height: 50.w, color: const Color(0xFFEEEEEE)),
+                errorWidget: (_, __, ___) => Container(width: 50.w, height: 50.w, color: const Color(0xFFEEEEEE), child: Icon(Icons.image_not_supported_outlined, size: 18, color: Colors.grey)),
               ),
             ),
           ],

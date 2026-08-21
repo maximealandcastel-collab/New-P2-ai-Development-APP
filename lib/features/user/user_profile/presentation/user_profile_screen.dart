@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
@@ -37,14 +38,14 @@ class _ProfileHeader extends StatelessWidget {
         Container(
           height: 180.h,
           width: double.infinity,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1A1A2E),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A2E),
             image: DecorationImage(
-              image: NetworkImage(
+              image: CachedNetworkImageProvider(
                 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
               ),
               fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
+              colorFilter: const ColorFilter.mode(Colors.black45, BlendMode.darken),
             ),
           ),
         ),
@@ -88,8 +89,8 @@ class _ProfileHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 3),
-                      image: const DecorationImage(
-                        image: NetworkImage(
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(
                           'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
                         ),
                         fit: BoxFit.cover,
@@ -225,7 +226,7 @@ class _ProfileBody extends StatelessWidget {
                     ),
                     CircleAvatar(
                       radius: 22.r,
-                      backgroundImage: const NetworkImage(
+                      backgroundImage: CachedNetworkImageProvider(
                         'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200',
                       ),
                     ),

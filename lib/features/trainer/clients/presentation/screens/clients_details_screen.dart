@@ -1,5 +1,6 @@
 
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -269,11 +270,14 @@ class ClientDetailsScreen extends StatelessWidget {
                 // contentPadding: EdgeInsets.zero, // Add this if you want to remove default ListTile padding
                 leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    child: Image.network(
-                        'https://picsum.photos/100',
+                    child: CachedNetworkImage(
+                        imageUrl: 'https://picsum.photos/100',
                         width: 50,
                         height: 50,
-                        fit: BoxFit.cover
+                        fit: BoxFit.cover,
+                        fadeInDuration: const Duration(milliseconds: 280),
+                        placeholder: (_, __) => Container(width: 50, height: 50, color: const Color(0xFFEEEEEE)),
+                        errorWidget: (_, __, ___) => Container(width: 50, height: 50, color: const Color(0xFFEEEEEE)),
                     )
                 ),
                 title: CustomText(

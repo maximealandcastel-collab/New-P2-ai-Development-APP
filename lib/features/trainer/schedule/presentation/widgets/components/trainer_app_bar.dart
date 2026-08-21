@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -33,7 +34,7 @@ class TrainerAppBar extends StatelessWidget {
             child: CircleAvatar(
               radius: 22.r,
               backgroundImage: profileImageUrl != null
-                  ? NetworkImage(profileImageUrl!)
+                  ? CachedNetworkImageProvider(profileImageUrl!)
                   : null,
               backgroundColor: Colors.grey.shade200,
               child: profileImageUrl == null

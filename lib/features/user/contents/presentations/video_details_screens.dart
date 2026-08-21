@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/contents/data/models.dart';
@@ -109,7 +110,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       children: [
                         CircleAvatar(
                           radius: 14.r,
-                          backgroundImage: const NetworkImage(
+                          backgroundImage: CachedNetworkImageProvider(
                             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
                           ),
                         ),
@@ -221,12 +222,14 @@ class _VideoPlayer extends StatelessWidget {
     return Stack(
       children: [
         // Thumbnail
-        Image.network(
-          'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800',
+        CachedNetworkImage(
+          imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800',
           width: double.infinity,
           height: 230.h,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
+          fadeInDuration: const Duration(milliseconds: 280),
+          placeholder: (_, __) => Container(height: 230.h, color: Colors.black87),
+          errorWidget: (_, __, ___) => Container(
             height: 230.h,
             color: Colors.black87,
             child: Icon(Icons.play_circle_outline, size: 60.sp, color: Colors.white30),
@@ -379,8 +382,7 @@ class _CommentTile extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 18.r,
-            backgroundImage: NetworkImage(comment.avatarUrl),
-            onBackgroundImageError: (_, __) {},
+            backgroundImage: CachedNetworkImageProvider(comment.avatarUrl),
             backgroundColor: const Color(0xFFEEEEEE),
           ),
           SizedBox(width: 10.w),

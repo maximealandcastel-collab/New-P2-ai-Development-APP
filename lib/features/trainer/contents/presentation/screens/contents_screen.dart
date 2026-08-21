@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -307,11 +308,14 @@ class _ContentsScreenState extends State<ContentsScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.r),
 
-                    child: Image.network(
-                      item['image'],
+                    child: CachedNetworkImage(
+                      imageUrl: item['image'] ?? '',
                       width: 100.w,
                       height: 75.h,
                       fit: BoxFit.cover,
+                      fadeInDuration: const Duration(milliseconds: 280),
+                      placeholder: (_, __) => Container(width: 100.w, height: 75.h, color: const Color(0xFFEEEEEE)),
+                      errorWidget: (_, __, ___) => Container(width: 100.w, height: 75.h, color: const Color(0xFFEEEEEE), child: const Icon(Icons.broken_image_outlined, color: Colors.grey)),
                     ),
                   ),
 
