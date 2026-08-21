@@ -168,7 +168,7 @@ class _ProfileBody extends StatelessWidget {
         children: [
           // Name
           Text('Ethen carter',
-              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: Colors.black)),
+              style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.black)),
           SizedBox(height: 12.h),
 
           // Bio
@@ -330,7 +330,7 @@ class _StatItem extends StatelessWidget {
               TextSpan(
                   text: value,
                   style: TextStyle(
-                      fontSize: 16.sp, fontWeight: FontWeight.w800, color: Colors.black)),
+                      fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
               if (unit.isNotEmpty)
                 TextSpan(
                     text: unit,

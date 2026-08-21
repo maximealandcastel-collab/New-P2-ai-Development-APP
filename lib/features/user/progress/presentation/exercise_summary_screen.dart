@@ -148,7 +148,7 @@ class _ExerciseSummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('45min',
-                  style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w800, color: Colors.black)),
+                  style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w700, color: Colors.black)),
               SizedBox(width: 10.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +352,7 @@ class _CaloriesIntakeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('1450/2470',
-                  style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w800, color: Colors.black)),
+                  style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w700, color: Colors.black)),
               const Spacer(),
               // Donut chart
               _DonutChart(progress: 1450 / 2470),

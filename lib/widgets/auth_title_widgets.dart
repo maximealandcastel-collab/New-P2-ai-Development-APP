@@ -40,7 +40,7 @@ class AuthTitleWidgets extends StatelessWidget {
             fontSize:subTitleFontSize?? 15.sp,
             color: subTitleColor ?? AppColors.textPrimary,
             textOverflow: TextOverflow.fade,
-            fontName: 'Inter',
+            fontName: null, // SF Pro on iOS
           ),
         ],
       ],

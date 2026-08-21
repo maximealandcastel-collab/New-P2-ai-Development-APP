@@ -26,7 +26,7 @@ class SessionInfoHeader extends StatelessWidget {
           title,
           style: TextStyle(
             fontSize: 22.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: Colors.black,
             height: 1.3,
           ),

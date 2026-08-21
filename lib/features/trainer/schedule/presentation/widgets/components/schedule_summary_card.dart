@@ -105,7 +105,7 @@ class SummaryStatCard extends StatelessWidget {
               '$value',
               style: TextStyle(
                 fontSize: 22.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),

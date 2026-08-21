@@ -80,7 +80,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                           CustomText(text:
                           '\$32',
                             fontSize: 40.sp,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                           SizedBox(width: 6.w),
                           CustomText(

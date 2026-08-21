@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 2.9.0+202
+version: 2.7.0+96
 
 environment:
   sdk: ^3.10.4
@@ -12,7 +12,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  audio_session: ^0.1.21
   cupertino_icons: ^1.0.8
   get: ^4.7.3
   url_launcher: ^6.3.2
@@ -33,7 +32,6 @@ dependencies:
   hive_flutter: ^1.1.0
   dio: ^5.9.0
   connectivity_plus: ^7.1.1
-  geolocator: ^13.0.2
   liquid_glass_renderer: ^0.2.0-dev.4
   lottie: ^3.3.3
   chat_bubbles: ^1.10.1
@@ -58,12 +56,9 @@ dependencies:
   mime_type: ^1.0.1
   flutter_spinkit: ^5.2.2
   socket_io_client: ^3.1.4
-  stream_chat_flutter_core: ^9.7.0
 
 
 dependency_overrides:
-  stream_chat: 9.17.0
-  stream_chat_flutter_core: 9.17.0
   flutter_cache_manager:
     git:
       url: https://github.com/Baseflow/flutter_cache_manager.git
@@ -81,7 +76,7 @@ dev_dependencies:
 
 flutter_gen:
   output: lib/core/utils/
-  line_length: 80
+  line_length: 80 # Optional (default: 80)
   integrations:
     flutter_svg: true
     lottie: true
@@ -107,7 +102,4 @@ flutter:
     - assets/lotties/
     - shorebird.yaml
 
-  fonts:
-    - family: Figtree
-      fonts:
-        - asset: assets/fonts/Figtree-Regular.ttf
+  # fonts: (removed — app uses system SF Pro on iOS, Roboto on Android)

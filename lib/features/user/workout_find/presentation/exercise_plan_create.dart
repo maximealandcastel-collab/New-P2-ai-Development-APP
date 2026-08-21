@@ -179,7 +179,7 @@ class _HeroBanner extends StatelessWidget {
               '20 min upper body exercise',
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),

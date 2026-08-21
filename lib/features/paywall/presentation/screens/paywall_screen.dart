@@ -293,7 +293,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$19.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
                 SizedBox(height: 3.h),
                 Container(
@@ -378,7 +378,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$49.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
                 SizedBox(height: 3.h),
                 Container(
