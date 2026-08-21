@@ -11,6 +11,7 @@ class EnterpriseGymModel {
   final Color textColor;
   final bool isActive;
   final bool isOwnGym;
+  final bool isActivated; // true = visible in the app; false = contract not signed yet
   final double rating;
   final String imageUrl;
   final List<String> filterTags;
@@ -31,6 +32,7 @@ class EnterpriseGymModel {
     this.textColor = Colors.white,
     this.isActive = true,
     this.isOwnGym = false,
+    this.isActivated = false,
     this.rating = 4.5,
     this.imageUrl = '',
     this.filterTags = const [],
@@ -47,10 +49,15 @@ class EnterpriseGymModel {
     return '${distanceMi!.toStringAsFixed(1)} mi';
   }
 
+  /// All 22 gyms — stored regardless of contract status.
   static List<EnterpriseGymModel> get partners => _partners;
 
+  /// Only gyms with a signed contract. Use this everywhere in the app UI.
+  static List<EnterpriseGymModel> get activatedPartners =>
+      _partners.where((g) => g.isActivated).toList();
+
   static final List<EnterpriseGymModel> _partners = [
-    // ── P2P's OWN GYM — always first ────────────────────────────────────
+    // ── P2P's OWN GYM — ACTIVATED (brick & mortar) ──────────────────────
     EnterpriseGymModel(
       id: 'p2p_fit_factor',
       name: 'P2P Fit Factor',
@@ -61,6 +68,7 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFFFF8C00),
       isOwnGym: true,
       isActive: true,
+      isActivated: true, // ✅ LIVE — brick & mortar
       rating: 4.9,
       imageUrl:
           'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
