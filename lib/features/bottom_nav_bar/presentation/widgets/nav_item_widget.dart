@@ -101,7 +101,6 @@ class _BottomNavItemState extends State<BottomNavItem>
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
                   style: TextStyle(
-                    fontFamily: 'Figtree',
                     fontSize: 11.sp,
                     fontWeight:
                         isSelected ? FontWeight.w600 : FontWeight.w400,

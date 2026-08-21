@@ -43,7 +43,6 @@ class ServicesCardWidget extends StatelessWidget {
 
               RichText(text: TextSpan(
                 style: TextStyle(
-                    fontFamily: FontFamily.figtree,
                     color: AppColors.info,
                   fontWeight:FontWeight.w700,
                   fontSize: 14.sp

@@ -90,7 +90,6 @@ class NotificationsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       color: Colors.black,
-                      fontFamily: 'Poppins', // Or your global font
                     ),
                     children: [
                       TextSpan(

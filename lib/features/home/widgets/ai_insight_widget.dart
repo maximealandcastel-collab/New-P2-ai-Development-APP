@@ -24,7 +24,6 @@ class AiInsightWidget extends StatelessWidget {
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
-                fontFamily: FontFamily.figtree,
               ),
               children: [
                 WidgetSpan(child: Assets.icons.ai.svg()),

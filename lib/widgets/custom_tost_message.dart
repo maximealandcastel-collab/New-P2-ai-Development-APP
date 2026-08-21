@@ -76,7 +76,6 @@ void showToast(String message, {int? seconds}) {
             style: TextStyle(
               color: Colors.black,
               fontSize: 14.sp,
-              fontFamily: 'Roboto',
             ),
           ),
         ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/custom_assets/fonts.gen.dart';
+import 'package:pler_to_pler_app/widgets/custom_container.dart';
 
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -53,22 +54,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       elevation: 0,
       automaticallyImplyLeading: false,
-      backgroundColor: backgroundColor ?? AppColors.backgroundLight,
+      backgroundColor: backgroundColor ?? Color(0xffF0F0F0),
       foregroundColor: foregroundColor ?? Colors.white,
       scrolledUnderElevation: 0,
       flexibleSpace: flexibleSpace,
       leading: leading ??
           ((showLeading && (parentRoute?.canPop ?? false))
               ? IconButton(
-            icon: Assets.icons.arrowBack.svg(height: 48.h, width: 48.w),
-            onPressed: backAction ?? () => Navigator.maybePop(context),
+            icon: Assets.icons.arrowBack.svg(),
+            onPressed: backAction ?? () => Navigator.pop(context),
           )
               : null),
       title: title != null && title!.isNotEmpty
           ? Text(
         title!,
         style: TextStyle(
-          fontFamily: FontFamily.figtree,
           fontWeight: FontWeight.w600,
           fontSize: titleSize.sp,
           color: foregroundColor ?? AppColors.textPrimary,

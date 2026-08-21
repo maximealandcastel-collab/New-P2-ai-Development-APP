@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 
 
 class CustomText extends StatelessWidget {
@@ -54,7 +54,7 @@ class CustomText extends StatelessWidget {
             decoration: decoration,
             decorationColor: decorationColor,
               fontSize: fontSize ?? 14.sp,
-              fontFamily: fontName ?? 'Figtree',
+              fontFamily: fontName, // null → SF Pro on iOS, Roboto on Android
               fontWeight: fontWeight,
               color: color ?? AppColors.textPrimary),
         ),

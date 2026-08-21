@@ -56,7 +56,6 @@ class MenuShowHelper {
               alignment: Alignment.centerLeft,
               child: Text(
                 option,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary,fontFamily: FontFamily.figtree,fontWeight: FontWeight.w600),
               ),
             ),
           ),
