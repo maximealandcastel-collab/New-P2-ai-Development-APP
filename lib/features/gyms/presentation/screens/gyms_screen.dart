@@ -1,273 +1,209 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/enterprise_gym_card.dart';
 
-class GymsScreen extends StatelessWidget {
+class GymsScreen extends StatefulWidget {
   const GymsScreen({super.key});
 
   @override
+  State<GymsScreen> createState() => _GymsScreenState();
+}
+
+class _GymsScreenState extends State<GymsScreen> {
+  final _searchController = TextEditingController();
+  List<EnterpriseGymModel> _filtered = EnterpriseGymModel.partners;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearch(String query) {
+    final q = query.toLowerCase().trim();
+    setState(() {
+      _filtered = q.isEmpty
+          ? EnterpriseGymModel.partners
+          : EnterpriseGymModel.partners
+              .where((g) =>
+                  g.name.toLowerCase().contains(q) ||
+                  g.category.toLowerCase().contains(q))
+              .toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final total = EnterpriseGymModel.partners.length;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // ── Layer 1: dark montage grid (building/gym tiles) ────────────
-          _MontageBg(),
-
-          // ── Layer 2: white frosted overlay ────────────────────────────
-          Container(color: Colors.white.withValues(alpha: 0.91)),
-
-          // ── Layer 3: Coming-Soon content ───────────────────────────────
-          SafeArea(
-            child: Column(
-              children: [
-                // Top "mock" header bar
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                  child: Row(
+      backgroundColor: const Color(0xFFF7F8FA),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ── Header ──────────────────────────────────────────────────
+            Container(
+              color: Colors.white,
+              padding:
+                  EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Brand row
+                  Row(
                     children: [
-                      Text('Gyms',
+                      Container(
+                        width: 32.r,
+                        height: 32.r,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text('P2',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w900)),
+                      ),
+                      SizedBox(width: 10.w),
+                      Text('P2P FitTech AI',
                           style: TextStyle(
-                              fontSize: 26.sp,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.black)),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black87)),
                       const Spacer(),
-                      Icon(Icons.tune_rounded, color: Colors.black54, size: 22.sp),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5E9),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 6.r,
+                              height: 6.r,
+                              decoration: const BoxDecoration(
+                                  color: Color(0xFF00C853),
+                                  shape: BoxShape.circle),
+                            ),
+                            SizedBox(width: 5.w),
+                            Text('$total Gym Partners',
+                                style: TextStyle(
+                                    fontSize: 11.sp,
+                                    color: const Color(0xFF2E7D32),
+                                    fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
 
-                // Mock search bar (greyed out — not interactive)
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20.w),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F0F0),
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: Row(children: [
-                    Icon(Icons.search, color: Colors.grey, size: 20.sp),
-                    SizedBox(width: 10.w),
-                    Text('Search gyms near you…',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 14.sp)),
-                  ]),
-                ),
-                SizedBox(height: 20.h),
+                  SizedBox(height: 16.h),
 
-                // Mock 2-card row (wireframe style)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: Row(
-                    children: [
-                      Expanded(child: _MockGymCard(name: 'Iron House Gym', distance: '0.4 mi')),
-                      SizedBox(width: 12.w),
-                      Expanded(child: _MockGymCard(name: 'Peak Performance', distance: '0.9 mi')),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 12.h),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: Row(
-                    children: [
-                      Expanded(child: _MockGymCard(name: 'FitZone Studio', distance: '1.2 mi')),
-                      SizedBox(width: 12.w),
-                      Expanded(child: _MockGymCard(name: 'Elite Athletic', distance: '1.8 mi')),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                // ── COMING SOON badge + icon ─────────────────────────────
-                Container(
-                  width: 100.r,
-                  height: 100.r,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.25), width: 2),
-                  ),
-                  child: Icon(Icons.location_city_rounded,
-                      color: AppColors.primary, size: 48.sp),
-                ),
-                SizedBox(height: 20.h),
-
-                // COMING SOON pill
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(30.r),
-                  ),
-                  child: Text(
-                    'COMING SOON',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14.sp,
-                        letterSpacing: 2.5),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 44.w),
-                  child: Text(
-                    'Find, book, and track gym sessions near you — AI-matched facilities built around your training plan.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.grey[600],
-                        height: 1.65),
-                  ),
-                ),
-                SizedBox(height: 28.h),
-
-                // Notify Me button
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 40.w, vertical: 16.h),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(30.r),
-                    ),
-                    child: Text(
-                      'Notify Me When Live',
+                  // Title
+                  Text('Gym Demo Logins',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp),
-                    ),
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                          letterSpacing: -0.5)),
+                  SizedBox(height: 2.h),
+                  Text('Tap any gym to preview its fully branded login experience',
+                      style: TextStyle(
+                          fontSize: 13.sp, color: Colors.black45)),
+
+                  SizedBox(height: 14.h),
+
+                  // Search + count row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2F3F5),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _onSearch,
+                            style: TextStyle(fontSize: 14.sp),
+                            decoration: InputDecoration(
+                              hintText: 'Search gyms...',
+                              hintStyle: TextStyle(
+                                  color: Colors.black38, fontSize: 14.sp),
+                              prefixIcon: Icon(Icons.search_rounded,
+                                  color: Colors.black38, size: 20.sp),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 12.h),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 10.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2F3F5),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Text(
+                          '${_filtered.length} / $total gyms',
+                          style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-
-                const Spacer(),
-                SizedBox(height: 90.h), // clear bottom nav
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
-// ─── Montage background grid ─────────────────────────────────────────────────
-
-class _MontageBg extends StatelessWidget {
-  const _MontageBg();
-
-  static const _tiles = [
-    _Tile('Iron House', 0xFF1A1A2E, 0xFF16213E),
-    _Tile('Peak Perf.', 0xFF1C2340, 0xFF0F172A),
-    _Tile('FitZone',    0xFF1E2A3A, 0xFF172032),
-    _Tile('Elite Athl.',0xFF1A2030, 0xFF0E1825),
-    _Tile('PowerLift',  0xFF1F2535, 0xFF14202E),
-    _Tile('FlexGym',    0xFF1B2238, 0xFF101C2C),
-    _Tile('CoreFit',    0xFF1D2840, 0xFF13202E),
-    _Tile('UrbanAthlet',0xFF202840, 0xFF141F32),
-    _Tile('StrongerU',  0xFF1A2236, 0xFF111C2A),
-    _Tile('NexGen Gym', 0xFF1C2540, 0xFF0D1828),
-    _Tile('ProTraining',0xFF1E2A3C, 0xFF131F30),
-    _Tile('MaxForce',   0xFF1F273D, 0xFF12202F),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, childAspectRatio: 1.1),
-      itemCount: _tiles.length,
-      itemBuilder: (_, i) => _TileWidget(tile: _tiles[i], index: i),
-    );
-  }
-}
-
-class _Tile {
-  final String name;
-  final int c1, c2;
-  const _Tile(this.name, this.c1, this.c2);
-}
-
-class _TileWidget extends StatelessWidget {
-  final _Tile tile;
-  final int index;
-  const _TileWidget({required this.tile, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(tile.c1), Color(tile.c2)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+            // ── Grid ─────────────────────────────────────────────────────
+            Expanded(
+              child: _filtered.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.search_off_rounded,
+                              size: 48.sp, color: Colors.black26),
+                          SizedBox(height: 12.h),
+                          Text('No gyms found',
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: Colors.black38,
+                                  fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: EdgeInsets.all(16.r),
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.w,
+                        mainAxisSpacing: 12.h,
+                        childAspectRatio: 0.78,
+                      ),
+                      itemCount: _filtered.length,
+                      itemBuilder: (context, index) {
+                        return EnterpriseGymCard(gym: _filtered[index]);
+                      },
+                    ),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(10),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.location_on_rounded, color: const Color(0xFFFD7B00).withValues(alpha: 0.7), size: 28),
-          const SizedBox(height: 6),
-          Text(tile.name,
-              style: const TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 2),
-          Text('${(index * 0.4 + 0.2).toStringAsFixed(1)} mi',
-              style: const TextStyle(color: Colors.white38, fontSize: 9)),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Mock gym card (wireframe / frosted) ─────────────────────────────────────
-
-class _MockGymCard extends StatelessWidget {
-  final String name, distance;
-  const _MockGymCard({required this.name, required this.distance});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          height: 72.h,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAEAEA),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Center(
-            child: Icon(Icons.fitness_center_rounded,
-                color: Colors.grey[400], size: 28.sp),
-          ),
-        ),
-        SizedBox(height: 8.h),
-        Text(name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400])),
-        Text(distance,
-            style: TextStyle(fontSize: 10.sp, color: Colors.grey[400])),
-      ]),
     );
   }
 }
