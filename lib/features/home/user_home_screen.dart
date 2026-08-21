@@ -57,8 +57,8 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
+          fontSize: 17.sp,
+          fontWeight: FontWeight.w600,
           color: Colors.black,
         ),
       ),
@@ -91,9 +91,12 @@ class _WeekStrip extends StatelessWidget {
             decoration: BoxDecoration(
               color: isToday ? const Color(0xFFFF6B35) : Colors.white,
               borderRadius: BorderRadius.circular(12.r),
+              border: isToday
+                  ? null
+                  : Border.all(color: const Color(0xFFE8E8E8), width: 1.2),
               boxShadow: isToday
                   ? [BoxShadow(color: const Color(0xFFFF6B35).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]
-                  : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 1))],
+                  : null,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +212,7 @@ class _GymsCard extends StatelessWidget {
                       ),
                       SizedBox(height: 5.h),
                       Text(name,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 13.sp,
@@ -251,13 +254,15 @@ class _GymsCard extends StatelessWidget {
 }
 
 // ─── Generate Workout Split banner ───────────────────────────────────────────
-// Aquas/teal blue with real battle-ropes photo — male & female training.
+// Dark/orange — matches Screenshot 1 (approved source of truth).
+// Left: "GENERATE / WORKOUT SPLIT" + description + teal CTA button + P2P badge.
+// Right: battle-ropes photo fading in.
 class _GenerateWorkoutBanner extends StatelessWidget {
   const _GenerateWorkoutBanner();
 
   static const _ropePhoto =
       'https://images.unsplash.com/photo-1549060279-7e168fcee0c2'
-      '?w=500&h=200&fit=crop&crop=center&q=80';
+      '?w=500&h=220&fit=crop&crop=center&q=80';
 
   @override
   Widget build(BuildContext context) {
@@ -265,33 +270,26 @@ class _GenerateWorkoutBanner extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        height: 148.h,
+        height: 158.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF006D77), Color(0xFF00BCD4)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          color: const Color(0xFF1A1A1A),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20.r),
           child: Stack(
-            fit: StackFit.expand,
             children: [
-              // Battle-ropes photo faded in from the right
+              // ── Battle-ropes photo — right side, fades in from right ──
               Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                width: 210.w,
+                right: 0, top: 0, bottom: 0,
+                width: 230.w,
                 child: ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
+                  shaderCallback: (b) => const LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [Colors.transparent, Colors.white],
-                    stops: [0.0, 0.55],
-                  ).createShader(bounds),
+                    stops: [0.0, 0.42],
+                  ).createShader(b),
                   blendMode: BlendMode.dstIn,
                   child: Image.network(
                     _ropePhoto,
@@ -300,73 +298,130 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                   ),
                 ),
               ),
-              // Subtle teal overlay on left keeps text legible
+              // ── Dark overlay left — keeps text readable ───────────────
               Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: 220.w,
+                left: 0, top: 0, bottom: 0, width: 230.w,
                 child: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Color(0xFF006D77), Colors.transparent],
+                      colors: [Color(0xFF1A1A1A), Colors.transparent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
                   ),
                 ),
               ),
-              // Text content
+              // ── Subtle orange warm tint on left ───────────────────────
+              Positioned(
+                left: 0, top: 0, bottom: 0, width: 160.w,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0x22FF6B35), Colors.transparent],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                ),
+              ),
+              // ── P2P badge (sits between text and photo) ───────────────
+              Positioned(
+                left: 130.w, top: 16.h,
+                child: Container(
+                  width: 42.r, height: 42.r,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF6B35),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF6B35).withOpacity(0.45),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('P2P',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.3,
+                          )),
+                      Text('AI',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 7.sp,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+              // ── Text content ─────────────────────────────────────────
               Padding(
-                padding: EdgeInsets.fromLTRB(18.w, 0, 18.w, 0),
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 14.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'AI POWERED',
+                      'GENERATE',
                       style: TextStyle(
-                        color: Colors.white60,
+                        color: const Color(0xFFFF6B35),
                         fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.0,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.8,
+                      ),
+                    ),
+                    Text(
+                      'WORKOUT\nSPLIT',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 25.sp,
+                        fontWeight: FontWeight.w900,
+                        height: 1.05,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      'Generate My\nWorkout Split',
+                      'Get a custom workout plan\ntailored to your goals.',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 19.sp,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
+                        color: Colors.white54,
+                        fontSize: 10.sp,
+                        height: 1.4,
                       ),
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 10.h),
+                    // Teal CTA — matches Screenshot 1
                     Container(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 14.w, vertical: 8.h),
+                          horizontal: 11.w, vertical: 7.h),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xFF00BCD4),
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.auto_awesome,
-                              color: Color(0xFF006D77), size: 13.sp),
-                          SizedBox(width: 6.w),
+                              color: Colors.white, size: 11.sp),
+                          SizedBox(width: 5.w),
                           Text(
-                            'Get My Plan',
+                            'Generate Workout Split',
                             style: TextStyle(
-                              color: Color(0xFF006D77),
-                              fontSize: 12.sp,
+                              color: Colors.white,
+                              fontSize: 11.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(width: 4.w),
                           Icon(Icons.arrow_forward,
-                              color: Color(0xFF006D77), size: 12.sp),
+                              color: Colors.white, size: 11.sp),
                         ],
                       ),
                     ),

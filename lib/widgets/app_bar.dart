@@ -91,49 +91,13 @@ class _FeedAppBarState extends State<FeedAppBar> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      'Hi $_firstName!',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // Online pill
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 8.w, vertical: 2.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6.w,
-                            height: 6.w,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF4CAF50),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Online',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: const Color(0xFF4CAF50),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Hi $_firstName!',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
@@ -166,26 +130,6 @@ class _FeedAppBarState extends State<FeedAppBar> {
                   ),
                   child: Icon(Icons.notifications_none,
                       size: 20.sp, color: Colors.black87),
-                ),
-              ),
-              Positioned(
-                top: -4.h,
-                right: -2.w,
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF7A00),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Text(
-                    '5',
-                    style: TextStyle(
-                      fontSize: 9.sp,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
                 ),
               ),
             ],
