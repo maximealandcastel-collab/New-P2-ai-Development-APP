@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart' show ProfileScreen;
@@ -17,39 +18,75 @@ class FeedAppBar extends StatefulWidget {
 
 class _FeedAppBarState extends State<FeedAppBar> {
   String _role = '';
+  String _name = '';
+  String _profilePicture = '';
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((__)async{
-      getRole();
+    WidgetsBinding.instance.addPostFrameCallback((__) async {
+      await _loadUserData();
     });
   }
-  Future<void> getRole()async{
-    String? role = await PrefsHelper.getString('role');
-    _role = role ?? '';
-    setState(() {});
+
+  Future<void> _loadUserData() async {
+    final role    = await PrefsHelper.getString('role');
+    final name    = await PrefsHelper.getString(AppConstants.name);
+    final photo   = await PrefsHelper.getString(AppConstants.profilePicture);
+    if (!mounted) return;
+    setState(() {
+      _role           = role  ?? '';
+      _name           = name  ?? '';
+      _profilePicture = photo ?? '';
+    });
   }
+
+  /// First name only for the greeting — keeps it clean and personal.
+  String get _firstName {
+    if (_name.trim().isEmpty) return 'there';
+    return _name.trim().split(' ').first;
+  }
+
+  /// First initial for the avatar fallback.
+  String get _initial =>
+      _name.trim().isNotEmpty ? _name.trim()[0].toUpperCase() : 'P';
+
   @override
   Widget build(BuildContext context) {
+    // Avatar: real photo if available, orange initial circle otherwise.
+    final Widget avatar = _profilePicture.isNotEmpty
+        ? CircleAvatar(
+            radius: 22.r,
+            backgroundColor: const Color(0xFFFF6B35),
+            backgroundImage: NetworkImage(_profilePicture),
+          )
+        : CircleAvatar(
+            radius: 22.r,
+            backgroundColor: const Color(0xFFFF6B35),
+            child: Text(
+              _initial,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
       child: Row(
         children: [
-          // Avatar
+          // ── Avatar ──────────────────────────────────────────────────────
           GestureDetector(
-            onTap: (){
-              Get.to(() =>_role=='Trainer'? ProfileScreen(): UserProfileScreen());
-            },
-            child: CircleAvatar(
-              radius: 22.r,
-              backgroundImage: const NetworkImage(
-                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-              ),
+            onTap: () => Get.to(
+              () => _role == 'Trainer' ? ProfileScreen() : UserProfileScreen(),
             ),
+            child: avatar,
           ),
           SizedBox(width: 10.w),
 
-          // Greeting
+          // ── Greeting ────────────────────────────────────────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +94,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 Row(
                   children: [
                     Text(
-                      'Hi Ethen!',
+                      'Hi $_firstName!',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
@@ -65,8 +102,10 @@ class _FeedAppBarState extends State<FeedAppBar> {
                       ),
                     ),
                     SizedBox(width: 8.w),
+                    // Online pill
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 2.h),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(20.r),
@@ -99,38 +138,42 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 SizedBox(height: 2.h),
                 Text(
                   'Stay consistent, Stay strong',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
+                  style: TextStyle(
+                      fontSize: 12.sp, color: Colors.grey.shade500),
                 ),
               ],
             ),
           ),
 
-          // Notification bell
+          // ── Notification bell ────────────────────────────────────────────
           Stack(
             clipBehavior: Clip.none,
             children: [
               GestureDetector(
-                onTap: (){
-                  Get.to(() => NotificationsScreen());
-                },
+                onTap: () => Get.to(() => NotificationsScreen()),
                 child: Container(
                   width: 38.w,
                   height: 38.h,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 6, offset: const Offset(0, 2)),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 2)),
                     ],
                   ),
-                  child: Icon(Icons.notifications_none, size: 20.sp, color: Colors.black87),
+                  child: Icon(Icons.notifications_none,
+                      size: 20.sp, color: Colors.black87),
                 ),
               ),
               Positioned(
                 top: -4.h,
                 right: -2.w,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFF7A00),
                     borderRadius: BorderRadius.circular(10.r),

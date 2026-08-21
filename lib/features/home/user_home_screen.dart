@@ -96,9 +96,10 @@ class _WeekStrip extends StatelessWidget {
                 Text(
                   labels[i],
                   style: TextStyle(
-                    fontSize: 13.sp,
-                    color: isToday ? Colors.white70 : Colors.black54,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 12.sp,
+                    color: isToday ? Colors.white70 : Colors.black45,
+                    fontWeight: FontWeight.w400, // lighter — SF Pro regular
+                    letterSpacing: 0.2,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -106,8 +107,10 @@ class _WeekStrip extends StatelessWidget {
                   '${day.day}',
                   style: TextStyle(
                     fontSize: 17.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isToday ? Colors.white : Colors.black,
+                    fontWeight: isToday
+                        ? FontWeight.w700   // bold on selected
+                        : FontWeight.w500,  // medium on rest — crisper iOS feel
+                    color: isToday ? Colors.white : Colors.black87,
                   ),
                 ),
               ],
