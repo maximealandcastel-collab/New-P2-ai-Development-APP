@@ -1,18 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
-import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_app_bar.dart';
-import 'package:pler_to_pler_app/widgets/custom_container.dart';
-import 'package:pler_to_pler_app/widgets/custom_image_avatar.dart';
-import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
-// ─── Model ────────────────────────────────────────────────────────────────────
+// ─── Models ───────────────────────────────────────────────────────────────────
 class WorkoutItem {
   final String title;
   final String trainer;
@@ -54,110 +47,78 @@ class WorkoutPlansScreen extends StatefulWidget {
 }
 
 class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
-  int _selectedTab = 0; // 0 = Workout plans, 1 = Meal plans
-  int _selectedDay = 2; // Wed = index 2
+  int _selectedDay = DateTime.now().weekday - 1; // 0 = Mon
 
-  final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  final List<IconData> _dayIcons = [
-    Icons.directions_walk,
-    Icons.directions_run,
-    Icons.self_improvement,
-    Icons.directions_walk,
-    Icons.mail_outline,
-    Icons.directions_run,
-    Icons.directions_walk,
-  ];
+  static const _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   final List<TaskItem> _tasks = const [
-    TaskItem(
-      label: 'Daily pushup',
-      current: 15, total: 20,
-      displayCurrent: '15', displayTotal: '20',
-    ),
-    TaskItem(
-      label: 'Run  1 km',
-      current: 0.15, total: 1.0,
-      displayCurrent: '0.15km', displayTotal: '1km',
-    ),
-    TaskItem(
-      label: 'Run  1 km',
-      current: 0.15, total: 1.0,
-      displayCurrent: '0.15km', displayTotal: '1km',
-    ),
+    TaskItem(label: 'Daily pushup', current: 15, total: 20, displayCurrent: '15', displayTotal: '20'),
+    TaskItem(label: 'Run 1 km', current: 0.15, total: 1.0, displayCurrent: '0.15 km', displayTotal: '1 km'),
+    TaskItem(label: 'Stretch', current: 5, total: 10, displayCurrent: '5 min', displayTotal: '10 min'),
   ];
 
   final WorkoutItem _assignedWorkout = const WorkoutItem(
-    title: '20 upper body exercise',
+    title: '20 Upper Body Exercises',
     trainer: 'Maxime Castel',
     minutes: 20,
     exerciseSteps: 6,
-    imageUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=200',
+    imageUrl: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=400&q=80',
   );
 
   final List<WorkoutItem> _savedWorkouts = const [
     WorkoutItem(
-      title: 'Light full body exercise',
+      title: 'Light Full Body',
       trainer: 'Maxime Castel',
       minutes: 20,
       exerciseSteps: 6,
-      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200',
+      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80',
     ),
     WorkoutItem(
-      title: '20 upper body exercise',
+      title: '20 Upper Body Exercises',
       trainer: 'Maxime Castel',
       minutes: 20,
       exerciseSteps: 6,
-      imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=200',
+      imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF4F4F6),
       body: SafeArea(
         child: Column(
           children: [
             FeedAppBar(),
-            // ── Tab switcher
-            _TabSwitcher(
-              selected: _selectedTab,
-              onChanged: (i) => setState(() => _selectedTab = i),
-            ),
-            // ── Content
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 24.h),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(bottom: 32.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 8.h),
+                    // ── Weekly strip
+                    _buildWeekStrip(),
+                    SizedBox(height: 16.h),
+                    // ── Task progress
+                    _buildTaskCard(),
                     SizedBox(height: 20.h),
-                    // Weekly schedule card
-                    _WeeklyScheduleCard(
-                      days: _days,
-                      icons: _dayIcons,
-                      selectedDay: _selectedDay,
-                      onDaySelected: (i) => setState(() => _selectedDay = i),
-                      tasks: _tasks,
-                    ),
-                    SizedBox(height: 24.h),
-                    // Assigned workout
-                    _SectionHeader(title: 'Assigned workout for the day'),
-                    SizedBox(height: 10.h),
+                    // ── Assigned workout
+                    _sectionLabel('Assigned for today'),
+                    SizedBox(height: 8.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: _WorkoutCard(item: _assignedWorkout),
                     ),
-                    SizedBox(height: 24.h),
-                    // Saved workouts
-                    _SectionHeader(title: 'Saved workouts'),
-                    SizedBox(height: 10.h),
-                    ..._savedWorkouts.map(
-                          (w) => Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
-                        child: _WorkoutCard(item: w),
-                      ),
-                    ),
+                    SizedBox(height: 20.h),
+                    // ── Saved
+                    _sectionLabel('Saved workouts'),
+                    SizedBox(height: 8.h),
+                    ..._savedWorkouts.map((w) => Padding(
+                          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
+                          child: _WorkoutCard(item: w),
+                        )),
                   ],
                 ),
               ),
@@ -167,193 +128,117 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
       ),
     );
   }
-}
 
-// ─── Tab Switcher ─────────────────────────────────────────────────────────────
-class _TabSwitcher extends StatelessWidget {
-  final int selected;
-  final ValueChanged<int> onChanged;
-
-  const _TabSwitcher({required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
+  // ── Week strip — same compact style as home screen ─────────────────────────
+  Widget _buildWeekStrip() {
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       child: Row(
-        children: [
-          _TabItem(
-            icon: Icons.fitness_center,
-            label: 'Workout plans',
-            isSelected: selected == 0,
-            onTap: () => onChanged(0),
-          ),
-          // _TabItem(
-          //   icon: Icons.restaurant_menu,
-          //   label: 'Meal plans',
-          //   isSelected: selected == 1,
-          //   onTap: () => onChanged(1),
-          // ),
-        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(_days.length, (i) {
+          final isSelected = i == _selectedDay;
+          final today = i == DateTime.now().weekday - 1;
+          return GestureDetector(
+            onTap: () => setState(() => _selectedDay = i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 44.w,
+              height: 64.h,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.black : Colors.transparent,
+                borderRadius: BorderRadius.circular(10.r),
+                border: isSelected
+                    ? null
+                    : Border.all(
+                        color: today
+                            ? const Color(0xFFFF6B35).withOpacity(0.5)
+                            : Colors.grey.shade200,
+                        width: 1,
+                      ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _days[i].substring(0, 1),
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white70 : Colors.grey.shade400,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    '${_dayNumber(i)}',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Container(
+                    width: 4.w,
+                    height: 4.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected
+                          ? Colors.white.withOpacity(0.5)
+                          : (today ? const Color(0xFFFF6B35) : Colors.transparent),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
-}
 
-class _TabItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _TabItem({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.symmetric(vertical: 12.h),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.black : Colors.transparent,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 18.sp,
-                color: isSelected ? Colors.white : Colors.black54,
-              ),
-              SizedBox(width: 6.w),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black54,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  int _dayNumber(int weekdayIndex) {
+    final now = DateTime.now();
+    final currentWeekday = now.weekday - 1;
+    final diff = weekdayIndex - currentWeekday;
+    return now.day + diff;
   }
-}
 
-// ─── Weekly Schedule Card ─────────────────────────────────────────────────────
-class _WeeklyScheduleCard extends StatelessWidget {
-  final List<String> days;
-  final List<IconData> icons;
-  final int selectedDay;
-  final ValueChanged<int> onDaySelected;
-  final List<TaskItem> tasks;
-
-  const _WeeklyScheduleCard({
-    required this.days,
-    required this.icons,
-    required this.selectedDay,
-    required this.onDaySelected,
-    required this.tasks,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  // ── Task progress card ─────────────────────────────────────────────────────
+  Widget _buildTaskCard() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Weekly Scheduled to do',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            "Today's Progress",
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
           ),
           SizedBox(height: 14.h),
-
-          // Day row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(days.length, (i) {
-              final isSelected = i == selectedDay;
-              return GestureDetector(
-                onTap: () => onDaySelected(i),
-                child: Column(
-                  children: [
-                    Text(
-                      days[i],
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? Colors.black : Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 36.w,
-                      height: 36.w,
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.black : const Color(0xFFF5F5F5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        icons[i],
-                        size: 18.sp,
-                        color: isSelected ? Colors.white : Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
-
-          SizedBox(height: 18.h),
-
-          // Tasks
-          ...tasks.map((t) => _TaskProgressRow(task: t)),
-
-          SizedBox(height: 8.h),
-
-          // View all
+          ..._tasks.map((t) => _TaskRow(task: t)),
+          SizedBox(height: 4.h),
           GestureDetector(
             onTap: () {},
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 12.h),
+              padding: EdgeInsets.symmetric(vertical: 10.h),
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               alignment: Alignment.center,
               child: Text(
-                'View all',
-                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87),
+                'View all tasks',
+                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.black54),
               ),
             ),
           ),
@@ -361,43 +246,48 @@ class _WeeklyScheduleCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+      ),
+    );
+  }
 }
 
-class _TaskProgressRow extends StatelessWidget {
+// ─── Task row ─────────────────────────────────────────────────────────────────
+class _TaskRow extends StatelessWidget {
   final TaskItem task;
-
-  const _TaskProgressRow({required this.task});
+  const _TaskRow({required this.task});
 
   @override
   Widget build(BuildContext context) {
     final progress = (task.current / task.total).clamp(0.0, 1.0);
-
     return Padding(
-      padding: EdgeInsets.only(bottom: 14.h),
+      padding: EdgeInsets.only(bottom: 12.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                task.label,
-                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: Colors.black87),
-              ),
-              Text(
-                '${task.displayCurrent}/${task.displayTotal}',
-                style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
-              ),
+              Text(task.label,
+                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black87)),
+              Text('${task.displayCurrent} / ${task.displayTotal}',
+                  style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
             ],
           ),
-          SizedBox(height: 7.h),
+          SizedBox(height: 5.h),
           ClipRRect(
-            borderRadius: BorderRadius.circular(6.r),
+            borderRadius: BorderRadius.circular(4.r),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 6.h,
+              minHeight: 5.h,
               backgroundColor: const Color(0xFFEEEEEE),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF7A00)),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF6B35)),
             ),
           ),
         ],
@@ -406,38 +296,15 @@ class _TaskProgressRow extends StatelessWidget {
   }
 }
 
-// ─── Section Header ───────────────────────────────────────────────────────────
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
-          color: Colors.black,
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Workout Card ─────────────────────────────────────────────────────────────
+// ─── Workout card ─────────────────────────────────────────────────────────────
 class _WorkoutCard extends StatelessWidget {
   final WorkoutItem item;
-
   const _WorkoutCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14.r),
@@ -447,22 +314,25 @@ class _WorkoutCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Thumbnail
+          // Thumbnail with fade-in
           ClipRRect(
             borderRadius: BorderRadius.circular(10.r),
-            child: Image.network(
-              item.imageUrl,
-              width: 58.w,
-              height: 58.h,
+            child: CachedNetworkImage(
+              imageUrl: item.imageUrl,
+              width: 52.w,
+              height: 52.w,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 58.w,
-                height: 58.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEEEEEE),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(Icons.fitness_center, color: Colors.grey.shade400, size: 24.sp),
+              fadeInDuration: const Duration(milliseconds: 280),
+              placeholder: (_, __) => Container(
+                width: 52.w,
+                height: 52.w,
+                color: const Color(0xFFEEEEEE),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                width: 52.w,
+                height: 52.w,
+                color: const Color(0xFFEEEEEE),
+                child: Icon(Icons.fitness_center, color: Colors.grey.shade400, size: 20.sp),
               ),
             ),
           ),
@@ -475,55 +345,40 @@ class _WorkoutCard extends StatelessWidget {
               children: [
                 Text(
                   item.title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 3.h),
                 Text(
-                  'Trainer ${item.trainer}',
-                  style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
+                  item.trainer,
+                  style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
                 ),
                 SizedBox(height: 5.h),
                 Row(
                   children: [
-                    _MetaText('${item.minutes} minutes'),
-                    _MetaDot(),
-                    _MetaText('${item.exerciseSteps} Exercise step'),
+                    _meta(Icons.timer_outlined, '${item.minutes} min'),
+                    SizedBox(width: 10.w),
+                    _meta(Icons.repeat_rounded, '${item.exerciseSteps} steps'),
                   ],
                 ),
               ],
             ),
           ),
 
-          Icon(Icons.more_vert, size: 20.sp, color: Colors.black38),
+          Icon(Icons.chevron_right_rounded, size: 20.sp, color: Colors.black26),
         ],
       ),
     );
   }
-}
 
-class _MetaText extends StatelessWidget {
-  final String text;
-  const _MetaText(this.text);
-
-  @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500),
-  );
-}
-
-class _MetaDot extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: 5.w),
-    child: Container(
-      width: 3.w,
-      height: 3.w,
-      decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
-    ),
-  );
+  Widget _meta(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 11.sp, color: Colors.grey.shade400),
+        SizedBox(width: 3.w),
+        Text(text, style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
+      ],
+    );
+  }
 }

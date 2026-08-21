@@ -81,8 +81,17 @@ class _GymsScreenState extends State<GymsScreen> {
     }
   }
 
-  Future<void> _openNearGymMap() async {
-    const query = 'gyms+near+me';
+  Future<void> _openNearGymMap({String? addressQuery}) async {
+    // Build a smart query: use address/filter if provided, else "gyms near me"
+    String query;
+    if (addressQuery != null && addressQuery.isNotEmpty) {
+      query = Uri.encodeQueryComponent('gyms near $addressQuery');
+    } else if (_activeFilter != 'All Types') {
+      query = Uri.encodeQueryComponent('$_activeFilter gym near me');
+    } else {
+      query = 'gyms+near+me';
+    }
+
     final webUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
     final appUrl = Uri.parse('comgooglemaps://?q=$query');
     try {
@@ -96,6 +105,22 @@ class _GymsScreenState extends State<GymsScreen> {
     } catch (_) {
       ToastMessageHelper.show('Could not open maps.');
     }
+  }
+
+  // ── Show gym detail sheet (with status label for non-activated gyms) ────────
+  void _showGymSheet(EnterpriseGymModel gym) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _GymDetailSheet(
+        gym: gym,
+        onOpenMaps: () {
+          Navigator.pop(context);
+          _openNearGymMap(addressQuery: '${gym.name} ${gym.city}');
+        },
+      ),
+    );
   }
 
   // ── Filtering ─────────────────────────────────────────────────────────────
@@ -161,7 +186,10 @@ class _GymsScreenState extends State<GymsScreen> {
                     delegate: SliverChildBuilderDelegate(
                       (context, i) => Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: GymListTile(gym: displayed[i]),
+                        child: GestureDetector(
+                          onTap: () => _showGymSheet(displayed[i]),
+                          child: GymListTile(gym: displayed[i]),
+                        ),
                       ),
                       childCount: displayed.length,
                     ),
@@ -245,42 +273,83 @@ class _GymsScreenState extends State<GymsScreen> {
   Widget _buildSearchBar() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Container(
-        height: 52.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 48.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) => setState(() => _searchQuery = v.trim()),
+                onSubmitted: (v) {
+                  if (v.trim().isNotEmpty) _openNearGymMap(addressQuery: v.trim());
+                },
+                style: TextStyle(fontSize: 13.sp, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'City, zip, or gym name…',
+                  hintStyle: TextStyle(color: Colors.black38, fontSize: 13.sp),
+                  prefixIcon: Icon(Icons.search_rounded, color: Colors.black38, size: 18.sp),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                          child: Icon(Icons.close_rounded, color: Colors.black38, size: 16.sp),
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                ),
+              ),
             ),
-          ],
-        ),
-        child: TextField(
-          controller: _searchController,
-          onChanged: (v) => setState(() => _searchQuery = v.trim()),
-          style: TextStyle(fontSize: 14.sp, color: Colors.black87),
-          decoration: InputDecoration(
-            hintText: 'Search gym, type, location…',
-            hintStyle: TextStyle(color: Colors.black38, fontSize: 14.sp),
-            prefixIcon: Icon(Icons.search_rounded,
-                color: Colors.black38, size: 20.sp),
-            suffixIcon: _searchQuery.isNotEmpty
-                ? GestureDetector(
-                    onTap: () {
-                      _searchController.clear();
-                      setState(() => _searchQuery = '');
-                    },
-                    child: Icon(Icons.close_rounded,
-                        color: Colors.black38, size: 18.sp),
-                  )
-                : null,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 15.h),
           ),
-        ),
+          SizedBox(width: 10.w),
+          // ── View on Map button ───────────────────────────────────────────
+          GestureDetector(
+            onTap: () => _openNearGymMap(addressQuery: _searchQuery),
+            child: Container(
+              height: 48.h,
+              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              decoration: BoxDecoration(
+                color: _kOrange,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: _kOrange.withOpacity(0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.map_outlined, color: Colors.white, size: 16.sp),
+                  SizedBox(width: 5.w),
+                  Text(
+                    'Map',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -447,6 +516,165 @@ class _GymsScreenState extends State<GymsScreen> {
           Text('Try a different search or filter',
               style:
                   TextStyle(fontSize: 13.sp, color: Colors.black26)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Gym detail bottom sheet ─────────────────────────────────────────────────
+class _GymDetailSheet extends StatelessWidget {
+  final EnterpriseGymModel gym;
+  final VoidCallback onOpenMaps;
+
+  const _GymDetailSheet({required this.gym, required this.onOpenMaps});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLocked = !gym.isActivated;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 32.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 36.w, height: 4.h,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0E0E0),
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+          ),
+          SizedBox(height: 18.h),
+
+          // Gym brand row
+          Row(
+            children: [
+              Container(
+                width: 44.w, height: 44.w,
+                decoration: BoxDecoration(
+                  color: gym.brandColor,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  gym.initials,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w800,
+                    color: gym.accentColor,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(gym.name,
+                        style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                    Text(gym.category,
+                        style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
+                  ],
+                ),
+              ),
+              if (gym.city.isNotEmpty)
+                Text(gym.city,
+                    style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
+            ],
+          ),
+
+          SizedBox(height: 16.h),
+
+          // Status / partnership label
+          if (isLocked && gym.statusLabel != null) ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8F0),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: const Color(0xFFFFD9A8), width: 1),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 15.sp, color: const Color(0xFFFD7B00)),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      gym.statusLabel!,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF8B4A00),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
+
+          if (isLocked && gym.statusLabel == null) ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.lock_outline_rounded, size: 14.sp, color: Colors.black38),
+                  SizedBox(width: 8.w),
+                  Text('Coming Soon',
+                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black38)),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
+
+          // Open in Google Maps CTA
+          GestureDetector(
+            onTap: onOpenMaps,
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 14.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFD7B00),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.map_outlined, color: Colors.white, size: 16.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'View on Google Maps',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
