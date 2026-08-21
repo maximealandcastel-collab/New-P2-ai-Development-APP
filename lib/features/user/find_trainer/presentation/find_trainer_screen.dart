@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -35,7 +36,7 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
   final FocusNode _searchFocus = FocusNode();
 
   int _selectedFilter = 0;
-  final List<String> _filterTabs = ['Top rated', 'Relevant', 'Rehab', 'Full re...'];
+  final List<String> _filterTabs = ['Top Rated', 'Relevant', 'Rehab', 'Full Body'];
 
   // Sort dropdown
   bool _showSortMenu = false;
@@ -189,14 +190,17 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
               Expanded(
                 child: Stack(
                   children: [
-                    // Trainer list
+                    // Trainer list — staggered fade-in so cards appear smoothly
                     ListView.builder(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       itemCount: _filteredTrainers.length,
-                      itemBuilder: (_, i) => _TrainerCard(
-                        trainer: _filteredTrainers[i],
-                        onViewProfile: () {},
-                        onRequest: () => _openRequestSheet(_filteredTrainers[i]),
+                      itemBuilder: (_, i) => _FadeInCard(
+                        delay: Duration(milliseconds: i * 60),
+                        child: _TrainerCard(
+                          trainer: _filteredTrainers[i],
+                          onViewProfile: () {},
+                          onRequest: () => _openRequestSheet(_filteredTrainers[i]),
+                        ),
                       ),
                     ),
 
@@ -555,6 +559,42 @@ class _SortDropdown extends StatelessWidget {
   }
 }
 
+// ─── Staggered fade-in wrapper ────────────────────────────────────────────────
+class _FadeInCard extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  const _FadeInCard({required this.child, required this.delay});
+
+  @override
+  State<_FadeInCard> createState() => _FadeInCardState();
+}
+
+class _FadeInCardState extends State<_FadeInCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 320));
+    _opacity = CurvedAnimation(parent: _c, curve: Curves.easeOut);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
+    Future.delayed(widget.delay, () { if (mounted) _c.forward(); });
+  }
+
+  @override
+  void dispose() { _c.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+        opacity: _opacity,
+        child: SlideTransition(position: _slide, child: widget.child),
+      );
+}
+
 // ─── Trainer Card ─────────────────────────────────────────────────────────────
 class _TrainerCard extends StatelessWidget {
   final TrainerModel trainer;
@@ -581,12 +621,26 @@ class _TrainerCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 26.r,
-            backgroundImage: NetworkImage(trainer.avatarUrl),
-            backgroundColor: const Color(0xFFEEEEEE),
-            onBackgroundImageError: (_, __) {},
+          // Avatar — cached with fade-in, no pop-in
+          ClipOval(
+            child: CachedNetworkImage(
+              imageUrl: trainer.avatarUrl,
+              width: 52.r,
+              height: 52.r,
+              fit: BoxFit.cover,
+              fadeInDuration: const Duration(milliseconds: 300),
+              placeholder: (_, __) => Container(
+                width: 52.r,
+                height: 52.r,
+                color: const Color(0xFFEEEEEE),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                width: 52.r,
+                height: 52.r,
+                color: const Color(0xFFEEEEEE),
+                child: Icon(Icons.person, size: 24.sp, color: Colors.grey.shade400),
+              ),
+            ),
           ),
           SizedBox(width: 12.w),
 

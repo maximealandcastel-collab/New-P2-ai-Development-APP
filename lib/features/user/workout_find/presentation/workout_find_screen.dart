@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -542,21 +543,40 @@ class _LoadingStepState extends State<_LoadingStep>
   late final Animation<double> _rotation;
   bool _hasNavigated = false;
 
+  // ── Phase messages cycle while AI works ──────────────────────────────────
+  static const _phases = [
+    'Analyzing your goals…',
+    'Building your workout split…',
+    'Selecting the right exercises…',
+    'Calibrating intensity & duration…',
+    'Optimizing for your body…',
+    'Almost ready…',
+  ];
+  int _phaseIndex = 0;
+  Timer? _phaseTimer;
+
+  // Minimum time (ms) before navigating — makes it feel like real AI work.
+  static const _minDisplayMs = 5000;
+
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 2),
     )..repeat();
     _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
+
+    // Advance phase label every 1.4 s
+    _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
+    });
+
     _generatePlan();
   }
 
-  /// Create the workout goal from the wizard answers, then generate the AI
-  /// plan. Body part, intensity and duration all feed the AI so every
-  /// combination produces a different session.
   Future<void> _generatePlan() async {
+    final sw = Stopwatch()..start();
     Map<String, dynamic>? plan;
     try {
       final createRes =
@@ -576,11 +596,15 @@ class _LoadingStepState extends State<_LoadingStep>
         }
       }
     } catch (_) {
-      // Backend unreachable — will show error below.
+      // Backend unreachable — fall through to error handling below.
     }
+
+    // ── Enforce minimum display time so it never feels instant / fake ──────
+    final remaining = _minDisplayMs - sw.elapsedMilliseconds;
+    if (remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
+
     if (!mounted || _hasNavigated) return;
     if (plan == null) {
-      // Don't send the user to a blank result screen — show a clear error.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -589,7 +613,7 @@ class _LoadingStepState extends State<_LoadingStep>
           backgroundColor: Colors.redAccent,
         ),
       );
-      setState(() {}); // rebuild to stop the loading animation
+      setState(() {});
       return;
     }
     _hasNavigated = true;
@@ -598,6 +622,7 @@ class _LoadingStepState extends State<_LoadingStep>
 
   @override
   void dispose() {
+    _phaseTimer?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
@@ -609,38 +634,43 @@ class _LoadingStepState extends State<_LoadingStep>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Finding best workout plan\nfor you',
+            'Finding your perfect\nworkout plan',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 26.sp,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black,
               height: 1.35,
             ),
           ),
           SizedBox(height: 10.h),
-          Text(
-            'What you want to achieve from the workout',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
-          ),
-          SizedBox(height: 50.h),
 
-          // Animated arc loader
+          // ── Cycling status message — fades between phases ───────────────
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: Text(
+              _phases[_phaseIndex],
+              key: ValueKey(_phaseIndex),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+            ),
+          ),
+
+          SizedBox(height: 48.h),
+
+          // ── Arc spinner ─────────────────────────────────────────────────
           AnimatedBuilder(
             animation: _rotation,
-            builder: (_, __) {
-              return CustomPaint(
-                size: Size(130.w, 130.w),
-                painter: _ArcLoaderPainter(progress: _rotation.value),
-              );
-            },
+            builder: (_, __) => CustomPaint(
+              size: Size(120.w, 120.w),
+              painter: _ArcLoaderPainter(progress: _rotation.value),
+            ),
           ),
 
-          SizedBox(height: 30.h),
+          SizedBox(height: 28.h),
           Text(
-            'Might take 1~2 minutes',
-            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+            'AI is crafting your personalized plan',
+            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
