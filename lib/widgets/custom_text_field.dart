@@ -39,6 +39,7 @@ class CustomTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatter;
   final int? minLines;
   final InputBorder? border;
+  final Color? labelColor;
 
   const CustomTextField(
       {super.key,
@@ -72,6 +73,7 @@ class CustomTextField extends StatefulWidget {
       this.fontFamily,
       this.textInputAction,
       this.inputFormatter,
+      this.labelColor,
       this.minLines, this.maxLines, this.border});
 
   @override
@@ -97,8 +99,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if (widget.labelText != null)
           CustomText(
             text: widget.labelText ?? '',
-            fontName:'Figtree',
-            color: Color(0xFF0B0D10),
+            color: widget.labelColor ?? const Color(0xFF0B0D10),
             bottom: 4.h,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
