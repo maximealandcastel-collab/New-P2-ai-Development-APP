@@ -137,7 +137,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  'Stay consistent, Stay strong',
+                  'Let\'s Manage your users',
                   style: TextStyle(
                       fontSize: 12.sp, color: Colors.grey.shade500),
                 ),
