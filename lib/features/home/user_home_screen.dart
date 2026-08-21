@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 
@@ -124,7 +125,7 @@ class _GymsCard extends StatelessWidget {
 
   static const _gyms = [
     (
-      'StrongFit Downt...',
+      'StrongFit Downtown',
       '0.8 km away',
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=160&fit=crop&q=80',
     ),
@@ -134,7 +135,7 @@ class _GymsCard extends StatelessWidget {
       'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=300&h=160&fit=crop&q=80',
     ),
     (
-      'Core Strength H...',
+      'Core Strength Hub',
       '2.0 km away',
       'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=160&fit=crop&q=80',
     ),
@@ -160,11 +161,14 @@ class _GymsCard extends StatelessWidget {
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.black)),
-              Text('Near Gym',
-                  style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFF6B35))),
+              GestureDetector(
+                onTap: () => BottomNavBarController.to.onChange(2),
+                child: Text('Near Gym',
+                    style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFF6B35))),
+              ),
             ],
           ),
           SizedBox(height: 12.h),
@@ -177,7 +181,7 @@ class _GymsCard extends StatelessWidget {
               itemBuilder: (context, i) {
                 final (name, distance, photo) = _gyms[i];
                 return SizedBox(
-                  width: 130.w,
+                  width: 142.w,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -199,7 +203,7 @@ class _GymsCard extends StatelessWidget {
                       ),
                       SizedBox(height: 5.h),
                       Text(name,
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 13.sp,
