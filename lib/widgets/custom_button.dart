@@ -27,7 +27,8 @@ class CustomButton extends StatelessWidget {
       this.iconHeight,
       this.iconWidth,
       this.elevation = false,
-      this.isLoading = false});
+      this.isLoading = false,
+      this.isDisabled = false});
 
   final Widget? suffixIcon;
   final Widget? prefixIcon;
@@ -50,13 +51,14 @@ class CustomButton extends StatelessWidget {
   final double? iconWidth;
   final bool elevation;
   final bool isLoading;
+  final bool isDisabled;
 
   @override
   Widget build(BuildContext context) {
     return CustomContainer(
       elevation: elevation,
-      onTap: isLoading ? null : onPressed,
-      color: (backgroundColor ?? AppColors.primary).withOpacity(isLoading ? 0.6 : 1.0),
+      onTap: (isLoading || isDisabled) ? null : onPressed,
+      color: (backgroundColor ?? AppColors.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
       height: height ?? 48.h,
       width: width ?? double.infinity,
       radiusAll: radius ?? 16.r,
