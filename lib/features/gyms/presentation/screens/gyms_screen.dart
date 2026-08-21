@@ -34,7 +34,7 @@ class _GymsScreenState extends State<GymsScreen> {
   String _activeFilter = 'All Types';
   String _searchQuery = '';
   bool _locationLoading = false;
-  List<EnterpriseGymModel> _sortedGyms = List.from(EnterpriseGymModel.activatedPartners);
+  List<EnterpriseGymModel> _sortedGyms = List.from(EnterpriseGymModel.partners);
 
   @override
   void initState() {
@@ -69,7 +69,7 @@ class _GymsScreenState extends State<GymsScreen> {
     if (position != null) {
       setState(() {
         _sortedGyms = _locationService.sortByDistance(
-          List.from(EnterpriseGymModel.activatedPartners),
+          List.from(EnterpriseGymModel.partners),
           position,
         );
         _locationLoading = false;
@@ -127,7 +127,7 @@ class _GymsScreenState extends State<GymsScreen> {
   @override
   Widget build(BuildContext context) {
     final displayed = _displayedGyms;
-    final total = EnterpriseGymModel.activatedPartners.length;
+    final total = EnterpriseGymModel.partners.length;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),

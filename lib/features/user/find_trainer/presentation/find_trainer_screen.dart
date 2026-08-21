@@ -57,37 +57,37 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
       name: 'Oliver Kingsley',
       role: 'Trainer',
       experience: '12 Years of Experience',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop&q=80',
     ),
     TrainerModel(
       name: 'Noah Sinclair',
       role: 'Lead trainer',
       experience: '8 Years of Experience',
-      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&fit=crop&q=80',
     ),
     TrainerModel(
       name: 'Ethan Hawthorne',
       role: 'Trainer',
       experience: '12 Yrs Exp',
-      avatarUrl: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200&fit=crop&q=80',
     ),
     TrainerModel(
       name: 'Lucas Brighton',
       role: 'Lead trainer',
       experience: '5 Years of Experience',
-      avatarUrl: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200&fit=crop&q=80',
     ),
     TrainerModel(
       name: 'Mason Caldwell',
       role: 'Junior trainer',
       experience: '1 Year of Experience',
-      avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&fit=crop&q=80',
     ),
     TrainerModel(
       name: 'James Fletcher',
       role: 'Senior trainer',
       experience: '10 Years of Experience',
-      avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200',
+      avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&fit=crop&q=80',
     ),
   ];
 

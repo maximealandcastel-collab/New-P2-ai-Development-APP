@@ -31,8 +31,6 @@ class UserHomeScreen extends StatelessWidget {
               SizedBox(height: 16.h),
               const _GymsCard(),
               SizedBox(height: 16.h),
-              const _GenerateWorkoutBanner(),
-              SizedBox(height: 16.h),
               _SectionTitle("Today's overview"),
               const _TodaysOverviewCard(),
               SizedBox(height: 24.h),
@@ -125,9 +123,21 @@ class _GymsCard extends StatelessWidget {
   const _GymsCard();
 
   static const _gyms = [
-    ('StrongFit Downt...', '0.8 km away'),
-    ('Iron Pulse Gym', '1.2 km away'),
-    ('Core Strength H...', '2.0 km away'),
+    (
+      'StrongFit Downt...',
+      '0.8 km away',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=160&fit=crop&q=80',
+    ),
+    (
+      'Iron Pulse Gym',
+      '1.2 km away',
+      'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=300&h=160&fit=crop&q=80',
+    ),
+    (
+      'Core Strength H...',
+      '2.0 km away',
+      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=160&fit=crop&q=80',
+    ),
   ];
 
   @override
@@ -165,7 +175,7 @@ class _GymsCard extends StatelessWidget {
               itemCount: _gyms.length,
               separatorBuilder: (_, __) => SizedBox(width: 12.w),
               itemBuilder: (context, i) {
-                final (name, distance) = _gyms[i];
+                final (name, distance, photo) = _gyms[i];
                 return SizedBox(
                   width: 130.w,
                   child: Column(
@@ -173,12 +183,18 @@ class _GymsCard extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10.r),
-                        child: Container(
+                        child: SizedBox(
                           height: 75.h,
                           width: double.infinity,
-                          color: const Color(0xFF2B2B2B),
-                          child: Icon(Icons.fitness_center,
-                              color: Colors.white38, size: 30.sp),
+                          child: Image.network(
+                            photo,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: const Color(0xFF2B2B2B),
+                              child: Icon(Icons.fitness_center,
+                                  color: Colors.white38, size: 30.sp),
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(height: 5.h),

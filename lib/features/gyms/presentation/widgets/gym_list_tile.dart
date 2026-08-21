@@ -145,26 +145,51 @@ class GymListTile extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                 ],
-                GestureDetector(
-                  onTap: () =>
-                      Get.to(() => GymLoginPreviewScreen(gym: gym)),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 12.w, vertical: 8.h),
-                    decoration: BoxDecoration(
-                      color: _kOrange,
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Text(
-                      'Login / Signup',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
+                gym.isActivated
+                    ? GestureDetector(
+                        onTap: () =>
+                            Get.to(() => GymLoginPreviewScreen(gym: gym)),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            color: _kOrange,
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: Text(
+                            'Login / Signup',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 8.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8E8E8),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.lock_outline_rounded,
+                                size: 10.sp, color: Colors.black38),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'Coming Soon',
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ],

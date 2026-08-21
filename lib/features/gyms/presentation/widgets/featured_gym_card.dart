@@ -155,30 +155,57 @@ class FeaturedGymCard extends StatelessWidget {
             ],
           ),
 
-          // ── Bottom: Login / Signup button ────────────────────────────
+          // ── Bottom: Login / Signup button (locked if not yet activated) ─
           Padding(
             padding:
                 EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-            child: GestureDetector(
-              onTap: () => Get.to(() => GymLoginPreviewScreen(gym: gym)),
-              child: Container(
-                width: double.infinity,
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: _kOrange,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Login / Signup',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
+            child: gym.isActivated
+                ? GestureDetector(
+                    onTap: () =>
+                        Get.to(() => GymLoginPreviewScreen(gym: gym)),
+                    child: Container(
+                      width: double.infinity,
+                      height: 44.h,
+                      decoration: BoxDecoration(
+                        color: _kOrange,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Login / Signup',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    height: 44.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEEEEE),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.lock_outline_rounded,
+                            size: 14.sp, color: Colors.black38),
+                        SizedBox(width: 6.w),
+                        Text(
+                          'Coming Soon',
+                          style: TextStyle(
+                            color: Colors.black38,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            ),
           ),
         ],
       ),
