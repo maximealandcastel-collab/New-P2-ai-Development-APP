@@ -13,11 +13,24 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/pay
 
 class _FakeSubscribeServices implements SubscribeServices {
   @override
-  Future<List<FindTrainerModel>> fetchMorePolls(int offset, int limit) async =>
+  Future<List<FindTrainerModel>> fetchMorePolls(
+    int offset,
+    int limit, {
+    String? gender,
+    String? specialty,
+  }) async =>
       [];
 
   @override
-  Future<void> fetchPolls(int currentPage, int limit, {String? search}) async {}
+  Future<List<FindTrainerModel>> fetchPolls(
+    int currentPage,
+    int limit, {
+    String? gender,
+    String? search,
+    bool skipPinned = false,
+    String? specialty,
+  }) async =>
+      [];
 
   @override
   List<FindTrainerModel> getCachedTrainers() => [];
