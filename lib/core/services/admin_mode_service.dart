@@ -34,19 +34,30 @@ class AdminModeService extends GetxController {
   RxBool get viewAsUserRx => _viewAsUser;
 
   /// Called once when an admin account successfully authenticates.
+  ///
+  /// The SharedPreferences read happens BEFORE any Rx field is touched, and
+  /// _isAdmin/_viewAsUser/isAdminActive are then set together, synchronously.
+  /// Setting _isAdmin.value here and _viewAsUser.value later (after an
+  /// `await`) fires two separate Obx rebuilds of BottomNavBarMain's Scaffold
+  /// in quick succession -- the second rebuild lands while Scaffold's
+  /// internal LayoutBuilder-deferred body attachment from the first rebuild
+  /// hasn't finished, leaving one _ScaffoldSlot.body element stuck mid-layout
+  /// and a second, empty one in its place (the app's body renders blank).
   Future<void> activate() async {
-    _isAdmin.value    = true;
-    isAdminActive.value = true;
-
+    bool viewAsUser = true;
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_kPrefKey) ?? 'user';
-      _viewAsUser.value = (saved != 'admin');
-      if (kDebugMode) {
-        debugPrint('[AdminMode] activated — mode: ${_viewAsUser.value ? "user" : "admin"}');
-      }
-    } catch (e) {
-      _viewAsUser.value = true;
+      viewAsUser = saved != 'admin';
+    } catch (_) {
+      viewAsUser = true;
+    }
+
+    _isAdmin.value       = true;
+    isAdminActive.value  = true;
+    _viewAsUser.value    = viewAsUser;
+    if (kDebugMode) {
+      debugPrint('[AdminMode] activated — mode: ${viewAsUser ? "user" : "admin"}');
     }
 
     // Insert global toggle pill after the frame so the overlay is ready.
@@ -88,17 +99,25 @@ class AdminModeService extends GetxController {
   void _insertPillOverlay() {
     _removePillOverlay();
 
-    final overlayCtx = Get.overlayContext;
-    if (overlayCtx == null) {
-      // Navigator overlay not ready yet — defer to the next frame and retry.
-      // This happens when activate() is called during login before the widget
-      // tree is fully mounted.
+    // Get.overlayContext walks the current Overlay's child elements and
+    // hands back whichever context it finds -- right after Get.offAll()
+    // replaces the route, that context can be a just-deactivated element
+    // from the old screen, and Overlay.of(context) throws "No Overlay
+    // widget found" even though a live Overlay clearly still exists.
+    // Get.key.currentState?.overlay is the root OverlayState itself
+    // (GetMaterialApp's own Navigator), which stays valid across route
+    // changes -- inserting into it directly avoids the stale-context hop.
+    final overlayState = Get.key.currentState?.overlay;
+    if (overlayState == null) {
+      // Root navigator/overlay not ready yet — defer to the next frame and
+      // retry. This happens when activate() is called during login before
+      // the widget tree is fully mounted.
       WidgetsBinding.instance.addPostFrameCallback((_) => _insertPillOverlay());
       return;
     }
 
     _pillEntry = OverlayEntry(builder: _buildPill);
-    Overlay.of(overlayCtx).insert(_pillEntry!);
+    overlayState.insert(_pillEntry!);
   }
 
   void _removePillOverlay() {
@@ -107,7 +126,18 @@ class AdminModeService extends GetxController {
   }
 
   Widget _buildPill(BuildContext context) {
-    final topPad = MediaQuery.maybeOf(context)?.padding.top ?? 44.0;
+    // Deliberately NOT MediaQuery.maybeOf(context) or View.of(context):
+    // both register this Element as a dependent of an ambient InheritedWidget
+    // (_MediaQueryFromView / _ViewScope). This OverlayEntry is inserted into
+    // the app-root Overlay and can outlive the route that was active when it
+    // was built -- if that InheritedWidget is ever torn down (e.g. during a
+    // route-stack replacement) while this Element is still a registered
+    // dependent, InheritedElement.unmount() hits
+    // `assert(_dependents.isEmpty)` and crashes. Reading padding straight off
+    // PlatformDispatcher avoids BuildContext/InheritedWidget entirely, so
+    // this Element never depends on anything above it.
+    final view = WidgetsBinding.instance.platformDispatcher.views.first;
+    final topPad = view.padding.top / view.devicePixelRatio;
     return Obx(() {
       final viewUser = _viewAsUser.value;
       return Positioned(

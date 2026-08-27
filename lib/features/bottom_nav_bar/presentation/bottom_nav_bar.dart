@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -46,9 +45,11 @@ class BottomNavBarMain extends StatelessWidget {
         children: [
           // ── Main scaffold ───────────────────────────────────────────
           Scaffold(
+            key: const ValueKey('bottomNavMainScaffold'),
             extendBody: true,
             backgroundColor: AppColors.backgroundLight,
             body: Stack(
+              key: const ValueKey('bottomNavMainBody'),
               children: [
                 // Admin stack — always mounted, invisible when user mode active
                 Offstage(
