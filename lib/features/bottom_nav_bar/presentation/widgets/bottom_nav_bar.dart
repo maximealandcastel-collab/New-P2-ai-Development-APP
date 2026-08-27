@@ -18,6 +18,10 @@ class BottomNavBar extends StatelessWidget {
 
   const BottomNavBar({super.key, required this.navItems});
 
+  /// How many tabs sit to the left of the centre FAB. Splitting the row in
+  /// half keeps the FAB centred whether the role has 5 tabs or 6.
+  int _fabPosition(int itemCount) => itemCount ~/ 2;
+
   Widget _buildNavTapTarget(
     BottomNavBarController controller,
     int index,
@@ -68,21 +72,25 @@ class BottomNavBar extends StatelessWidget {
               ],
             ),
             padding: EdgeInsets.symmetric(vertical: 10.h),
+            // Built from navItems.length rather than fixed indices. The old
+            // version hardcoded 0-4, which left the 6th tab with no tap target
+            // at all — that is trainers' Messages tab and affiliates' Earnings
+            // tab, both mounted in the stack but unreachable.
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavTapTarget(controller, 0, navItems[0]),
-                _buildNavTapTarget(controller, 1, navItems[1]),
+                for (int i = 0; i < _fabPosition(navItems.length); i++)
+                  _buildNavTapTarget(controller, i, navItems[i]),
                 // Centre FAB
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => NavFabWidget.show(context, controller.fabItems),
                   child: Assets.icons.addButton.svg(height: 48.h, width: 48.w),
                 ),
-                _buildNavTapTarget(controller, 2, navItems[2]),
-                _buildNavTapTarget(controller, 3, navItems[3]),
-                if (navItems.length > 4)
-                  _buildNavTapTarget(controller, 4, navItems[4]),
+                for (int i = _fabPosition(navItems.length);
+                    i < navItems.length;
+                    i++)
+                  _buildNavTapTarget(controller, i, navItems[i]),
               ],
             ),
           ),

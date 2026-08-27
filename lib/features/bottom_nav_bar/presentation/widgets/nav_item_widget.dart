@@ -64,12 +64,19 @@ class _BottomNavItemState extends State<BottomNavItem>
       final isSelected = controller.selectedIndex == widget.index;
 
       if (isSelected && !_wasSelected) {
-        _controller.forward(from: 0);
+        // Driving an AnimationController from inside build() can trigger
+        // "markNeedsBuild() called during build"; defer it a frame.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _controller.forward(from: 0);
+        });
       }
       _wasSelected = isSelected;
 
-      final Color selectedColor =
-          widget.index == 2 ? AppColors.textWhite : AppColors.textPrimary;
+      // Was `index == 2 ? textWhite : textPrimary`, a leftover from a layout
+      // where index 2 was the centre item. The FAB is now a separate widget, so
+      // index 2 is an ordinary tab — Gyms for users, Contents for admins — and
+      // white rendered it invisible against the white frosted bar when selected.
+      const Color selectedColor = AppColors.textPrimary;
       final Color iconColor =
           isSelected ? selectedColor : AppColors.textSecondary;
 

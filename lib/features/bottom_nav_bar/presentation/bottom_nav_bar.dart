@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/bottom_nav_bar.dart';
 
 /// BottomNavBarMain
 ///
-/// ARCHITECTURE NOTE — why Offstage:
-/// Both the admin stack and the user stack are ALWAYS mounted in the widget
-/// tree. Offstage hides the inactive one without unmounting it. This means:
-///   • AdminDashboardController.onInit() fires ONCE, never again on toggle.
-///   • No API storm when the admin flips between Admin ↔ User mode.
-///   • Each mode preserves its own tab position, scroll state, and loaded data.
+/// ARCHITECTURE NOTE — one stack, not two:
+/// This used to mount an admin stack and a user stack side by side, hiding the
+/// inactive one with Offstage, so that toggling Admin ↔ User preserved state.
+/// That had three defects, because Offstage and IndexedStack both *build* all
+/// their children and only skip painting:
+///   • In admin mode ctrl.navItems also returns adminNavItems, so the same five
+///     screens were mounted twice at once — two ContentsScreen feeds, two sets
+///     of video players, doubled network traffic.
+///   • Every plain subscriber mounted AdminDashboardScreen, whose onInit fires
+///     admin API calls. There is no isAdmin gate inside that screen.
+///   • The user stack's child list swapped identity on each toggle anyway, so
+///     the state preservation it was built for did not actually hold.
+///
+/// A single IndexedStack over the active set mounts each screen exactly once.
+/// Per-mode tab position is still preserved — the controller keeps separate
+/// _adminIndex and _userIndex values.
 ///
 /// ROLE-AWARE NAV:
 /// ctrl.navItems resolves the correct tab set per role:
-///   trainer  → trainerNavItems  (Home · Clients · Contents · Request · Messages)
-///   subscriber → userNavItems   (Home · History · Contents · Trainer)
+///   trainer    → trainerNavItems (Home · Clients · Gyms · Contents · Request · Messages)
+///   subscriber → userNavItems    (Home · History · Gyms · Contents · Trainer)
 ///   affiliate  → userNavItems + Earnings tab
-///   admin      → adminNavItems  (trainer tabs + Admin analytics)
+///   admin      → adminNavItems   (trainer tabs + Admin analytics)
 class BottomNavBarMain extends StatelessWidget {
   const BottomNavBarMain({super.key});
 
@@ -32,48 +40,24 @@ class BottomNavBarMain extends StatelessWidget {
     return Obx(() {
       final isAdmin = Get.isRegistered<AdminModeService>() &&
           AdminModeService.to.isAdmin;
-      final viewUser = isAdmin && AdminModeService.to.viewAsUser;
+      final adminMode = isAdmin && !AdminModeService.to.viewAsUser;
 
-      // Role-aware nav items: admin gets adminNavItems; everyone else gets
-      // the items the controller resolves for their role (trainer / subscriber
-      // / affiliate). This ensures trainers see the Messages tab automatically.
-      final activeItems = (isAdmin && !viewUser)
-          ? NavItemModel.adminNavItems
-          : ctrl.navItems;
+      final activeItems = ctrl.navItems;
+      final rawIndex = adminMode ? ctrl.adminIndex : ctrl.userIndex;
+      // Nav sets differ in length, so a preserved index from the other mode can
+      // fall outside this one. IndexedStack throws on an out-of-range index.
+      final activeIndex = rawIndex.clamp(0, activeItems.length - 1);
 
-      return Stack(
-        children: [
-          // ── Main scaffold ───────────────────────────────────────────
-          Scaffold(
-            key: const ValueKey('bottomNavMainScaffold'),
-            extendBody: true,
-            backgroundColor: AppColors.backgroundLight,
-            body: Stack(
-              key: const ValueKey('bottomNavMainBody'),
-              children: [
-                // Admin stack — always mounted, invisible when user mode active
-                Offstage(
-                  offstage: !isAdmin || viewUser,
-                  child: IndexedStack(
-                    index: ctrl.adminIndex,
-                    children:
-                        NavItemModel.adminNavItems.map((e) => e.screen).toList(),
-                  ),
-                ),
-                // User stack — role-aware: mounts trainer screens for trainers,
-                // subscriber screens for subscribers, etc.
-                Offstage(
-                  offstage: isAdmin && !viewUser,
-                  child: IndexedStack(
-                    index: ctrl.userIndex,
-                    children: ctrl.navItems.map((e) => e.screen).toList(),
-                  ),
-                ),
-              ],
-            ),
-            bottomNavigationBar: BottomNavBar(navItems: activeItems),
-          ),
-        ],
+      return Scaffold(
+        key: const ValueKey('bottomNavMainScaffold'),
+        extendBody: true,
+        backgroundColor: AppColors.backgroundLight,
+        body: IndexedStack(
+          key: ValueKey(adminMode ? 'adminStack' : 'userStack'),
+          index: activeIndex,
+          children: activeItems.map((e) => e.screen).toList(),
+        ),
+        bottomNavigationBar: BottomNavBar(navItems: activeItems),
       );
     });
   }
