@@ -816,19 +816,43 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       destructive: _user.isVerified,
     );
     if (!confirm) return;
-    setState(() => _loading = true);
-    await widget.controller.setVerified(_user.id, !_user.isVerified);
+    final target = !_user.isVerified;
+    if (!await _tryAction(() => widget.controller.setVerified(_user.id, target))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
-      _user = _user.copyWith(isVerified: !_user.isVerified);
+      _user = _user.copyWith(isVerified: target);
       _loading = false;
     });
     widget.onActionDone();
-    if (mounted) {
-      Get.snackbar(
-        _user.isVerified ? '✅ Verified' : '❌ Unverified',
-        _user.email,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    Get.snackbar(
+      target ? '✅ Verified' : '❌ Unverified',
+      _user.email,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  /// Performs an admin write and reports honestly.
+  ///
+  /// Returns true only when the API call succeeded. These actions used to
+  /// swallow every error and announce success unconditionally, so a failed
+  /// suspend still showed "🔴 Suspended" while the account stayed active.
+  Future<bool> _tryAction(Future<void> Function() action) async {
+    setState(() => _loading = true);
+    try {
+      await action();
+      return true;
+    } catch (_) {
+      if (mounted) {
+        setState(() => _loading = false);
+        Get.snackbar(
+          'Action failed',
+          'Nothing was changed. Check your connection and try again.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      return false;
     }
   }
 
@@ -855,8 +879,10 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       confirmLabel: 'Change',
     );
     if (!confirm) return;
-    setState(() => _loading = true);
-    await widget.controller.setRole(_user.id, picked);
+    if (!await _tryAction(() => widget.controller.setRole(_user.id, picked))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _user = _user.copyWith(role: picked);
       _loading = false;
@@ -902,8 +928,11 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       );
       if (!ok) return;
     }
-    setState(() => _loading = true);
-    await widget.controller.suspendUser(_user.id, suspending, reason: reason);
+    if (!await _tryAction(
+        () => widget.controller.suspendUser(_user.id, suspending, reason: reason))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _user = _user.copyWith(isSuspended: suspending);
       _loading = false;
@@ -963,8 +992,11 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       ),
     );
     if (confirmed != true) return;
-    setState(() => _loading = true);
-    await widget.controller.grantAccess(_user.id, tier: tier, days: days);
+    if (!await _tryAction(
+        () => widget.controller.grantAccess(_user.id, tier: tier, days: days))) {
+      return;
+    }
+    if (!mounted) return;
     final expiry = DateTime.now().add(Duration(days: days));
     setState(() {
       _user = _user.copyWith(subscriptionTier: tier, subscriptionEndDate: expiry);
