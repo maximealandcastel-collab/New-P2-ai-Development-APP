@@ -2,16 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
-import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
-import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
+import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
 
 class LoginController extends GetxController {
@@ -42,11 +41,18 @@ class LoginController extends GetxController {
   static const _kSaveLoginKey = 'saveLogin';
 
   final loginFormKey = GlobalKey<FormState>();
+  // Debug-only convenience prefill. The kDebugMode guard is what keeps
+  // credentials out of a shipped binary even if the defines are set at build
+  // time — a release build always starts with empty fields.
   final emailController    = TextEditingController(
-    text: const String.fromEnvironment('PREFILL_EMAIL', defaultValue: ''),
+    text: kDebugMode
+        ? const String.fromEnvironment('PREFILL_EMAIL', defaultValue: '')
+        : '',
   );
   final passwordController = TextEditingController(
-    text: const String.fromEnvironment('PREFILL_PASSWORD', defaultValue: ''),
+    text: kDebugMode
+        ? const String.fromEnvironment('PREFILL_PASSWORD', defaultValue: '')
+        : '',
   );
 
   @override
@@ -94,7 +100,6 @@ class LoginController extends GetxController {
       // itself also calls initFromBackend() as a safety net.
       StreamChatService.instance.initFromBackend().ignore();
 
-      const ownerEmails = {'pmoney78q@gmail.com'};
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
 
@@ -102,23 +107,23 @@ class LoginController extends GetxController {
       // regardless of backend role, and land on subscriber view by default.
       // Must be checked BEFORE the role=='admin' branch so pmoney is never
       // routed to the bypass code screen.
-      if (ownerEmails.contains(loginEmail)) {
+      if (AppConstants.ownerEmails.contains(loginEmail)) {
         if (!Get.isRegistered<AdminModeService>()) {
           Get.put(AdminModeService(), permanent: true);
         }
         await AdminModeService.to.activate(); // defaults to viewAsUser = true
         // Always persist owner session — pill must survive cold restarts regardless of saveLogin toggle
         await prefs.setBool('sessionPersisted', true);
-        Get.offAll(() => BottomNavBarMain());
+        Get.offAllNamed(AppRoute.bottonNavBar);
         return;
       }
       // Other admins → AdminBypassScreen (enter code to unlock dashboard).
       if (role == 'admin') {
-        Get.offAll(() => AdminBypassScreen());
+        Get.offAllNamed(AppRoute.adminBypassScreen);
         return;
       }
 
-      Get.offAll(() => BottomNavBarMain());
+      Get.offAllNamed(AppRoute.bottonNavBar);
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
@@ -138,10 +143,14 @@ class LoginController extends GetxController {
     await logout();
   }
 
-  /// Returns the cached login email (used by chat/notification screens).
+  /// Returns the email cached at login, falling back to whatever is typed in
+  /// the form. Session restore runs before anything has been typed, so the
+  /// cached value is the only reliable source on a cold start.
   String? getCachedEmail() {
-    final e = emailController.text.trim();
-    return e.isEmpty ? null : e;
+    final cached = _authService.getEmail()?.trim();
+    if (cached != null && cached.isNotEmpty) return cached;
+    final typed = emailController.text.trim();
+    return typed.isEmpty ? null : typed;
   }
 
 
@@ -154,9 +163,24 @@ class LoginController extends GetxController {
     try {
       await _authService.logout();
     } catch (_) {}
+    // Admin/affiliate state lives outside Hive and both services are registered
+    // permanent, so AuthRepository.logout() does not touch them. Without this
+    // the next account signed in on the same device inherits admin mode.
+    try {
+      if (Get.isRegistered<AdminModeService>()) {
+        await AdminModeService.to.deactivate();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<AffiliateModeService>()) {
+        AffiliateModeService.to.deactivate();
+      }
+    } catch (_) {}
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('sessionPersisted');
+      await prefs.remove(AppConstants.prefAdminDashboardMode);
+      await prefs.remove(AppConstants.prefAdminToken);
     } catch (_) {}
     Get.offAllNamed(AppRoute.loginScreen);
   }

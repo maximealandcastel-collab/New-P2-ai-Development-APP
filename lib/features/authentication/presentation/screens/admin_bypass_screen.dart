@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
@@ -11,8 +12,6 @@ import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 /// Key used to read/store the admin-specific JWT token.
 /// Must match the constant declared in AdminDashboardController.
@@ -118,7 +117,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
       );
-      Get.offAll(() => NavBar());
+      Get.offAllNamed(AppRoute.bottonNavBar);
       return;
     }
 
@@ -148,11 +147,11 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );
-    Get.offAll(() => NavBar());
+    Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   void _skip() {
-    Get.offAll(() => NavBar());
+    Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
@@ -93,11 +94,13 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     }
 
     // ── Restore admin mode for the owner account ─────────────────────────
-    const ownerEmails = {'pmoney78q@gmail.com'};
     final cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
-    if (ownerEmails.contains(cachedEmail)) {
+    if (AppConstants.ownerEmails.contains(cachedEmail)) {
+      // permanent: true is required — under SmartManagement.full a non-permanent
+      // instance is linked to the splash route and deleted by the offAllNamed
+      // below, taking admin mode and the toggle pill with it.
       if (!Get.isRegistered<AdminModeService>()) {
-        Get.put(AdminModeService());
+        Get.put(AdminModeService(), permanent: true);
       }
       // activate() restores the admin's last saved dashboard mode (admin or user).
       await AdminModeService.to.activate();
