@@ -51,6 +51,10 @@ class AudioFocusService {
         androidWillPauseWhenDucked: true,
       ));
 
+      // configure() can run more than once (ReelController is fenix, so GetX
+      // recreates it). Without this cancel each recreation left a live
+      // subscription behind and every interruption fired N handlers.
+      await _interruptionSub?.cancel();
       _interruptionSub = _session!.interruptionEventStream.listen(
         (event) {
           debugPrint(
@@ -83,7 +87,9 @@ class AudioFocusService {
   /// Release audio focus. Call whenever the feed suspends — tab change, route
   /// push on top, app background, or the user navigating away.
   Future<void> deactivate() async {
-    if (!_sessionActive) return;
+    // Deliberately not guarded on _sessionActive: if setActive(true) threw
+    // after the OS had already granted focus, the flag is false while focus is
+    // genuinely held, and an early return would leak it forever.
     try {
       final session = _session ?? await AudioSession.instance;
       await session.setActive(false);

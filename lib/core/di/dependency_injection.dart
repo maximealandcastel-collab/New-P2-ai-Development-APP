@@ -3,6 +3,7 @@ import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/connectivity_service.dart';
 import 'package:pler_to_pler_app/core/services/storage_service.dart';
+import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/features/authentication/data/repositories/auth_repository.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
@@ -98,6 +99,11 @@ class DependencyInjection {
     final apiService = ApiService();
     apiService.init(connectivityService, Get.find<CacheService>());
     Get.put<ApiService>(apiService, permanent: true);
+
+    /// Video playback — single owner of raw VideoPlayerControllers. Must be
+    /// permanent: the bottom nav calls stopAll() on it from outside any route,
+    /// and it registers an app-lifecycle observer for the whole session.
+    Get.put<VideoPlaybackManager>(VideoPlaybackManager(), permanent: true);
 
     /// Auth
     Get.lazyPut<AuthRepository>(
