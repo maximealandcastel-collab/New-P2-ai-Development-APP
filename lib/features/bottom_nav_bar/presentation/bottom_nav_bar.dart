@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -48,16 +49,49 @@ class BottomNavBarMain extends StatelessWidget {
       // fall outside this one. IndexedStack throws on an out-of-range index.
       final activeIndex = rawIndex.clamp(0, activeItems.length - 1);
 
+      // The nav bar is stacked over the body rather than passed to
+      // Scaffold.bottomNavigationBar, and extendBody is left false.
+      //
+      // extendBody: true is the ONLY thing that routes Scaffold.body through
+      // _BodyBuilder, which defers building the body to the LAYOUT phase via a
+      // LayoutBuilder (see scaffold.dart, _BodyBuilder.build). Once admin mode
+      // is active that deferred rebuild stops re-running, so the body kept
+      // painting a stale subtree — it still showed TrainerHomeScreen while the
+      // nav bar had already moved to another tab. bottomNavigationBar never had
+      // the problem because it bypasses _BodyBuilder entirely, which is exactly
+      // why only the body went stale.
+      //
+      // Stacking the bar reproduces the floating-over-content look that
+      // extendBody gave us, without the LayoutBuilder indirection. The extra
+      // bottom padding is what extendBody used to contribute, so scrollable
+      // screens still clear the bar.
+      final media = MediaQuery.of(context);
+      final navBarHeight = 76.h + media.padding.bottom;
+
       return Scaffold(
         key: const ValueKey('bottomNavMainScaffold'),
-        extendBody: true,
         backgroundColor: AppColors.backgroundLight,
-        body: IndexedStack(
-          key: ValueKey(adminMode ? 'adminStack' : 'userStack'),
-          index: activeIndex,
-          children: activeItems.map((e) => e.screen).toList(),
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: MediaQuery(
+                data: media.copyWith(
+                  padding: media.padding.copyWith(bottom: navBarHeight),
+                ),
+                child: IndexedStack(
+                  index: activeIndex,
+                  children: activeItems.map((e) => e.screen).toList(),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BottomNavBar(navItems: activeItems),
+            ),
+          ],
         ),
-        bottomNavigationBar: BottomNavBar(navItems: activeItems),
       );
     });
   }
