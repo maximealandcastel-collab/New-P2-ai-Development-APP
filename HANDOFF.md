@@ -78,6 +78,22 @@ its admin API calls on app entry.**
 Replaced with a single `IndexedStack` over the active set. Per-mode tab position is still preserved by
 the controller's separate `_adminIndex` / `_userIndex`.
 
+**A second, deeper cause sat underneath it** (fixed separately in `cd92afd`). Even after the above, the
+body still froze once admin mode was activated — it kept showing `TrainerHomeScreen` while the pill said
+*Viewing as User* and the nav bar had **Gyms** selected, a screen not even in the user set. Instrumenting
+the `Obx` proved the widget layer was correct (`adminMode=true rawIndex=2 activeIndex=2`), so the fault
+was downstream of it.
+
+> `extendBody: true` is the **only** thing that routes `Scaffold.body` through `_BodyBuilder`, which
+> defers building the body to the **layout phase** behind a `LayoutBuilder`. Once admin mode was active
+> that deferred rebuild stopped re-running. `bottomNavigationBar` bypasses `_BodyBuilder` entirely —
+> which is exactly why the nav bar always updated while only the body went stale.
+
+The fix drops `extendBody` and stacks the nav bar over the body instead of passing it to
+`Scaffold.bottomNavigationBar`. That reproduces the floating-over-content look without the
+`LayoutBuilder` indirection, and the body is wrapped in a `MediaQuery` supplying the bar's height as
+bottom padding — the inset `extendBody` used to contribute.
+
 Also fixed here:
 - The nav row hardcoded tap targets `0..4`, leaving the sixth tab unreachable — that is **trainers'
   Messages tab and affiliates' Earnings tab**, both mounted but with no way to tap them.
@@ -157,6 +173,9 @@ have failed the build. Every file is recoverable from git history.
    `app.dart`. `lib/routes/app_routes.dart` is **not registered** — importing it is how the Generate
    Workout Split crash happened. Always import `core/routes`.
 8. **Do not report success on an unverified write.** If an API call can fail, let it fail visibly.
+9. **Do not re-enable `extendBody` on `BottomNavBarMain`.** It routes the body through `_BodyBuilder`'s
+   layout-phase `LayoutBuilder` and reintroduces the stale body. The nav bar is stacked over the body
+   specifically to avoid that. Diagnostic signature: the bottom nav updates but the body does not.
 
 ---
 
@@ -167,7 +186,9 @@ Pixel 7 / API 35, debug build, real backend.
 | Check | Result |
 |---|---|
 | Login form opens empty (no prefilled credentials) | ✅ |
-| Every bottom-nav tab switches the body | ✅ (was frozen) |
+| Every bottom-nav tab switches the body, plain session | ✅ (was frozen) |
+| Every bottom-nav tab switches the body, admin mode active | ✅ (needed the `extendBody` fix) |
+| Admin/User pill toggles the body and the tab set | ✅ |
 | Nav renders 5 tabs with the FAB centred; index-2 label visible | ✅ |
 | Contents video loads and plays | ✅ (auth token fix) |
 | Exactly one media player `state:started` | ✅ |
@@ -206,6 +227,17 @@ and others) have zero import sites. **Restoring this is wiring, not a rebuild.**
 correct `activatedPartners` getter that is **never called** — all four call sites use `.partners`, so
 LA Fitness, Equinox, YogaSix and others render under "Featured Gyms Near You" with member counts and
 ratings.
+
+**`AdminDashboardScreen` throws on render — newly exposed, root cause not yet found**
+Now that the body switches correctly, the Admin tab is reachable for the first time in this engagement,
+and it renders a Flutter error box: *"A RenderViewport expected a child of type RenderSliver but received
+a child of type RenderErrorBox."* One of the screen's five sliver children builds an `ErrorWidget`, and
+that box then lands in a sliver list. This is pre-existing and unrelated to the navigation fix — the
+screen simply never rendered before, so the fault was invisible. Checked and ruled out: null-unsafe
+metrics accessors (all are `?.`/`?? 0`), and GetX `ObxError` from the sliver-wrapping `Obx` widgets.
+**To diagnose:** clear logcat *before* launching and walk to the Admin tab in a single pass — the original
+exception is only logged on the first build of that subtree; revisiting the tab re-shows a cached
+`ErrorWidget` and logs nothing, which is what makes this awkward to catch.
 
 **Also outstanding**
 - The onboarding copy is placeholder text from a waste-management app ("kiosk fill levels & specific
