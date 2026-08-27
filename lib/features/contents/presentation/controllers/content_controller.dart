@@ -142,8 +142,8 @@ class ContentController extends GetxController with PaginatedLoaderUi {
   Future<void> _activateReelAt(int index) async {
     if (_isClosed) return;
 
-    if (Get.find<BottomNavBarController>().selectedIndex !=
-        BottomNavBarController.contentsTabIndex) {
+    final nav = Get.find<BottomNavBarController>();
+    if (nav.selectedIndex != nav.contentsTabIndex) {
       return;
     }
 
@@ -157,7 +157,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     final navController = Get.find<BottomNavBarController>();
     _navTabWorker = ever<int>(navController.tabChangedSignal, (index) {
       if (_isClosed) return;
-      if (index == BottomNavBarController.contentsTabIndex) {
+      if (index == navController.contentsTabIndex) {
         unawaited(reel.resume(contents: contents));
       } else {
         unawaited(reel.suspend());
