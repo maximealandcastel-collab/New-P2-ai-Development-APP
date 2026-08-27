@@ -6,6 +6,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
@@ -82,7 +83,15 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFF7C3AED),
           title: 'Clients',
           subtitle: 'Manage your clients and progress',
-          onTap: () => Get.toNamed(AppRoute.clientDetailsScreen),
+          // clientDetailsScreen is a single-client detail route whose binding
+          // requires a ClientInvoiceModel argument; opening it with none threw
+          // a TypeError. The clients *list* is the Clients tab.
+          onTap: () {
+            Get.until((route) => route.settings.name == AppRoute.bottonNavBar);
+            final nav = BottomNavBarController.to;
+            final clients = nav.clientsTabIndex;
+            if (clients >= 0) nav.onChange(clients);
+          },
         ),
         _MenuItem(
           icon: Icons.calendar_today_rounded,

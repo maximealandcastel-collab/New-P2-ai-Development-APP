@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -272,7 +272,11 @@ class _GenerateWorkoutBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
+      // workoutScreen is the registered generator that actually reaches
+      // WorkoutController.generateWorkout(). The previous target,
+      // workoutFinderFlow, only exists in the abandoned lib/routes table and
+      // was never registered, so tapping this crashed on a null unknownRoute.
+      onTap: () => Get.toNamed(AppRoute.workoutScreen),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
         height: 158.h,
