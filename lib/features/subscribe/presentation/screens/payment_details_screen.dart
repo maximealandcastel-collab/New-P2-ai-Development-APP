@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
@@ -11,6 +12,36 @@ import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_se
 import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/payment_details_controller.dart';
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/subscribe_card.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+
+/// Terms / Privacy link for the paywall. Opens the existing legal screen,
+/// which reads its document from the `key` argument.
+class _LegalLink extends StatelessWidget {
+  final String label;
+  final String docKey;
+  final String title;
+
+  const _LegalLink({
+    required this.label,
+    required this.docKey,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+        AppRoute.privacyPolicyScreen,
+        arguments: {'title': title, 'key': docKey, 'consent': false},
+      ),
+      child: CustomText(
+        text: label,
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
+}
 
 class PaymentDetailsScreen extends StatelessWidget {
   const PaymentDetailsScreen({super.key});
@@ -134,6 +165,45 @@ class PaymentDetailsScreen extends StatelessWidget {
                       text: 'Cancel anytime • No hidden fees',
                       fontSize: 12.sp,
                       color: AppColors.textSecondary,
+                    ),
+
+                    // ── Restore + legal links ─────────────────────────────
+                    // Required by App Store Review: 3.1.1 (a restore path for
+                    // auto-renewable subscriptions) and 3.1.2 (Terms of Use and
+                    // Privacy Policy reachable from the purchase screen).
+                    SizedBox(height: 12.h),
+                    Obx(() {
+                      final busy = controller.purchaseLoadingState.isLoading;
+                      return TextButton(
+                        onPressed:
+                            busy ? null : () => controller.restorePurchases(),
+                        child: CustomText(
+                          text: 'Restore Purchases',
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      );
+                    }),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _LegalLink(
+                          label: 'Terms of Use',
+                          docKey: 'terms',
+                          title: 'Terms of Service',
+                        ),
+                        CustomText(
+                          text: '  •  ',
+                          fontSize: 11.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                        _LegalLink(
+                          label: 'Privacy Policy',
+                          docKey: 'privacy',
+                          title: 'Privacy Policy',
+                        ),
+                      ],
                     ),
 
                     // ── IAP not available fallback ────────────────────────
