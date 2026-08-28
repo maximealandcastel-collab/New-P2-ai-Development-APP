@@ -16,6 +16,7 @@ well-meaning edits that looked correct in isolation.
 |---|---|---|
 | 1 | **Rotate the owner account password** (`pmoney78q@gmail.com`) | It was committed in `codemagic.yaml` and compiled into every shipped build. It is in git history. Removing it from the file does not un-ship it. |
 | 2 | **Add `ADMIN_KEY` to a Codemagic environment group named `admin`** | The admin API key no longer has a hardcoded fallback. Without this variable the admin dashboard will send an empty `x-admin-key`. |
+| 2b | **Rotate the admin bypass code, server-side** | The live bypass code is the *same* 4-digit value that shipped hardcoded as the `x-admin-key` default. Anyone with a shipped binary or repo access can type it into the Admin Access screen and be granted "lifetime admin privileges" on any account the backend marks `role: admin`. Changing `ADMIN_KEY` in CI does **not** change it — `/auth/admin-bypass` validates it on the server. |
 | 3 | **Confirm the `/admin/users/:id/suspend` field contract** | The app *reads* suspension as `isDeleted` but *writes* `{suspend: bool}`. If the backend does not set `isDeleted`, suspension state never round-trips. |
 | 4 | **Make `/iap/verify` idempotent on `purchaseId`** | The client now de-dupes, but StoreKit replays unfinished transactions across devices and reinstalls. The server is the only place this can be guaranteed. |
 
@@ -31,7 +32,14 @@ well-meaning edits that looked correct in isolation.
   who installed the app could tap "Sign in" and get owner access. The defines are removed, and the
   prefill is now behind `kDebugMode` so a release build starts empty regardless of what is defined.
 - **`admin_dashboard_controller.dart` shipped `x-admin-key` with a hardcoded default of `'2931'`.**
-  A four-digit admin key compiled into every binary. The default is gone.
+  A four-digit admin key compiled into every binary. The default is gone. **This is worse than it first
+  looked:** verifying the admin dashboard on device confirmed that the same value is also the live
+  `/auth/admin-bypass` code. So it was never just an API key — it is the credential that grants admin
+  privileges through the in-app Admin Access screen, and it was readable in every shipped binary.
+  Removing the default stops shipping it; only the backend can invalidate it. See action 2b.
+- **`admin_bypass_screen.dart` treats the literal code `67` as a client-side unlock** for affiliate /
+  partner mode — no backend call, no validation, straight to the earnings dashboard. Not fixed in this
+  pass (it is not a P0 launch blocker) but it is the same class of problem.
 - **`codemagic.yaml` deleted every Apple distribution certificate on the account before each build.**
   That is account-wide and irreversible; it breaks every other pipeline and every teammate's local
   signing. Removed — `fetch-signing-files --create` already covers the real need.
@@ -230,15 +238,22 @@ Pixel 7 / API 35, debug build, real backend.
 | Audio on tab change: `state:started` → `state:idle` | ✅ |
 | Audio on backgrounding: `state:started` → `state:paused` | ✅ |
 | Generate Workout Split opens the generator, no exception | ✅ |
+| Admin bypass login → toggle pill appears, admin tab set loads | ✅ |
+| **Admin dashboard renders, real backend data, no error box** | ✅ |
+| Admin dashboard scrolls end to end with no layout errors | ✅ |
 | `flutter analyze` | **0 errors** (was 38) |
 | `flutter test` | **18 passing** |
 
-**The Admin dashboard fix was verified by widget test, not on device.** Reaching that tab needs an owner
-login, and the owner password is a leaked credential pending rotation, so it was not used. The test
-pumps the screen in its real first-paint state (no metrics loaded) and scrolls the whole list so every
-sliver lays out; reinstating one `Obx` wrapper reproduces the original errors verbatim. That is stronger
-evidence than a screenshot for this particular fault, but it is not a device run — **please confirm the
-tab on a real admin session.**
+The Admin dashboard was verified twice over. On device, through a real admin-role account and the
+`/auth/admin-bypass` code path: the full screen renders — KPI grid, activity feed, quick actions,
+platform overview with the signups chart, and trainer management — with live backend values and a clean
+logcat (no `ObxError`, no `RenderErrorBox`, no overflow). And by widget test, which is the stronger
+guard going forward: reinstating one `Obx` wrapper reproduces the original errors verbatim.
+
+Note the three `Row` overflow guards added alongside the fix were precautionary. They surfaced under the
+widget test's font, whose glyphs are wider than real ones; the device run showed **no** overflow. The
+layouts were still wrong (unbounded text with nothing able to yield) and would stripe at a large system
+text-scale setting, so the guards stay.
 
 Audio was verified objectively, not by ear:
 `adb shell dumpsys audio | sed -n '/players:/,/^$/p'` lists every player with a `state:` field. Use this
