@@ -388,7 +388,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 9.sp,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: AppFontWeight.display,
                             letterSpacing: 0.3,
                           )),
                       Text('AI',

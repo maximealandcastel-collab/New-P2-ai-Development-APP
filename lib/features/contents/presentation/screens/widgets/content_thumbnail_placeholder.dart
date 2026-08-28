@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -42,7 +43,7 @@ class ContentThumbnailPlaceholder extends StatelessWidget {
                   text: title!.trim(),
                   color: AppColors.textWhite.withValues(alpha: 0.85),
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   maxline: 2,
                   textOverflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

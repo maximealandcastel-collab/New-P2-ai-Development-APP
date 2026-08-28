@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
@@ -28,7 +29,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           children: [
             CustomText(
               text: 'Account information',
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,
@@ -47,7 +48,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomText(text: 'Date of birth',fontWeight: FontWeight.w600),
+                  CustomText(text: 'Date of birth',fontWeight: AppFontWeight.label),
                   CustomContainer(
                     color: Colors.black.withValues(alpha: 0.08),
                     paddingAll: 8.r,
@@ -63,7 +64,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             /// +++++++++++++++++++++++++ Password +++++++++++++++++++++++
             CustomText(
               text: 'Password',
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -87,7 +88,7 @@ class LegalPrivacyScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         color: Colors.black,
                       ),
                     ),
@@ -124,7 +125,7 @@ class LegalPrivacyScreen extends StatelessWidget {
                                 'P2P',
                                 style: TextStyle(
                                   fontSize: 22.sp,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: AppFontWeight.display,
                                   color: const Color(0xFFFF6B35),
                                 ),
                               ),
@@ -135,7 +136,7 @@ class LegalPrivacyScreen extends StatelessWidget {
                             text: TextSpan(
                               style: TextStyle(
                                 fontSize: 16.sp,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: AppFontWeight.display,
                                 letterSpacing: 1.5,
                               ),
                               children: const [
@@ -220,7 +221,7 @@ class LegalPrivacyScreen extends StatelessWidget {
                                   'Your privacy and safety are our priority.',
                                   style: TextStyle(
                                     fontSize: 12.sp,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: AppFontWeight.label,
                                     color: Colors.black87,
                                   ),
                                 ),
@@ -233,7 +234,7 @@ class LegalPrivacyScreen extends StatelessWidget {
                                   'support@p2pfitchai.com',
                                   style: TextStyle(
                                     fontSize: 11.sp,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: AppFontWeight.label,
                                     color: const Color(0xFFFF6B35),
                                   ),
                                 ),
@@ -303,7 +304,7 @@ class _PolicyTile extends StatelessWidget {
                         item.title,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.section,
                           color: Colors.black,
                         ),
                       ),
@@ -606,7 +607,7 @@ Before deleting, you may request a copy of your data by contacting support@p2pfi
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         color: Colors.black,
                       ),
                     ),
@@ -671,7 +672,7 @@ class _MarkdownText extends StatelessWidget {
           text,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             color: Colors.black,
           ),
         ),
@@ -716,7 +717,7 @@ class _MarkdownText extends StatelessWidget {
         text: match.group(1),
         style: TextStyle(
           fontSize: 13.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
           color: Colors.black,
           height: 1.6,
         ),

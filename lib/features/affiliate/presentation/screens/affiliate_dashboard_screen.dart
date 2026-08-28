@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -62,7 +63,7 @@ class AffiliateDashboardScreen extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: AppFontWeight.section,
                         ),
                       ),
                       if (s != null)
@@ -183,7 +184,7 @@ class _EarningsCard extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 36.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: AppFontWeight.stat,
             ),
           ),
           SizedBox(height: 16.h),
@@ -219,7 +220,7 @@ class _EarningChip extends StatelessWidget {
           children: [
             Text(label, style: TextStyle(color: Colors.white70, fontSize: 10.sp)),
             SizedBox(height: 2.h),
-            Text(value, style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w700)),
+            Text(value, style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: AppFontWeight.section)),
           ],
         ),
       ),
@@ -241,7 +242,7 @@ class _WithdrawButton extends StatelessWidget {
         icon: Icon(Icons.account_balance_wallet_outlined, size: 18.sp),
         label: Text(
           'Withdraw Earnings',
-          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label),
         ),
         onPressed: stats.availableToWithdrawCents < 500
             ? null
@@ -290,7 +291,7 @@ class _WithdrawButton extends StatelessWidget {
               ),
               Text(
                 'Request Withdrawal',
-                style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: AppFontWeight.section),
               ),
               SizedBox(height: 4.h),
               Text(
@@ -382,7 +383,7 @@ class _WithdrawButton extends StatelessWidget {
                   ),
                   child: loading.value
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text('Submit Request', style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold)),
+                      : Text('Submit Request', style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: AppFontWeight.section)),
                 ),
               )),
             ],
@@ -448,7 +449,7 @@ class _ReferralTile extends StatelessWidget {
               referral.displayName.isNotEmpty ? referral.displayName[0].toUpperCase() : '?',
               style: TextStyle(
                 color: referral.isPaid ? AppColors.primary : Colors.grey.shade400,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
                 fontSize: 14.sp,
               ),
             ),
@@ -460,7 +461,7 @@ class _ReferralTile extends StatelessWidget {
               children: [
                 Text(
                   referral.displayName,
-                  style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: AppFontWeight.label),
                 ),
                 Text(
                   referral.email,
@@ -486,7 +487,7 @@ class _ReferralTile extends StatelessWidget {
                   style: TextStyle(
                     color: referral.isPaid ? Colors.green.shade400 : Colors.grey.shade400,
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ),
@@ -535,7 +536,7 @@ class _WithdrawalTile extends StatelessWidget {
               children: [
                 Text(
                   '\$${w.amountDollars.toStringAsFixed(2)} via ${w.paymentMethod}',
-                  style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: AppFontWeight.label),
                 ),
                 Text(
                   w.paymentEmail,
@@ -576,7 +577,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     title,
-    style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.bold),
+    style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: AppFontWeight.section),
   );
 }
 
@@ -598,7 +599,7 @@ class _StatBox extends StatelessWidget {
       children: [
         Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 11.sp)),
         SizedBox(height: 4.h),
-        Text(value, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: FontWeight.bold)),
+        Text(value, style: TextStyle(color: Colors.white, fontSize: 22.sp, fontWeight: AppFontWeight.stat)),
       ],
     ),
   );

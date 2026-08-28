@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -176,7 +177,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: AppFontWeight.section,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -266,7 +267,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: AppFontWeight.section,
                           ),
                         ),
                 ),

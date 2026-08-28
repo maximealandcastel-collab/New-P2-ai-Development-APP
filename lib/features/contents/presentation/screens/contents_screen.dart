@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -245,7 +246,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
           style: TextStyle(
             color: active ? Colors.black : Colors.white70,
             fontSize: 13.sp,
-            fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+            fontWeight: active ? AppFontWeight.section : AppFontWeight.emphasis,
           ),
         ),
       ),
@@ -428,7 +429,7 @@ class _VideoPageState extends State<_VideoPage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
                 shadows: [Shadow(blurRadius: 8, color: Colors.black87)],
               ),
               maxLines: 2,

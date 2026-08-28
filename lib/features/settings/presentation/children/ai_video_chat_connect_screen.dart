@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -29,7 +30,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
                 CustomText(
                   text: 'Anam Persona ID',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   bottom: 10.h,
                 ),
                 if (_controller.hasConfiguredPersona.value)
@@ -60,7 +61,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
         child: CustomText(
           text: _controller.configuredPersonaId ?? '',
           fontSize: 14.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           textAlign: TextAlign.start,
         ),
       ),

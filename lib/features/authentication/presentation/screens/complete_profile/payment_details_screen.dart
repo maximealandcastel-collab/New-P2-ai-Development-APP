@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                       CustomText(text:
                         'Upgrade to\nAdvanced Trainer',
                           fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                         textAlign: TextAlign.start,
                         bottom: 8.h,
 
@@ -80,7 +81,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                           CustomText(text:
                           '\$32',
                             fontSize: 40.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.stat,
                           ),
                           SizedBox(width: 6.w),
                           CustomText(
@@ -97,7 +98,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                       CustomText(text:
                       'Unlock These Advanced Features',
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         textAlign: TextAlign.start,
 
                       ),
@@ -130,7 +131,7 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                               CustomText(text:
                                 features[index]['text'],
                                   fontSize: 16.sp,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: AppFontWeight.emphasis,
                                   textAlign: TextAlign.start,
 
                               ),

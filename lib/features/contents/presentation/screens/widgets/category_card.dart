@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,7 @@ class ContentCard extends StatelessWidget {
                   textOverflow: TextOverflow.ellipsis,
                   text: category?.category ?? '',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
               ),
               if (category?.isActive == false)

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -102,7 +103,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             color: widget.labelColor ?? const Color(0xFF0B0D10),
             bottom: 4.h,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
+            fontWeight: AppFontWeight.emphasis,
           ),
         SizedBox(
           height: 4.h,
@@ -183,14 +184,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 fontFamily: widget.fontFamily,
                   color: widget.hintextColor ?? Colors.black.withOpacity(0.16),
                   fontSize: widget.hintextSize ?? 14.h,
-                  fontWeight: FontWeight.w400),
+                  fontWeight: AppFontWeight.body),
               focusedBorder: widget.border ?? focusedBorder(),
               enabledBorder: widget.border ?? enabledBorder(),
               errorBorder: widget.border ?? errorBorder(),
               border: widget.border ??  focusedBorder(),
               focusedErrorBorder: widget.border ?? errorBorder(),
               errorStyle:
-                  TextStyle(fontSize: 12.h, fontWeight: FontWeight.w400)),
+                  TextStyle(fontSize: 12.h, fontWeight: AppFontWeight.body)),
         ),
         SizedBox(height: 16.h),
       ],

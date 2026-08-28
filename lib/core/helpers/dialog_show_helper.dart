@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -39,7 +40,7 @@ class DialogShowHelper {
                     CustomText(
                       text: title,
                       fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                     ),
                     CustomContainer(
                       onTap: isLoading ? null : () => Get.back(canPop: true),

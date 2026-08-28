@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -59,7 +60,7 @@ class ContentsCategoryChips extends StatelessWidget {
                         : AppColors.backgroundDark.withValues(alpha: 0.35))
                     : (isSelected ? Colors.black : Colors.transparent),
                 child: CustomText(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: forOverlay ? 13.sp : 16.sp,
                   color: forOverlay
                       ? (isSelected

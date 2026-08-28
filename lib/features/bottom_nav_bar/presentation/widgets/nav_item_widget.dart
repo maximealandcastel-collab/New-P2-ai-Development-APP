@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -110,7 +111,7 @@ class _BottomNavItemState extends State<BottomNavItem>
                   style: TextStyle(
                     fontSize: 11.sp,
                     fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                        isSelected ? AppFontWeight.label : AppFontWeight.body,
                     color: isSelected
                         ? selectedColor
                         : AppColors.textSecondary,

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:confetti/confetti.dart';
@@ -50,7 +51,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 CustomText(
                   text: 'You are all set !',
                   fontSize: 24.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
                 SizedBox(height: 10.h),
                 CustomText(

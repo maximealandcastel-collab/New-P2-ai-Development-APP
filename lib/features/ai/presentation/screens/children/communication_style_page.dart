@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
@@ -20,7 +21,7 @@ class CommunicationStylePage extends StatelessWidget {
         CustomText(
           text: 'Communication style',
           fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
         ),
         SizedBox(height: 16.h),
         TagAddWidget(

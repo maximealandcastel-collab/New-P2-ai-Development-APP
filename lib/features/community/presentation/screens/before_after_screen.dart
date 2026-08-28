@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -24,7 +25,7 @@ class BeforeAfterScreen extends StatelessWidget {
           'Post Progress',
           style: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontWeight: AppFontWeight.section,
             fontSize: 18.sp,
           ),
         ),
@@ -40,7 +41,7 @@ class BeforeAfterScreen extends StatelessWidget {
                 'Share your transformation',
                 style: TextStyle(
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black,
                 ),
               ),
@@ -80,7 +81,7 @@ class BeforeAfterScreen extends StatelessWidget {
                 'Caption (optional)',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: Colors.black87,
                 ),
               ),
@@ -185,7 +186,7 @@ class BeforeAfterScreen extends StatelessWidget {
                               'Post to Community',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: AppFontWeight.section,
                                 fontSize: 16.sp,
                               ),
                             ),
@@ -254,7 +255,7 @@ class _PhotoPicker extends StatelessWidget {
                         label,
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: AppFontWeight.section,
                           fontSize: 11.sp,
                         ),
                       ),
@@ -294,7 +295,7 @@ class _PhotoPicker extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 13.sp,
                       color: Colors.black87,
                     ),

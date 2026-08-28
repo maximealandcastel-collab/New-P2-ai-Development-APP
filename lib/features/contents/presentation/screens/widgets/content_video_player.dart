@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -283,7 +284,7 @@ class _ActionButton extends StatelessWidget {
                 text: label!,
                 color: AppColors.textWhite,
                 fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             ],
           ],

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -61,7 +62,7 @@ class ChatBubbleMessage extends StatelessWidget {
               CustomText(
                 top: 3.h,
                 fontSize: 10.sp,
-                fontWeight: FontWeight.w400,
+                fontWeight: AppFontWeight.body,
                 text: time,
                 left: isMe ? 0 : 10.w,
                 right: isMe ? 10.w : 0,
@@ -81,7 +82,7 @@ class ChatBubbleMessage extends StatelessWidget {
       return CustomText(
         maxline: 10,
         textAlign: TextAlign.left,
-        fontWeight: FontWeight.w500,
+        fontWeight: AppFontWeight.emphasis,
         text: text!,
       );
     } else if (images != null && images!.isNotEmpty) {

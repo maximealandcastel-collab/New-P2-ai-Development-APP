@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -17,7 +18,7 @@ class TrainerInboxScreen extends StatelessWidget {
         title: CustomText(
           text: 'Messages',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           color: Colors.black,
         ),
       ),
@@ -31,7 +32,7 @@ class TrainerInboxScreen extends StatelessWidget {
             CustomText(
               text: 'Messaging coming soon',
               fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               color: Colors.grey.shade600,
             ),
             SizedBox(height: 8.h),

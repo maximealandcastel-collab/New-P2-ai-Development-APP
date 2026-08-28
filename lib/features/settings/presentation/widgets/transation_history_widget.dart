@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -40,7 +41,7 @@ class TransationHistoryWidget extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         title: CustomText(
           textAlign: TextAlign.start,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           text: titleText,
           maxline: 1,
           textOverflow: TextOverflow.ellipsis,
@@ -53,7 +54,7 @@ class TransationHistoryWidget extends StatelessWidget {
         ),
         trailing: CustomText(
           text: amountText,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           color: isWithdrawal ? AppColors.textPrimary : AppColors.success,
         ),
       ),

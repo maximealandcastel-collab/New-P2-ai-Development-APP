@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -94,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       CustomText(
                         text: "Ethancarter77@gmail.com",
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                       ),
                     ],
                   ),
@@ -182,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(text: label, fontWeight: FontWeight.bold, fontSize: 16.sp, bottom: 12.h),
+              CustomText(text: label, fontWeight: AppFontWeight.section, fontSize: 16.sp, bottom: 12.h),
               if (sublabel != null)
                 CustomText(text: sublabel, fontSize: 11.sp, bottom: 12.h, color: Colors.grey),
             ],
@@ -213,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           CustomText(
             text: label,
             fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: textColor ?? Colors.black,
           ),
           Icon(

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
@@ -16,7 +17,7 @@ class CustomText extends StatelessWidget {
       this.bottom = 0,
       this.fontSize,
       this.textHeight,
-      this.fontWeight = FontWeight.w400,
+      this.fontWeight = AppFontWeight.body,
       this.color,
       required this.text,
       this.onTap, this.decorationColor, this.decoration});

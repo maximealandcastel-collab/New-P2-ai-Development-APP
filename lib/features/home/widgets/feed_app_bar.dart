@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -75,7 +76,7 @@ class FeedAppBarSliver extends StatelessWidget {
                         textOverflow: TextOverflow.ellipsis,
                         text: 'Hi ${controller.userData?.firstName?.isNotEmpty == true ? controller.userData!.firstName! : controller.userData?.preferredName?.isNotEmpty == true ? controller.userData!.preferredName! : "there"}!',
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                       );
                     }),
                     CustomText(
@@ -123,7 +124,7 @@ class FeedAppBarSliver extends StatelessWidget {
                             child: CustomText(
                               text: unread > 99 ? '99+' : '$unread',
                               fontSize: 9.sp,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppFontWeight.section,
                               color: Colors.white,
                             ),
                           ),

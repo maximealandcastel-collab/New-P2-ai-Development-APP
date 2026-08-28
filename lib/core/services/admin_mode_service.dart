@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -229,7 +230,7 @@ class AdminModeService extends GetxController {
                                   ? const Color(0xFFFF6B1A)
                                   : Colors.white70,
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: AppFontWeight.label,
                               letterSpacing: 0.3,
                             ),
                           ),
@@ -262,7 +263,7 @@ class AdminModeService extends GetxController {
           style: TextStyle(
             color: active ? Colors.white : Colors.white38,
             fontSize: 13,
-            fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+            fontWeight: active ? AppFontWeight.display : AppFontWeight.emphasis,
             letterSpacing: 0.2,
           ),
         ),

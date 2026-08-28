@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -31,7 +32,7 @@ class TrainerClientPlansSection extends StatelessWidget {
               children: [
                 Expanded(
                   child: CustomText(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     fontSize: 16.sp,
                     bottom: 12.h,
                     text: 'Client Workout Plans',
@@ -41,7 +42,7 @@ class TrainerClientPlansSection extends StatelessWidget {
                   text: '${plans.length} active',
                   fontSize: 12.sp,
                   color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   bottom: 12.h,
                 ),
               ],
@@ -100,7 +101,7 @@ class _ClientPlanCard extends StatelessWidget {
                 CustomText(
                   text: plan.client.displayName,
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   textAlign: TextAlign.start,
                 ),
                 if (today != null) ...[
@@ -127,7 +128,7 @@ class _ClientPlanCard extends StatelessWidget {
                 text: '${today.exerciseCount} exercises',
                 fontSize: 11.sp,
                 color: AppColors.primary,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
             ),
         ],
@@ -146,7 +147,7 @@ class _ClientPlanCard extends StatelessWidget {
       child: CustomText(
         text: initials,
         fontSize: 16.sp,
-        fontWeight: FontWeight.w700,
+        fontWeight: AppFontWeight.section,
         color: AppColors.primary,
       ),
     );

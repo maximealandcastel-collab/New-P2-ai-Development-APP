@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -71,7 +72,7 @@ class NavFabWidget {
             child: CustomText(
               left: 4.w,
               fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               text: item.label,
             ),
           ),

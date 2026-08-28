@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
@@ -129,7 +130,7 @@ class MenuShowHelper {
                 style: TextStyle(
                   fontSize: 16.sp,
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppFontWeight.emphasis,
                 ),
               ),
             ),

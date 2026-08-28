@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
@@ -28,7 +29,7 @@ class EmptyData extends StatelessWidget {
             CustomText(
               textAlign: TextAlign.start,
               text: title!,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 16.h,
             ),
             SizedBox(height: 16.h),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
@@ -23,7 +24,7 @@ class _NamesPageState extends State<NamesPage> {
         CustomText(
           text: 'What’s your name ?',
           fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
         ),
         SizedBox(height: 16.h),
         CustomTextField(

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -53,7 +54,7 @@ class SearchItemEmpty extends StatelessWidget {
           CustomText(
             text: 'Recent Searches',
             fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: Colors.grey.shade600,
           ),
           TextButton(

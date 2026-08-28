@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -51,7 +52,7 @@ class CustomButton2 extends StatelessWidget {
         style: textStyle ??
             const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w500,
+              fontWeight: AppFontWeight.emphasis,
               fontSize: 18,
             ),
       ),
