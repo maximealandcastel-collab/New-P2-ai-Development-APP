@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -109,7 +110,7 @@ class _AppBar extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
                 color: Colors.black,
               ),
             ),
@@ -171,7 +172,7 @@ class _HeroBanner extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 color: const Color(0xFF2E7D52),
-                fontWeight: FontWeight.w400,
+                fontWeight: AppFontWeight.body,
               ),
             ),
             SizedBox(height: 8.h),
@@ -179,7 +180,7 @@ class _HeroBanner extends StatelessWidget {
               '20 min upper body exercise',
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
                 color: Colors.black,
               ),
             ),
@@ -223,7 +224,7 @@ class _ExerciseBlocksSection extends StatelessWidget {
                 'Exercise  blocks',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black,
                 ),
               ),
@@ -233,7 +234,7 @@ class _ExerciseBlocksSection extends StatelessWidget {
                   'Edit',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppFontWeight.emphasis,
                     color: Colors.black54,
                   ),
                 ),
@@ -306,7 +307,7 @@ class _ExerciseCard extends StatelessWidget {
                   block.title,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: Colors.black,
                   ),
                 ),
@@ -381,7 +382,7 @@ class _BottomActions extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
               ),
             ),
@@ -409,7 +410,7 @@ class _BottomActions extends StatelessWidget {
                     'Add to workout plan',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                       color: Colors.black87,
                     ),
                   ),

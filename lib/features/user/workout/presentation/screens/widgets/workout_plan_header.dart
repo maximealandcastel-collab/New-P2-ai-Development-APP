@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -27,7 +28,7 @@ class WorkoutPlanHeader extends StatelessWidget {
           CustomText(
             text: todayLabel,
             fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.textWhite.withValues(alpha: 0.85),
           ),
           SizedBox(height: 6.h),
@@ -36,7 +37,7 @@ class WorkoutPlanHeader extends StatelessWidget {
                 ? StringFormat.formatLabel(plan.trainerSpecialty!)
                 : 'Workout Plan',
             fontSize: 20.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: AppFontWeight.display,
             color: AppColors.textWhite,
           ),
           if ((plan.coachNote ?? '').isNotEmpty) ...[
@@ -44,7 +45,7 @@ class WorkoutPlanHeader extends StatelessWidget {
             CustomText(
               text: plan.coachNote!,
               fontSize: 12.sp,
-              fontWeight: FontWeight.w400,
+              fontWeight: AppFontWeight.body,
               color: AppColors.textWhite,
               textAlign: TextAlign.start,
             ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
     import 'package:flutter_screenutil/flutter_screenutil.dart';
     import 'package:get/get.dart';
@@ -132,7 +133,7 @@ import 'package:flutter/material.dart';
                     style: TextStyle(
                       color: _kOrange,
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.display,
                       letterSpacing: 2.8,
                     ),
                   ),
@@ -146,7 +147,7 @@ import 'package:flutter/material.dart';
                           style: TextStyle(
                             color: _kDark,
                             fontSize: 30.sp,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: AppFontWeight.display,
                             height: 1.1,
                           ),
                         ),
@@ -155,7 +156,7 @@ import 'package:flutter/material.dart';
                           style: TextStyle(
                             color: _kOrange,
                             fontSize: 30.sp,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: AppFontWeight.display,
                             height: 1.1,
                           ),
                         ),
@@ -310,7 +311,7 @@ import 'package:flutter/material.dart';
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
             ),
@@ -376,7 +377,7 @@ import 'package:flutter/material.dart';
                       color: active ? _kDark : Colors.grey.shade400,
                       fontSize: 13.sp,
                       fontWeight:
-                          active ? FontWeight.w600 : FontWeight.w400,
+                          active ? AppFontWeight.label : AppFontWeight.body,
                     ),
                   ),
                 ),
@@ -410,7 +411,7 @@ import 'package:flutter/material.dart';
                   style: TextStyle(
                       color: _kOrange,
                       fontSize: 11.sp,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: AppFontWeight.section)),
             ],
           ),
           SizedBox(height: 6.h),
@@ -457,7 +458,7 @@ import 'package:flutter/material.dart';
                 style: TextStyle(
                   color: _kDark,
                   fontSize: 28.sp,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppFontWeight.display,
                   height: 1.25,
                 ),
               ),
@@ -488,7 +489,7 @@ import 'package:flutter/material.dart';
               style: TextStyle(
                   color: _kDark,
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w700),
+                  fontWeight: AppFontWeight.section),
             ),
             SizedBox(height: 8.h),
             Text('Please try again',
@@ -519,7 +520,7 @@ import 'package:flutter/material.dart';
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: AppFontWeight.label)),
               ),
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -57,7 +58,7 @@ class ConnectedDeviceTile extends StatelessWidget {
                   text: device.name,
                   textAlign: TextAlign.start,
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
                 CustomText(
                   top: 3.h,
@@ -94,7 +95,7 @@ class ConnectedDeviceTile extends StatelessWidget {
                 : CustomText(
                     text: statusText,
                     fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: Colors.white,
                   ),
           ),

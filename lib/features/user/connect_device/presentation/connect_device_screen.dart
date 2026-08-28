@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/services/health_sync_service.dart';
@@ -173,7 +174,7 @@ class _AppBar extends StatelessWidget {
             child: Text(
               'Connect device',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black),
+              style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black),
             ),
           ),
           SizedBox(width: 34.w),
@@ -221,7 +222,7 @@ class _MainContent extends StatelessWidget {
               Text(
                 'Connect to your fitness device',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: Colors.black),
               ),
               SizedBox(height: 8.h),
               Text(
@@ -261,7 +262,7 @@ class _MainContent extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   'Connect now',
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.label),
                 ),
               ),
             ),
@@ -338,7 +339,7 @@ class _DeviceListSection extends StatelessWidget {
         children: [
           Text(
             'Available devices',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black),
           ),
           SizedBox(height: 12.h),
 
@@ -361,7 +362,7 @@ class _DeviceListSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('No devices found',
-                            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black87)),
                         SizedBox(height: 3.h),
                         Text('Make sure your device is on hte same network\nas your mobile phone.',
                             style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400, height: 1.5)),
@@ -416,7 +417,7 @@ class _DeviceTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(device.name,
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
                 SizedBox(height: 3.h),
                 Text(device.serial,
                     style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
@@ -446,7 +447,7 @@ class _StatusBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text('Connected',
-              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+              style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: Colors.white)),
         );
 
       case _DeviceStatus.connecting:
@@ -467,7 +468,7 @@ class _StatusBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text('Not connected',
-              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: Colors.black54)),
+              style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black54)),
         );
     }
   }
@@ -509,7 +510,7 @@ class _PermissionOverlay extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                             color: Colors.black,
                             height: 1.3,
                           ),
@@ -541,7 +542,7 @@ class _PermissionOverlay extends StatelessWidget {
                                 "Don't Allow",
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: AppFontWeight.emphasis,
                                   color: Colors.black54,
                                 ),
                               ),
@@ -560,7 +561,7 @@ class _PermissionOverlay extends StatelessWidget {
                                 'Allow',
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: AppFontWeight.label,
                                   color: const Color(0xFF1565C0),
                                 ),
                               ),

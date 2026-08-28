@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -94,7 +95,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       'Ultimate Cardio Blast: Feel the Burn!',
                       style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         color: Colors.black,
                       ),
                     ),
@@ -117,7 +118,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                         SizedBox(width: 8.w),
                         Text(
                           'Alex kanzi',
-                          style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label),
                         ),
                       ],
                     ),
@@ -155,7 +156,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       children: [
                         Text(
                           'Comments',
-                          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+                          style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section),
                         ),
                         SizedBox(width: 6.w),
                         Text(
@@ -357,7 +358,7 @@ class _ActionChip extends StatelessWidget {
             SizedBox(width: 5.w),
             Text(
               label,
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: Colors.black87),
+              style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black87),
             ),
           ],
         ),
@@ -396,7 +397,7 @@ class _CommentTile extends StatelessWidget {
                   children: [
                     Text(
                       comment.user,
-                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label),
                     ),
                     SizedBox(width: 8.w),
                     Text(

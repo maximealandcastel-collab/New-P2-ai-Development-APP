@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -40,7 +41,7 @@ class HistoryCard extends StatelessWidget {
                   textAlign: TextAlign.start,
                   text: _formatDate(workout),
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
               ),
               CustomText(
@@ -57,14 +58,14 @@ class HistoryCard extends StatelessWidget {
           CustomText(
             textAlign: TextAlign.start,
             text: _title(workout),
-            fontWeight: FontWeight.w500,
+            fontWeight: AppFontWeight.emphasis,
             top: 6.h,
           ),
           CustomText(
             textAlign: TextAlign.start,
             text:
                 'Main: ${mainProgress.$1}/${mainProgress.$2}   •   Accessories: ${accessoryProgress.$1}/${accessoryProgress.$2}',
-            fontWeight: FontWeight.w500,
+            fontWeight: AppFontWeight.emphasis,
             color: AppColors.textSecondary,
             top: 4.h,
             bottom: 12.h,

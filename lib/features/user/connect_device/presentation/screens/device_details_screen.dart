@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -201,7 +202,7 @@ class _DeviceHeaderCard extends StatelessWidget {
                 CustomText(
                   text: device.name,
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   textAlign: TextAlign.start,
                 ),
                 if (watchTypeName != null)
@@ -239,7 +240,7 @@ class _DeviceHeaderCard extends StatelessWidget {
                 : CustomText(
                     text: isConnected ? 'Connected' : 'Offline',
                     fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: Colors.white,
                   ),
           ),
@@ -272,7 +273,7 @@ class _HealthPermissionBanner extends StatelessWidget {
               Expanded(
                 child: CustomText(
                   text: 'Health permission needed',
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: 14.sp,
                   textAlign: TextAlign.start,
                 ),
@@ -340,7 +341,7 @@ class _MetricsGrid extends StatelessWidget {
         CustomText(
           text: 'Today\'s activity',
           fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
           textAlign: TextAlign.start,
           bottom: 12.h,
         ),
@@ -448,7 +449,7 @@ class _EmptyMetricsCard extends StatelessWidget {
           CustomText(
             text: 'No metrics yet',
             fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
           ),
           SizedBox(height: 6.h),
           CustomText(
@@ -478,7 +479,7 @@ class _SessionsSection extends StatelessWidget {
         CustomText(
           text: 'Sessions',
           fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
           textAlign: TextAlign.start,
           bottom: 12.h,
         ),
@@ -498,7 +499,7 @@ class _SessionsSection extends StatelessWidget {
                         children: [
                           CustomText(
                             text: '${session.steps} steps',
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppFontWeight.label,
                             fontSize: 14.sp,
                             textAlign: TextAlign.start,
                           ),

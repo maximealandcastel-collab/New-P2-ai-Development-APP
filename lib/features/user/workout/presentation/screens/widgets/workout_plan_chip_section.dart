@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -27,7 +28,7 @@ class WorkoutPlanChipSection extends StatelessWidget {
           CustomText(
             text: title,
             fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: AppFontWeight.display,
             left: 4.w,
             bottom: 10.h,
           ),
@@ -44,7 +45,7 @@ class WorkoutPlanChipSection extends StatelessWidget {
                     child: CustomText(
                       text: StringFormat.formatLabel(value),
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                       color: AppColors.primary,
                     ),
                   ),

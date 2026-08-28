@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -38,7 +39,7 @@ class PairingScanResultTile extends StatelessWidget {
                 CustomText(
                   text: device.name,
                   textAlign: TextAlign.start,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: 15.sp,
                 ),
                 if ((device.macAddress ?? '').isNotEmpty)

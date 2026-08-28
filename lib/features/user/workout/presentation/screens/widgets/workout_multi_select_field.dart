@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -46,7 +47,7 @@ class WorkoutMultiSelectField extends StatelessWidget {
               child: CustomText(
                 text: StringFormat.formatLabel(option),
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             );
           }).toList(),

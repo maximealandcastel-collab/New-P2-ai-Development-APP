@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -75,13 +76,13 @@ class _DurationRulerPickerState extends State<DurationRulerPicker> {
         CustomText(
           text: '$_selectedValue',
           fontSize: 40.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
           color: AppColors.textPrimary,
         ),
         CustomText(
           text: 'min',
           fontSize: 12.sp,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
           color: AppColors.textSecondary,
         ),
         SizedBox(height: 12.h),

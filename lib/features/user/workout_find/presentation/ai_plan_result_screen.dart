@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -238,7 +239,7 @@ class AiPlanResultScreen extends StatelessWidget {
                   child: Text(
                     'Session Start',
                     style: TextStyle(
-                        fontSize: 17.sp, fontWeight: FontWeight.w700),
+                        fontSize: 17.sp, fontWeight: AppFontWeight.section),
                   ),
                 ),
               ),
@@ -278,7 +279,7 @@ class _PlanHeader extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 26.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.display,
             ),
           ),
           SizedBox(height: 6.h),
@@ -315,7 +316,7 @@ class _SectionCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: Colors.black,
             ),
           ),
@@ -355,7 +356,7 @@ class _NumberedItem extends StatelessWidget {
               text: TextSpan(
                 style: TextStyle(
                   fontSize: 15.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black,
                   height: 1.4,
                 ),
@@ -408,7 +409,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                   e.name,
                   style: TextStyle(
                     fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: const Color(0xFF7A3B1E),
                   ),
                 ),
@@ -429,7 +430,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                     ),
                   ),
                 ),
@@ -499,7 +500,7 @@ class _Chip extends StatelessWidget {
         style: TextStyle(
           fontSize: 13.sp,
           color: Colors.grey.shade700,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
         ),
       ),
     );
@@ -523,7 +524,7 @@ class _StepItem extends StatelessWidget {
             Text('$index.',
                 style: TextStyle(
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: Colors.black)),
             SizedBox(width: 8.w),
             Expanded(
@@ -531,7 +532,7 @@ class _StepItem extends StatelessWidget {
                 step.instruction,
                 style: TextStyle(
                   fontSize: 15.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: Colors.black,
                   height: 1.4,
                 ),
@@ -577,7 +578,7 @@ class _InfoCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: Colors.black,
             ),
           ),
@@ -613,7 +614,7 @@ class _WeekFocusCard extends StatelessWidget {
             'This Week Focus',
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: Colors.black,
             ),
           ),
@@ -629,7 +630,7 @@ class _WeekFocusCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 color: const Color(0xFFF57C1F),
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             ),
           ),
@@ -660,7 +661,7 @@ class _CheckInCard extends StatelessWidget {
             'Duration in min: $duration',
             style: TextStyle(
               fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: const Color(0xFFF57C1F),
             ),
           ),
@@ -698,7 +699,7 @@ class _WatchVideoButton extends StatelessWidget {
         ),
         child: Text(
           'Watch Video',
-          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.label),
         ),
       ),
     );

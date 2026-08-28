@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
@@ -131,7 +132,7 @@ class _ExerciseSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Exercise summary',
-                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black87)),
               Row(
                 children: [
                   _IconBtn(icon: Icons.bar_chart, active: true),
@@ -148,7 +149,7 @@ class _ExerciseSummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('45min',
-                  style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                  style: TextStyle(fontSize: 32.sp, fontWeight: AppFontWeight.stat, color: Colors.black)),
               SizedBox(width: 10.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +158,7 @@ class _ExerciseSummaryCard extends StatelessWidget {
                     children: [
                       Icon(Icons.arrow_upward, size: 13.sp, color: const Color(0xFF4CAF50)),
                       Text('5.3%',
-                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF4CAF50), fontWeight: FontWeight.w600)),
+                          style: TextStyle(fontSize: 12.sp, color: const Color(0xFF4CAF50), fontWeight: AppFontWeight.label)),
                     ],
                   ),
                   Text('Total Exercised this weak',
@@ -204,7 +205,7 @@ class _Bar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Text(data.label!,
-                  style: TextStyle(fontSize: 9.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                  style: TextStyle(fontSize: 9.sp, color: Colors.white, fontWeight: AppFontWeight.label)),
             ),
             SizedBox(height: 4.h),
           ],
@@ -222,7 +223,7 @@ class _Bar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10.sp,
                 color: data.isHighlighted ? Colors.black : Colors.grey.shade400,
-                fontWeight: data.isHighlighted ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: data.isHighlighted ? AppFontWeight.label : AppFontWeight.body,
               )),
         ],
       ),
@@ -320,7 +321,7 @@ class _StatCard extends StatelessWidget {
             Text(value,
                 style: TextStyle(
                   fontSize: valueSize.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.stat,
                   color: Colors.black,
                 )),
           ],
@@ -352,7 +353,7 @@ class _CaloriesIntakeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('1450/2470',
-                  style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                  style: TextStyle(fontSize: 26.sp, fontWeight: AppFontWeight.stat, color: Colors.black)),
               const Spacer(),
               // Donut chart
               _DonutChart(progress: 1450 / 2470),
@@ -450,9 +451,9 @@ class _MacroRow extends StatelessWidget {
       children: [
         Text(emoji, style: TextStyle(fontSize: 16.sp)),
         SizedBox(width: 8.w),
-        Text(label, style: TextStyle(fontSize: 13.sp, color: Colors.black87, fontWeight: FontWeight.w500)),
+        Text(label, style: TextStyle(fontSize: 13.sp, color: Colors.black87, fontWeight: AppFontWeight.emphasis)),
         const Spacer(),
-        Text(value, style: TextStyle(fontSize: 13.sp, color: Colors.black54, fontWeight: FontWeight.w500)),
+        Text(value, style: TextStyle(fontSize: 13.sp, color: Colors.black54, fontWeight: AppFontWeight.emphasis)),
       ],
     );
   }
@@ -512,7 +513,7 @@ class _ActivitySection extends StatelessWidget {
                         e.value,
                         style: TextStyle(
                           fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           color: isSelected ? Colors.white : Colors.black54,
                         ),
                       ),
@@ -556,7 +557,7 @@ class _ActivityTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item.title,
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
                 SizedBox(height: 4.h),
                 Text(item.date,
                     style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
@@ -582,7 +583,7 @@ class _ActivityTile extends StatelessWidget {
                   isCompleted ? 'Completed' : 'Missed',
                   style: TextStyle(
                     fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: isCompleted ? const Color(0xFF4CAF50) : const Color(0xFFE53935),
                   ),
                 ),

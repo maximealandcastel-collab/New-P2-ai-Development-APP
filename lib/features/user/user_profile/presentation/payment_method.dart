@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/widgets/shared_appbar.dart';
@@ -45,7 +46,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Payout method',
-                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                        style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
                     SizedBox(height: 12.h),
 
                     // Payment method list
@@ -73,7 +74,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
 
                     // Payoneer section
                     Text('Payoneer detail',
-                        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                        style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
                     SizedBox(height: 12.h),
 
                     Text('Payment mail',
@@ -115,7 +116,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text('Save',
-                            style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600)),
+                            style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.label)),
                       ),
                     ),
                   ],
@@ -172,7 +173,7 @@ class _PaymentMethodTile extends StatelessWidget {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: Text(method.name,
-                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: Colors.black)),
+                      style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black)),
                 ),
                 // Radio button
                 Container(

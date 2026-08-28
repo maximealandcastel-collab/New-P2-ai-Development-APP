@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,7 @@ class SelectWatchView extends StatelessWidget {
         CustomText(
           text: 'Choose your watch',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 8.h),
@@ -118,7 +119,7 @@ class _WatchTypeCard extends StatelessWidget {
                 CustomText(
                   text: watchType.displayName,
                   textAlign: TextAlign.start,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: 15.sp,
                   color: enabled ? null : AppColors.textSecondary,
                 ),

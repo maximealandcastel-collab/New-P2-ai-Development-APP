@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -30,7 +31,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
           CustomText(
             text: title,
             fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: AppFontWeight.display,
             left: 4.w,
             bottom: 10.h,
           ),
@@ -70,7 +71,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
           CustomText(
             text: '$index.',
             fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.textSecondary,
           ),
           SizedBox(width: 8.w),
@@ -83,7 +84,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
                   text: TextSpan(
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                       color: AppColors.textPrimary,
                     ),
                     children: [

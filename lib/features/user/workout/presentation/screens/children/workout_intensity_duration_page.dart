@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,7 @@ class WorkoutIntensityDurationPage extends StatelessWidget {
         CustomText(
           text: 'Workout Intensity',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           color: AppColors.textPrimary,
         ),
         SizedBox(height: 12.h),
@@ -58,7 +59,7 @@ class WorkoutIntensityDurationPage extends StatelessWidget {
         CustomText(
           text: 'Workout Duration (minutes)',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           color: AppColors.textPrimary,
         ),
         SizedBox(height: 12.h),
