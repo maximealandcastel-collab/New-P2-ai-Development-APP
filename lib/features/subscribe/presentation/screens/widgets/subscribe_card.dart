@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -50,7 +51,7 @@ class SubscribeCard extends StatelessWidget {
                     plan.title,
                     style: TextStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.title,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -72,7 +73,7 @@ class SubscribeCard extends StatelessWidget {
                   plan.displayPrice,
                   style: TextStyle(
                     fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: AppFontWeight.stat,
                   ),
                 ),
 
@@ -92,7 +93,7 @@ class SubscribeCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                       ),
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -78,7 +79,7 @@ class FindTrainerCard extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: AppFontWeight.title,
                       letterSpacing: -0.2,
                       shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
                     ),
@@ -90,7 +91,7 @@ class FindTrainerCard extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 10.sp,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.stat,
                     ),
                   ),
                   // Certifications (up to 2)
@@ -101,7 +102,7 @@ class FindTrainerCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 9.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                       ),
                     )),
                   ],
@@ -126,7 +127,7 @@ class FindTrainerCard extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10.sp,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppFontWeight.stat,
                           letterSpacing: 0.2,
                         ),
                       ),
@@ -163,7 +164,7 @@ class FindTrainerCard extends StatelessWidget {
           backgroundColor: Colors.white10,
           child: Text(
             name.isNotEmpty ? name[0].toUpperCase() : 'T',
-            style: TextStyle(fontSize: 24.sp, color: Colors.white60, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 24.sp, color: Colors.white60, fontWeight: AppFontWeight.display),
           ),
         ),
       ]),

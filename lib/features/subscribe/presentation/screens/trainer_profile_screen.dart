@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -202,7 +203,7 @@ class _HeroSliver extends StatelessWidget {
                   ]),
                   SizedBox(height: 8.h),
                   Text(name,
-                      style: TextStyle(color: Colors.white, fontSize: 30.sp, fontWeight: FontWeight.w800)),
+                      style: TextStyle(color: Colors.white, fontSize: 30.sp, fontWeight: AppFontWeight.display)),
                   SizedBox(height: 4.h),
                   Text(
                     '$tier Trainer${specialty.isNotEmpty ? " · $specialty" : ""} · 10yr exp',
@@ -226,7 +227,7 @@ class _TierBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
       decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20.r)),
-      child: Text(tier, style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w700)),
+      child: Text(tier, style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
     );
   }
 }
@@ -241,7 +242,7 @@ class _RatingPill extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.star_rounded, color: _orange, size: 14.sp),
         SizedBox(width: 3.w),
-        Text('4.9', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+        Text('4.9', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
       ]),
     );
   }
@@ -271,12 +272,12 @@ class _SubBanner extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text("You're Subscribed",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14.sp)),
+                  style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.title, fontSize: 14.sp)),
               Text('Renews next month · \$${price.toStringAsFixed(0)}/mo',
                   style: TextStyle(color: Colors.white54, fontSize: 11.sp)),
             ]),
           ),
-          Text('Manage', style: TextStyle(color: _orange, fontWeight: FontWeight.w700, fontSize: 13.sp)),
+          Text('Manage', style: TextStyle(color: _orange, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
         ],
       ),
     );
@@ -305,7 +306,7 @@ class _BookBanner extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Start Training Today',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14.sp)),
+                  style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 14.sp)),
               Text('Full access · \$${price.toStringAsFixed(2)}/mo',
                   style: TextStyle(color: Colors.white54, fontSize: 11.sp)),
             ]),
@@ -315,7 +316,7 @@ class _BookBanner extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20.r)),
-              child: Text('Book', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.sp)),
+              child: Text('Book', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
             ),
           ),
         ],
@@ -369,7 +370,7 @@ class _StatCard extends StatelessWidget {
       child: Column(children: [
         Text(s.emoji, style: TextStyle(fontSize: 18.sp)),
         SizedBox(height: 4.h),
-        Text(s.value, style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w800, color: Colors.black)),
+        Text(s.value, style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.stat, color: Colors.black)),
         Text(s.label, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF6B7280))),
       ]),
     );
@@ -389,8 +390,8 @@ class _ProfileTabBar extends StatelessWidget {
         controller: tabs,
         labelColor: Colors.black,
         unselectedLabelColor: const Color(0xFF9CA3AF),
-        labelStyle: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
+        labelStyle: TextStyle(fontWeight: AppFontWeight.label, fontSize: 14.sp),
+        unselectedLabelStyle: TextStyle(fontWeight: AppFontWeight.emphasis, fontSize: 14.sp),
         indicatorColor: _orange,
         indicatorWeight: 2.5,
         indicatorSize: TabBarIndicatorSize.label,
@@ -436,7 +437,7 @@ class _OverviewTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _SectionTitle("This Week's Plan"),
-            Text('View All >', style: TextStyle(fontSize: 13.sp, color: _orange, fontWeight: FontWeight.w600)),
+            Text('View All >', style: TextStyle(fontSize: 13.sp, color: _orange, fontWeight: AppFontWeight.label)),
           ],
         ),
         SizedBox(height: 10.h),
@@ -486,7 +487,7 @@ class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text);
   @override
   Widget build(BuildContext context) =>
-      Text(text, style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w800, color: Colors.black));
+      Text(text, style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black));
 }
 
 class _TagChip extends StatelessWidget {
@@ -501,7 +502,7 @@ class _TagChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: _orange.withValues(alpha: 0.25)),
       ),
-      child: Text(label, style: TextStyle(fontSize: 12.sp, color: _orange, fontWeight: FontWeight.w600)),
+      child: Text(label, style: TextStyle(fontSize: 12.sp, color: _orange, fontWeight: AppFontWeight.label)),
     );
   }
 }
@@ -540,7 +541,7 @@ class _WeeklyPlanCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text('HIIT Strength', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 11.sp)),
+                Text('HIIT Strength', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 11.sp)),
                 Text('Day 3 · Upper Body', style: TextStyle(color: Colors.white70, fontSize: 10.sp)),
               ]),
             ),
@@ -561,8 +562,8 @@ class _WeeklyPlanCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('25:30', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.sp)),
-                Text('Preview', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.sp)),
+                Text('25:30', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
+                Text('Preview', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
               ],
             ),
           ),
@@ -593,13 +594,13 @@ class _SessionRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(day, style: TextStyle(color: _orange, fontSize: 9.sp, fontWeight: FontWeight.w600)),
-              Text(date, style: TextStyle(color: _orange, fontSize: 18.sp, fontWeight: FontWeight.w800)),
+              Text(day, style: TextStyle(color: _orange, fontSize: 9.sp, fontWeight: AppFontWeight.label)),
+              Text(date, style: TextStyle(color: _orange, fontSize: 18.sp, fontWeight: AppFontWeight.stat)),
             ]),
           ),
           SizedBox(width: 14.w),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+            Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
             Text(sub, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF6B7280))),
           ])),
           Icon(Icons.arrow_forward_ios_rounded, size: 14.sp, color: const Color(0xFFD1D5DB)),
@@ -655,7 +656,7 @@ class _ProgramCard extends StatelessWidget {
           SizedBox(width: 12.w),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+              Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
               Text(duration, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF6B7280))),
               SizedBox(height: 6.h),
               if (progress > 0) ...[
@@ -682,7 +683,7 @@ class _ProgramCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                     padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                   ),
-                  child: Text('Resume', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700)),
+                  child: Text('Resume', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label)),
                 )
               : ElevatedButton(
                   onPressed: () {},
@@ -692,7 +693,7 @@ class _ProgramCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                     padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                   ),
-                  child: Text('Start', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700)),
+                  child: Text('Start', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label)),
                 ),
         ],
       ),
@@ -712,7 +713,7 @@ class _ReviewsTab extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.star_border_rounded, size: 48.sp, color: const Color(0xFFD1D5DB)),
           SizedBox(height: 16.h),
-          Text('Reviews coming soon', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+          Text('Reviews coming soon', style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.title, color: Colors.black)),
           SizedBox(height: 8.h),
           Text('Be the first to share your experience.', style: TextStyle(fontSize: 13.sp, color: const Color(0xFF9CA3AF)), textAlign: TextAlign.center),
         ]),
@@ -751,7 +752,7 @@ class _BottomBar extends StatelessWidget {
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.videocam_rounded, color: Colors.white, size: 18.sp),
                   SizedBox(width: 8.w),
-                  Text('Book Live Session', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15.sp)),
+                  Text('Book Live Session', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 15.sp)),
                 ]),
               ),
             ),

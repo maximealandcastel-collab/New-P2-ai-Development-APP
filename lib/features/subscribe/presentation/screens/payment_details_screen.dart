@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -36,7 +37,7 @@ class _LegalLink extends StatelessWidget {
       child: CustomText(
         text: label,
         fontSize: 11.sp,
-        fontWeight: FontWeight.w600,
+        fontWeight: AppFontWeight.label,
         color: AppColors.textSecondary,
       ),
     );
@@ -80,7 +81,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                       top: 10.h,
                       text: 'Unlock Your Full\nAi Fitness Experience',
                       fontSize: 26.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                     ),
                     CustomText(
                       top: 10.h,
@@ -180,7 +181,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                         child: CustomText(
                           text: 'Restore Purchases',
                           fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           color: AppColors.primary,
                         ),
                       );
