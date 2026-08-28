@@ -102,6 +102,37 @@ Also fixed here:
 - Ten `Get.offAll(() => NavBar())` calls produced `null` route names, so `ReelRouteObserver` never fired
   on paywall and payment returns. `AdminBypassScreen` now has a registered route for the same reason.
 
+### The Admin dashboard rendered as an error screen
+
+Fixing navigation made the Admin tab reachable for the first time in this engagement, which exposed a
+pre-existing fault: the screen rendered as a Flutter error box reading *"A RenderViewport expected a
+child of type RenderSliver but received a child of type RenderErrorBox."* It had never been built
+before, so nobody could see it.
+
+The sliver list wrapped five of its sections like this:
+
+```dart
+Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c)))   // looks reactive; is not
+```
+
+> The closure only **constructs** widgets. `_KpiGrid.build()` — where `c.metrics` is actually read —
+> runs later, in its own element, outside the window in which GetX records observable reads.
+> `RxInterface.notifyChildren` installs the proxy, calls the builder, and **throws when nothing
+> registered**. So all five threw `ObxError` on first build, Flutter replaced each with an
+> `ErrorWidget`, and an `ErrorWidget` is a `RenderBox` — sitting directly in `slivers:`, that breaks
+> the viewport's child contract and takes the whole screen down.
+
+The `Obx` in the header was always fine, because it reads `c.metricsLoading` *directly inside* its
+closure. That contrast is what identified the fault.
+
+Each section now wraps its own content in an `Obx` around a method that is **called** inside the
+closure, so the reads happen where GetX can see them. `_QuickActions` gained one too — it reads
+`c.withdrawals` for its pending badge but was never reactive, so the badge kept whatever count it had
+at first build.
+
+`test/features/admin/admin_dashboard_screen_test.dart` guards this. Reinstating a single `Obx` wrapper
+makes it fail with the original pair of errors, so it does catch the regression it is named for.
+
 ### Crashes
 
 - **Generate Workout Split hard-crashed.** `user_home_screen.dart` imported the *unregistered*
@@ -176,6 +207,10 @@ have failed the build. Every file is recoverable from git history.
 9. **Do not re-enable `extendBody` on `BottomNavBarMain`.** It routes the body through `_BodyBuilder`'s
    layout-phase `LayoutBuilder` and reintroduces the stale body. The nav bar is stacked over the body
    specifically to avoid that. Diagnostic signature: the bottom nav updates but the body does not.
+10. **An `Obx` must read its observable *inside* its own closure.** `Obx(() => SomeWidget(c: c))`
+    registers nothing, because `SomeWidget.build()` runs later — GetX then throws `ObxError`, and in a
+    `slivers:` list that error widget takes the whole screen down. Either read the value in the closure
+    or call a method from it; wrapping a widget that reads it is not enough.
 
 ---
 
@@ -196,6 +231,14 @@ Pixel 7 / API 35, debug build, real backend.
 | Audio on backgrounding: `state:started` → `state:paused` | ✅ |
 | Generate Workout Split opens the generator, no exception | ✅ |
 | `flutter analyze` | **0 errors** (was 38) |
+| `flutter test` | **18 passing** |
+
+**The Admin dashboard fix was verified by widget test, not on device.** Reaching that tab needs an owner
+login, and the owner password is a leaked credential pending rotation, so it was not used. The test
+pumps the screen in its real first-paint state (no metrics loaded) and scrolls the whole list so every
+sliver lays out; reinstating one `Obx` wrapper reproduces the original errors verbatim. That is stronger
+evidence than a screenshot for this particular fault, but it is not a device run — **please confirm the
+tab on a real admin session.**
 
 Audio was verified objectively, not by ear:
 `adb shell dumpsys audio | sed -n '/players:/,/^$/p'` lists every player with a `state:` field. Use this
@@ -227,17 +270,6 @@ and others) have zero import sites. **Restoring this is wiring, not a rebuild.**
 correct `activatedPartners` getter that is **never called** — all four call sites use `.partners`, so
 LA Fitness, Equinox, YogaSix and others render under "Featured Gyms Near You" with member counts and
 ratings.
-
-**`AdminDashboardScreen` throws on render — newly exposed, root cause not yet found**
-Now that the body switches correctly, the Admin tab is reachable for the first time in this engagement,
-and it renders a Flutter error box: *"A RenderViewport expected a child of type RenderSliver but received
-a child of type RenderErrorBox."* One of the screen's five sliver children builds an `ErrorWidget`, and
-that box then lands in a sliver list. This is pre-existing and unrelated to the navigation fix — the
-screen simply never rendered before, so the fault was invisible. Checked and ruled out: null-unsafe
-metrics accessors (all are `?.`/`?? 0`), and GetX `ObxError` from the sliver-wrapping `Obx` widgets.
-**To diagnose:** clear logcat *before* launching and walk to the Admin tab in a single pass — the original
-exception is only logged on the first build of that subtree; revisiting the tab re-shows a cached
-`ErrorWidget` and logs nothing, which is what makes this awkward to catch.
 
 **Also outstanding**
 - The onboarding copy is placeholder text from a waste-management app ("kiosk fill levels & specific
