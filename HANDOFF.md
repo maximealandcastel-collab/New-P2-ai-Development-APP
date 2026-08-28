@@ -290,6 +290,16 @@ ratings.
 - The onboarding copy is placeholder text from a waste-management app ("kiosk fill levels & specific
   waste types").
 - A visible `RenderFlex` overflow on the Generate Workout Split card ("BOTTOM OVERFLOWED BY 8.4 PIXELS").
+- `SmarterCareScreen` lays its content out in a fixed `Column` with a hard-coded `SizedBox(height: 160.h)`
+  and **no scroll view**, so it has no vertical headroom. It fits the reference device, but a shorter
+  screen or an enlarged system font size would overflow it for real. Making that `Column` scrollable is
+  the fix; not done here because it is pre-existing and outside the restyle that was approved.
+- The Sign Up screen's Email field uses a real developer address, `dev.milon923@gmail.com`, as its
+  placeholder. It is a hint rather than a prefilled value, so it is not a credential leak — but it is
+  exactly the kind of hardcoded fixture §28 asks to remove.
+- `lib/features/onboarding/presentation/screens/onboarding_selection_screen.dart` is dead: it is an older
+  mode-select screen ("Facility" rather than "Clinical") with no inbound references. The live one is
+  `features/smarter_care/presentation/screens/smarter_care_screen.dart`.
 - Three admin Quick Actions are `onTap: () {}`; three more the client asked for (Review Flagged Content,
   Process Refund Requests, View IAP Webhook Logs) do not exist anywhere in the codebase.
 - Trainer Management filter tabs are bare `Container`s with no `onTap`, and "Suspended" is missing.
