@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
@@ -59,7 +60,7 @@ class _SectionTitle extends StatelessWidget {
         text,
         style: TextStyle(
           fontSize: 17.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.section,
           color: Colors.black,
         ),
       ),
@@ -107,7 +108,7 @@ class _WeekStrip extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: isToday ? Colors.white70 : Colors.black45,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: AppFontWeight.body,
                     letterSpacing: 0.2,
                   ),
                 ),
@@ -116,7 +117,11 @@ class _WeekStrip extends StatelessWidget {
                   '${day.day}',
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+                    // Today stays heavier than the rest, just less shouty than
+                    // the previous w700/w500 pair. The colour and the filled
+                    // orange chip already carry the selection.
+                    fontWeight:
+                        isToday ? AppFontWeight.label : AppFontWeight.emphasis,
                     color: isToday ? Colors.white : Colors.black87,
                   ),
                 ),
@@ -169,14 +174,14 @@ class _GymsCard extends StatelessWidget {
               Text('Gyms',
                   style: TextStyle(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                       color: Colors.black)),
               GestureDetector(
                 onTap: () => BottomNavBarController.to.onChange(2),
                 child: Text('Near Gym',
                     style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         color: const Color(0xFFFF6B35))),
               ),
             ],
@@ -221,7 +226,7 @@ class _GymsCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 13.sp,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: AppFontWeight.label,
                               color: Colors.black)),
                       SizedBox(height: 2.h),
                       Row(
@@ -279,7 +284,27 @@ class _GenerateWorkoutBanner extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoute.workoutScreen),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        height: 158.h,
+        // minHeight, not a fixed height. At a fixed 158.h the text column below
+        // needed ~166 and the card shipped with a visible black-and-yellow
+        // "BOTTOM OVERFLOWED BY 8.4 PIXELS" banner across it on a real device.
+        //
+        // The Stack sizes itself to its one non-positioned child (the text
+        // Padding), and the photo and gradients are all Positioned with
+        // top:0/bottom:0, so they stretch to whatever height that produces.
+        // Dropping the hard height therefore lets the card fit its own content,
+        // while minHeight keeps the intended proportions when the content is
+        // shorter. It also means a larger system font size grows the card
+        // instead of overflowing it.
+        constraints: BoxConstraints(minHeight: 158.h),
+        // width matters as much as height here. A Stack sizes to its only
+        // non-positioned child — the text column — so without this the card
+        // hugged the text and rendered about half the screen wide, wedged
+        // between two full-width sections. Every other layer is Positioned
+        // against the card's edges (photo right:0 width 230.w, dark overlay
+        // left:0 width 230.w, badge left:130.w), so at that width they all
+        // overlapped and the photo was squashed behind the copy. The layout was
+        // written for a full-width card; it just never got one.
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
           color: const Color(0xFF1A1A1A),
@@ -355,6 +380,10 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Deliberately left at w900, unlike the rest of this
+                      // screen. This is 9sp inside a 42px circle — micro-type
+                      // needs the extra weight to stay legible at all, and the
+                      // lighter scale turns it to mush.
                       Text('P2P',
                           style: TextStyle(
                             color: Colors.white,
@@ -366,7 +395,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 7.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppFontWeight.label,
                           )),
                     ],
                   ),
@@ -384,7 +413,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                       style: TextStyle(
                         color: const Color(0xFFFF6B35),
                         fontSize: 10.sp,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.label,
                         letterSpacing: 1.8,
                       ),
                     ),
@@ -393,7 +422,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 25.sp,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: AppFontWeight.display,
                         height: 1.05,
                         letterSpacing: -0.3,
                       ),
@@ -427,7 +456,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11.sp,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppFontWeight.label,
                             ),
                           ),
                           SizedBox(width: 4.w),
@@ -473,7 +502,7 @@ class _TodaysOverviewCard extends StatelessWidget {
                   '0%',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: Colors.black,
                   ),
                 ),
@@ -547,12 +576,12 @@ class _OverviewRow extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 11.sp,
                     color: Colors.black45,
-                    fontWeight: FontWeight.w500)),
+                    fontWeight: AppFontWeight.body)),
             Text(value,
                 style: TextStyle(
                     fontSize: 13.sp,
                     color: Colors.black87,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: AppFontWeight.label)),
           ],
         ),
       ],
