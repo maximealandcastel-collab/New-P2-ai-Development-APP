@@ -90,16 +90,26 @@ class _DashHeader extends StatelessWidget {
             child: Icon(Icons.shield_rounded, color: _orange, size: 22.sp),
           ),
           SizedBox(width: 12.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Admin Dashboard',
-                  style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: _tPrim)),
-              Text('P2P FitTech AI · Live',
-                  style: TextStyle(fontSize: 11.sp, color: _tSec)),
-            ],
+          // Expanded, not a bare Column + Spacer: the title is unbounded text
+          // between a fixed icon and a fixed refresh button, with nothing in the
+          // Row able to yield, so it overflows rather than shrinking. It does so
+          // under the widget test's font metrics today, and would do the same on
+          // device at a large system text-scale setting or a narrower screen.
+          // Expanded also does the Spacer's job of pushing the button to the end.
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Admin Dashboard',
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: _tPrim)),
+                Text('P2P FitTech AI · Live',
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.sp, color: _tSec)),
+              ],
+            ),
           ),
-          const Spacer(),
+          SizedBox(width: 8.w),
           Obx(() => c.metricsLoading
               ? SizedBox(width: 18.w, height: 18.w,
                   child: CircularProgressIndicator(strokeWidth: 2, color: _orange))
@@ -382,8 +392,11 @@ class _RevenueOverview extends StatelessWidget {
         Row(children: [
           Icon(Icons.bar_chart_rounded, color: _orange, size: 16.sp),
           SizedBox(width: 6.w),
-          Text('Daily Signups · Last 7 days',
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+          Expanded(
+            child: Text('Daily Signups · Last 7 days',
+                maxLines: 1, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+          ),
         ]),
         SizedBox(height: 14.h),
         SizedBox(
@@ -473,14 +486,20 @@ class _TrainerManagement extends StatelessWidget {
         child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: _orange)),
       ),
       child: Column(children: [
-        // Filter tabs
-        Row(children: [
-          _FilterTab(label: 'All',     count: trainers.length, active: true),
-          SizedBox(width: 8.w),
-          _FilterTab(label: 'Active',  count: active,  active: false),
-          SizedBox(width: 8.w),
-          _FilterTab(label: 'Pending', count: pending, active: false, badge: true),
-        ]),
+        // Filter tabs. Three natural-width pills plus their counts have no room
+        // to shrink, so the strip overflows once the labels or counts grow.
+        // Scrolling it keeps the pills at their natural size rather than
+        // squeezing the labels, and costs nothing when they already fit.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [
+            _FilterTab(label: 'All',     count: trainers.length, active: true),
+            SizedBox(width: 8.w),
+            _FilterTab(label: 'Active',  count: active,  active: false),
+            SizedBox(width: 8.w),
+            _FilterTab(label: 'Pending', count: pending, active: false, badge: true),
+          ]),
+        ),
         SizedBox(height: 14.h),
         // Column headers
         Row(children: ['TRAINER', 'STATUS'].map((h) => Expanded(
