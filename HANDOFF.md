@@ -304,10 +304,6 @@ ratings.
   turned out to be rendering at roughly half width, because a `Stack` sizes to its only non-positioned
   child and every other layer in that card is `Positioned`; its photo and gradients were written for a
   full-width card and were overlapping each other. Both fixed and confirmed on device.
-- **Not a defect, recorded so it is not re-investigated:** the dashboard gym cards were observed earlier
-  in this engagement showing grey placeholders instead of photos, and noted as a likely regression. They
-  load correctly on device. It was a transient image/CDN failure during that observation, not a code
-  fault, and nothing was changed to fix it.
 - `SmarterCareScreen` lays its content out in a fixed `Column` with a hard-coded `SizedBox(height: 160.h)`
   and **no scroll view**, so it has no vertical headroom. It fits the reference device, but a shorter
   screen or an enlarged system font size would overflow it for real. Making that `Column` scrollable is
@@ -331,6 +327,15 @@ ratings.
 - Every trainer shares the access code `MAXP210`.
 - "Near Me" sorts by real haversine distance but never *filters* — a user in Miami still sees all 22 gyms.
 - 43 dead `onTap: () {}` controls across the app.
+
+### Retracted findings
+
+Things reported earlier in this engagement that turned out **not** to be defects. Listed so nobody spends
+time re-investigating them, and so the list above can be trusted as real.
+
+- **Dashboard gym photos showing as grey placeholders.** Reported as a likely regression after both cards
+  rendered empty. They load correctly on device. It was a transient image/CDN failure during that one
+  observation, not a code fault. Nothing was changed.
 
 ---
 
