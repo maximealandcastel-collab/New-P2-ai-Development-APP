@@ -305,6 +305,17 @@ LA Fitness, Equinox, YogaSix and others render under "Featured Gyms Near You" wi
 ratings.
 
 **Also outstanding**
+- **The Admin/User pill overlaps screen headers.** It is an `OverlayEntry` pinned at `top + 6`, drawn
+  over whatever the screen puts there, so in admin mode it covers the dashboard greeting ("Hi ali!") and
+  sits directly on top of the Clients/Balance tab bar — the "Clients" tab label is half-hidden behind it.
+  Visible on every admin-mode screen. It needs either a lower offset or the screens beneath it need top
+  padding while it is shown.
+- **Admin mode does not survive a restart for a backend-role admin.** `SplashController` only restores it
+  for the hardcoded `ownerEmails`, and the Admin Access screen is reachable *only* from the login flow.
+  Now that "Save Login" keeps a session alive across restarts, an account whose role is `admin` in the
+  backend loses admin mode on the next launch with **no route back to it** short of clearing app data.
+  Whether admin should re-authenticate each session is a product decision, but as it stands the two
+  behaviours combine into a dead end.
 - The onboarding copy is placeholder text from a waste-management app ("kiosk fill levels & specific
   waste types").
 - ~~A visible `RenderFlex` overflow on the Generate Workout Split card ("BOTTOM OVERFLOWED BY 8.4
