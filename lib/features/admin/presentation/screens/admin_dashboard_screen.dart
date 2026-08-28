@@ -35,15 +35,31 @@ class AdminDashboardScreen extends StatelessWidget {
           onRefresh: c.loadAll,
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            // REACTIVITY NOTE — do not wrap these in Obx here.
+            //
+            // This list used to read:
+            //     Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c)))
+            // which looks reactive but is not. The closure only *constructs*
+            // widgets; _KpiGrid.build() — where c.metrics is actually read —
+            // runs later, in its own element, outside the window in which GetX
+            // records observable reads. GetX therefore saw zero observables and
+            // threw ObxError, whose ErrorWidget is a RenderBox. Sitting directly
+            // in slivers:, that produced the hard failure
+            //     "A RenderViewport expected a child of type RenderSliver but
+            //      received a child of type RenderErrorBox"
+            // and the whole Admin tab rendered as an error screen.
+            //
+            // Each section now owns its own Obx around a method that is CALLED
+            // inside the closure, so the reads land where GetX can see them.
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: 56)),
               SliverToBoxAdapter(child: _DashHeader(c: c)),
-              Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _ActivityFeed(c: c))),
+              SliverToBoxAdapter(child: _KpiGrid(c: c)),
+              SliverToBoxAdapter(child: _ActivityFeed(c: c)),
               SliverToBoxAdapter(child: _QuickActions(c: c)),
-              Obx(() => SliverToBoxAdapter(child: _RevenueOverview(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _TrainerManagement(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _Withdrawals(c: c))),
+              SliverToBoxAdapter(child: _RevenueOverview(c: c)),
+              SliverToBoxAdapter(child: _TrainerManagement(c: c)),
+              SliverToBoxAdapter(child: _Withdrawals(c: c)),
               const SliverToBoxAdapter(child: SizedBox(height: 64)),
             ],
           ),
@@ -110,8 +126,13 @@ class _KpiGrid extends StatelessWidget {
   final AdminDashboardController c;
   const _KpiGrid({required this.c});
 
+  // Obx(_content): _content() is invoked inside the Obx builder, so the
+  // c.metrics read below happens where GetX is recording. Obx(() => SomeWidget())
+  // would not — see the note in AdminDashboardScreen.build.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final m = c.metrics;
     final trainerCount = m?.roleBreakdown
         .where((r) => r.role == 'trainer').fold(0, (s, r) => s + r.count) ?? 0;
@@ -194,7 +215,9 @@ class _ActivityFeed extends StatelessWidget {
   const _ActivityFeed({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final users = c.metrics?.recentUsers ?? [];
     final items = users.take(8).toList();
 
@@ -255,8 +278,12 @@ class _QuickActions extends StatelessWidget {
   final AdminDashboardController c;
   const _QuickActions({required this.c});
 
+  // This section reads c.withdrawals for its pending badge but was not reactive
+  // before, so the badge kept whatever count it had at first build.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final pending = c.withdrawals.where((w) => w.status == 'pending').length;
     final actions = [
       _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
@@ -325,7 +352,9 @@ class _RevenueOverview extends StatelessWidget {
   const _RevenueOverview({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final ov = c.metrics?.overview;
     final sb = c.metrics?.subscriptionBreakdown ?? [];
     final monthlyCount = sb.where((s) => s.tier == 'monthly').fold(0, (s, r) => s + r.count);
@@ -426,7 +455,9 @@ class _TrainerManagement extends StatelessWidget {
   const _TrainerManagement({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final allUsers = c.metrics?.recentUsers ?? [];
     final trainers = allUsers.where((u) => u.role == 'trainer').toList();
     final active  = trainers.where((u) => u.isVerified).length;
@@ -538,7 +569,9 @@ class _Withdrawals extends StatelessWidget {
   const _Withdrawals({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final withdrawals = c.withdrawals;
     if (withdrawals.isEmpty && !c.withdrawalsLoading) return const SizedBox.shrink();
 
