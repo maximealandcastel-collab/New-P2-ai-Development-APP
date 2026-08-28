@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 
 class SmarterCareScreen extends StatelessWidget {
@@ -60,14 +61,20 @@ class SmarterCareScreen extends StatelessWidget {
                   SizedBox(height: 160.h),
 
                   // ── Headline ─────────────────────────────────────
+                  // Was w900 — the heaviest weight Flutter has, on the largest
+                  // type in the app. This screen is the clearest example of the
+                  // "heavier typography, lost the premium feel" the brief
+                  // describes. The line breaks here are intentional (they set
+                  // the poster-like shape); the ones in the body copy below
+                  // were not.
                   RichText(
                     text: TextSpan(
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 42.sp,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: AppFontWeight.display,
                         height: 1.05,
-                        letterSpacing: -1.0,
+                        letterSpacing: -0.5,
                       ),
                       children: const [
                         TextSpan(text: 'Smarter care'),
@@ -83,11 +90,18 @@ class SmarterCareScreen extends StatelessWidget {
                   SizedBox(height: 14.h),
 
                   // ── Subtitle ─────────────────────────────────────
+                  // The hard \n after "stay" is removed. It assumed a fixed
+                  // width: on the client's own reference screenshot the first
+                  // line had already wrapped before reaching it, so "stay" was
+                  // left stranded alone on a line of its own. Letting it wrap
+                  // naturally is correct at every width.
                   Text(
-                    'Get AI-guided plans, track progress, and stay\nconnected to experts all in one platform.',
+                    'Get AI-guided plans, track progress, and stay connected '
+                    'to experts all in one platform.',
                     style: TextStyle(
                       color: const Color(0xFF888888),
                       fontSize: 14.sp,
+                      fontWeight: AppFontWeight.body,
                       height: 1.5,
                     ),
                   ),
@@ -95,25 +109,40 @@ class SmarterCareScreen extends StatelessWidget {
                   SizedBox(height: 36.h),
 
                   // ── Two choice cards ─────────────────────────────
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ChoiceCard(
-                          title: 'Fitness',
-                          subtitle: 'Personal workouts,\ntrainer sessions,\nplans & more',
-                          onTap: () => Get.offAllNamed(AppRoute.loginScreen),
+                  // The cards size to their own content, and Clinical has more
+                  // text plus the Coming Soon chip, so under the Row's default
+                  // (center) the shorter Fitness card floated in the middle and
+                  // the pair sat visibly misaligned — clear in the reference
+                  // screenshot. stretch gives them a shared height.
+                  //
+                  // IntrinsicHeight is required, not decorative: this Row is a
+                  // child of a Column, so its height constraint is unbounded,
+                  // and stretch against an unbounded cross axis is a tight
+                  // infinite constraint — it throws. IntrinsicHeight resolves
+                  // the height to the taller card first. Cheap here: two
+                  // shallow, non-scrolling children.
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _ChoiceCard(
+                            title: 'Fitness',
+                            subtitle: 'Personal workouts, trainer sessions, plans & more',
+                            onTap: () => Get.offAllNamed(AppRoute.loginScreen),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 14.w),
-                      Expanded(
-                        child: _ChoiceCard(
-                          title: 'Clinical',
-                          subtitle: 'Patient intake, scanning,\nAI rehab plans, clinician\ntools',
-                          isComingSoon: true,
-                          onTap: () => _showClinicalPreview(context),
+                        SizedBox(width: 14.w),
+                        Expanded(
+                          child: _ChoiceCard(
+                            title: 'Clinical',
+                            subtitle: 'Patient intake, scanning, AI rehab plans, clinician tools',
+                            isComingSoon: true,
+                            onTap: () => _showClinicalPreview(context),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -159,7 +188,7 @@ class _ChoiceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -183,7 +212,7 @@ class _ChoiceCard extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.title,
               ),
             ),
             SizedBox(height: 4.h),
@@ -192,15 +221,21 @@ class _ChoiceCard extends StatelessWidget {
               style: TextStyle(
                 color: const Color(0xFF888888),
                 fontSize: 11.sp,
+                fontWeight: AppFontWeight.body,
                 height: 1.4,
               ),
             ),
+            // Pushes the chip to the bottom of the card. With the Row now
+            // stretching both cards to a common height, the Fitness card has
+            // spare vertical space; without this the Clinical chip would not
+            // line up with anything and the pair would look unbalanced again.
+            const Spacer(),
             if (isComingSoon) ...[
               SizedBox(height: 10.h),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Text(
@@ -208,7 +243,7 @@ class _ChoiceCard extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.primary,
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ),
@@ -271,7 +306,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.2),
+                    color: AppColors.primary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
@@ -279,7 +314,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                     style: TextStyle(
                       color: AppColors.primary,
                       fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.label,
                     ),
                   ),
                 ),
@@ -289,7 +324,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
                 const Spacer(),
@@ -409,7 +444,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ),
