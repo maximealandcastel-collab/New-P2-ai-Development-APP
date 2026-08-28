@@ -241,8 +241,18 @@ Pixel 7 / API 35, debug build, real backend.
 | Admin bypass login → toggle pill appears, admin tab set loads | ✅ |
 | **Admin dashboard renders, real backend data, no error box** | ✅ |
 | Admin dashboard scrolls end to end with no layout errors | ✅ |
+| Status bar icons legible (were inverted for a light bar) | ✅ |
+| Mode-select screen: lighter headline, cards aligned, no orphaned word | ✅ |
 | `flutter analyze` | **0 errors** (was 38) |
-| `flutter test` | **18 passing** |
+| `flutter test` | **19 passing** |
+
+> **Correcting commit `1807147`'s message.** It states the mode-select screen was "NOT verified visually
+> on device… not reachable this session". That is wrong. The screen *was* reachable; the fault was in my
+> own tooling — a `uiautomator dump` helper that did not delete its output file first, so whenever
+> `uiautomator` refused to dump (it does while a window is animating) the script silently re-read the
+> **previous** dump and reported the wrong screen. The restyle has since been confirmed on device against
+> the client's reference screenshot. Anything in this engagement that was concluded solely from a
+> `uiautomator` dump and never corroborated by a screenshot or logcat should be treated as unverified.
 
 The Admin dashboard was verified twice over. On device, through a real admin-role account and the
 `/auth/admin-bypass` code path: the full screen renders — KPI grid, activity feed, quick actions,
