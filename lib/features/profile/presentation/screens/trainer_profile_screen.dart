@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -228,13 +229,13 @@ class _AccessCodeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('YOUR ACCESS CODE',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600,
+                    style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label,
                         color: const Color(0xFFEA580C), letterSpacing: 0.8)),
                 SizedBox(height: 5.h),
                 Row(
                   children: [
                     Text(code,
-                        style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700,
+                        style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.stat,
                             color: Colors.black, letterSpacing: 1.5)),
                     SizedBox(width: 10.w),
                     GestureDetector(
@@ -267,7 +268,7 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(title,
-          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+          style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
     );
   }
 }
@@ -324,7 +325,7 @@ class _MenuTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.title,
-                          style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                          style: TextStyle(fontSize: 14.5.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
                       SizedBox(height: 2.h),
                       Text(item.subtitle, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF9CA3AF))),
                     ],
@@ -339,7 +340,7 @@ class _MenuTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Text(item.badge!,
-                        style: TextStyle(fontSize: 10.5.sp, fontWeight: FontWeight.w600, color: const Color(0xFFEA580C))),
+                        style: TextStyle(fontSize: 10.5.sp, fontWeight: AppFontWeight.label, color: const Color(0xFFEA580C))),
                   ),
                 ],
                 SizedBox(width: 6.w),

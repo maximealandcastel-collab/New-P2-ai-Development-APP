@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -67,7 +68,7 @@ class ProfileFixedAccountCard extends StatelessWidget {
                           CustomText(
                             text: 'Account credentials',
                             fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppFontWeight.label,
                             color: Colors.white,
                           ),
                           CustomText(
@@ -158,13 +159,13 @@ class _CredentialRow extends StatelessWidget {
                 text: label,
                 fontSize: 11.sp,
                 color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.emphasis,
                 bottom: 4.h,
               ),
               CustomText(
                 text: value,
                 fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
                 maxline: 2,
               ),
             ],
@@ -214,7 +215,7 @@ class _InlineMetaItem extends StatelessWidget {
         style: TextStyle(
           fontSize: 11.sp,
           color: AppColors.textSecondary,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
         ),
         children: [
           TextSpan(text: '$label : '),
@@ -222,7 +223,7 @@ class _InlineMetaItem extends StatelessWidget {
             text: value,
             style: TextStyle(
               color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 11.sp,
             ),
           ),

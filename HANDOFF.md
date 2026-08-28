@@ -333,6 +333,24 @@ ratings.
 - `lib/features/onboarding/presentation/screens/onboarding_selection_screen.dart` is dead: it is an older
   mode-select screen ("Facility" rather than "Clinical") with no inbound references. The live one is
   `features/smarter_care/presentation/screens/smarter_care_screen.dart`.
+- **Ten dead files under `lib/features/profile/`, in three clusters.** Found while doing the typography
+  pass — about two thirds of that feature's styling lives in code nothing can reach. Unlike the 17 files
+  removed in `5ec2643`, these all *compile*, so the analyzer never flagged them. Not deleted here: that
+  is a separate call, and the approved work was a restyle. Verified by exact-import-path search plus a
+  class-name search, so a barrel export or a route-table reference would have shown up:
+  - `profile/children/` — `edit_profile_screen.dart`, `certificate_screen.dart`, `services_screen.dart`.
+    A closed loop: `edit_profile_screen` navigates to the other two, and **nothing outside the folder
+    imports any of them.** Superseded by `presentation/screens/edit_personal_info_screen.dart` and
+    `edit_fitness_info_screen.dart`, which are the ones actually wired up.
+  - `profile/presentation/screens/children/` — duplicate copies of the same three screens, zero
+    references of any kind.
+  - `services_card_widget.dart` and `exercise_card_widget.dart` — **two copies each** (under
+    `widgets/` and `presentation/screens/widgets/`), and all four are referenced only by their own
+    constructors.
+
+  These were deliberately left un-restyled. Styling code no user can see is wasted effort, and leaving
+  them raw keeps them easy to spot: a search for `FontWeight.w` in `lib/features/profile/` now returns
+  the dead files and nothing else.
 - Three admin Quick Actions are `onTap: () {}`; three more the client asked for (Review Flagged Content,
   Process Refund Requests, View IAP Webhook Logs) do not exist anywhere in the codebase.
 - Trainer Management filter tabs are bare `Container`s with no `onTap`, and "Suspended" is missing.

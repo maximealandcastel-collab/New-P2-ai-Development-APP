@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -32,7 +33,7 @@ class ProfileInfoSectionCard extends StatelessWidget {
             children: [
               CustomText(
                 text: title,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
                 fontSize: 16.sp,
               ),
               GestureDetector(
@@ -51,7 +52,7 @@ class ProfileInfoSectionCard extends StatelessWidget {
                       CustomText(
                         text: 'Edit',
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         color: AppColors.primary,
                       ),
                     ],
