@@ -351,6 +351,23 @@ ratings.
   These were deliberately left un-restyled. Styling code no user can see is wasted effort, and leaving
   them raw keeps them easy to spot: a search for `FontWeight.w` in `lib/features/profile/` now returns
   the dead files and nothing else.
+- **Dead code is inflating the remaining UI work by more than a third.** Measuring what is left of the
+  typography pass: **247 declarations sit in live code, 138 in files nothing can reach** — 36% of the
+  apparent backlog. The same "leave it raw so it stays visible" rule is being applied throughout, so the
+  count of raw `FontWeight` literals doubles as a dead-code marker. The two largest single offenders:
+  - `core/utils/theme/custom_themes/text_theme.dart` — **30 declarations.** This is `AppTextTheme`,
+    defined in full and wired into nothing. Confirmed by searching the whole tree: the only other
+    mention of the name is the comment in `core/themes/app_typography.dart` explaining why it is not
+    used.
+  - `features/paywall/presentation/screens/paywall_screen.dart` — **13 declarations.** Reachable only
+    through `lib/routes/app_routes.dart`, which is the *unregistered* route table (see rule 7). The
+    live paywall is `features/subscribe/presentation/screens/payment_details_screen.dart`.
+
+  Also unreachable and carrying styling: the seven orphaned `features/home/widgets/*` dashboard
+  sections (~19 declarations — these are the data-driven implementation described above, worth wiring
+  up rather than deleting), `features/home/home_screen.dart`, `authentication/.../phone_otp_waiting_screen.dart`,
+  two `settings/children/` screens, and seven files in `lib/widgets/` that the barrel does not export
+  and nothing imports directly.
 - Three admin Quick Actions are `onTap: () {}`; three more the client asked for (Review Flagged Content,
   Process Refund Requests, View IAP Webhook Logs) do not exist anywhere in the codebase.
 - Trainer Management filter tabs are bare `Container`s with no `onTap`, and "Suspended" is missing.
