@@ -213,7 +213,6 @@ class _InlineMetaItem extends StatelessWidget {
       text: TextSpan(
         style: TextStyle(
           fontSize: 11.sp,
-          fontFamily: 'Figtree',
           color: AppColors.textSecondary,
           fontWeight: FontWeight.w500,
         ),

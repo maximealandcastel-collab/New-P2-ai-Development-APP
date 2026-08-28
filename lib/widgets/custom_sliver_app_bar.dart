@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
 class CustomSliverAppBar extends StatelessWidget {
   const CustomSliverAppBar({
@@ -113,7 +112,6 @@ class CustomSliverAppBar extends StatelessWidget {
         Text(
           titleText,
           style: TextStyle(
-            fontFamily: FontFamily.figtree,
             fontWeight: FontWeight.w600,
             fontSize: titleSize.sp,
             color: showCollapsedTitle

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/features/notification/data/models/notification_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -90,7 +89,6 @@ class NotificationCardWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.black,
-              fontFamily: FontFamily.figtree,
             ),
             children: [
               TextSpan(

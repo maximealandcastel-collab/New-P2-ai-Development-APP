@@ -43,6 +43,12 @@ class AffiliateDashboardScreen extends StatelessWidget {
               // ── App bar ──────────────────────────────────────────
               SliverAppBar(
                 backgroundColor: const Color(0xFF0A0A0A),
+                // Explicit, because this is the app's one near-black app bar.
+                // AppBarTheme.foregroundColor is the light-background default
+                // (it used to be white, which was invisible on every *other*
+                // screen); without this override the back arrow here would be
+                // black on black.
+                foregroundColor: Colors.white,
                 expandedHeight: 120.h,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(

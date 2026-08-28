@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ServicesCardWidget extends StatelessWidget {
@@ -42,7 +41,6 @@ class ServicesCardWidget extends StatelessWidget {
 
               RichText(text: TextSpan(
                 style: TextStyle(
-                    fontFamily: FontFamily.figtree,
                     color: AppColors.info,
                   fontWeight:FontWeight.w700,
                   fontSize: 14.sp

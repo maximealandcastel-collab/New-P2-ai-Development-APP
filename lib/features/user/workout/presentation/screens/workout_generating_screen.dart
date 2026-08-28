@@ -148,7 +148,6 @@ import 'package:flutter/material.dart';
                             fontSize: 30.sp,
                             fontWeight: FontWeight.w900,
                             height: 1.1,
-                            fontFamily: 'Figtree',
                           ),
                         ),
                         TextSpan(
@@ -158,7 +157,6 @@ import 'package:flutter/material.dart';
                             fontSize: 30.sp,
                             fontWeight: FontWeight.w900,
                             height: 1.1,
-                            fontFamily: 'Figtree',
                           ),
                         ),
                       ],

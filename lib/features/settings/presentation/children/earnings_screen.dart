@@ -5,7 +5,6 @@ import 'package:pler_to_pler_app/features/settings/presentation/widgets/transati
 import 'package:shimmer/shimmer.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -58,7 +57,6 @@ class EarningsScreen extends StatelessWidget {
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 40.sp,
-                        fontFamily: FontFamily.figtree,
                       ),
                       text: availableStr,
                       children: [
@@ -83,7 +81,6 @@ class EarningsScreen extends StatelessWidget {
                   child: RichText(
                     text: TextSpan(
                       style: TextStyle(
-                        fontFamily: FontFamily.figtree,
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                         fontSize: 16.sp,
