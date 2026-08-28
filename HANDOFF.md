@@ -299,7 +299,15 @@ ratings.
 **Also outstanding**
 - The onboarding copy is placeholder text from a waste-management app ("kiosk fill levels & specific
   waste types").
-- A visible `RenderFlex` overflow on the Generate Workout Split card ("BOTTOM OVERFLOWED BY 8.4 PIXELS").
+- ~~A visible `RenderFlex` overflow on the Generate Workout Split card ("BOTTOM OVERFLOWED BY 8.4
+  PIXELS").~~ **Fixed** — the card was pinned to a fixed height smaller than its own content. It also
+  turned out to be rendering at roughly half width, because a `Stack` sizes to its only non-positioned
+  child and every other layer in that card is `Positioned`; its photo and gradients were written for a
+  full-width card and were overlapping each other. Both fixed and confirmed on device.
+- **Not a defect, recorded so it is not re-investigated:** the dashboard gym cards were observed earlier
+  in this engagement showing grey placeholders instead of photos, and noted as a likely regression. They
+  load correctly on device. It was a transient image/CDN failure during that observation, not a code
+  fault, and nothing was changed to fix it.
 - `SmarterCareScreen` lays its content out in a fixed `Column` with a hard-coded `SizedBox(height: 160.h)`
   and **no scroll view**, so it has no vertical headroom. It fits the reference device, but a shorter
   screen or an enlarged system font size would overflow it for real. Making that `Column` scrollable is
