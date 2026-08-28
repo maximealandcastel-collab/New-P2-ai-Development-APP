@@ -50,3 +50,7 @@ temp_interactive_push.bat
 
 # Client handoff doc — not part of the source tree
 taskdoc.md
+
+# Client-supplied UX/UI reference material (screenshots + screen recordings).
+# Local working reference only — large binaries, and not ours to redistribute.
+ui/
