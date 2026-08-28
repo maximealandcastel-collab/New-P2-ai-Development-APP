@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -102,7 +103,7 @@ class _DashHeader extends StatelessWidget {
               children: [
                 Text('Admin Dashboard',
                     maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: _tPrim)),
+                    style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
                 Text('P2P FitTech AI · Live',
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 11.sp, color: _tSec)),
@@ -204,13 +205,16 @@ class _KpiCard extends StatelessWidget {
               color: d.accent.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20.r),
             ),
+            // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
+            // tinted pill is micro-type, and the lighter scale stops it reading
+            // as a badge. Same exception as the P2P and YOUR GYM badges.
             child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: d.accent)),
           ),
         ]),
         SizedBox(height: 10.h),
-        Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w800, color: d.accent)),
+        Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.stat, color: d.accent)),
         SizedBox(height: 2.h),
-        Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.5)),
+        Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
         SizedBox(height: 2.h),
         Text(d.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
       ]),
@@ -269,11 +273,11 @@ class _ActivityRow extends StatelessWidget {
             color: typeColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20.r),
           ),
-          child: Text(typeLabel, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: typeColor)),
+          child: Text(typeLabel, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: typeColor)),
         ),
         SizedBox(width: 10.w),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+          Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
           Text(subtitle, style: TextStyle(fontSize: 11.sp, color: _tSec)),
         ])),
         Text(time, style: TextStyle(fontSize: 11.sp, color: _tSec)),
@@ -340,12 +344,12 @@ class _QaButton extends StatelessWidget {
         ),
         child: Row(children: [
           Expanded(child: Text(data.label,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: data.color))),
+              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: data.color))),
           if (data.badge != null)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(color: data.color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20.r)),
-              child: Text(data.badge!, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: data.color)),
+              child: Text(data.badge!, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: data.color)),
             )
           else
             Icon(Icons.arrow_forward_ios_rounded, size: 13.sp, color: data.color),
@@ -395,7 +399,7 @@ class _RevenueOverview extends StatelessWidget {
           Expanded(
             child: Text('Daily Signups · Last 7 days',
                 maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+                style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
           ),
         ]),
         SizedBox(height: 14.h),
@@ -412,7 +416,7 @@ class _RevenueOverview extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 3.w),
                         child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                          Text('${d.count}', style: TextStyle(fontSize: 9.sp, color: _tSec, fontWeight: FontWeight.w600)),
+                          Text('${d.count}', style: TextStyle(fontSize: 9.sp, color: _tSec, fontWeight: AppFontWeight.label)),
                           SizedBox(height: 3.h),
                           Container(
                             height: (80 * ratio).clamp(4.0, 80.0).h,
@@ -453,8 +457,8 @@ class _MiniStat extends StatelessWidget {
         border: Border.all(color: s.color.withValues(alpha: 0.18)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(s.value, style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: s.color)),
-        Text(s.label, style: TextStyle(fontSize: 9.5.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.4)),
+        Text(s.value, style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.stat, color: s.color)),
+        Text(s.label, style: TextStyle(fontSize: 9.5.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.4)),
         Text(s.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
       ]),
     );
@@ -483,7 +487,7 @@ class _TrainerManagement extends StatelessWidget {
       trailing: GestureDetector(
         onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'trainer', 'title': 'Trainers'}),
-        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: _orange)),
+        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: _orange)),
       ),
       child: Column(children: [
         // Filter tabs. Three natural-width pills plus their counts have no room
@@ -503,7 +507,7 @@ class _TrainerManagement extends StatelessWidget {
         SizedBox(height: 14.h),
         // Column headers
         Row(children: ['TRAINER', 'STATUS'].map((h) => Expanded(
-          child: Text(h, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: _tSec, letterSpacing: 0.5)),
+          child: Text(h, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
         )).toList()),
         Divider(color: _border, height: 16.h),
         if (trainers.isEmpty)
@@ -532,13 +536,13 @@ class _FilterTab extends StatelessWidget {
         border: Border.all(color: active ? _orange : _border),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
+        Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
             color: active ? Colors.white : _tSec)),
         if (badge && count > 0) ...[
           SizedBox(width: 5.w),
           Container(width: 18.w, height: 18.w,
               decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white)))),
+              child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
         ] else if (!active && count > 0) ...[
           SizedBox(width: 5.w),
           Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
@@ -564,7 +568,7 @@ class _TrainerRow extends StatelessWidget {
       child: Row(children: [
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(user.email.split('@').first,
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+              style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.title, color: _tPrim)),
           Text('Joined $joined', style: TextStyle(fontSize: 10.sp, color: _tSec)),
         ])),
         Container(
@@ -574,7 +578,7 @@ class _TrainerRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
             border: Border.all(color: statusColor.withValues(alpha: 0.35)),
           ),
-          child: Text(statusLabel, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: statusColor)),
+          child: Text(statusLabel, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: statusColor)),
         ),
       ]),
     );
@@ -627,12 +631,12 @@ class _WithdrawalCard extends StatelessWidget {
           Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(w.trainerId,
-                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
               Text('${w.createdAt != null ? _fmt(w.createdAt!) : ''} · ${w.withdrawalMethod}',
                   style: TextStyle(fontSize: 11.sp, color: _tSec)),
             ])),
             Text('\$${w.amountDollars.toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: _orange)),
+                style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.display, color: _orange)),
           ]),
           SizedBox(height: 12.h),
           Row(children: [
@@ -648,7 +652,7 @@ class _WithdrawalCard extends StatelessWidget {
                 child: loading
                     ? SizedBox(width: 16.w, height: 16.w,
                         child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Approve', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                    : Text('Approve', style: TextStyle(fontWeight: AppFontWeight.label, fontSize: 13.sp)),
               ),
             ),
             SizedBox(width: 10.w),
@@ -661,7 +665,7 @@ class _WithdrawalCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 10.h),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
                 ),
-                child: Text('Reject', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                child: Text('Reject', style: TextStyle(fontWeight: AppFontWeight.label, fontSize: 13.sp)),
               ),
             ),
           ]),
@@ -698,7 +702,7 @@ class _Section extends StatelessWidget {
         Row(children: [
           Icon(icon, color: iconColor, size: 18.sp),
           SizedBox(width: 8.w),
-          Expanded(child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _tPrim))),
+          Expanded(child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.display, color: _tPrim))),
           if (trailing != null) trailing!,
         ]),
         SizedBox(height: 16.h),
