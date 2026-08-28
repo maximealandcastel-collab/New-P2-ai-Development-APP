@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -54,7 +55,7 @@ class EnterpriseGymCard extends StatelessWidget {
                           ? Colors.white
                           : gym.accentColor,
                       fontSize: gym.initials.length > 2 ? 13.sp : 17.sp,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: AppFontWeight.display,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -77,7 +78,7 @@ class EnterpriseGymCard extends StatelessWidget {
                     style: TextStyle(
                       color: gym.brandColor,
                       fontSize: 10.sp,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.display,
                     ),
                   ),
                 ),
@@ -109,7 +110,7 @@ class EnterpriseGymCard extends StatelessWidget {
                             style: TextStyle(
                                 color: const Color(0xFF2E7D32),
                                 fontSize: 10.sp,
-                                fontWeight: FontWeight.w600)),
+                                fontWeight: AppFontWeight.label)),
                       ],
                     ),
                   ),
@@ -127,7 +128,7 @@ class EnterpriseGymCard extends StatelessWidget {
                   gym.name,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.title,
                     color: Colors.black87,
                   ),
                   maxLines: 1,
@@ -170,7 +171,7 @@ class EnterpriseGymCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                       ),
                     ),
                     SizedBox(width: 4.w),

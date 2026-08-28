@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -116,7 +117,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             label,
             style: TextStyle(
               fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.label,
               color: active ? Colors.white : Colors.black45,
             ),
           ),
@@ -152,7 +153,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                   : 'Join ${gym.name}',
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.display,
                 color: Colors.black87,
               ),
             ),
@@ -214,7 +215,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     color: _kOrange,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ),
@@ -240,7 +241,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                   _isLogin ? 'Login' : 'Create Account',
                   style: TextStyle(
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ),
@@ -295,7 +296,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
               style: TextStyle(
                   fontSize: 12.sp,
                   color: Colors.black38,
-                  fontWeight: FontWeight.w500),
+                  fontWeight: AppFontWeight.body),
             ),
           ),
           Expanded(child: Divider(color: Colors.black12, thickness: 1)),
@@ -358,7 +359,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             label,
             style: TextStyle(
               fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               color: Colors.black87,
             ),
           ),
@@ -477,7 +478,7 @@ class _TopBar extends StatelessWidget {
                     style: TextStyle(
                         color: const Color(0xFF2E7D32),
                         fontSize: 11.sp,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: AppFontWeight.label)),
               ],
             ),
           ),
@@ -535,7 +536,7 @@ class _GymIdentityBanner extends StatelessWidget {
                       ? Colors.white
                       : gym.accentColor,
                   fontSize: gym.initials.length > 2 ? 13.sp : 18.sp,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: AppFontWeight.display,
                 ),
               ),
             ),
@@ -550,7 +551,7 @@ class _GymIdentityBanner extends StatelessWidget {
                     gym.name,
                     style: TextStyle(
                       fontSize: 17.sp,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.title,
                       color: Colors.black87,
                     ),
                   ),
@@ -572,7 +573,7 @@ class _GymIdentityBanner extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11.sp,
                           color: Colors.black45,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppFontWeight.body,
                         ),
                       ),
                     ],
@@ -653,7 +654,7 @@ class _P2PFooter extends StatelessWidget {
               style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.black45,
-                  fontWeight: FontWeight.w500),
+                  fontWeight: AppFontWeight.body),
             ),
           ],
         ),

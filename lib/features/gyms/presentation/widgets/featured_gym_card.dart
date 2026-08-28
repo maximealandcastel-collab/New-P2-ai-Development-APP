@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -58,7 +59,7 @@ class FeaturedGymCard extends StatelessWidget {
                           ? Colors.white
                           : gym.accentColor,
                       fontSize: gym.initials.length > 2 ? 12.sp : 16.sp,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: AppFontWeight.display,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -72,7 +73,7 @@ class FeaturedGymCard extends StatelessWidget {
                         gym.name,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.title,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -95,7 +96,7 @@ class FeaturedGymCard extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Colors.black54,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: AppFontWeight.label)),
                           SizedBox(width: 6.w),
                           Text('· ${gym.memberCount}',
                               style: TextStyle(
@@ -147,7 +148,7 @@ class FeaturedGymCard extends StatelessWidget {
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10.sp,
-                                fontWeight: FontWeight.w600)),
+                                fontWeight: AppFontWeight.body)),
                       ],
                     ),
                   ),
@@ -176,7 +177,7 @@ class FeaturedGymCard extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.label,
                         ),
                       ),
                     ),
@@ -202,7 +203,7 @@ class FeaturedGymCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.black38,
                               fontSize: gym.statusLabel != null ? 11.sp : 14.sp,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: AppFontWeight.emphasis,
                             ),
                           ),
                         ),
@@ -224,6 +225,10 @@ class FeaturedGymCard extends StatelessWidget {
           color: const Color(0xFFFD7B00),
           borderRadius: BorderRadius.circular(20.r),
         ),
+        // The YOUR GYM / PARTNER badges stay at w800, unlike everything else on
+        // this card. They are 8sp uppercase inside a filled pill — at that size
+        // the lighter scale stops reading as a badge and starts looking like a
+        // rendering fault. Same exception as the P2P badge on the dashboard.
         child: Text('YOUR GYM',
             style: TextStyle(
                 color: Colors.white,
