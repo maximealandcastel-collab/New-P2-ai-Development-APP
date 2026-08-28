@@ -172,6 +172,11 @@ makes it fail with the original pair of errors, so it does catch the regression 
 - **Added Restore Purchases.** There was none anywhere in the app; Guideline 3.1.1 requires one for
   auto-renewable subscriptions, and its absence also stranded anyone who reinstalled.
 - Added Terms of Use and Privacy Policy links to the paywall (Guideline 3.1.2).
+  > Both of the above were originally verified **in code only** — the paywall never renders for an
+  > account that already holds a subscription, which every test account here did. Since confirmed on
+  > device by temporarily pointing `initialRoute` at the paywall: both the Restore Purchases action and
+  > the Terms/Privacy links are present and rendered. The temporary route was reverted and never
+  > committed.
 - De-duped `/iap/verify` by `purchaseID`.
 - Added `NSMotionUsageDescription` — `HealthDataType.STEPS` can fall through to CoreMotion on iOS and
   hard-crash without it.
@@ -243,6 +248,9 @@ Pixel 7 / API 35, debug build, real backend.
 | Admin dashboard scrolls end to end with no layout errors | ✅ |
 | Status bar icons legible (were inverted for a light bar) | ✅ |
 | Mode-select screen: lighter headline, cards aligned, no orphaned word | ✅ |
+| "Save Login" persists a session across a force-stop **and a device reboot** | ✅ |
+| Paywall renders **Restore Purchases** and **Terms of Use · Privacy Policy** | ✅ |
+| Find Trainer section headers legible (were white on a light background) | ✅ |
 | `flutter analyze` | **0 errors** (was 38) |
 | `flutter test` | **19 passing** |
 
