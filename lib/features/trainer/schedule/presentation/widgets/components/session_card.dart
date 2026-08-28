@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/domain/entities/session_entity.dart';
@@ -59,7 +60,7 @@ class SessionCard extends StatelessWidget {
                       session.sessionTitle,
                       style: TextStyle(
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         color: Colors.black,
                       ),
                     ),
@@ -122,7 +123,7 @@ class SessionDateColumn extends StatelessWidget {
           shortDate,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.title,
             color: Colors.black,
           ),
         ),
@@ -174,7 +175,7 @@ class AiNoteBox extends StatelessWidget {
                 'AI Recommendation',
                 style: TextStyle(
                   fontSize: 10.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: Colors.black54,
                 ),
               ),
@@ -229,7 +230,7 @@ class OutlineActionBtn extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.emphasis,
                 color: Colors.black87,
               ),
             ),

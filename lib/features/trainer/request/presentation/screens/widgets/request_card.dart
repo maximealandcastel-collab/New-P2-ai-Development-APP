@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -46,7 +47,7 @@ class RequestCard extends StatelessWidget {
                       textOverflow: TextOverflow.ellipsis,
                       maxline: 1,
                       text: request.clientName,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                     ),
                     CustomText(
                       textAlign: TextAlign.start,
@@ -81,7 +82,7 @@ class RequestCard extends StatelessWidget {
                       Assets.icons.note.svg(),
                       CustomText(
                         left: 6.w,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         textAlign: TextAlign.start,
                         text: 'Note',
                         fontSize: 12.sp,
@@ -90,7 +91,7 @@ class RequestCard extends StatelessWidget {
                   ),
                   CustomText(
                     top: 6.h,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppFontWeight.emphasis,
                     color: Colors.black.withValues(alpha: 0.50),
                     textAlign: TextAlign.start,
                     text: StringFormat.valueOrNa(request.note),
@@ -141,7 +142,7 @@ class RequestCard extends StatelessWidget {
                   child: CustomText(
                     text: request.invoiceStatusLabel,
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: AppColors.info,
                     textAlign: TextAlign.start,
                   ),

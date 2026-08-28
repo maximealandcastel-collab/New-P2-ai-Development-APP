@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -26,7 +27,7 @@ class SessionInfoHeader extends StatelessWidget {
           title,
           style: TextStyle(
             fontSize: 22.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.title,
             color: Colors.black,
             height: 1.3,
           ),
@@ -52,7 +53,7 @@ class SessionInfoHeader extends StatelessWidget {
                     dateLabel,
                     style: TextStyle(
                       fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.title,
                     ),
                   ),
                   if (sessionTag != null) ...[
@@ -96,7 +97,7 @@ class SessionInfoHeader extends StatelessWidget {
                   time,
                   style: TextStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.title,
                   ),
                 ),
               ],

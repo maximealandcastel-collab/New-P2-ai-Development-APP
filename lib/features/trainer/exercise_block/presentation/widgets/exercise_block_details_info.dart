@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -22,7 +23,7 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
         children: [
           CustomText(
             text: block.title,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.title,
             fontSize: 20.sp,
             textAlign: TextAlign.start,
           ),
@@ -39,7 +40,7 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
                 children: [
                   CustomText(
                     text: 'Description',
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     fontSize: 13.sp,
                     textAlign: TextAlign.start,
                   ),

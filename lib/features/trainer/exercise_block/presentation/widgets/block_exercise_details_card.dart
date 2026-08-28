@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -86,7 +87,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
               CustomText(
                 text: exercise.name ?? 'Exercise',
                 fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
                 textAlign: TextAlign.start,
               ),
               if (subtitle.isNotEmpty)
@@ -123,7 +124,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
       child: CustomText(
         text: '${widget.index}',
         fontSize: 12.sp,
-        fontWeight: FontWeight.w700,
+        fontWeight: AppFontWeight.title,
         color: AppColors.textPrimary,
         textAlign: TextAlign.center,
       ),

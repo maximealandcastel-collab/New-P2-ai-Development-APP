@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -26,7 +27,7 @@ class ScheduleSummaryCard extends StatelessWidget {
             'Schedule summary',
             style: TextStyle(
               fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.title,
               color: Colors.black,
             ),
           ),
@@ -105,7 +106,7 @@ class SummaryStatCard extends StatelessWidget {
               '$value',
               style: TextStyle(
                 fontSize: 22.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.title,
                 color: Colors.black,
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/data/models/exercise_block_model.dart';
@@ -23,7 +24,7 @@ class ExerciseBlockDetailsContent extends StatelessWidget {
         CustomText(
           text: 'Exercises (${exercises.length})',
           fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.title,
           textAlign: TextAlign.start,
         ),
         SizedBox(height: 12.h),

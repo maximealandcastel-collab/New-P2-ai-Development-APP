@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,7 @@ class TrainerAppBar extends StatelessWidget {
                       'Hi $userName !',
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.title,
                         color: Colors.black,
                       ),
                     ),
@@ -109,7 +110,7 @@ class _OnlineStatusBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               color: const Color(0xFF4CAF50),
-              fontWeight: FontWeight.w500,
+              fontWeight: AppFontWeight.emphasis,
             ),
           ),
         ],
@@ -162,7 +163,7 @@ class _NotificationIcon extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9.sp,
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.title,
                   ),
                 ),
               ),

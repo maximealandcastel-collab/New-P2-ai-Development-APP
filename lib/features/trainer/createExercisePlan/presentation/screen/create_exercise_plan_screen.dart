@@ -1,5 +1,6 @@
 
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -78,7 +79,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
               CustomText(
                 text: "Generating personalized\nexercise for Johnson",
                 fontSize: 22.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 12.h),
@@ -126,7 +127,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomText(text: "Assigned Client", fontWeight: FontWeight.bold),
+                  CustomText(text: "Assigned Client", fontWeight: AppFontWeight.section),
                   CustomContainer(
                     paddingHorizontal: 12.w,
                     paddingVertical: 6.h,
@@ -151,7 +152,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
             SizedBox(height: 24.h),
           ],
 
-          CustomText(text: "Exercise plan details", fontWeight: FontWeight.bold, fontSize: 18.sp),
+          CustomText(text: "Exercise plan details", fontWeight: AppFontWeight.section, fontSize: 18.sp),
           SizedBox(height: 16.h),
           _buildLabel("Exercise plan name"),
           CustomTextField(hintText: "Enter exercise plan name", controller: _nameController),
@@ -203,7 +204,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
         children: [
           _buildDaySection(),
           SizedBox(height: 24.h),
-          CustomText(text: "Exercise blocks", fontWeight: FontWeight.bold, fontSize: 16.sp),
+          CustomText(text: "Exercise blocks", fontWeight: AppFontWeight.section, fontSize: 16.sp),
           SizedBox(height: 12.h),
           _buildBlocksList(),
           SizedBox(height: 12.h),
@@ -218,7 +219,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
               children: [
                 const Icon(Icons.fitness_center, color: Colors.white, size: 20),
                 SizedBox(width: 8.w),
-                CustomText(text: "Create exercise plan", color: Colors.white, fontWeight: FontWeight.bold),
+                CustomText(text: "Create exercise plan", color: Colors.white, fontWeight: AppFontWeight.section),
               ],
             ),
           ),
@@ -238,7 +239,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
           SizedBox(height: 24.h),
           _buildDaySection(),
           SizedBox(height: 24.h),
-          CustomText(text: "Exercise blocks", fontWeight: FontWeight.bold, fontSize: 16.sp),
+          CustomText(text: "Exercise blocks", fontWeight: AppFontWeight.section, fontSize: 16.sp),
           SizedBox(height: 12.h),
           _buildBlocksList(),
           SizedBox(height: 40.h),
@@ -280,7 +281,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
             children: [
               const Icon(Icons.auto_awesome, color: Colors.black, size: 18),
               SizedBox(width: 8.w),
-              CustomText(text: "Generated exercise", fontWeight: FontWeight.bold),
+              CustomText(text: "Generated exercise", fontWeight: AppFontWeight.section),
             ],
           ),
           SizedBox(height: 8.h),
@@ -321,7 +322,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(text: "Exercise days", fontWeight: FontWeight.bold, fontSize: 16.sp),
+        CustomText(text: "Exercise days", fontWeight: AppFontWeight.section, fontSize: 16.sp),
         SizedBox(height: 12.h),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -366,7 +367,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(text: "The Warm-Up", fontWeight: FontWeight.bold, fontSize: 14.sp),
+                CustomText(text: "The Warm-Up", fontWeight: AppFontWeight.section, fontSize: 14.sp),
                 CustomText(text: "5 steps X 1 rep  •  3 minutes", fontSize: 12.sp, color: Colors.grey),
               ],
             ),
@@ -387,7 +388,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CustomText(text: "Day", fontSize: 10.sp, color: isSelected ? Colors.white70 : Colors.grey),
-          CustomText(text: "$dayNum", fontSize: 16.sp, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.black),
+          CustomText(text: "$dayNum", fontSize: 16.sp, fontWeight: AppFontWeight.stat, color: isSelected ? Colors.white : Colors.black),
         ],
       ),
     );
@@ -417,7 +418,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
           paddingVertical: 12.h, radiusAll: 25.r,
           color: isSelected ? Colors.black : Colors.transparent,
           alignment: Alignment.center,
-          child: CustomText(text: type, color: isSelected ? Colors.white : Colors.grey, fontWeight: FontWeight.w600),
+          child: CustomText(text: type, color: isSelected ? Colors.white : Colors.grey, fontWeight: AppFontWeight.label),
         ),
       ),
     );
@@ -458,7 +459,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
           children: [
             CircleAvatar(backgroundColor: Colors.black.withOpacity(0.05), child: const Icon(Icons.add, color: Colors.black)),
             SizedBox(width: 12.w),
-            CustomText(text: "Add Exercise block", fontWeight: FontWeight.w600),
+            CustomText(text: "Add Exercise block", fontWeight: AppFontWeight.label),
           ],
         ),
       ),

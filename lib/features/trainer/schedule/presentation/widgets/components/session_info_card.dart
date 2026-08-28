@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -107,7 +108,7 @@ class SessionIdCard extends StatelessWidget {
             sessionId,
             style: TextStyle(
               fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               color: Colors.black87,
             ),
           ),

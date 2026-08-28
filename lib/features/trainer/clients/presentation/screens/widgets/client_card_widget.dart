@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -49,7 +50,7 @@ class ClientCardWidget extends StatelessWidget {
         title: CustomText(
           textAlign: TextAlign.start,
           fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           text: clientName,
           maxline: 1,
           textOverflow: TextOverflow.ellipsis,
