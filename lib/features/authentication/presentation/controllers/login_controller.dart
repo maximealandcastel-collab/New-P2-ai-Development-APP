@@ -139,7 +139,26 @@ class LoginController extends GetxController {
   bool isLoggedIn() => _authService.getRole() != null;
 
   /// Deletes the account server-side then logs out.
+  /// Deletes the account server-side, then clears the local session.
+  ///
+  /// This used to be `await logout()` and nothing else — it never called the
+  /// endpoint. Everything below it was already wired: AuthService.deleteAccount
+  /// calls AuthRepository.deleteAccount, which DELETEs
+  /// `/api/v1/auth/account-delete`, and that route exists on the backend. Only
+  /// this method was skipping the chain, so "Delete my account" silently signed
+  /// the user out and left the account intact.
+  ///
+  /// Failures are rethrown rather than swallowed. Reporting a deletion that did
+  /// not happen is the same false-success pattern fixed in the admin write
+  /// paths — and here the user believes their data is gone.
+  /// Both calls are needed. AuthService.deleteAccount() deletes server-side and
+  /// then calls AuthService.logout(), but that only clears Hive — it does not
+  /// touch AdminModeService/AffiliateModeService (both permanent, both outside
+  /// Hive), does not clear the SharedPreferences admin keys, and does not
+  /// navigate. This controller's logout() does all of that. Calling
+  /// AuthService.logout() twice is harmless.
   Future<void> deleteAccount() async {
+    await _authService.deleteAccount();
     await logout();
   }
 
@@ -157,6 +176,13 @@ class LoginController extends GetxController {
   bool isTrainer() => _authService.getRole() == 'trainer';
 
   Future<void> logout() async {
+    // Clear the sign-in form. This controller is permanent, so its
+    // TextEditingControllers survive logout — the login screen was coming back
+    // with the previous account's email filled in and their password still in
+    // the password field. Anyone handing the phone over, or a second account on
+    // a shared device, was shown the last user's credentials.
+    emailController.clear();
+    passwordController.clear();
     try {
       await StreamChatService.instance.disconnect();
     } catch (_) {}

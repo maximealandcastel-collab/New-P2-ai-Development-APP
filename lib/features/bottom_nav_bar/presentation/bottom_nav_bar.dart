@@ -68,6 +68,23 @@ class BottomNavBarMain extends StatelessWidget {
       final media = MediaQuery.of(context);
       final navBarHeight = 76.h + media.padding.bottom;
 
+      // The Admin/User pill is an OverlayEntry pinned at top + 6 in the ROOT
+      // overlay (see AdminModeService._buildPill), so it paints over whatever
+      // the active tab happens to put there. In practice it covered the
+      // dashboard greeting and sat directly on the Clients/Balance tab bar,
+      // half-hiding the "Clients" label.
+      //
+      // Same treatment as the nav bar below: hand the body a MediaQuery whose
+      // top padding already accounts for the pill, so every SafeArea inside a
+      // tab starts below it instead of behind it. Only applied while the pill
+      // is actually on screen, which is whenever admin mode is active — note
+      // that is isAdmin, not adminMode: the pill shows in both Admin and User
+      // views, it is how you switch between them.
+      //
+      // 82 = the pill's own height (toggle row ~40 + gap + the mode label ~24)
+      // plus its 6px offset, rounded up.
+      final pillInset = isAdmin ? 82.h : 0.0;
+
       return Scaffold(
         key: const ValueKey('bottomNavMainScaffold'),
         backgroundColor: AppColors.backgroundLight,
@@ -76,7 +93,10 @@ class BottomNavBarMain extends StatelessWidget {
             Positioned.fill(
               child: MediaQuery(
                 data: media.copyWith(
-                  padding: media.padding.copyWith(bottom: navBarHeight),
+                  padding: media.padding.copyWith(
+                    top: media.padding.top + pillInset,
+                    bottom: navBarHeight,
+                  ),
                 ),
                 child: IndexedStack(
                   index: activeIndex,

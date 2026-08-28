@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,6 +18,29 @@ const _pink       = Color(0xFFEC4899);
 const _yellow     = Color(0xFFEAB308);
 const _tPrim      = Color(0xFF000000);   // AppColors.textPrimary
 const _tSec       = Color(0xFF7F7F7F);   // AppColors.textSecondary
+
+/// Lets the "Review Withdrawal Requests" quick action scroll down to the
+/// withdrawals section, which lives further down this same screen.
+final _withdrawalsKey = GlobalKey();
+
+void _scrollToWithdrawals() {
+  final ctx = _withdrawalsKey.currentContext;
+  // Null when the section is not built: _Withdrawals returns a shrunk box when
+  // there is nothing pending, and the sliver may not have been laid out yet.
+  if (ctx == null) {
+    ToastMessageHelper.show('No withdrawal requests right now.');
+    return;
+  }
+  Scrollable.ensureVisible(
+    ctx,
+    duration: const Duration(milliseconds: 400),
+    curve: Curves.easeInOut,
+    alignment: 0.1,
+  );
+}
+
+void _notBuiltYet(String feature) =>
+    ToastMessageHelper.show('$feature is not available yet.');
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -60,7 +84,7 @@ class AdminDashboardScreen extends StatelessWidget {
               SliverToBoxAdapter(child: _QuickActions(c: c)),
               SliverToBoxAdapter(child: _RevenueOverview(c: c)),
               SliverToBoxAdapter(child: _TrainerManagement(c: c)),
-              SliverToBoxAdapter(child: _Withdrawals(c: c)),
+              SliverToBoxAdapter(child: _Withdrawals(key: _withdrawalsKey, c: c)),
               const SliverToBoxAdapter(child: SizedBox(height: 64)),
             ],
           ),
@@ -302,11 +326,22 @@ class _QuickActions extends StatelessWidget {
     final actions = [
       _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'trainer', 'title': 'Trainers'})),
-      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null, const Color(0xFFDC2626), () {}),
+      // Was an empty handler. The withdrawals list, with its approve/reject
+      // buttons, is already on this screen — it just sits below the fold — so
+      // this scrolls to it rather than needing a route of its own.
+      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null,
+          const Color(0xFFDC2626), _scrollToWithdrawals),
       _QaData('User Management', null, _purple,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'all', 'title': 'All Users'})),
-      _QaData('Send Platform Announcement', null, _green, () {}),
-      _QaData('Export Revenue Report', 'This month', _orange, () {}),
+      // These two have no backing feature anywhere in the app — no route, no
+      // controller, no endpoint. They were empty handlers, so tapping them did
+      // nothing at all and gave no feedback, which reads as the app being
+      // broken. Saying so is the honest minimum until the feature exists;
+      // building announcements or report export is not in this scope.
+      _QaData('Send Platform Announcement', null, _green,
+          () => _notBuiltYet('Platform announcements')),
+      _QaData('Export Revenue Report', 'This month', _orange,
+          () => _notBuiltYet('Revenue export')),
     ];
 
     return _Section(
@@ -589,7 +624,7 @@ class _TrainerRow extends StatelessWidget {
 
 class _Withdrawals extends StatelessWidget {
   final AdminDashboardController c;
-  const _Withdrawals({required this.c});
+  const _Withdrawals({super.key, required this.c});
 
   @override
   Widget build(BuildContext context) => Obx(_content);
