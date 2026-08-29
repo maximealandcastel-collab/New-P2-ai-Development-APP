@@ -13,7 +13,6 @@ workflows:
         - appstore
         # Must supply ADMIN_KEY. The client previously fell back to a hardcoded
         # default compiled into the binary.
-        - admin
       vars:
         BUNDLE_ID: com.p2pfittech.ai
 
