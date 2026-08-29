@@ -78,6 +78,16 @@ class RecentUser {
   final String subscriptionTier;
   final DateTime createdAt;
 
+  /// Nullable on purpose: `null` means *the backend did not tell us*, which is
+  /// not the same as "not suspended".
+  ///
+  /// The user-list endpoint sends `isDeleted` and AdminUserModel reads it, but
+  /// `recentUsers` here comes from the metrics endpoint, which is a different
+  /// payload and may not carry the field. Collapsing an absent field to `false`
+  /// would let the dashboard report "0 suspended" when the truth is that it has
+  /// no idea — so the Suspended filter only appears once this is non-null.
+  final bool? isSuspended;
+
   RecentUser({
     required this.id,
     required this.email,
@@ -85,6 +95,7 @@ class RecentUser {
     required this.isVerified,
     required this.subscriptionTier,
     required this.createdAt,
+    this.isSuspended,
   });
 
   factory RecentUser.fromJson(Map<String, dynamic> j) => RecentUser(
@@ -96,6 +107,8 @@ class RecentUser {
         createdAt: j['createdAt'] != null
             ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
             : DateTime.now(),
+        isSuspended:
+            j.containsKey('isDeleted') ? j['isDeleted'] == true : null,
       );
 }
 

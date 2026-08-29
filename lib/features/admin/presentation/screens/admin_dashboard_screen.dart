@@ -502,18 +502,51 @@ class _MiniStat extends StatelessWidget {
 
 // ─── Trainer Management ────────────────────────────────────────────────────────
 
-class _TrainerManagement extends StatelessWidget {
+class _TrainerManagement extends StatefulWidget {
   final AdminDashboardController c;
   const _TrainerManagement({required this.c});
+
+  @override
+  State<_TrainerManagement> createState() => _TrainerManagementState();
+}
+
+class _TrainerManagementState extends State<_TrainerManagement> {
+  /// Local, matching the sub-filter chips on admin_user_list_screen.dart.
+  ///
+  /// These three pills used to be decorative: `active:` was hardcoded
+  /// true/false and there was no `onTap` at all, so they rendered counts,
+  /// always showed "All" as selected, and tapping them did nothing.
+  String _filter = 'all';
+
+  /// One predicate for both the count on a pill and the rows it shows, so the
+  /// two cannot drift apart — a tab reading "5" over a list of 3 is precisely
+  /// the bug that two independent expressions invite.
+  bool _matches(RecentUser u, String f) {
+    switch (f) {
+      case 'active':    return u.isVerified && u.isSuspended != true;
+      case 'pending':   return !u.isVerified;
+      case 'suspended': return u.isSuspended == true;
+      default:          return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Obx(_content);
 
   Widget _content() {
+    final c = widget.c;
     final allUsers = c.metrics?.recentUsers ?? [];
     final trainers = allUsers.where((u) => u.role == 'trainer').toList();
-    final active  = trainers.where((u) => u.isVerified).length;
-    final pending = trainers.where((u) => !u.isVerified).length;
+    final active  = trainers.where((u) => _matches(u, 'active')).length;
+    final pending = trainers.where((u) => _matches(u, 'pending')).length;
+
+    // Only offer Suspended once the payload actually carries the field — see
+    // RecentUser.isSuspended. A tab reading 0 because we were never told is
+    // worse than no tab at all.
+    final knowsSuspension = trainers.any((u) => u.isSuspended != null);
+    final suspended = trainers.where((u) => _matches(u, 'suspended')).length;
+
+    final visible = trainers.where((u) => _matches(u, _filter)).toList();
 
     return _Section(
       title: 'Trainer Management',
@@ -532,11 +565,23 @@ class _TrainerManagement extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
-            _FilterTab(label: 'All',     count: trainers.length, active: true),
+            _FilterTab(label: 'All', count: trainers.length,
+                active: _filter == 'all',
+                onTap: () => setState(() => _filter = 'all')),
             SizedBox(width: 8.w),
-            _FilterTab(label: 'Active',  count: active,  active: false),
+            _FilterTab(label: 'Active', count: active,
+                active: _filter == 'active',
+                onTap: () => setState(() => _filter = 'active')),
             SizedBox(width: 8.w),
-            _FilterTab(label: 'Pending', count: pending, active: false, badge: true),
+            _FilterTab(label: 'Pending', count: pending, badge: true,
+                active: _filter == 'pending',
+                onTap: () => setState(() => _filter = 'pending')),
+            if (knowsSuspension) ...[
+              SizedBox(width: 8.w),
+              _FilterTab(label: 'Suspended', count: suspended,
+                  active: _filter == 'suspended',
+                  onTap: () => setState(() => _filter = 'suspended')),
+            ],
           ]),
         ),
         SizedBox(height: 14.h),
@@ -545,11 +590,18 @@ class _TrainerManagement extends StatelessWidget {
           child: Text(h, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
         )).toList()),
         Divider(color: _border, height: 16.h),
-        if (trainers.isEmpty)
+        if (visible.isEmpty)
           Padding(padding: EdgeInsets.symmetric(vertical: 20.h),
-              child: Center(child: Text('No trainers in recent data', style: TextStyle(color: _tSec, fontSize: 12.sp))))
+              child: Center(child: Text(
+                  // Distinguish "no data at all" from "nothing matches this
+                  // tab", so an empty Pending list does not read as the
+                  // section having failed to load.
+                  trainers.isEmpty
+                      ? 'No trainers in recent data'
+                      : 'No $_filter trainers',
+                  style: TextStyle(color: _tSec, fontSize: 12.sp))))
         else
-          ...trainers.take(6).map((u) => _TrainerRow(user: u)),
+          ...visible.take(6).map((u) => _TrainerRow(user: u)),
       ]),
     );
   }
@@ -559,30 +611,36 @@ class _FilterTab extends StatelessWidget {
   final String label;
   final int count;
   final bool active, badge;
-  const _FilterTab({required this.label, required this.count, required this.active, this.badge = false});
+  final VoidCallback? onTap;
+  const _FilterTab({required this.label, required this.count, required this.active, this.badge = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: active ? _orange : Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: active ? _orange : _border),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: active ? _orange : Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: active ? _orange : _border),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
+              color: active ? Colors.white : _tSec)),
+          if (badge && count > 0) ...[
+            SizedBox(width: 5.w),
+            Container(width: 18.w, height: 18.w,
+                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
+          ] else if (!active && count > 0) ...[
+            SizedBox(width: 5.w),
+            Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
+          ],
+        ]),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
-            color: active ? Colors.white : _tSec)),
-        if (badge && count > 0) ...[
-          SizedBox(width: 5.w),
-          Container(width: 18.w, height: 18.w,
-              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
-        ] else if (!active && count > 0) ...[
-          SizedBox(width: 5.w),
-          Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
-        ],
-      ]),
     );
   }
 }
