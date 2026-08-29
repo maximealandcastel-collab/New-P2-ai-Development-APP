@@ -53,7 +53,7 @@ class TrainerAppBar extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'Hi $userName !',
+                      'Hi $userName!',
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: AppFontWeight.title,
@@ -65,8 +65,14 @@ class TrainerAppBar extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 2.h),
+                // Matches the wording in lib/widgets/app_bar.dart and
+                // features/home/widgets/feed_app_bar.dart. Not role-aware like
+                // those two, because this widget takes its data as parameters
+                // and has no role to branch on — which is fine here: the
+                // module is trainer-only. See the commit for the caveat that
+                // it is also currently unreachable.
                 Text(
-                  "Let's Manage your users",
+                  'Let’s manage your clients',
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: Colors.grey.shade500,
