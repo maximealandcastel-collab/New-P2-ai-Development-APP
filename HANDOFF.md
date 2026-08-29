@@ -1,12 +1,22 @@
-# P0 Stabilization Handoff — P2P FitTech AI
+# Stabilization Handoff — P2P FitTech AI
 
 **Branch:** `stabilization` · **Base:** `24fd4cd` · **Flutter:** 3.41.4 / Dart 3.11.1
-**Scope of this pass:** P0 launch blockers (taskdoc §35), hard crashes, App Store rejection blockers.
-**Result:** `flutter analyze` 38 errors → **0**. Debug APK built and verified on device.
+**Scope:** the full stabilization engagement — P0 launch blockers, P1 client-critical items, and the
+P2 operational items that are fixable in the app (taskdoc §35).
+**Result:** `flutter analyze` 38 errors → **0**. 19 tests passing. 41 commits, 238 files,
+**+3,382 / −5,539**. Debug APK built and verified on a device against the live backend.
 
 This document is written for whoever picks the project up next — including the Replit Agent. Read the
 "Rules" section before changing any of the files listed here; several of these bugs were introduced by
 well-meaning edits that looked correct in isolation.
+
+**Where this stands against §32 Definition of Done:** 16 of 21 items are complete and device-verified.
+Three are blocked on the client or the backend (Codemagic build, TestFlight, `/iap/verify`
+idempotency); one — "subscribed user receives the correct trainer experience" — could only be checked
+by proxy, because every session in this engagement used a single `role: admin` account and no
+subscriber login was available. Two are honestly partial rather than complete: overflow was fixed
+where found rather than swept across all 385 screens, and one unreachable module still carries
+hardcoded fixtures. Details in §5.
 
 ---
 
@@ -19,6 +29,10 @@ well-meaning edits that looked correct in isolation.
 | 2b | **Rotate the admin bypass code, server-side** | The live bypass code is the *same* 4-digit value that shipped hardcoded as the `x-admin-key` default. Anyone with a shipped binary or repo access can type it into the Admin Access screen and be granted "lifetime admin privileges" on any account the backend marks `role: admin`. Changing `ADMIN_KEY` in CI does **not** change it — `/auth/admin-bypass` validates it on the server. |
 | 3 | **Confirm the `/admin/users/:id/suspend` field contract** | The app *reads* suspension as `isDeleted` but *writes* `{suspend: bool}`. If the backend does not set `isDeleted`, suspension state never round-trips. |
 | 4 | **Make `/iap/verify` idempotent on `purchaseId`** | The client now de-dupes, but StoreKit replays unfinished transactions across devices and reinstalls. The server is the only place this can be guaranteed. |
+| 5 | **Run a Codemagic build and push to TestFlight** | The one open P0. The iOS changes below — Restore Purchases, paywall legal links, `NSMotionUsageDescription`, the Podfile permission macros — are **written but have never been compiled**; no Mac was available in this engagement. Needs items 2 and 2b done first. |
+| 6 | **Provide a subscriber test account** | Every session used one `role: admin` login. The subscriber-facing paths — the `Let's crush today's workout` greeting branch, the dashboard as an actual subscriber, and §32's "subscribed user receives the correct trainer experience" — are verified by code reading only. One ordinary account closes that gap. |
+| 7 | **Emit a real event type on the metrics payload** | The Live Activity Feed infers event types client-side because none are sent. See §5. |
+| 8 | **Include `isDeleted` in `/admin/metrics` `recentUsers`** | The dashboard's Suspended trainer filter is built and will appear on its own once the field arrives. It is deliberately hidden while absent rather than reporting a fabricated "0 suspended". |
 
 ---
 
@@ -196,6 +210,76 @@ All 38 analyzer errors lived in one unreachable cluster: the abandoned clean-arc
 None of it compiled, so none of it could ever have been live functionality — wiring any of it up would
 have failed the build. Every file is recoverable from git history.
 
+### UX / typography restoration — taskdoc §26
+
+`AppThemeData` declared `fontFamily: 'Montserrat'` app-wide while `pubspec.yaml` declared **no fonts at
+all**, so it resolved to nothing and fell back silently. Deliberately **not** fixed by bundling
+Montserrat: the client's reference screenshots were taken from a build with the same dead declaration,
+so they *are* the platform default. Bundling the font would have moved iOS away from the target rather
+than toward it. Both dead declarations were removed instead.
+
+The real fault was weight, not family: **776 declarations sat at medium-or-heavier against 40 at
+regular.** `core/themes/app_typography.dart` is now the single source of truth — 648 declarations on a
+named scale, 179 left raw and almost all deliberate (about 138 in dead code, left raw on purpose so a
+`FontWeight.w` search doubles as a dead-code marker).
+
+Fixed alongside: three white-on-light section headers on Find Trainer that were invisible; the Workout
+Split card's overflow *and* its half-width rendering (a `Stack` sizes to its only non-positioned child,
+and every other layer there was `Positioned`); the mode-select headline weight, orphaned word and card
+misalignment; and both `systemOverlayStyle` brightness values, which were inverted so status-bar icons
+were illegible on the light bar.
+
+### The subscriber dashboard — taskdoc §12
+
+Was a static mockup: three hardcoded Unsplash gyms with string-literal distances, and a permanent
+"0% / Maintain Physique / Full Body / Medium" for every user.
+
+Root cause of the whole section was **one missing line**. `UserHomeController` was registered with
+`Get.lazyPut` and nothing ever resolved it, so its `onInit` never ran and `loadData()` never fired.
+`user_home_screen.dart` now resolves it, which is what makes everything else possible.
+
+Today's Overview reads `WorkoutTodayOverviewModel`; the backend sends snake_case so values are
+title-cased for display. The Gyms card reads `EnterpriseGymModel.partners` sorted through the same
+`GymLocationService.sortByDistance` the Gyms tab uses, so the two screens finally agree. The grey
+"Disable" chip — the same word on every card, and not a state this app has — now shows the gym's real
+standing: **Your Gym / Partner / Coming Soon**. That also stops an unsigned gym being presented as one
+a user can walk into, which is the legal exposure logged in §5.
+
+### The greeting showed "Hi there!" to every user, forever
+
+Not a loading race. `FeedAppBar` read `'role'`, `AppConstants.name` and `AppConstants.profilePicture`
+from `SharedPreferences`, and **nothing in the codebase has ever written any of those three keys** —
+`PrefsHelper.setString` is called in exactly two places, the admin bypass token and a commented-out FCM
+line. So the name was always empty and the avatar always showed the `P` fallback.
+
+Two wrong hypotheses were burned before instrumentation found it, and both are recorded in the commit
+so nobody repeats them. A temporary `debugPrint` showed `firstName=ali` in the controller while the UI
+read "there" — that contradiction is what pointed at the widget reading from somewhere else entirely.
+
+**There are three feed app bars**, which is what made this expensive: `lib/widgets/app_bar.dart`
+(`FeedAppBar`, the dashboard), `features/home/widgets/feed_app_bar.dart` (`FeedAppBarSliver` — on five
+screens including the subscriber History and Trainer tabs), and
+`features/trainer/schedule/.../trainer_app_bar.dart` (`TrainerAppBar`, currently unreachable). The same
+two bugs existed in the first two independently, and were fixed separately. All three now read role
+from `ProfileController` and show role-appropriate copy.
+
+Two further bugs the role exposed: the avatar tap compared `_role == 'Trainer'` with a capital T while
+the API returns lowercase, so a trainer tapping their own avatar was always sent to the *subscriber*
+profile; and the subtitle read "Let's Manage your users" to everyone, subscribers included.
+
+### Account actions and admin polish
+
+- **Settings Logout and "Delete my account" were both dead buttons** — each only called `Get.back()`.
+  Both wired. See the caveat in §4 about delete-account never having been executed.
+- **The "Save Login" checkbox was missing from the login screen entirely**, so `sessionPersisted` was
+  never written and nobody could stay signed in. Restored.
+- **Credentials survived logout.** `LoginController` is permanent, so its `TextEditingController`s kept
+  the previous account's email *and password* for the next person to use the phone. Cleared on logout.
+- **The Admin/User pill overlapped screen headers.** An `OverlayEntry` pinned at `top + 6`, drawn over
+  whatever each screen put there. The nav bar now adds matching top padding while the pill is shown.
+- **Trainer Management's filter pills were decorative** — `active:` hardcoded, no `onTap`. They filter
+  now, with one predicate driving both a pill's count and its rows so the two cannot drift.
+
 ---
 
 ## 3. Rules — please do not undo these
@@ -251,8 +335,24 @@ Pixel 7 / API 35, debug build, real backend.
 | "Save Login" persists a session across a force-stop **and a device reboot** | ✅ |
 | Paywall renders **Restore Purchases** and **Terms of Use · Privacy Policy** | ✅ |
 | Find Trainer section headers legible (were white on a light background) | ✅ |
+| Greeting shows the account's real name and initial | ✅ ("Hi ali!", avatar "A") |
+| Greeting subtitle is role-aware, all three app bars | ✅ |
+| Trainer avatar opens the **trainer** profile, not the subscriber one | ✅ (access code + Business & Clients) |
+| Today's Overview shows live workout data | ✅ (Weight Loss / Upper Body / Medium) |
+| Gyms card shows real partners, sorted by real distance | ✅ (P2P Fit Factor, LA Fitness) |
+| Dashboard pull-to-refresh | ✅ |
+| Settings **Logout** signs out; **Delete my account** deletes | ✅ / code-verified only¹ |
+| Credentials do not survive logout into the next login | ✅ |
+| Admin/User pill no longer overlaps screen headers | ✅ |
+| Trainer Management pills filter the list (All / Active / Pending) | ✅ (49 trainers, live) |
+| Suspended pill correctly **absent** — payload has no `isDeleted` | ✅ |
 | `flutter analyze` | **0 errors** (was 38) |
 | `flutter test` | **19 passing** |
+
+¹ Delete-account was **not executed** on device: it would have destroyed the client's only test
+account. The wiring was read end to end — `LoginController.deleteAccount()` calls
+`AuthService.deleteAccount()` then `logout()` — but the call has never been made against the backend.
+Treat it as unverified until someone runs it on a disposable account.
 
 > **Correcting commit `1807147`'s message.** It states the mode-select screen was "NOT verified visually
 > on device… not reachable this session". That is wrong. The screen *was* reachable; the fault was in my
@@ -281,22 +381,15 @@ rather than screenshots for any future media work.
 
 ## 5. Known issues NOT fixed in this pass
 
-These were found and documented but are outside the P0 scope. They are listed roughly by severity.
+Everything still open at the end of the engagement, listed roughly by severity. Items here are either
+blocked on the client or the backend, or are new feature work rather than stabilization — §36 is
+explicit that the target is *not* "build a better version of the app."
 
-**Typography and theme (taskdoc §26)**
-`AppThemeData` sets `fontFamily: 'Montserrat'` app-wide, but `pubspec.yaml` declares **no fonts at all** —
-it resolves to nothing and falls back silently. Nine files still reference `Figtree`, also undeclared.
-159 occurrences of `w800`/`w900`/`bold` across 55 files contradict the "thin, smooth" target.
-`AppTextTheme` in `core/utils/theme/` is fully defined but never wired into `ThemeData`.
-`AppBarTheme.foregroundColor` is `Colors.white` on a light background.
-
-**The subscriber dashboard is a static mockup**
-`user_home_screen.dart` is a `StatelessWidget` with no controller and no API calls. The three gyms are
-hardcoded Unsplash photos with string-literal distances; "Today's overview" is permanently
-"0% / Maintain Physique / Full Body / Medium" for every user. A fully data-driven implementation already
-exists and is orphaned: `UserHomeController` is registered in DI and its seven consumer widgets
-(`overview_section.dart`, `today_workout_section.dart`, `gym_section.dart`, `trainer_plan_section.dart`,
-and others) have zero import sites. **Restoring this is wiring, not a rebuild.**
+> **Fixed since this section was first written** — kept as struck-through history rather than deleted,
+> so anyone comparing an older copy of this file can see what moved: ~~typography and theme~~,
+> ~~the subscriber dashboard being a static mockup~~, ~~the Admin/User pill overlapping headers~~,
+> ~~Settings logout and delete-account being no-ops~~, ~~three empty admin Quick Actions~~,
+> ~~Trainer Management filter tabs being inert~~. Each is described in §2 with its root cause.
 
 **Gym partner status — legal exposure**
 21 of the 22 "partner" gyms are not partners. `EnterpriseGymModel` has an `isActivated` flag and a
@@ -305,11 +398,6 @@ LA Fitness, Equinox, YogaSix and others render under "Featured Gyms Near You" wi
 ratings.
 
 **Also outstanding**
-- **The Admin/User pill overlaps screen headers.** It is an `OverlayEntry` pinned at `top + 6`, drawn
-  over whatever the screen puts there, so in admin mode it covers the dashboard greeting ("Hi ali!") and
-  sits directly on top of the Clients/Balance tab bar — the "Clients" tab label is half-hidden behind it.
-  Visible on every admin-mode screen. It needs either a lower offset or the screens beneath it need top
-  padding while it is shown.
 - **Admin mode does not survive a restart for a backend-role admin.** `SplashController` only restores it
   for the hardcoded `ownerEmails`, and the Admin Access screen is reachable *only* from the login flow.
   Now that "Save Login" keeps a session alive across restarts, an account whose role is `admin` in the
@@ -368,17 +456,23 @@ ratings.
   up rather than deleting), `features/home/home_screen.dart`, `authentication/.../phone_otp_waiting_screen.dart`,
   two `settings/children/` screens, and seven files in `lib/widgets/` that the barrel does not export
   and nothing imports directly.
-- Three admin Quick Actions are `onTap: () {}`; three more the client asked for (Review Flagged Content,
-  Process Refund Requests, View IAP Webhook Logs) do not exist anywhere in the codebase.
-- Trainer Management filter tabs are bare `Container`s with no `onTap`, and "Suspended" is missing.
+- **Four of §20's six admin Quick Actions have no backend endpoint to call.** The "no dead buttons"
+  requirement is met — zero empty handlers remain, and Send Platform Announcement / Export Revenue
+  Report now state plainly that the feature is unavailable rather than silently doing nothing. But
+  Review Flagged Content, Process Refund Requests and View IAP Webhook Logs have no UI at all, because
+  there is nothing to wire them to. Verified against `artifacts/p2p-app-backend`: the entire admin API
+  is `/metrics`, `/users`, `/change-user/status/:id`, and PATCH `verify` / `role` / `suspend` /
+  `grant-access` / `fix-role`. Nothing for announcements, revenue export, flagged content, refunds or
+  webhook logs. **Backend must expose these first.**
 - The Live Activity Feed synthesizes event types client-side from the recent-signups array; a user who
-  signed up last year and subscribed later renders as a `purchase` event dated at signup.
-- Messaging is stubbed, so **a subscriber currently has no way to contact their trainer**.
+  signed up last year and subscribed later renders as a `purchase` event dated at signup. Not fixable
+  app-side — the payload carries no event type. See client action 7.
+- Messaging is stubbed, so **a subscriber currently has no way to contact their trainer**. Stream Chat
+  was removed in `79922fa` over a `dio` version conflict, not by choice.
 - Firebase is half-installed: `GoogleService-Info.plist` is committed but there is no `firebase_core`
   dependency, so push notifications are entirely non-functional.
-- Settings' logout and delete-account both just call `Get.back()`; the email is hardcoded to
-  `Ethancarter77@gmail.com` and the version string reads "1.58.7.1".
-- Every trainer shares the access code `MAXP210`.
+- Every trainer shares the access code `MAXP210`. Confirmed on device this engagement — the trainer
+  profile of a second account renders the same literal.
 - "Near Me" sorts by real haversine distance but never *filters* — a user in Miami still sees all 22 gyms.
 - 43 dead `onTap: () {}` controls across the app.
 
@@ -395,7 +489,9 @@ time re-investigating them, and so the list above can be trusted as real.
 
 ## 6. Files changed
 
-50 files: **+870 / −4404**. The deletions are the dead cluster described in §2.
+238 files across 41 commits: **+3,382 / −5,539**. The bulk of the deletions are the dead clusters
+described in §2; the bulk of the insertions are the typography pass (648 declarations moved onto a
+single named scale) and the dashboard wiring.
 
 Principal files:
 `codemagic.yaml` · `ios/Podfile` · `ios/Runner/Info.plist` ·
