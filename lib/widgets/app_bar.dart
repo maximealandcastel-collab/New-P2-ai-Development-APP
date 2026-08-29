@@ -117,8 +117,8 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 // available here, so the line matches who is reading it.
                 Text(
                   _isTrainer
-                      ? 'Let\'s manage your clients'
-                      : 'Let\'s crush today\'s workout',
+                      ? 'Let’s manage your clients'
+                      : 'Let’s crush today’s workout',
                   style: TextStyle(
                       fontSize: 12.sp, color: Colors.grey.shade500),
                 ),
