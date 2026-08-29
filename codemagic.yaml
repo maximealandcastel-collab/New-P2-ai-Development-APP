@@ -4,11 +4,16 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
-      flutter: stable
+      # Pinned, not `stable`: an upstream Flutter release should never silently
+      # change what this workflow produces.
+      flutter: 3.41.4
       xcode: latest
       cocoapods: default
       groups:
         - appstore
+        # Must supply ADMIN_KEY. The client previously fell back to a hardcoded
+        # default compiled into the binary.
+        - admin
       vars:
         BUNDLE_ID: com.p2pfittech.ai
 
@@ -42,76 +47,14 @@ workflows:
           openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
           echo "Cert key generated"
 
-          # 3. Revoke ALL existing Distribution certs via Apple REST API directly
-          python3 - <<'PYEOF'
-          import os, subprocess, base64, json, time, urllib.request, urllib.error, sys
+          # NOTE: a block here used to DELETE every Distribution certificate on
+          # the Apple account before each build. That is account-wide and
+          # irreversible — it breaks every other pipeline, every other machine,
+          # and any teammate's local signing. fetch-signing-files --create below
+          # reuses an existing certificate or creates one when genuinely absent,
+          # which is all this workflow ever needed.
 
-          def b64url(data):
-              if isinstance(data, str): data = data.encode()
-              return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
-
-          key_id   = os.environ['APP_STORE_CONNECT_KEY_IDENTIFIER']
-          issuer   = os.environ['APP_STORE_CONNECT_ISSUER_ID']
-          now      = int(time.time())
-          hdr      = b64url(json.dumps({"alg":"ES256","kid":key_id,"typ":"JWT"},separators=(',',':')))
-          pay      = b64url(json.dumps({"iss":issuer,"iat":now,"exp":now+1200,"aud":"appstoreconnect-v1"},separators=(',',':')))
-          msg      = f"{hdr}.{pay}"
-
-          r = subprocess.run(['openssl','dgst','-sha256','-sign','/tmp/api_key.pem'],
-                             input=msg.encode(), capture_output=True)
-          if r.returncode != 0:
-              sys.exit(f"JWT sign failed: {r.stderr.decode()[:200]}")
-          der = r.stdout
-
-          def read_len(d, pos):
-              l = d[pos]; pos += 1
-              if l & 0x80:
-                  n = l & 0x7f; l = int.from_bytes(d[pos:pos+n],'big'); pos += n
-              return l, pos
-          pos = 1
-          _, pos = read_len(der, pos)
-          assert der[pos] == 0x02; pos += 1
-          rl, pos = read_len(der, pos)
-          rv = der[pos:pos+rl]; pos += rl
-          assert der[pos] == 0x02; pos += 1
-          sl, pos = read_len(der, pos)
-          sv = der[pos:pos+sl]
-          rv = rv.lstrip(b'\x00').rjust(32, b'\x00')
-          sv = sv.lstrip(b'\x00').rjust(32, b'\x00')
-          jwt = f"{msg}.{b64url(rv+sv)}"
-          print("JWT ok")
-
-          url = 'https://api.appstoreconnect.apple.com/v1/certificates?limit=200'
-          req = urllib.request.Request(url, headers={'Authorization': f'Bearer {jwt}'})
-          try:
-              resp = urllib.request.urlopen(req, timeout=30)
-              certs = json.loads(resp.read()).get('data', [])
-          except urllib.error.HTTPError as e:
-              print(f"List certs HTTP {e.code}: {e.read().decode()[:200]}")
-              certs = []
-
-          print(f"Found {len(certs)} Distribution cert(s)")
-          for cert in certs:
-              cid   = cert['id']
-              ctype = cert['attributes']['certificateType']
-              print(f"  Deleting {cid} ({ctype})")
-              dreq = urllib.request.Request(
-                  f'https://api.appstoreconnect.apple.com/v1/certificates/{cid}',
-                  method='DELETE',
-                  headers={'Authorization': f'Bearer {jwt}'}
-              )
-              try:
-                  urllib.request.urlopen(dreq, timeout=30)
-                  print(f"  Deleted ok")
-              except urllib.error.HTTPError as e:
-                  print(f"  Delete failed {e.code}: {e.read().decode()[:100]}")
-
-          if certs:
-              print("Waiting 8s for Apple API to propagate…")
-              time.sleep(8)
-          PYEOF
-
-          # 4. Fetch (or create) signing cert + provisioning profile
+          # 3. Fetch (or create) signing cert + provisioning profile
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --type IOS_APP_STORE \
@@ -148,7 +91,20 @@ workflows:
           set -e
           rm -rf ~/Library/Developer/Xcode/DerivedData
           flutter clean
-          flutter build ipa --release --build-name=3.2 --build-number=$((BUILD_NUMBER + 1000)) --dart-define=BUILD_NUMBER=$((BUILD_NUMBER + 1000)) --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 --dart-define=API_ORIGIN=https://p2pfitechai.com --dart-define=SOCKET_URL=https://p2pfitechai.com --dart-define=PREFILL_EMAIL=pmoney78q@gmail.com --dart-define=PREFILL_PASSWORD=Godisgood123
+          # --build-name is intentionally absent so the version comes from
+          # pubspec.yaml. It used to be pinned to 3.2 while the source said
+          # 2.7.0, making TestFlight builds impossible to trace to a commit.
+          #
+          # PREFILL_EMAIL / PREFILL_PASSWORD were removed: they baked the
+          # owner's real credentials into every shipped IPA and pre-filled them
+          # on the login screen. That password must be rotated.
+          flutter build ipa --release \
+            --build-number=$((BUILD_NUMBER + 1000)) \
+            --dart-define=BUILD_NUMBER=$((BUILD_NUMBER + 1000)) \
+            --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 \
+            --dart-define=API_ORIGIN=https://p2pfitechai.com \
+            --dart-define=SOCKET_URL=https://p2pfitechai.com \
+            --dart-define=ADMIN_KEY=$ADMIN_KEY
 
     artifacts:
       - build/ios/ipa/*.ipa

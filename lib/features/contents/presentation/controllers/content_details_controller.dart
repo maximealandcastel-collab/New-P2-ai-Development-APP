@@ -221,6 +221,7 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
         state == AppLifecycleState.hidden) {
       pauseVideo();
     }

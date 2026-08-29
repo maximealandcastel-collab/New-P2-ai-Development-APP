@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -65,7 +66,7 @@ class ManageDevicesScreen extends StatelessWidget {
             CustomText(
               text: 'No Devices Connected',
               fontSize: 20.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
             ),
             SizedBox(height: 8.h),
             CustomText(

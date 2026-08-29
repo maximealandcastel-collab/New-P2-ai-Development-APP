@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -147,7 +148,7 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 27.sp,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: AppFontWeight.display,
                   color: Colors.white,
                   height: 1.2,
                 ),
@@ -217,7 +218,7 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16.sp,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: AppFontWeight.stat,
                               color: Colors.white,
                               letterSpacing: 0.4,
                             ),
@@ -288,7 +289,7 @@ class _StepRow extends StatelessWidget {
                   : active
                       ? Colors.white70
                       : Colors.white30,
-              fontWeight: done ? FontWeight.w600 : FontWeight.w400,
+              fontWeight: done ? AppFontWeight.label : AppFontWeight.body,
             ),
           ),
         ),
@@ -346,7 +347,7 @@ class _TrainerCard extends StatelessWidget {
                 Text(name,
                     style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                         color: Colors.white)),
                 if (spec != null && spec.isNotEmpty) ...[
                   SizedBox(height: 5.h),
@@ -363,7 +364,7 @@ class _TrainerCard extends StatelessWidget {
                           .toUpperCase(),
                       style: TextStyle(
                         fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.label,
                         color: _kOrange,
                         letterSpacing: 0.6,
                       ),
@@ -419,7 +420,7 @@ class _FallbackCard extends StatelessWidget {
               'Your trainer is ready to\nstart your journey!',
               style: TextStyle(
                   fontSize: 15.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: Colors.white,
                   height: 1.4),
             ),

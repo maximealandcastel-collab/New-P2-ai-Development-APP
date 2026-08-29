@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -41,14 +42,14 @@ class OnboardingMainScreen extends StatelessWidget {
                         CustomText(
                           text: item.title,
                           fontSize: 40.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 8.h),
                         CustomText(
                           text: item.subtitle,
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: AppFontWeight.body,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -107,7 +108,7 @@ class OnboardingMainScreen extends StatelessWidget {
               child: CustomText(
                 text: "Skip",
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -216,7 +217,7 @@ class _TopTab extends StatelessWidget {
             style: TextStyle(
               color: selected ? Colors.white : Colors.white70,
               fontSize: 17.sp,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              fontWeight: selected ? AppFontWeight.section : AppFontWeight.emphasis,
             ),
           ),
           SizedBox(height: 5.h),
@@ -338,7 +339,7 @@ class _VideoPageState extends State<_VideoPage> {
             style: TextStyle(
               color: Colors.white,
               fontSize: 22.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
             ),
           ),
         ),

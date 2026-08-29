@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -54,7 +55,7 @@ class ScheduleTimelineSection extends StatelessWidget {
                 'Schedule timeline',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.title,
                 ),
               ),
               Row(
@@ -162,7 +163,7 @@ class DaySelectorItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 11.sp,
               color: isSelected ? Colors.black : Colors.grey.shade400,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              fontWeight: isSelected ? AppFontWeight.label : AppFontWeight.body,
             ),
           ),
           SizedBox(height: 6.h),
@@ -179,7 +180,7 @@ class DaySelectorItem extends StatelessWidget {
               '$dayNumber',
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.title,
                 color: isSelected ? Colors.white : Colors.black87,
               ),
             ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -44,7 +45,7 @@ class ContentMediaPickerTile extends StatelessWidget {
         CustomText(
           text: label,
           fontSize: 14.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           bottom: 8.h,
         ),
         CustomContainer(
@@ -89,7 +90,7 @@ class ContentMediaPickerTile extends StatelessWidget {
           CustomText(
             text: hint,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.textSecondary,
           ),
           CustomText(
@@ -247,7 +248,7 @@ class ContentMediaPickerTile extends StatelessWidget {
             child: CustomText(
               text: fileName ?? '',
               fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               color: Colors.white,
               maxline: 1,
               textOverflow: TextOverflow.ellipsis,
@@ -281,7 +282,7 @@ class ContentMediaPickerTile extends StatelessWidget {
           CustomText(
             text: 'Change',
             fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.primary,
           ),
         ],

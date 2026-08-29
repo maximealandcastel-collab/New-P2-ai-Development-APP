@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
         CustomText(
           text: 'Substitutions',
           fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
           color: AppColors.textPrimary,
           textAlign: TextAlign.start,
         ),
@@ -46,7 +47,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
                         CustomText(
                           text: 'Substitutions',
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           textAlign: TextAlign.start,
                         ),
                         ...controller.draftSubstitutions.entries.map((entry) {
@@ -98,7 +99,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
         CustomText(
           text: 'Created steps',
           fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
           color: AppColors.textPrimary,
           textAlign: TextAlign.start,
         ),
@@ -141,7 +142,7 @@ class AddExerciseStepsSubstitutionsPage extends StatelessWidget {
                         fontSize: 16.sp,
                         maxline: 1,
                         textOverflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         textAlign: TextAlign.start,
                       ),
                     ),

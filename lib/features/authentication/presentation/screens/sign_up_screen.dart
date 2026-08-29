@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -135,7 +136,7 @@ class SignUpScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13.sp,
                             color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppFontWeight.label,
                           ),
                         ),
                       ],

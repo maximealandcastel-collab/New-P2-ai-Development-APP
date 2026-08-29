@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -185,7 +186,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
         Text(_title,
             style: TextStyle(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.section,
                 color: AppColors.textPrimary)),
         Obx(() => Text(
               '${_c.filteredUsers.length} users',
@@ -268,7 +269,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 f['label']!,
                 style: TextStyle(
                   fontSize: 11.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: active ? Colors.white : AppColors.textSecondary,
                 ),
               ),
@@ -298,7 +299,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
           style: TextStyle(
               fontSize: 12.sp,
               color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600),
+              fontWeight: AppFontWeight.label),
           items: _sorts.entries
               .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
               .toList(),
@@ -421,7 +422,7 @@ class _UserCard extends StatelessWidget {
               ? Text(initials,
                   style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.display,
                       color: _roleColor))
               : null,
         ),
@@ -449,7 +450,7 @@ class _UserCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.label,
                 color: AppColors.textPrimary)),
       Text(user.email,
           maxLines: 1,
@@ -489,6 +490,8 @@ class _UserCard extends StatelessWidget {
     decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4.r)),
+    // 9sp inside a tinted pill — micro-type, so it keeps w700 like the other
+    // badges in the app rather than dropping to the lighter label weight.
     child: Text(label,
         style: TextStyle(
             fontSize: 9.sp,
@@ -611,7 +614,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
             ? Text(initials,
                 style: TextStyle(
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.display,
                     color: _roleColor))
             : null,
       ),
@@ -623,7 +626,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
             Text(_user.fullName,
                 style: TextStyle(
                     fontSize: 17.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.title,
                     color: AppColors.textPrimary)),
           Text(_user.email,
               style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary)),
@@ -649,7 +652,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       Text(title,
           style: TextStyle(
               fontSize: 13.sp,
-              fontWeight: FontWeight.w800,
+              fontWeight: AppFontWeight.display,
               color: AppColors.textPrimary)),
       SizedBox(height: 10.h),
       ...rows,
@@ -683,7 +686,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
             style: TextStyle(
                 fontSize: 11.sp,
                 color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500)),
+                fontWeight: AppFontWeight.emphasis)),
       ),
       Expanded(
         child: GestureDetector(
@@ -699,7 +702,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
               style: TextStyle(
                   fontSize: 11.sp,
                   color: copyable ? AppColors.primary : AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   decoration: copyable ? TextDecoration.underline : null)),
         ),
       ),
@@ -784,7 +787,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.label,
                       color: color))),
             ]),
           ),
@@ -799,7 +802,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
     child: Text(label,
         style: TextStyle(
             fontSize: 10.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.label,
             color: color)),
   );
 
@@ -816,19 +819,43 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       destructive: _user.isVerified,
     );
     if (!confirm) return;
-    setState(() => _loading = true);
-    await widget.controller.setVerified(_user.id, !_user.isVerified);
+    final target = !_user.isVerified;
+    if (!await _tryAction(() => widget.controller.setVerified(_user.id, target))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
-      _user = _user.copyWith(isVerified: !_user.isVerified);
+      _user = _user.copyWith(isVerified: target);
       _loading = false;
     });
     widget.onActionDone();
-    if (mounted) {
-      Get.snackbar(
-        _user.isVerified ? '✅ Verified' : '❌ Unverified',
-        _user.email,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    Get.snackbar(
+      target ? '✅ Verified' : '❌ Unverified',
+      _user.email,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  /// Performs an admin write and reports honestly.
+  ///
+  /// Returns true only when the API call succeeded. These actions used to
+  /// swallow every error and announce success unconditionally, so a failed
+  /// suspend still showed "🔴 Suspended" while the account stayed active.
+  Future<bool> _tryAction(Future<void> Function() action) async {
+    setState(() => _loading = true);
+    try {
+      await action();
+      return true;
+    } catch (_) {
+      if (mounted) {
+        setState(() => _loading = false);
+        Get.snackbar(
+          'Action failed',
+          'Nothing was changed. Check your connection and try again.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      return false;
     }
   }
 
@@ -839,7 +866,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
     final picked = await showDialog<String>(
       context: context,
       builder: (_) => SimpleDialog(
-        title: Text('Change Role', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+        title: Text('Change Role', style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label)),
         children: roles.map((r) => SimpleDialogOption(
           onPressed: () => Navigator.pop(context, r),
           child: Text(r.capitalizeFirst ?? r,
@@ -855,8 +882,10 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       confirmLabel: 'Change',
     );
     if (!confirm) return;
-    setState(() => _loading = true);
-    await widget.controller.setRole(_user.id, picked);
+    if (!await _tryAction(() => widget.controller.setRole(_user.id, picked))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _user = _user.copyWith(role: picked);
       _loading = false;
@@ -875,7 +904,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
         context: context,
         builder: (_) => AlertDialog(
           title: Text('Reason for suspension',
-              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+              style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label)),
           content: TextField(
             controller: ctrl,
             maxLines: 3,
@@ -902,8 +931,11 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       );
       if (!ok) return;
     }
-    setState(() => _loading = true);
-    await widget.controller.suspendUser(_user.id, suspending, reason: reason);
+    if (!await _tryAction(
+        () => widget.controller.suspendUser(_user.id, suspending, reason: reason))) {
+      return;
+    }
+    if (!mounted) return;
     setState(() {
       _user = _user.copyWith(isSuspended: suspending);
       _loading = false;
@@ -924,7 +956,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       builder: (_) => StatefulBuilder(
         builder: (ctx, setSt) => AlertDialog(
           title: Text('Grant Subscription Access',
-              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+              style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label)),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Text('User: ${_user.email}',
                 style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary)),
@@ -963,8 +995,11 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       ),
     );
     if (confirmed != true) return;
-    setState(() => _loading = true);
-    await widget.controller.grantAccess(_user.id, tier: tier, days: days);
+    if (!await _tryAction(
+        () => widget.controller.grantAccess(_user.id, tier: tier, days: days))) {
+      return;
+    }
+    if (!mounted) return;
     final expiry = DateTime.now().add(Duration(days: days));
     setState(() {
       _user = _user.copyWith(subscriptionTier: tier, subscriptionEndDate: expiry);
@@ -988,7 +1023,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(title,
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+            style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label)),
         content: Text(message,
             style: TextStyle(fontSize: 13.sp, color: AppColors.textSecondary)),
         actions: [

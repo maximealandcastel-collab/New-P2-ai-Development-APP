@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,10 +53,10 @@ class TrainerAppBar extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'Hi $userName !',
+                      'Hi $userName!',
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.title,
                         color: Colors.black,
                       ),
                     ),
@@ -64,8 +65,14 @@ class TrainerAppBar extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 2.h),
+                // Matches the wording in lib/widgets/app_bar.dart and
+                // features/home/widgets/feed_app_bar.dart. Not role-aware like
+                // those two, because this widget takes its data as parameters
+                // and has no role to branch on — which is fine here: the
+                // module is trainer-only. See the commit for the caveat that
+                // it is also currently unreachable.
                 Text(
-                  "Let's Manage your users",
+                  'Let’s manage your clients',
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: Colors.grey.shade500,
@@ -109,7 +116,7 @@ class _OnlineStatusBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               color: const Color(0xFF4CAF50),
-              fontWeight: FontWeight.w500,
+              fontWeight: AppFontWeight.emphasis,
             ),
           ),
         ],
@@ -162,7 +169,7 @@ class _NotificationIcon extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9.sp,
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.title,
                   ),
                 ),
               ),

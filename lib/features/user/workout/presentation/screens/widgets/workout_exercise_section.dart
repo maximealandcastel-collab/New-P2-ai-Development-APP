@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -31,7 +32,7 @@ class WorkoutExerciseSection extends StatelessWidget {
           CustomText(
             text: title,
             fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
+            fontWeight: AppFontWeight.display,
             left: 4.w,
             bottom: 10.h,
           ),

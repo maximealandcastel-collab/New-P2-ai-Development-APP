@@ -1,16 +1,18 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 /// Key used to read/store the admin-specific JWT token.
 /// Must match the constant declared in AdminDashboardController.
@@ -39,7 +41,11 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
   /// On success the backend upgrades the account to admin role and returns a
   /// dedicated admin JWT that subsequent API calls use via Bearer auth.
   Future<bool> _callBackendBypass(String code) async {
-    final userToken = await PrefsHelper.getString('bearerToken');
+    // Login stores the session token via CacheService/Hive under
+    // AppConstants.accessToken -- NOT PrefsHelper/SharedPreferences under
+    // 'bearerToken'. Reading from the wrong store meant this screen could
+    // never find a valid token from a normal login.
+    final userToken = Get.find<CacheService>().get<String>(AppConstants.accessToken);
     if ((userToken?.isEmpty ?? true)) {
       setState(() => _error = 'You must be logged in to activate admin mode.');
       return false;
@@ -112,7 +118,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
       );
-      Get.offAll(() => NavBar());
+      Get.offAllNamed(AppRoute.bottonNavBar);
       return;
     }
 
@@ -125,7 +131,12 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
     if (!Get.isRegistered<AdminModeService>()) {
       Get.put(AdminModeService(), permanent: true);
     }
-    AdminModeService.to.activate();
+    // Must be awaited: activate() schedules the toggle-pill overlay via
+    // addPostFrameCallback after an async SharedPreferences read. Calling
+    // this without awaiting let Get.offAll() below race ahead and tear down
+    // the current screen before the pill could be scheduled/inserted --
+    // the account was correctly promoted to admin but the pill never showed.
+    await AdminModeService.to.activate();
     if (!Get.isRegistered<AdminDashboardController>()) {
       Get.put(AdminDashboardController());
     }
@@ -137,11 +148,11 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );
-    Get.offAll(() => NavBar());
+    Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   void _skip() {
-    Get.offAll(() => NavBar());
+    Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   @override
@@ -166,7 +177,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: AppFontWeight.section,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -256,7 +267,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: AppFontWeight.section,
                           ),
                         ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -40,7 +41,7 @@ class AppLogoWidget extends StatelessWidget {
             textAlign: TextAlign.start,
             text: title ?? '',
             fontSize: 32.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
           ),
         ]else
         RichText(
@@ -49,7 +50,7 @@ class AppLogoWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 24.sp,
               color: Colors.black,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
             ),
             children: [
               TextSpan(

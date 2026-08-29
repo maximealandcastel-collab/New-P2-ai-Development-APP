@@ -258,6 +258,35 @@ class PaymentDetailsController extends GetxController {
     }
   }
 
+  /// Purchase IDs already sent to /iap/verify in this session.
+  ///
+  /// StoreKit replays unfinished transactions on every launch and to every new
+  /// stream listener, so without this the same purchase is verified repeatedly.
+  /// The backend should also treat purchaseId as an idempotency key — this
+  /// guard only covers the client side.
+  final Set<String> _verifiedPurchaseIds = <String>{};
+
+  /// Asks the store to re-deliver past purchases.
+  ///
+  /// App Store Review Guideline 3.1.1 requires a restore mechanism for
+  /// auto-renewable subscriptions; the app previously had none anywhere, which
+  /// also stranded anyone who reinstalled or changed device. Restored purchases
+  /// arrive through the same purchaseStream as new ones.
+  Future<void> restorePurchases() async {
+    try {
+      _purchaseLoadingState.value = LoadingState.loading;
+      await InAppPurchase.instance.restorePurchases();
+      _purchaseLoadingState.value = LoadingState.initial;
+      ToastMessageHelper.show(
+        'Checking for previous purchases…',
+      );
+    } catch (e) {
+      _purchaseLoadingState.value = LoadingState.error;
+      ToastMessageHelper.show('Could not restore purchases. Please try again.');
+      if (kDebugMode) debugPrint('restorePurchases error: $e');
+    }
+  }
+
   Future<void> _handleSuccessfulPurchase(PurchaseDetails purchase) async {
     try {
       final purchaseId = purchase.purchaseID;
@@ -268,6 +297,14 @@ class PaymentDetailsController extends GetxController {
           verificationData.isEmpty) {
         throw UnknownException('Missing purchase verification data');
       }
+
+      if (_verifiedPurchaseIds.contains(purchaseId)) {
+        if (purchase.pendingCompletePurchase) {
+          await InAppPurchase.instance.completePurchase(purchase);
+        }
+        return;
+      }
+      _verifiedPurchaseIds.add(purchaseId);
 
       // Unlock only after backend verifies with Apple / Google.
       await _subscribeService.verifyIap(
@@ -298,10 +335,13 @@ class PaymentDetailsController extends GetxController {
       }
       Get.offAllNamed(AppRoute.trainerMatchScreen);
     } on AppException catch (e) {
+      // Drop the id so a retry (or the store's next replay) can verify again.
+      _verifiedPurchaseIds.remove(purchase.purchaseID);
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.message);
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');
     } catch (e) {
+      _verifiedPurchaseIds.remove(purchase.purchaseID);
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Verification failed. Please contact support.');
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');

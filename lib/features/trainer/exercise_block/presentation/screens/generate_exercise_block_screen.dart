@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,7 +57,7 @@ class _GenerateExerciseBlockScreenState
           top: 20.h,
           text: 'AI exercise block',
           fontSize: 22.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           textAlign: TextAlign.center,
         ).asSliverWithPadding(horizontal: 20.w),
         SizedBox(height: 24.h).asSliver,

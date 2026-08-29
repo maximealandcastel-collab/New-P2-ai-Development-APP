@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +94,7 @@ class DateCard extends StatelessWidget {
                     CustomText(
                       text: '${date.day}',
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppFontWeight.label,
                       color: isSelected
                           ? Colors.white
                           : (isDisabled ? Colors.black.withValues(alpha: 0.3) : Colors.black87),

@@ -1,3 +1,5 @@
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -17,6 +19,29 @@ const _yellow     = Color(0xFFEAB308);
 const _tPrim      = Color(0xFF000000);   // AppColors.textPrimary
 const _tSec       = Color(0xFF7F7F7F);   // AppColors.textSecondary
 
+/// Lets the "Review Withdrawal Requests" quick action scroll down to the
+/// withdrawals section, which lives further down this same screen.
+final _withdrawalsKey = GlobalKey();
+
+void _scrollToWithdrawals() {
+  final ctx = _withdrawalsKey.currentContext;
+  // Null when the section is not built: _Withdrawals returns a shrunk box when
+  // there is nothing pending, and the sliver may not have been laid out yet.
+  if (ctx == null) {
+    ToastMessageHelper.show('No withdrawal requests right now.');
+    return;
+  }
+  Scrollable.ensureVisible(
+    ctx,
+    duration: const Duration(milliseconds: 400),
+    curve: Curves.easeInOut,
+    alignment: 0.1,
+  );
+}
+
+void _notBuiltYet(String feature) =>
+    ToastMessageHelper.show('$feature is not available yet.');
+
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
@@ -35,15 +60,31 @@ class AdminDashboardScreen extends StatelessWidget {
           onRefresh: c.loadAll,
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            // REACTIVITY NOTE — do not wrap these in Obx here.
+            //
+            // This list used to read:
+            //     Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c)))
+            // which looks reactive but is not. The closure only *constructs*
+            // widgets; _KpiGrid.build() — where c.metrics is actually read —
+            // runs later, in its own element, outside the window in which GetX
+            // records observable reads. GetX therefore saw zero observables and
+            // threw ObxError, whose ErrorWidget is a RenderBox. Sitting directly
+            // in slivers:, that produced the hard failure
+            //     "A RenderViewport expected a child of type RenderSliver but
+            //      received a child of type RenderErrorBox"
+            // and the whole Admin tab rendered as an error screen.
+            //
+            // Each section now owns its own Obx around a method that is CALLED
+            // inside the closure, so the reads land where GetX can see them.
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: 56)),
               SliverToBoxAdapter(child: _DashHeader(c: c)),
-              Obx(() => SliverToBoxAdapter(child: _KpiGrid(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _ActivityFeed(c: c))),
+              SliverToBoxAdapter(child: _KpiGrid(c: c)),
+              SliverToBoxAdapter(child: _ActivityFeed(c: c)),
               SliverToBoxAdapter(child: _QuickActions(c: c)),
-              Obx(() => SliverToBoxAdapter(child: _RevenueOverview(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _TrainerManagement(c: c))),
-              Obx(() => SliverToBoxAdapter(child: _Withdrawals(c: c))),
+              SliverToBoxAdapter(child: _RevenueOverview(c: c)),
+              SliverToBoxAdapter(child: _TrainerManagement(c: c)),
+              SliverToBoxAdapter(child: _Withdrawals(key: _withdrawalsKey, c: c)),
               const SliverToBoxAdapter(child: SizedBox(height: 64)),
             ],
           ),
@@ -74,16 +115,26 @@ class _DashHeader extends StatelessWidget {
             child: Icon(Icons.shield_rounded, color: _orange, size: 22.sp),
           ),
           SizedBox(width: 12.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Admin Dashboard',
-                  style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w800, color: _tPrim)),
-              Text('P2P FitTech AI · Live',
-                  style: TextStyle(fontSize: 11.sp, color: _tSec)),
-            ],
+          // Expanded, not a bare Column + Spacer: the title is unbounded text
+          // between a fixed icon and a fixed refresh button, with nothing in the
+          // Row able to yield, so it overflows rather than shrinking. It does so
+          // under the widget test's font metrics today, and would do the same on
+          // device at a large system text-scale setting or a narrower screen.
+          // Expanded also does the Spacer's job of pushing the button to the end.
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Admin Dashboard',
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+                Text('P2P FitTech AI · Live',
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.sp, color: _tSec)),
+              ],
+            ),
           ),
-          const Spacer(),
+          SizedBox(width: 8.w),
           Obx(() => c.metricsLoading
               ? SizedBox(width: 18.w, height: 18.w,
                   child: CircularProgressIndicator(strokeWidth: 2, color: _orange))
@@ -110,8 +161,13 @@ class _KpiGrid extends StatelessWidget {
   final AdminDashboardController c;
   const _KpiGrid({required this.c});
 
+  // Obx(_content): _content() is invoked inside the Obx builder, so the
+  // c.metrics read below happens where GetX is recording. Obx(() => SomeWidget())
+  // would not — see the note in AdminDashboardScreen.build.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final m = c.metrics;
     final trainerCount = m?.roleBreakdown
         .where((r) => r.role == 'trainer').fold(0, (s, r) => s + r.count) ?? 0;
@@ -173,13 +229,16 @@ class _KpiCard extends StatelessWidget {
               color: d.accent.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20.r),
             ),
+            // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
+            // tinted pill is micro-type, and the lighter scale stops it reading
+            // as a badge. Same exception as the P2P and YOUR GYM badges.
             child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: d.accent)),
           ),
         ]),
         SizedBox(height: 10.h),
-        Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w800, color: d.accent)),
+        Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.stat, color: d.accent)),
         SizedBox(height: 2.h),
-        Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.5)),
+        Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
         SizedBox(height: 2.h),
         Text(d.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
       ]),
@@ -194,7 +253,9 @@ class _ActivityFeed extends StatelessWidget {
   const _ActivityFeed({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final users = c.metrics?.recentUsers ?? [];
     final items = users.take(8).toList();
 
@@ -236,11 +297,11 @@ class _ActivityRow extends StatelessWidget {
             color: typeColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20.r),
           ),
-          child: Text(typeLabel, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: typeColor)),
+          child: Text(typeLabel, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: typeColor)),
         ),
         SizedBox(width: 10.w),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+          Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
           Text(subtitle, style: TextStyle(fontSize: 11.sp, color: _tSec)),
         ])),
         Text(time, style: TextStyle(fontSize: 11.sp, color: _tSec)),
@@ -255,17 +316,32 @@ class _QuickActions extends StatelessWidget {
   final AdminDashboardController c;
   const _QuickActions({required this.c});
 
+  // This section reads c.withdrawals for its pending badge but was not reactive
+  // before, so the badge kept whatever count it had at first build.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final pending = c.withdrawals.where((w) => w.status == 'pending').length;
     final actions = [
       _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'trainer', 'title': 'Trainers'})),
-      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null, const Color(0xFFDC2626), () {}),
+      // Was an empty handler. The withdrawals list, with its approve/reject
+      // buttons, is already on this screen — it just sits below the fold — so
+      // this scrolls to it rather than needing a route of its own.
+      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null,
+          const Color(0xFFDC2626), _scrollToWithdrawals),
       _QaData('User Management', null, _purple,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'all', 'title': 'All Users'})),
-      _QaData('Send Platform Announcement', null, _green, () {}),
-      _QaData('Export Revenue Report', 'This month', _orange, () {}),
+      // These two have no backing feature anywhere in the app — no route, no
+      // controller, no endpoint. They were empty handlers, so tapping them did
+      // nothing at all and gave no feedback, which reads as the app being
+      // broken. Saying so is the honest minimum until the feature exists;
+      // building announcements or report export is not in this scope.
+      _QaData('Send Platform Announcement', null, _green,
+          () => _notBuiltYet('Platform announcements')),
+      _QaData('Export Revenue Report', 'This month', _orange,
+          () => _notBuiltYet('Revenue export')),
     ];
 
     return _Section(
@@ -303,12 +379,12 @@ class _QaButton extends StatelessWidget {
         ),
         child: Row(children: [
           Expanded(child: Text(data.label,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: data.color))),
+              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: data.color))),
           if (data.badge != null)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(color: data.color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20.r)),
-              child: Text(data.badge!, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: data.color)),
+              child: Text(data.badge!, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: data.color)),
             )
           else
             Icon(Icons.arrow_forward_ios_rounded, size: 13.sp, color: data.color),
@@ -325,7 +401,9 @@ class _RevenueOverview extends StatelessWidget {
   const _RevenueOverview({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final ov = c.metrics?.overview;
     final sb = c.metrics?.subscriptionBreakdown ?? [];
     final monthlyCount = sb.where((s) => s.tier == 'monthly').fold(0, (s, r) => s + r.count);
@@ -353,8 +431,11 @@ class _RevenueOverview extends StatelessWidget {
         Row(children: [
           Icon(Icons.bar_chart_rounded, color: _orange, size: 16.sp),
           SizedBox(width: 6.w),
-          Text('Daily Signups · Last 7 days',
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+          Expanded(
+            child: Text('Daily Signups · Last 7 days',
+                maxLines: 1, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+          ),
         ]),
         SizedBox(height: 14.h),
         SizedBox(
@@ -370,7 +451,7 @@ class _RevenueOverview extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 3.w),
                         child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                          Text('${d.count}', style: TextStyle(fontSize: 9.sp, color: _tSec, fontWeight: FontWeight.w600)),
+                          Text('${d.count}', style: TextStyle(fontSize: 9.sp, color: _tSec, fontWeight: AppFontWeight.label)),
                           SizedBox(height: 3.h),
                           Container(
                             height: (80 * ratio).clamp(4.0, 80.0).h,
@@ -411,8 +492,8 @@ class _MiniStat extends StatelessWidget {
         border: Border.all(color: s.color.withValues(alpha: 0.18)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(s.value, style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w800, color: s.color)),
-        Text(s.label, style: TextStyle(fontSize: 9.5.sp, fontWeight: FontWeight.w600, color: _tSec, letterSpacing: 0.4)),
+        Text(s.value, style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.stat, color: s.color)),
+        Text(s.label, style: TextStyle(fontSize: 9.5.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.4)),
         Text(s.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
       ]),
     );
@@ -421,16 +502,51 @@ class _MiniStat extends StatelessWidget {
 
 // ─── Trainer Management ────────────────────────────────────────────────────────
 
-class _TrainerManagement extends StatelessWidget {
+class _TrainerManagement extends StatefulWidget {
   final AdminDashboardController c;
   const _TrainerManagement({required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  State<_TrainerManagement> createState() => _TrainerManagementState();
+}
+
+class _TrainerManagementState extends State<_TrainerManagement> {
+  /// Local, matching the sub-filter chips on admin_user_list_screen.dart.
+  ///
+  /// These three pills used to be decorative: `active:` was hardcoded
+  /// true/false and there was no `onTap` at all, so they rendered counts,
+  /// always showed "All" as selected, and tapping them did nothing.
+  String _filter = 'all';
+
+  /// One predicate for both the count on a pill and the rows it shows, so the
+  /// two cannot drift apart — a tab reading "5" over a list of 3 is precisely
+  /// the bug that two independent expressions invite.
+  bool _matches(RecentUser u, String f) {
+    switch (f) {
+      case 'active':    return u.isVerified && u.isSuspended != true;
+      case 'pending':   return !u.isVerified;
+      case 'suspended': return u.isSuspended == true;
+      default:          return true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
+    final c = widget.c;
     final allUsers = c.metrics?.recentUsers ?? [];
     final trainers = allUsers.where((u) => u.role == 'trainer').toList();
-    final active  = trainers.where((u) => u.isVerified).length;
-    final pending = trainers.where((u) => !u.isVerified).length;
+    final active  = trainers.where((u) => _matches(u, 'active')).length;
+    final pending = trainers.where((u) => _matches(u, 'pending')).length;
+
+    // Only offer Suspended once the payload actually carries the field — see
+    // RecentUser.isSuspended. A tab reading 0 because we were never told is
+    // worse than no tab at all.
+    final knowsSuspension = trainers.any((u) => u.isSuspended != null);
+    final suspended = trainers.where((u) => _matches(u, 'suspended')).length;
+
+    final visible = trainers.where((u) => _matches(u, _filter)).toList();
 
     return _Section(
       title: 'Trainer Management',
@@ -439,28 +555,53 @@ class _TrainerManagement extends StatelessWidget {
       trailing: GestureDetector(
         onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'trainer', 'title': 'Trainers'}),
-        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: _orange)),
+        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: _orange)),
       ),
       child: Column(children: [
-        // Filter tabs
-        Row(children: [
-          _FilterTab(label: 'All',     count: trainers.length, active: true),
-          SizedBox(width: 8.w),
-          _FilterTab(label: 'Active',  count: active,  active: false),
-          SizedBox(width: 8.w),
-          _FilterTab(label: 'Pending', count: pending, active: false, badge: true),
-        ]),
+        // Filter tabs. Three natural-width pills plus their counts have no room
+        // to shrink, so the strip overflows once the labels or counts grow.
+        // Scrolling it keeps the pills at their natural size rather than
+        // squeezing the labels, and costs nothing when they already fit.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [
+            _FilterTab(label: 'All', count: trainers.length,
+                active: _filter == 'all',
+                onTap: () => setState(() => _filter = 'all')),
+            SizedBox(width: 8.w),
+            _FilterTab(label: 'Active', count: active,
+                active: _filter == 'active',
+                onTap: () => setState(() => _filter = 'active')),
+            SizedBox(width: 8.w),
+            _FilterTab(label: 'Pending', count: pending, badge: true,
+                active: _filter == 'pending',
+                onTap: () => setState(() => _filter = 'pending')),
+            if (knowsSuspension) ...[
+              SizedBox(width: 8.w),
+              _FilterTab(label: 'Suspended', count: suspended,
+                  active: _filter == 'suspended',
+                  onTap: () => setState(() => _filter = 'suspended')),
+            ],
+          ]),
+        ),
         SizedBox(height: 14.h),
         // Column headers
         Row(children: ['TRAINER', 'STATUS'].map((h) => Expanded(
-          child: Text(h, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: _tSec, letterSpacing: 0.5)),
+          child: Text(h, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
         )).toList()),
         Divider(color: _border, height: 16.h),
-        if (trainers.isEmpty)
+        if (visible.isEmpty)
           Padding(padding: EdgeInsets.symmetric(vertical: 20.h),
-              child: Center(child: Text('No trainers in recent data', style: TextStyle(color: _tSec, fontSize: 12.sp))))
+              child: Center(child: Text(
+                  // Distinguish "no data at all" from "nothing matches this
+                  // tab", so an empty Pending list does not read as the
+                  // section having failed to load.
+                  trainers.isEmpty
+                      ? 'No trainers in recent data'
+                      : 'No $_filter trainers',
+                  style: TextStyle(color: _tSec, fontSize: 12.sp))))
         else
-          ...trainers.take(6).map((u) => _TrainerRow(user: u)),
+          ...visible.take(6).map((u) => _TrainerRow(user: u)),
       ]),
     );
   }
@@ -470,30 +611,36 @@ class _FilterTab extends StatelessWidget {
   final String label;
   final int count;
   final bool active, badge;
-  const _FilterTab({required this.label, required this.count, required this.active, this.badge = false});
+  final VoidCallback? onTap;
+  const _FilterTab({required this.label, required this.count, required this.active, this.badge = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: active ? _orange : Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: active ? _orange : _border),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: active ? _orange : Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: active ? _orange : _border),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
+              color: active ? Colors.white : _tSec)),
+          if (badge && count > 0) ...[
+            SizedBox(width: 5.w),
+            Container(width: 18.w, height: 18.w,
+                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
+          ] else if (!active && count > 0) ...[
+            SizedBox(width: 5.w),
+            Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
+          ],
+        ]),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600,
-            color: active ? Colors.white : _tSec)),
-        if (badge && count > 0) ...[
-          SizedBox(width: 5.w),
-          Container(width: 18.w, height: 18.w,
-              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700, color: Colors.white)))),
-        ] else if (!active && count > 0) ...[
-          SizedBox(width: 5.w),
-          Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
-        ],
-      ]),
     );
   }
 }
@@ -514,7 +661,7 @@ class _TrainerRow extends StatelessWidget {
       child: Row(children: [
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(user.email.split('@').first,
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _tPrim)),
+              style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.title, color: _tPrim)),
           Text('Joined $joined', style: TextStyle(fontSize: 10.sp, color: _tSec)),
         ])),
         Container(
@@ -524,7 +671,7 @@ class _TrainerRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
             border: Border.all(color: statusColor.withValues(alpha: 0.35)),
           ),
-          child: Text(statusLabel, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: statusColor)),
+          child: Text(statusLabel, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: statusColor)),
         ),
       ]),
     );
@@ -535,10 +682,12 @@ class _TrainerRow extends StatelessWidget {
 
 class _Withdrawals extends StatelessWidget {
   final AdminDashboardController c;
-  const _Withdrawals({required this.c});
+  const _Withdrawals({super.key, required this.c});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(_content);
+
+  Widget _content() {
     final withdrawals = c.withdrawals;
     if (withdrawals.isEmpty && !c.withdrawalsLoading) return const SizedBox.shrink();
 
@@ -575,12 +724,12 @@ class _WithdrawalCard extends StatelessWidget {
           Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(w.trainerId,
-                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _tPrim)),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
               Text('${w.createdAt != null ? _fmt(w.createdAt!) : ''} · ${w.withdrawalMethod}',
                   style: TextStyle(fontSize: 11.sp, color: _tSec)),
             ])),
             Text('\$${w.amountDollars.toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800, color: _orange)),
+                style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.display, color: _orange)),
           ]),
           SizedBox(height: 12.h),
           Row(children: [
@@ -596,7 +745,7 @@ class _WithdrawalCard extends StatelessWidget {
                 child: loading
                     ? SizedBox(width: 16.w, height: 16.w,
                         child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Approve', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                    : Text('Approve', style: TextStyle(fontWeight: AppFontWeight.label, fontSize: 13.sp)),
               ),
             ),
             SizedBox(width: 10.w),
@@ -609,7 +758,7 @@ class _WithdrawalCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 10.h),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
                 ),
-                child: Text('Reject', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp)),
+                child: Text('Reject', style: TextStyle(fontWeight: AppFontWeight.label, fontSize: 13.sp)),
               ),
             ),
           ]),
@@ -646,7 +795,7 @@ class _Section extends StatelessWidget {
         Row(children: [
           Icon(icon, color: iconColor, size: 18.sp),
           SizedBox(width: 8.w),
-          Expanded(child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800, color: _tPrim))),
+          Expanded(child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.display, color: _tPrim))),
           if (trailing != null) trailing!,
         ]),
         SizedBox(height: 16.h),

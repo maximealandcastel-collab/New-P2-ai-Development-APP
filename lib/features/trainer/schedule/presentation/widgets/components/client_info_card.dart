@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -60,7 +61,7 @@ class ClientInfoCard extends StatelessWidget {
                       clientName,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.title,
                       ),
                     ),
                     SizedBox(height: 3.h),
@@ -134,7 +135,7 @@ class _ClientOnlineBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               color: const Color(0xFF4CAF50),
-              fontWeight: FontWeight.w500,
+              fontWeight: AppFontWeight.emphasis,
             ),
           ),
         ],
@@ -184,7 +185,7 @@ class ActionButton extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
                 color: isOutlined ? Colors.black87 : Colors.white,
               ),
             ),

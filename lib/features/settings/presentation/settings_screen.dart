@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,6 +7,8 @@ import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/account_details_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/earnings_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/invoices_screen.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/widgets/confirmation_dialog.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -24,8 +27,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         icon: Icons.logout,
         title: "You really want to logout",
         confirmLabel: "Logout",
+        // Confirming used to just close the dialog — the button did nothing at
+        // all. LoginController.logout() was already written and complete
+        // (disconnects chat, clears the Hive session, clears admin/affiliate
+        // mode and their prefs keys, and navigates to login); it simply was
+        // never called from here.
         onConfirm: () {
           Get.back();
+          LoginController.to.logout();
         },
       ),
     );
@@ -40,8 +49,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         confirmLabel: "Delete account",
         isDeleteAction: true,
         showCancel: true,
-        onConfirm: () {
+        // Was Get.back() only. The whole chain below already existed —
+        // AuthService.deleteAccount -> AuthRepository -> DELETE
+        // /api/v1/auth/account-delete, and that route is live on the backend —
+        // but LoginController.deleteAccount() short-circuited to logout(), so
+        // this button signed the user out and left the account intact.
+        //
+        // The failure path matters more than usual here: if the delete fails,
+        // the user must be told, not quietly signed out believing their data is
+        // gone. Apple has also required working account deletion since 2022, so
+        // a no-op here is a store-review risk as well as a trust one.
+        onConfirm: () async {
           Get.back();
+          try {
+            await LoginController.to.deleteAccount();
+          } catch (e) {
+            ToastMessageHelper.show(
+              e.toString().replaceFirst('Exception: ', ''),
+            );
+          }
         },
       ),
     );
@@ -94,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       CustomText(
                         text: "Ethancarter77@gmail.com",
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                       ),
                     ],
                   ),
@@ -182,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(text: label, fontWeight: FontWeight.bold, fontSize: 16.sp, bottom: 12.h),
+              CustomText(text: label, fontWeight: AppFontWeight.section, fontSize: 16.sp, bottom: 12.h),
               if (sublabel != null)
                 CustomText(text: sublabel, fontSize: 11.sp, bottom: 12.h, color: Colors.grey),
             ],
@@ -213,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           CustomText(
             text: label,
             fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: textColor ?? Colors.black,
           ),
           Icon(

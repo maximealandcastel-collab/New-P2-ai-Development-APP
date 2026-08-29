@@ -1,10 +1,10 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/custom_container.dart';
@@ -16,6 +16,20 @@ class FeedAppBarSliver extends StatelessWidget {
 
   final PreferredSizeWidget? bottom;
   final bool pinned;
+
+  /// Role from ProfileController — the same source lib/widgets/app_bar.dart
+  /// uses, so the two app bars finally agree about who is looking at them.
+  ///
+  /// This used to route on `LoginController.to.isTrainer()`, which is
+  /// `getRole() == 'trainer'` and therefore **excludes admins**. An admin
+  /// tapping the avatar here landed on the subscriber profile, while the same
+  /// tap on the dashboard bar took them to the trainer one. `isTrainer()`
+  /// itself is left alone on purpose: anam_call_screen.dart uses it as a
+  /// permission gate where "trainer, not admin" is the intended meaning.
+  bool _isTrainer(ProfileController c) {
+    final role = (c.userData?.role ?? '').toLowerCase();
+    return role == 'trainer' || role == 'admin';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +58,7 @@ class FeedAppBarSliver extends StatelessWidget {
                 final user = controller.userData;
                 return GestureDetector(
                   onTap: () {
-                    if (LoginController.to.isTrainer()) {
+                    if (_isTrainer(controller)) {
                       Get.toNamed(AppRoute.profileScreen);
                     } else {
                       Get.toNamed(AppRoute.userProfileScreen);
@@ -75,18 +89,27 @@ class FeedAppBarSliver extends StatelessWidget {
                         textOverflow: TextOverflow.ellipsis,
                         text: 'Hi ${controller.userData?.firstName?.isNotEmpty == true ? controller.userData!.firstName! : controller.userData?.preferredName?.isNotEmpty == true ? controller.userData!.preferredName! : "there"}!',
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                       );
                     }),
-                    CustomText(
-                      top: 2.h,
-                      text: 'Let’s Manage your  users',
-                      textAlign: TextAlign.start,
-                      maxline: 1,
-                      textOverflow: TextOverflow.ellipsis,
-                      fontSize: 12.sp,
-                      color: AppColors.textSecondary,
-                    ),
+                    // Was a hardcoded 'Let’s Manage your  users' — note the
+                    // doubled space — shown to everyone. This bar is on the
+                    // History and Trainer tabs, so plain subscribers were
+                    // being told to manage users they do not have. Role-aware
+                    // now, and worded to match lib/widgets/app_bar.dart.
+                    Obx(() {
+                      return CustomText(
+                        top: 2.h,
+                        text: _isTrainer(controller)
+                            ? 'Let’s manage your clients'
+                            : 'Let’s crush today’s workout',
+                        textAlign: TextAlign.start,
+                        maxline: 1,
+                        textOverflow: TextOverflow.ellipsis,
+                        fontSize: 12.sp,
+                        color: AppColors.textSecondary,
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -123,7 +146,7 @@ class FeedAppBarSliver extends StatelessWidget {
                             child: CustomText(
                               text: unread > 99 ? '99+' : '$unread',
                               fontSize: 9.sp,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppFontWeight.section,
                               color: Colors.white,
                             ),
                           ),

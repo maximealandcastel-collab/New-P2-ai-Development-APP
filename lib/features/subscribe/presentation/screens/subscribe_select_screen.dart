@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -28,7 +29,7 @@ class SubscribeSelectScreen extends StatelessWidget {
                 children: [
                   CustomText(text: 'P2P Tech',
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                   ),
 
                   CustomText(text: 'AI-Powered Training',
@@ -49,7 +50,7 @@ class SubscribeSelectScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24.sp,
                 color: Colors.black,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
               children: [
                 TextSpan(
@@ -135,7 +136,7 @@ class SubscribeSelectScreen extends StatelessWidget {
                   text: 'Terms of Service',
                   style: TextStyle(
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                   ),
                 ),
               ],

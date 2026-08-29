@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
@@ -90,7 +91,7 @@ class RequestFitnessProfileCard extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return CustomText(
       text: title,
-      fontWeight: FontWeight.bold,
+      fontWeight: AppFontWeight.title,
       fontSize: 16.sp,
     );
   }

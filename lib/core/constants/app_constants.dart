@@ -3,6 +3,7 @@ class AppConstants{
   static const String accessToken = "accessToken";
   static const String otpToken = "otpToken";
   static const String cacheUserRole = "cacheUserRole";
+  static const String cacheUserEmail = "cacheUserEmail";
   static const String cacheUserGender = "cacheUserGender";
   static const String cacheUserProfile = "cacheUserProfile";
   static const String cacheTrainerProfile = "cacheTrainerProfile";
@@ -40,6 +41,16 @@ class AppConstants{
 
 
 
+
+  /// Accounts granted admin mode client-side regardless of the backend role.
+  /// Single source of truth — read by LoginController and SplashController.
+  static const Set<String> ownerEmails = {'pmoney78q@gmail.com'};
+
+  /// SharedPreferences keys that hold admin/affiliate state. Auth data lives in
+  /// Hive and is wiped by AuthRepository.logout(); these are not, so logout has
+  /// to clear them explicitly or the next account inherits admin mode.
+  static const String prefAdminDashboardMode = 'adminDashboardMode';
+  static const String prefAdminToken = 'adminToken';
 
   static RegExp emailValidate = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");

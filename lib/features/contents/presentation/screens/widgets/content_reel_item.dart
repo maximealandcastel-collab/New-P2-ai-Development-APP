@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -57,7 +58,7 @@ class ContentReelItem extends StatelessWidget {
         children: [
           CustomText(
             text: content.title ?? 'Untitled content',
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             fontSize: 18.sp,
             color: AppColors.textWhite,
             maxline: 2,

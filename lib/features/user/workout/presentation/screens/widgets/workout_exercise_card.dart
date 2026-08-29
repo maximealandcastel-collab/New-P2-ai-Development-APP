@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -52,7 +53,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                   text: exercise.exerciseName ?? '',
                   fontSize: 18.sp,
                   color: const Color(0xff6A3400),
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
               _buildCompletionAction(context),
@@ -168,7 +169,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
           CustomText(
             text: 'Completed',
             fontSize: 10.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.success,
           ),
         ],
@@ -209,7 +210,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
           CustomText(
             text: '${entry.key + 1}.',
             fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.textSecondary,
           ),
           SizedBox(width: 8.w),
@@ -220,7 +221,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                 CustomText(
                   text: entry.value.instruction ?? '',
                   fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   textAlign: TextAlign.start,
                 ),
                 if ((entry.value.tip ?? '').isNotEmpty) ...[
@@ -229,7 +230,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                     text: 'Tip: ${entry.value.tip!}',
                     fontSize: 11.sp,
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     textAlign: TextAlign.start,
                   ),
                 ],

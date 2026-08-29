@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,7 +44,7 @@ class SubscriptionPricePage extends StatelessWidget {
               CustomText(
                 text: 'monthly',
                 fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.emphasis,
               ),
               SizedBox(height: 4.h),
               Row(
@@ -52,7 +53,7 @@ class SubscriptionPricePage extends StatelessWidget {
                   CustomText(
                     text: '\$',
                     fontSize: 36.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.display,
                   ),
                   SizedBox(width: 4.w),
                   Expanded(

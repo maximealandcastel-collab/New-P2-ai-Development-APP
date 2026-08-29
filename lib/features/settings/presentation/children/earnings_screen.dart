@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,7 +6,6 @@ import 'package:pler_to_pler_app/features/settings/presentation/widgets/transati
 import 'package:shimmer/shimmer.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/earnings_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -44,7 +44,7 @@ class EarningsScreen extends StatelessWidget {
                 Center(
                   child: CustomText(
                     text: 'Available balance',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppFontWeight.emphasis,
                     fontSize: 16.sp,
                     color: AppColors.textSecondary,
                     bottom: 8.h,
@@ -56,16 +56,15 @@ class EarningsScreen extends StatelessWidget {
                     text: TextSpan(
                       style: TextStyle(
                         color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         fontSize: 40.sp,
-                        fontFamily: FontFamily.figtree,
                       ),
                       text: availableStr,
                       children: [
                         TextSpan(
                           style: TextStyle(
                             color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: AppFontWeight.emphasis,
                             fontSize: 20.sp,
                           ),
                           text: ' USD',
@@ -83,9 +82,8 @@ class EarningsScreen extends StatelessWidget {
                   child: RichText(
                     text: TextSpan(
                       style: TextStyle(
-                        fontFamily: FontFamily.figtree,
                         color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                         fontSize: 16.sp,
                       ),
                       text: 'Pending balance ',
@@ -93,7 +91,7 @@ class EarningsScreen extends StatelessWidget {
                         TextSpan(
                           style: TextStyle(
                             color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                           ),
                           text: ' $pendingStr',
                         ),
@@ -127,7 +125,7 @@ class EarningsScreen extends StatelessWidget {
       bottom: 4.h,
       textAlign: TextAlign.start,
       text: 'Transaction history',
-      fontWeight: FontWeight.w600,
+      fontWeight: AppFontWeight.label,
       fontSize: 18.sp,
     ).asSliver,
     Obx(() {

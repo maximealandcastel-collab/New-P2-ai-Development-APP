@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -88,15 +89,20 @@ class SubscribeOptionCard extends StatelessWidget {
                 CustomText(
                   text: title,
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.title,
                   textAlign: TextAlign.start,
                 ),
                 if (price != null) ...[
                   SizedBox(width: 6.w),
                   CustomText(
                     text: price!,
+                    // stat, deliberately one step heavier than the plan title
+                    // beside it. The price and the title sit at the same size
+                    // on the same row, so weight is the only thing separating
+                    // them — flattening both to the same value makes the plan
+                    // card read as one undifferentiated string.
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.stat,
                     color: AppColors.primary,
                     textAlign: TextAlign.start,
                   ),
@@ -157,7 +163,7 @@ class SubscribeOptionCard extends StatelessWidget {
                         CustomText(
                           text: badgeTitle,
                           fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           textAlign: TextAlign.start,
                         ),
                         CustomText(

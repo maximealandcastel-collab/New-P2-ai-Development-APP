@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -199,7 +200,7 @@ class ClientsScreen extends StatelessWidget {
               Text(label,
                   style: TextStyle(
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.title,
                       color: isSelected ? Colors.white : Colors.grey)),
             ],
           ),
@@ -221,7 +222,7 @@ class ClientsScreen extends StatelessWidget {
           child: CustomText(
             text: label,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: isSelected ? Colors.white : Colors.grey,
           ),
         ),

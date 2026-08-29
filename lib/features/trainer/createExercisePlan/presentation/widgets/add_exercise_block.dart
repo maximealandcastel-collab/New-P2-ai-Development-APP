@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -142,7 +143,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomText(text: "Repeat step", fontWeight: FontWeight.w600),
+                    CustomText(text: "Repeat step", fontWeight: AppFontWeight.label),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                       decoration: BoxDecoration(
@@ -158,7 +159,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
             SizedBox(height: 24.h),
 
             // --- Steps List ---
-            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: FontWeight.bold, bottom: 12.h),
+            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: AppFontWeight.title, bottom: 12.h),
 
             ListView.separated(
               shrinkWrap: true,
@@ -241,7 +242,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(text: step["name"]!, fontWeight: FontWeight.bold, fontSize: 14.sp),
+              CustomText(text: step["name"]!, fontWeight: AppFontWeight.title, fontSize: 14.sp),
               CustomText(text: step["duration"]!, color: Colors.grey, fontSize: 12.sp),
             ],
           ),
@@ -271,7 +272,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
               child: Icon(Icons.add, size: 18.sp, color: Colors.black),
             ),
             SizedBox(width: 12.w),
-            CustomText(text: "Add Step", fontWeight: FontWeight.w600),
+            CustomText(text: "Add Step", fontWeight: AppFontWeight.label),
           ],
         ),
       ),

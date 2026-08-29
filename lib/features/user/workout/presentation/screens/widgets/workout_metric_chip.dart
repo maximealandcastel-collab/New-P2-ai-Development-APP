@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -18,7 +19,7 @@ class WorkoutMetricChip extends StatelessWidget {
       child: CustomText(
         text: label,
         fontSize: 12.sp,
-        fontWeight: FontWeight.w600,
+        fontWeight: AppFontWeight.label,
         color: AppColors.textSecondary,
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -56,7 +57,7 @@ class ProfileInformationScreen extends StatelessWidget {
               children: [
                 CustomText(
                   text: 'Security',
-                  fontWeight: FontWeight.bold,
+                  fontWeight: AppFontWeight.section,
                   fontSize: 16.sp,
                   bottom: 12.h,
                 ),
@@ -81,7 +82,7 @@ class ProfileInformationScreen extends StatelessWidget {
                             ),
                             CustomText(
                               text: '••••••••',
-                              fontWeight: FontWeight.w600,
+                              fontWeight: AppFontWeight.label,
                             ),
                           ],
                         ),

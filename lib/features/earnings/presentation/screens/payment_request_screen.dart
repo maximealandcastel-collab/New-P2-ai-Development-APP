@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -55,7 +56,7 @@ class PaymentRequestScreen extends StatelessWidget {
                 // 3. Payment Method
                 CustomText(
                   text: 'Payment method',
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: 14.sp,
                   color: AppColors.textPrimary,
                   bottom: 8.h,
@@ -87,7 +88,7 @@ class PaymentRequestScreen extends StatelessWidget {
                           child: CustomText(
                             text: 'S',
                             color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.display,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -110,7 +111,7 @@ class PaymentRequestScreen extends StatelessWidget {
                           child: CustomText(
                             text: 'P',
                             color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.display,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -216,7 +217,7 @@ class PaymentRequestScreen extends StatelessWidget {
             SizedBox(width: 12.w),
             CustomText(
               text: label,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 16.sp,
             ),
             const Spacer(),

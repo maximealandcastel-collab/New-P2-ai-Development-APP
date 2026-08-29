@@ -1,9 +1,9 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
@@ -70,7 +70,16 @@ class BottomNavBarController extends GetxController {
         : NavFabModel.userFabItems;
   }
 
-  static const int contentsTabIndex = 2;
+  /// Position of a tab in the *currently active* nav set, or -1 if absent.
+  ///
+  /// This replaces a `static const contentsTabIndex = 2`, which was only ever
+  /// correct for adminNavItems. In userNavItems and trainerNavItems index 2 is
+  /// Gyms and Contents sits at 3, so every reel suspend/resume gate fired on
+  /// exactly the wrong tab — audio started on Gyms and stopped on Contents.
+  int indexOfTab(NavItemId id) => NavItemModel.indexOf(navItems, id);
+
+  int get contentsTabIndex => indexOfTab(NavItemId.contents);
+  int get clientsTabIndex => indexOfTab(NavItemId.clients);
 
   @override
   void onInit() {
@@ -104,6 +113,16 @@ class BottomNavBarController extends GetxController {
           }
         }
       } catch (_) {}
+      // The live Contents tab is contents_screen.dart, whose players are not
+      // owned by ContentController. Because tabs live in an IndexedStack their
+      // State is never disposed on a tab change, so leaving the tab has to stop
+      // them explicitly or the audio follows the user onto the dashboard.
+      try {
+        if (index != contentsTabIndex &&
+            Get.isRegistered<VideoPlaybackManager>()) {
+          Get.find<VideoPlaybackManager>().stopAll();
+        }
+      } catch (_) {}
 
     if (_isAdminMode()) {
       _adminIndex.value = index;
@@ -114,11 +133,9 @@ class BottomNavBarController extends GetxController {
   }
 
   void goToContentsTab() {
-    if (_isAdminMode()) {
-      _adminIndex.value = contentsTabIndex;
-    } else {
-      _userIndex.value = contentsTabIndex;
-    }
+    final target = contentsTabIndex;
+    if (target < 0) return;
+    onChange(target);
   }
 
   void switchToAdmin() {

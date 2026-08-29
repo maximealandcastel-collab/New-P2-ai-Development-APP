@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/data/invoice_models.dart';
@@ -44,7 +45,7 @@ class UserInvoicesScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Text(
                 'Available Invoices',
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black),
               ),
             ),
             SizedBox(height: 12.h),
@@ -109,7 +110,7 @@ class _InvoiceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.title,
-                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                          style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
                       SizedBox(height: 3.h),
                       Text('${item.client} · ${item.billedAgo}',
                           style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500)),
@@ -131,7 +132,7 @@ class _InvoiceCard extends StatelessWidget {
                   '\$${item.amount.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: const Color(0xFF1565C0),
                   ),
                 ),
@@ -172,7 +173,7 @@ class _StatusBadge extends StatelessWidget {
             isPaid ? 'Paid' : 'Pending',
             style: TextStyle(
               fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               color: isPaid ? const Color(0xFF4CAF50) : Colors.grey.shade500,
             ),
           ),

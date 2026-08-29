@@ -1,9 +1,10 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:confetti/confetti.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 import '../../../../../custom_assets/assets.gen.dart';
@@ -50,7 +51,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 CustomText(
                   text: 'You are all set !',
                   fontSize: 24.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                 ),
                 SizedBox(height: 10.h),
                 CustomText(
@@ -66,7 +67,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 CustomButton(
                   label: 'Take me to home page',
                   onPressed: () {
-                    Get.offAll(() => NavBar());
+                    Get.offAllNamed(AppRoute.bottonNavBar);
                   },
                 ),
                 const SizedBox(height: 20),

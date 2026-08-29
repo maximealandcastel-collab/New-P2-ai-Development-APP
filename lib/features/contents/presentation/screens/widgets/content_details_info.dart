@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/time_format.dart';
@@ -23,7 +24,7 @@ class ContentDetailsInfo extends StatelessWidget {
         children: [
           CustomText(
             text: content.title ?? 'Untitled content',
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             fontSize: 20.sp,
             textAlign: TextAlign.start,
           ),
@@ -132,7 +133,7 @@ class ContentDetailChip extends StatelessWidget {
       child: CustomText(
         text: label,
         fontSize: 12.sp,
-        fontWeight: FontWeight.w600,
+        fontWeight: AppFontWeight.label,
         color: AppColors.textPrimary,
         textAlign: TextAlign.start,
       ),
@@ -153,7 +154,7 @@ class _Section extends StatelessWidget {
       children: [
         CustomText(
           text: title,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
           fontSize: 14.sp,
           textAlign: TextAlign.start,
         ),

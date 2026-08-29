@@ -137,6 +137,7 @@ class ProfileController extends GetxController {
       final isOnline = _connectivityService.isConnected.value;
       final hasRequiredCache = hasCache && (!isTrainer || hasTrainerCache);
 
+
       if (hasRequiredCache) {
         _loadFromCache();
         _loadingState.value = LoadingState.loaded;

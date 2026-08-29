@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -37,7 +38,7 @@ class InvoiceCardWidget extends StatelessWidget {
                 Expanded(
                   child: CustomText(
                     textAlign: TextAlign.start,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     fontSize: 16.sp,
                     text: invoice.clientName,
                     maxline: 1,
@@ -57,7 +58,7 @@ class InvoiceCardWidget extends StatelessWidget {
                       CustomText(
                         text: isReceived ? ' Received' : ' Pending',
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                         color: Colors.white,
                       ),
                     ],
@@ -77,10 +78,10 @@ class InvoiceCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(text: 'Total billed', fontWeight: FontWeight.w600),
+              CustomText(text: 'Total billed', fontWeight: AppFontWeight.label),
               CustomText(
                 text: invoice.formattedAmount,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
                 color: AppColors.info,
               ),
             ],

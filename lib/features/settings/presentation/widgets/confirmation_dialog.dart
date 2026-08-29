@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -64,7 +65,7 @@ class ConfirmationDialog extends StatelessWidget {
                 // Title
                 CustomText(
                   text: title,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: AppFontWeight.section,
                   fontSize: 18.sp,
                   textAlign: TextAlign.center,
                 ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -61,7 +62,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           child: CustomText(
             text: label,
             color: isSelected ? Colors.white : Colors.grey,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             fontSize: 14.sp,
           ),
         ),
@@ -82,7 +83,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(text: "Weekly Scheduled to do", fontWeight: FontWeight.bold, fontSize: 16.sp),
+              CustomText(text: "Weekly Scheduled to do", fontWeight: AppFontWeight.section, fontSize: 16.sp),
               SizedBox(height: 16.h),
               _buildExerciseCalendar(), // Matches image_03be07.png
               SizedBox(height: 24.h),
@@ -95,7 +96,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           ),
         ),
         SizedBox(height: 24.h),
-        CustomText(text: "Assigned workout plan", fontWeight: FontWeight.bold, fontSize: 16.sp),
+        CustomText(text: "Assigned workout plan", fontWeight: AppFontWeight.section, fontSize: 16.sp),
         SizedBox(height: 12.h),
         _buildWorkoutCard(),
       ],
@@ -156,7 +157,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
       children: [
         CustomText(
             text: "Daily meal progress",
-            fontWeight: FontWeight.bold,
+            fontWeight: AppFontWeight.section,
             fontSize: 16.sp
         ),
         SizedBox(height: 16.h),
@@ -199,7 +200,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                 children: [
                   CustomText(
                       text: "Today record",
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 15.sp
                   ),
                   CustomText(
@@ -255,7 +256,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                 child: CustomText(
                   text: "$date",
                   color: isSelected ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: AppFontWeight.section,
                   fontSize: 14.sp,
                 ),
               ),
@@ -285,7 +286,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
         CustomText(
             text: "$percent%",
             fontSize: 26.sp,
-            fontWeight: FontWeight.bold
+            fontWeight: AppFontWeight.stat
         ),
       ],
     );
@@ -303,7 +304,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
             CustomText(
                 text: val,
                 fontSize: 20.sp,
-                fontWeight: FontWeight.bold
+                fontWeight: AppFontWeight.stat
             ),
             CustomText(
                 text: " $unit",
@@ -342,7 +343,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           SizedBox(width: 16.w),
           CustomText(
               text: amount,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 15.sp
           ),
           const Spacer(),
@@ -383,7 +384,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                 child: CustomText(
                     text: "$date",
                     color: isSelected ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.bold
+                    fontWeight: AppFontWeight.section
                 ),
               ),
             ),
@@ -402,7 +403,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(text: title, fontWeight: FontWeight.w600, fontSize: 14.sp),
+              CustomText(text: title, fontWeight: AppFontWeight.label, fontSize: 14.sp),
               CustomText(text: "$current/$total$unit", color: Colors.grey, fontSize: 12.sp),
             ],
           ),
@@ -440,7 +441,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(text: "20 upper body exercise", fontWeight: FontWeight.bold),
+              CustomText(text: "20 upper body exercise", fontWeight: AppFontWeight.section),
               CustomText(text: "Trainer: Maxime Castel", color: Colors.grey, fontSize: 11.sp),
               CustomText(text: "20 minutes • 6 Exercise step", color: Colors.grey, fontSize: 11.sp),
             ],
@@ -457,7 +458,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
       radiusAll: 12.r,
       color: Colors.black.withOpacity(0.03),
       alignment: Alignment.center,
-      child: CustomText(text: "View all", fontWeight: FontWeight.w600),
+      child: CustomText(text: "View all", fontWeight: AppFontWeight.label),
     );
   }
 

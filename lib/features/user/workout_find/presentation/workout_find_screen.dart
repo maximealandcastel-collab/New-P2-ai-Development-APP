@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -221,7 +222,7 @@ class _TopBar extends StatelessWidget {
               'Skip',
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.emphasis,
                 color: Colors.black87,
               ),
             ),
@@ -266,7 +267,7 @@ class _SelectionStep extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black,
                   height: 1.3,
                 ),
@@ -348,7 +349,7 @@ class _OptionTile extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            fontWeight: isSelected ? AppFontWeight.label : AppFontWeight.body,
             color: Colors.black87,
           ),
         ),
@@ -389,7 +390,7 @@ class _IntensityDurationStep extends StatelessWidget {
                   'Workout Intensity & duration',
                   style: TextStyle(
                     fontSize: 22.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: Colors.black,
                   ),
                 ),
@@ -403,7 +404,7 @@ class _IntensityDurationStep extends StatelessWidget {
                 // Intensity label
                 Text(
                   'Workout Intensity',
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label),
                 ),
                 SizedBox(height: 14.h),
 
@@ -446,7 +447,7 @@ class _IntensityDurationStep extends StatelessWidget {
                                   level,
                                   style: TextStyle(
                                     fontSize: 13.sp,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: AppFontWeight.emphasis,
                                     color: isSelected ? Colors.white : Colors.black87,
                                   ),
                                 ),
@@ -464,7 +465,7 @@ class _IntensityDurationStep extends StatelessWidget {
                 // Duration label
                 Text(
                   'Workout Duration',
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label),
                 ),
                 SizedBox(height: 20.h),
 
@@ -477,7 +478,7 @@ class _IntensityDurationStep extends StatelessWidget {
                           text: '${duration.toInt()}',
                           style: TextStyle(
                             fontSize: 52.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                             color: Colors.black,
                           ),
                         ),
@@ -486,7 +487,7 @@ class _IntensityDurationStep extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: Colors.grey,
-                            fontWeight: FontWeight.w400,
+                            fontWeight: AppFontWeight.body,
                           ),
                         ),
                       ],
@@ -638,7 +639,7 @@ class _LoadingStepState extends State<_LoadingStep>
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: Colors.black,
               height: 1.35,
             ),
@@ -745,7 +746,7 @@ class _NextButton extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
             ),
           ),
         ),

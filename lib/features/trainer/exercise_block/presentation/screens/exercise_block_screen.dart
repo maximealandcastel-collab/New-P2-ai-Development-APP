@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -90,10 +91,10 @@ class _ExerciseBlockScreenState extends State<ExerciseBlockScreen>
               labelColor: Colors.white,
               unselectedLabelColor: AppColors.textSecondary,
               labelStyle:
-                  TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                  TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.label),
               unselectedLabelStyle: TextStyle(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.emphasis,
               ),
               tabs: [
                 Tab(text: 'Manual', height: 40.h),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -57,7 +58,7 @@ class _PairingProgressViewState extends State<PairingProgressView>
         CustomText(
           text: isSaving ? 'Saving device' : 'Connecting device',
           fontSize: 20.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
         ),
         SizedBox(height: 8.h),
         CustomText(

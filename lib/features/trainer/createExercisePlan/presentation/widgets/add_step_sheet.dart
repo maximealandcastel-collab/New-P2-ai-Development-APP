@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -52,11 +53,11 @@ class _AddStepSheetState extends State<AddStepSheet> {
                       setState(() => selectedDuration = Duration.zero);
                       Navigator.pop(context);
                     },
-                    child: CustomText(text: "Reset", color: Colors.blue, fontWeight: FontWeight.w600),
+                    child: CustomText(text: "Reset", color: Colors.blue, fontWeight: AppFontWeight.label),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: CustomText(text: "Done", color: Colors.blue, fontWeight: FontWeight.bold),
+                    child: CustomText(text: "Done", color: Colors.blue, fontWeight: AppFontWeight.title),
                   ),
                 ],
               ),
@@ -107,7 +108,7 @@ class _AddStepSheetState extends State<AddStepSheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Spacer(),
-                    CustomText(text: "Add step", fontSize: 18.sp, fontWeight: FontWeight.bold),
+                    CustomText(text: "Add step", fontSize: 18.sp, fontWeight: AppFontWeight.title),
                     const Spacer(),
                     GestureDetector(
                       onTap: () => Get.back(),
@@ -149,7 +150,7 @@ class _AddStepSheetState extends State<AddStepSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomText(text: "Time", fontWeight: FontWeight.bold),
+                  CustomText(text: "Time", fontWeight: AppFontWeight.title),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                     decoration: BoxDecoration(

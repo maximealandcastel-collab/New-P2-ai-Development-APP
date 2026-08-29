@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,7 +33,7 @@ class PhotoPickerHelper {
               CustomText(text:
               'Select Photo',
                 fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
               ),
               SizedBox(height: 20.h),
               Row(
@@ -132,7 +133,7 @@ class PhotoPickerHelper {
               CustomText(
                 text: 'Select File Type',
                 fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
               ),
               SizedBox(height: 20.h),
               Row(

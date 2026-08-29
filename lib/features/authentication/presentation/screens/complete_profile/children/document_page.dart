@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,7 +27,7 @@ class _DocumentPageState extends State<DocumentPage> {
           textAlign: TextAlign.start,
           text: 'Upload Tex document',
           fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
         ),
         SizedBox(height: 24.h),
         Center(

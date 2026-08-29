@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -45,7 +46,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
           CustomText(
             text: 'Select payout method',
           fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
           ),
           SizedBox(height: 32.h),
           ...paymentOptions.map((gender) => Padding(
@@ -114,7 +115,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
               textAlign: TextAlign.start,
               text: option['label'],
               fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
             ),
             Spacer(),
             CustomContainer(

@@ -50,7 +50,7 @@ class ReelRouteObserver extends NavigatorObserver {
       if (!Get.isRegistered<ContentController>()) return;
       if (!Get.isRegistered<BottomNavBarController>()) return;
       if (BottomNavBarController.to.selectedIndex !=
-          BottomNavBarController.contentsTabIndex) return;
+          BottomNavBarController.to.contentsTabIndex) return;
       unawaited(ContentController.to.reel.suspend());
     } catch (_) {}
   }
@@ -60,7 +60,7 @@ class ReelRouteObserver extends NavigatorObserver {
       if (!Get.isRegistered<ContentController>()) return;
       if (!Get.isRegistered<BottomNavBarController>()) return;
       if (BottomNavBarController.to.selectedIndex !=
-          BottomNavBarController.contentsTabIndex) return;
+          BottomNavBarController.to.contentsTabIndex) return;
       final cc = ContentController.to;
       unawaited(cc.reel.resume(contents: cc.contents));
     } catch (_) {}

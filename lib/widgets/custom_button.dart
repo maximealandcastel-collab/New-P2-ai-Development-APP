@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
@@ -91,7 +92,7 @@ class CustomButton extends StatelessWidget {
                   text: label ?? '',
                   color: foregroundColor ?? Colors.white,
                   fontName: fontName, // null = SF Pro on iOS
-                  fontWeight: fontWeight ?? FontWeight.w600,
+                  fontWeight: fontWeight ?? AppFontWeight.label,
                   fontSize: fontSize ?? 16.sp,
                 ),
               ),

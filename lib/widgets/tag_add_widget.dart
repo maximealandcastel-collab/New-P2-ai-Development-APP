@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -141,7 +142,7 @@ class _TagChip extends StatelessWidget {
                   child: CustomText(
                     text: label,
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: AppFontWeight.body,
                     textOverflow: TextOverflow.ellipsis,
                   ),
                 ),

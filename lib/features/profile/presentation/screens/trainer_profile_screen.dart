@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +7,7 @@ import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
@@ -82,7 +84,15 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFF7C3AED),
           title: 'Clients',
           subtitle: 'Manage your clients and progress',
-          onTap: () => Get.toNamed(AppRoute.clientDetailsScreen),
+          // clientDetailsScreen is a single-client detail route whose binding
+          // requires a ClientInvoiceModel argument; opening it with none threw
+          // a TypeError. The clients *list* is the Clients tab.
+          onTap: () {
+            Get.until((route) => route.settings.name == AppRoute.bottonNavBar);
+            final nav = BottomNavBarController.to;
+            final clients = nav.clientsTabIndex;
+            if (clients >= 0) nav.onChange(clients);
+          },
         ),
         _MenuItem(
           icon: Icons.calendar_today_rounded,
@@ -219,13 +229,13 @@ class _AccessCodeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('YOUR ACCESS CODE',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600,
+                    style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label,
                         color: const Color(0xFFEA580C), letterSpacing: 0.8)),
                 SizedBox(height: 5.h),
                 Row(
                   children: [
                     Text(code,
-                        style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700,
+                        style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.stat,
                             color: Colors.black, letterSpacing: 1.5)),
                     SizedBox(width: 10.w),
                     GestureDetector(
@@ -258,7 +268,7 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(title,
-          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+          style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
     );
   }
 }
@@ -315,7 +325,7 @@ class _MenuTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.title,
-                          style: TextStyle(fontSize: 14.5.sp, fontWeight: FontWeight.w600, color: Colors.black)),
+                          style: TextStyle(fontSize: 14.5.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
                       SizedBox(height: 2.h),
                       Text(item.subtitle, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF9CA3AF))),
                     ],
@@ -330,7 +340,7 @@ class _MenuTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Text(item.badge!,
-                        style: TextStyle(fontSize: 10.5.sp, fontWeight: FontWeight.w600, color: const Color(0xFFEA580C))),
+                        style: TextStyle(fontSize: 10.5.sp, fontWeight: AppFontWeight.label, color: const Color(0xFFEA580C))),
                   ),
                 ],
                 SizedBox(width: 6.w),

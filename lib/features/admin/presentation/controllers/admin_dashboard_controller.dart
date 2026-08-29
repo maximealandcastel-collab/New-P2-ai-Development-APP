@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 
 // ─── Models ────────────────────────────────────────────────────────────────
@@ -76,6 +78,16 @@ class RecentUser {
   final String subscriptionTier;
   final DateTime createdAt;
 
+  /// Nullable on purpose: `null` means *the backend did not tell us*, which is
+  /// not the same as "not suspended".
+  ///
+  /// The user-list endpoint sends `isDeleted` and AdminUserModel reads it, but
+  /// `recentUsers` here comes from the metrics endpoint, which is a different
+  /// payload and may not carry the field. Collapsing an absent field to `false`
+  /// would let the dashboard report "0 suspended" when the truth is that it has
+  /// no idea — so the Suspended filter only appears once this is non-null.
+  final bool? isSuspended;
+
   RecentUser({
     required this.id,
     required this.email,
@@ -83,6 +95,7 @@ class RecentUser {
     required this.isVerified,
     required this.subscriptionTier,
     required this.createdAt,
+    this.isSuspended,
   });
 
   factory RecentUser.fromJson(Map<String, dynamic> j) => RecentUser(
@@ -94,6 +107,8 @@ class RecentUser {
         createdAt: j['createdAt'] != null
             ? DateTime.tryParse(j['createdAt'].toString()) ?? DateTime.now()
             : DateTime.now(),
+        isSuspended:
+            j.containsKey('isDeleted') ? j['isDeleted'] == true : null,
       );
 }
 
@@ -261,7 +276,10 @@ class AdminDashboardController extends GetxController {
     baseUrl: ApiConstants.baseUrl,
     headers: {
       'Content-Type': 'application/json',
-      'x-admin-key': const String.fromEnvironment('ADMIN_KEY', defaultValue: '2931'),
+      // No default. This previously fell back to a hardcoded 4-digit key that
+      // shipped in every binary; the value now comes from a build-time define
+      // supplied by the CI environment.
+      'x-admin-key': const String.fromEnvironment('ADMIN_KEY'),
     },
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
@@ -298,11 +316,22 @@ class AdminDashboardController extends GetxController {
     // This avoids the need to cache the token at construction time.
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Prefer the admin-specific JWT issued by the bypass endpoint;
-        // fall back to the regular bearer token for backwards compatibility.
+        // Prefer the admin-specific JWT issued by the bypass endpoint, then
+        // fall back to the live session token.
+        //
+        // That fallback used to read SharedPreferences('bearerToken'), a key
+        // only the abandoned auth branch ever wrote. The live login stores the
+        // session token in Hive, so on the owner-email path — which never calls
+        // the bypass endpoint — this sent no Authorization header at all and
+        // every admin metric failed silently into the empty state.
         var token = await PrefsHelper.getString(_kAdminTokenKey);
         if (token?.isEmpty ?? true) {
-          token = await PrefsHelper.getString('bearerToken');
+          try {
+            token = Get.find<CacheService>()
+                .get<String>(AppConstants.accessToken);
+          } catch (_) {
+            token = null;
+          }
         }
         if (token?.isNotEmpty ?? false) {
           options.headers['Authorization'] = 'Bearer $token';
@@ -403,40 +432,39 @@ class AdminDashboardController extends GetxController {
     }
   }
 
+  // ── Admin write actions ───────────────────────────────────────────────────
+  //
+  // These four used to swallow every exception with `catch (_) {}`, while the
+  // UI flipped local state and toasted success unconditionally. An admin could
+  // suspend a user, see "🔴 Suspended", and the user stayed active. They now
+  // propagate, so the caller can only report success when the API agreed.
+
   Future<void> setVerified(String userId, bool isVerified) async {
-    try {
-      await _dio.patch('/api/v1/admin/users/$userId/verify',
-          data: {'isVerified': isVerified});
-      _updateUserInList(userId, (u) => u.copyWith(isVerified: isVerified));
-      await fetchMetrics();
-    } catch (_) {}
+    await _dio.patch('/api/v1/admin/users/$userId/verify',
+        data: {'isVerified': isVerified});
+    _updateUserInList(userId, (u) => u.copyWith(isVerified: isVerified));
+    await fetchMetrics();
   }
 
   Future<void> setRole(String userId, String role) async {
-    try {
-      await _dio.patch('/api/v1/admin/users/$userId/role', data: {'role': role});
-      _updateUserInList(userId, (u) => u.copyWith(role: role));
-      await fetchMetrics();
-    } catch (_) {}
+    await _dio.patch('/api/v1/admin/users/$userId/role', data: {'role': role});
+    _updateUserInList(userId, (u) => u.copyWith(role: role));
+    await fetchMetrics();
   }
 
   Future<void> suspendUser(String userId, bool suspend, {String reason = ''}) async {
-    try {
-      await _dio.patch('/api/v1/admin/users/$userId/suspend',
-          data: {'suspend': suspend, 'reason': reason});
-      _updateUserInList(userId, (u) => u.copyWith(isSuspended: suspend));
-      await fetchMetrics();
-    } catch (_) {}
+    await _dio.patch('/api/v1/admin/users/$userId/suspend',
+        data: {'suspend': suspend, 'reason': reason});
+    _updateUserInList(userId, (u) => u.copyWith(isSuspended: suspend));
+    await fetchMetrics();
   }
 
   Future<void> grantAccess(String userId, {String tier = 'annual', int days = 365}) async {
-    try {
-      await _dio.patch('/api/v1/admin/users/$userId/grant-access',
-          data: {'tier': tier, 'days': days});
-      final expiry = DateTime.now().add(Duration(days: days));
-      _updateUserInList(userId, (u) => u.copyWith(subscriptionTier: tier, subscriptionEndDate: expiry));
-      await fetchMetrics();
-    } catch (_) {}
+    await _dio.patch('/api/v1/admin/users/$userId/grant-access',
+        data: {'tier': tier, 'days': days});
+    final expiry = DateTime.now().add(Duration(days: days));
+    _updateUserInList(userId, (u) => u.copyWith(subscriptionTier: tier, subscriptionEndDate: expiry));
+    await fetchMetrics();
   }
 
   void _updateUserInList(String userId, AdminUserModel Function(AdminUserModel) updater) {

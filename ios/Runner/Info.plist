@@ -52,6 +52,10 @@
     <string>P2P FitTech AI uses your location to show you gym partners near you and calculate distances.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>P2P FitTech AI uses your location to find gym partners near you.</string>
+    <!-- Required because HealthDataType.STEPS can be served by CoreMotion on
+         iOS. Without this key that request terminates the app. -->
+    <key>NSMotionUsageDescription</key>
+    <string>P2P FitTech AI uses motion and fitness activity to count your steps and track your workout progress.</string>
 
 <key>UIApplicationSupportsIndirectInputEvents</key>
 <true/>

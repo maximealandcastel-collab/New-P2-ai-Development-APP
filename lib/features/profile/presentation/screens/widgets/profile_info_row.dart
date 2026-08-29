@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -35,7 +36,7 @@ class ProfileInfoRow extends StatelessWidget {
           CustomText(
             text: value,
             fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             maxline: 3,
           ),
         ],

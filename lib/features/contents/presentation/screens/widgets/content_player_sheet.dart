@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -27,7 +28,7 @@ class ContentPlayerSheet {
             children: [
               CustomText(
                 text: 'Playback speed',
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
                 fontSize: 16.sp,
                 textAlign: TextAlign.start,
               ),
@@ -45,7 +46,7 @@ class ContentPlayerSheet {
                       labelStyle: TextStyle(
                         color:
                             selected ? AppColors.primary : AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                       ),
                       onSelected: (_) {
                         controller.setPlaybackSpeed(speed);

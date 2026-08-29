@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -20,7 +21,7 @@ class _DatePageState extends State<DatePage> {
         CustomText(
           text: 'What\'s your date of birth ?',
         fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
         ),
         SizedBox(height: 24.h),
 
@@ -32,7 +33,7 @@ class _DatePageState extends State<DatePage> {
               textTheme: CupertinoTextThemeData(
                 dateTimePickerTextStyle: TextStyle(
                   fontSize: 28.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: CupertinoColors.black,
                 ),
               ),

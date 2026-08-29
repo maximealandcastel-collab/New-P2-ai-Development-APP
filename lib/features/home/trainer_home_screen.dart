@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -73,7 +74,7 @@ class TrainerHomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomText(
-              fontWeight: FontWeight.w600,
+              fontWeight: AppFontWeight.label,
               fontSize: 16.sp,
               bottom: 12.h,
               text: 'Client Overview',
@@ -129,7 +130,7 @@ class TrainerHomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               CustomText(
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
                 fontSize: 16.sp,
                 text: 'Paid Clients',
               ),
@@ -139,7 +140,7 @@ class TrainerHomeScreen extends StatelessWidget {
                 },
                 behavior: HitTestBehavior.opaque,
                 child: CustomText(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   fontSize: 14.sp,
                   color: AppColors.primary,
                   text: 'View all',
@@ -212,7 +213,7 @@ class TrainerHomeScreen extends StatelessWidget {
           CustomText(
             textAlign: TextAlign.start,
             fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.stat,
             text: point,
           ),
         ],

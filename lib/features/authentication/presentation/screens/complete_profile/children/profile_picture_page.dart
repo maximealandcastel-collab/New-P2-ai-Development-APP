@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/photo_picker_helper.dart';
@@ -49,7 +50,7 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
         CustomText(
           text: 'Add a profile photo',
           fontSize: 24.sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppFontWeight.label,
         ),
         Spacer(),
         CustomButton(

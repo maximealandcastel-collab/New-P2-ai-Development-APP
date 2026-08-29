@@ -53,7 +53,20 @@ class UserHomeController extends GetxController {
         _workoutController.fetchTrainerPlan(silent: true),
         _workoutController.fetchTodayOverview(silent: true),
         _workoutController.fetchMonthlyProgression(silent: true),
-        if (Get.isRegistered<ProfileController>()) ProfileController.to.loadData(),
+        // Resolved unconditionally, not behind Get.isRegistered.
+        //
+        // ProfileController is registered lazyPut, and isRegistered() reports
+        // false for a lazy binding until something first resolves it. This
+        // runs from UserHomeScreen.build(), before FeedAppBar has built and
+        // touched ProfileController.to — so the guard was always false and the
+        // profile was never loaded as part of the dashboard's load. That is why
+        // the greeting sat on "Hi there!" while the profile screen, which
+        // resolves the controller itself, showed the real name.
+        //
+        // Get.find on a lazyPut binding creates the instance, so this both
+        // registers it and pulls fresh data into the same await as everything
+        // else on the screen.
+        Get.find<ProfileController>().loadData(),
       ]);
     } catch (e) {
       if (kDebugMode) debugPrint('UserHome loadData error: $e');

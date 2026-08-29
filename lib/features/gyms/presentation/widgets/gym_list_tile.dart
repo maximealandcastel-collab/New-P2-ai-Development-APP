@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -52,7 +53,7 @@ class GymListTile extends StatelessWidget {
                       ? Colors.white
                       : gym.accentColor,
                   fontSize: gym.initials.length > 2 ? 12.sp : 16.sp,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: AppFontWeight.display,
                 ),
               ),
             ),
@@ -71,7 +72,7 @@ class GymListTile extends StatelessWidget {
                           gym.name,
                           style: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.title,
                             color: Colors.black87,
                           ),
                           maxLines: 1,
@@ -112,7 +113,7 @@ class GymListTile extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 11.sp,
                               color: Colors.black54,
-                              fontWeight: FontWeight.w600)),
+                              fontWeight: AppFontWeight.label)),
                       SizedBox(width: 6.w),
                       Text('· ${gym.memberCount}',
                           style: TextStyle(
@@ -140,7 +141,7 @@ class GymListTile extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 11.sp,
                               color: Colors.black45,
-                              fontWeight: FontWeight.w500)),
+                              fontWeight: AppFontWeight.body)),
                     ],
                   ),
                   SizedBox(height: 8.h),
@@ -161,7 +162,7 @@ class GymListTile extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11.sp,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppFontWeight.label,
                             ),
                           ),
                         ),
@@ -185,7 +186,7 @@ class GymListTile extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.black38,
                                   fontSize: 10.sp,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: AppFontWeight.emphasis,
                                 ),
                               ),
                             ),

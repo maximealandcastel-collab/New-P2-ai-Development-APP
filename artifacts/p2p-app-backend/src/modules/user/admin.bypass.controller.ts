@@ -40,7 +40,7 @@ export const adminBypassController = catchAsync(
       user.id,
       {
         $set: {
-          role: "trainer",
+          role: "admin",
           subscriptionTier: "annual",
           subscriptionStartDate: new Date(),
           subscriptionEndDate: endDate,

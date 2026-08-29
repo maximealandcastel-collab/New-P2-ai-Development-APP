@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -70,7 +71,7 @@ class FindTrainerScreen extends StatelessWidget {
                 'Find trainer',
                 style: TextStyle(
                   fontSize: 17.sp,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black87,
                   letterSpacing: -0.3,
                 ),
@@ -112,7 +113,7 @@ class FindTrainerScreen extends StatelessWidget {
                       'Filter by goal',
                       style: TextStyle(
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         color: Colors.black54,
                       ),
                     ),
@@ -127,7 +128,7 @@ class FindTrainerScreen extends StatelessWidget {
                           title: Text('Filters & Find My Match',
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: AppFontWeight.label,
                                   fontSize: 15.sp)),
                           content: Text(
                             'Tap a specialty chip to browse trainers by training style. '
@@ -147,7 +148,7 @@ class FindTrainerScreen extends StatelessWidget {
                               child: Text('Got it',
                                   style: TextStyle(
                                       color: const Color(0xFFFF6B00),
-                                      fontWeight: FontWeight.w700)),
+                                      fontWeight: AppFontWeight.label)),
                             ),
                           ],
                         ),
@@ -190,7 +191,7 @@ class FindTrainerScreen extends StatelessWidget {
                   'Filter by gender',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppFontWeight.label,
                     color: Colors.black54,
                   ),
                 ),
@@ -252,7 +253,7 @@ class FindTrainerScreen extends StatelessWidget {
                             Text('Find My Match',
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: AppFontWeight.label,
                                     fontSize: 13.sp,
                                     letterSpacing: -0.2)),
                           ],
@@ -270,7 +271,7 @@ class FindTrainerScreen extends StatelessWidget {
                             text: '1,000+ ',
                             style: TextStyle(
                                 color: _kOrange,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: AppFontWeight.stat,
                                 fontSize: 12.sp),
                           ),
                           const TextSpan(text: '150 ♀ · 150 ♂'),
@@ -352,16 +353,23 @@ class FindTrainerScreen extends StatelessWidget {
                         child: Row(children: [
                           Text('⭐', style: TextStyle(fontSize: 17.sp)),
                           SizedBox(width: 6.w),
+                          // Was Colors.white on this screen's #F5F5F5
+                          // background — effectively invisible, and nothing
+                          // dark sits behind it. Pre-existing (white at HEAD
+                          // too), but worth fixing here: the lighter weight
+                          // this pass applies makes an unreadable header even
+                          // fainter. Matches the black54 the screen's other
+                          // labels already use, one step darker for a heading.
                           Text('Featured Coaches', style: TextStyle(
-                            fontSize: 16.sp, fontWeight: FontWeight.w800,
-                            color: Colors.white, letterSpacing: -0.3)),
+                            fontSize: 16.sp, fontWeight: AppFontWeight.section,
+                            color: Colors.black87, letterSpacing: -0.3)),
                           SizedBox(width: 8.w),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                             decoration: BoxDecoration(color: _kOrange,
                               borderRadius: BorderRadius.circular(10.r)),
                             child: Text('TOP PICKS', style: TextStyle(
-                              fontSize: 9.sp, fontWeight: FontWeight.w800,
+                              fontSize: 9.sp, fontWeight: AppFontWeight.stat,
                               color: Colors.white, letterSpacing: 0.5)),
                           ),
                         ]),
@@ -388,13 +396,14 @@ class FindTrainerScreen extends StatelessWidget {
                         child: Row(children: [
                           Text('👩‍💪', style: TextStyle(fontSize: 18.sp)),
                           SizedBox(width: 8.w),
+                          // Same white-on-light problem as Featured Coaches.
                           Text('Women Trainers', style: TextStyle(
-                            fontSize: 15.sp, fontWeight: FontWeight.w700,
-                            color: Colors.white)),
+                            fontSize: 15.sp, fontWeight: AppFontWeight.section,
+                            color: Colors.black87)),
                           const Spacer(),
                           Text('${females.length}', style: TextStyle(
                             fontSize: 13.sp, color: _kOrange,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: AppFontWeight.label)),
                         ]),
                       )),
                       SliverPadding(
@@ -411,13 +420,14 @@ class FindTrainerScreen extends StatelessWidget {
                         child: Row(children: [
                           Text('💪', style: TextStyle(fontSize: 18.sp)),
                           SizedBox(width: 8.w),
+                          // Third instance of the same white-on-light header.
                           Text('Men Trainers', style: TextStyle(
-                            fontSize: 15.sp, fontWeight: FontWeight.w700,
-                            color: Colors.white)),
+                            fontSize: 15.sp, fontWeight: AppFontWeight.section,
+                            color: Colors.black87)),
                           const Spacer(),
                           Text('${males.length}', style: TextStyle(
                             fontSize: 13.sp, color: _kOrange,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: AppFontWeight.label)),
                         ]),
                       )),
                       SliverPadding(
@@ -505,7 +515,7 @@ class _FilterChip extends StatelessWidget {
               filter.label,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: active ? AppFontWeight.label : AppFontWeight.emphasis,
                 color: active ? _kOrange : Colors.black87,
               ),
             ),

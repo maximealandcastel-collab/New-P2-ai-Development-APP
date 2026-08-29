@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -23,7 +24,7 @@ class AuthSwitchLink extends StatelessWidget {
         CustomText(
           text: prompt,
           fontSize: 14.sp,
-          fontWeight: FontWeight.w400,
+          fontWeight: AppFontWeight.body,
           color: AppColors.textSecondary,
         ),
         GestureDetector(
@@ -32,7 +33,7 @@ class AuthSwitchLink extends StatelessWidget {
           child: CustomText(
             text: actionLabel,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: AppColors.primary,
           ),
         ),

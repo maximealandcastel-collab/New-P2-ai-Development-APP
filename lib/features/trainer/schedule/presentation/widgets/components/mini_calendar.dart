@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -49,7 +50,7 @@ class MiniCalendar extends StatelessWidget {
               monthLabel,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.title,
               ),
             ),
             GestureDetector(
@@ -71,7 +72,7 @@ class MiniCalendar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10.sp,
                 color: Colors.grey.shade400,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             ),
           )).toList(),
@@ -135,7 +136,7 @@ class CalendarDayItem extends StatelessWidget {
           '$day',
           style: TextStyle(
             fontSize: 12.sp,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+            fontWeight: isSelected ? AppFontWeight.title : AppFontWeight.body,
             color: isSelected
                 ? Colors.white
                 : isOtherMonth

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
@@ -214,7 +215,7 @@ class _GymsScreenState extends State<GymsScreen> {
             'Find a Gym',
             style: TextStyle(
               fontSize: 28.sp,
-              fontWeight: FontWeight.w800,
+              fontWeight: AppFontWeight.display,
               color: Colors.black87,
               letterSpacing: -0.5,
             ),
@@ -255,7 +256,7 @@ class _GymsScreenState extends State<GymsScreen> {
                     'Near Me',
                     style: TextStyle(
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.label,
                       color: Colors.black87,
                     ),
                   ),
@@ -341,7 +342,7 @@ class _GymsScreenState extends State<GymsScreen> {
                     'Map',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.label,
                       color: Colors.white,
                     ),
                   ),
@@ -405,7 +406,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 label,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppFontWeight.label,
                   color: active ? Colors.white : Colors.black54,
                 ),
               ),
@@ -432,7 +433,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 'Featured Gyms Near You',
                 style: TextStyle(
                   fontSize: 17.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   color: Colors.black87,
                 ),
               ),
@@ -442,7 +443,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 style: TextStyle(
                     fontSize: 13.sp,
                     color: _kOrange,
-                    fontWeight: FontWeight.w600),
+                    fontWeight: AppFontWeight.label),
               ),
             ],
           ),
@@ -472,7 +473,7 @@ class _GymsScreenState extends State<GymsScreen> {
             'All Gyms',
             style: TextStyle(
               fontSize: 17.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               color: Colors.black87,
             ),
           ),
@@ -489,7 +490,7 @@ class _GymsScreenState extends State<GymsScreen> {
               style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.black45,
-                  fontWeight: FontWeight.w600),
+                  fontWeight: AppFontWeight.label),
             ),
           ),
         ],
@@ -511,7 +512,7 @@ class _GymsScreenState extends State<GymsScreen> {
               style: TextStyle(
                   fontSize: 16.sp,
                   color: Colors.black38,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: AppFontWeight.label)),
           SizedBox(height: 6.h),
           Text('Try a different search or filter',
               style:
@@ -569,7 +570,7 @@ class _GymDetailSheet extends StatelessWidget {
                   gym.initials,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.display,
                     color: gym.accentColor,
                     letterSpacing: 0.5,
                   ),
@@ -581,7 +582,7 @@ class _GymDetailSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(gym.name,
-                        style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                        style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
                     Text(gym.category,
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
                   ],
@@ -615,7 +616,7 @@ class _GymDetailSheet extends StatelessWidget {
                       gym.statusLabel!,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppFontWeight.emphasis,
                         color: const Color(0xFF8B4A00),
                         height: 1.4,
                       ),
@@ -640,7 +641,7 @@ class _GymDetailSheet extends StatelessWidget {
                   Icon(Icons.lock_outline_rounded, size: 14.sp, color: Colors.black38),
                   SizedBox(width: 8.w),
                   Text('Coming Soon',
-                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black38)),
+                      style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black38)),
                 ],
               ),
             ),
@@ -667,7 +668,7 @@ class _GymDetailSheet extends StatelessWidget {
                     'View on Google Maps',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.label,
                       color: Colors.white,
                     ),
                   ),
@@ -736,7 +737,7 @@ class _NavPills extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.label,
                   color: active ? Colors.white : Colors.black54,
                 ),
               ),

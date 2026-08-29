@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -164,7 +165,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     _days[i].substring(0, 1),
                     style: TextStyle(
                       fontSize: 10.sp,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: AppFontWeight.emphasis,
                       color: isSelected ? Colors.white70 : Colors.grey.shade400,
                     ),
                   ),
@@ -173,7 +174,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     '${_dayNumber(i)}',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                       color: isSelected ? Colors.white : Colors.black87,
                     ),
                   ),
@@ -221,7 +222,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
         children: [
           Text(
             "Today's Progress",
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
           ),
           SizedBox(height: 14.h),
           ..._tasks.map((t) => _TaskRow(task: t)),
@@ -238,7 +239,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
               alignment: Alignment.center,
               child: Text(
                 'View all tasks',
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.black54),
+                style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: Colors.black54),
               ),
             ),
           ),
@@ -252,7 +253,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(
         text,
-        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+        style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black87),
       ),
     );
   }
@@ -275,7 +276,7 @@ class _TaskRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(task.label,
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black87)),
+                  style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black87)),
               Text('${task.displayCurrent} / ${task.displayTotal}',
                   style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
             ],
@@ -345,7 +346,7 @@ class _WorkoutCard extends StatelessWidget {
               children: [
                 Text(
                   item.title,
-                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black),
+                  style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

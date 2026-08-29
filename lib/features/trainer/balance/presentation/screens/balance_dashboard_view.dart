@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -152,7 +153,7 @@ class BalanceDashboardView extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.body,
                     ),
                   ),
                 ),
@@ -177,7 +178,7 @@ class BalanceDashboardView extends StatelessWidget {
               'Recent Payments',
               style: TextStyle(
                 fontSize: 15.sp,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.section,
                 color: Colors.black87,
               ),
             ),
@@ -238,7 +239,7 @@ class BalanceDashboardView extends StatelessWidget {
               ),
 
               Text('Request Withdrawal',
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800)),
+                  style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.section)),
 
               // >$2k warning (reactive on amount change)
               Obx(() {
@@ -385,7 +386,7 @@ class BalanceDashboardView extends StatelessWidget {
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 15.sp,
-                              fontWeight: FontWeight.w800)),
+                              fontWeight: AppFontWeight.label)),
                 ),
               )),
             ],
@@ -423,7 +424,7 @@ class _HeroBalanceCard extends StatelessWidget {
           SizedBox(height: 10.h),
           Text(earnings.availableFormatted,
               style: TextStyle(color: Colors.white, fontSize: 42.sp,
-                  fontWeight: FontWeight.w900, letterSpacing: -1)),
+                  fontWeight: AppFontWeight.stat, letterSpacing: -1)),
           if (earnings.pendingWithdrawalCents > 0) ...[
             SizedBox(height: 4.h),
             Text('+ ${earnings.pendingFormatted} pending · awaiting processing',
@@ -441,7 +442,7 @@ class _HeroBalanceCard extends StatelessWidget {
               onPressed: earnings.availableBalanceCents > 0 ? onWithdraw : null,
               child: Text('Withdraw ${earnings.availableFormatted} →',
                   style: TextStyle(color: Colors.white, fontSize: 15.sp,
-                      fontWeight: FontWeight.w800)),
+                      fontWeight: AppFontWeight.label)),
             ),
           ),
         ],
@@ -468,9 +469,9 @@ class _StatTile extends StatelessWidget {
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(children: [
-          Text(value, style: TextStyle(color: color, fontSize: 15.sp, fontWeight: FontWeight.w800)),
+          Text(value, style: TextStyle(color: color, fontSize: 15.sp, fontWeight: AppFontWeight.stat)),
           SizedBox(height: 4.h),
-          Text(label, style: TextStyle(color: Colors.grey.shade500, fontSize: 10.sp, fontWeight: FontWeight.w500)),
+          Text(label, style: TextStyle(color: Colors.grey.shade500, fontSize: 10.sp, fontWeight: AppFontWeight.body)),
         ]),
       ),
     );
@@ -497,7 +498,7 @@ class _StepTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(step, style: TextStyle(
               color: active ? Colors.white : Colors.grey.shade600,
-              fontSize: 12.sp, fontWeight: FontWeight.w700)),
+              fontSize: 12.sp, fontWeight: AppFontWeight.label)),
         ),
         SizedBox(height: 6.h),
         Text(label, textAlign: TextAlign.center,
@@ -535,13 +536,13 @@ class _SubscriberRow extends StatelessWidget {
               ? NetworkImage(subscriber.subscriberImage!) : null,
           child: (subscriber.subscriberImage?.isNotEmpty ?? false)
               ? null
-              : Text(initials, style: TextStyle(color: _kOrange, fontSize: 12.sp, fontWeight: FontWeight.w700)),
+              : Text(initials, style: TextStyle(color: _kOrange, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
         ),
         SizedBox(width: 12.w),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(subscriber.subscriberName ?? 'Subscriber',
-                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.black87)),
+                style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.title, color: Colors.black87)),
             SizedBox(height: 2.h),
             Text(_fmt(subscriber.createdAt),
                 style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500)),
@@ -549,9 +550,9 @@ class _SubscriberRow extends StatelessWidget {
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(subscriber.amountFormatted,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800, color: Colors.black87)),
+              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.stat, color: Colors.black87)),
           SizedBox(height: 2.h),
-          Text('Available', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600,
+          Text('Available', style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label,
               color: const Color(0xFF22C55E))),
         ]),
       ]),
@@ -593,7 +594,7 @@ class _MethodChip extends StatelessWidget {
           Text(label, style: TextStyle(
               fontSize: 12.sp,
               color: selected ? _kOrange : Colors.grey.shade700,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+              fontWeight: selected ? AppFontWeight.label : AppFontWeight.emphasis)),
         ]),
       ),
     );

@@ -1,7 +1,7 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 import 'package:pler_to_pler_app/features/notification/data/models/notification_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -65,7 +65,7 @@ class NotificationCardWidget extends StatelessWidget {
         CustomText(
           text: notification.displayMessage,
           fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppFontWeight.emphasis,
           textAlign: TextAlign.start,
         ),
         if (notification.date.isNotEmpty) ...[
@@ -90,12 +90,11 @@ class NotificationCardWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               color: Colors.black,
-              fontFamily: FontFamily.figtree,
             ),
             children: [
               TextSpan(
                 text: '${notification.title} ',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: AppFontWeight.section),
               ),
               if (notification.hasAction)
                 TextSpan(
@@ -105,7 +104,7 @@ class NotificationCardWidget extends StatelessWidget {
               if (notification.hasTarget)
                 TextSpan(
                   text: '${notification.target} ',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: AppFontWeight.section),
                 ),
               if (notification.date.isNotEmpty)
                 TextSpan(

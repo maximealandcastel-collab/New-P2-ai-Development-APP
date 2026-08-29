@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -69,7 +70,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                           text: 'Change Cover',
                           color: Colors.black,
                           fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppFontWeight.label,
                           left: 4.w,
                         ),
                       ],
@@ -126,7 +127,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                     top: 6.h,
                     text: displayName,
                     fontSize: 24.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.display,
                   ),
                 ],
               ),
@@ -148,7 +149,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                         text: 'Edit Profile',
                         color: Colors.black,
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.label,
                         left: 4.w,
                       ),
                     ],

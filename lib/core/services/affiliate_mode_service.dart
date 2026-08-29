@@ -15,4 +15,11 @@ class AffiliateModeService extends GetxController {
     _activeCode = promoCode.toUpperCase();
     _isAffiliate.value = true;
   }
+
+  /// Clears affiliate state. Called on logout so the Earnings tab and promo
+  /// code do not carry over to the next account on this device.
+  void deactivate() {
+    _activeCode = '';
+    _isAffiliate.value = false;
+  }
 }

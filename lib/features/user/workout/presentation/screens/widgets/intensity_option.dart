@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -63,7 +64,7 @@ class WorkoutIntensitySelector extends StatelessWidget {
                       text: option.label,
                       fontSize: 16.sp,
                       fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                          isSelected ? AppFontWeight.label : AppFontWeight.emphasis,
                       color: isSelected
                           ? AppColors.textPrimary
                           : AppColors.textSecondary.withValues(alpha: 0.5),

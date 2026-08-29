@@ -1,8 +1,8 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/fonts.gen.dart';
 
 class MenuShowHelper {
   MenuShowHelper._();
@@ -130,8 +130,7 @@ class MenuShowHelper {
                 style: TextStyle(
                   fontSize: 16.sp,
                   color: AppColors.textPrimary,
-                  fontFamily: FontFamily.figtree,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppFontWeight.emphasis,
                 ),
               ),
             ),

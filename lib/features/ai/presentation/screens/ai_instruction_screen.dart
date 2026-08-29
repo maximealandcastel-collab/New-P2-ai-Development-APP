@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -27,7 +28,7 @@ class AiInstructionScreen extends StatelessWidget {
                 right: 6.w,
                 text: "Skip",
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppFontWeight.label,
               ),
             )
           ],
@@ -37,7 +38,7 @@ class AiInstructionScreen extends StatelessWidget {
           children: [
             Assets.images.logo.image(height: 84.h,width: 84.w),
             SizedBox(height: 24.h),
-            CustomText(text: 'Instruction',fontWeight: FontWeight.w600,fontSize: 24.sp,),
+            CustomText(text: 'Instruction',fontWeight: AppFontWeight.label,fontSize: 24.sp,),
 
             CustomText(
               top: 16.h,

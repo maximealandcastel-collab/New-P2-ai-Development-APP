@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -30,7 +31,7 @@ class ContainerCard extends StatelessWidget {
             children: [
               CustomText(
                 text: label,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
                 fontSize: 16.sp,
                 bottom: 12.h,
               ),
@@ -83,7 +84,7 @@ class ListTileWidget extends StatelessWidget {
           CustomText(
             text: label,
             fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: AppFontWeight.label,
             color: textColor ?? Colors.black,
           ),
           Icon(
