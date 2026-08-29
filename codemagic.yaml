@@ -15,60 +15,15 @@ workflows:
         # default compiled into the binary.
       vars:
         BUNDLE_ID: com.p2pfittech.ai
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.p2pfittech.ai
 
     scripts:
       - name: Set up keychain
         script: |
           set -e
           keychain initialize
-
-      - name: Fetch signing files
-        script: |
-          set -e
-
-          # 1. Reformat App Store Connect API key (.p8 files are PKCS8 — PRIVATE KEY header)
-          python3 - <<'PYEOF'
-          import os, re, sys
-          raw = os.environ.get('APP_STORE_CONNECT_PRIVATE_KEY', '')
-          if not raw.strip():
-              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY is empty")
-          body = re.sub(r'-----[^-]+-----', '', raw).replace('\n','').replace('\r','').replace(' ','').strip()
-          if not body:
-              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY has no content")
-          folded = '\n'.join(body[i:i+64] for i in range(0, len(body), 64))
-          pem = '-----BEGIN PRIVATE KEY-----\n' + folded + '\n-----END PRIVATE KEY-----\n'
-          with open('/tmp/api_key.pem', 'w') as f:
-              f.write(pem)
-          print("API key written")
-          PYEOF
-
-          # 2. Reuse the private key for an existing Apple Distribution certificate.
-          # Never generate, revoke, or replace account-wide certificates in CI.
-          if [ -z "${CERTIFICATE_PRIVATE_KEY:-}" ]; then
-            echo "ERROR: CERTIFICATE_PRIVATE_KEY is missing from the Codemagic appstore group"
-            exit 1
-          fi
-
-          # NOTE: a block here used to DELETE every Distribution certificate on
-          # the Apple account before each build. That is account-wide and
-          # irreversible — it breaks every other pipeline, every other machine,
-          # and any teammate's local signing. This workflow now fetches only the
-          # existing certificate that matches CERTIFICATE_PRIVATE_KEY.
-
-          # 3. Fetch the existing signing certificate + provisioning profile
-          app-store-connect fetch-signing-files \
-            "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
-            --private-key @file:/tmp/api_key.pem \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --verbose
-
-      - name: Add certificates to keychain
-        script: |
-          set -e
-          keychain add-certificates
 
       - name: Set up Xcode code signing
         script: |
