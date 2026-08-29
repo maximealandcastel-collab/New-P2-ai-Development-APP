@@ -71,8 +71,8 @@ class GymListTile extends StatelessWidget {
                         child: Text(
                           gym.name,
                           style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: AppFontWeight.title,
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w500,
                             color: Colors.black87,
                           ),
                           maxLines: 1,
@@ -81,9 +81,9 @@ class GymListTile extends StatelessWidget {
                       ),
                       if (gym.isOwnGym)
                         Container(
-                          margin: EdgeInsets.only(left: 4.w),
+                          margin: EdgeInsets.only(left: 6.w),
                           padding: EdgeInsets.symmetric(
-                              horizontal: 5.w, vertical: 2.h),
+                              horizontal: 7.w, vertical: 3.h),
                           decoration: BoxDecoration(
                             color: _kOrange.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(4.r),
@@ -91,18 +91,22 @@ class GymListTile extends StatelessWidget {
                           child: Text('YOUR GYM',
                               style: TextStyle(
                                   color: _kOrange,
-                                  fontSize: 7.sp,
-                                  fontWeight: FontWeight.w800)),
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.w600)),
                         ),
                     ],
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 3.h),
                   Text(
-                    gym.category,
-                    style: TextStyle(
-                        fontSize: 11.sp, color: Colors.black45),
-                  ),
-                  SizedBox(height: 4.h),
+                        gym.category,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.black45,
+                        ),
+                      ),
+                  SizedBox(height: 5.h),
                   Row(
                     children: [
                       Icon(Icons.star_rounded,
@@ -168,8 +172,9 @@ class GymListTile extends StatelessWidget {
                         ),
                       )
                     : Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 8.h),
+                            constraints: BoxConstraints(maxWidth: 116.w),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.w, vertical: 7.h),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE8E8E8),
                           borderRadius: BorderRadius.circular(10.r),
