@@ -72,8 +72,8 @@ class FeaturedGymCard extends StatelessWidget {
                       Text(
                         gym.name,
                         style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: AppFontWeight.title,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -81,10 +81,14 @@ class FeaturedGymCard extends StatelessWidget {
                       ),
                       SizedBox(height: 2.h),
                       Text(
-                        gym.category,
-                        style: TextStyle(
-                            fontSize: 11.sp, color: Colors.black45),
-                      ),
+                            gym.category,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: Colors.black45,
+                            ),
+                          ),
                       SizedBox(height: 4.h),
                       Row(
                         children: [
@@ -100,14 +104,17 @@ class FeaturedGymCard extends StatelessWidget {
                           SizedBox(width: 6.w),
                           Text('· ${gym.memberCount}',
                               style: TextStyle(
-                                  fontSize: 11.sp, color: Colors.black38)),
+                                  fontSize: 10.sp, color: Colors.black38)),
                         ],
                       ),
                     ],
                   ),
                 ),
                 // Badge
-                _badge(gym),
+                    Padding(
+                      padding: EdgeInsets.only(left: 8.w),
+                      child: _badge(gym),
+                    ),
               ],
             ),
           ),
@@ -220,7 +227,7 @@ class FeaturedGymCard extends StatelessWidget {
     if (gym.isOwnGym) {
       return Container(
         padding:
-            EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+            EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: const Color(0xFFFD7B00),
           borderRadius: BorderRadius.circular(20.r),
@@ -239,7 +246,7 @@ class FeaturedGymCard extends StatelessWidget {
     }
     return Container(
       padding:
-          EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(20.r),
