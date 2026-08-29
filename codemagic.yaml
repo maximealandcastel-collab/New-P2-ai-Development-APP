@@ -42,26 +42,27 @@ workflows:
           print("API key written")
           PYEOF
 
-          # 2. Generate a fresh RSA cert key on this machine (avoids cross-platform issues)
-          openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
-          echo "Cert key generated"
+          # 2. Reuse the private key for an existing Apple Distribution certificate.
+          # Never generate, revoke, or replace account-wide certificates in CI.
+          if [ -z "${CERTIFICATE_PRIVATE_KEY:-}" ]; then
+            echo "ERROR: CERTIFICATE_PRIVATE_KEY is missing from the Codemagic appstore group"
+            exit 1
+          fi
 
           # NOTE: a block here used to DELETE every Distribution certificate on
           # the Apple account before each build. That is account-wide and
           # irreversible — it breaks every other pipeline, every other machine,
-          # and any teammate's local signing. fetch-signing-files --create below
-          # reuses an existing certificate or creates one when genuinely absent,
-          # which is all this workflow ever needed.
+          # and any teammate's local signing. This workflow now fetches only the
+          # existing certificate that matches CERTIFICATE_PRIVATE_KEY.
 
-          # 3. Fetch (or create) signing cert + provisioning profile
+          # 3. Fetch the existing signing certificate + provisioning profile
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --certificate-key @file:/tmp/cert_key.pem \
+            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --private-key @file:/tmp/api_key.pem \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --create \
             --verbose
 
       - name: Add certificates to keychain
