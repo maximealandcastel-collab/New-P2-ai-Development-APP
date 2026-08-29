@@ -226,7 +226,7 @@ class _GymsCardState extends State<_GymsCard> {
           ),
           SizedBox(height: 12.h),
           SizedBox(
-            height: 155.h,
+            height: 172.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               // Three nearest, matching the original card's density.
@@ -267,22 +267,36 @@ class _GymsCardState extends State<_GymsCard> {
                         ),
                       ),
                       SizedBox(height: 5.h),
-                      Text(name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: AppFontWeight.label,
-                              color: Colors.black)),
-                      SizedBox(height: 2.h),
+                      SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
                       Row(
                         children: [
                           Icon(Icons.location_on_outlined,
                               size: 12.sp, color: Colors.black54),
                           SizedBox(width: 2.w),
-                          Text(distance,
-                              style: TextStyle(
-                                  fontSize: 11.sp, color: Colors.black54)),
+                          Flexible(
+                                child: Text(
+                                  distance,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10.sp,
+                                    color: Colors.black45,
+                                  ),
+                                ),
+                              ),
                         ],
                       ),
                       SizedBox(height: 4.h),
@@ -294,7 +308,7 @@ class _GymsCardState extends State<_GymsCard> {
                       // the user can walk into.
                       Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 3.h),
+                            horizontal: 10.w, vertical: 4.h),
                         decoration: BoxDecoration(
                           color: gym.isOwnGym
                               ? const Color(0xFFFF6B35)
@@ -310,7 +324,7 @@ class _GymsCardState extends State<_GymsCard> {
                                     ? 'Partner'
                                     : 'Coming Soon',
                             style: TextStyle(
-                                fontSize: 11.sp, color: Colors.white)),
+                                fontSize: 10.sp, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -345,7 +359,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoute.workoutScreen),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        // minHeight, not a fixed height. At a fixed 158.h the text column below
+        // minHeight, not a fixed height. At the old 158.h the text column below
         // needed ~166 and the card shipped with a visible black-and-yellow
         // "BOTTOM OVERFLOWED BY 8.4 PIXELS" banner across it on a real device.
         //
@@ -356,7 +370,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
         // while minHeight keeps the intended proportions when the content is
         // shorter. It also means a larger system font size grows the card
         // instead of overflowing it.
-        constraints: BoxConstraints(minHeight: 158.h),
+        constraints: BoxConstraints(minHeight: 190.h),
         // width matters as much as height here. A Stack sizes to its only
         // non-positioned child — the text column — so without this the card
         // hugged the text and rendered about half the screen wide, wedged
@@ -464,7 +478,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
               ),
               // ── Text content ─────────────────────────────────────────
               Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 14.h),
+                padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 18.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
