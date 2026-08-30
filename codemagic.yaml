@@ -150,12 +150,12 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          # Release 4.3 / build 3008. This is higher than Apple's previously
+          # Release 4.3 / build 3009. This is higher than Apple's previously
           # uploaded build 1400 and packages the current workout-generation fix.
           flutter build ipa --release \
             --build-name=4.3 \
-            --build-number=3008 \
-            --dart-define=BUILD_NUMBER=3008
+            --build-number=3009 \
+            --dart-define=BUILD_NUMBER=3009
 
     artifacts:
       - build/ios/ipa/*.ipa
