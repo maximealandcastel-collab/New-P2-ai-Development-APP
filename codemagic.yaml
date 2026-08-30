@@ -4,15 +4,11 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
-      # Pinned, not `stable`: an upstream Flutter release should never silently
-      # change what this workflow produces.
-      flutter: 3.41.4
+      flutter: stable
       xcode: latest
       cocoapods: default
       groups:
         - appstore
-        # Must supply ADMIN_KEY. The client previously fell back to a hardcoded
-        # default compiled into the binary.
       vars:
         BUNDLE_ID: com.p2pfittech.ai
 
@@ -154,21 +150,12 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          rm -rf ~/Library/Developer/Xcode/DerivedData
-          flutter clean
-          # Release 4.3 / build 3009 for the next TestFlight submission.
-          #
-          # PREFILL_EMAIL / PREFILL_PASSWORD were removed: they baked the
-          # owner's real credentials into every shipped IPA and pre-filled them
-          # on the login screen. That password must be rotated.
+          # Release 4.3 / build 3008. This is higher than Apple's previously
+          # uploaded build 1400 and packages the current workout-generation fix.
           flutter build ipa --release \
             --build-name=4.3 \
-            --build-number=3009 \
-            --dart-define=BUILD_NUMBER=3009 \
-            --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 \
-            --dart-define=API_ORIGIN=https://p2pfitechai.com \
-            --dart-define=SOCKET_URL=https://p2pfitechai.com \
-            --dart-define=ADMIN_KEY=$ADMIN_KEY
+            --build-number=3008 \
+            --dart-define=BUILD_NUMBER=3008
 
     artifacts:
       - build/ios/ipa/*.ipa

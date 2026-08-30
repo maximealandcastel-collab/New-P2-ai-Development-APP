@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/ai_plan_result_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/exercise_plan_create.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
+import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
 
 import '../features/authentication/presentation/screens/login_screen.dart';
 import '../features/authentication/presentation/screens/sign_up_screen.dart';
@@ -15,12 +16,11 @@ class AppRoute {
   static String loginScreen = "/loginScreen";
   static String signUpScreen = "/signUpScreen";
   static String workoutFinderFlow = "/workoutFinderFlow";
-  // Home and other entry points use this semantic name for the same screen.
-  static String workoutScreen = workoutFinderFlow;
   static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
   static String aiPlanResult = "/aiPlanResult";
   static String paywallScreen = "/paywallScreen";
+  static String rateMyPeel = "/rateMyPeel";
 
   static List<GetPage> routes = [
     GetPage(name: init, page: () => SplashScreen()),
@@ -30,6 +30,7 @@ class AppRoute {
     GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
     GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
     GetPage(name: aiPlanResult, page: () => const AiPlanResultScreen()),
+    GetPage(name: rateMyPeel, page: () => const RateMyPeelScreen()),
     GetPage(
       name: paywallScreen,
       page: () => PaywallScreen(),

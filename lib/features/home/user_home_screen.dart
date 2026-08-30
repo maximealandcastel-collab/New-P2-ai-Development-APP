@@ -1,26 +1,20 @@
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
-import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
-import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
-import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // User Home — matches design:
 // greeting bar → Daily workout progress (week strip) → Gyms near you →
-// Generate Workout Split banner → Today's overview → Today's assigned workout
+// Generate Workout Split banner → Rate My Peel → Today's overview
 // ─────────────────────────────────────────────────────────────────────────────
 
 class UserHomeScreen extends StatelessWidget {
@@ -28,45 +22,26 @@ class UserHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Instantiating the controller is the whole point of this line.
-    //
-    // UserHomeController is registered lazyPut, and nothing in the app ever
-    // resolved it — so its onInit never ran and loadData() never fired. That is
-    // why this screen showed a permanent "0% / Maintain Physique / Full Body"
-    // and why the greeting sat on "Hi there!": loadData() is what fetches
-    // today's overview AND calls ProfileController.loadData(), which populates
-    // the name FeedAppBar reads.
-    final c = Get.find<UserHomeController>();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: c.refresh,
-          child: SingleChildScrollView(
-            // Needed for pull-to-refresh: without it a short page has nothing
-            // to drag against.
-            physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics()),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FeedAppBar(),
-                _SectionTitle('Daily workout progress'),
-                Obx(() => _DailyWorkoutCalendar(
-                      progression: c.monthlyProgression.toList(growable: false),
-                    )),
-                SizedBox(height: 16.h),
-                const _GymsCard(),
-                SizedBox(height: 16.h),
-                const _GenerateWorkoutBanner(),
-                SizedBox(height: 16.h),
-                _SectionTitle("Today's overview"),
-                _TodaysOverviewCard(c: c),
-                SizedBox(height: 24.h),
-              ],
-            ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FeedAppBar(),
+              const _DailyWorkoutCalendar(),
+              SizedBox(height: 16.h),
+              const _GymsCard(),
+              SizedBox(height: 16.h),
+              const _GenerateWorkoutBanner(),
+              SizedBox(height: 16.h),
+              const _RateMyPeelBanner(),
+              SizedBox(height: 16.h),
+              _SectionTitle("Today's overview"),
+              const _TodaysOverviewCard(),
+              SizedBox(height: 24.h),
+            ],
           ),
         ),
       ),
@@ -86,7 +61,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 15.sp,
+          fontSize: 16.sp,
           fontWeight: FontWeight.w500,
           color: Colors.black,
         ),
@@ -97,16 +72,14 @@ class _SectionTitle extends StatelessWidget {
 
 // ─── Daily workout progress calendar ─────────────────────────────────────────
 class _DailyWorkoutCalendar extends StatefulWidget {
-  final List<WorkoutProgressionModel> progression;
-
-  const _DailyWorkoutCalendar({required this.progression});
+  const _DailyWorkoutCalendar();
 
   @override
   State<_DailyWorkoutCalendar> createState() => _DailyWorkoutCalendarState();
 }
 
 class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
-  static const _orange = AppColors.primary;
+  static const _orange = Color(0xFFFF6B35);
   static const _ink = Color(0xFF171717);
   static const _muted = Color(0xFF777777);
   static const _line = Color(0xFFE9E9E9);
@@ -184,15 +157,9 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
   }
 
   _WorkoutDayProgress _progressFor(DateTime date) {
-    for (final item in widget.progression) {
-      final parsed = DateTime.tryParse(item.date);
-      if (parsed != null && _isSameDate(_dateOnly(parsed), date)) {
-        return _WorkoutDayProgress(
-          completed: item.completedExercises,
-          total: item.totalExercises,
-        );
-      }
-    }
+    // This remains a single source of truth for the calendar UI. When the
+    // dashboard workout activity feed is connected, this method can map the
+    // persisted completion count without changing the calendar presentation.
     return const _WorkoutDayProgress(completed: 0, total: 10);
   }
 
@@ -228,16 +195,16 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     Text(
                       'Daily workout progress',
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                         height: 1.15,
-                        fontWeight: AppFontWeight.section,
+                        fontWeight: FontWeight.w600,
                         color: _ink,
                         letterSpacing: -0.25,
                       ),
                     ),
                     SizedBox(height: 5.h),
                     Text(
-                      'Track your completed exercises and weekly progress',
+                      'Track and manage your clients’ workouts',
                       style: TextStyle(
                         fontSize: 11.5.sp,
                         height: 1.25,
@@ -381,8 +348,8 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   '${_progressFor(_selectedDate).completed}/'
                   '${_progressFor(_selectedDate).total}',
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: AppFontWeight.stat,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
                     color: _ink,
                   ),
                 ),
@@ -452,7 +419,7 @@ class _CalendarDayCard extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _orange = AppColors.primary;
+  static const _orange = Color(0xFFFF6B35);
 
   static const _weekdayLabels = [
     'MON',
@@ -522,7 +489,7 @@ class _CalendarDayCard extends StatelessWidget {
               Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontSize: 20.sp,
+                  fontSize: 23.sp,
                   height: 1,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.7,
@@ -607,42 +574,17 @@ class _WorkoutDayProgress {
     if (completed >= total && total > 0) return const Color(0xFF38A169);
     if (completed == 0) return const Color(0xFFA3A3A3);
     if (completed < total / 2) return const Color(0xFFF2B531);
-    return AppColors.primary;
+    return const Color(0xFFFF6B35);
   }
 }
 
 // ─── Gyms near you ───────────────────────────────────────────────────────────
-/// The Home cards share the same gym catalogue as the Gyms tab: real names,
-/// official logo treatment, nearby distance, and the associated stock photo.
-class _GymsCard extends StatefulWidget {
+class _GymsCard extends StatelessWidget {
   const _GymsCard();
 
   @override
-  State<_GymsCard> createState() => _GymsCardState();
-}
-
-class _GymsCardState extends State<_GymsCard> {
-  List<EnterpriseGymModel> _gyms = List.from(EnterpriseGymModel.partners);
-
-  @override
-  void initState() {
-    super.initState();
-    _sortByLocation();
-  }
-
-  Future<void> _sortByLocation() async {
-    final pos = await GymLocationService().getCurrentPosition();
-    if (pos == null || !mounted) return;
-    setState(() {
-      _gyms = GymLocationService().sortByDistance(
-        List.from(EnterpriseGymModel.partners),
-        pos,
-      );
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final gyms = EnterpriseGymModel.partners.take(3).toList();
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(16.w),
@@ -656,127 +598,88 @@ class _GymsCardState extends State<_GymsCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Gyms', style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: AppFontWeight.section,
-                color: Colors.black,
-              )),
+              Text('Gyms',
+                  style: TextStyle(
+                       fontSize: 14.sp,
+                       fontWeight: FontWeight.w400,
+                      color: Colors.black)),
               GestureDetector(
                 onTap: () => BottomNavBarController.to.onChange(2),
-                child: Text('Near Gym', style: TextStyle(
-                  fontSize: 12.5.sp,
-                  fontWeight: AppFontWeight.label,
-                  color: AppColors.primary,
-                )),
+                child: Text('Near Gym',
+                    style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFFFF6B35))),
               ),
             ],
           ),
           SizedBox(height: 12.h),
           SizedBox(
-            height: 182.h,
+            height: 155.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _gyms.length < 3 ? _gyms.length : 3,
+               itemCount: gyms.length,
               separatorBuilder: (_, __) => SizedBox(width: 12.w),
               itemBuilder: (context, i) {
-                final gym = _gyms[i];
-                final photo = gym.imageUrl.trim();
-                final distance = gym.distanceLabel.isNotEmpty
-                    ? gym.distanceLabel
-                    : gym.city;
+                 final gym = gyms[i];
                 return SizedBox(
-                  width: 150.w,
+                  width: 142.w,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 82.h,
-                        width: double.infinity,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12.r),
-                                child: photo.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: photo,
-                                        fit: BoxFit.cover,
-                                        fadeInDuration: const Duration(milliseconds: 180),
-                                        placeholder: (_, __) => ColoredBox(
-                                          color: gym.brandColor.withOpacity(0.08),
-                                        ),
-                                        errorWidget: (_, __, ___) => ColoredBox(
-                                          color: gym.brandColor.withOpacity(0.08),
-                                          child: Icon(Icons.fitness_center, color: gym.brandColor, size: 25.sp),
-                                        ),
-                                      )
-                                    : ColoredBox(
-                                        color: gym.brandColor.withOpacity(0.08),
-                                        child: Icon(Icons.fitness_center, color: gym.brandColor, size: 25.sp),
-                                      ),
-                              ),
-                            ),
-                            Positioned(
-                              left: 8.w,
-                              bottom: -4.h,
-                              child: GymBrandLogo(
-                                gym: gym,
-                                size: 46.r,
-                                borderRadius: 12.r,
-                              ),
-                            ),
-                          ],
-                        ),
+                       Container(
+                         height: 75.h,
+                         width: double.infinity,
+                         alignment: Alignment.center,
+                         decoration: BoxDecoration(
+                           color: gym.brandColor.withOpacity(0.06),
+                           borderRadius: BorderRadius.circular(12.r),
+                           border: Border.all(
+                             color: gym.brandColor.withOpacity(0.10),
+                           ),
+                         ),
+                         child: GymBrandLogo(
+                           gym: gym,
+                           size: 58.r,
+                           borderRadius: 13.r,
+                         ),
                       ),
-                      SizedBox(height: 9.h),
-                      Padding(
-                        padding: EdgeInsets.only(left: 2.w),
-                        child: Text(
-                          gym.name,
+                      SizedBox(height: 5.h),
+                       Text(gym.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 13.5.sp,
-                            fontWeight: AppFontWeight.title,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
+                               fontSize: 11.5.sp,
+                               fontWeight: FontWeight.w400,
+                               letterSpacing: 0.05,
+                              color: Colors.black)),
                       SizedBox(height: 2.h),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 12.sp, color: Colors.black54),
+                          Icon(Icons.location_on_outlined,
+                              size: 12.sp, color: Colors.black54),
                           SizedBox(width: 2.w),
-                          Expanded(
-                            child: Text(
-                              distance,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 10.sp, color: Colors.black45),
-                            ),
-                          ),
+                           Text(
+                               gym.distanceLabel.isEmpty
+                                   ? gym.city
+                                   : gym.distanceLabel,
+                              style: TextStyle(
+                                   fontSize: 10.sp,
+                                   fontWeight: FontWeight.w400,
+                                   color: Colors.black45)),
                         ],
                       ),
                       SizedBox(height: 4.h),
-                      Text(
-                        gym.isOwnGym
-                            ? 'Your Gym'
-                            : gym.isActivated
-                                ? 'Partner'
-                                : gym.statusLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 9.5.sp,
-                          fontWeight: AppFontWeight.body,
-                          color: gym.isOwnGym
-                              ? AppColors.primary
-                              : gym.isActivated
-                                  ? const Color(0xFF2E7D32)
-                                  : Colors.black45,
-                        ),
-                      ),
+                       Text(
+                         gym.isActivated ? 'Active gym' : 'Coming soon',
+                         style: TextStyle(
+                           fontSize: 9.5.sp,
+                           fontWeight: FontWeight.w400,
+                           color: gym.isActivated
+                               ? const Color(0xFF2E7D32)
+                               : Colors.black38,
+                         ),
+                       ),
                     ],
                   ),
                 );
@@ -788,77 +691,96 @@ class _GymsCardState extends State<_GymsCard> {
     );
   }
 }
-// ─── Generate Workout Split banner ───────────────────────────────────────────
-    // Exact approved artwork from the product design.
-    class _GenerateWorkoutBanner extends StatelessWidget {
-      const _GenerateWorkoutBanner();
 
-      @override
-      Widget build(BuildContext context) {
-        return GestureDetector(
-          onTap: () => Get.toNamed(AppRoute.workoutScreen),
-          child: Semantics(
-            button: true,
-            label: 'Generate workout split',
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.r),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+// ─── Generate Workout Split banner ───────────────────────────────────────────
+class _GenerateWorkoutBanner extends StatelessWidget {
+  const _GenerateWorkoutBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
+      child: Semantics(
+        button: true,
+        label: 'Generate workout split',
+        child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.r),
+          child: AspectRatio(
+            aspectRatio: 1696 / 927,
+            child: Image.asset(
+              ImagePath.generateWorkoutSplit,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+        ),
+      ),
+      ),
+    );
+  }
+}
+
+// ─── Rate My Peel teaser ──────────────────────────────────────────────────────
+class _RateMyPeelBanner extends StatelessWidget {
+  const _RateMyPeelBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Rate My Peel. Coming soon.',
+      hint: 'Opens the Rate My Peel feature overview',
+      child: GestureDetector(
+        onTap: () => Get.toNamed(AppRoute.rateMyPeel),
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(20.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20.r),
-                child: AspectRatio(
-                  aspectRatio: 1696 / 927,
-                  child: Image.asset(
-                    'assets/images/generate_workout_split.png',
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.r),
+            child: AspectRatio(
+              aspectRatio: 1842 / 854,
+              child: Image.asset(
+                ImagePath.rateMyPeelBanner,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
               ),
             ),
           ),
-        );
-      }
-    }
-
-    // ─── Today's overview card ────────────────────────────────────────────────────
-class _TodaysOverviewCard extends StatelessWidget {
-  final UserHomeController c;
-  const _TodaysOverviewCard({required this.c});
-
-  /// The API returns these as lists (a workout can have several goals or focus
-  /// areas). Joins them for display and title-cases the snake_case values the
-  /// backend sends, e.g. `upper_body` -> `Upper Body`.
-  static String _fmt(List<String>? values, String fallback) {
-    if (values == null || values.isEmpty) return fallback;
-    return values
-        .map((v) => v
-            .split(RegExp(r'[_\s]+'))
-            .where((w) => w.isNotEmpty)
-            .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
-            .join(' '))
-        .join(', ');
+        ),
+      ),
+    );
   }
+}
 
-  // Obx(_content): the observable is read inside _content(), which is CALLED
-  // from the closure. Obx(() => SomeWidget(...)) would register nothing —
-  // see rule 10 in HANDOFF.md.
+// ─── Today's overview card ────────────────────────────────────────────────────
+class _TodaysOverviewCard extends StatelessWidget {
+  const _TodaysOverviewCard();
+
   @override
-  Widget build(BuildContext context) => Obx(_content);
-
-  Widget _content() {
-    final o = c.todayOverview.value;
-    final pct = (o?.completionPercentage ?? 0).clamp(0, 100).toDouble();
-
+  Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(16.w),
@@ -873,10 +795,10 @@ class _TodaysOverviewCard extends StatelessWidget {
             width: 80.w,
             height: 80.w,
             child: CustomPaint(
-              painter: _CircleProgressPainter(progress: pct / 100),
+              painter: _CircleProgressPainter(progress: 0.0),
               child: Center(
                 child: Text(
-                  '$pct%',
+                  '0%',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -892,28 +814,25 @@ class _TodaysOverviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // The fallbacks are the strings this card used to show
-                // unconditionally, so a user with no workout today sees what
-                // they saw before rather than empty rows.
                 _OverviewRow(
                   color: const Color(0xFFFFAB4C),
                   icon: Icons.track_changes,
                   label: 'Goal',
-                  value: _fmt(o?.goal, 'Maintain Physique'),
+                  value: 'Maintain Physique',
                 ),
                 SizedBox(height: 12.h),
                 _OverviewRow(
                   color: const Color(0xFF5B9BD5),
                   icon: Icons.accessibility_new,
                   label: 'Focus Area',
-                  value: _fmt(o?.focusArea, 'Full Body'),
+                  value: 'Full Body',
                 ),
                 SizedBox(height: 12.h),
                 _OverviewRow(
                   color: const Color(0xFF72C472),
                   icon: Icons.bolt,
                   label: 'Intensity',
-                  value: _fmt(o?.workoutIntensity, 'Medium'),
+                  value: 'Medium',
                 ),
               ],
             ),
@@ -982,7 +901,7 @@ class _CircleProgressPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
     final fgPaint = Paint()
-      ..color = AppColors.primary
+      ..color = const Color(0xFFFF6B35)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;

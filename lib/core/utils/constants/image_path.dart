@@ -13,5 +13,9 @@ class ImagePath {
   static const String splash3 = '$_basePath/app_icon.png';
   static const String splash1 = '$_basePath/app_icon_1.png';
   static const String splash2 = '$_basePath/app_icon_2.png';
+  static const String generateWorkoutSplit =
+      '$_basePath/generate_workout_split.png';
+  static const String rateMyPeelBanner =
+      '$_basePath/rate_my_peel_banner.png';
 
 }
