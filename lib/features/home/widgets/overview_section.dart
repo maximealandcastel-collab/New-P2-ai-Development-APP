@@ -27,7 +27,8 @@ class OverviewSection extends StatelessWidget {
 
   Widget _buildOverviewContent(WorkoutTodayOverviewModel overview) {
     final completionPercentage = overview.completionPercentage ?? 0;
-    final progressValue = (completionPercentage / 100).clamp(0.0, 1.0);
+    final progressValue =
+        (completionPercentage / 100).clamp(0.0, 1.0).toDouble();
 
     return CustomContainer(
       color: Colors.white,

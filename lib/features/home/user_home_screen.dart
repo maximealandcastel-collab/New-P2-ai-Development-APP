@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -41,7 +42,7 @@ class UserHomeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
         child: RefreshIndicator(
-          color: const Color(0xFFFF6B35),
+          color: AppColors.primary,
           onRefresh: c.refresh,
           child: SingleChildScrollView(
             // Needed for pull-to-refresh: without it a short page has nothing
@@ -53,7 +54,9 @@ class UserHomeScreen extends StatelessWidget {
               children: [
                 FeedAppBar(),
                 _SectionTitle('Daily workout progress'),
-                _DailyWorkoutCalendar(controller: c),
+                Obx(() => _DailyWorkoutCalendar(
+                      progression: c.monthlyProgression.toList(growable: false),
+                    )),
                 SizedBox(height: 16.h),
                 const _GymsCard(),
                 SizedBox(height: 16.h),
@@ -94,9 +97,9 @@ class _SectionTitle extends StatelessWidget {
 
 // ─── Daily workout progress calendar ─────────────────────────────────────────
 class _DailyWorkoutCalendar extends StatefulWidget {
-  final UserHomeController controller;
+  final List<WorkoutProgressionModel> progression;
 
-  const _DailyWorkoutCalendar({required this.controller});
+  const _DailyWorkoutCalendar({required this.progression});
 
   @override
   State<_DailyWorkoutCalendar> createState() => _DailyWorkoutCalendarState();
@@ -181,7 +184,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
   }
 
   _WorkoutDayProgress _progressFor(DateTime date) {
-    for (final item in widget.controller.monthlyProgression) {
+    for (final item in widget.progression) {
       final parsed = DateTime.tryParse(item.date);
       if (parsed != null && _isSameDate(_dateOnly(parsed), date)) {
         return _WorkoutDayProgress(
@@ -234,7 +237,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     ),
                     SizedBox(height: 5.h),
                     Text(
-                      'Track and manage your clients’ workouts',
+                      'Track your completed exercises and weekly progress',
                       style: TextStyle(
                         fontSize: 11.5.sp,
                         height: 1.25,
@@ -449,7 +452,7 @@ class _CalendarDayCard extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _orange = Color(0xFFFF6B35);
+  static const _orange = AppColors.primary;
 
   static const _weekdayLabels = [
     'MON',
@@ -604,7 +607,7 @@ class _WorkoutDayProgress {
     if (completed >= total && total > 0) return const Color(0xFF38A169);
     if (completed == 0) return const Color(0xFFA3A3A3);
     if (completed < total / 2) return const Color(0xFFF2B531);
-    return const Color(0xFFFF6B35);
+    return AppColors.primary;
   }
 }
 
@@ -663,7 +666,7 @@ class _GymsCardState extends State<_GymsCard> {
                 child: Text('Near Gym', style: TextStyle(
                   fontSize: 12.5.sp,
                   fontWeight: AppFontWeight.label,
-                  color: const Color(0xFFFF6B35),
+                  color: AppColors.primary,
                 )),
               ),
             ],
@@ -768,7 +771,7 @@ class _GymsCardState extends State<_GymsCard> {
                           fontSize: 9.5.sp,
                           fontWeight: AppFontWeight.body,
                           color: gym.isOwnGym
-                              ? const Color(0xFFFF6B35)
+                              ? AppColors.primary
                               : gym.isActivated
                                   ? const Color(0xFF2E7D32)
                                   : Colors.black45,
@@ -854,7 +857,7 @@ class _TodaysOverviewCard extends StatelessWidget {
 
   Widget _content() {
     final o = c.todayOverview.value;
-    final pct = (o?.completionPercentage ?? 0).clamp(0, 100);
+    final pct = (o?.completionPercentage ?? 0).clamp(0, 100).toDouble();
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
@@ -979,7 +982,7 @@ class _CircleProgressPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
     final fgPaint = Paint()
-      ..color = const Color(0xFFFF6B35)
+      ..color = AppColors.primary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
