@@ -11,6 +11,7 @@ import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dar
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
@@ -102,7 +103,7 @@ class _DailyWorkoutCalendar extends StatefulWidget {
 }
 
 class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
-  static const _orange = Color(0xFFFF6B35);
+  static const _orange = AppColors.primary;
   static const _ink = Color(0xFF171717);
   static const _muted = Color(0xFF777777);
   static const _line = Color(0xFFE9E9E9);

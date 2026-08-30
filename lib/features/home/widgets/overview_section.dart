@@ -61,8 +61,8 @@ class OverviewSection extends StatelessWidget {
                         children: [
                           _buildOverviewItem(
                             Icons.gps_fixed,
-                            Colors.orange.shade100,
-                            Colors.orange,
+                            AppColors.primary.withValues(alpha: 0.14),
+                            AppColors.primary,
                             'Goal',
                             StringFormat.formatSelectedList(
                               overview.goal ?? [],
@@ -96,7 +96,7 @@ class OverviewSection extends StatelessWidget {
                 SizedBox(height: 10.h),
                 _buildDetailItem(
                   Icons.local_fire_department_outlined,
-                  Colors.orange,
+                  AppColors.primary,
                   'Workout Intensity',
                   StringFormat.formatSelectedList(
                     overview.workoutIntensity ?? [],

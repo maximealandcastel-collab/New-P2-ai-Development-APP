@@ -20,6 +20,16 @@ class AppThemeData {
   // the app had a configured typeface. Weight, not family, is the actual
   // problem — see core/themes/app_typography.dart.
   static final ThemeData themeData = ThemeData(
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.light,
+    ).copyWith(
+      primary: AppColors.primary,
+      onPrimary: AppColors.textWhite,
+      secondary: AppColors.primary,
+      surface: AppColors.primaryBackground,
+      onSurface: AppColors.textPrimary,
+    ),
     scaffoldBackgroundColor: AppColors.backgroundLight,
 
     appBarTheme: AppBarTheme(
