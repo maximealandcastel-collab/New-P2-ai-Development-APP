@@ -2,10 +2,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -24,21 +23,27 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                ImagePath.splash3,
-                width: 150.w,
-                height: 150.h,
-                fit: BoxFit.cover,
-              ),
-              CustomText(
-                // Was "Sign in to  fitness" — a doubled space, left over from
-                // what used to be an interpolated mode name. Visible as an odd
-                // gap on the client's own reference screenshot too.
-                text: "Sign in to fitness",
-                fontSize: 32.sp,
-                fontWeight: AppFontWeight.title,
-              ),
-              SizedBox(height: 40.h),
+              SizedBox(height: 24.h),
+                  Image.asset(
+                    Assets.images.logo.path,
+                    width: 58.w,
+                    height: 58.w,
+                    fit: BoxFit.contain,
+                  ),
+                  SizedBox(height: 22.h),
+                  CustomText(
+                    text: "Sign in to P2P Fitness.",
+                    fontSize: 27.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  SizedBox(height: 10.h),
+                  CustomText(
+                    text: "Your fitness journey continues here!",
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textSecondary,
+                  ),
+                  SizedBox(height: 22.h),
               Container(
                 padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
@@ -62,35 +67,43 @@ class LoginScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 24.h),
-              CustomText(
-                text: "Email",
+              SizedBox(height: 22.h),
+                  CustomText(
+                    text: "Email",
                 fontSize: 14.sp,
-                fontWeight: AppFontWeight.body,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textSecondary,
               ),
-              SizedBox(height: 4.h),
-              CustomTextField(
-                controller: controller.emailController,
+              SizedBox(height: 8.h),
+                  CustomTextField(
+                    controller: controller.emailController,
                 hintText: "Enter your email address",
-                prefixIcon: Icon(Icons.email, size: 24.sp),
+                prefixIcon: Icon(
+                      Icons.email_outlined,
+                      size: 22.sp,
+                      color: AppColors.textSecondary,
+                    ),
               ),
-              SizedBox(height: 12.h),
-              CustomText(
-                text: "Password",
+              SizedBox(height: 20.h),
+                  CustomText(
+                    text: "Password",
                 fontSize: 14.sp,
-                fontWeight: AppFontWeight.body,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textSecondary,
               ),
-              SizedBox(height: 4.h),
-              CustomTextField(
-                controller: controller.passwordController,
+              SizedBox(height: 8.h),
+                  CustomTextField(
+                    controller: controller.passwordController,
                 hintText: "Enter your password",
-                prefixIcon: Icon(Icons.vpn_key, size: 24.sp),
+                prefixIcon: Icon(
+                      Icons.vpn_key_outlined,
+                      size: 22.sp,
+                      color: AppColors.primary,
+                    ),
                 isPassword: true,
               ),
-              SizedBox(height: 12.h),
-              // "Save Login" — restored, and it is not cosmetic.
+              SizedBox(height: 18.h),
+                  // "Save Login" — restored, and it is not cosmetic.
               //
               // LoginController already implements this in full: saveLogin is
               // persisted, restored on init, and is the ONLY thing that sets
@@ -101,8 +114,9 @@ class LoginScreen extends StatelessWidget {
               // Nobody could stay logged in. The client's reference screenshot
               // has this checkbox; the newer build dropped it.
               Row(
-                children: [
-                  Obx(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Obx(
                     () => SizedBox(
                       width: 24.w,
                       height: 24.w,
@@ -122,15 +136,21 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 8.w),
                   GestureDetector(
-                    onTap: controller.toggleSaveLogin,
-                    behavior: HitTestBehavior.opaque,
-                    child: CustomText(
-                      text: "Save Login",
-                      fontSize: 12.sp,
-                      fontWeight: AppFontWeight.body,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
+                        onTap: controller.toggleSaveLogin,
+                        behavior: HitTestBehavior.opaque,
+                        child: SizedBox(
+                          height: 24.w,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: CustomText(
+                              text: "Save Login",
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
@@ -139,7 +159,7 @@ class LoginScreen extends StatelessWidget {
                     child: CustomText(
                       text: "Forgot password?",
                       fontSize: 12.sp,
-                      fontWeight: AppFontWeight.body,
+                      fontWeight: FontWeight.w400,
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -162,7 +182,7 @@ class LoginScreen extends StatelessWidget {
                   CustomText(
                     text: "Or continue with",
                     fontSize: 12.sp,
-                    fontWeight: AppFontWeight.body,
+                    fontWeight: FontWeight.w400,
                     color: AppColors.textSecondary,
                   ),
                   SizedBox(width: 8.w),
@@ -190,7 +210,7 @@ class LoginScreen extends StatelessWidget {
               CustomText(
                 text: "Don't have an account? ",
                 fontSize: 14.sp,
-                fontWeight: AppFontWeight.body,
+                fontWeight: FontWeight.w400,
                 color: AppColors.textSecondary,
               ),
               GestureDetector(
@@ -201,7 +221,7 @@ class LoginScreen extends StatelessWidget {
                 child: CustomText(
                   text: "Sign up",
                   fontSize: 14.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.primary,
                 ),
               ),
@@ -234,7 +254,7 @@ Widget _helperTabBar({
               : AppColors.textSecondary,
           text: text,
           fontSize: 16.sp,
-          fontWeight: AppFontWeight.label,
+          fontWeight: FontWeight.w500,
           textAlign: TextAlign.center,
         ),
       ),
