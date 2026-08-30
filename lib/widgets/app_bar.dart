@@ -79,7 +79,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
               _initial,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 17.sp,
+                fontSize: 15.sp,
                 fontWeight: AppFontWeight.section,
               ),
             ),
@@ -106,8 +106,8 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 Text(
                   'Hi $_firstName!',
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: AppFontWeight.section,
+                    fontSize: 15.sp,
+                    fontWeight: AppFontWeight.title,
                     color: Colors.black,
                   ),
                 ),
@@ -120,7 +120,9 @@ class _FeedAppBarState extends State<FeedAppBar> {
                       ? 'Let’s manage your clients'
                       : 'Let’s crush today’s workout',
                   style: TextStyle(
-                      fontSize: 12.sp, color: Colors.grey.shade500),
+                      fontSize: 11.5.sp,
+                      fontWeight: AppFontWeight.body,
+                      color: Colors.grey.shade500),
                 ),
               ],
             ),
