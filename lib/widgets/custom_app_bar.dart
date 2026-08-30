@@ -10,7 +10,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     this.title,
-    this.titleSize = 20,
+    this.titleSize = 18,
     this.centerTitle = true,
     this.titleWidget,
     this.flexibleSpace,

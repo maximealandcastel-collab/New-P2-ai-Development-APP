@@ -27,7 +27,7 @@ class AppThemeData {
       centerTitle: true,
       titleTextStyle: TextStyle(
         fontWeight: AppFontWeight.title,
-        fontSize: 20.sp,
+        fontSize: 18.sp,
         color: AppColors.textPrimary,
       ),
       scrolledUnderElevation: 0,

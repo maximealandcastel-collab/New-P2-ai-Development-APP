@@ -38,16 +38,16 @@ class AppFontWeight {
   static const FontWeight display = FontWeight.w700;
 
   /// Screen titles and card titles. Was w700/w800.
-  static const FontWeight title = FontWeight.w600;
+  static const FontWeight title = FontWeight.w500;
 
   /// Section headers within a screen. Was w700/w800.
-  static const FontWeight section = FontWeight.w600;
+  static const FontWeight section = FontWeight.w500;
 
   /// Large emphasised numerals — KPI values, stat counters. Was w800.
-  static const FontWeight stat = FontWeight.w700;
+  static const FontWeight stat = FontWeight.w600;
 
   /// Button and tab labels. Was w700.
-  static const FontWeight label = FontWeight.w600;
+  static const FontWeight label = FontWeight.w500;
 
   /// Emphasis *inside* running text. Use sparingly; this is the heaviest
   /// weight that should ever appear next to body copy.

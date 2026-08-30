@@ -72,8 +72,8 @@ class FeaturedGymCard extends StatelessWidget {
                       Text(
                         gym.name,
                         style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 14.sp,
+                          fontWeight: AppFontWeight.title,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -112,7 +112,7 @@ class FeaturedGymCard extends StatelessWidget {
                 ),
                 // Badge
                     Padding(
-                      padding: EdgeInsets.only(left: 8.w),
+                      padding: EdgeInsets.only(left: 12.w),
                       child: _badge(gym),
                     ),
               ],
@@ -232,16 +232,12 @@ class FeaturedGymCard extends StatelessWidget {
           color: const Color(0xFFFD7B00),
           borderRadius: BorderRadius.circular(20.r),
         ),
-        // The YOUR GYM / PARTNER badges stay at w800, unlike everything else on
-        // this card. They are 8sp uppercase inside a filled pill — at that size
-        // the lighter scale stops reading as a badge and starts looking like a
-        // rendering fault. Same exception as the P2P badge on the dashboard.
-        child: Text('YOUR GYM',
+        child: Text('Your Gym',
             style: TextStyle(
                 color: Colors.white,
-                fontSize: 8.sp,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.4)),
+                fontSize: 7.5.sp,
+                fontWeight: AppFontWeight.label,
+                letterSpacing: 0.2)),
       );
     }
     return Container(
@@ -251,12 +247,12 @@ class FeaturedGymCard extends StatelessWidget {
         color: const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(20.r),
       ),
-      child: Text('PARTNER',
+      child: Text('Partner',
           style: TextStyle(
               color: const Color(0xFF2E7D32),
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.4)),
+              fontSize: 7.5.sp,
+              fontWeight: AppFontWeight.label,
+              letterSpacing: 0.2)),
     );
   }
 

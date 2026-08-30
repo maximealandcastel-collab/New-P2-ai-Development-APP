@@ -214,7 +214,7 @@ class _GymsScreenState extends State<GymsScreen> {
           Text(
             'Find a Gym',
             style: TextStyle(
-              fontSize: 28.sp,
+              fontSize: 26.sp,
               fontWeight: AppFontWeight.display,
               color: Colors.black87,
               letterSpacing: -0.5,
@@ -255,7 +255,7 @@ class _GymsScreenState extends State<GymsScreen> {
                   Text(
                     'Near Me',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 12.sp,
                       fontWeight: AppFontWeight.label,
                       color: Colors.black87,
                     ),
@@ -432,7 +432,7 @@ class _GymsScreenState extends State<GymsScreen> {
               Text(
                 'Featured Gyms Near You',
                 style: TextStyle(
-                  fontSize: 17.sp,
+                  fontSize: 16.sp,
                   fontWeight: AppFontWeight.section,
                   color: Colors.black87,
                 ),
