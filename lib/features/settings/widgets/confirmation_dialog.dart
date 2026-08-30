@@ -66,7 +66,7 @@ class ConfirmationDialog extends StatelessWidget {
                 // Title
                 CustomText(
                   text: title,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   fontSize: 18.sp,
                   textAlign: TextAlign.center,
                 ),

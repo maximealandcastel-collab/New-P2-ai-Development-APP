@@ -495,7 +495,7 @@ class _UserCard extends StatelessWidget {
     child: Text(label,
         style: TextStyle(
             fontSize: 9.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: color)),
   );
 

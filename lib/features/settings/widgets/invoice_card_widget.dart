@@ -32,7 +32,7 @@ class InvoiceCardWidget extends StatelessWidget {
                 Expanded(
                   child: CustomText(
                     textAlign: TextAlign.start,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16.sp,
                     text: 'Oliver Finch',
                     maxline: 1,
@@ -64,8 +64,8 @@ class InvoiceCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(text: 'Total billed',fontWeight: FontWeight.w600),
-              CustomText(text: '\$249.99',fontWeight: FontWeight.w700,color: AppColors.info),
+              CustomText(text: 'Total billed',fontWeight: FontWeight.w500),
+              CustomText(text: '\$249.99',fontWeight: FontWeight.w600,color: AppColors.info),
             ],
           ),
           SizedBox(height: 12.h),

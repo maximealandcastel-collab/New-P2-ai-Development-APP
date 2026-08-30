@@ -232,7 +232,7 @@ class _KpiCard extends StatelessWidget {
             // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
             // tinted pill is micro-type, and the lighter scale stops it reading
             // as a badge. Same exception as the P2P and YOUR GYM badges.
-            child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w700, color: d.accent)),
+            child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w600, color: d.accent)),
           ),
         ]),
         SizedBox(height: 10.h),

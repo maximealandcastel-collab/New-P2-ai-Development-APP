@@ -28,7 +28,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           children: [
             CustomText(
               text: 'Account information',
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,
@@ -47,7 +47,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomText(text: 'Date of birth',fontWeight: FontWeight.w600),
+                  CustomText(text: 'Date of birth',fontWeight: FontWeight.w500),
                   CustomContainer(
                     color: Colors.black.withOpacity(0.08),
                     paddingAll: 8.r,
@@ -63,7 +63,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             /// +++++++++++++++++++++++++ Password +++++++++++++++++++++++
             CustomText(
               text: 'Password',
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,

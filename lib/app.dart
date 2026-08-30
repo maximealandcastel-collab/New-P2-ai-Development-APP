@@ -25,9 +25,21 @@ class MyApp extends StatelessWidget {
         defaultTransition: Transition.cupertino,
         transitionDuration: const Duration(milliseconds: 200),
         navigatorObservers: [ReelRouteObserver()],
-        builder: (context, child) => KeyboardDismissOnTap(
-          child: child ?? const SizedBox.shrink(),
-        ),
+        builder: (context, child) {
+          final mediaQuery = MediaQuery.of(context);
+          final userTextScale = mediaQuery.textScaler.scale(1);
+
+          return MediaQuery(
+            data: mediaQuery.copyWith(
+              // Apply the same subtle size reduction to every route, including
+              // screens that still provide an explicit TextStyle font size.
+              textScaler: TextScaler.linear(userTextScale * 0.95),
+            ),
+            child: KeyboardDismissOnTap(
+              child: child ?? const SizedBox.shrink(),
+            ),
+          );
+        },
       ),
     );
   }

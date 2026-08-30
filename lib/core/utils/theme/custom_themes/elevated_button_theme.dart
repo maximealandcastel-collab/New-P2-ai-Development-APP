@@ -22,7 +22,7 @@ class AppElevatedButtonTheme {
         side: WidgetStateProperty.all(BorderSide(color: borderColor)),
         padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 18)),
         textStyle: const WidgetStatePropertyAll(
-          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

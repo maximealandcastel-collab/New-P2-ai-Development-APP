@@ -58,7 +58,7 @@ class PaywallScreen extends StatelessWidget {
                     CustomText(
                       text: "Unlock Your Full\nAi Fitness Experience",
                       fontSize: 23.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       textAlign: TextAlign.center,
                     ),
 
@@ -115,7 +115,7 @@ class PaywallScreen extends StatelessWidget {
                             : CustomText(
                                 text: "Start 7-Day Free Trial",
                                 fontSize: 17.sp,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: AppColors.textWhite,
                               ),
                       ),
@@ -161,7 +161,7 @@ class PaywallScreen extends StatelessWidget {
                           child: CustomText(
                             text: "Terms of Service",
                             fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.primary,
                           ),
                         ),
@@ -217,7 +217,7 @@ class PaywallScreen extends StatelessWidget {
           CustomText(
             text: title,
             fontSize: 11.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 1.h),
@@ -270,13 +270,13 @@ class PaywallScreen extends StatelessWidget {
                   CustomText(
                     text: "3 Month Plan",
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                   SizedBox(height: 1.h),
                   CustomText(
                     text: "7-Day Free Trial",
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.primary,
                   ),
                   CustomText(
@@ -293,7 +293,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$19.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
                 SizedBox(height: 3.h),
                 Container(
@@ -306,7 +306,7 @@ class PaywallScreen extends StatelessWidget {
                   child: CustomText(
                     text: "7-Day Free Trial",
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
                 ),
@@ -361,7 +361,7 @@ class PaywallScreen extends StatelessWidget {
                   CustomText(
                     text: "Annual Plan",
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                   SizedBox(height: 1.h),
                   CustomText(
@@ -378,7 +378,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$49.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
                 SizedBox(height: 3.h),
                 Container(
@@ -391,7 +391,7 @@ class PaywallScreen extends StatelessWidget {
                   child: CustomText(
                     text: "Save 50%",
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
                 ),
@@ -439,7 +439,7 @@ class PaywallScreen extends StatelessWidget {
                     CustomText(
                       text: "Already a member?",
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                     SizedBox(height: 2.h),
                     CustomText(
@@ -508,7 +508,7 @@ class PaywallScreen extends StatelessWidget {
                         : CustomText(
                             text: "Continue",
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.textWhite,
                           ),
                   ),

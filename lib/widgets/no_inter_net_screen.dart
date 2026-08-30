@@ -44,7 +44,7 @@ class NoInterNetScreen extends StatelessWidget {
                       fontsize: 30.h,
                       color: Colors.red,
                       top: 10.h,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       bottom: 10.h),
                   CustomText(
                     text:
@@ -52,7 +52,7 @@ class NoInterNetScreen extends StatelessWidget {
                     maxline: 3,
                     left: 30.w,
                     right: 30.w,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   )
                 ],
               ),

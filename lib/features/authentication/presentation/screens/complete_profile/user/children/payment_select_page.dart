@@ -43,7 +43,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
           CustomText(
             text: 'Select payout method',
           fontSize: 24.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
           SizedBox(height: 32.h),
           ...paymentOptions.map((gender) => Padding(
@@ -112,7 +112,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
               textAlign: TextAlign.start,
               text: option['label'],
               fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
             Spacer(),
             CustomContainer(

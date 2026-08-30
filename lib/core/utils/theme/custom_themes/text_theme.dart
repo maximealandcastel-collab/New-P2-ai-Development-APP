@@ -6,12 +6,12 @@ class AppTextTheme {
   static TextTheme lightTextTheme = const TextTheme(
     displayLarge: TextStyle(
       fontSize: 57.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.black,
     ),
     displayMedium: TextStyle(
       fontSize: 45.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.black87,
     ),
     displaySmall: TextStyle(
@@ -21,12 +21,12 @@ class AppTextTheme {
     ),
     headlineLarge: TextStyle(
       fontSize: 32.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.black,
     ),
     headlineMedium: TextStyle(
       fontSize: 28.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.black87,
     ),
     headlineSmall: TextStyle(
@@ -36,7 +36,7 @@ class AppTextTheme {
     ),
     titleLarge: TextStyle(
       fontSize: 22.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.black87,
     ),
     titleMedium: TextStyle(
@@ -66,7 +66,7 @@ class AppTextTheme {
     ),
     labelLarge: TextStyle(
       fontSize: 14.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.black,
     ),
     labelMedium: TextStyle(
@@ -84,12 +84,12 @@ class AppTextTheme {
   static TextTheme darkTextTheme = const TextTheme(
     displayLarge: TextStyle(
       fontSize: 57.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.white,
     ),
     displayMedium: TextStyle(
       fontSize: 45.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.white70,
     ),
     displaySmall: TextStyle(
@@ -99,12 +99,12 @@ class AppTextTheme {
     ),
     headlineLarge: TextStyle(
       fontSize: 32.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.white,
     ),
     headlineMedium: TextStyle(
       fontSize: 28.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.white70,
     ),
     headlineSmall: TextStyle(
@@ -114,7 +114,7 @@ class AppTextTheme {
     ),
     titleLarge: TextStyle(
       fontSize: 22.0,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: Colors.white70,
     ),
     titleMedium: TextStyle(
@@ -144,7 +144,7 @@ class AppTextTheme {
     ),
     labelLarge: TextStyle(
       fontSize: 14.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
       color: Colors.white,
     ),
     labelMedium: TextStyle(

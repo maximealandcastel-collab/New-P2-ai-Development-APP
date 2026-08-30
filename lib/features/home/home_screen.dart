@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomText(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16.sp,
                     bottom: 12.h,
                     text: 'Client Overview',
@@ -79,12 +79,12 @@ class HomeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomText(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 16.sp,
                         text: 'Today’s Sessions (4)',
                       ),
                       CustomText(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 16.sp,
                         text: 'View all',
                       ),
@@ -139,7 +139,7 @@ class HomeScreen extends StatelessWidget {
           CustomText(
             textAlign: TextAlign.start,
             fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             text: point,
           ),
         ],

@@ -47,7 +47,7 @@ class TwoButtonWidget extends StatelessWidget {
                 style: TextStyle(
                   color: isSelected ? Colors.white : AppColors.textSecondary,
                   fontSize: fontSize ?? 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
                 child: Text(
                   item['label']!,

@@ -419,7 +419,7 @@ class _TopBar extends StatelessWidget {
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 9.sp,
-                        fontWeight: FontWeight.w900)),
+                        fontWeight: FontWeight.w700)),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -445,7 +445,7 @@ class _TopBar extends StatelessWidget {
                         ? Colors.white
                         : gym.accentColor,
                     fontSize: 8.sp,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -596,7 +596,7 @@ class _GymIdentityBanner extends StatelessWidget {
                         style: TextStyle(
                             color: const Color(0xFFFD7B00),
                             fontSize: 8.sp,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             height: 1.3)),
                   )
                 : Container(
@@ -611,7 +611,7 @@ class _GymIdentityBanner extends StatelessWidget {
                         style: TextStyle(
                             color: const Color(0xFF2E7D32),
                             fontSize: 7.sp,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             height: 1.3)),
                   ),
           ],
@@ -646,7 +646,7 @@ class _P2PFooter extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 7.sp,
-                      fontWeight: FontWeight.w900)),
+                      fontWeight: FontWeight.w700)),
             ),
             SizedBox(width: 6.w),
             Text(

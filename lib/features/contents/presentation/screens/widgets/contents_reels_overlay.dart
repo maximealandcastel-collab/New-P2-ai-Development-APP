@@ -146,7 +146,7 @@ class ContentsReelsOverlay extends StatelessWidget {
         children: [
           CustomText(
             text: label,
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
             fontSize: 15.sp,
             color: AppColors.textWhite
           ),

@@ -34,7 +34,7 @@ class LoginScreen extends StatelessWidget {
                   CustomText(
                     text: "Sign in to P2P Fitness.",
                     fontSize: 27.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                   SizedBox(height: 10.h),
                   CustomText(
