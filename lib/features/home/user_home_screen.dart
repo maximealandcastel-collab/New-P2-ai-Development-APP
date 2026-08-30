@@ -51,7 +51,7 @@ class UserHomeScreen extends StatelessWidget {
               children: [
                 FeedAppBar(),
                 _SectionTitle('Daily workout progress'),
-                const _WeekStrip(),
+                _DailyWorkoutCalendar(controller: c),
                 SizedBox(height: 16.h),
                 const _GymsCard(),
                 SizedBox(height: 16.h),
@@ -90,69 +90,519 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-// ─── Week strip ───────────────────────────────────────────────────────────────
-class _WeekStrip extends StatelessWidget {
-  const _WeekStrip();
+// ─── Daily workout progress calendar ─────────────────────────────────────────
+class _DailyWorkoutCalendar extends StatefulWidget {
+  final UserHomeController controller;
+
+  const _DailyWorkoutCalendar({required this.controller});
+
+  @override
+  State<_DailyWorkoutCalendar> createState() => _DailyWorkoutCalendarState();
+}
+
+class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
+  static const _orange = Color(0xFFFF6B35);
+  static const _ink = Color(0xFF171717);
+  static const _muted = Color(0xFF777777);
+  static const _line = Color(0xFFE9E9E9);
+
+  late DateTime _weekStart;
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final today = _dateOnly(DateTime.now());
+    _weekStart = _mondayOf(today);
+    _selectedDate = today;
+  }
+
+  static DateTime _dateOnly(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  static DateTime _mondayOf(DateTime date) {
+    final cleanDate = _dateOnly(date);
+    return cleanDate.subtract(Duration(days: cleanDate.weekday - DateTime.monday));
+  }
+
+  static bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
+  static const _months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  String _monthName(DateTime date) => _months[date.month - 1];
+
+  String _weekLabel() {
+    final weekEnd = _weekStart.add(const Duration(days: 6));
+    if (_weekStart.year == weekEnd.year && _weekStart.month == weekEnd.month) {
+      return '${_monthName(_weekStart)} ${_weekStart.day}–${weekEnd.day}, ${weekEnd.year}';
+    }
+    if (_weekStart.year == weekEnd.year) {
+      return '${_monthName(_weekStart)} ${_weekStart.day} – '
+          '${_monthName(weekEnd)} ${weekEnd.day}, ${weekEnd.year}';
+    }
+    return '${_monthName(_weekStart)} ${_weekStart.day}, ${_weekStart.year} – '
+        '${_monthName(weekEnd)} ${weekEnd.day}, ${weekEnd.year}';
+  }
+
+  void _changeWeek(int amount) {
+    setState(() {
+      _weekStart = _weekStart.add(Duration(days: amount * 7));
+      final selectedWeekday = _selectedDate.weekday - DateTime.monday;
+      _selectedDate = _weekStart.add(Duration(days: selectedWeekday));
+    });
+  }
+
+  void _goToToday() {
+    final today = _dateOnly(DateTime.now());
+    setState(() {
+      _weekStart = _mondayOf(today);
+      _selectedDate = today;
+    });
+  }
+
+  _WorkoutDayProgress _progressFor(DateTime date) {
+    for (final item in widget.controller.monthlyProgression) {
+      final parsed = DateTime.tryParse(item.date);
+      if (parsed != null && _isSameDate(_dateOnly(parsed), date)) {
+        return _WorkoutDayProgress(
+          completed: item.completedExercises,
+          total: item.totalExercises,
+        );
+      }
+    }
+    return const _WorkoutDayProgress(completed: 0, total: 10);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final today = _dateOnly(DateTime.now());
 
-    return SizedBox(
-      height: 72.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        itemCount: labels.length,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
-        itemBuilder: (context, i) {
-          final day = monday.add(Duration(days: i));
-          final isToday = day.day == now.day && day.month == now.month;
-          return Container(
-            width: 50.w,   // compact square proportions
-            decoration: BoxDecoration(
-              color: isToday ? const Color(0xFFFF6B35) : Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-              border: isToday
-                  ? null
-                  : Border.all(color: const Color(0xFFE8E8E8), width: 1.2),
-              boxShadow: isToday
-                  ? [BoxShadow(color: const Color(0xFFFF6B35).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]
-                  : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  labels[i],
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: isToday ? Colors.white70 : Colors.black45,
-                    fontWeight: AppFontWeight.body,
-                    letterSpacing: 0.2,
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(color: _line),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.045),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Daily workout progress',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        height: 1.15,
+                        fontWeight: FontWeight.w600,
+                        color: _ink,
+                        letterSpacing: -0.25,
+                      ),
+                    ),
+                    SizedBox(height: 5.h),
+                    Text(
+                      'Track and manage your clients’ workouts',
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        height: 1.25,
+                        fontWeight: FontWeight.w400,
+                        color: _muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 12.w),
+              _CalendarIconButton(
+                icon: Icons.chevron_left_rounded,
+                label: 'Previous week',
+                onTap: () => _changeWeek(-1),
+              ),
+              SizedBox(width: 6.w),
+              _CalendarIconButton(
+                icon: Icons.chevron_right_rounded,
+                label: 'Next week',
+                onTap: () => _changeWeek(1),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Text(
+                _weekLabel(),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w500,
+                  color: _muted,
+                ),
+              ),
+              const Spacer(),
+              Semantics(
+                button: true,
+                label: 'Return to today',
+                child: InkWell(
+                  onTap: _goToToday,
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _isSameDate(_selectedDate, today)
+                          ? const Color(0xFFFFF1EC)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                      border: Border.all(
+                        color: _isSameDate(_selectedDate, today)
+                            ? _orange.withOpacity(0.35)
+                            : _line,
+                      ),
+                    ),
+                    child: Text(
+                      'Today',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _isSameDate(_selectedDate, today)
+                            ? _orange
+                            : _ink,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: 4.h),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compactCardWidth = ((constraints.maxWidth - (6 * 6.w)) / 7)
+                  .clamp(44.w, 68.w)
+                  .toDouble();
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                clipBehavior: Clip.none,
+                child: Row(
+                  children: List.generate(7, (index) {
+                    final date = _weekStart.add(Duration(days: index));
+                    return Padding(
+                      padding: EdgeInsets.only(right: index == 6 ? 0 : 6.w),
+                      child: _CalendarDayCard(
+                        date: date,
+                        isToday: _isSameDate(date, today),
+                        isSelected: _isSameDate(date, _selectedDate),
+                        progress: _progressFor(date),
+                        width: compactCardWidth,
+                        monthName: _monthName(date),
+                        onTap: () => setState(() => _selectedDate = date),
+                      ),
+                    );
+                  }),
+                ),
+              );
+            },
+          ),
+          SizedBox(height: 14.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAFAFA),
+              borderRadius: BorderRadius.circular(13.r),
+              border: Border.all(color: const Color(0xFFF0F0F0)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 28.w,
+                  height: 28.w,
+                  decoration: BoxDecoration(
+                    color: _orange.withOpacity(0.11),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.insights_rounded,
+                    size: 15.sp,
+                    color: _orange,
+                  ),
+                ),
+                SizedBox(width: 9.w),
+                Expanded(
+                  child: Text(
+                    _isSameDate(_selectedDate, today)
+                        ? 'Today’s workout progress'
+                        : '${_selectedDate.day} ${_monthName(_selectedDate)} progress',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w500,
+                      color: _ink,
+                    ),
+                  ),
+                ),
                 Text(
-                  '${day.day}',
+                  '${_progressFor(_selectedDate).completed}/'
+                  '${_progressFor(_selectedDate).total}',
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    // Today stays heavier than the rest, just less shouty than
-                    // the previous w700/w500 pair. The colour and the filled
-                    // orange chip already carry the selection.
-                    fontWeight:
-                        isToday ? AppFontWeight.label : AppFontWeight.emphasis,
-                    color: isToday ? Colors.white : Colors.black87,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    color: _ink,
                   ),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _CalendarIconButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _CalendarIconButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(11.r),
+        child: Container(
+          width: 34.w,
+          height: 34.w,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFAFAFA),
+            borderRadius: BorderRadius.circular(11.r),
+            border: Border.all(color: const Color(0xFFE9E9E9)),
+          ),
+          child: Icon(
+            icon,
+            size: 19.sp,
+            color: const Color(0xFF202020),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarDayCard extends StatelessWidget {
+  final DateTime date;
+  final bool isToday;
+  final bool isSelected;
+  final _WorkoutDayProgress progress;
+  final double width;
+  final String monthName;
+  final VoidCallback onTap;
+
+  const _CalendarDayCard({
+    required this.date,
+    required this.isToday,
+    required this.isSelected,
+    required this.progress,
+    required this.width,
+    required this.monthName,
+    required this.onTap,
+  });
+
+  static const _orange = Color(0xFFFF6B35);
+
+  static const _weekdayLabels = [
+    'MON',
+    'TUE',
+    'WED',
+    'THU',
+    'FRI',
+    'SAT',
+    'SUN',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedColor = isSelected ? _orange : const Color(0xFF202020);
+    final backgroundColor =
+        isSelected ? const Color(0xFFFFF8F5) : Colors.white;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label:
+          '${_weekdayLabels[date.weekday - 1]} ${date.day} $monthName, '
+          '${progress.completed} of ${progress.total} exercises complete',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: width,
+          constraints: BoxConstraints(minHeight: 132.h),
+          padding: EdgeInsets.fromLTRB(5.w, 11.h, 5.w, 8.h),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isSelected
+                  ? _orange.withOpacity(0.62)
+                  : const Color(0xFFE9E9E9),
+              width: isSelected ? 1.35 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: _orange.withOpacity(0.10),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _weekdayLabels[date.weekday - 1],
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                style: TextStyle(
+                  fontSize: 9.2.sp,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.25,
+                  color: isSelected || isToday
+                      ? _orange
+                      : const Color(0xFF7A7A7A),
+                ),
+              ),
+              Text(
+                '${date.day}',
+                style: TextStyle(
+                  fontSize: 23.sp,
+                  height: 1,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.7,
+                  color: selectedColor,
+                ),
+              ),
+              Text(
+                monthName.substring(0, 3).toUpperCase(),
+                style: TextStyle(
+                  fontSize: 9.2.sp,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF888888),
+                ),
+              ),
+              _ProgressPill(progress: progress, isSelected: isSelected),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressPill extends StatelessWidget {
+  final _WorkoutDayProgress progress;
+  final bool isSelected;
+
+  const _ProgressPill({
+    required this.progress,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isPerfect = progress.completed == progress.total && progress.total > 0;
+    final statusColor = progress.statusColor;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(isSelected ? 0.14 : 0.09),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isPerfect ? Icons.fitness_center_rounded : Icons.circle,
+            size: isPerfect ? 11.sp : 6.sp,
+            color: statusColor,
+          ),
+          SizedBox(width: 3.w),
+          Flexible(
+            child: Text(
+              '${progress.completed}/${progress.total}',
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              style: TextStyle(
+                fontSize: 8.5.sp,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WorkoutDayProgress {
+  final int completed;
+  final int total;
+
+  const _WorkoutDayProgress({
+    required this.completed,
+    required this.total,
+  });
+
+  Color get statusColor {
+    if (completed >= total && total > 0) return const Color(0xFF38A169);
+    if (completed == 0) return const Color(0xFFA3A3A3);
+    if (completed < total / 2) return const Color(0xFFF2B531);
+    return const Color(0xFFFF6B35);
   }
 }
 
