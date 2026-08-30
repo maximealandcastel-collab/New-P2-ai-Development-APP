@@ -543,6 +543,8 @@ class _LoadingStepState extends State<_LoadingStep>
   late final AnimationController _ctrl;
   late final Animation<double> _rotation;
   bool _hasNavigated = false;
+  bool _isGenerating = false;
+  String? _errorMessage;
 
   // ── Phase messages cycle while AI works ──────────────────────────────────
   static const _phases = [
@@ -576,51 +578,88 @@ class _LoadingStepState extends State<_LoadingStep>
     _generatePlan();
   }
 
-  Future<void> _generatePlan() async {
-    final sw = Stopwatch()..start();
-    Map<String, dynamic>? plan;
-    try {
-      final createRes =
-          await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
-      final workoutId = createRes.body is Map
-          ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
-          : null;
-      if (workoutId != null) {
-        final genRes = await ApiClient.postData(
-            ApiUrls.workoutGenerate(workoutId.toString()), {});
-        if (genRes.statusCode == 200 && genRes.body is Map) {
-          final data = genRes.body['data'];
-          if (data is Map<String, dynamic>) {
-            plan = (data['aiPlan'] ?? data['plan'] ?? data)
-                as Map<String, dynamic>?;
+  String _responseMessage(dynamic body, String fallback) {
+        if (body is Map) {
+          final message = body['message'] ?? body['error'];
+          if (message != null && message.toString().trim().isNotEmpty) {
+            return message.toString();
           }
         }
+        return fallback;
       }
-    } catch (_) {
-      // Backend unreachable — fall through to error handling below.
-    }
 
-    // ── Enforce minimum display time so it never feels instant / fake ──────
-    final remaining = _minDisplayMs - sw.elapsedMilliseconds;
-    if (remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
+      Future<void> _generatePlan() async {
+        if (_isGenerating) return;
+        setState(() {
+          _isGenerating = true;
+          _errorMessage = null;
+        });
 
-    if (!mounted || _hasNavigated) return;
-    if (plan == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not generate your plan. Please check your connection and try again.',
-          ),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-      setState(() {});
-      return;
-    }
-    _hasNavigated = true;
-    Get.offNamed(AppRoute.aiPlanResult, arguments: plan);
-  }
+        final sw = Stopwatch()..start();
+        Map<String, dynamic>? plan;
+        String? failureMessage;
+        try {
+          final createRes =
+              await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
+          if (createRes.statusCode != 200 && createRes.statusCode != 201) {
+            throw Exception(_responseMessage(
+              createRes.body,
+              'Could not save your workout preferences.',
+            ));
+          }
 
+          final workoutId = createRes.body is Map
+              ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
+              : null;
+          if (workoutId == null) {
+            throw Exception('The server did not return a workout ID.');
+          }
+
+          final genRes = await ApiClient.postData(
+            ApiUrls.workoutGenerate(workoutId.toString()),
+            {},
+          );
+          if (genRes.statusCode != 200 || genRes.body is! Map) {
+            throw Exception(_responseMessage(
+              genRes.body,
+              'Could not generate your workout plan.',
+            ));
+          }
+
+          final data = genRes.body['data'];
+          if (data is Map<String, dynamic>) {
+            final rawPlan = data['aiPlan'] ?? data['plan'] ?? data;
+            if (rawPlan is Map) {
+              plan = Map<String, dynamic>.from(rawPlan);
+            }
+          }
+          if (plan == null) {
+            throw Exception('The generated workout plan was empty.');
+          }
+        } catch (error) {
+          failureMessage =
+              error.toString().replaceFirst('Exception: ', '').trim();
+        }
+
+        final remaining = _minDisplayMs - sw.elapsedMilliseconds;
+        if (remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
+
+        if (!mounted || _hasNavigated) return;
+        if (plan == null) {
+          setState(() {
+            _isGenerating = false;
+            _errorMessage = failureMessage?.isNotEmpty == true
+                ? failureMessage
+                : 'Could not generate your plan. Check your connection and try again.';
+          });
+          return;
+        }
+
+        _hasNavigated = true;
+        _isGenerating = false;
+        Get.offNamed(AppRoute.aiPlanResult, arguments: plan);
+      }
+    
   @override
   void dispose() {
     _phaseTimer?.cancel();
@@ -630,7 +669,61 @@ class _LoadingStepState extends State<_LoadingStep>
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    if (_errorMessage != null) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 28.w),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 64.sp,
+                    color: Colors.redAccent,
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Could not generate your workout plan',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22.sp,
+                      fontWeight: AppFontWeight.section,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    _errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: Colors.grey.shade600,
+                      height: 1.45,
+                    ),
+                  ),
+                  SizedBox(height: 28.h),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isGenerating ? null : _generatePlan,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6B35),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 14.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      child: const Text('Try Again'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
