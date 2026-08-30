@@ -1,5 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -33,7 +31,7 @@ class FeaturedGymCard extends StatelessWidget {
         children: [
           // ── Top: logo + meta + badge ─────────────────────────────────
           Padding(
-            padding: EdgeInsets.all(16.r),
+            padding: EdgeInsets.all(14.r),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -42,7 +40,7 @@ class FeaturedGymCard extends StatelessWidget {
                   size: 48.r,
                   borderRadius: 12.r,
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,24 +48,23 @@ class FeaturedGymCard extends StatelessWidget {
                       Text(
                         gym.name,
                         style: TextStyle(
-                          fontSize: 13.5.sp,
-                          fontWeight: FontWeight.w600,
+                            fontSize: 12.5.sp,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.05,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 2.h),
                       Text(
-                            gym.category,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: Colors.black45,
-                            ),
-                          ),
-                      SizedBox(height: 6.h),
+                        gym.category,
+                        style: TextStyle(
+                             fontSize: 10.5.sp,
+                             fontWeight: FontWeight.w400,
+                             color: Colors.black45),
+                      ),
+                      SizedBox(height: 4.h),
                       Row(
                         children: [
                           Icon(Icons.star_rounded,
@@ -78,38 +75,30 @@ class FeaturedGymCard extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Colors.black54,
-                                  fontWeight: FontWeight.w500)),
+                                  fontWeight: FontWeight.w400)),
                           SizedBox(width: 6.w),
                           Text('· ${gym.memberCount}',
                               style: TextStyle(
-                                  fontSize: 10.sp, color: Colors.black38)),
+                                  fontSize: 11.sp, color: Colors.black38)),
                         ],
                       ),
                     ],
                   ),
                 ),
                 // Badge
-                    Padding(
-                      padding: EdgeInsets.only(left: 12.w),
-                      child: _badge(gym),
-                    ),
+                _badge(gym),
               ],
             ),
           ),
 
-          // ── Middle: facility image ───────────────────────────────────
+          // ── Middle: real gym stock photo with brand logo ─────────────
           Stack(
             children: [
-              ClipRRect(
-                child: gym.imageUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: gym.imageUrl,
-                        height: 140.h,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _imageFallback(),
-                      )
-                    : _imageFallback(),
+              GymStockImage(
+                gym: gym,
+                height: 140.h,
+                width: double.infinity,
+                borderRadius: 0,
               ),
               // Distance chip over image
               if (gym.distanceMi != null)
@@ -133,7 +122,7 @@ class FeaturedGymCard extends StatelessWidget {
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10.sp,
-                                fontWeight: AppFontWeight.body)),
+                                 fontWeight: FontWeight.w400)),
                       ],
                     ),
                   ),
@@ -158,11 +147,11 @@ class FeaturedGymCard extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Login / Signup',
+                        'Log in / sign up',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14.sp,
-                         fontWeight: FontWeight.w500,
+                         fontSize: 12.5.sp,
+                         fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
@@ -173,8 +162,8 @@ class FeaturedGymCard extends StatelessWidget {
                       color: const Color(0xFFF1F1F1),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 12.w, vertical: 10.h),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -188,7 +177,7 @@ class FeaturedGymCard extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.black38,
                               fontSize: 11.sp,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               height: 1.3,
                             ),
                           ),
@@ -206,40 +195,31 @@ class FeaturedGymCard extends StatelessWidget {
     if (gym.isOwnGym) {
       return Container(
         padding:
-            EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
         decoration: BoxDecoration(
           color: const Color(0xFFFD7B00),
           borderRadius: BorderRadius.circular(20.r),
         ),
-        child: Text('Your Gym',
+        child: Text('Your gym',
             style: TextStyle(
                 color: Colors.white,
-                fontSize: 7.5.sp,
-                fontWeight: FontWeight.w500)),
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w400)),
       );
     }
     return Container(
       padding:
-          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F1F1),
+        color: const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text('Targeted',
           style: TextStyle(
               color: const Color(0xFF6B7280),
-              fontSize: 7.5.sp,
-              fontWeight: FontWeight.w500)),
+              fontSize: 8.sp,
+              fontWeight: FontWeight.w400)),
     );
   }
 
-  Widget _imageFallback() {
-    return Container(
-      height: 140.h,
-      width: double.infinity,
-      color: gym.brandColor.withOpacity(0.15),
-      child: Icon(Icons.fitness_center_rounded,
-          color: gym.brandColor.withOpacity(0.4), size: 40.sp),
-    );
-  }
 }

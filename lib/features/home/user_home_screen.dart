@@ -627,23 +627,12 @@ class _GymsCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       Container(
+                       GymStockImage(
+                         gym: gym,
                          height: 75.h,
                          width: double.infinity,
-                         alignment: Alignment.center,
-                         decoration: BoxDecoration(
-                           color: gym.brandColor.withOpacity(0.06),
-                           borderRadius: BorderRadius.circular(12.r),
-                           border: Border.all(
-                             color: gym.brandColor.withOpacity(0.10),
-                           ),
-                         ),
-                         child: GymBrandLogo(
-                           gym: gym,
-                           size: 58.r,
-                           borderRadius: 13.r,
-                         ),
-                      ),
+                         borderRadius: 12.r,
+                       ),
                       SizedBox(height: 5.h),
                        Text(gym.name,
                           maxLines: 1,

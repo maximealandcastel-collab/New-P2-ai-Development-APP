@@ -1,8 +1,8 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
+import 'package:pler_to_pler_app/features/user/user_profile/presentation/invoice_screens.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN 2 — SETTINGS
@@ -43,7 +43,7 @@ class UserSettingsScreen extends StatelessWidget {
                   Expanded(
                     child: Text('Settings',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
+                        style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
                   ),
                   SizedBox(width: 34.w),
                 ],
@@ -76,7 +76,10 @@ class UserSettingsScreen extends StatelessWidget {
                           .map((e) => _SettingsTile(
                         label: e.value,
                         showDivider: e.key < _appItems.length - 1,
-                        onTap: () {},
+                        onTap: () => _showUnavailableMessage(
+                          context,
+                          '${e.value} is not available yet.',
+                        ),
                       ))
                           .toList(),
                     ),
@@ -92,7 +95,21 @@ class UserSettingsScreen extends StatelessWidget {
                           .map((e) => _SettingsTile(
                         label: e.value,
                         showDivider: e.key < _optionItems.length - 1,
-                        onTap: () {},
+                        onTap: () {
+                          if (e.value == 'Invoices') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const UserInvoicesScreen(),
+                              ),
+                            );
+                            return;
+                          }
+                          _showUnavailableMessage(
+                            context,
+                            '${e.value} is not available yet.',
+                          );
+                        },
                       ))
                           .toList(),
                     ),
@@ -126,13 +143,19 @@ class UserSettingsScreen extends StatelessWidget {
                             .map((e) => _SettingsTile(
                           label: e.value,
                           showDivider: true,
-                          onTap: () {},
+                           onTap: () => _showUnavailableMessage(
+                             context,
+                             'Logout is not available from this screen yet.',
+                           ),
                         )),
                         _SettingsTile(
                           label: 'Delete my account',
                           showDivider: false,
                           labelColor: const Color(0xFFE53935),
-                          onTap: () {},
+                           onTap: () => _showUnavailableMessage(
+                             context,
+                             'Account deletion is not available from this screen yet.',
+                           ),
                         ),
                       ],
                     ),
@@ -147,6 +170,10 @@ class UserSettingsScreen extends StatelessWidget {
   }
 }
 
+void _showUnavailableMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
 class _SectionLabel extends StatelessWidget {
   final String text;
 
@@ -155,7 +182,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
   );
 }
 
@@ -193,7 +220,7 @@ class _EmailTile extends StatelessWidget {
               style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
           SizedBox(height: 4.h),
           Text(email,
-              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black87)),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: Colors.black87)),
         ],
       ),
     );
@@ -228,7 +255,7 @@ class _SettingsTile extends StatelessWidget {
                 Text(label,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: AppFontWeight.emphasis,
+                      fontWeight: FontWeight.w500,
                       color: labelColor ?? Colors.black87,
                     )),
                 Icon(Icons.chevron_right, size: 18.sp, color: Colors.grey.shade400),

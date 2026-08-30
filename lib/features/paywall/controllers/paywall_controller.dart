@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 
@@ -27,7 +27,7 @@ class PaywallController extends GetxController {
   final monthlyPriceStr = r'$19.99'.obs;
 
   // ─── Plan selection ─────────────────────────────────────────
-  final selectedPlan = "annual".obs;
+  final selectedPlan = "monthly".obs;
   void selectPlan(String plan) => selectedPlan.value = plan;
 
   // ─── Promo code (inside card — affiliate/discount codes) ────
@@ -62,28 +62,42 @@ class PaywallController extends GetxController {
   }
 
   Future<void> _initIAP() async {
-    final available = await _iap.isAvailable();
-    iapAvailable.value = available;
-    if (!available) return;
+    try {
+      final available = await _iap.isAvailable();
+      iapAvailable.value = available;
+      if (!available) {
+        purchaseError.value =
+            "In-app purchases are not available on this device.";
+        return;
+      }
 
-    // Listen to purchase updates from the store
-    _purchaseSub = _iap.purchaseStream.listen(
-      _onPurchaseUpdate,
-      onError: (Object e) {
-        purchaseLoading.value = false;
-        purchaseError.value = "Purchase stream error. Please try again.";
-      },
-    );
+      _purchaseSub ??= _iap.purchaseStream.listen(
+        _onPurchaseUpdate,
+        onError: (Object e) {
+          purchaseLoading.value = false;
+          purchaseError.value = "Purchase stream error. Please try again.";
+        },
+      );
 
-    // Load product details from App Store / Google Play
-    final ProductDetailsResponse response =
-        await _iap.queryProductDetails(_productIds);
-    if (response.productDetails.isNotEmpty) {
+      final ProductDetailsResponse response =
+          await _iap.queryProductDetails(_productIds);
+      if (response.error != null) {
+        throw Exception(response.error!.message);
+      }
       products.assignAll(response.productDetails);
       for (final p in response.productDetails) {
         if (p.id == _annualId) annualPriceStr.value = p.price;
         if (p.id == _monthlyId) monthlyPriceStr.value = p.price;
       }
+      if (response.notFoundIDs.isNotEmpty || products.isEmpty) {
+        purchaseError.value =
+            "Subscription details are temporarily unavailable. Please retry.";
+      }
+    } catch (_) {
+      iapAvailable.value = false;
+      purchaseLoading.value = false;
+      purchaseError.value =
+          "Could not connect to the App Store. Please try again.";
     }
   }
 
@@ -109,10 +123,19 @@ class PaywallController extends GetxController {
     }
 
     purchaseLoading.value = true;
-    final PurchaseParam param = PurchaseParam(productDetails: product);
-    // buyNonConsumable handles auto-renewable subscriptions on iOS & Android
-    await _iap.buyNonConsumable(purchaseParam: param);
-    // purchaseLoading is cleared inside _onPurchaseUpdate
+    try {
+      final PurchaseParam param = PurchaseParam(productDetails: product);
+      final accepted = await _iap.buyNonConsumable(purchaseParam: param);
+      if (!accepted) {
+        purchaseLoading.value = false;
+        purchaseError.value =
+            "The purchase could not be started. Please try again.";
+      }
+    } catch (_) {
+      purchaseLoading.value = false;
+      purchaseError.value =
+          "The purchase could not be started. Please try again.";
+    }
   }
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
@@ -165,7 +188,7 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        Get.offAllNamed(AppRoute.bottonNavBar);
+        Get.offAll(() => const NavBar());
       } else {
         purchaseLoading.value = false;
         purchaseError.value =
@@ -231,7 +254,7 @@ class PaywallController extends GetxController {
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4),
           );
-          Get.offAllNamed(AppRoute.bottonNavBar);
+          Get.offAll(() => const NavBar());
         } else {
           final msg = (redeemResp.body is Map)
               ? (redeemResp.body["message"] ?? "Could not redeem code. It may already be used.")
@@ -301,7 +324,7 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        Get.offAllNamed(AppRoute.bottonNavBar);
+        Get.offAll(() => const NavBar());
       } else {
         final msg = (redeemResp.body is Map)
             ? (redeemResp.body["message"] ??

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 
@@ -13,8 +16,66 @@ class AccountDetailsScreen extends StatefulWidget {
 
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
   final TextEditingController _emailController = TextEditingController(text: 'Ethancarter77@gmail.com');
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  bool _isSaving = false;
+
+  Future<void> _savePassword() async {
+    final oldPassword = _currentPasswordController.text;
+    final newPassword = _newPasswordController.text;
+    if (oldPassword.isEmpty || newPassword.isEmpty) {
+      Get.snackbar(
+        'Missing password',
+        'Enter your current and new password.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    if (newPassword.length < 8) {
+      Get.snackbar(
+        'Password too short',
+        'Use at least 8 characters.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    setState(() => _isSaving = true);
+    try {
+      final response = await ApiClient.postData(
+        ApiUrls.changePassword,
+        {'oldPassword': oldPassword, 'newPassword': newPassword},
+      );
+      if (response.statusCode != 200) {
+        final message = response.body is Map
+            ? response.body['message']?.toString()
+            : response.statusText;
+        throw Exception(message);
+      }
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      Get.snackbar(
+        'Password updated',
+        'Your password was changed successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (error) {
+      Get.snackbar(
+        'Password not changed',
+        error.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +89,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
           children: [
             CustomText(
               text: 'Account information',
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,
@@ -47,7 +108,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CustomText(text: 'Date of birth',fontWeight: FontWeight.w500),
+                  CustomText(text: 'Date of birth',fontWeight: FontWeight.w600),
                   CustomContainer(
                     color: Colors.black.withOpacity(0.08),
                     paddingAll: 8.r,
@@ -63,7 +124,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
             /// +++++++++++++++++++++++++ Password +++++++++++++++++++++++
             CustomText(
               text: 'Password',
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontSize: 18.sp,
               bottom: 8.h,
               top: 24.h,
@@ -76,7 +137,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ),
               labelText: 'Current password',
               hintText: 'Enter your current password',
-              controller: _passwordController,
+              controller: _currentPasswordController,
               isPassword: true,
             ),
 
@@ -87,7 +148,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
               ),
               labelText: 'New password',
               hintText: 'Enter your new password',
-              controller: _confirmPasswordController,
+              controller: _newPasswordController,
               isPassword: true,
             ),
           ],
@@ -95,7 +156,12 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       ),
       bottomNavigationBar: SafeArea(child: Padding(
         padding:  EdgeInsets.all(16.r),
-        child: CustomButton(onPressed: (){},label: 'Save'),
+        child: CustomButton(
+          onPressed: _savePassword,
+          label: 'Save',
+          isLoading: _isSaving,
+          isDisabled: _isSaving,
+        ),
       )),
     );
   }

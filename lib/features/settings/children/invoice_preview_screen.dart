@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:share_plus/share_plus.dart';
 
 
 class InvoicePreviewScreen extends StatefulWidget {
@@ -22,8 +23,17 @@ class _InvoicePreviewScreenState extends State<InvoicePreviewScreen> {
       body: InvoiceWidget(),
       bottomNavigationBar: SafeArea(child: Padding(
         padding:  EdgeInsets.all(16.r),
-        child: CustomButton(onPressed: (){},label: 'Save'),
+        child: CustomButton(onPressed: _shareInvoice, label: 'Save'),
       )),
+    );
+  }
+
+  Future<void> _shareInvoice() async {
+    await SharePlus.instance.share(
+      const ShareParams(
+        text: 'P2P fitTech invoice INV-2456-524\nTotal billed: \$184.00',
+        subject: 'Invoice INV-2456-524',
+      ),
     );
   }
 }

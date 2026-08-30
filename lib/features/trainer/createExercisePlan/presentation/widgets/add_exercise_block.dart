@@ -1,4 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,9 +15,6 @@ import '../../../../../widgets/custom_text_field.dart';
 import 'add_step_sheet.dart';
 
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddExerciseBlockScreen extends StatefulWidget {
@@ -73,6 +69,21 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _addExerciseBlock() {
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter an exercise name before adding it.')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Saving exercise blocks is not connected yet.'),
       ),
     );
   }
@@ -143,7 +154,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomText(text: "Repeat step", fontWeight: AppFontWeight.label),
+                    CustomText(text: "Repeat step", fontWeight: FontWeight.w600),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                       decoration: BoxDecoration(
@@ -159,7 +170,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
             SizedBox(height: 24.h),
 
             // --- Steps List ---
-            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: AppFontWeight.title, bottom: 12.h),
+            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: FontWeight.bold, bottom: 12.h),
 
             ListView.separated(
               shrinkWrap: true,
@@ -178,7 +189,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: CustomButton(
-            onPressed: () {},
+            onPressed: _addExerciseBlock,
             label: "Add exercise block",
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -242,7 +253,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(text: step["name"]!, fontWeight: AppFontWeight.title, fontSize: 14.sp),
+              CustomText(text: step["name"]!, fontWeight: FontWeight.bold, fontSize: 14.sp),
               CustomText(text: step["duration"]!, color: Colors.grey, fontSize: 12.sp),
             ],
           ),
@@ -272,7 +283,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
               child: Icon(Icons.add, size: 18.sp, color: Colors.black),
             ),
             SizedBox(width: 12.w),
-            CustomText(text: "Add Step", fontWeight: AppFontWeight.label),
+            CustomText(text: "Add Step", fontWeight: FontWeight.w600),
           ],
         ),
       ),
@@ -281,5 +292,11 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
 
   Widget _buildLabel(String text) {
     return CustomText(text: text, fontSize: 14.sp, color: Colors.grey, bottom: 8.h);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }

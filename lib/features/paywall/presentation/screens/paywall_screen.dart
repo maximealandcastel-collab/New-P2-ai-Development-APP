@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
-import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 
@@ -15,11 +14,6 @@ class PaywallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Default to 3-month plan on first open
-    if (controller.selectedPlan.value == "annual") {
-      controller.selectedPlan.value = "monthly";
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -58,7 +52,7 @@ class PaywallScreen extends StatelessWidget {
                     CustomText(
                       text: "Unlock Your Full\nAi Fitness Experience",
                       fontSize: 23.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       textAlign: TextAlign.center,
                     ),
 
@@ -115,7 +109,7 @@ class PaywallScreen extends StatelessWidget {
                             : CustomText(
                                 text: "Start 7-Day Free Trial",
                                 fontSize: 17.sp,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.textWhite,
                               ),
                       ),
@@ -154,14 +148,23 @@ class PaywallScreen extends StatelessWidget {
                           color: AppColors.textSecondary,
                         ),
                         GestureDetector(
-                          onTap: () => launchUrl(
-                            Uri.parse(ApiUrls.termsOfService),
-                            mode: LaunchMode.externalApplication,
-                          ),
+                          onTap: () async {
+                            final opened = await launchUrl(
+                              Uri.parse(ApiUrls.termsOfService),
+                              mode: LaunchMode.externalApplication,
+                            );
+                            if (!opened) {
+                              Get.snackbar(
+                                'Unable to open link',
+                                'Please try again in a moment.',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            }
+                          },
                           child: CustomText(
                             text: "Terms of Service",
                             fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.primary,
                           ),
                         ),
@@ -217,7 +220,7 @@ class PaywallScreen extends StatelessWidget {
           CustomText(
             text: title,
             fontSize: 11.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 1.h),
@@ -270,13 +273,13 @@ class PaywallScreen extends StatelessWidget {
                   CustomText(
                     text: "3 Month Plan",
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                   SizedBox(height: 1.h),
                   CustomText(
                     text: "7-Day Free Trial",
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.primary,
                   ),
                   CustomText(
@@ -293,7 +296,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$19.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
                 SizedBox(height: 3.h),
                 Container(
@@ -306,7 +309,7 @@ class PaywallScreen extends StatelessWidget {
                   child: CustomText(
                     text: "7-Day Free Trial",
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -361,7 +364,7 @@ class PaywallScreen extends StatelessWidget {
                   CustomText(
                     text: "Annual Plan",
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                   SizedBox(height: 1.h),
                   CustomText(
@@ -378,7 +381,7 @@ class PaywallScreen extends StatelessWidget {
                 CustomText(
                   text: "\$49.99",
                   fontSize: 22.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
                 SizedBox(height: 3.h),
                 Container(
@@ -391,7 +394,7 @@ class PaywallScreen extends StatelessWidget {
                   child: CustomText(
                     text: "Save 50%",
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -439,7 +442,7 @@ class PaywallScreen extends StatelessWidget {
                     CustomText(
                       text: "Already a member?",
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                     SizedBox(height: 2.h),
                     CustomText(
@@ -508,7 +511,7 @@ class PaywallScreen extends StatelessWidget {
                         : CustomText(
                             text: "Continue",
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.textWhite,
                           ),
                   ),

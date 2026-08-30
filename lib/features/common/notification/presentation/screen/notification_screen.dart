@@ -56,7 +56,13 @@ class NotificationsScreen extends StatelessWidget {
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Notification preferences are not available yet.'),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.settings, color: Colors.black),
               ),
             ),

@@ -1,4 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -110,7 +109,12 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     SizedBox(height: 8.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: _WorkoutCard(item: _assignedWorkout),
+                      child: _WorkoutCard(
+                        item: _assignedWorkout,
+                        onTap: () => _showUnavailable(
+                          'Starting a workout is not available for this plan yet.',
+                        ),
+                      ),
                     ),
                     SizedBox(height: 20.h),
                     // ── Saved
@@ -118,7 +122,12 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     SizedBox(height: 8.h),
                     ..._savedWorkouts.map((w) => Padding(
                           padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
-                          child: _WorkoutCard(item: w),
+                          child: _WorkoutCard(
+                            item: w,
+                            onTap: () => _showUnavailable(
+                              'Opening saved workout details is not available yet.',
+                            ),
+                          ),
                         )),
                   ],
                 ),
@@ -165,7 +174,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     _days[i].substring(0, 1),
                     style: TextStyle(
                       fontSize: 10.sp,
-                      fontWeight: AppFontWeight.emphasis,
+                      fontWeight: FontWeight.w500,
                       color: isSelected ? Colors.white70 : Colors.grey.shade400,
                     ),
                   ),
@@ -174,7 +183,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     '${_dayNumber(i)}',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: AppFontWeight.section,
+                      fontWeight: FontWeight.w700,
                       color: isSelected ? Colors.white : Colors.black87,
                     ),
                   ),
@@ -205,6 +214,10 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
     return now.day + diff;
   }
 
+  void _showUnavailable(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   // ── Task progress card ─────────────────────────────────────────────────────
   Widget _buildTaskCard() {
     return Container(
@@ -222,13 +235,13 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
         children: [
           Text(
             "Today's Progress",
-            style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
           ),
           SizedBox(height: 14.h),
           ..._tasks.map((t) => _TaskRow(task: t)),
           SizedBox(height: 4.h),
           GestureDetector(
-            onTap: () {},
+            onTap: () => _showUnavailable('All tasks are not available yet.'),
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -239,7 +252,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
               alignment: Alignment.center,
               child: Text(
                 'View all tasks',
-                style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: Colors.black54),
+                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.black54),
               ),
             ),
           ),
@@ -253,7 +266,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(
         text,
-        style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black87),
+        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
       ),
     );
   }
@@ -276,7 +289,7 @@ class _TaskRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(task.label,
-                  style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black87)),
+                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.black87)),
               Text('${task.displayCurrent} / ${task.displayTotal}',
                   style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
             ],
@@ -300,20 +313,24 @@ class _TaskRow extends StatelessWidget {
 // ─── Workout card ─────────────────────────────────────────────────────────────
 class _WorkoutCard extends StatelessWidget {
   final WorkoutItem item;
-  const _WorkoutCard({required this.item});
+  final VoidCallback onTap;
+
+  const _WorkoutCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Row(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
+          ],
+        ),
+        child: Row(
         children: [
           // Thumbnail with fade-in
           ClipRRect(
@@ -346,7 +363,7 @@ class _WorkoutCard extends StatelessWidget {
               children: [
                 Text(
                   item.title,
-                  style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black),
+                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -369,6 +386,7 @@ class _WorkoutCard extends StatelessWidget {
 
           Icon(Icons.chevron_right_rounded, size: 20.sp, color: Colors.black26),
         ],
+        ),
       ),
     );
   }

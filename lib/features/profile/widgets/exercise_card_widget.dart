@@ -35,7 +35,14 @@ class ExerciseCardWidget extends StatelessWidget {
           color: AppColors.textSecondary,
           text: '15 minutes 8 Exercise step',
         ),
-        trailing: IconButton(onPressed: (){}, icon: Icon(Icons.more_vert,color: AppColors.textPrimary,)),
+        trailing: IconButton(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Exercise options are not available yet.')),
+            );
+          },
+          icon: Icon(Icons.more_vert, color: AppColors.textPrimary),
+        ),
       ),
     );
   }

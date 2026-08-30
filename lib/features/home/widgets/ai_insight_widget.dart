@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/custom_assets/fonts.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class AiInsightWidget extends StatelessWidget {
@@ -82,7 +83,7 @@ class AiInsightWidget extends StatelessWidget {
                 ),
 
                 CustomContainer(
-                  onTap: (){},
+                  onTap: () => _showFeedbackMessage(context, 'Thanks for your feedback.'),
                   paddingAll: 5.r,
                   shape: BoxShape.circle,
                   bordersColor: AppColors.textSecondary,
@@ -91,7 +92,7 @@ class AiInsightWidget extends StatelessWidget {
 
                 CustomContainer(
                   marginLeft: 4.w,
-                  onTap: (){},
+                  onTap: () => _showFeedbackMessage(context, 'Thanks for your feedback.'),
                   paddingAll: 5.r,
                   shape: BoxShape.circle,
                   bordersColor: AppColors.textSecondary,
@@ -103,5 +104,9 @@ class AiInsightWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showFeedbackMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

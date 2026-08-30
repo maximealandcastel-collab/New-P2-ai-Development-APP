@@ -1,9 +1,9 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/data/invoice_models.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/payment_method.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/widgets/shared_appbar.dart';
+import 'package:share_plus/share_plus.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN 2 — INVOICE PREVIEW
@@ -93,7 +93,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text('P2P fitTech',
-                                              style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section)),
+                                              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
                                           Text('Center for wellness',
                                               style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500)),
                                         ],
@@ -103,7 +103,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Text('INV-2456-524',
-                                            style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label)),
+                                            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600)),
                                         Text('Dec 26, 2025',
                                             style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
                                       ],
@@ -202,12 +202,12 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
 
                     // Download invoice
                     GestureDetector(
-                      onTap: () {},
+                      onTap: _shareInvoice,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('Download invoice',
-                              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black87)),
+                              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
                           SizedBox(width: 8.w),
                           Icon(Icons.download_outlined, size: 18.sp, color: Colors.black87),
                         ],
@@ -232,7 +232,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text('Pay now',
-                                style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.section)),
+                                style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w700)),
                             SizedBox(width: 8.w),
                             Icon(Icons.arrow_forward, color: Colors.white, size: 18.sp),
                           ],
@@ -245,6 +245,15 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _shareInvoice() async {
+    await SharePlus.instance.share(
+      const ShareParams(
+        text: 'P2P fitTech invoice INV-2456-524\nTotal billed: \$184.00',
+        subject: 'Invoice INV-2456-524',
       ),
     );
   }
@@ -268,7 +277,7 @@ class _InfoValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black87),
+    style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87),
   );
 }
 
@@ -292,7 +301,7 @@ class _LineItemRow extends StatelessWidget {
                   item.description,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight: item.isBold ? AppFontWeight.label : AppFontWeight.body,
+                    fontWeight: item.isBold ? FontWeight.w600 : FontWeight.w400,
                     color: Colors.black87,
                   ),
                 ),
@@ -308,7 +317,7 @@ class _LineItemRow extends StatelessWidget {
                 : '\$${item.amount.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 13.sp,
-              fontWeight: item.isBold ? AppFontWeight.label : AppFontWeight.body,
+              fontWeight: item.isBold ? FontWeight.w600 : FontWeight.w400,
               color: item.isHighlighted
                   ? const Color(0xFF1565C0)
                   : item.isNegative

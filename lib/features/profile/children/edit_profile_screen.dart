@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/profile/children/services_screen.dart';
+import 'package:pler_to_pler_app/features/profile/controller/profile_controller.dart';
+import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 
 import '../../../core/utils/constants/app_colors.dart';
 import '../../../custom_assets/assets.gen.dart';
@@ -27,7 +29,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController specialtyController = TextEditingController();
 
   int selectedExperience = 8;
+  late final ProfileController _profileController;
 
+  @override
+  void initState() {
+    super.initState();
+    _profileController = Get.find<ProfileController>();
+    final user = _profileController.currentUser;
+    if (user != null) {
+      nameController.text = user.name ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    usernameController.dispose();
+    bioController.dispose();
+    specialtyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveProfile() async {
+    final saved = await _profileController.updateProfile(
+      name: nameController.text.trim(),
+      bio: bioController.text.trim(),
+    );
+    if (saved && mounted) {
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => Get.to(() => const SettingsScreen()),
                 icon: Assets.icons.setting.svg(height: 48.r, width: 48.r),
               ),
             ],
@@ -118,7 +149,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   _buildSelectorTile(
                     label: 'Years of experience',
-                    value: '8 Years',
+                    value: '$selectedExperience Years',
                     onTap: () => _showExperiencePicker(),
                   ),
                   SizedBox(height: 16.h),
@@ -169,7 +200,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     label: 'Save',
                     backgroundColor: Colors.black.withOpacity(0.06),
                     foregroundColor: Colors.grey.shade400,
-                    onPressed: () {},
+                    onPressed: _profileController.isLoading ? null : _saveProfile,
                   ),
                   SizedBox(height: 32.h),
                 ],

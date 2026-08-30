@@ -34,10 +34,11 @@ class GymBrandLogo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius * 0.72),
-        child: gym.isOwnGym
+        child: gym.logoAssetPath.isNotEmpty
             ? Image.asset(
-                'assets/images/app_icon.png',
+                gym.logoAssetPath,
                 fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => _fallback(),
               )
             : Image.network(
                 gym.logoUrl,
@@ -56,10 +57,100 @@ class GymBrandLogo extends StatelessWidget {
   Widget _fallback() {
     return ColoredBox(
       color: gym.brandColor.withOpacity(0.10),
-      child: Icon(
-        Icons.fitness_center_rounded,
-        color: gym.brandColor.withOpacity(0.65),
-        size: size * 0.44,
+      child: Center(
+        child: Text(
+          gym.initials,
+          style: TextStyle(
+            color: gym.brandColor,
+            fontSize: size * 0.22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Displays the gym's real stock-photo backdrop and keeps the brand mark
+/// visible on top of it. Every partner has an imageUrl; the fallback keeps
+/// the dashboard useful when a remote image is temporarily unavailable.
+class GymStockImage extends StatelessWidget {
+  final EnterpriseGymModel gym;
+  final double height;
+  final double width;
+  final double borderRadius;
+  final bool showLogo;
+
+  const GymStockImage({
+    super.key,
+    required this.gym,
+    required this.height,
+    required this.width,
+    this.borderRadius = 0,
+    this.showLogo = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: width,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (gym.imageUrl.isNotEmpty)
+              Image.network(
+                gym.imageUrl,
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.medium,
+                errorBuilder: (_, __, ___) => _fallback(),
+                loadingBuilder: (context, child, loadingProgress) =>
+                    loadingProgress == null ? child : _fallback(),
+              )
+            else
+              _fallback(),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.04),
+                    Colors.black.withOpacity(0.24),
+                  ],
+                ),
+              ),
+            ),
+            if (showLogo)
+              Positioned(
+                right: 12.w,
+                bottom: 12.h,
+                child: GymBrandLogo(
+                  gym: gym,
+                  size: 54.r,
+                  borderRadius: 14.r,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fallback() {
+    return ColoredBox(
+      color: gym.brandColor.withOpacity(0.14),
+      child: Center(
+        child: Text(
+          gym.initials,
+          style: TextStyle(
+            color: gym.brandColor,
+            fontSize: 28.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
     );
   }

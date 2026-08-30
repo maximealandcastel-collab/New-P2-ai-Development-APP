@@ -1,8 +1,8 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/contents/data/models.dart';
+import 'package:share_plus/share_plus.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN 2 — VIDEO DETAIL
@@ -18,6 +18,10 @@ class VideoDetailScreen extends StatefulWidget {
 class _VideoDetailScreenState extends State<VideoDetailScreen> {
   bool _isPlaying = false;
   double _progress = 0.085; // ~34s of 6:40
+  bool _isLiked = false;
+  bool _isDisliked = false;
+  int _likeCount = 966;
+  int _dislikeCount = 2;
   final TextEditingController _commentCtrl = TextEditingController();
 
   final List<Comment> _comments = const [
@@ -63,6 +67,47 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
+  void _toggleLike() {
+    setState(() {
+      if (_isLiked) {
+        _isLiked = false;
+        _likeCount--;
+      } else {
+        _isLiked = true;
+        _likeCount++;
+        if (_isDisliked) {
+          _isDisliked = false;
+          _dislikeCount--;
+        }
+      }
+    });
+  }
+
+  void _toggleDislike() {
+    setState(() {
+      if (_isDisliked) {
+        _isDisliked = false;
+        _dislikeCount--;
+      } else {
+        _isDisliked = true;
+        _dislikeCount++;
+        if (_isLiked) {
+          _isLiked = false;
+          _likeCount--;
+        }
+      }
+    });
+  }
+
+  Future<void> _shareVideo() {
+    return SharePlus.instance.share(
+      ShareParams(
+        text: 'Watch Ultimate Cardio Blast: Feel the Burn!',
+        uri: Uri.parse('https://pler-to-pler.app/videos/ultimate-cardio-blast'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const totalSeconds = 400; // 6:40
@@ -95,7 +140,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       'Ultimate Cardio Blast: Feel the Burn!',
                       style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: AppFontWeight.section,
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
                       ),
                     ),
@@ -118,7 +163,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                         SizedBox(width: 8.w),
                         Text(
                           'Alex kanzi',
-                          style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label),
+                          style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -128,21 +173,21 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                     Row(
                       children: [
                         _ActionChip(
-                          icon: Icons.thumb_up_outlined,
-                          label: '966',
-                          onTap: () {},
+                          icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                          label: '$_likeCount',
+                          onTap: _toggleLike,
                         ),
                         SizedBox(width: 10.w),
                         _ActionChip(
-                          icon: Icons.thumb_down_outlined,
-                          label: '2',
-                          onTap: () {},
+                          icon: _isDisliked ? Icons.thumb_down : Icons.thumb_down_outlined,
+                          label: '$_dislikeCount',
+                          onTap: _toggleDislike,
                         ),
                         const Spacer(),
                         _ActionChip(
                           icon: Icons.share_outlined,
                           label: 'Share',
-                          onTap: () {},
+                          onTap: _shareVideo,
                         ),
                       ],
                     ),
@@ -156,7 +201,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       children: [
                         Text(
                           'Comments',
-                          style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section),
+                          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
                         ),
                         SizedBox(width: 6.w),
                         Text(
@@ -358,7 +403,7 @@ class _ActionChip extends StatelessWidget {
             SizedBox(width: 5.w),
             Text(
               label,
-              style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black87),
+              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: Colors.black87),
             ),
           ],
         ),
@@ -397,7 +442,7 @@ class _CommentTile extends StatelessWidget {
                   children: [
                     Text(
                       comment.user,
-                      style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label),
+                      style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
                     ),
                     SizedBox(width: 8.w),
                     Text(

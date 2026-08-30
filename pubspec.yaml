@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 4.3.0+3010
+version: 4.11.0+3008
 
 environment:
   sdk: ^3.10.4
@@ -103,6 +103,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/gym_logos/
     - assets/images/rate_my_peel_banner.png
     - assets/images/clinical/
     - assets/icons/

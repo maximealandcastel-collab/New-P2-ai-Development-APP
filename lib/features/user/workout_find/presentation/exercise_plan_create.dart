@@ -1,6 +1,6 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 class ExerciseBlock {
@@ -110,7 +110,7 @@ class _AppBar extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17.sp,
-                fontWeight: AppFontWeight.section,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),
@@ -172,7 +172,7 @@ class _HeroBanner extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 color: const Color(0xFF2E7D52),
-                fontWeight: AppFontWeight.body,
+                fontWeight: FontWeight.w400,
               ),
             ),
             SizedBox(height: 8.h),
@@ -180,7 +180,7 @@ class _HeroBanner extends StatelessWidget {
               '20 min upper body exercise',
               style: TextStyle(
                 fontSize: 20.sp,
-                fontWeight: AppFontWeight.section,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),
@@ -224,17 +224,20 @@ class _ExerciseBlocksSection extends StatelessWidget {
                 'Exercise  blocks',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: AppFontWeight.section,
+                  fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => _showUnavailable(
+                  context,
+                  'Editing exercise blocks is not available yet.',
+                ),
                 child: Text(
                   'Edit',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: AppFontWeight.emphasis,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black54,
                   ),
                 ),
@@ -307,7 +310,7 @@ class _ExerciseCard extends StatelessWidget {
                   block.title,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: AppFontWeight.label,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                 ),
@@ -368,7 +371,10 @@ class _BottomActions extends StatelessWidget {
         children: [
           // Start button
           GestureDetector(
-            onTap: () {},
+            onTap: () => _showUnavailable(
+              context,
+              'Starting this exercise plan is not available yet.',
+            ),
             child: Container(
               width: double.infinity,
               height: 52.h,
@@ -382,7 +388,7 @@ class _BottomActions extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -391,7 +397,11 @@ class _BottomActions extends StatelessWidget {
 
           // Add to plan button
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const WorkoutPlansScreen()),
+              );
+            },
             child: Container(
               width: double.infinity,
               height: 50.h,
@@ -410,7 +420,7 @@ class _BottomActions extends StatelessWidget {
                     'Add to workout plan',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: AppFontWeight.label,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
@@ -422,4 +432,8 @@ class _BottomActions extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showUnavailable(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
