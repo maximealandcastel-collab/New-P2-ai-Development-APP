@@ -100,6 +100,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/clinical/
+    - assets/images/gym_logos/
     - assets/icons/
     - assets/lotties/
     - shorebird.yaml
