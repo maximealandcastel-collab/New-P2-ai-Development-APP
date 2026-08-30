@@ -8,7 +8,6 @@ import {
 import { WorkoutModel } from "./workoutGoal.model";
 import { WorkoutStatsModel } from "./workoutStats.model";
 import { UserModel } from "../user/user.model";
-import { TrainerModel } from "../trainer/trainer.model";
 import { ExerciseBlockModel } from "../exerciseBlock/exerciseBlock.model";
 import { ExerciseModel } from "../exercise/exercise.model";
 import { ExerciseStepModel } from "../exerciseStep/exerciseStep.model";
@@ -21,6 +20,7 @@ import {
   summarizeSessionMemory,
   WORKOUT_PROVIDER_TIMEOUTS_MS,
 } from "../../services/ai.service";
+import { resolveWorkoutTrainer } from "./workoutTrainerResolver";
 // Safely converts AI output to a number (1-10) or null
 // Handles cases where AI returns "great", "high", "7/10", "8" etc.
 const toNumberOrNull = (value: any): number | null => {
@@ -128,7 +128,8 @@ export const createWorkoutPreferences = async (
 ): Promise<IWorkout> => {
   const user = await UserModel.findById(userId);
   if (!user) throw new Error("User not found");
-  if (!user.subscribedTrainer)
+  const trainer = await resolveWorkoutTrainer(user);
+  if (!trainer)
     throw new Error(
       "User has no subscribed trainer. Complete onboarding first.",
     );
@@ -209,7 +210,7 @@ export const createWorkoutPreferences = async (
 
   const workout = new WorkoutModel({
     userId,
-    trainerId: user.subscribedTrainer,
+    trainerId: trainer._id,
     ...data,
     goal: canonicalGoal,
     focusArea: canonicalFocus,
@@ -263,10 +264,7 @@ export const generateAIPlan = async (
   // 2. Load user
   const user = await UserModel.findById(userId);
   if (!user) throw new Error("User not found");
-  if (!user.subscribedTrainer) throw new Error("No subscribed trainer found");
-
-  // 3. Load trainer from separate Trainer collection
-  const trainer = await TrainerModel.findById(user.subscribedTrainer);
+  const trainer = await resolveWorkoutTrainer(user, workout.trainerId);
   if (!trainer) throw new Error("Trainer not found");
 
   // 4. Get user memory for this trainer

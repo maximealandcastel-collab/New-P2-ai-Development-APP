@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { randomUUID } from "crypto";
 import {
   completeExerciseService,
   completeSessionService,
@@ -19,6 +20,22 @@ import {
 } from "./workoutProgram.service";
 import { JwtPayloadWithUser } from "../../middlewares/userVerification";
 
+const workoutTraceId = (req: Request): string => {
+  const incoming = String(req.header("x-workout-trace-id") || "")
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 80);
+  return incoming || `server-${randomUUID()}`;
+};
+
+const logWorkoutHandoff = (
+  event: string,
+  traceId: string,
+  workoutId: string,
+  details: Record<string, unknown> = {},
+) => {
+  console.info(`[WORKOUT_${event}]`, { traceId, workoutId, ...details });
+};
+
 // ─────────────────────────────────────────────────────────────
 // POST /workouts
 // User fills preferences form and saves it — no AI plan yet
@@ -28,6 +45,11 @@ export const createWorkout = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const traceId = workoutTraceId(req);
+  res.setHeader("X-Workout-Trace-Id", traceId);
+  logWorkoutHandoff("REQUEST_RECEIVED", traceId, "pending", {
+    stage: "create",
+  });
   try {
     const {
       goal,
@@ -68,6 +90,9 @@ export const createWorkout = async (
       date,
       workoutPreferences,
     });
+    logWorkoutHandoff("RESPONSE_VALIDATED", traceId, String(workout._id), {
+      stage: "create",
+    });
 
     res.status(201).json({
       success: true,
@@ -75,6 +100,10 @@ export const createWorkout = async (
       data: workout,
     });
   } catch (err: any) {
+    logWorkoutHandoff("REQUEST_FAILED", traceId, "pending", {
+      stage: "create",
+      reason: err instanceof Error ? err.message : "unknown",
+    });
     res.status(400).json({ success: false, message: err.message });
   }
 };
@@ -114,15 +143,31 @@ export const generateSplits = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const traceId = workoutTraceId(req);
+  res.setHeader("X-Workout-Trace-Id", traceId);
+  logWorkoutHandoff("REQUEST_RECEIVED", traceId, req.params.id, {
+    stage: "splits",
+  });
   try {
     const userId = (req.user as JwtPayloadWithUser).id;
-    const result = await generateWorkoutSplits(userId, req.params.id);
+    const result = await generateWorkoutSplits(userId, req.params.id, traceId);
+    if (!Array.isArray(result?.splitOptions) || result.splitOptions.length !== 3) {
+      throw new Error("Generated split response was empty or incomplete");
+    }
+    logWorkoutHandoff("RESPONSE_VALIDATED", traceId, req.params.id, {
+      stage: "splits",
+      optionCount: result.splitOptions.length,
+    });
     res.status(200).json({
       success: true,
       message: "Your recommended workout splits are ready.",
       data: result,
     });
   } catch (err: any) {
+    logWorkoutHandoff("REQUEST_FAILED", traceId, req.params.id, {
+      stage: "splits",
+      reason: err instanceof Error ? err.message : "unknown",
+    });
     const status =
       err.message.includes("already in progress")
         ? 409
@@ -146,6 +191,11 @@ export const generateProgram = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  const traceId = workoutTraceId(req);
+  res.setHeader("X-Workout-Trace-Id", traceId);
+  logWorkoutHandoff("REQUEST_RECEIVED", traceId, req.params.id, {
+    stage: "program",
+  });
   try {
     const userId = (req.user as JwtPayloadWithUser).id;
     const selectedSplitId = String(req.body?.selectedSplitId || "").trim();
@@ -160,13 +210,32 @@ export const generateProgram = async (
       userId,
       req.params.id,
       selectedSplitId,
+      traceId,
     );
+    const workouts = result?.program?.workouts;
+    if (
+      !Array.isArray(workouts) ||
+      workouts.length === 0 ||
+      workouts.some(
+        (day: any) => !Array.isArray(day?.exercises) || day.exercises.length === 0,
+      )
+    ) {
+      throw new Error("Generated program response was empty or incomplete");
+    }
+    logWorkoutHandoff("RESPONSE_VALIDATED", traceId, req.params.id, {
+      stage: "program",
+      workoutCount: workouts.length,
+    });
     res.status(200).json({
       success: true,
       message: "Your personalized workout program is ready.",
       data: result,
     });
   } catch (err: any) {
+    logWorkoutHandoff("REQUEST_FAILED", traceId, req.params.id, {
+      stage: "program",
+      reason: err instanceof Error ? err.message : "unknown",
+    });
     const status =
       err.message.includes("already in progress")
         ? 409

@@ -7,7 +7,59 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/logger.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
+
+final workoutGenerationLog = logger(WorkoutFinderFlow);
+
+String _newWorkoutTraceId(String stage) {
+  final timestamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
+  final nonce = Random().nextInt(0xFFFFFF).toRadixString(16).padLeft(6, '0');
+  return '$stage-$timestamp-$nonce';
+}
+
+void _logWorkoutHandoff(
+  String traceId,
+  String event, [
+  Map<String, Object?> details = const {},
+]) {
+  workoutGenerationLog.i('[WORKOUT_GENERATION][$event] ${{
+    'traceId': traceId,
+    ...details,
+  }}');
+}
+
+Map<String, dynamic>? _asStringMap(dynamic value) {
+  return value is Map ? Map<String, dynamic>.from(value) : null;
+}
+
+class _WorkoutGenerationFailure implements Exception {
+  final String code;
+  final String userMessage;
+
+  const _WorkoutGenerationFailure(this.code, this.userMessage);
+
+  @override
+  String toString() => code;
+}
+
+_WorkoutGenerationFailure _responseFailure(
+  dynamic response,
+  String code,
+  String fallbackMessage,
+) {
+  final body = _asStringMap(response.body);
+  final serverMessage = body?['message']?.toString().trim();
+  final statusMessage = response.statusText?.toString().trim();
+  return _WorkoutGenerationFailure(
+    code,
+    serverMessage?.isNotEmpty == true
+        ? serverMessage!
+        : statusMessage?.isNotEmpty == true
+            ? statusMessage!
+            : fallbackMessage,
+  );
+}
 
 // ─── Entry point ─────────────────────────────────────────────────────────────
 class WorkoutFinderFlow extends StatefulWidget {
@@ -667,6 +719,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
 
   Future<void> _generateSplits() async {
     if (_requestInFlight || _hasCompleted) return;
+    final traceId = _newWorkoutTraceId('splits');
     _requestInFlight = true;
     if (_isLoading == false) {
       setState(() {
@@ -676,42 +729,115 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
     }
     try {
       if (_workoutId == null) {
-        final createRes =
-            await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
-        final createdId = createRes.body is Map
-            ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
-            : null;
-        if (createdId == null) throw Exception('Workout could not be created');
+        _logWorkoutHandoff(traceId, 'request_sent', {
+          'stage': 'create',
+          'uri': ApiUrls.workoutCreate,
+        });
+        final createRes = await ApiClient.postData(
+          ApiUrls.workoutCreate,
+          widget.payload,
+          traceId: traceId,
+        );
+        _logWorkoutHandoff(traceId, 'response_received', {
+          'stage': 'create',
+          'statusCode': createRes.statusCode,
+          'bodyType': createRes.body.runtimeType.toString(),
+        });
+        if (createRes.statusCode == null ||
+            createRes.statusCode! < 200 ||
+            createRes.statusCode! >= 300) {
+          throw _responseFailure(
+            createRes,
+            'create_request_failed',
+            "We couldn't save your workout preferences. Please try again.",
+          );
+        }
+        final createData = _asStringMap(_asStringMap(createRes.body)?['data']);
+        final createdId = createData?['_id'] ?? createData?['id'];
+        if (createdId == null || createdId.toString().trim().isEmpty) {
+          throw const _WorkoutGenerationFailure(
+            'create_response_missing_id',
+            'The workout service returned an incomplete response. Please try again.',
+          );
+        }
         _workoutId = createdId.toString();
         widget.onWorkoutCreated(_workoutId!);
+        _logWorkoutHandoff(traceId, 'state_set', {
+          'stage': 'create',
+          'workoutId': _workoutId,
+        });
       }
 
+      _logWorkoutHandoff(traceId, 'request_sent', {
+        'stage': 'splits',
+        'workoutId': _workoutId,
+        'uri': ApiUrls.workoutSplits(_workoutId!),
+      });
       final splitRes = await ApiClient.postData(
         ApiUrls.workoutSplits(_workoutId!),
         {},
+        traceId: traceId,
       );
-      if (splitRes.statusCode == 200 && splitRes.body is Map) {
-        final data = splitRes.body['data'];
-        final rawOptions = data is Map ? data['splitOptions'] : null;
-        if (rawOptions is List) {
-          final options = rawOptions
+      _logWorkoutHandoff(traceId, 'response_received', {
+        'stage': 'splits',
+        'statusCode': splitRes.statusCode,
+        'bodyType': splitRes.body.runtimeType.toString(),
+      });
+      if (splitRes.statusCode != 200) {
+        throw _responseFailure(
+          splitRes,
+          'split_request_failed',
+          "We couldn't generate workout splits. Please try again.",
+        );
+      }
+      final splitData = _asStringMap(_asStringMap(splitRes.body)?['data']);
+      final rawOptions = splitData?['splitOptions'];
+      final options = rawOptions is List
+          ? rawOptions
               .whereType<Map>()
               .map((option) => Map<String, dynamic>.from(option))
-              .toList();
-          if (options.length == 3) {
-            if (!mounted || _hasCompleted) return;
-            _hasCompleted = true;
-            widget.onLoaded(_workoutId!, options);
-            return;
-          }
-        }
+              .toList()
+          : <Map<String, dynamic>>[];
+      final optionsAreComplete = options.length == 3 &&
+          options.every((option) {
+            final id = option['id']?.toString().trim() ?? '';
+            final schedule = option['weeklySchedule'];
+            return id.isNotEmpty && schedule is List && schedule.isNotEmpty;
+          });
+      if (!optionsAreComplete) {
+        throw const _WorkoutGenerationFailure(
+          'split_response_incomplete',
+          'The workout service returned incomplete split options. Please try again.',
+        );
       }
-      throw Exception('Split recommendations were incomplete');
-    } catch (_) {
+      _logWorkoutHandoff(traceId, 'response_validated', {
+        'stage': 'splits',
+        'optionCount': options.length,
+      });
+      if (!mounted || _hasCompleted) return;
+      _hasCompleted = true;
+      widget.onLoaded(_workoutId!, options);
+      _logWorkoutHandoff(traceId, 'state_set', {
+        'stage': 'splits',
+        'optionCount': options.length,
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _logWorkoutHandoff(traceId, 'render_completed', {
+          'stage': 'split_selection',
+          'optionCount': options.length,
+        });
+      });
+    } catch (error) {
+      _logWorkoutHandoff(traceId, 'failure', {
+        'stage': 'splits',
+        'reason': error.toString(),
+      });
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = "We couldn't complete your workout yet.\nPlease try again.";
+        _error = error is _WorkoutGenerationFailure
+            ? error.userMessage
+            : "We couldn't complete your workout yet.\nPlease try again.";
       });
     } finally {
       _requestInFlight = false;
@@ -1033,6 +1159,7 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
 
   Future<void> _generateProgram() async {
     if (_requestInFlight || _hasNavigated) return;
+    final traceId = _newWorkoutTraceId('program');
     _requestInFlight = true;
     if (!_isLoading) {
       setState(() {
@@ -1041,28 +1168,75 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
       });
     }
     try {
+      _logWorkoutHandoff(traceId, 'request_sent', {
+        'stage': 'program',
+        'workoutId': widget.workoutId,
+        'selectedSplitId': widget.selectedSplitId,
+        'uri': ApiUrls.workoutProgram(widget.workoutId),
+      });
       final response = await ApiClient.postData(
         ApiUrls.workoutProgram(widget.workoutId),
         {'selectedSplitId': widget.selectedSplitId},
+        traceId: traceId,
       );
-      if (response.statusCode == 200 && response.body is Map) {
-        final data = response.body['data'];
-        if (data is Map && data['program'] is Map) {
-          if (!mounted || _hasNavigated) return;
-          _hasNavigated = true;
-          Get.offNamed(
-            AppRoute.aiPlanResult,
-            arguments: Map<String, dynamic>.from(data),
-          );
-          return;
-        }
+      _logWorkoutHandoff(traceId, 'response_received', {
+        'stage': 'program',
+        'statusCode': response.statusCode,
+        'bodyType': response.body.runtimeType.toString(),
+      });
+      if (response.statusCode != 200) {
+        throw _responseFailure(
+          response,
+          'program_request_failed',
+          "We couldn't generate your workout program. Please try again.",
+        );
       }
-      throw Exception('Program response was incomplete');
-    } catch (_) {
+      final data = _asStringMap(_asStringMap(response.body)?['data']);
+      final program = _asStringMap(data?['program']);
+      final workouts = program?['workouts'];
+      final hasCompleteWorkouts = workouts is List &&
+          workouts.isNotEmpty &&
+          workouts.whereType<Map>().length == workouts.length &&
+          workouts.whereType<Map>().every((day) {
+            final exercises = day['exercises'];
+            return exercises is List && exercises.isNotEmpty;
+          });
+      if (data == null ||
+          program == null ||
+          data['aiPlan'] is! Map ||
+          !hasCompleteWorkouts) {
+        throw const _WorkoutGenerationFailure(
+          'program_response_incomplete',
+          'The workout service returned an empty or incomplete program. Please try again.',
+        );
+      }
+      _logWorkoutHandoff(traceId, 'response_validated', {
+        'stage': 'program',
+        'workoutCount': workouts.length,
+      });
+      if (!mounted || _hasNavigated) return;
+      _hasNavigated = true;
+      final resultData = Map<String, dynamic>.from(data)
+        ..['_workoutTraceId'] = traceId;
+      _logWorkoutHandoff(traceId, 'state_set', {
+        'stage': 'program',
+        'workoutCount': workouts.length,
+      });
+      Get.offNamed(
+        AppRoute.aiPlanResult,
+        arguments: resultData,
+      );
+    } catch (error) {
+      _logWorkoutHandoff(traceId, 'failure', {
+        'stage': 'program',
+        'reason': error.toString(),
+      });
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = "We couldn't complete your workout yet.\nPlease try again.";
+        _error = error is _WorkoutGenerationFailure
+            ? error.userMessage
+            : "We couldn't complete your workout yet.\nPlease try again.";
       });
     } finally {
       _requestInFlight = false;

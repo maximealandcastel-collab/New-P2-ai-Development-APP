@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:get/get.dart';
@@ -48,32 +49,60 @@ class ApiClient extends GetxService {
   }
 
   //==========================================> Post Data <======================================
-  static Future<Response> postData(String uri, dynamic body, {Map<String, String>? headers}) async {
+  static Future<Response> postData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+    String? traceId,
+  }) async {
     String bearerToken =
         await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
-    var mainHeaders = {
+    final mainHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $bearerToken',
+      if (traceId != null && traceId.isNotEmpty)
+        'X-Workout-Trace-Id': traceId,
+      if (headers != null) ...headers,
     };
 
     try {
-      log.i(
-          '|📍📍📍|-----------------[[ POST ]] method details start -----------------|📍📍📍|');
-      log.i('URL: $uri');
+      log.i('[API_REQUEST_SENT] ${{
+        'method': 'POST',
+        'uri': uri,
+        if (traceId != null) 'traceId': traceId,
+      }}');
 
       http.Response response = await client.post(
         Uri.parse(ApiUrls.baseUrl + uri),
         body: jsonEncode(body),
-        headers: headers ?? mainHeaders,
+        headers: mainHeaders,
       ).timeout(const Duration(seconds: timeoutInSeconds));
 
-      log.i("==========> Response Post Method: ${response.statusCode}");
+      log.i('[API_RESPONSE_RECEIVED] ${{
+        'method': 'POST',
+        'uri': uri,
+        'statusCode': response.statusCode,
+        'responseBytes': response.bodyBytes.length,
+        if (traceId != null) 'traceId': traceId,
+      }}');
       return handleResponse(response, uri);
     } catch (e, s) {
-      log.e("🐞🐞🐞 Error in postData: ${e.toString()}");
+      final statusText = switch (e) {
+        TimeoutException() => 'The request timed out. Please try again.',
+        SocketException() => noInternetMessage,
+        FormatException() => 'The request could not be prepared.',
+        http.ClientException() => 'The server connection failed.',
+        _ => 'The request failed. Please try again.',
+      };
+      log.e('[API_REQUEST_FAILED] ${{
+        'method': 'POST',
+        'uri': uri,
+        'errorType': e.runtimeType.toString(),
+        if (traceId != null) 'traceId': traceId,
+      }}');
       log.e("Stacktrace: ${s.toString()}");
-      return const Response(statusCode: 1, statusText: noInternetMessage);
+      return Response(statusCode: 0, statusText: statusText);
     }
   }
 
@@ -386,7 +415,10 @@ class ApiClient extends GetxService {
       statusCode: response.statusCode,
       statusText: response.reasonPhrase,
     );
-    if (response0.statusCode != 200 &&
+    final isSuccess = response0.statusCode != null &&
+        response0.statusCode! >= 200 &&
+        response0.statusCode! < 300;
+    if (!isSuccess &&
         response0.body != null &&
         response0.body is! String) {
       ErrorResponse errorResponse = ErrorResponse.fromJson(response0.body);
@@ -394,7 +426,7 @@ class ApiClient extends GetxService {
           statusCode: response0.statusCode,
           body: response0.body,
           statusText: errorResponse.message);
-    } else if (response0.statusCode != 200 && response0.body == null) {
+    } else if (!isSuccess && response0.body == null) {
       response0 = const Response(statusCode: 0, statusText: noInternetMessage);
     }
 

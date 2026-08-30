@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import {
   IAIGeneratedPlan,
   IPlannedExercise,
@@ -11,7 +11,6 @@ import {
 } from "./workoutGoal.interface";
 import { WorkoutModel } from "./workoutGoal.model";
 import { UserModel } from "../user/user.model";
-import { TrainerModel } from "../trainer/trainer.model";
 import { ExerciseBlockModel } from "../exerciseBlock/exerciseBlock.model";
 import { ExerciseModel } from "../exercise/exercise.model";
 import { ExerciseStepModel } from "../exerciseStep/exerciseStep.model";
@@ -22,6 +21,8 @@ import {
   summarizeAIProviderFailure,
   WORKOUT_PROVIDER_TIMEOUTS_MS,
 } from "../../services/ai.service";
+import { resolveWorkoutTrainer } from "./workoutTrainerResolver";
+import { EXERCISES } from "../workoutPlan/exercises";
 
 type GenerationContext = {
   workout: IWorkout;
@@ -177,9 +178,7 @@ const getGenerationContext = async (
 
   const user = await UserModel.findById(userId);
   if (!user) throw new Error("User not found");
-  if (!user.subscribedTrainer) throw new Error("No subscribed trainer found");
-
-  const trainer = await TrainerModel.findById(user.subscribedTrainer);
+  const trainer = await resolveWorkoutTrainer(user, workout.trainerId);
   if (!trainer) throw new Error("Trainer not found");
 
   const memory = user.getMemoryForTrainer(
@@ -546,7 +545,44 @@ Return exactly:
 `.trim(),
 });
 
-const loadApprovedLibrary = async (trainerId: Types.ObjectId) => {
+const platformLibraryObjectId = (scope: string, value: string) =>
+  new Types.ObjectId(
+    createHash("sha256")
+      .update(`${scope}:${value}`)
+      .digest("hex")
+      .slice(0, 24),
+  );
+
+const loadPlatformApprovedLibrary = (): LibraryExercise[] =>
+  EXERCISES.filter((exercise) => !exercise.is_warmup).map((exercise) => ({
+    _id: platformLibraryObjectId("platform-workout-exercise", exercise.name),
+    name: exercise.name,
+    muscleGroup: exercise.muscle_group,
+    equipment: exercise.equipment,
+    difficulty: exercise.intensity.join(", "),
+    sets: 3,
+    reps: "8-12",
+    restTime: "60s",
+    rpe: "7-8",
+    tags: [
+      exercise.muscle_group,
+      exercise.equipment,
+      ...exercise.location,
+      ...exercise.intensity,
+    ],
+    steps: [],
+    substitutions: {},
+    blockId: platformLibraryObjectId(
+      "platform-workout-block",
+      exercise.muscle_group,
+    ),
+    blockName: `${exercise.muscle_group} — Platform Approved`,
+  }));
+
+const loadApprovedLibrary = async (
+  trainerId: Types.ObjectId,
+  allowPlatformFallback = false,
+) => {
   const approvedBlocks = await ExerciseBlockModel.find({
     trainerId,
     isApproved: true,
@@ -618,6 +654,15 @@ const loadApprovedLibrary = async (trainerId: Types.ObjectId) => {
   }
 
   if (!exercises.length) {
+    if (allowPlatformFallback) {
+      const platformLibrary = loadPlatformApprovedLibrary();
+      console.info("[Workout Library Compatibility]", {
+        trainerId: String(trainerId),
+        approvedExercisesLoaded: platformLibrary.length,
+        source: "platform_approved_owner_test_fallback",
+      });
+      return platformLibrary;
+    }
     throw new Error(
       "Trainer has no approved exercises yet. Ask your trainer to approve exercises in their library.",
     );
@@ -993,10 +1038,14 @@ Return exactly:
 export const generateWorkoutSplits = async (
   userId: string,
   workoutId: string,
+  traceId?: string,
 ) => {
   const requestStartedAt = Date.now();
   let leaseId: string | null = null;
-  logWorkoutEvent("WORKOUT_GENERATION_STARTED", workoutId, { stage: "splits" });
+  logWorkoutEvent("WORKOUT_GENERATION_STARTED", workoutId, {
+    stage: "splits",
+    traceId,
+  });
   try {
     const context = await getGenerationContext(userId, workoutId);
     const preferences = buildPreferenceSnapshot(context);
@@ -1004,6 +1053,7 @@ export const generateWorkoutSplits = async (
     if (context.workout.splitOptions?.length === 3) {
       logWorkoutEvent("WORKOUT_GENERATION_COMPLETED", workoutId, {
         stage: "splits",
+        traceId,
         provider: "cached",
         totalDurationMs: Date.now() - requestStartedAt,
         fallbackUsed: false,
@@ -1055,6 +1105,7 @@ export const generateWorkoutSplits = async (
     logWorkoutEvent("WORKOUT_SAVED", workoutId, { stage: "splits" });
     logWorkoutEvent("WORKOUT_GENERATION_COMPLETED", workoutId, {
       stage: "splits",
+      traceId,
       provider: generated.provider,
       totalDurationMs: Date.now() - requestStartedAt,
       fallbackUsed: generated.provider !== "claude",
@@ -1074,6 +1125,7 @@ export const generateWorkoutSplits = async (
     }
     logWorkoutEvent("WORKOUT_GENERATION_FAILED", workoutId, {
       stage: "splits",
+      traceId,
       reason: error instanceof Error ? error.message : "unknown",
       totalDurationMs: Date.now() - requestStartedAt,
     });
@@ -1085,10 +1137,14 @@ export const generateSelectedWorkoutProgram = async (
   userId: string,
   workoutId: string,
   selectedSplitId: string,
+  traceId?: string,
 ) => {
   const requestStartedAt = Date.now();
   let leaseId: string | null = null;
-  logWorkoutEvent("WORKOUT_GENERATION_STARTED", workoutId, { stage: "program" });
+  logWorkoutEvent("WORKOUT_GENERATION_STARTED", workoutId, {
+    stage: "program",
+    traceId,
+  });
   try {
     const context = await getGenerationContext(userId, workoutId);
     const preferences = buildPreferenceSnapshot(context);
@@ -1116,6 +1172,7 @@ export const generateSelectedWorkoutProgram = async (
     ) {
       logWorkoutEvent("WORKOUT_GENERATION_COMPLETED", workoutId, {
         stage: "program",
+        traceId,
         provider: "cached",
         totalDurationMs: Date.now() - requestStartedAt,
         fallbackUsed: false,
@@ -1155,6 +1212,8 @@ export const generateSelectedWorkoutProgram = async (
 
     const approvedLibrary = await loadApprovedLibrary(
       context.trainer._id as Types.ObjectId,
+      !context.user.subscribedTrainer &&
+        (context.user.role === "trainer" || context.user.role === "admin"),
     );
     const eligibleLibrary = filterLibraryForPreferences(
       approvedLibrary,
@@ -1222,6 +1281,7 @@ export const generateSelectedWorkoutProgram = async (
     logWorkoutEvent("WORKOUT_SAVED", workoutId, { stage: "program" });
     logWorkoutEvent("WORKOUT_GENERATION_COMPLETED", workoutId, {
       stage: "program",
+      traceId,
       provider: generated.provider,
       totalDurationMs: Date.now() - requestStartedAt,
       fallbackUsed: generated.provider !== "claude",
@@ -1242,6 +1302,7 @@ export const generateSelectedWorkoutProgram = async (
     }
     logWorkoutEvent("WORKOUT_GENERATION_FAILED", workoutId, {
       stage: "program",
+      traceId,
       reason: error instanceof Error ? error.message : "unknown",
       totalDurationMs: Date.now() - requestStartedAt,
     });

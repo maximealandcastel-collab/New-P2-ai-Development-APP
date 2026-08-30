@@ -1,8 +1,8 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
+import 'package:pler_to_pler_app/services/logger.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI PLAN RESULT — shown after "Finding best workout plan for you"
@@ -38,62 +38,26 @@ class PlanStep {
   const PlanStep({required this.instruction, required this.tip});
 }
 
+class WorkoutPhaseStep {
+  final String instruction;
+  final String duration;
+
+  const WorkoutPhaseStep({
+    required this.instruction,
+    required this.duration,
+  });
+}
+
 class AiPlanResultScreen extends StatelessWidget {
   const AiPlanResultScreen({super.key});
 
-  // Sample plan shown when the backend is unreachable (demo mode).
-  static const List<PlanExercise> _sampleMainWork = [
-    PlanExercise(
-      name: 'Bench Press',
-      muscleGroup: 'Chest',
-      sets: '4 sets',
-      reps: '6-8 reps',
-      rest: 'Rest 120s',
-      rpe: 'RPE 8-9',
-      steps: [
-        PlanStep(
-          instruction:
-              'Lie flat on bench, grip bar slightly wider than shoulder-width',
-          tip: 'Keep shoulder blades retracted and pinched together',
-        ),
-        PlanStep(
-          instruction:
-              'Unrack the bar and lower it to your mid-chest under control',
-          tip: '3-second descent, touch chest lightly',
-        ),
-        PlanStep(
-          instruction:
-              'Press the bar back up explosively to full arm extension',
-          tip: 'Drive your feet into the floor for stability',
-        ),
-      ],
-    ),
-    PlanExercise(
-      name: 'Incline Dumbbell Press',
-      muscleGroup: 'Chest',
-      sets: '3 sets',
-      reps: '8-10 reps',
-      rest: 'Rest 90s',
-      rpe: 'RPE 7-8',
-      steps: [
-        PlanStep(
-          instruction:
-              'Set bench to a 30-45 degree incline, dumbbells at shoulder level',
-          tip: 'Keep wrists stacked over elbows',
-        ),
-        PlanStep(
-          instruction: 'Press the dumbbells up and slightly together',
-          tip: 'Do not let the weights clank at the top',
-        ),
-      ],
-    ),
-  ];
+  static final _resultLog = logger(AiPlanResultScreen);
+  static final Set<String> _reportedTraceIds = <String>{};
 
-  /// Parse the backend AI plan (passed via Get.arguments) or fall back to
-  /// the sample plan when running without a backend connection.
-  static List<PlanExercise> _parseMainWork(Map<String, dynamic>? plan) {
-    final raw = plan?['mainWork'];
-    if (raw is! List || raw.isEmpty) return _sampleMainWork;
+  /// Parse exercises from the backend AI plan. Older plans may omit optional
+  /// sections, so those sections stay empty instead of showing fake content.
+  static List<PlanExercise> _parseExercises(dynamic raw) {
+    if (raw is! List || raw.isEmpty) return const [];
     return raw.whereType<Map>().map((e) {
       final steps = (e['steps'] is List)
           ? (e['steps'] as List).whereType<Map>().map((s) {
@@ -115,22 +79,194 @@ class AiPlanResultScreen extends StatelessWidget {
     }).toList();
   }
 
-  static String _sectionText(Map<String, dynamic>? plan, String key,
-      String fallback) {
-    final raw = plan?[key];
-    if (raw is List && raw.isNotEmpty && raw.first is Map) {
-      final first = raw.first as Map;
-      return (first['instruction'] ?? fallback).toString();
-    }
-    return fallback;
+  static List<PlanExercise> _parseMainWork(Map<String, dynamic>? plan) {
+    return _parseExercises(plan?['mainWork']);
+  }
+
+  static List<WorkoutPhaseStep> _parsePhaseSteps(
+    dynamic raw, {
+    required List<WorkoutPhaseStep> fallback,
+  }) {
+    if (raw is! List || raw.isEmpty) return fallback;
+    final parsed = raw.whereType<Map>().map((step) {
+      return WorkoutPhaseStep(
+        instruction: (step['instruction'] ?? step['text'] ?? '').toString(),
+        duration: (step['duration'] ?? '').toString(),
+      );
+    }).where((step) => step.instruction.trim().isNotEmpty).toList();
+    return parsed.isEmpty ? fallback : parsed;
+  }
+
+  static Widget _exerciseList(List<PlanExercise> exercises) {
+    return Column(
+      children: [
+        for (int i = 0; i < exercises.length; i++) ...[
+          _ExerciseCard(exercise: exercises[i]),
+          if (i != exercises.length - 1) SizedBox(height: 14.h),
+        ],
+      ],
+    );
+  }
+
+  static Widget _phaseStepList(List<WorkoutPhaseStep> steps) {
+    return Column(
+      children: [
+        for (int i = 0; i < steps.length; i++)
+          Padding(
+            padding: EdgeInsets.only(bottom: i == steps.length - 1 ? 0 : 12.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 25.w,
+                  height: 25.w,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFDEBD9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '${i + 1}',
+                    style: TextStyle(
+                      color: const Color(0xFFF57C1F),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        steps[i].instruction,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (steps[i].duration.trim().isNotEmpty) ...[
+                        SizedBox(height: 3.h),
+                        Text(
+                          steps[i].duration,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  static List<WorkoutPhaseStep> _fallbackWarmUp() {
+    return const [
+      WorkoutPhaseStep(
+        instruction: 'Easy cardio to raise your temperature',
+        duration: '3 minutes',
+      ),
+      WorkoutPhaseStep(
+        instruction: 'Dynamic mobility for the joints and muscles you will train',
+        duration: '2 minutes',
+      ),
+      WorkoutPhaseStep(
+        instruction: 'One light rehearsal set of the first movement',
+        duration: '1 minute',
+      ),
+    ];
+  }
+
+  static List<WorkoutPhaseStep> _fallbackCoolDown() {
+    return const [
+      WorkoutPhaseStep(
+        instruction: 'Slow breathing and an easy walk to bring your heart rate down',
+        duration: '2 minutes',
+      ),
+      WorkoutPhaseStep(
+        instruction: 'Gentle static stretches for the trained muscle groups',
+        duration: '3 minutes',
+      ),
+      WorkoutPhaseStep(
+        instruction: 'Drink water and note any discomfort before leaving',
+        duration: '1 minute',
+      ),
+    ];
+  }
+
+  static List<PlanExercise> _parseOptionalExercises(dynamic raw) {
+    return _parseExercises(raw);
   }
 
   @override
   Widget build(BuildContext context) {
-    final plan = Get.arguments is Map<String, dynamic>
+    final response = Get.arguments is Map<String, dynamic>
         ? Get.arguments as Map<String, dynamic>
         : null;
+    final plan = response?['aiPlan'] is Map
+        ? Map<String, dynamic>.from(response!['aiPlan'] as Map)
+        : response;
+    final program = response?['program'] is Map
+        ? Map<String, dynamic>.from(response!['program'] as Map)
+        : response?['weeklyProgram'] is Map
+            ? Map<String, dynamic>.from(response!['weeklyProgram'] as Map)
+            : null;
+    final selectedSplit = response?['selectedSplit'] is Map
+        ? Map<String, dynamic>.from(response!['selectedSplit'] as Map)
+        : null;
+    final programWorkouts = program?['workouts'] is List
+        ? (program!['workouts'] as List)
+            .whereType<Map>()
+            .map((day) => Map<String, dynamic>.from(day))
+            .toList()
+        : <Map<String, dynamic>>[];
+    final traceId = response?['_workoutTraceId']?.toString() ?? '';
+    final hasRenderableProgram = program != null &&
+        programWorkouts.isNotEmpty &&
+        programWorkouts.every((day) {
+          final exercises = day['exercises'];
+          return exercises is List && exercises.isNotEmpty;
+        });
+    if (!hasRenderableProgram) {
+      _resultLog.e('[WORKOUT_GENERATION][render_rejected] ${{
+        if (traceId.isNotEmpty) 'traceId': traceId,
+        'reason': 'program_missing_or_empty',
+        'workoutCount': programWorkouts.length,
+      }}');
+      return const _InvalidProgramScreen();
+    }
+    if (traceId.isNotEmpty && _reportedTraceIds.add(traceId)) {
+      _resultLog.i('[WORKOUT_GENERATION][render_started] ${{
+        'traceId': traceId,
+        'workoutCount': programWorkouts.length,
+      }}');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _resultLog.i('[WORKOUT_GENERATION][render_completed] ${{
+          'traceId': traceId,
+          'workoutCount': programWorkouts.length,
+        }}');
+      });
+    }
     final mainWork = _parseMainWork(plan);
+    final accessories = _parseOptionalExercises(plan?['accessories']);
+    final finisher = _parseOptionalExercises(plan?['finisher']);
+    final warmUp = _parsePhaseSteps(
+      plan?['warmUp'],
+      fallback: _fallbackWarmUp(),
+    );
+    final coolDown = _parsePhaseSteps(
+      plan?['coolDown'],
+      fallback: _fallbackCoolDown(),
+    );
     final focusList = (plan?['thisWeekFocus'] is List)
         ? (plan!['thisWeekFocus'] as List).map((e) => e.toString()).toList()
         : const ['Chest'];
@@ -151,42 +287,106 @@ class AiPlanResultScreen extends StatelessWidget {
                   children: [
                     _PlanHeader(
                       date: dateStr,
-                      title: 'Maintain Physique',
+                      title: (program?['name'] ?? 'Your Workout Plan').toString(),
                       subtitle: (plan?['coachNote'] as String?) ??
                           "Your trainer built today's session around your focus.",
                     ),
+                    if (program != null) ...[
+                      SizedBox(height: 16.h),
+                      _ProgramOverviewCard(
+                        splitName:
+                            (selectedSplit?['name'] ?? program['name']).toString(),
+                        schedule: program['weeklySchedule'] is List
+                            ? (program['weeklySchedule'] as List)
+                                .map((day) => day.toString())
+                                .toList()
+                            : const [],
+                        daysPerWeek:
+                            (program['daysPerWeek'] as num?)?.toInt() ??
+                                programWorkouts.length,
+                        duration:
+                            (program['estimatedSessionMinutes'] as num?)?.toInt() ??
+                                30,
+                        goal: (program['goal'] ?? '').toString(),
+                        experience:
+                            (program['experienceLevel'] ?? '').toString(),
+                      ),
+                      for (final day in programWorkouts) ...[
+                        SizedBox(height: 16.h),
+                        _ProgramDayCard(
+                          day: (day['day'] as num?)?.toInt() ?? 1,
+                          title: (day['title'] ?? 'Workout').toString(),
+                          muscleGroups: day['muscleGroups'] is List
+                              ? (day['muscleGroups'] as List)
+                                  .map((item) => item.toString())
+                                  .toList()
+                              : const [],
+                          duration:
+                              (day['estimatedDurationMinutes'] as num?)?.toInt() ??
+                                  30,
+                          exercises: _parseExercises(day['exercises']),
+                          warmUp: _parsePhaseSteps(
+                            day['warmUp'],
+                            fallback: _fallbackWarmUp(),
+                          ),
+                          coolDown: _parsePhaseSteps(
+                            day['coolDown'],
+                            fallback: _fallbackCoolDown(),
+                          ),
+                          cardioGuidance:
+                              (day['cardioGuidance'] ?? '').toString(),
+                        ),
+                      ],
+                      SizedBox(height: 16.h),
+                      _ProgramGuidanceCard(
+                        progression:
+                            (program['progression'] is Map
+                                    ? program['progression']['guidance']
+                                    : null)
+                                ?.toString() ??
+                            '',
+                        recovery:
+                            (program['recovery'] is Map
+                                    ? program['recovery']['guidance']
+                                    : null)
+                                ?.toString() ??
+                            '',
+                        cardio:
+                            (program['cardio'] is Map
+                                    ? program['cardio']['guidance']
+                                    : null)
+                                ?.toString() ??
+                            '',
+                      ),
+                    ],
                     SizedBox(height: 16.h),
                     _SectionCard(
-                      title: 'Warm up',
-                      child: _NumberedItem(
-                        index: 1,
-                        text: _sectionText(plan, 'warmUp',
-                            '5 minutes light cardio plus dynamic stretching'),
-                        highlight: '5 minutes',
-                      ),
+                      title: program == null ? 'Warm up' : 'Start Day 1 — Warm up',
+                      child: _phaseStepList(warmUp),
                     ),
                     SizedBox(height: 16.h),
                     _SectionCard(
                       title: 'Main Work',
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < mainWork.length; i++) ...[
-                            _ExerciseCard(exercise: mainWork[i]),
-                            if (i != mainWork.length - 1)
-                              SizedBox(height: 14.h),
-                          ],
-                        ],
-                      ),
+                      child: _exerciseList(mainWork),
                     ),
+                    if (accessories.isNotEmpty) ...[
+                      SizedBox(height: 16.h),
+                      _SectionCard(
+                        title: 'Accessories',
+                        child: _exerciseList(accessories),
+                      ),
+                    ],
+                    if (finisher.isNotEmpty) ...[
+                      SizedBox(height: 16.h),
+                      _SectionCard(
+                        title: 'Finisher',
+                        child: _exerciseList(finisher),
+                      ),
+                    ],
                     SizedBox(height: 16.h),
                     _SectionCard(
                       title: 'Cool down',
-                      child: _NumberedItem(
-                        index: 1,
-                        text: _sectionText(plan, 'coolDown',
-                            'Stretch the muscle groups you trained today'),
-                        highlight: '5 minutes',
-                      ),
+                      child: _phaseStepList(coolDown),
                     ),
                     SizedBox(height: 16.h),
                     _InfoCard(
@@ -200,7 +400,7 @@ class AiPlanResultScreen extends StatelessWidget {
                     _CheckInCard(
                       duration:
                           (plan?['estimatedDurationMinutes'] as num?)?.toInt() ??
-                              10,
+                              20,
                       question: (plan?['checkInQuestion'] as String?) ??
                           "Did you complete today's session? What loads did you use and how hard was it (RPE 1-10)? Any pain or equipment issues?",
                     ),
@@ -239,13 +439,395 @@ class AiPlanResultScreen extends StatelessWidget {
                   child: Text(
                     'Session Start',
                     style: TextStyle(
-                        fontSize: 17.sp, fontWeight: AppFontWeight.section),
+                        fontSize: 17.sp, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InvalidProgramScreen extends StatelessWidget {
+  const _InvalidProgramScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2F2F2),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: const Color(0xFFF57C1F),
+                  size: 44.sp,
+                ),
+                SizedBox(height: 14.h),
+                Text(
+                  'Your workout could not be displayed',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'The workout service returned an empty or incomplete plan. '
+                  'Please go back and try generating it again.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    height: 1.4,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                FilledButton(
+                  onPressed: () => Get.back(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFF57C1F),
+                  ),
+                  child: const Text('Go back'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgramOverviewCard extends StatelessWidget {
+  final String splitName;
+  final List<String> schedule;
+  final int daysPerWeek;
+  final int duration;
+  final String goal;
+  final String experience;
+
+  const _ProgramOverviewCard({
+    required this.splitName,
+    required this.schedule,
+    required this.daysPerWeek,
+    required this.duration,
+    required this.goal,
+    required this.experience,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Selected Split',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: const Color(0xFFF57C1F),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            splitName,
+            style: TextStyle(
+              fontSize: 20.sp,
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: [
+              _Chip('$daysPerWeek days/week'),
+              _Chip('$duration min/session'),
+              if (experience.trim().isNotEmpty) _Chip(experience),
+              if (goal.trim().isNotEmpty) _Chip(goal),
+            ],
+          ),
+          if (schedule.isNotEmpty) ...[
+            SizedBox(height: 14.h),
+            for (int i = 0; i < schedule.length; i++)
+              Padding(
+                padding: EdgeInsets.only(bottom: i == schedule.length - 1 ? 0 : 7.h),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24.w,
+                      height: 24.w,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFDEBD9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${i + 1}',
+                        style: TextStyle(
+                          color: const Color(0xFFF57C1F),
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 9.w),
+                    Expanded(
+                      child: Text(
+                        schedule[i],
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgramDayCard extends StatefulWidget {
+  final int day;
+  final String title;
+  final List<String> muscleGroups;
+  final int duration;
+  final List<PlanExercise> exercises;
+  final List<WorkoutPhaseStep> warmUp;
+  final List<WorkoutPhaseStep> coolDown;
+  final String cardioGuidance;
+
+  const _ProgramDayCard({
+    required this.day,
+    required this.title,
+    required this.muscleGroups,
+    required this.duration,
+    required this.exercises,
+    required this.warmUp,
+    required this.coolDown,
+    required this.cardioGuidance,
+  });
+
+  @override
+  State<_ProgramDayCard> createState() => _ProgramDayCardState();
+}
+
+class _ProgramDayCardState extends State<_ProgramDayCard> {
+  bool _expanded = false;
+
+  Widget _phaseSteps(List<WorkoutPhaseStep> steps) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int index = 0; index < steps.length; index++)
+          Padding(
+            padding: EdgeInsets.only(bottom: index == steps.length - 1 ? 0 : 7.h),
+            child: Text(
+              '${index + 1}. ${steps[index].instruction} — ${steps[index].duration}',
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Colors.grey.shade700,
+                height: 1.4,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _expanded = !_expanded),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                Container(
+                  width: 40.w,
+                  height: 40.w,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF57C1F),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Text(
+                    '${widget.day}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        '${widget.duration} min • ${widget.exercises.length} exercises',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.black54,
+                ),
+              ],
+            ),
+          ),
+          if (widget.muscleGroups.isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            Text(
+              widget.muscleGroups.join(', '),
+              style: TextStyle(
+                color: const Color(0xFFF57C1F),
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (_expanded) ...[
+            SizedBox(height: 16.h),
+            Text(
+              'Warm up',
+              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 8.h),
+            _phaseSteps(widget.warmUp),
+            SizedBox(height: 16.h),
+            for (int i = 0; i < widget.exercises.length; i++) ...[
+              _ExerciseCard(exercise: widget.exercises[i]),
+              if (i != widget.exercises.length - 1) SizedBox(height: 12.h),
+            ],
+            SizedBox(height: 16.h),
+            Text(
+              'Cool down',
+              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 8.h),
+            _phaseSteps(widget.coolDown),
+            if (widget.cardioGuidance.trim().isNotEmpty) ...[
+              SizedBox(height: 14.h),
+              Text(
+                widget.cardioGuidance,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.grey.shade700,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgramGuidanceCard extends StatelessWidget {
+  final String progression;
+  final String recovery;
+  final String cardio;
+
+  const _ProgramGuidanceCard({
+    required this.progression,
+    required this.recovery,
+    required this.cardio,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final sections = <MapEntry<String, String>>[
+      MapEntry('Progression', progression),
+      MapEntry('Recovery', recovery),
+      MapEntry('Cardio', cardio),
+    ].where((section) => section.value.trim().isNotEmpty).toList();
+    return Container(
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Program Guidance',
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          for (int i = 0; i < sections.length; i++) ...[
+            Text(
+              sections[i].key,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFFF57C1F),
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              sections[i].value,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Colors.grey.shade700,
+                height: 1.45,
+              ),
+            ),
+            if (i != sections.length - 1) SizedBox(height: 12.h),
+          ],
+        ],
       ),
     );
   }
@@ -279,7 +861,7 @@ class _PlanHeader extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 26.sp,
-              fontWeight: AppFontWeight.display,
+              fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(height: 6.h),
@@ -316,7 +898,7 @@ class _SectionCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 20.sp,
-              fontWeight: AppFontWeight.section,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
@@ -356,7 +938,7 @@ class _NumberedItem extends StatelessWidget {
               text: TextSpan(
                 style: TextStyle(
                   fontSize: 15.sp,
-                  fontWeight: AppFontWeight.section,
+                  fontWeight: FontWeight.w700,
                   color: Colors.black,
                   height: 1.4,
                 ),
@@ -409,7 +991,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                   e.name,
                   style: TextStyle(
                     fontSize: 20.sp,
-                    fontWeight: AppFontWeight.section,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF7A3B1E),
                   ),
                 ),
@@ -430,7 +1012,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12.sp,
-                      fontWeight: AppFontWeight.label,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -500,7 +1082,7 @@ class _Chip extends StatelessWidget {
         style: TextStyle(
           fontSize: 13.sp,
           color: Colors.grey.shade700,
-          fontWeight: AppFontWeight.emphasis,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -524,7 +1106,7 @@ class _StepItem extends StatelessWidget {
             Text('$index.',
                 style: TextStyle(
                     fontSize: 15.sp,
-                    fontWeight: AppFontWeight.label,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black)),
             SizedBox(width: 8.w),
             Expanded(
@@ -532,7 +1114,7 @@ class _StepItem extends StatelessWidget {
                 step.instruction,
                 style: TextStyle(
                   fontSize: 15.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black,
                   height: 1.4,
                 ),
@@ -578,7 +1160,7 @@ class _InfoCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: AppFontWeight.section,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
@@ -614,7 +1196,7 @@ class _WeekFocusCard extends StatelessWidget {
             'This Week Focus',
             style: TextStyle(
               fontSize: 18.sp,
-              fontWeight: AppFontWeight.section,
+              fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
@@ -630,7 +1212,7 @@ class _WeekFocusCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 color: const Color(0xFFF57C1F),
-                fontWeight: AppFontWeight.label,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -661,7 +1243,7 @@ class _CheckInCard extends StatelessWidget {
             'Duration in min: $duration',
             style: TextStyle(
               fontSize: 15.sp,
-              fontWeight: AppFontWeight.section,
+              fontWeight: FontWeight.w700,
               color: const Color(0xFFF57C1F),
             ),
           ),
@@ -699,7 +1281,7 @@ class _WatchVideoButton extends StatelessWidget {
         ),
         child: Text(
           'Watch Video',
-          style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.label),
+          style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
         ),
       ),
     );
