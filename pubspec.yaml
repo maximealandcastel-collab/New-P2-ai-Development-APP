@@ -103,6 +103,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/rate_my_peel_banner.png
     - assets/images/clinical/
     - assets/icons/
     - assets/lotties/

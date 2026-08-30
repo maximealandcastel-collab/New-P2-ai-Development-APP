@@ -744,12 +744,13 @@ class _RateMyPeelBanner extends StatelessWidget {
       label: 'Rate My Peel. Coming soon.',
       hint: 'Opens the Rate My Peel feature overview',
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => Get.toNamed(AppRoute.rateMyPeel),
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.w),
+          margin: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
             color: Colors.black,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
@@ -759,17 +760,51 @@ class _RateMyPeelBanner extends StatelessWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20.r),
-            child: AspectRatio(
-              aspectRatio: 1842 / 854,
+            borderRadius: BorderRadius.circular(16.r),
+            child: SizedBox(
+              height: 132.h,
               child: Image.asset(
                 ImagePath.rateMyPeelBanner,
-                fit: BoxFit.contain,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
                 filterQuality: FilterQuality.high,
+                errorBuilder: (context, error, stackTrace) =>
+                    const _RateMyPeelAssetFallback(),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RateMyPeelAssetFallback extends StatelessWidget {
+  const _RateMyPeelAssetFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF101010),
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.camera_alt_outlined,
+            color: Color(0xFFFF6B35),
+            size: 22,
+          ),
+          SizedBox(width: 10),
+          Text(
+            'Rate My Peel  ·  COMING SOON',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
