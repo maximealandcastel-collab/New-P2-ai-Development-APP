@@ -288,7 +288,7 @@ class _RateMyPeelHeader extends StatelessWidget {
               color: RateMyPeelScreen._muted,
             ),
           ),
-        ),
+        ],
       ),
     );
   }

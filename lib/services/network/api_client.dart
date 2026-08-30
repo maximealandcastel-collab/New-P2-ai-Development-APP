@@ -22,7 +22,8 @@ class ApiClient extends GetxService {
 
   // <==========================================> Get Data <======================================>
   static Future<Response> getData(String uri, {Map<String, String>? headers}) async {
-    bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       'Content-Type': 'application/json',
@@ -48,7 +49,8 @@ class ApiClient extends GetxService {
 
   //==========================================> Post Data <======================================
   static Future<Response> postData(String uri, dynamic body, {Map<String, String>? headers}) async {
-    String bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    String bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       'Content-Type': 'application/json',
@@ -77,7 +79,8 @@ class ApiClient extends GetxService {
 
   //==========================================> Patch Data <======================================
   static Future<Response> patch(String uri, var body, {Map<String, String>? headers}) async {
-    bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       //'Content-Type': 'application/json',
@@ -109,7 +112,8 @@ class ApiClient extends GetxService {
 
   //==========================================> put Data <======================================
   static Future<Response> put(String uri, var body, {Map<String, String>? headers}) async {
-    bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       //'Content-Type': 'application/json',
@@ -142,7 +146,8 @@ class ApiClient extends GetxService {
   static Future<Response> postMultipartData(String uri, Map<dynamic, dynamic> body, {List<MultipartBody>? multipartBody, Map<String, String>? headers}) async {
     try {
       // Fetch Bearer Token
-      bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+      bearerToken =
+          await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
       // Headers
       var mainHeaders = {
@@ -199,7 +204,8 @@ class ApiClient extends GetxService {
 
   //==========================================> Put Data <======================================
   Future<Response> putData(String uri, dynamic body, {Map<String, String>? headers}) async {
-    bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       'Content-Type': 'application/json',
@@ -229,7 +235,8 @@ class ApiClient extends GetxService {
   static Future<Response> putMultipartData(String uri, Map<String, String> body, {List<MultipartBody>? multipartBody, List<MultipartListBody>? multipartListBody, Map<String, String>? headers,}) async {
     try {
       // Fetch bearer token from preferences
-      bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+      bearerToken =
+          await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
       // Set up main headers with Authorization and Content-Type for multipart data
       var mainHeaders = {
@@ -272,8 +279,6 @@ class ApiClient extends GetxService {
       final content = await response.stream.bytesToString();
 
       log.i('====> API Response: [${response.statusCode}] $uri');
-      log.i(content);
-
       return Response(
         statusCode: response.statusCode,
         statusText: response.statusCode == 200 ? 'Success' : noInternetMessage,
@@ -293,7 +298,8 @@ class ApiClient extends GetxService {
         List<MultipartListBody>? multipartListBody,
         Map<String, String>? headers}) async {
     try {
-      bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+      bearerToken =
+          await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
       var mainHeaders = {
         //'Content-Type': 'application/json',
@@ -326,8 +332,6 @@ class ApiClient extends GetxService {
       http.StreamedResponse response = await request.send();
       final content = await response.stream.bytesToString();
       log.i('====> API Response: [${response.statusCode}] $uri');
-      log.i(content);
-
       return Response(
           statusCode: response.statusCode,
           statusText: noInternetMessage,
@@ -340,7 +344,8 @@ class ApiClient extends GetxService {
 
   //==========================================> Delete Data <======================================
   static Future<Response> deleteData(String uri, {Map<String, String>? headers, dynamic body}) async {
-    bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
 
     var mainHeaders = {
       'Content-Type': 'application/json',
