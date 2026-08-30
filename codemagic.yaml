@@ -164,8 +164,8 @@ workflows:
           # owner's real credentials into every shipped IPA and pre-filled them
           # on the login screen. That password must be rotated.
           flutter build ipa --release \
-            --build-number=1299 \
-            --dart-define=BUILD_NUMBER=1299 \
+            --build-number=1300 \
+            --dart-define=BUILD_NUMBER=1300 \
             --dart-define=API_BASE_URL=https://p2pfitechai.com/api/v1 \
             --dart-define=API_ORIGIN=https://p2pfitechai.com \
             --dart-define=SOCKET_URL=https://p2pfitechai.com \
