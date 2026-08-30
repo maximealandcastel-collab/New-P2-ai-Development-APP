@@ -539,46 +539,46 @@ class _LoadingStep extends StatefulWidget {
 }
 
 class _LoadingStepState extends State<_LoadingStep>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _rotation;
-  bool _hasNavigated = false;
-  bool _isGenerating = false;
-  String? _errorMessage;
+        with SingleTickerProviderStateMixin {
+      late final AnimationController _ctrl;
+      late final Animation<double> _rotation;
+      bool _hasNavigated = false;
+      bool _isGenerating = false;
+      String? _errorMessage;
+      Map<String, dynamic>? _generatedPlan;
 
-  // ── Phase messages cycle while AI works ──────────────────────────────────
-  static const _phases = [
-    'Analyzing your goals…',
-    'Building your workout split…',
-    'Selecting the right exercises…',
-    'Calibrating intensity & duration…',
-    'Optimizing for your body…',
-    'Almost ready…',
-  ];
-  int _phaseIndex = 0;
-  Timer? _phaseTimer;
+      static const _steps = [
+        'Analyzing your fitness goals…',
+        'Building your workout structure…',
+        'Personalizing your exercises…',
+      ];
+      int _stepIndex = 0;
+      Timer? _stepTimer;
 
-  // Minimum time (ms) before navigating — makes it feel like real AI work.
-  static const _minDisplayMs = 5000;
+      // A slightly longer minimum makes the generation feel intentional without
+      // holding users after a genuinely slow API response.
+      static const _minDisplayMs = 6500;
 
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-    _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
+      @override
+      void initState() {
+        super.initState();
+        _ctrl = AnimationController(
+          vsync: this,
+          duration: const Duration(seconds: 2),
+        )..repeat();
+        _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
 
-    // Advance phase label every 1.4 s
-    _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
-      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
-    });
+        _stepTimer = Timer.periodic(const Duration(milliseconds: 2100), (_) {
+          if (!mounted || _generatedPlan != null) return;
+          if (_stepIndex < _steps.length - 1) {
+            setState(() => _stepIndex++);
+          }
+        });
 
-    _generatePlan();
-  }
+        _generatePlan();
+      }
 
-  String _responseMessage(dynamic body, String fallback) {
+      String _responseMessage(dynamic body, String fallback) {
         if (body is Map) {
           final message = body['message'] ?? body['error'];
           if (message != null && message.toString().trim().isNotEmpty) {
@@ -593,6 +593,8 @@ class _LoadingStepState extends State<_LoadingStep>
         setState(() {
           _isGenerating = true;
           _errorMessage = null;
+          _generatedPlan = null;
+          _stepIndex = 0;
         });
 
         final sw = Stopwatch()..start();
@@ -655,21 +657,36 @@ class _LoadingStepState extends State<_LoadingStep>
           return;
         }
 
-        _hasNavigated = true;
-        _isGenerating = false;
-        Get.offNamed(AppRoute.aiPlanResult, arguments: plan);
+        setState(() {
+          _isGenerating = false;
+          _generatedPlan = plan;
+          _stepIndex = _steps.length - 1;
+        });
       }
-    
-  @override
-  void dispose() {
-    _phaseTimer?.cancel();
-    _ctrl.dispose();
-    super.dispose();
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_errorMessage != null) {
+      void _openGeneratedPlan() {
+        if (_generatedPlan == null || _hasNavigated) return;
+        _hasNavigated = true;
+        Get.offNamed(AppRoute.aiPlanResult, arguments: _generatedPlan);
+      }
+
+      double get _progressValue {
+        if (_generatedPlan != null) return 1;
+        if (_stepIndex == 0) return .28;
+        if (_stepIndex == 1) return .56;
+        return .82;
+      }
+
+      @override
+      void dispose() {
+        _stepTimer?.cancel();
+        _ctrl.dispose();
+        super.dispose();
+      }
+
+      @override
+      Widget build(BuildContext context) {
+        if (_errorMessage != null) {
           return Center(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 28.w),
@@ -723,55 +740,270 @@ class _LoadingStepState extends State<_LoadingStep>
           );
         }
 
-        return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Finding your perfect\nworkout plan',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24.sp,
-              fontWeight: AppFontWeight.section,
-              color: Colors.black,
-              height: 1.35,
-            ),
+        return SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'GENERATE',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: AppFontWeight.section,
+                  color: const Color(0xFFFF6B35),
+                  letterSpacing: 1.8,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                'WORKOUT
+SPLIT',
+                style: TextStyle(
+                  fontSize: 34.sp,
+                  fontWeight: AppFontWeight.section,
+                  color: Colors.black,
+                  height: .98,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                _generatedPlan == null
+                    ? 'Get a custom workout plan tailored to your goals.'
+                    : 'Your personalized workout split is ready to view.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey.shade600,
+                  height: 1.35,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              Container(
+                height: 52.h,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
+                  ),
+                  borderRadius: BorderRadius.circular(26.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF16C5BC).withOpacity(.2),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.auto_awesome_rounded,
+                          color: Colors.white, size: 18.sp),
+                      SizedBox(width: 9.w),
+                      Text(
+                        _generatedPlan == null
+                            ? 'Generating Workout Split'
+                            : 'Workout Split Generated',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: AppFontWeight.section,
+                        ),
+                      ),
+                      SizedBox(width: 9.w),
+                      Icon(Icons.arrow_forward_rounded,
+                          color: Colors.white, size: 18.sp),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 18.h),
+              for (int i = 0; i < _steps.length; i++)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10.h),
+                  child: _GenerationStepCard(
+                    label: _steps[i],
+                    completed: _generatedPlan != null || _stepIndex > i,
+                    active: _generatedPlan == null && _stepIndex == i,
+                  ),
+                ),
+              SizedBox(height: 8.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Progress',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: AppFontWeight.section,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  Text(
+                    '${(_progressValue * 100).round()}%',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: AppFontWeight.section,
+                      color: const Color(0xFFFF6B35),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4.r),
+                child: LinearProgressIndicator(
+                  minHeight: 5.h,
+                  value: _progressValue,
+                  backgroundColor: const Color(0xFFFFE2D6),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFFFF6B35),
+                  ),
+                ),
+              ),
+              if (_generatedPlan != null) ...[
+                SizedBox(height: 22.h),
+                Container(
+                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F7EC),
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(color: const Color(0xFFC9EBD1)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Your Workout Split Is Ready!',
+                        style: TextStyle(
+                          fontSize: 17.sp,
+                          fontWeight: AppFontWeight.section,
+                          color: const Color(0xFF258B4D),
+                        ),
+                      ),
+                      SizedBox(height: 5.h),
+                      Text(
+                        'Your personalized plan is ready to review.',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: const Color(0xFF4E795A),
+                        ),
+                      ),
+                      SizedBox(height: 14.h),
+                      ElevatedButton(
+                        onPressed: _openGeneratedPlan,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6B35),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 13.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('View My Workout Split'),
+                            SizedBox(width: 8.w),
+                            const Icon(Icons.arrow_forward_rounded, size: 18),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
-          SizedBox(height: 10.h),
+        );
+      }
+    }
 
-          // ── Cycling status message — fades between phases ───────────────
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            child: Text(
-              _phases[_phaseIndex],
-              key: ValueKey(_phaseIndex),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
-            ),
+    class _GenerationStepCard extends StatelessWidget {
+      final String label;
+      final bool completed;
+      final bool active;
+
+      const _GenerationStepCard({
+        required this.label,
+        required this.completed,
+        required this.active,
+      });
+
+      @override
+      Widget build(BuildContext context) {
+        final accent = completed
+            ? const Color(0xFF61BD75)
+            : active
+                ? const Color(0xFFFFB366)
+                : const Color(0xFFD5D9D7);
+        final icon = completed
+            ? Icons.check_rounded
+            : active
+                ? Icons.tune_rounded
+                : Icons.more_horiz_rounded;
+        final status = completed
+            ? 'Complete'
+            : active
+                ? 'In progress…'
+                : 'Queued';
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: const Color(0xFFE7E9E8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.035),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-
-          SizedBox(height: 48.h),
-
-          // ── Arc spinner ─────────────────────────────────────────────────
-          AnimatedBuilder(
-            animation: _rotation,
-            builder: (_, __) => CustomPaint(
-              size: Size(120.w, 120.w),
-              painter: _ArcLoaderPainter(progress: _rotation.value),
-            ),
+          child: Row(
+            children: [
+              Container(
+                width: 30.w,
+                height: 30.w,
+                decoration: BoxDecoration(
+                  color: accent.withOpacity(.16),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: accent, size: 17.sp),
+              ),
+              SizedBox(width: 11.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12.5.sp,
+                        fontWeight: AppFontWeight.section,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        color: completed
+                            ? const Color(0xFF4B9C5D)
+                            : Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          SizedBox(height: 28.h),
-          Text(
-            'AI is crafting your personalized plan',
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
+        );
+      }
+    }
+    
 class _ArcLoaderPainter extends CustomPainter {
   final double progress;
 
