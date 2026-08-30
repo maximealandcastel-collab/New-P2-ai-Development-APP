@@ -37,8 +37,11 @@ import 'package:get/get.dart';
     }) async {
       final token = await _getToken();
       final connect = GetConnect();
+      final resolvedUrl = url.startsWith('http://') || url.startsWith('https://')
+          ? url
+          : '${ApiUrls.baseUrl}${url.startsWith('/') ? url : '/$url'}';
       return connect.post(
-        url,
+        resolvedUrl,
         body,
         headers: {
           'Content-Type': 'application/json',
