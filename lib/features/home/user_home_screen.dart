@@ -341,219 +341,48 @@ class _GymsCardState extends State<_GymsCard> {
 }
 
 // ─── Generate Workout Split banner ───────────────────────────────────────────
-// Dark/orange — matches Screenshot 1 (approved source of truth).
-// Left: "GENERATE / WORKOUT SPLIT" + description + teal CTA button + P2P badge.
-// Right: battle-ropes photo fading in.
-class _GenerateWorkoutBanner extends StatelessWidget {
-  const _GenerateWorkoutBanner();
+    // Exact approved artwork from the product design.
+    class _GenerateWorkoutBanner extends StatelessWidget {
+      const _GenerateWorkoutBanner();
 
-  static const _ropePhoto =
-      'https://images.unsplash.com/photo-1549060279-7e168fcee0c2'
-      '?w=500&h=220&fit=crop&crop=center&q=80';
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      // workoutScreen is the registered generator that actually reaches
-      // WorkoutController.generateWorkout(). The previous target,
-      // workoutFinderFlow, only exists in the abandoned lib/routes table and
-      // was never registered, so tapping this crashed on a null unknownRoute.
-      onTap: () => Get.toNamed(AppRoute.workoutScreen),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w),
-        // minHeight, not a fixed height. At the old 158.h the text column below
-        // needed ~166 and the card shipped with a visible black-and-yellow
-        // "BOTTOM OVERFLOWED BY 8.4 PIXELS" banner across it on a real device.
-        //
-        // The Stack sizes itself to its one non-positioned child (the text
-        // Padding), and the photo and gradients are all Positioned with
-        // top:0/bottom:0, so they stretch to whatever height that produces.
-        // Dropping the hard height therefore lets the card fit its own content,
-        // while minHeight keeps the intended proportions when the content is
-        // shorter. It also means a larger system font size grows the card
-        // instead of overflowing it.
-        constraints: BoxConstraints(minHeight: 190.h),
-        // width matters as much as height here. A Stack sizes to its only
-        // non-positioned child — the text column — so without this the card
-        // hugged the text and rendered about half the screen wide, wedged
-        // between two full-width sections. Every other layer is Positioned
-        // against the card's edges (photo right:0 width 230.w, dark overlay
-        // left:0 width 230.w, badge left:130.w), so at that width they all
-        // overlapped and the photo was squashed behind the copy. The layout was
-        // written for a full-width card; it just never got one.
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          color: const Color(0xFF1A1A1A),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.r),
-          child: Stack(
-            children: [
-              // ── Battle-ropes photo — right side, fades in from right ──
-              Positioned(
-                right: 0, top: 0, bottom: 0,
-                width: 230.w,
-                child: ShaderMask(
-                  shaderCallback: (b) => const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Colors.transparent, Colors.white],
-                    stops: [0.0, 0.42],
-                  ).createShader(b),
-                  blendMode: BlendMode.dstIn,
-                  child: CachedNetworkImage(
-                    imageUrl: _ropePhoto,
+      @override
+      Widget build(BuildContext context) {
+        return GestureDetector(
+          onTap: () => Get.toNamed(AppRoute.workoutScreen),
+          child: Semantics(
+            button: true,
+            label: 'Generate workout split',
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.r),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: AspectRatio(
+                  aspectRatio: 1696 / 927,
+                  child: Image.asset(
+                    'assets/images/generate_workout_split.png',
                     fit: BoxFit.cover,
-                    fadeInDuration: const Duration(milliseconds: 350),
-                    placeholder: (_, __) => const ColoredBox(color: Color(0xFF2A2A2A)),
-                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                    filterQuality: FilterQuality.high,
                   ),
                 ),
               ),
-              // ── Dark overlay left — keeps text readable ───────────────
-              Positioned(
-                left: 0, top: 0, bottom: 0, width: 230.w,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF1A1A1A), Colors.transparent],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                ),
-              ),
-              // ── Subtle orange warm tint on left ───────────────────────
-              Positioned(
-                left: 0, top: 0, bottom: 0, width: 160.w,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0x22FF6B35), Colors.transparent],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                ),
-              ),
-              // ── P2P badge (sits between text and photo) ───────────────
-              Positioned(
-                left: 130.w, top: 16.h,
-                child: Container(
-                  width: 42.r, height: 42.r,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF6B35),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFF6B35).withOpacity(0.45),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Deliberately left at w900, unlike the rest of this
-                      // screen. This is 9sp inside a 42px circle — micro-type
-                      // needs the extra weight to stay legible at all, and the
-                      // lighter scale turns it to mush.
-                      Text('P2P',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9.sp,
-                            fontWeight: AppFontWeight.display,
-                            letterSpacing: 0.3,
-                          )),
-                      Text('AI',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 7.sp,
-                            fontWeight: AppFontWeight.label,
-                          )),
-                    ],
-                  ),
-                ),
-              ),
-              // ── Text content ─────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 18.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Generate',
-                      style: TextStyle(
-                        color: const Color(0xFFFF6B35),
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                    Text(
-                      'Workout\nsplit',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.w700,
-                        height: 1.05,
-                        letterSpacing: -0.1,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Get a custom workout plan\ntailored to your goals.',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 10.sp,
-                        height: 1.4,
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    // Teal CTA — matches Screenshot 1
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 11.w, vertical: 7.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00BCD4),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.auto_awesome,
-                              color: Colors.white, size: 11.sp),
-                          SizedBox(width: 5.w),
-                          Text(
-                            'Generate Workout Split',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Icon(Icons.arrow_forward,
-                              color: Colors.white, size: 11.sp),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
+        );
+      }
+    }
 
-// ─── Today's overview card ────────────────────────────────────────────────────
+    // ─── Today's overview card ────────────────────────────────────────────────────
 class _TodaysOverviewCard extends StatelessWidget {
   final UserHomeController c;
   const _TodaysOverviewCard({required this.c});
