@@ -30,7 +30,7 @@ class _InvoicePreviewScreenState extends State<InvoicePreviewScreen> {
 
   Future<void> _shareInvoice() async {
     await SharePlus.instance.share(
-      const ShareParams(
+      ShareParams(
         text: 'P2P fitTech invoice INV-2456-524\nTotal billed: \$184.00',
         subject: 'Invoice INV-2456-524',
       ),

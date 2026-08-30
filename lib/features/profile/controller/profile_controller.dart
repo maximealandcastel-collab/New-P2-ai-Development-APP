@@ -282,6 +282,14 @@ class ProfileController extends GetxController {
     }
   }
 
+  void toggleDayAvailability(int index) {
+    if (index < 0 || index >= availabilityDays.length) return;
+    updateAvailability(
+      index,
+      availabilityDays[index]['isAvailable'] != true,
+    );
+  }
+
   /// Get availability as comma-separated string
   String getAvailabilityString() {
     final availableDays = availabilityDays

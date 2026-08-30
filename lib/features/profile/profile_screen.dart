@@ -9,6 +9,7 @@ import 'package:pler_to_pler_app/features/profile/controller/profile_controller.
 import 'package:pler_to_pler_app/features/profile/widgets/services_card_widget.dart';
 import 'package:pler_to_pler_app/features/profile/widgets/exercise_card_widget.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
+import 'package:pler_to_pler_app/widgets/two_button_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ProfileScreen extends StatelessWidget {

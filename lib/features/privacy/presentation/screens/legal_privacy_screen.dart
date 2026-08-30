@@ -1,249 +1,77 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LegalPrivacyScreen — hub showing all 6 policy items
-// Tapping any item pushes _PolicyDetailScreen with hardcoded real content.
-// Fully self-contained — no API dependency.
-// ─────────────────────────────────────────────────────────────────────────────
+/// The two documents shown in the Legal & Privacy center.
+enum LegalDocument {
+  privacy,
+  terms,
+}
 
-class LegalPrivacyScreen extends StatelessWidget {
-  const LegalPrivacyScreen({super.key});
+class LegalPrivacyScreen extends StatefulWidget {
+  final LegalDocument initialDocument;
 
-  static const _policies = [
-    _PolicyItem(
-      icon: Icons.description_outlined,
-      title: 'Terms of Service',
-      subtitle: 'Read the rules and guidelines for using P2P Fit Tech AI.',
-      key: 'terms',
-    ),
-    _PolicyItem(
-      icon: Icons.lock_outline,
-      title: 'Privacy Policy',
-      subtitle: 'Learn how we collect, use and protect your information.',
-      key: 'privacy',
-    ),
-    _PolicyItem(
-      icon: Icons.favorite_border,
-      title: 'Fitness & Medical Disclaimer',
-      subtitle: 'Important information about fitness risks and medical recommendations.',
-      key: 'fitness',
-    ),
-    _PolicyItem(
-      icon: Icons.credit_card_outlined,
-      title: 'Subscription & Cancellation Policy',
-      subtitle: 'Details about subscriptions, billing and cancellations.',
-      key: 'subscription',
-    ),
-    _PolicyItem(
-      icon: Icons.people_outline,
-      title: 'Community Guidelines',
-      subtitle: 'Our standards for a safe and positive community.',
-      key: 'community',
-    ),
-    _PolicyItem(
-      icon: Icons.delete_outline,
-      title: 'Delete Account & Data',
-      subtitle: 'Request deletion of your account and personal data.',
-      key: 'delete',
-    ),
-  ];
+  const LegalPrivacyScreen({
+    super.key,
+    this.initialDocument = LegalDocument.privacy,
+  });
+
+  @override
+  State<LegalPrivacyScreen> createState() => _LegalPrivacyScreenState();
+}
+
+class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
+  static const _accent = Color(0xFFFF5B1A);
+  late LegalDocument _selectedDocument;
+  int? _expandedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDocument = widget.initialDocument;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final document = _selectedDocument == LegalDocument.privacy
+        ? _privacyPolicy
+        : _termsOfService;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF7F7F8),
       body: SafeArea(
         child: Column(
           children: [
-            // App bar
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      width: 34.w,
-                      height: 34.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(Icons.chevron_left, size: 20.sp, color: Colors.black87),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Legal & Privacy',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 17.sp,
-                        fontWeight: AppFontWeight.section,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 34.w),
-                ],
-              ),
-            ),
-
+            _buildAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(16.w, 2.h, 16.w, 32.h),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo header
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 28.h),
-                      child: Column(
-                        children: [
-                          // Brand logo circle
-                          Container(
-                            width: 80.w,
-                            height: 80.h,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFFF6B35),
-                                width: 2.5,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'P2P',
-                                style: TextStyle(
-                                  fontSize: 22.sp,
-                                  fontWeight: AppFontWeight.display,
-                                  color: const Color(0xFFFF6B35),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                          RichText(
-                            text: TextSpan(
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: AppFontWeight.display,
-                                letterSpacing: 1.5,
-                              ),
-                              children: const [
-                                TextSpan(text: 'P2P FIT TECH ', style: TextStyle(color: Colors.black)),
-                                TextSpan(text: 'AI', style: TextStyle(color: Color(0xFFFF6B35))),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 6.h),
-                          Text(
-                            'Important policies and information\nabout using P2P Fit Tech AI.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.black54,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Policy list card
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: _policies
-                            .asMap()
-                            .entries
-                            .map((e) => _PolicyTile(
-                                  item: e.value,
-                                  showDivider: e.key < _policies.length - 1,
-                                ))
-                            .toList(),
-                      ),
-                    ),
-
+                    _buildDocumentSwitcher(),
+                    SizedBox(height: 25.h),
+                    _buildDocumentHeader(document),
                     SizedBox(height: 20.h),
-
-                    // Footer contact card
-                    Container(
-                      padding: EdgeInsets.all(16.r),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 38.w,
-                            height: 38.h,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF6B35).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.shield_outlined,
-                                size: 18.sp, color: const Color(0xFFFF6B35)),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Your privacy and safety are our priority.',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: AppFontWeight.label,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  'Questions? Contact us at',
-                                  style: TextStyle(fontSize: 11.sp, color: Colors.black54),
-                                ),
-                                Text(
-                                  'support@p2pfitchai.com',
-                                  style: TextStyle(
-                                    fontSize: 11.sp,
-                                    fontWeight: AppFontWeight.label,
-                                    color: const Color(0xFFFF6B35),
-                                  ),
-                                ),
-                              ],
+                    ...document.sections.asMap().entries.map(
+                          (entry) => Padding(
+                            padding: EdgeInsets.only(bottom: 9.h),
+                            child: _LegalSectionCard(
+                              section: entry.value,
+                              number: entry.key + 1,
+                              isExpanded: _expandedIndex == entry.key,
+                              accent: _accent,
+                              onTap: () => setState(() {
+                                _expandedIndex = _expandedIndex == entry.key
+                                    ? null
+                                    : entry.key;
+                              }),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    SizedBox(height: 10.h),
+                    _buildFooter(),
                   ],
                 ),
               ),
@@ -253,483 +81,575 @@ class LegalPrivacyScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class _PolicyItem {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String key;
-
-  const _PolicyItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.key,
-  });
-}
-
-class _PolicyTile extends StatelessWidget {
-  final _PolicyItem item;
-  final bool showDivider;
-
-  const _PolicyTile({required this.item, required this.showDivider});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () => Get.to(() => _PolicyDetailScreen(item: item)),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            child: Row(
-              children: [
-                Container(
-                  width: 42.w,
-                  height: 42.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF6B35).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(item.icon, size: 20.sp, color: const Color(0xFFFF6B35)),
+  Widget _buildAppBar() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
+      child: Row(
+        children: [
+          Semantics(
+            button: true,
+            label: 'Go back',
+            child: GestureDetector(
+              onTap: () => Get.back(),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                width: 38.w,
+                height: 38.w,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.07),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 14.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: AppFontWeight.section,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        item.subtitle,
-                        style: TextStyle(fontSize: 11.sp, color: Colors.black54),
-                      ),
-                    ],
-                  ),
+                child: Icon(
+                  Icons.chevron_left_rounded,
+                  size: 25.sp,
+                  color: const Color(0xFF171717),
                 ),
-                Icon(Icons.chevron_right, size: 18.sp, color: Colors.black38),
-              ],
+              ),
             ),
           ),
+          Expanded(
+            child: Text(
+              'Legal & Privacy',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF111111),
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ),
+          SizedBox(width: 38.w),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentSwitcher() {
+    return Container(
+      height: 48.h,
+      padding: EdgeInsets.all(3.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(color: const Color(0xFFE5E5E7)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _DocumentTab(
+              label: 'Privacy Policy',
+              selected: _selectedDocument == LegalDocument.privacy,
+              accent: _accent,
+              onTap: () => _selectDocument(LegalDocument.privacy),
+            ),
+          ),
+          Expanded(
+            child: _DocumentTab(
+              label: 'Terms of Service',
+              selected: _selectedDocument == LegalDocument.terms,
+              accent: _accent,
+              onTap: () => _selectDocument(LegalDocument.terms),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentHeader(_LegalDocumentContent document) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          document.title,
+          style: TextStyle(
+            color: const Color(0xFF12131A),
+            fontSize: 28.sp,
+            fontWeight: FontWeight.w700,
+            height: 1.1,
+            letterSpacing: -0.45,
+          ),
         ),
-        if (showDivider)
-          Divider(height: 1, indent: 72.w, endIndent: 16.w, color: Colors.grey.shade100),
+        SizedBox(height: 7.h),
+        Text(
+          'Last updated: August 29, 2026',
+          style: TextStyle(
+            color: const Color(0xFF55565C),
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        SizedBox(height: 16.h),
+        Text(
+          document.introduction,
+          style: TextStyle(
+            color: const Color(0xFF36373C),
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            height: 1.55,
+          ),
+        ),
       ],
     );
   }
+
+  Widget _buildFooter() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5.w, 8.h, 5.w, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.mail_outline_rounded, color: _accent, size: 18.sp),
+          SizedBox(width: 9.w),
+          Expanded(
+            child: Text(
+              'Questions about these documents? Contact us at '
+              'support@p2pfitchai.com.',
+              style: TextStyle(
+                color: const Color(0xFF67686D),
+                fontSize: 12.sp,
+                height: 1.45,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _selectDocument(LegalDocument document) {
+    if (_selectedDocument == document) return;
+    setState(() {
+      _selectedDocument = document;
+      _expandedIndex = null;
+    });
+  }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Detail screen — hardcoded real content per policy key
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PolicyDetailScreen extends StatelessWidget {
-  final _PolicyItem item;
-
-  const _PolicyDetailScreen({super.key, required this.item});
-
-  static const _content = {
-    'terms': '''
-**Terms of Service**
-Last updated: August 1, 2026
-
-Welcome to P2P Fit Tech AI. By accessing or using our app, you agree to be bound by these Terms of Service. Please read them carefully.
-
-**1. Acceptance of Terms**
-By downloading, installing, or using the P2P Fit Tech AI application, you agree to comply with and be bound by these Terms of Service and our Privacy Policy. If you do not agree, please do not use our services.
-
-**2. Use of Services**
-You must be at least 18 years old to use this application. You agree to use the app only for lawful purposes and in accordance with these Terms. You are responsible for maintaining the confidentiality of your account credentials.
-
-**3. Subscriptions and Payments**
-P2P Fit Tech AI offers subscription-based access to personal training services. Subscriptions are billed on a recurring basis. By subscribing, you authorize us to charge your payment method on the applicable billing cycle.
-
-**4. Trainer Relationships**
-Trainers on P2P Fit Tech AI are independent professionals. P2P Fit Tech AI acts as a platform connecting clients with trainers and is not responsible for the advice, programs, or conduct of individual trainers.
-
-**5. Intellectual Property**
-All content within the P2P Fit Tech AI app, including workout programs, videos, and AI-generated plans, is the property of P2P Fit Tech AI or its licensors. You may not reproduce, distribute, or create derivative works without written permission.
-
-**6. Limitation of Liability**
-P2P Fit Tech AI is not liable for any indirect, incidental, or consequential damages arising from your use of the app. Our total liability shall not exceed the amount you paid in the 12 months preceding the claim.
-
-**7. Modifications**
-We reserve the right to modify these Terms at any time. We will notify you of significant changes. Continued use of the app after changes constitutes acceptance of the updated Terms.
-
-**8. Termination**
-We reserve the right to terminate or suspend your account for violations of these Terms. You may cancel your account at any time through the app settings.
-
-**9. Governing Law**
-These Terms are governed by the laws of the State of Florida, United States.
-
-**10. Contact**
-For questions about these Terms, contact us at support@p2pfitchai.com
-''',
-    'privacy': '''
-**Privacy Policy**
-Last updated: August 1, 2026
-
-P2P Fit Tech AI ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information.
-
-**1. Information We Collect**
-- **Account Information**: Name, email address, date of birth, and profile photo when you create an account.
-- **Health & Fitness Data**: Weight, fitness goals, workout history, and progress metrics you provide.
-- **Device Information**: Device type, operating system, IP address, and app usage data.
-- **Payment Information**: Billing details processed securely through our payment providers. We do not store full card numbers.
-- **Communications**: Messages exchanged between you and your trainer through our platform.
-
-**2. How We Use Your Information**
-- To provide and improve our services
-- To connect you with qualified personal trainers
-- To generate personalized AI workout and nutrition plans
-- To process payments and manage subscriptions
-- To send important notifications and updates
-- To comply with legal obligations
-
-**3. Data Sharing**
-We do not sell your personal information. We share data only with:
-- Your assigned trainer (workout progress, goals, messages)
-- Payment processors (Stripe, Clover) for billing
-- Service providers who help us operate the platform
-- Law enforcement when required by law
-
-**4. Data Security**
-We implement industry-standard security measures including encryption, secure servers, and regular security audits to protect your data.
-
-**5. Data Retention**
-We retain your data for as long as your account is active. You may request deletion of your data at any time by contacting us.
-
-**6. Your Rights**
-You have the right to access, correct, or delete your personal information. Contact us at support@p2pfitchai.com to exercise these rights.
-
-**7. Cookies and Tracking**
-We use analytics tools to understand app usage. You can opt out of analytics through your device settings.
-
-**8. Children's Privacy**
-Our services are not directed to children under 18. We do not knowingly collect information from minors.
-
-**9. Contact**
-For privacy questions or concerns, contact us at support@p2pfitchai.com
-''',
-    'fitness': '''
-**Fitness & Medical Disclaimer**
-Last updated: August 1, 2026
-
-**Important: Please read this disclaimer carefully before using P2P Fit Tech AI.**
-
-**1. Not Medical Advice**
-The content provided through P2P Fit Tech AI — including workout programs, nutrition guidance, AI-generated plans, and trainer recommendations — is for informational and fitness purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment.
-
-**2. Consult Your Doctor**
-Before beginning any exercise program or making significant changes to your diet, consult with your physician or a qualified healthcare provider, especially if you:
-- Have a pre-existing medical condition
-- Are pregnant or postpartum
-- Have experienced recent injury or surgery
-- Are over 40 and not currently active
-- Have cardiovascular, metabolic, or musculoskeletal conditions
-
-**3. Exercise Risks**
-Physical exercise involves inherent risks including but not limited to: muscle strains, joint injuries, cardiovascular events, and falls. By using this app, you acknowledge and assume these risks.
-
-**4. Trainer Qualifications**
-Trainers on our platform are fitness professionals, not licensed medical practitioners. Their guidance does not constitute medical advice.
-
-**5. AI-Generated Content**
-AI-generated workout and nutrition plans are based on the information you provide. The accuracy of these plans depends on the accuracy of your input. Always use your own judgment and consult a professional before following any AI-generated advice.
-
-**6. Stop If You Feel Unwell**
-If you experience pain, dizziness, shortness of breath, chest pain, or any unusual symptoms during exercise, stop immediately and seek medical attention.
-
-**7. Limitation of Liability**
-P2P Fit Tech AI, its trainers, and affiliates are not liable for any injuries, health complications, or adverse effects resulting from the use of our services.
-
-**Contact**: support@p2pfitchai.com
-''',
-    'subscription': '''
-**Subscription & Cancellation Policy**
-Last updated: August 1, 2026
-
-**1. Subscription Plans**
-P2P Fit Tech AI offers monthly and annual subscription plans that provide access to personal trainer connections, AI workout generation, AI coaching, and premium content.
-
-**2. Free Trial**
-New users may be eligible for a free trial period. After the trial ends, you will be automatically charged the subscription fee unless you cancel before the trial period expires.
-
-**3. Billing**
-- Subscriptions are billed in advance on a recurring monthly or annual basis.
-- Payment is charged to your Apple App Store or Google Play account at confirmation of purchase.
-- Subscription renews automatically unless cancelled at least 24 hours before the end of the current period.
-
-**4. Price Changes**
-We may change subscription prices. We will notify you at least 30 days in advance of any price change. Continued use of the app after the price change constitutes acceptance.
-
-**5. Cancellation**
-You may cancel your subscription at any time through:
-- iOS: Settings → [Your Name] → Subscriptions → P2P Fit Tech AI → Cancel
-- Android: Google Play Store → Subscriptions → P2P Fit Tech AI → Cancel
-
-Cancellation takes effect at the end of the current billing period. You retain access until that date.
-
-**6. Refunds**
-Subscription fees are generally non-refundable. Refund requests are handled according to the App Store or Google Play Store's refund policies. Contact support@p2pfitchai.com for exceptional circumstances.
-
-**7. Trainer Subscriptions**
-If you subscribe to an individual trainer's plan, that subscription is separate from the platform subscription. Cancellation policies for trainer-specific plans may differ — review the trainer's plan details before subscribing.
-
-**8. Account Pausing**
-At this time, we do not offer the ability to pause subscriptions. Cancel and re-subscribe when ready.
-
-**Contact**: support@p2pfitchai.com
-''',
-    'community': '''
-**Community Guidelines**
-Last updated: August 1, 2026
-
-P2P Fit Tech AI is built on the belief that fitness is better together. To keep our community safe, positive, and empowering, all members — users and trainers alike — must follow these guidelines.
-
-**1. Be Respectful**
-Treat every member of the community with respect. Harassment, bullying, hate speech, or discrimination based on race, gender, body type, religion, nationality, sexual orientation, or disability will result in immediate account suspension.
-
-**2. Keep It Appropriate**
-Do not share explicit, offensive, or inappropriate content. All profile photos, content posts, and messages must be suitable for a professional fitness environment.
-
-**3. No Spam or Self-Promotion**
-Do not use the platform to send unsolicited promotional messages or spam. Trainers may share their services only through designated channels.
-
-**4. Accurate Information**
-Provide accurate information about your fitness level, health conditions, and goals. Misleading information can lead to inappropriate training plans and potential injury.
-
-**5. Protect Privacy**
-Do not share other members' personal information, photos, or messages without their explicit consent.
-
-**6. Trainers: Professional Standards**
-Trainers are expected to maintain professional conduct at all times. Trainers must not provide medical diagnoses, guarantee specific results, or engage in inappropriate relationships with clients.
-
-**7. Reporting**
-If you witness a violation of these guidelines, report it immediately through the app's report function or by contacting support@p2pfitchai.com. We take all reports seriously.
-
-**8. Enforcement**
-Violations may result in content removal, account suspension, or permanent ban depending on severity. We reserve the right to make enforcement decisions at our sole discretion.
-
-**9. Changes**
-We may update these guidelines as our community grows. Continued use of the platform constitutes acceptance of any changes.
-
-**Contact**: support@p2pfitchai.com
-''',
-    'delete': '''
-**Delete Account & Data**
-Last updated: August 1, 2026
-
-We respect your right to control your personal data. This page explains how to request deletion of your account and associated data.
-
-**1. What Gets Deleted**
-When you delete your account, we permanently remove:
-- Your profile information (name, email, photo, bio)
-- Your fitness data (goals, workout history, progress metrics)
-- Your messages with trainers
-- Your payment methods (we do not store full card details)
-- Your AI-generated workout and nutrition plans
-
-**2. What Is Retained**
-We may retain certain data as required by law or for legitimate business purposes:
-- Transaction records for tax and accounting purposes (up to 7 years)
-- Anonymized aggregate data used for analytics
-- Data where retention is required by applicable law
-
-**3. How to Request Deletion**
-**Option A — In-App:**
-Go to Settings → Delete My Account and follow the prompts.
-
-**Option B — Email:**
-Send a deletion request to support@p2pfitchai.com from your registered email address with the subject line "Account Deletion Request." Include your full name and registered email.
-
-**4. Processing Time**
-Account deletion is processed within 30 days of your request. You will receive a confirmation email when deletion is complete.
-
-**5. Active Subscriptions**
-Deleting your account does not automatically cancel active subscriptions. Cancel your subscription through the App Store or Google Play before requesting account deletion to avoid future charges.
-
-**6. Reactivation**
-Account deletion is permanent and cannot be undone. If you wish to use P2P Fit Tech AI in the future, you will need to create a new account.
-
-**7. Data Portability**
-Before deleting, you may request a copy of your data by contacting support@p2pfitchai.com.
-
-**Contact**: support@p2pfitchai.com
-''',
-  };
+class _DocumentTab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _DocumentTab({
+    required this.label,
+    required this.selected,
+    required this.accent,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final rawContent = _content[item.key] ?? 'Content coming soon.';
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // App bar
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      width: 34.w,
-                      height: 34.h,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(Icons.chevron_left, size: 20.sp, color: Colors.black87),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      item.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 17.sp,
-                        fontWeight: AppFontWeight.section,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 34.w),
-                ],
-              ),
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(21.r),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.white : const Color(0xFF25262B),
+              fontSize: 12.5.sp,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 32.h),
-                child: Container(
-                  padding: EdgeInsets.all(20.r),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+class _LegalSectionCard extends StatelessWidget {
+  final _LegalSection section;
+  final int number;
+  final bool isExpanded;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _LegalSectionCard({
+    required this.section,
+    required this.number,
+    required this.isExpanded,
+    required this.accent,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      expanded: isExpanded,
+      label: '$number. ${section.title}',
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12.r),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(13.w, 13.h, 12.w, 13.h),
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _SectionIcon(icon: section.icon, accent: accent),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$number. ${section.title}',
+                              style: TextStyle(
+                                color: const Color(0xFF191A1F),
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                height: 1.25,
+                              ),
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(
+                              section.summary,
+                              maxLines: isExpanded ? null : 2,
+                              overflow: isExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: const Color(0xFF64656A),
+                                fontSize: 11.5.sp,
+                                fontWeight: FontWeight.w400,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      AnimatedRotation(
+                        turns: isExpanded ? 0.25 : 0,
+                        duration: const Duration(milliseconds: 180),
+                        child: Icon(
+                          Icons.chevron_right_rounded,
+                          color: const Color(0xFF202126),
+                          size: 22.sp,
+                        ),
                       ),
                     ],
                   ),
-                  child: _MarkdownText(content: rawContent),
-                ),
+                  if (isExpanded) ...[
+                    SizedBox(height: 13.h),
+                    Divider(height: 1, color: const Color(0xFFEDEDEF)),
+                    SizedBox(height: 12.h),
+                    ...section.paragraphs.map(
+                      (paragraph) => Padding(
+                        padding: EdgeInsets.only(bottom: 9.h),
+                        child: Text(
+                          paragraph,
+                          style: TextStyle(
+                            color: const Color(0xFF404146),
+                            fontSize: 12.5.sp,
+                            fontWeight: FontWeight.w400,
+                            height: 1.55,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─── Simple bold-markdown renderer (no package needed) ───────────────────────
-class _MarkdownText extends StatelessWidget {
-  final String content;
+class _SectionIcon extends StatelessWidget {
+  final IconData icon;
+  final Color accent;
 
-  const _MarkdownText({required this.content});
+  const _SectionIcon({
+    required this.icon,
+    required this.accent,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final lines = content.trim().split('\n');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: lines.map((line) => _buildLine(line)).toList(),
-    );
-  }
-
-  Widget _buildLine(String line) {
-    if (line.trim().isEmpty) return SizedBox(height: 8.h);
-
-    // Bold heading lines (start and end with **)
-    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) {
-      final text = line.substring(2, line.length - 2);
-      return Padding(
-        padding: EdgeInsets.only(bottom: 6.h, top: 10.h),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: AppFontWeight.section,
-            color: Colors.black,
-          ),
-        ),
-      );
-    }
-
-    // Lines with inline bold (**word**)
-    if (line.contains('**')) {
-      return Padding(
-        padding: EdgeInsets.only(bottom: 5.h),
-        child: RichText(text: _parseInlineBold(line)),
-      );
-    }
-
-    // Plain paragraph
-    return Padding(
-      padding: EdgeInsets.only(bottom: 5.h),
-      child: Text(
-        line,
-        style: TextStyle(
-          fontSize: 13.sp,
-          color: Colors.black87,
-          height: 1.6,
-        ),
+    return Container(
+      width: 40.w,
+      height: 40.w,
+      decoration: BoxDecoration(
+        color: accent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(11.r),
       ),
+      child: Icon(icon, color: accent, size: 21.sp),
     );
-  }
-
-  TextSpan _parseInlineBold(String line) {
-    final spans = <TextSpan>[];
-    final regex = RegExp(r'\*\*(.*?)\*\*');
-    int last = 0;
-
-    for (final match in regex.allMatches(line)) {
-      if (match.start > last) {
-        spans.add(TextSpan(
-          text: line.substring(last, match.start),
-          style: TextStyle(fontSize: 13.sp, color: Colors.black87, height: 1.6),
-        ));
-      }
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: TextStyle(
-          fontSize: 13.sp,
-          fontWeight: AppFontWeight.section,
-          color: Colors.black,
-          height: 1.6,
-        ),
-      ));
-      last = match.end;
-    }
-    if (last < line.length) {
-      spans.add(TextSpan(
-        text: line.substring(last),
-        style: TextStyle(fontSize: 13.sp, color: Colors.black87, height: 1.6),
-      ));
-    }
-    return TextSpan(children: spans);
   }
 }
+
+class _LegalDocumentContent {
+  final String title;
+  final String introduction;
+  final List<_LegalSection> sections;
+
+  const _LegalDocumentContent({
+    required this.title,
+    required this.introduction,
+    required this.sections,
+  });
+}
+
+class _LegalSection {
+  final IconData icon;
+  final String title;
+  final String summary;
+  final List<String> paragraphs;
+
+  const _LegalSection({
+    required this.icon,
+    required this.title,
+    required this.summary,
+    required this.paragraphs,
+  });
+}
+
+const _privacyPolicy = _LegalDocumentContent(
+  title: 'Privacy Policy',
+  introduction:
+      'Your privacy is important to us. This Privacy Policy explains how '
+      'P2P Fit Tech AI collects, uses, shares, and protects your information '
+      'when you use our app and services.',
+  sections: [
+    _LegalSection(
+      icon: Icons.person_outline_rounded,
+      title: 'Information We Collect',
+      summary: 'Profile, device, usage, health and fitness information.',
+      paragraphs: [
+        'When you create an account, we collect information such as your name, email address, date of birth, gender, profile photo, and contact details you choose to provide.',
+        'You may also provide health and fitness information, including goals, measurements, equipment, injuries, workout history, preferences, and progress. Please only provide information you are comfortable sharing.',
+        'We automatically receive limited device, diagnostic, and usage information needed to keep the app secure and improve reliability. We do not collect precise GPS location for the fitness experience.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.track_changes_rounded,
+      title: 'How We Use Information',
+      summary: 'To provide, personalize, improve and secure our services.',
+      paragraphs: [
+        'We use your information to create and maintain your account, match you with trainers, deliver workouts and content, respond to support requests, and keep the service working.',
+        'We also use it to personalize recommendations, understand product performance, prevent fraud or abuse, communicate important service updates, and comply with applicable law.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.psychology_outlined,
+      title: 'AI & Fitness Personalization',
+      summary: 'How information powers personalized AI recommendations.',
+      paragraphs: [
+        'Information you provide about your goals, experience, schedule, equipment, limitations, and progress may be used to generate personalized workouts, nutrition guidance, and coaching responses.',
+        'AI-generated guidance is based on the information available to the service and may not always be complete or appropriate for you. Review recommendations carefully and consult a qualified healthcare professional when needed.',
+        'We may use aggregated or de-identified information to understand how the service performs and improve our tools. We do not use your private messages to advertise to you.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.groups_outlined,
+      title: 'Service Providers & Partners',
+      summary: 'Trusted providers who help us operate the platform.',
+      paragraphs: [
+        'We work with carefully selected providers for hosting and storage, authentication, payments, customer support, push notifications, video delivery, analytics, and AI features.',
+        'These providers receive only the information needed to perform services for us and must handle it under appropriate confidentiality and security obligations. Their own privacy notices may also apply.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.share_outlined,
+      title: 'Data Sharing, Licensing & Commercial Use',
+      summary: 'We do not sell personal information.',
+      paragraphs: [
+        'We do not sell your personal information. We may share information with a trainer you choose when it is needed to deliver coaching, programs, messages, or progress support.',
+        'If you post a review, profile photo, or other content publicly, you allow P2P Fit Tech AI to display and use that content to operate and promote the platform. You control what you choose to make public.',
+        'We may disclose information when required by law, to protect users and the service, or in connection with a merger, acquisition, financing, or sale of business assets.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.business_outlined,
+      title: 'Gym & Enterprise Partners',
+      summary: 'Information shared through a gym or employer program.',
+      paragraphs: [
+        'If you join through a gym, employer, or other enterprise program, the organization may receive limited participation or account information needed to administer that program.',
+        'Your private conversations, detailed health information, and individual coaching content are not shared with a partner unless you clearly authorize it or disclosure is required by law.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.credit_card_outlined,
+      title: 'Payments & Subscriptions',
+      summary: 'How billing, transactions and subscription access work.',
+      paragraphs: [
+        'Payments are processed by our payment partners, including the Apple App Store, Google Play, Stripe, or other providers shown at checkout. P2P Fit Tech AI does not store complete payment card numbers.',
+        'We receive transaction details such as purchase status, plan, amount, currency, and subscription dates so we can activate access, provide support, prevent fraud, and keep required financial records.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.schedule_outlined,
+      title: 'Data Retention',
+      summary: 'How long we keep information and why.',
+      paragraphs: [
+        'We keep account and fitness information while your account is active or for as long as it is reasonably needed to provide the service, resolve disputes, enforce agreements, and meet legal obligations.',
+        'When you request account deletion, we delete or anonymize personal information within a reasonable period, except for records we must retain by law or legitimate business necessity. De-identified aggregate information may remain.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.privacy_tip_outlined,
+      title: 'Your Privacy Choices & Rights',
+      summary: 'Access, correct, export or delete your information.',
+      paragraphs: [
+        'Depending on where you live, you may have rights to access, correct, export, restrict, or delete personal information, and to withdraw consent where processing relies on consent.',
+        'You can update profile information in the app, manage notifications through device settings, and request account or data deletion through Settings or by emailing support@p2pfitchai.com. We may need to verify your identity before completing a request.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.lock_outline_rounded,
+      title: 'Security',
+      summary: 'How we protect your information.',
+      paragraphs: [
+        'We use administrative, technical, and organizational safeguards designed to protect information, including access controls, encryption in transit, secure infrastructure, and monitoring for suspicious activity.',
+        'No online service can guarantee absolute security. Please use a unique password, keep your device protected, and contact us promptly if you believe your account has been accessed without permission.',
+      ],
+    ),
+  ],
+);
+
+const _termsOfService = _LegalDocumentContent(
+  title: 'Terms of Service',
+  introduction:
+      'These Terms explain the rules for using P2P Fit Tech AI. By creating '
+      'an account or using our app, you agree to these Terms and our Privacy '
+      'Policy.',
+  sections: [
+    _LegalSection(
+      icon: Icons.check_circle_outline_rounded,
+      title: 'Acceptance of Terms',
+      summary: 'The agreement that applies when you use P2P.',
+      paragraphs: [
+        'By downloading, accessing, or using P2P Fit Tech AI, you confirm that you have read and understood these Terms and agree to follow them. If you do not agree, do not use the service.',
+        'You must be old enough to enter a binding agreement under the laws that apply to you. If you use the service for an organization, you confirm that you are authorized to accept these Terms for that organization.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.fitness_center_outlined,
+      title: 'Our Services',
+      summary: 'What P2P Fit Tech AI provides.',
+      paragraphs: [
+        'P2P Fit Tech AI is a technology platform that connects people with trainers and provides workout content, AI-assisted workout and nutrition planning, coaching tools, messaging, and related fitness features.',
+        'Features may change, be paused, or become unavailable as we improve the platform. We will make reasonable efforts to keep important services available and communicate material changes when appropriate.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.account_circle_outlined,
+      title: 'Accounts & Responsibilities',
+      summary: 'Keep your account information accurate and secure.',
+      paragraphs: [
+        'Provide accurate information when you register and keep it current. You are responsible for protecting your password and for activity that occurs through your account. Do not share your account or use another person’s account without permission.',
+        'Tell us promptly if you suspect unauthorized access. We may suspend or restrict an account to protect the user, the community, or the platform.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.payments_outlined,
+      title: 'Subscriptions & Billing',
+      summary: 'Plans, renewals, cancellations and refunds.',
+      paragraphs: [
+        'Some features require a paid subscription. The price, billing cycle, trial terms, and included features are shown before purchase. Subscriptions may renew automatically unless you cancel through the store or payment provider before the renewal deadline.',
+        'Apple App Store and Google Play purchases are managed by the applicable store. Refunds are handled under the store’s policies, except where applicable law requires otherwise. Contact support@p2pfitchai.com for help with a billing issue.',
+        'Trainer plans and platform plans may be separate. A cancellation normally stops the next renewal while access continues through the current paid period.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.groups_2_outlined,
+      title: 'Trainers & Coaching Relationships',
+      summary: 'How users and independent trainers work together.',
+      paragraphs: [
+        'Trainers may be independent professionals using P2P Fit Tech AI to offer coaching. P2P provides the technology and marketplace connection; a trainer remains responsible for their own services, communications, qualifications, and commitments.',
+        'Evaluate whether a trainer’s services are appropriate for your needs. Do not ask a trainer or AI tool to replace a licensed healthcare professional.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.health_and_safety_outlined,
+      title: 'Fitness & Medical Disclaimer',
+      summary: 'Important safety information before you train.',
+      paragraphs: [
+        'Workouts, nutrition information, trainer guidance, and AI-generated recommendations are for general educational and fitness purposes. They are not medical advice, diagnosis, or treatment.',
+        'Exercise carries inherent risks. Speak with a qualified healthcare professional before starting a program, especially if you have an injury, medical condition, pregnancy, or other concern. Stop if you feel pain, dizziness, chest pain, severe shortness of breath, or unwell in any way, and seek medical help.',
+        'Results vary from person to person. P2P Fit Tech AI does not guarantee a particular weight, strength, health, or performance result.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.people_alt_outlined,
+      title: 'Community Standards',
+      summary: 'Keep the platform respectful, safe and professional.',
+      paragraphs: [
+        'Do not harass, threaten, discriminate against, impersonate, or exploit another person. Do not post hateful, sexually explicit, violent, illegal, deceptive, or malicious content.',
+        'Do not spam, phish, distribute malware, misuse another person’s data, circumvent platform fees, or move a platform transaction outside the approved payment flow to avoid applicable charges.',
+        'Report concerning content or behavior to support@p2pfitchai.com. We may remove content, limit features, suspend, or permanently close accounts that violate these standards.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.copyright_outlined,
+      title: 'Content & Intellectual Property',
+      summary: 'Rules for using P2P content and sharing your own.',
+      paragraphs: [
+        'The app, brand, software, AI systems, videos, programs, graphics, and training materials are owned by or licensed to P2P Fit Tech AI. You may use them for personal, non-commercial fitness purposes only.',
+        'You retain ownership of content you submit. You grant P2P a limited, non-exclusive license to host, display, process, and distribute that content as needed to operate and improve the platform. Do not upload content you do not have permission to use.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.gavel_outlined,
+      title: 'Liability & Indemnity',
+      summary: 'Important limits on responsibility.',
+      paragraphs: [
+        'To the maximum extent permitted by law, P2P Fit Tech AI is not responsible for indirect, incidental, special, consequential, or punitive losses arising from your use of or inability to use the platform.',
+        'Nothing in these Terms excludes liability that cannot legally be excluded, including liability for fraud or certain personal injury claims. You agree to reimburse us for reasonable losses arising from your violation of these Terms, misuse of the platform, or infringement of another person’s rights.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.block_outlined,
+      title: 'Suspension & Termination',
+      summary: 'When access may be restricted or ended.',
+      paragraphs: [
+        'You may stop using the service at any time. We may suspend or terminate access when reasonably necessary to enforce these Terms, protect users, investigate abuse, comply with law, or address security or payment issues.',
+        'When an account is closed, your right to use the service ends. Provisions that should continue by their nature, including intellectual property, disclaimers, liability limits, and dispute terms, remain effective.',
+      ],
+    ),
+    _LegalSection(
+      icon: Icons.mail_outline_rounded,
+      title: 'Changes & Contact',
+      summary: 'How we update these Terms and how to reach us.',
+      paragraphs: [
+        'We may update these Terms as the platform changes or legal requirements develop. For material changes, we will provide notice through the app, email, or another reasonable channel. Continued use after the effective date means you accept the updated Terms.',
+        'Questions, complaints, or requests about these Terms can be sent to support@p2pfitchai.com. We will make a reasonable effort to respond and resolve concerns informally first.',
+      ],
+    ),
+  ],
+);
