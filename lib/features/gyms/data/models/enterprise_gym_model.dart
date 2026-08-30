@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class EnterpriseGymModel {
+  static const Map<String, String> _localLogoAssets = {
+    'p2p_fit_factor': 'assets/images/facility_app_logo.png',
+    'la_fitness': 'assets/images/gym_logos/la_fitness.jpg',
+    'yogasix': 'assets/images/gym_logos/yogasix.png',
+  };
+
   static const Map<String, String> _officialDomains = {
     'la_fitness': 'lafitness.com',
     'yogasix': 'yogasix.com',
@@ -89,6 +95,8 @@ class EnterpriseGymModel {
       },
     ).toString();
   }
+
+  String get logoAssetPath => _localLogoAssets[id] ?? '';
 
   /// All 22 gyms — stored regardless of contract status.
   static List<EnterpriseGymModel> get partners => _partners;
