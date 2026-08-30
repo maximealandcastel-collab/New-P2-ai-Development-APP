@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 class EnterpriseGymCard extends StatelessWidget {
   final EnterpriseGymModel gym;
@@ -32,88 +33,33 @@ class EnterpriseGymCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // App icon
-                Container(
-                  width: 54.r,
-                  height: 54.r,
-                  decoration: BoxDecoration(
-                    color: gym.brandColor,
-                    borderRadius: BorderRadius.circular(14.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: gym.brandColor.withOpacity(0.35),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    gym.initials,
-                    style: TextStyle(
-                      color: gym.textColor == Colors.white
-                          ? Colors.white
-                          : gym.accentColor,
-                      fontSize: gym.initials.length > 2 ? 13.sp : 17.sp,
-                      fontWeight: AppFontWeight.display,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                ),
-
-                // Second mini icon strip
-                SizedBox(width: 6.w),
-                Container(
-                  width: 28.r,
-                  height: 28.r,
-                  decoration: BoxDecoration(
-                    color: gym.accentColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    gym.initials.length > 1
-                        ? gym.initials[gym.initials.length - 1]
-                        : gym.initials,
-                    style: TextStyle(
-                      color: gym.brandColor,
-                      fontSize: 10.sp,
-                      fontWeight: AppFontWeight.display,
-                    ),
-                  ),
+                GymBrandLogo(
+                  gym: gym,
+                  size: 54.r,
+                  borderRadius: 14.r,
                 ),
 
                 const Spacer(),
-
-                // Active badge
-                if (gym.isActive)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, vertical: 3.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 5.r,
-                          height: 5.r,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF00C853),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text('active',
-                            style: TextStyle(
-                                color: const Color(0xFF2E7D32),
-                                fontSize: 10.sp,
-                                fontWeight: AppFontWeight.label)),
-                      ],
+                Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: gym.isActivated
+                        ? const Color(0xFFE8F5E9)
+                        : const Color(0xFFF1F1F1),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    gym.isActivated ? 'Active' : 'Targeted',
+                    style: TextStyle(
+                      color: gym.isActivated
+                          ? const Color(0xFF2E7D32)
+                          : const Color(0xFF6B7280),
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
+                ),
               ],
             ),
           ),
@@ -128,7 +74,7 @@ class EnterpriseGymCard extends StatelessWidget {
                   gym.name,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: AppFontWeight.title,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                   maxLines: 1,
@@ -154,33 +100,56 @@ class EnterpriseGymCard extends StatelessWidget {
           Padding(
             padding:
                 EdgeInsets.only(left: 14.w, right: 14.w, bottom: 14.h),
-            child: GestureDetector(
-              onTap: () => Get.to(() => GymLoginPreviewScreen(gym: gym)),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: gym.brandColor,
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Preview Login + Demo',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: AppFontWeight.label,
+            child: gym.isActivated
+                ? GestureDetector(
+                    onTap: () =>
+                        Get.to(() => GymLoginPreviewScreen(gym: gym)),
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      decoration: BoxDecoration(
+                        color: gym.brandColor,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Preview login and demo',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                    SizedBox(width: 4.w),
-                    Icon(Icons.arrow_forward_rounded,
-                        color: Colors.white, size: 14.sp),
-                  ],
-                ),
-              ),
-            ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.lock_outline_rounded,
+                            size: 12.sp, color: Colors.black38),
+                        SizedBox(width: 6.w),
+                        Expanded(
+                          child: Text(
+                            gym.statusLabel,
+                            style: TextStyle(
+                              color: Colors.black45,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w400,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
         ],
       ),

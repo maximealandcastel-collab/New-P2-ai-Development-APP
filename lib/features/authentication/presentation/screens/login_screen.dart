@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
@@ -32,8 +33,8 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 22.h),
                   CustomText(
-                    text: "Sign in to P2P Fitness.",
-                    fontSize: 27.sp,
+                    text: "Sign in to P2P Fitness",
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.w500,
                   ),
                   SizedBox(height: 10.h),
@@ -194,7 +195,23 @@ class LoginScreen extends StatelessWidget {
                 bordersColor: Colors.black.withValues(alpha: 0.008),
                 foregroundColor: Colors.black,
                 backgroundColor: Colors.white,
-                label: "Sign in with Google",
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/google_g.svg',
+                      width: 18.r,
+                      height: 18.r,
+                    ),
+                    SizedBox(width: 10.w),
+                    CustomText(
+                      text: 'Sign in with Google',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
                 onPressed: () {},
               ),
             ],
@@ -253,7 +270,7 @@ Widget _helperTabBar({
               ? AppColors.textWhite
               : AppColors.textSecondary,
           text: text,
-          fontSize: 16.sp,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w500,
           textAlign: TextAlign.center,
         ),

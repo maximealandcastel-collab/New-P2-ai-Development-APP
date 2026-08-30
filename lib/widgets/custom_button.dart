@@ -92,8 +92,8 @@ class CustomButton extends StatelessWidget {
                   text: label ?? '',
                   color: foregroundColor ?? Colors.white,
                   fontName: fontName, // null = SF Pro on iOS
-                  fontWeight: fontWeight ?? AppFontWeight.label,
-                  fontSize: fontSize ?? 15.sp,
+                   fontWeight: fontWeight ?? FontWeight.w500,
+                   fontSize: fontSize ?? 14.sp,
                 ),
               ),
 

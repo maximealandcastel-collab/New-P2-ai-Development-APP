@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 /// Gym-branded login screen that stays inside the P2P Fit Tech AI design system.
 ///
@@ -410,16 +411,15 @@ class _TopBar extends StatelessWidget {
               Container(
                 width: 28.r,
                 height: 28.r,
+                padding: EdgeInsets.all(2.r),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFD7B00),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(7.r),
                 ),
-                alignment: Alignment.center,
-                child: Text('P2',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700)),
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -427,27 +427,10 @@ class _TopBar extends StatelessWidget {
                     style:
                         TextStyle(color: Colors.black26, fontSize: 12.sp)),
               ),
-              // Gym mini logo
-              Container(
-                width: 28.r,
-                height: 28.r,
-                decoration: BoxDecoration(
-                  color: gym.brandColor,
-                  borderRadius: BorderRadius.circular(7.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  gym.initials.length > 2
-                      ? gym.initials.substring(0, 2)
-                      : gym.initials,
-                  style: TextStyle(
-                    color: gym.textColor == Colors.white
-                        ? Colors.white
-                        : gym.accentColor,
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+              GymBrandLogo(
+                gym: gym,
+                size: 28.r,
+                borderRadius: 7.r,
               ),
             ],
           ),
@@ -513,32 +496,10 @@ class _GymIdentityBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Gym logo chip
-            Container(
-              width: 54.r,
-              height: 54.r,
-              decoration: BoxDecoration(
-                color: gym.brandColor,
-                borderRadius: BorderRadius.circular(14.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: gym.brandColor.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                gym.initials,
-                style: TextStyle(
-                  color: gym.textColor == Colors.white
-                      ? Colors.white
-                      : gym.accentColor,
-                  fontSize: gym.initials.length > 2 ? 13.sp : 18.sp,
-                  fontWeight: AppFontWeight.display,
-                ),
-              ),
+            GymBrandLogo(
+              gym: gym,
+              size: 54.r,
+              borderRadius: 14.r,
             ),
 
             SizedBox(width: 14.w),

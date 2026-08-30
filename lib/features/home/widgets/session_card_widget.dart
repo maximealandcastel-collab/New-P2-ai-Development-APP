@@ -19,13 +19,13 @@ class SessionsCardWidget extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         title: CustomText(
           textAlign: TextAlign.start,
-          fontSize: 16.sp,
-          fontWeight: AppFontWeight.label,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
           text: 'John Adams',
         ),
         subtitle: CustomText(
           textAlign: TextAlign.start,
-          fontSize: 12.sp,
+          fontSize: 11.sp,
           color: AppColors.textSecondary,
           text: 'Rehab session 10:00 AM',
         ),

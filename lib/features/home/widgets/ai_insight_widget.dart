@@ -20,8 +20,8 @@ class AiInsightWidget extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
                 color: AppColors.textPrimary,
               ),
               children: [
@@ -33,7 +33,7 @@ class AiInsightWidget extends StatelessWidget {
 
           CustomText(
             text: '⚠️ Sarah reported increased knee pain today',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             top: 12.h,
           ),
 
@@ -49,6 +49,7 @@ class AiInsightWidget extends StatelessWidget {
                 CustomText(
                   text: 'Recommendation',
                   fontSize: 12.sp,
+                  fontWeight: FontWeight.w400,
                   color: AppColors.textSecondary,
                 ),
                 CustomText(
@@ -56,7 +57,7 @@ class AiInsightWidget extends StatelessWidget {
                   text:
                   'adjusting her strategy while indulging in a relaxing massage to alleviate discomfort and promote overall well-being.',
                   fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ],
             ),
@@ -76,7 +77,7 @@ class AiInsightWidget extends StatelessWidget {
                     textAlign: TextAlign.start,
                     text: 'Was this insight was helpful ?',
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
 

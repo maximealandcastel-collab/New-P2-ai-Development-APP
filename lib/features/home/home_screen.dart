@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   CustomText(
                     fontWeight: FontWeight.w500,
-                    fontSize: 16.sp,
+                    fontSize: 15.sp,
                     bottom: 12.h,
                     text: 'Client Overview',
                   ),
@@ -80,12 +80,12 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       CustomText(
                         fontWeight: FontWeight.w500,
-                        fontSize: 16.sp,
+                         fontSize: 15.sp,
                         text: 'Today’s Sessions (4)',
                       ),
                       CustomText(
                         fontWeight: FontWeight.w500,
-                        fontSize: 16.sp,
+                         fontSize: 13.sp,
                         text: 'View all',
                       ),
                     ],
@@ -133,13 +133,13 @@ class HomeScreen extends StatelessWidget {
           SvgPicture.asset(icon, height: 24.r, width: 24.r),
           CustomText(
             text: label,
-            fontSize: 12.sp,
+             fontSize: 11.sp,
             color: AppColors.textSecondary,
           ),
           CustomText(
             textAlign: TextAlign.start,
-            fontSize: 28.sp,
-            fontWeight: FontWeight.w600,
+             fontSize: 24.sp,
+             fontWeight: FontWeight.w600,
             text: point,
           ),
         ],

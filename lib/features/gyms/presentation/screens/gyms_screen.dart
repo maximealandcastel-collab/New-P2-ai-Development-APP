@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/featured_gym_card.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_list_tile.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -66,45 +67,61 @@ class _GymsScreenState extends State<GymsScreen> {
   Future<void> _onNearMeTapped() async {
     setState(() => _locationLoading = true);
     final position = await _locationService.getCurrentPosition();
-    if (!mounted) return;
     if (position != null) {
+      if (!mounted) return;
       setState(() {
         _sortedGyms = _locationService.sortByDistance(
           List.from(EnterpriseGymModel.partners),
           position,
         );
-        _locationLoading = false;
       });
-    } else {
-      setState(() => _locationLoading = false);
-      // Fallback: open Google Maps
-      _openNearGymMap();
     }
+
+    if (mounted) {
+      setState(() => _locationLoading = false);
+    }
+
+    await _openNearGymMap(position: position);
   }
 
-  Future<void> _openNearGymMap({String? addressQuery}) async {
-    // Build a smart query: use address/filter if provided, else "gyms near me"
+  Future<void> _openNearGymMap({
+    String? addressQuery,
+    Position? position,
+  }) async {
     String query;
     if (addressQuery != null && addressQuery.isNotEmpty) {
-      query = Uri.encodeQueryComponent('gyms near $addressQuery');
+      query = 'gyms near $addressQuery';
     } else if (_activeFilter != 'All Types') {
-      query = Uri.encodeQueryComponent('$_activeFilter gym near me');
+      query = '$_activeFilter gym near me';
+    } else if (position != null) {
+      query = 'gyms near ${position.latitude},${position.longitude}';
     } else {
-      query = 'gyms+near+me';
+      query = 'gyms near me';
     }
 
-    final webUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
-    final appUrl = Uri.parse('comgooglemaps://?q=$query');
+    final webUrl = Uri.https(
+      'www.google.com',
+      '/maps/search/',
+      <String, String>{'api': '1', 'query': query},
+    );
+    final encodedQuery = Uri.encodeQueryComponent(query);
+    final appUrl = Platform.isIOS
+        ? Uri.parse('comgooglemaps://?q=$encodedQuery')
+        : Uri.parse('geo:0,0?q=$encodedQuery');
     try {
-      if (Platform.isIOS && await canLaunchUrl(appUrl)) {
-        await launchUrl(appUrl, mode: LaunchMode.externalApplication);
+      if (await launchUrl(appUrl, mode: LaunchMode.externalApplication)) {
         return;
       }
-      if (await canLaunchUrl(webUrl)) {
-        await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+      if (await launchUrl(webUrl, mode: LaunchMode.externalApplication)) {
+        return;
       }
     } catch (_) {
-      ToastMessageHelper.show('Could not open maps.');
+      try {
+        if (await launchUrl(webUrl, mode: LaunchMode.externalApplication)) {
+          return;
+        }
+      } catch (_) {}
+      ToastMessageHelper.show('Could not open Google Maps.');
     }
   }
 
@@ -215,9 +232,9 @@ class _GymsScreenState extends State<GymsScreen> {
             'Find a Gym',
             style: TextStyle(
               fontSize: 26.sp,
-              fontWeight: AppFontWeight.display,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
-              letterSpacing: -0.5,
+              letterSpacing: -0.2,
             ),
           ),
           const Spacer(),
@@ -559,22 +576,10 @@ class _GymDetailSheet extends StatelessWidget {
           // Gym brand row
           Row(
             children: [
-              Container(
-                width: 44.w, height: 44.w,
-                decoration: BoxDecoration(
-                  color: gym.brandColor,
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  gym.initials,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: AppFontWeight.display,
-                    color: gym.accentColor,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+              GymBrandLogo(
+                gym: gym,
+                size: 44.r,
+                borderRadius: 10.r,
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -582,7 +587,7 @@ class _GymDetailSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(gym.name,
-                        style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black)),
                     Text(gym.category,
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
                   ],
@@ -597,7 +602,7 @@ class _GymDetailSheet extends StatelessWidget {
           SizedBox(height: 16.h),
 
           // Status / partnership label
-          if (isLocked && gym.statusLabel != null) ...[
+          if (isLocked) ...[
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
@@ -613,35 +618,15 @@ class _GymDetailSheet extends StatelessWidget {
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
-                      gym.statusLabel!,
+                      gym.statusLabel,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        fontWeight: AppFontWeight.emphasis,
+                        fontWeight: FontWeight.w400,
                         color: const Color(0xFF8B4A00),
                         height: 1.4,
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 16.h),
-          ],
-
-          if (isLocked && gym.statusLabel == null) ...[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.lock_outline_rounded, size: 14.sp, color: Colors.black38),
-                  SizedBox(width: 8.w),
-                  Text('Coming Soon',
-                      style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black38)),
                 ],
               ),
             ),

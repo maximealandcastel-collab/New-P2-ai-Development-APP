@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 class FeaturedGymCard extends StatelessWidget {
   final EnterpriseGymModel gym;
@@ -36,33 +37,10 @@ class FeaturedGymCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // App icon logo
-                Container(
-                  width: 48.r,
-                  height: 48.r,
-                  decoration: BoxDecoration(
-                    color: gym.brandColor,
-                    borderRadius: BorderRadius.circular(12.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: gym.brandColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    gym.initials,
-                    style: TextStyle(
-                      color: gym.textColor == Colors.white
-                          ? Colors.white
-                          : gym.accentColor,
-                      fontSize: gym.initials.length > 2 ? 12.sp : 16.sp,
-                      fontWeight: AppFontWeight.display,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
+                GymBrandLogo(
+                  gym: gym,
+                  size: 48.r,
+                  borderRadius: 12.r,
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -72,8 +50,8 @@ class FeaturedGymCard extends StatelessWidget {
                       Text(
                         gym.name,
                         style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: AppFontWeight.title,
+                          fontSize: 13.5.sp,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                         maxLines: 1,
@@ -100,7 +78,7 @@ class FeaturedGymCard extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Colors.black54,
-                                  fontWeight: AppFontWeight.label)),
+                                  fontWeight: FontWeight.w500)),
                           SizedBox(width: 6.w),
                           Text('· ${gym.memberCount}',
                               style: TextStyle(
@@ -173,7 +151,7 @@ class FeaturedGymCard extends StatelessWidget {
                         Get.to(() => GymLoginPreviewScreen(gym: gym)),
                     child: Container(
                       width: double.infinity,
-                      height: 48.h,
+                       height: 44.h,
                       decoration: BoxDecoration(
                         color: _kOrange,
                         borderRadius: BorderRadius.circular(12.r),
@@ -184,33 +162,34 @@ class FeaturedGymCard extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.sp,
-                          fontWeight: AppFontWeight.label,
+                         fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   )
                 : Container(
                     width: double.infinity,
-                    height: 48.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEEEEE),
+                      color: const Color(0xFFF1F1F1),
                       borderRadius: BorderRadius.circular(12.r),
                     ),
-                    alignment: Alignment.center,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.lock_outline_rounded,
                             size: 14.sp, color: Colors.black38),
                         SizedBox(width: 6.w),
                         Flexible(
                           child: Text(
-                            gym.statusLabel ?? 'Coming Soon',
+                            gym.statusLabel,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black38,
-                              fontSize: gym.statusLabel != null ? 11.sp : 14.sp,
-                              fontWeight: AppFontWeight.emphasis,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w500,
+                              height: 1.3,
                             ),
                           ),
                         ),
@@ -236,23 +215,21 @@ class FeaturedGymCard extends StatelessWidget {
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 7.5.sp,
-                fontWeight: AppFontWeight.label,
-                letterSpacing: 0.2)),
+                fontWeight: FontWeight.w500)),
       );
     }
     return Container(
       padding:
           EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
+        color: const Color(0xFFF1F1F1),
         borderRadius: BorderRadius.circular(20.r),
       ),
-      child: Text('Partner',
+      child: Text('Targeted',
           style: TextStyle(
-              color: const Color(0xFF2E7D32),
+              color: const Color(0xFF6B7280),
               fontSize: 7.5.sp,
-              fontWeight: AppFontWeight.label,
-              letterSpacing: 0.2)),
+              fontWeight: FontWeight.w500)),
     );
   }
 

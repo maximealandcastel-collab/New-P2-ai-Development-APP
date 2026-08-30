@@ -1,6 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
@@ -27,7 +28,7 @@ class SignUpScreen extends StatelessWidget {
               AppLogoWidget(
                 topPadding: 28.h,
                 centerLogo: false,
-                title: 'Sign up to  fitness',
+                title: 'Sign up to P2P Fitness',
               ),
               Container(
                 padding: EdgeInsets.all(4.r),
@@ -172,6 +173,30 @@ class SignUpScreen extends StatelessWidget {
               }),
 
               SizedBox(height: 18.h),
+               CustomButton(
+                 bordersColor: Colors.black.withValues(alpha: 0.008),
+                 foregroundColor: Colors.black,
+                 backgroundColor: Colors.white,
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                     SvgPicture.asset(
+                       'assets/icons/google_g.svg',
+                       width: 18.r,
+                       height: 18.r,
+                     ),
+                     SizedBox(width: 10.w),
+                     CustomText(
+                       text: 'Sign up with Google',
+                       fontSize: 14.sp,
+                       fontWeight: FontWeight.w500,
+                       color: Colors.black,
+                     ),
+                   ],
+                 ),
+                 onPressed: () {},
+               ),
+               SizedBox(height: 18.h),
               AuthSwitchLink(
                 prompt: 'Don’t have an account? ',
                 actionLabel: 'Sign in',

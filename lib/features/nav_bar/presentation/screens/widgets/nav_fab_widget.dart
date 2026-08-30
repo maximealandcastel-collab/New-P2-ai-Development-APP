@@ -98,7 +98,7 @@ class NavFabWidget {
             child: FittedBox(
               child: CustomText(
                 left: 4.w,
-                fontSize: 16.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 text: label,
               ),

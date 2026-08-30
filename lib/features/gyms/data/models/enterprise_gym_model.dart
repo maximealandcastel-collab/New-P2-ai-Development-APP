@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
 
 class EnterpriseGymModel {
+  static const Map<String, String> _officialDomains = {
+    'la_fitness': 'lafitness.com',
+    'yogasix': 'yogasix.com',
+    'cyclebar': 'cyclebar.com',
+    'hotworx': 'hotworx.net',
+    'burn_boot_camp': 'burnbootcamp.com',
+    'planet_fitness': 'planetfitness.com',
+    'club_pilates': 'clubpilates.com',
+    'retro_fitness': 'retrofitness.com',
+    'snap_fitness': 'snapfitness.com',
+    'd1_training': 'd1training.com',
+    'crunch_fitness': 'crunch.com',
+    'f45_training': 'f45training.com',
+    'orangetheory': 'orangetheory.com',
+    'pure_barre': 'purebarre.com',
+    'jazzercise': 'jazzercise.com',
+    'anytime_fitness': 'anytimefitness.com',
+    'golds_gym': 'goldsgym.com',
+    'equinox': 'equinox.com',
+    'barrys': 'barrys.com',
+    'soulcycle': 'soul-cycle.com',
+    'corepower': 'corepoweryoga.com',
+  };
+
   final String id;
   final String name;
   final String initials;
@@ -20,9 +44,8 @@ class EnterpriseGymModel {
   final double lat;
   final double lng;
   double? distanceMi;
-  /// Override the default "Coming Soon" badge on locked gyms.
-  /// Null = show "Coming Soon" (default for all gyms).
-  final String? statusLabel;
+  /// Partnership status shown on every non-activated Gym.
+  final String statusLabel;
 
   EnterpriseGymModel({
     required this.id,
@@ -44,13 +67,27 @@ class EnterpriseGymModel {
     this.lat = 0.0,
     this.lng = 0.0,
     this.distanceMi,
-    this.statusLabel,
+    this.statusLabel =
+        'Targeted integration — partnership not yet established.',
   });
 
   String get distanceLabel {
     if (distanceMi == null) return '';
     if (distanceMi! < 0.1) return '< 0.1 mi';
     return '${distanceMi!.toStringAsFixed(1)} mi';
+  }
+
+  String get logoUrl {
+    final domain = _officialDomains[id];
+    if (domain == null) return '';
+    return Uri.https(
+      'www.google.com',
+      '/s2/favicons',
+      <String, String>{
+        'domain_url': 'https://$domain',
+        'sz': '128',
+      },
+    ).toString();
   }
 
   /// All 22 gyms — stored regardless of contract status.

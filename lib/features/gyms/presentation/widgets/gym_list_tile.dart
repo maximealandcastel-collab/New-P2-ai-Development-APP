@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 class GymListTile extends StatelessWidget {
   final EnterpriseGymModel gym;
@@ -30,32 +31,10 @@ class GymListTile extends StatelessWidget {
         padding: EdgeInsets.all(14.r),
         child: Row(
           children: [
-            // LEFT — logo
-            Container(
-              width: 52.r,
-              height: 52.r,
-              decoration: BoxDecoration(
-                color: gym.brandColor,
-                borderRadius: BorderRadius.circular(13.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: gym.brandColor.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                gym.initials,
-                style: TextStyle(
-                  color: gym.textColor == Colors.white
-                      ? Colors.white
-                      : gym.accentColor,
-                  fontSize: gym.initials.length > 2 ? 12.sp : 16.sp,
-                  fontWeight: AppFontWeight.display,
-                ),
-              ),
+            GymBrandLogo(
+              gym: gym,
+              size: 52.r,
+              borderRadius: 13.r,
             ),
 
             SizedBox(width: 12.w),
@@ -88,11 +67,11 @@ class GymListTile extends StatelessWidget {
                             color: _kOrange.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
-                          child: Text('YOUR GYM',
+                            child: Text('Your Gym',
                               style: TextStyle(
                                   color: _kOrange,
                                   fontSize: 8.sp,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: FontWeight.w500)),
                         ),
                     ],
                   ),
@@ -117,7 +96,7 @@ class GymListTile extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 11.sp,
                               color: Colors.black54,
-                              fontWeight: AppFontWeight.label)),
+                              fontWeight: FontWeight.w500)),
                       SizedBox(width: 6.w),
                       Text('· ${gym.memberCount}',
                           style: TextStyle(
@@ -166,15 +145,15 @@ class GymListTile extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11.sp,
-                              fontWeight: AppFontWeight.label,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                       )
                     : Container(
-                            constraints: BoxConstraints(maxWidth: 116.w),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.w, vertical: 7.h),
+                        constraints: BoxConstraints(maxWidth: 116.w),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 7.h),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE8E8E8),
                           borderRadius: BorderRadius.circular(10.r),
@@ -187,11 +166,12 @@ class GymListTile extends StatelessWidget {
                             SizedBox(width: 4.w),
                             Flexible(
                               child: Text(
-                                gym.statusLabel ?? 'Coming Soon',
+                                gym.statusLabel,
                                 style: TextStyle(
                                   color: Colors.black38,
-                                  fontSize: 10.sp,
-                                  fontWeight: AppFontWeight.emphasis,
+                                  fontSize: 9.sp,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.25,
                                 ),
                               ),
                             ),

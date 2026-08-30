@@ -81,8 +81,8 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 17.sp,
-          fontWeight: AppFontWeight.section,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w500,
           color: Colors.black,
         ),
       ),
@@ -104,7 +104,7 @@ class _WeekStrip extends StatelessWidget {
       height: 72.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
         itemCount: labels.length,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, i) {
@@ -211,15 +211,15 @@ class _GymsCardState extends State<_GymsCard> {
             children: [
               Text('Gyms',
                   style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: AppFontWeight.section,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black)),
               GestureDetector(
                 onTap: () => BottomNavBarController.to.onChange(2),
                 child: Text('Near Gym',
                     style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: AppFontWeight.label,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFFFF6B35))),
               ),
             ],
@@ -322,9 +322,11 @@ class _GymsCardState extends State<_GymsCard> {
                                 ? 'Your Gym'
                                 : gym.isActivated
                                     ? 'Partner'
-                                    : 'Coming Soon',
+                                 : gym.statusLabel,
                             style: TextStyle(
-                                fontSize: 10.sp, color: Colors.white)),
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white)),
                       ),
                     ],
                   ),
@@ -484,22 +486,22 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'GENERATE',
+                      'Generate',
                       style: TextStyle(
                         color: const Color(0xFFFF6B35),
                         fontSize: 10.sp,
-                        fontWeight: AppFontWeight.label,
-                        letterSpacing: 1.8,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.4,
                       ),
                     ),
                     Text(
-                      'WORKOUT\nSPLIT',
+                      'Workout\nsplit',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 25.sp,
-                        fontWeight: AppFontWeight.display,
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w700,
                         height: 1.05,
-                        letterSpacing: -0.3,
+                        letterSpacing: -0.1,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -531,7 +533,7 @@ class _GenerateWorkoutBanner extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 11.sp,
-                              fontWeight: AppFontWeight.label,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           SizedBox(width: 4.w),
@@ -600,7 +602,7 @@ class _TodaysOverviewCard extends StatelessWidget {
                   '$pct%',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: AppFontWeight.section,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                 ),
@@ -675,14 +677,14 @@ class _OverviewRow extends StatelessWidget {
           children: [
             Text(label,
                 style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 10.5.sp,
                     color: Colors.black45,
-                    fontWeight: AppFontWeight.body)),
+                    fontWeight: FontWeight.w400)),
             Text(value,
                 style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: 12.sp,
                     color: Colors.black87,
-                    fontWeight: AppFontWeight.label)),
+                    fontWeight: FontWeight.w500)),
           ],
         ),
       ],
