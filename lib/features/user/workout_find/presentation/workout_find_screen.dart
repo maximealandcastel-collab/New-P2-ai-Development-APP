@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -19,8 +18,11 @@ class WorkoutFinderFlow extends StatefulWidget {
 }
 
 class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
-  int _step = 0; // 0-based (0..5)
-  final int _totalSteps = 6;
+  int _step = 0; // 0-based (0..7)
+  final int _totalSteps = 8;
+  String? _workoutId;
+  List<Map<String, dynamic>> _splitOptions = [];
+  String? _selectedSplitId;
 
   // ── Step 1: Goals
   final List<String> _goals = [
@@ -50,7 +52,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
 
   // ── Step 5: Intensity & Duration
   String _intensity = 'Medium';
-  double _duration = 10;
+  double _duration = 30;
 
   String _slug(String v) => v
       .toLowerCase()
@@ -58,15 +60,84 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
       .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
       .replaceAll(RegExp(r'^_|_$'), '');
 
+  String _goalValue(String value) => {
+        'Build Muscle': 'muscle_gain',
+        'Lose Fat': 'weight_loss',
+        'Improve Mobility': 'flexibility',
+        'Improve Posture': 'maintain_physique',
+        'Pain Relief': 'flexibility',
+        'Increase Strength': 'strength',
+        'Flexibility': 'flexibility',
+        'Endurance': 'endurance',
+        'Low Impact': 'maintain_physique',
+        'Just Get Started (beginner-friendly)': 'maintain_physique',
+      }[value] ??
+      _slug(value);
+
+  String _focusValue(String value) => {
+        'Abs/Core': 'core',
+        'Lower back': 'back',
+        'Neck': 'shoulders',
+      }[value] ??
+      _slug(value);
+
+  String _locationValue(String value) =>
+      value == 'Gym' ? 'full_gym' : _slug(value);
+
+  String _intensityValue(String value) => {
+        'Easy': 'light',
+        'Medium': 'moderate',
+        'Hard': 'intense',
+      }[value] ??
+      _slug(value);
+
   void _next() {
     if (_step < _totalSteps - 1) setState(() => _step++);
   }
 
   void _back() {
+    if (_step == 7) {
+      setState(() => _step = 6);
+      return;
+    }
+    if (_step >= 5) {
+      setState(() {
+        _step = 4;
+        _workoutId = null;
+        _splitOptions = [];
+        _selectedSplitId = null;
+      });
+      return;
+    }
     if (_step > 0) setState(() => _step--);
   }
 
-  void _skip() => _next();
+  void _skip() {
+    if (_step < 5) _next();
+  }
+
+  Map<String, dynamic> get _workoutPayload => {
+        "goal": _selectedGoals.isEmpty
+            ? ["maintain_physique"]
+            : _selectedGoals.map(_goalValue).toList(),
+        "focusArea": _selectedAreas.isEmpty
+            ? ["full_body"]
+            : _selectedAreas.map(_focusValue).toList(),
+        "workout_environment": _selectedLocations.isEmpty
+            ? ["home"]
+            : _selectedLocations.map(_locationValue).toList(),
+        "equipment_availablity": _selectedEquipment.isEmpty
+            ? ["no_equipment"]
+            : _selectedEquipment.map(_slug).toList(),
+        "workout_intensity": [_intensityValue(_intensity)],
+        "duration": _duration.toInt(),
+        "date": DateTime.now().toIso8601String().split('T').first,
+        "workoutPreferences": {
+          // The current questionnaire does not ask weekly availability.
+          // The backend also accepts 2-6 from future clients.
+          "daysPerWeek": 3,
+        },
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -134,24 +205,34 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onNext: _next,
         );
       case 5:
-        return _LoadingStep(
-          payload: {
-            "goal": _selectedGoals.isEmpty
-                ? ["general_fitness"]
-                : _selectedGoals.map(_slug).toList(),
-            "focusArea": _selectedAreas.isEmpty
-                ? ["full_body"]
-                : _selectedAreas.map(_slug).toList(),
-            "workout_environment": _selectedLocations.isEmpty
-                ? ["home"]
-                : _selectedLocations.map(_slug).toList(),
-            "equipment_availablity": _selectedEquipment.isEmpty
-                ? ["no_equipment"]
-                : _selectedEquipment.map(_slug).toList(),
-            "workout_intensity": [_intensity.toLowerCase()],
-            "duration": _duration.toInt(),
-            "date": DateTime.now().toIso8601String().split('T').first,
+        return _SplitLoadingStep(
+          payload: _workoutPayload,
+          existingWorkoutId: _workoutId,
+          onWorkoutCreated: (workoutId) => _workoutId = workoutId,
+          onLoaded: (workoutId, options) {
+            if (!mounted) return;
+            setState(() {
+              _workoutId = workoutId;
+              _splitOptions = options;
+              _selectedSplitId = null;
+              _step = 6;
+            });
           },
+        );
+      case 6:
+        return _SplitSelectionStep(
+          options: _splitOptions,
+          selectedSplitId: _selectedSplitId,
+          onSelected: (id) => setState(() => _selectedSplitId = id),
+          onNext: () {
+            if (_selectedSplitId == null) return;
+            setState(() => _step = 7);
+          },
+        );
+      case 7:
+        return _ProgramLoadingStep(
+          workoutId: _workoutId!,
+          selectedSplitId: _selectedSplitId!,
         );
       default:
         return const SizedBox();
@@ -222,7 +303,7 @@ class _TopBar extends StatelessWidget {
               'Skip',
               style: TextStyle(
                 fontSize: 14.sp,
-                fontWeight: AppFontWeight.emphasis,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
@@ -267,7 +348,7 @@ class _SelectionStep extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 22.sp,
-                  fontWeight: AppFontWeight.section,
+                  fontWeight: FontWeight.w700,
                   color: Colors.black,
                   height: 1.3,
                 ),
@@ -349,7 +430,7 @@ class _OptionTile extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: isSelected ? AppFontWeight.label : AppFontWeight.body,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             color: Colors.black87,
           ),
         ),
@@ -390,13 +471,13 @@ class _IntensityDurationStep extends StatelessWidget {
                   'Workout Intensity & duration',
                   style: TextStyle(
                     fontSize: 22.sp,
-                    fontWeight: AppFontWeight.section,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  'What you want to achieve from the workout',
+                  'Choose a realistic session length for a complete workout',
                   style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
                 ),
                 SizedBox(height: 28.h),
@@ -404,7 +485,7 @@ class _IntensityDurationStep extends StatelessWidget {
                 // Intensity label
                 Text(
                   'Workout Intensity',
-                  style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 14.h),
 
@@ -447,7 +528,7 @@ class _IntensityDurationStep extends StatelessWidget {
                                   level,
                                   style: TextStyle(
                                     fontSize: 13.sp,
-                                    fontWeight: AppFontWeight.emphasis,
+                                    fontWeight: FontWeight.w500,
                                     color: isSelected ? Colors.white : Colors.black87,
                                   ),
                                 ),
@@ -465,7 +546,7 @@ class _IntensityDurationStep extends StatelessWidget {
                 // Duration label
                 Text(
                   'Workout Duration',
-                  style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.label),
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 20.h),
 
@@ -478,7 +559,7 @@ class _IntensityDurationStep extends StatelessWidget {
                           text: '${duration.toInt()}',
                           style: TextStyle(
                             fontSize: 52.sp,
-                            fontWeight: AppFontWeight.section,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black,
                           ),
                         ),
@@ -487,7 +568,7 @@ class _IntensityDurationStep extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: Colors.grey,
-                            fontWeight: AppFontWeight.body,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
@@ -511,9 +592,9 @@ class _IntensityDurationStep extends StatelessWidget {
                   ),
                   child: Slider(
                     value: duration,
-                    min: 5,
+                    min: 20,
                     max: 90,
-                    divisions: 17,
+                    divisions: 14,
                     onChanged: onDurationChanged,
                   ),
                 ),
@@ -528,482 +609,569 @@ class _IntensityDurationStep extends StatelessWidget {
   }
 }
 
-// ─── Step 6: Loading / Finding Plan ──────────────────────────────────────────
-class _LoadingStep extends StatefulWidget {
+// ─── Step 6: Generate split recommendations ──────────────────────────────────
+class _SplitLoadingStep extends StatefulWidget {
   final Map<String, dynamic> payload;
+  final String? existingWorkoutId;
+  final ValueChanged<String> onWorkoutCreated;
+  final void Function(String workoutId, List<Map<String, dynamic>> options)
+      onLoaded;
 
-  const _LoadingStep({required this.payload});
+  const _SplitLoadingStep({
+    required this.payload,
+    required this.existingWorkoutId,
+    required this.onWorkoutCreated,
+    required this.onLoaded,
+  });
 
   @override
-  State<_LoadingStep> createState() => _LoadingStepState();
+  State<_SplitLoadingStep> createState() => _SplitLoadingStepState();
 }
 
-class _LoadingStepState extends State<_LoadingStep>
-        with SingleTickerProviderStateMixin {
-      late final AnimationController _ctrl;
-      late final Animation<double> _rotation;
-      bool _hasNavigated = false;
-      bool _isGenerating = false;
-      String? _errorMessage;
-      Map<String, dynamic>? _generatedPlan;
+class _SplitLoadingStepState extends State<_SplitLoadingStep>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _rotation;
+  bool _hasCompleted = false;
+  bool _isLoading = true;
+  bool _requestInFlight = false;
+  String? _error;
+  String? _workoutId;
 
-      static const _steps = [
-        'Analyzing your fitness goals…',
-        'Building your workout structure…',
-        'Personalizing your exercises…',
-      ];
-      int _stepIndex = 0;
-      Timer? _stepTimer;
+  static const _phases = [
+    'Analyzing your goals…',
+    'Comparing weekly split strategies…',
+    'Balancing training and recovery…',
+    'Calibrating intensity & duration…',
+    'Preparing three recommendations…',
+    'Almost ready…',
+  ];
+  int _phaseIndex = 0;
+  Timer? _phaseTimer;
 
-      // A slightly longer minimum makes the generation feel intentional without
-      // holding users after a genuinely slow API response.
-      static const _minDisplayMs = 6500;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+    _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
 
-      @override
-      void initState() {
-        super.initState();
-        _ctrl = AnimationController(
-          vsync: this,
-          duration: const Duration(seconds: 2),
-        )..repeat();
-        _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
+    _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
+    });
+    _workoutId = widget.existingWorkoutId;
+    _generateSplits();
+  }
 
-        _stepTimer = Timer.periodic(const Duration(milliseconds: 2100), (_) {
-          if (!mounted || _generatedPlan != null) return;
-          if (_stepIndex < _steps.length - 1) {
-            setState(() => _stepIndex++);
-          }
-        });
-
-        _generatePlan();
+  Future<void> _generateSplits() async {
+    if (_requestInFlight || _hasCompleted) return;
+    _requestInFlight = true;
+    if (_isLoading == false) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
+    try {
+      if (_workoutId == null) {
+        final createRes =
+            await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
+        final createdId = createRes.body is Map
+            ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
+            : null;
+        if (createdId == null) throw Exception('Workout could not be created');
+        _workoutId = createdId.toString();
+        widget.onWorkoutCreated(_workoutId!);
       }
 
-      String _responseMessage(dynamic body, String fallback) {
-        if (body is Map) {
-          final message = body['message'] ?? body['error'];
-          if (message != null && message.toString().trim().isNotEmpty) {
-            return message.toString();
+      final splitRes = await ApiClient.postData(
+        ApiUrls.workoutSplits(_workoutId!),
+        {},
+      );
+      if (splitRes.statusCode == 200 && splitRes.body is Map) {
+        final data = splitRes.body['data'];
+        final rawOptions = data is Map ? data['splitOptions'] : null;
+        if (rawOptions is List) {
+          final options = rawOptions
+              .whereType<Map>()
+              .map((option) => Map<String, dynamic>.from(option))
+              .toList();
+          if (options.length == 3) {
+            if (!mounted || _hasCompleted) return;
+            _hasCompleted = true;
+            widget.onLoaded(_workoutId!, options);
+            return;
           }
         }
-        return fallback;
       }
+      throw Exception('Split recommendations were incomplete');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error = "We couldn't complete your workout yet.\nPlease try again.";
+      });
+    } finally {
+      _requestInFlight = false;
+    }
+  }
 
-      Future<void> _generatePlan() async {
-        if (_isGenerating) return;
-        setState(() {
-          _isGenerating = true;
-          _errorMessage = null;
-          _generatedPlan = null;
-          _stepIndex = 0;
-        });
+  @override
+  void dispose() {
+    _phaseTimer?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
 
-        final sw = Stopwatch()..start();
-        Map<String, dynamic>? plan;
-        String? failureMessage;
-        try {
-          final createRes =
-              await ApiClient.postData(ApiUrls.workoutCreate, widget.payload);
-          if (createRes.statusCode != 200 && createRes.statusCode != 201) {
-            throw Exception(_responseMessage(
-              createRes.body,
-              'Could not save your workout preferences.',
-            ));
-          }
-
-          final workoutId = createRes.body is Map
-              ? (createRes.body['data']?['_id'] ?? createRes.body['data']?['id'])
-              : null;
-          if (workoutId == null) {
-            throw Exception('The server did not return a workout ID.');
-          }
-
-          final genRes = await ApiClient.postData(
-            ApiUrls.workoutGenerate(workoutId.toString()),
-            {},
-          );
-          if (genRes.statusCode != 200 || genRes.body is! Map) {
-            throw Exception(_responseMessage(
-              genRes.body,
-              'Could not generate your workout plan.',
-            ));
-          }
-
-          final data = genRes.body['data'];
-          if (data is Map<String, dynamic>) {
-            final rawPlan = data['aiPlan'] ?? data['plan'] ?? data;
-            if (rawPlan is Map) {
-              plan = Map<String, dynamic>.from(rawPlan);
-            }
-          }
-          if (plan == null) {
-            throw Exception('The generated workout plan was empty.');
-          }
-        } catch (error) {
-          failureMessage =
-              error.toString().replaceFirst('Exception: ', '').trim();
-        }
-
-        final remaining = _minDisplayMs - sw.elapsedMilliseconds;
-        if (remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
-
-        if (!mounted || _hasNavigated) return;
-        if (plan == null) {
-          setState(() {
-            _isGenerating = false;
-            _errorMessage = failureMessage?.isNotEmpty == true
-                ? failureMessage
-                : 'Could not generate your plan. Check your connection and try again.';
-          });
-          return;
-        }
-
-        setState(() {
-          _isGenerating = false;
-          _generatedPlan = plan;
-          _stepIndex = _steps.length - 1;
-        });
-      }
-
-      void _openGeneratedPlan() {
-        if (_generatedPlan == null || _hasNavigated) return;
-        _hasNavigated = true;
-        Get.offNamed(AppRoute.aiPlanResult, arguments: _generatedPlan);
-      }
-
-      double get _progressValue {
-        if (_generatedPlan != null) return 1;
-        if (_stepIndex == 0) return .28;
-        if (_stepIndex == 1) return .56;
-        return .82;
-      }
-
-      @override
-      void dispose() {
-        _stepTimer?.cancel();
-        _ctrl.dispose();
-        super.dispose();
-      }
-
-      @override
-      Widget build(BuildContext context) {
-        if (_errorMessage != null) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 28.w),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline_rounded,
-                    size: 64.sp,
-                    color: Colors.redAccent,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    'Could not generate your workout plan',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22.sp,
-                      fontWeight: AppFontWeight.section,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: Colors.grey.shade600,
-                      height: 1.45,
-                    ),
-                  ),
-                  SizedBox(height: 28.h),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isGenerating ? null : _generatePlan,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF6B35),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: const Text('Try Again'),
-                    ),
-                  ),
-                ],
-              ),
+  @override
+  Widget build(BuildContext context) {
+    if (!_isLoading && _error != null) {
+      return _GenerationError(message: _error!, onRetry: _generateSplits);
+    }
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Building your recommended\nworkout splits',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+              height: 1.35,
             ),
-          );
-        }
+          ),
+          SizedBox(height: 10.h),
 
-        return SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
+          // ── Cycling status message — fades between phases ───────────────
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: Text(
+              _phases[_phaseIndex],
+              key: ValueKey(_phaseIndex),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+            ),
+          ),
+
+          SizedBox(height: 48.h),
+
+          // ── Arc spinner ─────────────────────────────────────────────────
+          AnimatedBuilder(
+            animation: _rotation,
+            builder: (_, __) => CustomPaint(
+              size: Size(120.w, 120.w),
+              painter: _ArcLoaderPainter(progress: _rotation.value),
+            ),
+          ),
+
+          SizedBox(height: 28.h),
+          Text(
+            'AI is comparing the best programming strategies',
+            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Step 7: Choose one of the generated splits ──────────────────────────────
+class _SplitSelectionStep extends StatelessWidget {
+  final List<Map<String, dynamic>> options;
+  final String? selectedSplitId;
+  final ValueChanged<String> onSelected;
+  final VoidCallback onNext;
+
+  const _SplitSelectionStep({
+    required this.options,
+    required this.selectedSplitId,
+    required this.onSelected,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 16.h),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'GENERATE',
+                'Choose Your Workout Split',
                 style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: AppFontWeight.section,
-                  color: const Color(0xFFFF6B35),
-                  letterSpacing: 1.8,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                'WORKOUT
-SPLIT',
-                style: TextStyle(
-                  fontSize: 34.sp,
-                  fontWeight: AppFontWeight.section,
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.w700,
                   color: Colors.black,
-                  height: .98,
                 ),
               ),
-              SizedBox(height: 12.h),
+              SizedBox(height: 6.h),
               Text(
-                _generatedPlan == null
-                    ? 'Get a custom workout plan tailored to your goals.'
-                    : 'Your personalized workout split is ready to view.',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.grey.shade600,
-                  height: 1.35,
-                ),
+                'Each option was built from your goals, equipment, intensity, and session length.',
+                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
               ),
-              SizedBox(height: 24.h),
-              Container(
-                height: 52.h,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
-                  ),
-                  borderRadius: BorderRadius.circular(26.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF16C5BC).withOpacity(.2),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.auto_awesome_rounded,
-                          color: Colors.white, size: 18.sp),
-                      SizedBox(width: 9.w),
-                      Text(
-                        _generatedPlan == null
-                            ? 'Generating Workout Split'
-                            : 'Workout Split Generated',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.sp,
-                          fontWeight: AppFontWeight.section,
-                        ),
-                      ),
-                      SizedBox(width: 9.w),
-                      Icon(Icons.arrow_forward_rounded,
-                          color: Colors.white, size: 18.sp),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 18.h),
-              for (int i = 0; i < _steps.length; i++)
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10.h),
-                  child: _GenerationStepCard(
-                    label: _steps[i],
-                    completed: _generatedPlan != null || _stepIndex > i,
-                    active: _generatedPlan == null && _stepIndex == i,
-                  ),
-                ),
-              SizedBox(height: 8.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Progress',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: AppFontWeight.section,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                  Text(
-                    '${(_progressValue * 100).round()}%',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: AppFontWeight.section,
-                      color: const Color(0xFFFF6B35),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4.r),
-                child: LinearProgressIndicator(
-                  minHeight: 5.h,
-                  value: _progressValue,
-                  backgroundColor: const Color(0xFFFFE2D6),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFFF6B35),
-                  ),
-                ),
-              ),
-              if (_generatedPlan != null) ...[
-                SizedBox(height: 22.h),
-                Container(
-                  padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            itemCount: options.length,
+            separatorBuilder: (_, __) => SizedBox(height: 12.h),
+            itemBuilder: (_, index) {
+              final option = options[index];
+              final id = (option['id'] ?? 'split_${index + 1}').toString();
+              final selected = selectedSplitId == id;
+              final schedule = option['weeklySchedule'] is List
+                  ? (option['weeklySchedule'] as List)
+                      .map((day) => day.toString())
+                      .join(' • ')
+                  : '';
+              return GestureDetector(
+                onTap: () => onSelected(id),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F7EC),
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(color: const Color(0xFFC9EBD1)),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18.r),
+                    border: Border.all(
+                      color: selected
+                          ? const Color(0xFFFF7A00)
+                          : Colors.grey.shade200,
+                      width: selected ? 2 : 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Your Workout Split Is Ready!',
-                        style: TextStyle(
-                          fontSize: 17.sp,
-                          fontWeight: AppFontWeight.section,
-                          color: const Color(0xFF258B4D),
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              (option['name'] ?? 'Workout Split').toString(),
+                              style: TextStyle(
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            selected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color: selected
+                                ? const Color(0xFFFF7A00)
+                                : Colors.grey.shade400,
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 5.h),
+                      SizedBox(height: 8.h),
                       Text(
-                        'Your personalized plan is ready to review.',
+                        schedule,
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: const Color(0xFF4E795A),
+                          color: const Color(0xFFF57C1F),
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
                         ),
                       ),
-                      SizedBox(height: 14.h),
-                      ElevatedButton(
-                        onPressed: _openGeneratedPlan,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B35),
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 13.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.r),
-                          ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        (option['reason'] ?? '').toString(),
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade700,
+                          height: 1.4,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('View My Workout Split'),
-                            SizedBox(width: 8.w),
-                            const Icon(Icons.arrow_forward_rounded, size: 18),
-                          ],
+                      ),
+                      SizedBox(height: 10.h),
+                      Wrap(
+                        spacing: 8.w,
+                        runSpacing: 6.h,
+                        children: [
+                          _SplitChip(
+                            '${option['estimatedSessionMinutes'] ?? 30} min',
+                          ),
+                          _SplitChip(
+                            (option['difficulty'] ?? 'Beginner').toString(),
+                          ),
+                          _SplitChip(
+                            '${option['daysPerWeek'] ?? schedule.split('•').length} days',
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        (option['recoveryRequirement'] ?? '').toString(),
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade500,
+                          height: 1.35,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ],
+              );
+            },
           ),
-        );
-      }
-    }
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52.h,
+            child: ElevatedButton(
+              onPressed: selectedSplitId == null ? null : onNext,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF7A00),
+                disabledBackgroundColor: Colors.grey.shade300,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+              ),
+              child: Text(
+                'Build This Program',
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-    class _GenerationStepCard extends StatelessWidget {
-      final String label;
-      final bool completed;
-      final bool active;
+class _SplitChip extends StatelessWidget {
+  final String label;
 
-      const _GenerationStepCard({
-        required this.label,
-        required this.completed,
-        required this.active,
+  const _SplitChip(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFDEBD9),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: const Color(0xFFF57C1F),
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Step 8: Generate the selected complete program ──────────────────────────
+class _ProgramLoadingStep extends StatefulWidget {
+  final String workoutId;
+  final String selectedSplitId;
+
+  const _ProgramLoadingStep({
+    required this.workoutId,
+    required this.selectedSplitId,
+  });
+
+  @override
+  State<_ProgramLoadingStep> createState() => _ProgramLoadingStepState();
+}
+
+class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _rotation;
+  Timer? _phaseTimer;
+  int _phaseIndex = 0;
+  bool _isLoading = true;
+  bool _hasNavigated = false;
+  bool _requestInFlight = false;
+  String? _error;
+
+  static const _phases = [
+    'Programming each training day…',
+    'Selecting approved exercises…',
+    'Checking exercise order and volume…',
+    'Balancing training and recovery…',
+    'Validating your complete program…',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+    _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
+    _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
+    });
+    _generateProgram();
+  }
+
+  Future<void> _generateProgram() async {
+    if (_requestInFlight || _hasNavigated) return;
+    _requestInFlight = true;
+    if (!_isLoading) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
       });
-
-      @override
-      Widget build(BuildContext context) {
-        final accent = completed
-            ? const Color(0xFF61BD75)
-            : active
-                ? const Color(0xFFFFB366)
-                : const Color(0xFFD5D9D7);
-        final icon = completed
-            ? Icons.check_rounded
-            : active
-                ? Icons.tune_rounded
-                : Icons.more_horiz_rounded;
-        final status = completed
-            ? 'Complete'
-            : active
-                ? 'In progress…'
-                : 'Queued';
-
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: const Color(0xFFE7E9E8)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.035),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 30.w,
-                height: 30.w,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(.16),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: accent, size: 17.sp),
-              ),
-              SizedBox(width: 11.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 12.5.sp,
-                        fontWeight: AppFontWeight.section,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        fontSize: 10.5.sp,
-                        color: completed
-                            ? const Color(0xFF4B9C5D)
-                            : Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      }
     }
-    
+    try {
+      final response = await ApiClient.postData(
+        ApiUrls.workoutProgram(widget.workoutId),
+        {'selectedSplitId': widget.selectedSplitId},
+      );
+      if (response.statusCode == 200 && response.body is Map) {
+        final data = response.body['data'];
+        if (data is Map && data['program'] is Map) {
+          if (!mounted || _hasNavigated) return;
+          _hasNavigated = true;
+          Get.offNamed(
+            AppRoute.aiPlanResult,
+            arguments: Map<String, dynamic>.from(data),
+          );
+          return;
+        }
+      }
+      throw Exception('Program response was incomplete');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error = "We couldn't complete your workout yet.\nPlease try again.";
+      });
+    } finally {
+      _requestInFlight = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _phaseTimer?.cancel();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isLoading && _error != null) {
+      return _GenerationError(message: _error!, onRetry: _generateProgram);
+    }
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Building your\npersonalized workout',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+              height: 1.35,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child: Text(
+              _phases[_phaseIndex],
+              key: ValueKey(_phaseIndex),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+            ),
+          ),
+          SizedBox(height: 48.h),
+          AnimatedBuilder(
+            animation: _rotation,
+            builder: (_, __) => CustomPaint(
+              size: Size(120.w, 120.w),
+              painter: _ArcLoaderPainter(progress: _rotation.value),
+            ),
+          ),
+          SizedBox(height: 28.h),
+          Text(
+            'Your selected split is being programmed and validated',
+            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GenerationError extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _GenerationError({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.refresh_rounded, size: 46.sp, color: const Color(0xFFFF7A00)),
+            SizedBox(height: 16.h),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16.sp, color: Colors.black87, height: 1.45),
+            ),
+            SizedBox(height: 20.h),
+            SizedBox(
+              width: double.infinity,
+              height: 50.h,
+              child: ElevatedButton(
+                onPressed: onRetry,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF7A00),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                ),
+                child: Text(
+                  'Try Again',
+                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ArcLoaderPainter extends CustomPainter {
   final double progress;
 
@@ -1071,7 +1239,7 @@ class _NextButton extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 16.sp,
-              fontWeight: AppFontWeight.label,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
