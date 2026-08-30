@@ -81,7 +81,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 16.sp,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w500,
           color: Colors.black,
         ),
@@ -223,9 +223,9 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     Text(
                       'Daily workout progress',
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: 16.sp,
                         height: 1.15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppFontWeight.section,
                         color: _ink,
                         letterSpacing: -0.25,
                       ),
@@ -376,8 +376,8 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   '${_progressFor(_selectedDate).completed}/'
                   '${_progressFor(_selectedDate).total}',
                   style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 12.sp,
+                    fontWeight: AppFontWeight.stat,
                     color: _ink,
                   ),
                 ),
@@ -517,7 +517,7 @@ class _CalendarDayCard extends StatelessWidget {
               Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontSize: 23.sp,
+                  fontSize: 20.sp,
                   height: 1,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.7,
@@ -661,8 +661,8 @@ class _GymsCardState extends State<_GymsCard> {
             children: [
               Text('Gyms',
                   style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      fontWeight: AppFontWeight.title,
                       color: Colors.black)),
               GestureDetector(
                 onTap: () => BottomNavBarController.to.onChange(2),
