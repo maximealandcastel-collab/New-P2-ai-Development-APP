@@ -324,7 +324,7 @@ class AdminDashboardController extends GetxController {
         // session token in Hive, so on the owner-email path — which never calls
         // the bypass endpoint — this sent no Authorization header at all and
         // every admin metric failed silently into the empty state.
-        var token = await PrefsHelper.getString(_kAdminTokenKey);
+        String? token = await PrefsHelper.getString(_kAdminTokenKey);
         if (token?.isEmpty ?? true) {
           try {
             token = Get.find<CacheService>()
