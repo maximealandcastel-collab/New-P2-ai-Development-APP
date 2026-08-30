@@ -6,11 +6,19 @@ abstract class AppException implements Exception {
 
   AppException(this.message, {this.details, this.errorCode, this.isOffline = false});
 
+  /// Only [message] — never [details].
+  ///
+  /// `details` carries the underlying transport error, which for Dio is a
+  /// paragraph explaining `validateStatus`, quoting the HTTP spec and linking
+  /// to MDN. Appending it here put that paragraph on screen: a user who
+  /// mistyped their password was shown "Wrong password! 3 attempts
+  /// remaining.: This exception was thrown because the response has a status
+  /// code of 401 … you have to fix the server code."
+  ///
+  /// `details` is still available on the object for logging; it just no longer
+  /// rides along into anything that stringifies an exception for display.
   @override
-  String toString() {
-    if (details != null) return '$message: $details';
-    return message;
-  }
+  String toString() => message;
 }
 
 // ═══════════════════════════════════════════════
@@ -182,8 +190,13 @@ class ServerException extends AppException {
 // ═══════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════
-class UnAuthorizedException extends AppException {
-  UnAuthorizedException([String? details])
-      : super('Invalid email or password',
-            details: details, errorCode: 'UNAUTHORIZED');
-}
+/// Kept as an alias so existing `on UnAuthorizedException` handlers keep
+/// compiling, but it is now the *same type* as [UnauthorizedException].
+///
+/// There were two classes here differing only by the capital A, and the
+/// difference was invisible until someone typed a wrong password:
+/// `api_service` threw `UnauthorizedException`, while `login_controller`
+/// caught `UnAuthorizedException`. They never matched, so a 401 fell past its
+/// own handler into the generic `catch (e)` and got stringified onto the
+/// screen. One was thrown and never caught; the other caught and never thrown.
+typedef UnAuthorizedException = UnauthorizedException;
