@@ -8,6 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/user_home_controller.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -607,18 +608,8 @@ class _WorkoutDayProgress {
 }
 
 // ─── Gyms near you ───────────────────────────────────────────────────────────
-/// Nearest gyms from the app's real gym catalogue.
-///
-/// This used to be three hardcoded tuples — invented names ("StrongFit
-/// Downtown", "Iron Pulse Gym"), invented distances ("0.8 km away") and stock
-/// Unsplash photos — none of which corresponded to anything in the Gyms tab. It
-/// now reads `EnterpriseGymModel.partners`, the same catalogue that tab uses,
-/// and sorts it with the same `GymLocationService.sortByDistance`, so the two
-/// screens agree and the distances are real.
-///
-/// Stateful because the sort depends on a location fix that arrives
-/// asynchronously; until then the unsorted catalogue is shown rather than a
-/// spinner, since the names and photos are correct either way.
+/// The Home cards share the same gym catalogue as the Gyms tab: real names,
+/// official logo treatment, nearby distance, and the associated stock photo.
 class _GymsCard extends StatefulWidget {
   const _GymsCard();
 
@@ -637,10 +628,12 @@ class _GymsCardState extends State<_GymsCard> {
 
   Future<void> _sortByLocation() async {
     final pos = await GymLocationService().getCurrentPosition();
-    if (pos == null || !mounted) return; // permission denied or no fix
+    if (pos == null || !mounted) return;
     setState(() {
-      _gyms = GymLocationService()
-          .sortByDistance(List.from(EnterpriseGymModel.partners), pos);
+      _gyms = GymLocationService().sortByDistance(
+        List.from(EnterpriseGymModel.partners),
+        pos,
+      );
     });
   }
 
@@ -659,124 +652,126 @@ class _GymsCardState extends State<_GymsCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Gyms',
-                  style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: AppFontWeight.title,
-                      color: Colors.black)),
+              Text('Gyms', style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: AppFontWeight.section,
+                color: Colors.black,
+              )),
               GestureDetector(
                 onTap: () => BottomNavBarController.to.onChange(2),
-                child: Text('Near Gym',
-                    style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFFF6B35))),
+                child: Text('Near Gym', style: TextStyle(
+                  fontSize: 12.5.sp,
+                  fontWeight: AppFontWeight.label,
+                  color: const Color(0xFFFF6B35),
+                )),
               ),
             ],
           ),
           SizedBox(height: 12.h),
           SizedBox(
-            height: 172.h,
+            height: 182.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              // Three nearest, matching the original card's density.
               itemCount: _gyms.length < 3 ? _gyms.length : 3,
               separatorBuilder: (_, __) => SizedBox(width: 12.w),
               itemBuilder: (context, i) {
                 final gym = _gyms[i];
-                final name = gym.name;
-                final photo = gym.imageUrl;
-                // Empty until a location fix lands, so fall back to the gym's
-                // city rather than showing a bare pin icon with nothing after it.
+                final photo = gym.imageUrl.trim();
                 final distance = gym.distanceLabel.isNotEmpty
                     ? gym.distanceLabel
                     : gym.city;
                 return SizedBox(
-                  width: 142.w,
+                  width: 150.w,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10.r),
-                        child: CachedNetworkImage(
-                          imageUrl: photo,
-                          height: 75.h,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          fadeInDuration: const Duration(milliseconds: 280),
-                          placeholder: (_, __) => Container(
-                            height: 75.h,
-                            color: const Color(0xFFE8E8E8),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            height: 75.h,
-                            color: const Color(0xFF2B2B2B),
-                            child: Icon(Icons.fitness_center,
-                                color: Colors.white38, size: 30.sp),
+                      SizedBox(
+                        height: 82.h,
+                        width: double.infinity,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12.r),
+                                child: photo.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: photo,
+                                        fit: BoxFit.cover,
+                                        fadeInDuration: const Duration(milliseconds: 180),
+                                        placeholder: (_, __) => ColoredBox(
+                                          color: gym.brandColor.withOpacity(0.08),
+                                        ),
+                                        errorWidget: (_, __, ___) => ColoredBox(
+                                          color: gym.brandColor.withOpacity(0.08),
+                                          child: Icon(Icons.fitness_center, color: gym.brandColor, size: 25.sp),
+                                        ),
+                                      )
+                                    : ColoredBox(
+                                        color: gym.brandColor.withOpacity(0.08),
+                                        child: Icon(Icons.fitness_center, color: gym.brandColor, size: 25.sp),
+                                      ),
+                              ),
+                            ),
+                            Positioned(
+                              left: 8.w,
+                              bottom: -4.h,
+                              child: GymBrandLogo(
+                                gym: gym,
+                                size: 46.r,
+                                borderRadius: 12.r,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 9.h),
+                      Padding(
+                        padding: EdgeInsets.only(left: 2.w),
+                        child: Text(
+                          gym.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.5.sp,
+                            fontWeight: AppFontWeight.title,
+                            color: Colors.black87,
                           ),
                         ),
                       ),
-                      SizedBox(height: 5.h),
-                      SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
+                      SizedBox(height: 2.h),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined,
-                              size: 12.sp, color: Colors.black54),
+                          Icon(Icons.location_on_outlined, size: 12.sp, color: Colors.black54),
                           SizedBox(width: 2.w),
-                          Flexible(
-                                child: Text(
-                                  distance,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 10.sp,
-                                    color: Colors.black45,
-                                  ),
-                                ),
-                              ),
+                          Expanded(
+                            child: Text(
+                              distance,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 10.sp, color: Colors.black45),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(height: 4.h),
-                      // Was a hardcoded grey "Disable" chip on every card — the
-                      // same word regardless of the gym, and not a state the
-                      // app has. Shows the gym's actual standing instead, using
-                      // the same isOwnGym/isActivated flags the Gyms tab reads,
-                      // so a gym that has not signed is not presented as one
-                      // the user can walk into.
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 4.h),
-                        decoration: BoxDecoration(
+                      Text(
+                        gym.isOwnGym
+                            ? 'Your Gym'
+                            : gym.isActivated
+                                ? 'Partner'
+                                : gym.statusLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9.5.sp,
+                          fontWeight: AppFontWeight.body,
                           color: gym.isOwnGym
                               ? const Color(0xFFFF6B35)
                               : gym.isActivated
                                   ? const Color(0xFF2E7D32)
-                                  : const Color(0xFF9E9E9E),
-                          borderRadius: BorderRadius.circular(10.r),
+                                  : Colors.black45,
                         ),
-                        child: Text(
-                            gym.isOwnGym
-                                ? 'Your Gym'
-                                : gym.isActivated
-                                    ? 'Partner'
-                                 : gym.statusLabel,
-                            style: TextStyle(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white)),
                       ),
                     ],
                   ),
@@ -789,7 +784,6 @@ class _GymsCardState extends State<_GymsCard> {
     );
   }
 }
-
 // ─── Generate Workout Split banner ───────────────────────────────────────────
     // Exact approved artwork from the product design.
     class _GenerateWorkoutBanner extends StatelessWidget {
