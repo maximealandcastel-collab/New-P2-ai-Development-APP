@@ -15,6 +15,8 @@ class AppRoute {
   static String loginScreen = "/loginScreen";
   static String signUpScreen = "/signUpScreen";
   static String workoutFinderFlow = "/workoutFinderFlow";
+  // Home and other entry points use this semantic name for the same screen.
+  static String workoutScreen = workoutFinderFlow;
   static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
   static String aiPlanResult = "/aiPlanResult";
