@@ -44,7 +44,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
 
     return AppBar(
-      toolbarHeight: toolbarHeight,
+      toolbarHeight: toolbarHeight ?? 64.h,
       titleSpacing: 0,
       shape: borderColor != null
           ? Border(
@@ -80,5 +80,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize =>  Size.fromHeight(toolbarHeight ?? 60);
+  Size get preferredSize =>  Size.fromHeight(toolbarHeight ?? 64.h);
 }

@@ -101,12 +101,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
           CustomText(
             text: widget.labelText ?? '',
             color: widget.labelColor ?? const Color(0xFF0B0D10),
-            bottom: 4.h,
+            bottom: 6.h,
             fontSize: 13.sp,
             fontWeight: AppFontWeight.body,
           ),
         SizedBox(
-          height: 4.h,
+          height: 6.h,
         ),
         TextFormField(
           autofocus: widget.autofocus,
@@ -162,8 +162,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               fontFamily: widget.fontFamily),
           decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
-                  horizontal: widget.contentPaddingHorizontal ?? 0.w,
-                  vertical: widget.contentPaddingVertical ?? 0.h),
+                  horizontal: widget.contentPaddingHorizontal ?? 14.w,
+                  vertical: widget.contentPaddingVertical ?? 14.h),
               fillColor: widget.filColor ?? Colors.white,
               filled: true,
               prefixIcon: widget.prefixIcon != null ? Padding(

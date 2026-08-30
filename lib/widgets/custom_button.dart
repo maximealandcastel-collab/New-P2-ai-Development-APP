@@ -60,7 +60,7 @@ class CustomButton extends StatelessWidget {
       elevation: elevation,
       onTap: (isLoading || isDisabled) ? null : onPressed,
       color: (backgroundColor ?? AppColors.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
-      height: height ?? 48.h,
+      height: height ?? 52.h,
       width: width ?? double.infinity,
       radiusAll: radius ?? 16.r,
       bordersColor: bordersColor,

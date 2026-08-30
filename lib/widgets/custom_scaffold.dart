@@ -28,8 +28,8 @@ class CustomScaffold extends StatelessWidget {
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
-              left: paddingSide ?? 16.w,
-              right: paddingSide ?? 16.w,
+              left: paddingSide ?? 20.w,
+              right: paddingSide ?? 20.w,
             ),
             child: body,
           ),

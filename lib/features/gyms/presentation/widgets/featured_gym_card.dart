@@ -32,7 +32,7 @@ class FeaturedGymCard extends StatelessWidget {
         children: [
           // ── Top: logo + meta + badge ─────────────────────────────────
           Padding(
-            padding: EdgeInsets.all(14.r),
+            padding: EdgeInsets.all(16.r),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -64,7 +64,7 @@ class FeaturedGymCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 10.w),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +79,7 @@ class FeaturedGymCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 4.h),
                       Text(
                             gym.category,
                             maxLines: 1,
@@ -89,7 +89,7 @@ class FeaturedGymCard extends StatelessWidget {
                               color: Colors.black45,
                             ),
                           ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 6.h),
                       Row(
                         children: [
                           Icon(Icons.star_rounded,
@@ -173,7 +173,7 @@ class FeaturedGymCard extends StatelessWidget {
                         Get.to(() => GymLoginPreviewScreen(gym: gym)),
                     child: Container(
                       width: double.infinity,
-                      height: 44.h,
+                      height: 48.h,
                       decoration: BoxDecoration(
                         color: _kOrange,
                         borderRadius: BorderRadius.circular(12.r),
@@ -191,7 +191,7 @@ class FeaturedGymCard extends StatelessWidget {
                   )
                 : Container(
                     width: double.infinity,
-                    height: 44.h,
+                    height: 48.h,
                     decoration: BoxDecoration(
                       color: const Color(0xFFEEEEEE),
                       borderRadius: BorderRadius.circular(12.r),

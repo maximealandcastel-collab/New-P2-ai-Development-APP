@@ -186,7 +186,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, i) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
                         child: GestureDetector(
                           onTap: () => _showGymSheet(displayed[i]),
                           child: GymListTile(gym: displayed[i]),
@@ -196,7 +196,7 @@ class _GymsScreenState extends State<GymsScreen> {
                     ),
                   ),
 
-            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+            SliverToBoxAdapter(child: SizedBox(height: 44.h)),
           ],
         ),
       ),
@@ -207,7 +207,7 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 22.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -278,7 +278,7 @@ class _GymsScreenState extends State<GymsScreen> {
         children: [
           Expanded(
             child: Container(
-              height: 48.h,
+              height: 52.h,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14.r),
@@ -311,17 +311,17 @@ class _GymsScreenState extends State<GymsScreen> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                  contentPadding: EdgeInsets.symmetric(vertical: 16.h),
                 ),
               ),
             ),
           ),
-          SizedBox(width: 10.w),
+          SizedBox(width: 12.w),
           // ── View on Map button ───────────────────────────────────────────
           GestureDetector(
             onTap: () => _openNearGymMap(addressQuery: _searchQuery),
             child: Container(
-              height: 48.h,
+              height: 52.h,
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               decoration: BoxDecoration(
                 color: _kOrange,
@@ -359,19 +359,19 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildFilterRow() {
     return SizedBox(
-      height: 50.h,
+      height: 58.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         itemCount: _filters.length + 1,
-        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
         itemBuilder: (context, i) {
           if (i == _filters.length) {
             return GestureDetector(
               onTap: () {},
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: 12.w, vertical: 6.h),
+                    horizontal: 14.w, vertical: 7.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30.r),
@@ -392,7 +392,7 @@ class _GymsScreenState extends State<GymsScreen> {
             onTap: () => setState(() => _activeFilter = label),
             child: Container(
               padding: EdgeInsets.symmetric(
-                  horizontal: 14.w, vertical: 6.h),
+                  horizontal: 16.w, vertical: 7.h),
               decoration: BoxDecoration(
                 color: active ? _kOrange : Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
@@ -426,7 +426,7 @@ class _GymsScreenState extends State<GymsScreen> {
       children: [
         Padding(
           padding:
-              EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+              EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
           child: Row(
             children: [
               Text(
@@ -449,12 +449,12 @@ class _GymsScreenState extends State<GymsScreen> {
           ),
         ),
         SizedBox(
-          height: 340.h,
+          height: 356.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             itemCount: featured.length,
-            separatorBuilder: (_, __) => SizedBox(width: 12.w),
+            separatorBuilder: (_, __) => SizedBox(width: 16.w),
             itemBuilder: (_, i) => FeaturedGymCard(gym: featured[i]),
           ),
         ),
@@ -466,7 +466,7 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildAllGymsHeader(int shown, int total) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
+      padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 14.h),
       child: Row(
         children: [
           Text(
