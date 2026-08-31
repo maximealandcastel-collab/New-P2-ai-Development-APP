@@ -151,7 +151,15 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     _workoutId = null;
     _splitOptions = [];
     _selectedSplitId = null;
-    Navigator.of(context).maybePop();
+
+    // PopScope allows a real pop only when this flow is returning Home.
+    // Keep a named fallback for deep-linked flows with no route underneath.
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      Get.offAllNamed(AppRoute.bottonNavBar);
+    }
   }
 
   void _back() {
@@ -192,7 +200,9 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      // Let the system pop when Back should leave this flow. For questionnaire
+      // steps, block the pop so the callback can move back one step instead.
+      canPop: _step == 0 || _step >= 5,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _back();
       },
