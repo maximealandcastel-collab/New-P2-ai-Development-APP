@@ -194,7 +194,11 @@ class SignUpScreen extends StatelessWidget {
                      ),
                    ],
                  ),
-                 onPressed: () {},
+                 onPressed: () => Get.snackbar(
+                  'Google sign-up',
+                  'Google sign-up is not available yet. Please create your account with email and password.',
+                  snackPosition: SnackPosition.BOTTOM,
+                ),
                ),
                SizedBox(height: 18.h),
               AuthSwitchLink(

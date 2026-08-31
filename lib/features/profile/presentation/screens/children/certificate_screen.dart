@@ -161,9 +161,11 @@ class CertificatesScreen extends StatelessWidget {
                 backgroundColor: Colors.black.withValues(alpha: 0.06),
                 foregroundColor: Colors.grey.shade400,
                 radius: 12.r,
-                onPressed: () {
-                  // Logic to save certificate
-                },
+                onPressed: () => Get.snackbar(
+                  'Certificates',
+                  'Certificate submission is being finalized. Your entries remain on this screen.',
+                  snackPosition: SnackPosition.BOTTOM,
+                ),
               ),
               SizedBox(height: 16.h),
             ],

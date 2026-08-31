@@ -62,7 +62,10 @@ class GymSection extends StatelessWidget {
                     left: index == 0 ? 16.w : 0,
                     right: index == GymModel.demoGyms.length - 1 ? 16.w : 0,
                   ),
-                  child: GymCardWidget(gym: gym, onJoinPressed: () {}),
+                  child: GymCardWidget(
+                    gym: gym,
+                    onJoinPressed: () => _openGymMap(gym.name),
+                  ),
                 );
               },
             ),
@@ -72,30 +75,35 @@ class GymSection extends StatelessWidget {
     );
   }
 
-  Future<void> _openNearGymMap() async {
-    const query = 'gyms+near+me';
+  Future<void> _openNearGymMap() => _openGymMap('gyms near me');
+
+  Future<void> _openGymMap(String query) async {
+    final encodedQuery = Uri.encodeComponent(query);
     final googleMapsWebUrl = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$query',
+      'https://www.google.com/maps/search/?api=1&query=$encodedQuery',
     );
-    final googleMapsAppUrl = Uri.parse('comgooglemaps://?q=$query');
+    final googleMapsAppUrl = Uri.parse('comgooglemaps://?q=$encodedQuery');
+
+    if (Platform.isIOS) {
+      try {
+        final opened = await launchUrl(
+          googleMapsAppUrl,
+          mode: LaunchMode.externalApplication,
+        );
+        if (opened) return;
+      } catch (_) {
+        // Google Maps is optional. Fall through to the universal web URL.
+      }
+    }
 
     try {
-      if (Platform.isIOS && await canLaunchUrl(googleMapsAppUrl)) {
-        await launchUrl(googleMapsAppUrl, mode: LaunchMode.externalApplication);
-        return;
-      }
-
-      if (await canLaunchUrl(googleMapsWebUrl)) {
-        await launchUrl(googleMapsWebUrl, mode: LaunchMode.externalApplication);
-      } else {
-        ToastMessageHelper.show('Could not open map application.');
-      }
+      final opened = await launchUrl(
+        googleMapsWebUrl,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened) ToastMessageHelper.show('Could not open map application.');
     } catch (e) {
-      if (await canLaunchUrl(googleMapsWebUrl)) {
-        await launchUrl(googleMapsWebUrl, mode: LaunchMode.externalApplication);
-      } else {
-        ToastMessageHelper.show('Could not open maps: $e');
-      }
+      ToastMessageHelper.show('Could not open maps: $e');
     }
   }
 }

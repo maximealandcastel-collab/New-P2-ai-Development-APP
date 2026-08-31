@@ -603,17 +603,27 @@ class _GymsCard extends StatelessWidget {
                        fontSize: 14.sp,
                        fontWeight: FontWeight.w400,
                       color: Colors.black)),
-              GestureDetector(
-                onTap: () {
-                  final controller = BottomNavBarController.to;
-                  final gymsIndex = controller.indexOfTab(NavItemId.gyms);
-                  if (gymsIndex >= 0) controller.onChange(gymsIndex);
-                },
-                child: Text('Near Gym',
-                    style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFFFF6B35))),
+              Semantics(
+                button: true,
+                label: 'Open nearby gyms',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    final controller = BottomNavBarController.to;
+                    final gymsIndex = controller.indexOfTab(NavItemId.gyms);
+                    if (gymsIndex >= 0) {
+                      controller.onChange(gymsIndex);
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    child: Text('Near Gym',
+                        style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFFF6B35))),
+                  ),
+                ),
               ),
             ],
           ),

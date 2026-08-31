@@ -64,7 +64,7 @@ class GymCardWidget extends StatelessWidget {
             child: CustomButton(
               backgroundColor: AppColors.textSecondary.withValues(alpha: 0.7),
               onPressed: onJoinPressed,
-              label: 'Disable',
+              label: 'View',
               width: 50.w,
               height: 15.h,
               fontSize: 8.sp,

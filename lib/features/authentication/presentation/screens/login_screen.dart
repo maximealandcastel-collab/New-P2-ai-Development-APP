@@ -212,7 +212,11 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                onPressed: () {},
+                onPressed: () => Get.snackbar(
+                  'Google sign-in',
+                  'Google sign-in is not available yet. Please use email and password.',
+                  snackPosition: SnackPosition.BOTTOM,
+                ),
               ),
             ],
           ),

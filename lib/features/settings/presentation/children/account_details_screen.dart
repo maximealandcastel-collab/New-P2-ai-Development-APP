@@ -96,7 +96,14 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       ),
       bottomNavigationBar: SafeArea(child: Padding(
         padding:  EdgeInsets.all(16.r),
-        child: CustomButton(onPressed: (){},label: 'Save'),
+        child: CustomButton(
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account editing is not available from this screen yet.'),
+            ),
+          ),
+          label: 'Save',
+        ),
       )),
     );
   }

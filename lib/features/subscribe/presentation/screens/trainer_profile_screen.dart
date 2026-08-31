@@ -82,7 +82,11 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
           length: 3,
           child: NestedScrollView(
             headerSliverBuilder: (ctx, _) => [
-              _HeroSliver(trainer: trainer, tier: _tier(trainer)),
+              _HeroSliver(
+                trainer: trainer,
+                trainerID: trainerID,
+                tier: _tier(trainer),
+              ),
             ],
             body: Column(
               children: [
@@ -120,8 +124,13 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
 
 class _HeroSliver extends StatelessWidget {
   final TrainerDetailsModel? trainer;
+  final String? trainerID;
   final String tier;
-  const _HeroSliver({required this.trainer, required this.tier});
+  const _HeroSliver({
+    required this.trainer,
+    required this.trainerID,
+    required this.tier,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +158,14 @@ class _HeroSliver extends StatelessWidget {
           decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
           child: IconButton(
             icon: Icon(Icons.chat_bubble_outline_rounded, size: 18.sp, color: Colors.black),
-            onPressed: () {},
+            onPressed: () => Get.toNamed(
+              AppRoute.chatScreen,
+              arguments: ChatScreenArgs(
+                displayName: trainer?.name ?? 'Trainer',
+                trainerId: trainerID ?? '',
+                isAnamEnabled: true,
+              ),
+            ),
           ),
         ),
       ],
@@ -676,7 +692,11 @@ class _ProgramCard extends StatelessWidget {
           SizedBox(width: 12.w),
           started
               ? ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => Get.snackbar(
+                    'Programs',
+                    'Program playback is not available yet.',
+                    snackPosition: SnackPosition.BOTTOM,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -686,7 +706,11 @@ class _ProgramCard extends StatelessWidget {
                   child: Text('Resume', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label)),
                 )
               : ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => Get.snackbar(
+                    'Programs',
+                    'Program playback is not available yet.',
+                    snackPosition: SnackPosition.BOTTOM,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _orange,
                     foregroundColor: Colors.white,

@@ -181,9 +181,11 @@ class _FeedScreenState extends State<FeedScreen> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {
-                      // TODO(backend): search across the video library
-                    },
+                    onTap: () => Get.snackbar(
+                      'Video search',
+                      'Video search is not available yet.',
+                      snackPosition: SnackPosition.BOTTOM,
+                    ),
                     child: Icon(Icons.search,
                         color: Colors.white, size: 26.sp),
                   ),

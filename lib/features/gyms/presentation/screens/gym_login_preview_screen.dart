@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
@@ -237,7 +238,9 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                     borderRadius: BorderRadius.circular(14.r),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () => Get.toNamed(
+                  _isLogin ? AppRoute.loginScreen : AppRoute.signUpScreen,
+                ),
                 child: Text(
                   _isLogin ? 'Login' : 'Create Account',
                   style: TextStyle(

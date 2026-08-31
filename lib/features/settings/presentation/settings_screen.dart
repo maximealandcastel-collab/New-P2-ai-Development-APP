@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/account_details_screen.dart';
@@ -137,11 +138,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 _buildCardListWidget(
                   label: "Language & Region",
-                  onTap: () {},
+                  onTap: () => Get.snackbar(
+                    'Language & Region',
+                    'Language and region settings are not available yet.',
+                    snackPosition: SnackPosition.BOTTOM,
+                  ),
                 ),
                 _buildCardListWidget(
                   label: "Notifications",
-                  onTap: () {},
+                  onTap: () => Get.toNamed(AppRoute.notificationsScreen),
                   isSpacer: false,
                 ),
               ],
@@ -160,7 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 _buildCardListWidget(
                   label: "Privacy & Security",
-                  onTap: () {},
+                  onTap: () => Get.toNamed(AppRoute.changePasswordScreen),
                   isSpacer: false,
                 ),
               ],
@@ -168,10 +173,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 12.h),
             _buildContainerCard(
               label: "About",
-              sublabel: "App version 1.58.7.1",
+              sublabel: "App version 4.11.0 (3029)",
               children: [
-                _buildCardListWidget(label: "Privacy Policy", onTap: () {}),
-                _buildCardListWidget(label: "Terms of Service", onTap: () {}),
+                _buildCardListWidget(
+                  label: "Privacy Policy",
+                  onTap: () => Get.toNamed(AppRoute.privacyPolicyScreen),
+                ),
+                _buildCardListWidget(
+                  label: "Terms of Service",
+                  onTap: () => Get.toNamed(AppRoute.privacyPolicyScreen),
+                ),
                 _buildCardListWidget(
                   label: "Logout",
                   onTap: _showLogoutDialog,

@@ -126,7 +126,11 @@ class ProfileScreen extends StatelessWidget {
           title: 'Performance Analytics',
           subtitle: 'View your performance insights',
           badge: 'This Month',
-          onTap: () {},
+          onTap: () => Get.snackbar(
+            'Performance Analytics',
+            'Performance analytics are not available yet.',
+            snackPosition: SnackPosition.BOTTOM,
+          ),
         ),
         _MenuItem(
           icon: Icons.receipt_long_rounded,
