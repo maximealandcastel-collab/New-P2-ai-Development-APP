@@ -30,6 +30,45 @@ class SignUpController extends GetxController {
   final confirmPasswordController = TextEditingController();
   final referralCodeController = TextEditingController();
   final showReferralField = false.obs;
+  final acceptedTerms = false.obs;
+
+  bool _customerGatePassed = false;
+  bool _trainerEntry = false;
+
+  bool get canShowRegistrationForm => _customerGatePassed || _trainerEntry;
+
+  void configureEntry(dynamic arguments) {
+    if (arguments is Map && arguments['trainerEntry'] == true) {
+      _trainerEntry = true;
+      _customerGatePassed = false;
+      _selectedRole.value = 'Trainer';
+      return;
+    }
+    if (arguments is Map && arguments['paywallPassed'] == true) {
+      _customerGatePassed = true;
+      _trainerEntry = false;
+      _selectedRole.value = 'User';
+      return;
+    }
+    _customerGatePassed = false;
+    _trainerEntry = false;
+    _selectedRole.value = 'User';
+  }
+
+  void openCustomerPaywall() {
+    Get.offNamed(
+      AppRoute.paywallScreen,
+      arguments: {
+        'preSignup': true,
+        'nextRoute': AppRoute.signUpScreen,
+        'freeRoute': AppRoute.signUpScreen,
+        'nextArguments': {
+          'paywallPassed': true,
+          'role': 'User',
+        },
+      },
+    );
+  }
 
   final registerFormKey = GlobalKey<FormState>();
 
@@ -42,12 +81,27 @@ class SignUpController extends GetxController {
   String get selectedRole => _selectedRole.value;
 
   void changeRole(String role) {
+    if (role.toLowerCase() == 'user' && !_customerGatePassed) {
+      openCustomerPaywall();
+      return;
+    }
+    if (role.toLowerCase() == 'trainer') {
+      _trainerEntry = true;
+    }
     _selectedRole.value = role;
     debugPrint('Selected role: $role');
   }
 
   Future<void> register() async {
+    if (!canShowRegistrationForm) {
+      openCustomerPaywall();
+      return;
+    }
     if (!registerFormKey.currentState!.validate()) return;
+    if (!acceptedTerms.value) {
+      ToastMessageHelper.show('Please accept the Terms of Service and Privacy Policy.');
+      return;
+    }
 
     _registerState.value = LoadingState.loading;
     try {
@@ -66,21 +120,10 @@ class SignUpController extends GetxController {
         await CacheService().put('pendingPromoCode', referral.toUpperCase());
       }
       _registerState.value = LoadingState.loaded;
-      if (_selectedRole.value.toLowerCase() == 'user') {
-        Get.toNamed(
-          AppRoute.paywallScreen,
-          arguments: {
-            'nextRoute': AppRoute.otpVerificationScreen,
-            'freeRoute': AppRoute.otpVerificationScreen,
-            'nextArguments': 'signup',
-          },
-        );
-      } else {
-        Get.toNamed(
-          AppRoute.otpVerificationScreen,
-          arguments: 'signup',
-        );
-      }
+      Get.toNamed(
+        AppRoute.otpVerificationScreen,
+        arguments: 'signup',
+      );
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import '../../domain/services/auth_services.dart';
 
 class OtpController extends GetxController {
@@ -38,6 +39,14 @@ class OtpController extends GetxController {
     _otpState.value = LoadingState.loading;
     try {
       await _authService.otpVerify(otp: otpController.text.trim());
+      if ((Get.arguments ?? '') == 'signup' && !isTrainer()) {
+        final activated = await PaywallController.to.activatePendingEntitlement();
+        if (!activated) {
+          ToastMessageHelper.show(
+            'Your account is verified. Subscription activation is still processing.',
+          );
+        }
+      }
       _otpState.value = LoadingState.loaded;
       return true;
     } catch (e) {

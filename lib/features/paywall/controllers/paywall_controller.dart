@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 
@@ -13,11 +14,20 @@ const String _annualId = 'year_1';
 const Set<String> _productIds = {_monthlyId, _annualId};
 
 class PaywallController extends GetxController {
+  static PaywallController get to => Get.find<PaywallController>();
+
+  static const String _pendingIapKey = 'pendingSignupIap';
+  static const String _pendingAccessCodeKey = 'pendingSignupAccessCode';
+
   String _paidDestination = AppRoute.subscribeSelectScreen;
   String _selfGuidedDestination = AppRoute.bottonNavBar;
   dynamic _destinationArguments;
+  bool _preSignup = false;
+
+  bool get isPreSignup => _preSignup;
 
   void configureDestination(dynamic arguments) {
+    _preSignup = arguments is Map && arguments['preSignup'] == true;
     if (arguments is Map) {
       final nextRoute = arguments['nextRoute'];
       if (nextRoute is String && nextRoute.isNotEmpty) {
@@ -35,17 +45,27 @@ class PaywallController extends GetxController {
     _destinationArguments = null;
   }
 
-  void continueSelfGuided() {
-    Get.offAllNamed(
-      _selfGuidedDestination,
-      arguments: _destinationArguments,
-    );
+  void _openDestination(String route) {
+    if (_preSignup) {
+      Get.offNamed(route, arguments: _destinationArguments);
+    } else {
+      Get.offAllNamed(route, arguments: _destinationArguments);
+    }
   }
 
-  void _continueToTrainerSelection() {
-    Get.offAllNamed(
-      _paidDestination,
-      arguments: _destinationArguments,
+  void continueSelfGuided() => _openDestination(_selfGuidedDestination);
+
+  void _continueToTrainerSelection() => _openDestination(_paidDestination);
+
+  void closePaywall() => Get.back();
+
+  void openTrainerSignup() {
+    Get.offNamed(
+      AppRoute.signUpScreen,
+      arguments: {
+        'trainerEntry': true,
+        'role': 'Trainer',
+      },
     );
   }
 
@@ -94,6 +114,7 @@ class PaywallController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    configureDestination(Get.arguments);
     _initIAP();
   }
 
@@ -138,6 +159,11 @@ class PaywallController extends GetxController {
   }
 
   // ─── Purchase ───────────────────────────────────────────────
+  Future<void> startFreeTrial() async {
+    selectedPlan.value = 'monthly';
+    await upgradeNow();
+  }
+
   Future<void> upgradeNow() async {
     purchaseError.value = "";
 
@@ -212,6 +238,13 @@ class PaywallController extends GetxController {
             purchase.verificationData.serverVerificationData,
       };
 
+      if (_preSignup) {
+        await CacheService().box.put(_pendingIapKey, body);
+        purchaseLoading.value = false;
+        _continueToTrainerSelection();
+        return;
+      }
+
       final response = await ApiClient.postData(ApiUrls.iapVerify, body);
 
       if (response.statusCode == 200) {
@@ -279,6 +312,11 @@ class PaywallController extends GetxController {
       // 2. Website codes (purchased on p2pfitechai.com) — redeem directly,
       //    no IAP needed since the customer already paid on the website.
       if (codeType == "website") {
+        if (_preSignup) {
+          await CacheService().box.put(_pendingAccessCodeKey, code);
+          _continueToTrainerSelection();
+          return;
+        }
         final redeemResp =
             await ApiClient.postData(ApiUrls.promoRedeem, {"code": code});
         if (redeemResp.statusCode == 200 || redeemResp.statusCode == 201) {
@@ -348,7 +386,12 @@ class PaywallController extends GetxController {
           : <String, dynamic>{};
       final label = (codeData["label"] ?? "").toString();
 
-      // Step 2 — redeem (requires user JWT; user must be logged in)
+      // Step 2 — pre-signup codes are activated after OTP creates the JWT.
+      if (_preSignup) {
+        await CacheService().box.put(_pendingAccessCodeKey, code);
+        _continueToTrainerSelection();
+        return;
+      }
       final redeemResp =
           await ApiClient.postData(ApiUrls.promoRedeem, {"code": code});
       if (redeemResp.statusCode == 200 || redeemResp.statusCode == 201) {
@@ -372,6 +415,33 @@ class PaywallController extends GetxController {
       accessCodeError.value = "Could not verify the code. Please try again.";
     } finally {
       accessCodeLoading.value = false;
+    }
+  }
+
+  Future<bool> activatePendingEntitlement() async {
+    final cache = CacheService();
+    final pendingIap = cache.get<Map<String, dynamic>>(_pendingIapKey);
+    final pendingCode = cache.get<String>(_pendingAccessCodeKey);
+
+    try {
+      if (pendingIap != null) {
+        final response = await ApiClient.postData(ApiUrls.iapVerify, pendingIap);
+        if (response.statusCode != 200) return false;
+        await cache.delete(_pendingIapKey);
+      }
+      if (pendingCode != null && pendingCode.isNotEmpty) {
+        final response = await ApiClient.postData(
+          ApiUrls.promoRedeem,
+          {'code': pendingCode},
+        );
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          return false;
+        }
+        await cache.delete(_pendingAccessCodeKey);
+      }
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

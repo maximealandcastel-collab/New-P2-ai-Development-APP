@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,7 +28,7 @@ class PaywallScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: controller.continueSelfGuided,
+                    onTap: controller.closePaywall,
                     child: Container(
                       width: 36.w,
                       height: 36.w,
@@ -97,9 +98,16 @@ class PaywallScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    "Admin",
-                    style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontWeight: FontWeight.w500),
+                  GestureDetector(
+                    onTap: controller.isPreSignup ? controller.openTrainerSignup : null,
+                    child: Text(
+                      controller.isPreSignup ? 'Trainer sign up' : 'Admin',
+                      style: TextStyle(
+                        color: controller.isPreSignup ? AppColors.primary : Colors.black54,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -163,8 +171,8 @@ class PaywallScreen extends StatelessWidget {
                           _buildTierCard(
                             index: 0,
                             title: "Self-Guided",
-                            price: "\$0",
-                            desc: "AI workouts and tracking, no dedicated coach.",
+                            price: "\$0 today",
+                            desc: "7-day free trial, then monthly. Cancel anytime.",
                           ),
                           _buildTierCard(
                             index: 1,
@@ -373,7 +381,7 @@ class PaywallScreen extends StatelessWidget {
 
       String ctaText = "";
       if (tier == 0) {
-        ctaText = "Continue with Self-Guided — \$0";
+        ctaText = "Start 7-day free trial — \$0 today";
       } else if (tier == 1) {
         ctaText = "Start with Personal Trainer — $ptPrice";
       } else {
@@ -404,7 +412,7 @@ class PaywallScreen extends StatelessWidget {
                   ? null
                   : () {
                       if (tier == 0) {
-                        controller.continueSelfGuided();
+                        controller.startFreeTrial();
                       } else if (tier == 1) {
                         controller.upgradeNow();
                       } else {
@@ -425,7 +433,9 @@ class PaywallScreen extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           Text(
-            "Billed ${isAnnual ? 'annually' : 'monthly'} · cancel anytime",
+            tier == 0
+                ? "7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime"
+                : "Billed ${isAnnual ? 'annually' : 'monthly'} · cancel anytime",
             style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
           ),
           SizedBox(height: 8.h),
