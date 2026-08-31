@@ -508,7 +508,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget _createAccountButton() {
     return Obx(() {
-      final loading = controller.registerState.isLoading;
+      final loading = controller.registerState == LoadingState.loading;
       return DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
