@@ -103,18 +103,12 @@ class LoginController extends GetxController {
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
 
-      // Owner accounts → silently activate admin mode (Admin ↔ User toggle)
-      // regardless of backend role, and land on subscriber view by default.
-      // Must be checked BEFORE the role=='admin' branch so pmoney is never
-      // routed to the bypass code screen.
+      // Owner accounts must complete the official admin activation step.
+      // The bypass screen sends the entered code to the authenticated backend;
+      // never embed the owner PIN in the client or silently grant admin mode.
       if (AppConstants.ownerEmails.contains(loginEmail)) {
-        if (!Get.isRegistered<AdminModeService>()) {
-          Get.put(AdminModeService(), permanent: true);
-        }
-        await AdminModeService.to.activate(); // defaults to viewAsUser = true
-        // Always persist owner session — pill must survive cold restarts regardless of saveLogin toggle
         await prefs.setBool('sessionPersisted', true);
-        Get.offAllNamed(AppRoute.bottonNavBar);
+        Get.offAllNamed(AppRoute.adminBypassScreen);
         return;
       }
       // Other admins → AdminBypassScreen (enter code to unlock dashboard).
