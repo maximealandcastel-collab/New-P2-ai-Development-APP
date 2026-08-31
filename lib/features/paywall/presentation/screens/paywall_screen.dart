@@ -42,27 +42,39 @@ class PaywallScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
-                        height: 28.h,
-                        width: 28.h,
+                        height: 26.h,
+                        width: 26.h,
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/app_logo.png',
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.fitness_center,
-                              color: AppColors.primary,
-                              size: 20.sp,
+                          child: Transform.scale(
+                            scale: 1.12,
+                            child: Image.asset(
+                              'assets/images/app_logo.png',
+                              fit: BoxFit.cover,
+                              filterQuality: FilterQuality.high,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.fitness_center,
+                                color: AppColors.primary,
+                                size: 18.sp,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 7.w),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "P2P FIT",
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(text: "P2P "),
+                                TextSpan(
+                                  text: "FIT",
+                                  style: TextStyle(color: AppColors.primary),
+                                ),
+                              ],
+                            ),
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w900,

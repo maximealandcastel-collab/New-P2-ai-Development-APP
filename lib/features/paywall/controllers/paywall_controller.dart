@@ -14,24 +14,39 @@ const Set<String> _productIds = {_monthlyId, _annualId};
 
 class PaywallController extends GetxController {
   String _paidDestination = AppRoute.subscribeSelectScreen;
+  String _selfGuidedDestination = AppRoute.bottonNavBar;
+  dynamic _destinationArguments;
 
   void configureDestination(dynamic arguments) {
     if (arguments is Map) {
       final nextRoute = arguments['nextRoute'];
       if (nextRoute is String && nextRoute.isNotEmpty) {
         _paidDestination = nextRoute;
-        return;
       }
+      final freeRoute = arguments['freeRoute'];
+      if (freeRoute is String && freeRoute.isNotEmpty) {
+        _selfGuidedDestination = freeRoute;
+      }
+      _destinationArguments = arguments['nextArguments'];
+      return;
     }
     _paidDestination = AppRoute.subscribeSelectScreen;
+    _selfGuidedDestination = AppRoute.bottonNavBar;
+    _destinationArguments = null;
   }
 
   void continueSelfGuided() {
-    Get.offAllNamed(AppRoute.bottonNavBar);
+    Get.offAllNamed(
+      _selfGuidedDestination,
+      arguments: _destinationArguments,
+    );
   }
 
   void _continueToTrainerSelection() {
-    Get.offAllNamed(_paidDestination);
+    Get.offAllNamed(
+      _paidDestination,
+      arguments: _destinationArguments,
+    );
   }
 
   // ─── IAP ────────────────────────────────────────────────────

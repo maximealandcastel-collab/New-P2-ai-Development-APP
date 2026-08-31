@@ -205,7 +205,7 @@ class ProfileCompleteController extends GetxController {
         ),
       );
       _userState.value = LoadingState.loaded;
-      Get.offAllNamed(AppRoute.paywallScreen);
+      Get.offAllNamed(AppRoute.subscribeSelectScreen);
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _userState.value = LoadingState.error;

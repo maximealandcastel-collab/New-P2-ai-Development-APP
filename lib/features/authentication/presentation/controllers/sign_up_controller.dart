@@ -66,10 +66,21 @@ class SignUpController extends GetxController {
         await CacheService().put('pendingPromoCode', referral.toUpperCase());
       }
       _registerState.value = LoadingState.loaded;
-      Get.toNamed(
-        AppRoute.otpVerificationScreen,
-        arguments: 'signup',
-      );
+      if (_selectedRole.value.toLowerCase() == 'user') {
+        Get.toNamed(
+          AppRoute.paywallScreen,
+          arguments: {
+            'nextRoute': AppRoute.otpVerificationScreen,
+            'freeRoute': AppRoute.otpVerificationScreen,
+            'nextArguments': 'signup',
+          },
+        );
+      } else {
+        Get.toNamed(
+          AppRoute.otpVerificationScreen,
+          arguments: 'signup',
+        );
+      }
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;
