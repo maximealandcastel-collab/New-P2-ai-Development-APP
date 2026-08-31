@@ -2,11 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
@@ -604,7 +604,11 @@ class _GymsCard extends StatelessWidget {
                        fontWeight: FontWeight.w400,
                       color: Colors.black)),
               GestureDetector(
-                onTap: () => Get.find<NavBarController>().onChange(2),
+                onTap: () {
+                  final controller = BottomNavBarController.to;
+                  final gymsIndex = controller.indexOfTab(NavItemId.gyms);
+                  if (gymsIndex >= 0) controller.onChange(gymsIndex);
+                },
                 child: Text('Near Gym',
                     style: TextStyle(
                         fontSize: 13.sp,

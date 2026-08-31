@@ -27,15 +27,26 @@ class BottomNavBar extends StatelessWidget {
     int index,
     NavItemModel navItem,
   ) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (controller.selectedIndex != index) {
-          HapticFeedback.selectionClick();
-          controller.onChange(index);
-        }
-      },
-      child: BottomNavItem(index: index, navItem: navItem),
+    final isSelected = controller.selectedIndex == index;
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: navItem.label,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            if (!isSelected) {
+              HapticFeedback.selectionClick();
+              controller.onChange(index);
+            }
+          },
+          child: SizedBox(
+            height: 52.h,
+            child: BottomNavItem(index: index, navItem: navItem),
+          ),
+        ),
+      ),
     );
   }
 
@@ -77,15 +88,29 @@ class BottomNavBar extends StatelessWidget {
             // at all — that is trainers' Messages tab and affiliates' Earnings
             // tab, both mounted in the stack but unreachable.
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 for (int i = 0; i < _fabPosition(navItems.length); i++)
                   _buildNavTapTarget(controller, i, navItems[i]),
                 // Centre FAB
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => NavFabWidget.show(context, controller.fabItems),
-                  child: Assets.icons.addButton.svg(height: 48.h, width: 48.w),
+                SizedBox(
+                  width: 56.w,
+                  height: 52.h,
+                  child: Semantics(
+                    button: true,
+                    label: 'Create',
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () =>
+                          NavFabWidget.show(context, controller.fabItems),
+                      child: Center(
+                        child: Assets.icons.addButton.svg(
+                          height: 44.h,
+                          width: 44.w,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 for (int i = _fabPosition(navItems.length);
                     i < navItems.length;

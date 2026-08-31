@@ -77,14 +77,24 @@ class _BottomNavItemState extends State<BottomNavItem>
       // where index 2 was the centre item. The FAB is now a separate widget, so
       // index 2 is an ordinary tab — Gyms for users, Contents for admins — and
       // white rendered it invisible against the white frosted bar when selected.
-      const Color selectedColor = AppColors.textPrimary;
+      const Color selectedColor = AppColors.primary;
       final Color iconColor =
           isSelected ? selectedColor : AppColors.textSecondary;
 
       return ScaleTransition(
         scale: _scale,
-        child: SizedBox(
-          width: 56.w,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 2.w),
+          padding: EdgeInsets.symmetric(vertical: 5.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withOpacity(0.10)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14.r),
+          ),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -116,7 +126,13 @@ class _BottomNavItemState extends State<BottomNavItem>
                         ? selectedColor
                         : AppColors.textSecondary,
                   ),
-                  child: Text(widget.navItem.label),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.navItem.label,
+                      maxLines: 1,
+                    ),
+                  ),
                 ),
               ],
             ),
