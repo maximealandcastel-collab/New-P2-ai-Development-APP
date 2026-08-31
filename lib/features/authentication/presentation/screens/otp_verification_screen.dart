@@ -34,7 +34,7 @@ class OtpVerificationScreen extends StatelessWidget {
 
               Center(
                 child: CustomPinCodeTextField(
-                  controller: controller.otpController,
+                  textEditingController: controller.otpController,
 
                 ),
               ),

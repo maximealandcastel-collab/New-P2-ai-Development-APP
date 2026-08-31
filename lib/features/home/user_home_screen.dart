@@ -2,8 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';

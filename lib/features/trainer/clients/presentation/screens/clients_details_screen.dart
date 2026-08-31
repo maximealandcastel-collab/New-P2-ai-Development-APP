@@ -57,12 +57,11 @@ class ClientDetailsScreen extends StatelessWidget {
             CustomButton(
               onPressed: () {
                 // Navigating to Chat Screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      clientName: client['name'] ?? 'Ethan Carter',
-                    ),
+                Get.to(
+                  () => const ChatScreen(),
+                  arguments: ChatScreenArgs(
+                    displayName: client['name'] ?? 'Ethan Carter',
+                    subtitle: 'client',
                   ),
                 );
               },

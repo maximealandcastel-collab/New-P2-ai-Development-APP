@@ -133,7 +133,7 @@ class _GymsScreenState extends State<GymsScreen> {
       } catch (_) {
         // Surface a clear message instead of silently doing nothing.
       }
-      ToastMessageHelper.show('Could not open Google Maps.');
+      ToastMessageHelper.showError('Could not open Google Maps.');
     }
   }
 

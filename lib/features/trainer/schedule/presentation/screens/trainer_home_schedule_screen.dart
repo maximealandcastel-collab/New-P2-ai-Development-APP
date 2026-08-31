@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/schedule/domain/entities/session_entity.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/domain/repositories/schedule_repository.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/bindings/schedule_binding.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/controllers/schedule_controller.dart';
