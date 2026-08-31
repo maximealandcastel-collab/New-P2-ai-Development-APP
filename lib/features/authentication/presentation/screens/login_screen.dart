@@ -154,9 +154,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {
-                      log("Forgot password click");
-                    },
+                    onTap: () => Get.toNamed(AppRoute.forgotScreen),
                     child: CustomText(
                       text: "Forgot password?",
                       fontSize: 12.sp,
