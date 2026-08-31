@@ -198,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // --- About Section ---
             _buildContainerCard(
               label: 'About',
-                sublabel: 'App version 4.11 (3026)',
+                sublabel: 'App version 4.11 (3027)',
               children: [
                 _buildCardListWidget(
                   label: 'Privacy Policy',
