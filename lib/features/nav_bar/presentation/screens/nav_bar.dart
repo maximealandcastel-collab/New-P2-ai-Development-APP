@@ -14,8 +14,8 @@ import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
 import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_summary_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import '../../../trainer/assignedPlan/presentation/screen/assigned_plan_screen.dart';
 import '../../../trainer/clients/presentation/screens/clients_screen.dart';
@@ -286,7 +286,11 @@ class _NavBarState extends State<NavBar> {
                           if (_isAdminView || _isTrainer) {
                             Get.to(() => const CreateExercisePlanScreen());
                           } else {
-                            Get.toNamed(AppRoute.workoutFinderFlow);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const WorkoutFinderFlow(),
+                              ),
+                            );
                           }
                         },
                       );

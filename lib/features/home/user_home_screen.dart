@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
-import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -687,7 +688,9 @@ class _GenerateWorkoutBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoute.workoutFinderFlow),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const WorkoutFinderFlow()),
+      ),
       child: Semantics(
         button: true,
         label: 'Generate workout split',
@@ -733,7 +736,9 @@ class _RateMyPeelBanner extends StatelessWidget {
       hint: 'Opens the Rate My Peel feature overview',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => Get.toNamed(AppRoute.rateMyPeel),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const RateMyPeelScreen()),
+        ),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
