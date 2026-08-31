@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../../widgets/custom_container.dart';
 import '../../../../../widgets/custom_image_avatar.dart';
@@ -83,11 +84,34 @@ class ContentDetailsScreen extends StatelessWidget {
                   // Action Row: Like, Dislike, Share
                   Row(
                     children: [
-                      _buildActionButton(Icons.thumb_up_outlined, content['likes']),
+                      _buildActionButton(
+                        Icons.thumb_up_outlined,
+                        '${content['likes'] ?? 0}',
+                        onTap: () => Get.snackbar(
+                          'Reactions unavailable',
+                          'Content reactions will be available when community features launch.',
+                        ),
+                      ),
                       SizedBox(width: 8.w),
-                      _buildActionButton(Icons.thumb_down_outlined, "2"),
+                      _buildActionButton(
+                        Icons.thumb_down_outlined,
+                        '2',
+                        onTap: () => Get.snackbar(
+                          'Reactions unavailable',
+                          'Content reactions will be available when community features launch.',
+                        ),
+                      ),
                       const Spacer(),
-                      _buildActionButton(Icons.share_outlined, "Share", isFilled: true),
+                      _buildActionButton(
+                        Icons.share_outlined,
+                        'Share',
+                        isFilled: true,
+                        onTap: () => SharePlus.instance.share(
+                          ShareParams(
+                            text: '${content['title'] ?? 'P2P FitTech AI content'}\n${content['videoUrl'] ?? content['image'] ?? ''}',
+                          ),
+                        ),
+                      ),
                     ],
                   ),
 
@@ -139,15 +163,21 @@ class ContentDetailsScreen extends StatelessWidget {
               inactiveTrackColor: Colors.white30,
               thumbColor: Colors.white,
             ),
-            child: Slider(value: 0.3, onChanged: (v) {}),
+            child: const Slider(value: 0.3, onChanged: null),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, {bool isFilled = false}) {
+  Widget _buildActionButton(
+    IconData icon,
+    String label, {
+    bool isFilled = false,
+    required VoidCallback onTap,
+  }) {
     return CustomContainer(
+      onTap: onTap,
       paddingHorizontal: 16.w,
       paddingVertical: 8.h,
       radiusAll: 24.r,
@@ -165,6 +195,10 @@ class ContentDetailsScreen extends StatelessWidget {
 
   Widget _buildCommentInput() {
     return CustomContainer(
+      onTap: () => Get.snackbar(
+        'Comments',
+        'Comment posting will be available when community messaging launches.',
+      ),
       width: double.infinity,
       // Increased vertical padding to 18.h to make the box "bigger"
       paddingHorizontal: 12.w,

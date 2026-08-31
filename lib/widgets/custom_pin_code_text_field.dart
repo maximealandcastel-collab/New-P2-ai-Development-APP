@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 
 
 class CustomPinCodeTextField extends StatelessWidget {
   const CustomPinCodeTextField(
-      {super.key, this.controller, this.validator, this.focusNode,this.autoFocus=false});
+      {super.key, this.textEditingController, this.validator, this.focusNode,this.autoFocus=false});
 
-  final TextEditingController? controller;
+  final TextEditingController? textEditingController;
   final FormFieldValidator? validator;
   final FocusNode? focusNode;
   final bool autoFocus;
@@ -28,7 +28,7 @@ class CustomPinCodeTextField extends StatelessWidget {
             },
         focusNode: focusNode,
 
-        controller: controller,
+        controller: textEditingController,
         length: 6,
         defaultPinTheme: PinTheme(
           width: 46.w,
@@ -36,9 +36,9 @@ class CustomPinCodeTextField extends StatelessWidget {
           textStyle: TextStyle(color: AppColors.textPrimary, fontSize: 16.sp),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.textSecondary),
+            border: Border.all(color: AppColors.textPrimary),
           ),
         ),
         focusedPinTheme: PinTheme(
@@ -47,9 +47,9 @@ class CustomPinCodeTextField extends StatelessWidget {
           textStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 20),
           decoration: BoxDecoration(
             //shape: BoxShape.circle,
-            color: Colors.white,
+            color: AppColors.textPrimary,
            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.textSecondary),
+            border: Border.all(color: AppColors.textPrimary),
           ),
         ),
         cursor: Column(
@@ -63,8 +63,8 @@ class CustomPinCodeTextField extends StatelessWidget {
           ],
         ),
         keyboardType: TextInputType.number,
-        autofocus: true,
-        onChanged: (value) {},
+        //obscureText: true,
+        autofocus: autoFocus,
         obscuringCharacter: '-');
   }
 }

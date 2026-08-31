@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/widgets/session_card_widget.dart';
+import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  void _openSchedule() {
+    Get.find<NavBarController>().onChange(3);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,13 +86,23 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       CustomText(
                         fontWeight: FontWeight.w500,
-                         fontSize: 15.sp,
+                        fontSize: 15.sp,
                         text: 'Today’s Sessions (4)',
                       ),
-                      CustomText(
-                        fontWeight: FontWeight.w500,
-                         fontSize: 13.sp,
-                        text: 'View all',
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _openSchedule,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 6.h,
+                          ),
+                          child: CustomText(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13.sp,
+                            text: 'View all',
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -96,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                     shrinkWrap: true,
                     itemCount: 2,
                     itemBuilder: (context, index) {
-                      return SessionsCardWidget();
+                       return SessionsCardWidget(onTap: _openSchedule);
                     },
                   ),
                 ],
@@ -133,13 +149,13 @@ class HomeScreen extends StatelessWidget {
           SvgPicture.asset(icon, height: 24.r, width: 24.r),
           CustomText(
             text: label,
-             fontSize: 11.sp,
+            fontSize: 11.sp,
             color: AppColors.textSecondary,
           ),
           CustomText(
             textAlign: TextAlign.start,
-             fontSize: 24.sp,
-             fontWeight: FontWeight.w600,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w600,
             text: point,
           ),
         ],

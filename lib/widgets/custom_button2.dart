@@ -1,4 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -30,7 +29,7 @@ class CustomButton2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: loading ? () {} : onTap,
+      onPressed: loading ? null : onTap,
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius??4.r)),
         backgroundColor: color ?? AppColors.secondary,
@@ -52,7 +51,7 @@ class CustomButton2 extends StatelessWidget {
         style: textStyle ??
             const TextStyle(
               color: Colors.white,
-              fontWeight: AppFontWeight.emphasis,
+              fontWeight: FontWeight.w500,
               fontSize: 18,
             ),
       ),

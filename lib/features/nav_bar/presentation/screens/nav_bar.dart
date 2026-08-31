@@ -237,31 +237,33 @@ class _NavBarState extends State<NavBar> {
   Widget _buildNavBar(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 8.h),
+        padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 6.h),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(18.r),
           child: BackdropFilter(
-            // ✅  Blur sigma 10–16 — NOT 320 (that caused the grey wash)
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
               decoration: BoxDecoration(
-                // Slight white tint so icons are readable
-                color: Colors.grey.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(16.r),
+                color: Colors.white.withOpacity(0.96),
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(
+                  color: const Color(0xFFE9E9E9),
+                  width: 0.8,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.10),
-                    offset: const Offset(0, 4),
-                    blurRadius: 6,
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, 2),
+                    blurRadius: 10,
                   ),
                 ],
               ),
               padding: EdgeInsets.symmetric(
-                vertical: 12.h,
-                horizontal: 12.w,
+                vertical: 8.h,
+                horizontal: 8.w,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildNavItem(0),
                   _buildNavItem(1),
@@ -290,8 +292,8 @@ class _NavBarState extends State<NavBar> {
                       );
                     },
                     child: Assets.icons.addButton.svg(
-                      height: 48.h,
-                      width: 48.w,
+                      height: 42.h,
+                      width: 42.w,
                     ),
                   ),
 
@@ -314,29 +316,29 @@ class _NavBarState extends State<NavBar> {
       onTap: () => _navBarController.onChange(index),
       behavior: HitTestBehavior.opaque, // ✅ larger tap area
       child: SizedBox(
-        width: 56.w,
+        width: 52.w,
+        height: 50.h,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
               _navItems[index]["icon"],
-              width: 24.w,
-              height: 24.h,
+              width: 21.w,
+              height: 21.h,
               colorFilter: ColorFilter.mode(
                 isSelected
-                    ? AppColors.textPrimary
+                    ? AppColors.primary
                     : AppColors.textSecondary,
                 BlendMode.srcIn,
               ),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 2.h),
             CustomText(
               text: _navItems[index]["label"],
-              fontSize: 10.5.sp,
-              fontWeight:
-              isSelected ? FontWeight.w500 : FontWeight.w400,
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w400,
               color: isSelected
-                  ? AppColors.textPrimary
+                  ? AppColors.primary
                   : AppColors.textSecondary,
             ),
           ],

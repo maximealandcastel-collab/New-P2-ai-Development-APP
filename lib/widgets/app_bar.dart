@@ -1,11 +1,12 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/profile/presentation/screens/trainer_profile_screen.dart' show ProfileScreen;
-import 'package:pler_to_pler_app/features/profile/presentation/screens/user_profile_screen.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
+import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
+import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
+import 'package:pler_to_pler_app/features/user/user_profile/presentation/user_profile_screen.dart';
 
 // ─── Feed App Bar ─────────────────────────────────────────────────────────────
 class FeedAppBar extends StatefulWidget {
@@ -16,40 +17,29 @@ class FeedAppBar extends StatefulWidget {
 }
 
 class _FeedAppBarState extends State<FeedAppBar> {
-  // Sourced from ProfileController, not SharedPreferences.
-  //
-  // This used to read three prefs keys — 'role', AppConstants.name and
-  // AppConstants.profilePicture — and **nothing in the app has ever written
-  // any of them**. `PrefsHelper.setString` is called in exactly two places in
-  // the whole codebase: the admin bypass token, and a commented-out FCM line.
-  // So `_name` was always empty, which meant the greeting was permanently
-  // "Hi there!" and the avatar permanently showed the 'P' fallback initial,
-  // for every user, forever. It was not a loading race — the data had no
-  // writer at all.
-  //
-  // ProfileController does have it (verified on device: firstName=ali), it is
-  // already loaded as part of the dashboard's own load, and it is observable —
-  // so the greeting now updates when the profile arrives instead of being read
-  // once in a post-frame callback and never again.
-  ProfileController get _profile => ProfileController.to;
+  String _role = '';
+  String _name = '';
+  String _profilePicture = '';
 
-  String get _name {
-    final u = _profile.userData;
-    final first = u?.firstName?.trim() ?? '';
-    if (first.isNotEmpty) return first;
-    final preferred = u?.preferredName?.trim() ?? '';
-    if (preferred.isNotEmpty) return preferred;
-    return '';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((__) async {
+      await _loadUserData();
+    });
   }
 
-  String get _profilePicture => _profile.userData?.profilePicture?.trim() ?? '';
-
-  /// Lower-cased on purpose. The API returns 'trainer' / 'admin' / 'user', and
-  /// the tap handler below compared against 'Trainer' with a capital T, so it
-  /// never matched and a trainer was always sent to the subscriber profile.
-  String get _role => (_profile.userData?.role ?? '').toLowerCase();
-
-  bool get _isTrainer => _role == 'trainer' || _role == 'admin';
+  Future<void> _loadUserData() async {
+    final role    = await PrefsHelper.getString('role');
+    final name    = await PrefsHelper.getString(AppConstants.name);
+    final photo   = await PrefsHelper.getString(AppConstants.profilePicture);
+    if (!mounted) return;
+    setState(() {
+      _role           = role  ?? '';
+      _name           = name  ?? '';
+      _profilePicture = photo ?? '';
+    });
+  }
 
   /// First name only for the greeting — keeps it clean and personal.
   String get _firstName {
@@ -62,9 +52,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
       _name.trim().isNotEmpty ? _name.trim()[0].toUpperCase() : 'P';
 
   @override
-  Widget build(BuildContext context) => Obx(_content);
-
-  Widget _content() {
+  Widget build(BuildContext context) {
     // Avatar: real photo if available, orange initial circle otherwise.
     final Widget avatar = _profilePicture.isNotEmpty
         ? CircleAvatar(
@@ -79,8 +67,8 @@ class _FeedAppBarState extends State<FeedAppBar> {
               _initial,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 15.sp,
-                fontWeight: AppFontWeight.section,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w700,
               ),
             ),
           );
@@ -92,7 +80,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
           // ── Avatar ──────────────────────────────────────────────────────
           GestureDetector(
             onTap: () => Get.to(
-              () => _isTrainer ? ProfileScreen() : UserProfileScreen(),
+              () => _role == 'Trainer' ? ProfileScreen() : UserProfileScreen(),
             ),
             child: avatar,
           ),
@@ -106,23 +94,16 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 Text(
                   'Hi $_firstName!',
                   style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: AppFontWeight.title,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
                     color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 2.h),
-                // Was "Let's Manage your users" for everyone — trainer copy
-                // shown to subscribers, who manage nobody. Role is finally
-                // available here, so the line matches who is reading it.
                 Text(
-                  _isTrainer
-                      ? 'Let’s manage your clients'
-                      : 'Let’s crush today’s workout',
+                  'Let\'s Manage your users',
                   style: TextStyle(
-                      fontSize: 11.5.sp,
-                      fontWeight: AppFontWeight.body,
-                      color: Colors.grey.shade500),
+                      fontSize: 12.sp, color: Colors.grey.shade500),
                 ),
               ],
             ),

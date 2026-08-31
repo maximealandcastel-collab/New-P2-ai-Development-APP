@@ -1,4 +1,5 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/services/health_sync_service.dart';
@@ -71,8 +72,22 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen>
 
   void _onAllowPermission() async {
     setState(() => _state = _ScreenState.scanning);
-    // Ask the OS (Apple Health / Health Connect) for real permission
-    final granted = await HealthSyncService.instance.requestPermissions();
+    bool granted = false;
+    try {
+      granted = await HealthSyncService.instance
+          .requestPermissions()
+          .timeout(const Duration(seconds: 30));
+    } on TimeoutException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Health permission timed out. Please try again.'),
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Health permission could not be completed. Please try again.'),
+      ));
+    }
     if (!mounted) return;
     setState(() => _state = granted ? _ScreenState.found : _ScreenState.initial);
     if (!granted) {
@@ -84,11 +99,19 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen>
 
   void _onConnectDevice() async {
     setState(() => _device.status = _DeviceStatus.connecting);
-    // Pair with the backend, then sync the last 7 days of health data
-    final deviceId = await HealthSyncService.instance.pairDevice();
+    String? deviceId;
     Map<String, num>? summary;
-    if (deviceId != null) {
-      summary = await HealthSyncService.instance.syncMetrics(days: 7);
+    try {
+      deviceId = await HealthSyncService.instance
+          .pairDevice()
+          .timeout(const Duration(seconds: 30));
+      if (deviceId != null) {
+        summary = await HealthSyncService.instance
+            .syncMetrics(days: 7)
+            .timeout(const Duration(seconds: 45));
+      }
+    } catch (_) {
+      deviceId = null;
     }
     if (!mounted) return;
     if (deviceId == null) {
@@ -174,7 +197,7 @@ class _AppBar extends StatelessWidget {
             child: Text(
               'Connect device',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black),
             ),
           ),
           SizedBox(width: 34.w),
@@ -222,7 +245,7 @@ class _MainContent extends StatelessWidget {
               Text(
                 'Connect to your fitness device',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.black),
               ),
               SizedBox(height: 8.h),
               Text(
@@ -262,7 +285,7 @@ class _MainContent extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   'Connect now',
-                  style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.label),
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -339,7 +362,7 @@ class _DeviceListSection extends StatelessWidget {
         children: [
           Text(
             'Available devices',
-            style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
           ),
           SizedBox(height: 12.h),
 
@@ -362,7 +385,7 @@ class _DeviceListSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('No devices found',
-                            style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label, color: Colors.black87)),
+                            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
                         SizedBox(height: 3.h),
                         Text('Make sure your device is on hte same network\nas your mobile phone.',
                             style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400, height: 1.5)),
@@ -417,7 +440,7 @@ class _DeviceTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(device.name,
-                    style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black)),
                 SizedBox(height: 3.h),
                 Text(device.serial,
                     style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
@@ -447,7 +470,7 @@ class _StatusBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text('Connected',
-              style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: Colors.white)),
+              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.white)),
         );
 
       case _DeviceStatus.connecting:
@@ -468,7 +491,7 @@ class _StatusBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text('Not connected',
-              style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.emphasis, color: Colors.black54)),
+              style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w500, color: Colors.black54)),
         );
     }
   }
@@ -506,18 +529,18 @@ class _PermissionOverlay extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          '"Pier to Pier" Would Like to\nAccess your local network',
+                          'Connect Apple Health',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15.sp,
-                            fontWeight: AppFontWeight.section,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black,
                             height: 1.3,
                           ),
                         ),
                         SizedBox(height: 10.h),
                         Text(
-                          'Permission includes see what\'s device connected to  network and monitor devices .',
+                          'P2P FitTech AI will ask Apple Health for access to your steps, heart rate, calories, and workouts. If you continue, approved data can be synced securely to your P2P account.',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500, height: 1.5),
                         ),
@@ -542,7 +565,7 @@ class _PermissionOverlay extends StatelessWidget {
                                 "Don't Allow",
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  fontWeight: AppFontWeight.emphasis,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.black54,
                                 ),
                               ),
@@ -561,7 +584,7 @@ class _PermissionOverlay extends StatelessWidget {
                                 'Allow',
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  fontWeight: AppFontWeight.label,
+                                  fontWeight: FontWeight.w600,
                                   color: const Color(0xFF1565C0),
                                 ),
                               ),

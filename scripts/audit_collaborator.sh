@@ -92,10 +92,10 @@ cat > "$REPORT" << EOF
 EOF
 
 # Categorise by path
-python3 - <<PYEOF >> "$REPORT"
-import subprocess, sys
+CHANGED_FILES_INPUT="$CHANGED_FILES" python3 - <<'PYEOF' >> "$REPORT"
+import os
 
-lines = """$CHANGED_FILES""".strip().split('\n')
+lines = os.environ.get('CHANGED_FILES_INPUT', '').strip().split('\n')
 
 def categorise(path):
     if 'controller' in path:     return '🧠 Controller / State'

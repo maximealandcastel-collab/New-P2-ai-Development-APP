@@ -1,4 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/domain/entities/session_entity.dart';
@@ -60,7 +59,7 @@ class SessionCard extends StatelessWidget {
                       session.sessionTitle,
                       style: TextStyle(
                         fontSize: 13.sp,
-                        fontWeight: AppFontWeight.label,
+                        fontWeight: FontWeight.w600,
                         color: Colors.black,
                       ),
                     ),
@@ -74,21 +73,22 @@ class SessionCard extends StatelessWidget {
                     ),
                     SizedBox(height: 10.h),
 
-                    if (session.isVirtual)
+                    if (session.isVirtual && onStartCall != null)
                       OutlineActionBtn(
                         icon: Icons.phone_outlined,
                         label: 'Start call',
-                        onTap: onStartCall ?? () {},
+                        onTap: onStartCall!,
                       )
                     else ...[
                       if (session.aiNote != null)
                         AiNoteBox(note: session.aiNote!),
                       SizedBox(height: 10.h),
-                      OutlineActionBtn(
-                        icon: Icons.chat_bubble_outline,
-                        label: 'Message',
-                        onTap: onMessage ?? () {},
-                      ),
+                      if (onMessage != null)
+                        OutlineActionBtn(
+                          icon: Icons.chat_bubble_outline,
+                          label: 'Message',
+                          onTap: onMessage!,
+                        ),
                     ],
                   ],
                 ),
@@ -123,7 +123,7 @@ class SessionDateColumn extends StatelessWidget {
           shortDate,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: AppFontWeight.title,
+            fontWeight: FontWeight.w700,
             color: Colors.black,
           ),
         ),
@@ -175,7 +175,7 @@ class AiNoteBox extends StatelessWidget {
                 'AI Recommendation',
                 style: TextStyle(
                   fontSize: 10.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black54,
                 ),
               ),
@@ -230,7 +230,7 @@ class OutlineActionBtn extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: AppFontWeight.emphasis,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),

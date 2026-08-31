@@ -1,7 +1,7 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/domain/repositories/schedule_repository.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/bindings/schedule_binding.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/controllers/schedule_controller.dart';
@@ -89,7 +89,12 @@ class ScheduleScreen extends StatelessWidget {
                           ...controller.sessions.map(
                             (session) => SessionCard(
                               session: session,
-                              onTap: () => Get.to(() => const SessionDetailsScreen()),
+                              onTap: () => Get.to(
+                                () => SessionDetailsScreen(
+                                  session: session,
+                                  controller: controller,
+                                ),
+                              ),
                               onStartCall: () => controller.startCallSession(session.id),
                               onMessage: () => controller.sendMessageToClient(
                                 session.clientId,
@@ -113,7 +118,27 @@ class ScheduleScreen extends StatelessWidget {
 /// Session Details Screen
 /// Displays detailed information about a specific session
 class SessionDetailsScreen extends StatelessWidget {
-  const SessionDetailsScreen({super.key});
+  const SessionDetailsScreen({
+    super.key,
+    required this.session,
+    required this.controller,
+  });
+
+  final SessionEntity session;
+  final ScheduleController controller;
+
+  Future<void> _startCall() => controller.startCallSession(session.id);
+
+  void _openMessage() {
+    Get.to(
+      () => const ChatScreen(),
+      arguments: ChatScreenArgs(
+        displayName: session.clientName,
+        subtitle: 'client',
+        otherUserId: session.clientId,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,26 +157,29 @@ class SessionDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Session Info Header
-                    const SessionInfoHeader(
-                      title: 'Virtual physical therapy\nsession.',
-                      dateLabel: 'Tomorrow',
-                      time: '06:30 PM',
-                      sessionTag: 'Rehab session',
+                    SessionInfoHeader(
+                      title: session.sessionTitle,
+                      dateLabel: session.dateLabel,
+                      time: session.time,
+                      sessionTag:
+                          session.isVirtual ? 'Virtual session' : 'Follow-up',
                     ),
 
                     SizedBox(height: 18.h),
 
                     // Session Note
-                    const SessionInfoCard(
+                    SessionInfoCard(
                       title: 'Session note',
-                      content:
-                          'A live, one-on-one virtual session focused on assessing movement, reducing pain, and supporting recovery. The therapist reviews progress, guides personalized exercises, and adjusts the treatment plan to improve mobility and function conveniently from home.',
+                      content: session.sessionNote ??
+                          'No session note has been added yet.',
                     ),
 
                     SizedBox(height: 14.h),
 
                     // Session ID
-                    const SessionIdCard(sessionId: '#150-250-5420'),
+                    SessionIdCard(
+                      sessionId: session.sessionId ?? session.id,
+                    ),
 
                     SizedBox(height: 18.h),
 
@@ -160,7 +188,7 @@ class SessionDetailsScreen extends StatelessWidget {
                       'Client',
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight: AppFontWeight.title,
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
                       ),
                     ),
@@ -169,13 +197,13 @@ class SessionDetailsScreen extends StatelessWidget {
 
                     // Client Info Card
                     ClientInfoCard(
-                      clientName: 'Ethan Rodriguez',
-                      clientId: '321-654-9870',
+                      clientName: session.clientName,
+                      clientId: session.clientId,
                       clientImageUrl:
                           'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
                       isOnline: true,
-                      onCall: () {},
-                      onMessage: () {},
+                      onCall: _startCall,
+                      onMessage: _openMessage,
                     ),
 
                     SizedBox(height: 24.h),
@@ -198,7 +226,7 @@ class SessionDetailsScreen extends StatelessWidget {
                           'Cancel Schedule',
                           style: TextStyle(
                             fontSize: 15.sp,
-                            fontWeight: AppFontWeight.label,
+                            fontWeight: FontWeight.w600,
                             color: Colors.black87,
                           ),
                         ),
@@ -224,7 +252,7 @@ class SessionDetailsScreen extends StatelessWidget {
                           'Reschedule Session',
                           style: TextStyle(
                             fontSize: 15.sp,
-                            fontWeight: AppFontWeight.label,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
@@ -270,7 +298,7 @@ class SessionDetailsScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17.sp,
-                fontWeight: AppFontWeight.title,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -292,7 +320,7 @@ class SessionDetailsScreen extends StatelessWidget {
         TextButton(
           onPressed: () {
             Get.back();
-            Get.snackbar('Success', 'Session cancelled');
+            controller.cancelSession(session.id);
           },
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: const Text('Yes, Cancel'),

@@ -1,7 +1,7 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MODEL
@@ -132,6 +132,22 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
     );
   }
 
+  void _openTrainerProfile(TrainerModel trainer) {
+    setState(() => _showSortMenu = false);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _TrainerProfileSheet(
+        trainer: trainer,
+        onRequest: () {
+          Navigator.pop(context);
+          _openRequestSheet(trainer);
+        },
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchCtrl.dispose();
@@ -199,7 +215,8 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
                         delay: Duration(milliseconds: i * 60),
                         child: _TrainerCard(
                           trainer: _filteredTrainers[i],
-                          onViewProfile: () {},
+                          onViewProfile: () =>
+                              _openTrainerProfile(_filteredTrainers[i]),
                           onRequest: () => _openRequestSheet(_filteredTrainers[i]),
                         ),
                       ),
@@ -270,7 +287,7 @@ class _AppBar extends StatelessWidget {
             child: Text(
               'Find trainer',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black),
             ),
           ),
           SizedBox(width: 34.w),
@@ -388,7 +405,7 @@ class _FilterTabs extends StatelessWidget {
                 tabs[i],
                 style: TextStyle(
                   fontSize: 13.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w600,
                   color: isSelected ? Colors.white : Colors.black54,
                 ),
               ),
@@ -480,7 +497,7 @@ class _HighlightedText extends StatelessWidget {
           ),
           TextSpan(
             text: text.substring(matchStart, matchStart + query.length),
-            style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.black),
           ),
           TextSpan(
             text: text.substring(matchStart + query.length),
@@ -533,7 +550,7 @@ class _SortDropdown extends StatelessWidget {
                         e.value,
                         style: TextStyle(
                           fontSize: 13.sp,
-                          fontWeight: isSelected ? AppFontWeight.label : AppFontWeight.body,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                           color: Colors.black87,
                         ),
                       ),
@@ -652,7 +669,7 @@ class _TrainerCard extends StatelessWidget {
               children: [
                 Text(
                   trainer.name,
-                  style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
                 ),
                 SizedBox(height: 3.h),
                 Text(
@@ -711,9 +728,97 @@ class _CardBtn extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12.sp,
-            fontWeight: AppFontWeight.label,
+            fontWeight: FontWeight.w600,
             color: filled ? Colors.white : Colors.black87,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TrainerProfileSheet extends StatelessWidget {
+  const _TrainerProfileSheet({
+    required this.trainer,
+    required this.onRequest,
+  });
+
+  final TrainerModel trainer;
+  final VoidCallback onRequest;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 24.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: trainer.avatarUrl,
+                width: 88.r,
+                height: 88.r,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => Container(
+                  width: 88.r,
+                  height: 88.r,
+                  color: const Color(0xFFEEEEEE),
+                  child: Icon(Icons.person, size: 40.sp),
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              trainer.name,
+              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              '${trainer.role} · ${trainer.experience}',
+              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
+            ),
+            SizedBox(height: 18.h),
+            Text(
+              'Specialized coaching built around your goals, schedule, and training experience.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                height: 1.5,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 22.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onRequest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF7A00),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: const Text('Request this trainer'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -783,7 +888,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.trainer.name,
-                        style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: Colors.black87)),
+                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
                     Text('${widget.trainer.role} · ${widget.trainer.experience}',
                         style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
                   ],
@@ -815,7 +920,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Trainer request',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
                 SizedBox(height: 16.h),
 
                 // Service type
@@ -947,7 +1052,23 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
 
                 // Request trainer button
                 GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () {
+                    if (_selectedService == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Choose a service before continuing.'),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.pop(context);
+                    Future.microtask(
+                      () => Get.snackbar(
+                        'Request unavailable',
+                        'Trainer requests are temporarily unavailable while live trainer profiles are connected.',
+                      ),
+                    );
+                  },
                   child: Container(
                     width: double.infinity,
                     height: 52.h,
@@ -959,7 +1080,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
                     child: Text(
                       'Request trainer',
                       style: TextStyle(
-                          color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.label),
+                          color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

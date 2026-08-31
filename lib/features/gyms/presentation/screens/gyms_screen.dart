@@ -1,15 +1,15 @@
 import 'dart:io';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
+import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/featured_gym_card.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_list_tile.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
+import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GymsScreen extends StatefulWidget {
@@ -31,6 +31,7 @@ class _GymsScreenState extends State<GymsScreen> {
   ];
 
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   final _locationService = GymLocationService();
 
   String _activeFilter = 'All Types';
@@ -47,6 +48,7 @@ class _GymsScreenState extends State<GymsScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -81,6 +83,7 @@ class _GymsScreenState extends State<GymsScreen> {
       setState(() => _locationLoading = false);
     }
 
+    // Near Me should always take the customer to a real nearby-gyms search.
     await _openNearGymMap(position: position);
   }
 
@@ -88,6 +91,8 @@ class _GymsScreenState extends State<GymsScreen> {
     String? addressQuery,
     Position? position,
   }) async {
+    // Build a smart query: use the requested address, selected filter, or
+    // the customer's coordinates for a precise nearby-gyms search.
     String query;
     if (addressQuery != null && addressQuery.isNotEmpty) {
       query = 'gyms near $addressQuery';
@@ -108,10 +113,15 @@ class _GymsScreenState extends State<GymsScreen> {
     final appUrl = Platform.isIOS
         ? Uri.parse('comgooglemaps://?q=$encodedQuery')
         : Uri.parse('geo:0,0?q=$encodedQuery');
+
     try {
+      // Try the installed Maps app first. Do not gate this behind
+      // canLaunchUrl: platform URL visibility rules can return false even
+      // when launchUrl can successfully hand off the URL.
       if (await launchUrl(appUrl, mode: LaunchMode.externalApplication)) {
         return;
       }
+
       if (await launchUrl(webUrl, mode: LaunchMode.externalApplication)) {
         return;
       }
@@ -120,7 +130,9 @@ class _GymsScreenState extends State<GymsScreen> {
         if (await launchUrl(webUrl, mode: LaunchMode.externalApplication)) {
           return;
         }
-      } catch (_) {}
+      } catch (_) {
+        // Surface a clear message instead of silently doing nothing.
+      }
       ToastMessageHelper.show('Could not open Google Maps.');
     }
   }
@@ -137,6 +149,55 @@ class _GymsScreenState extends State<GymsScreen> {
           Navigator.pop(context);
           _openNearGymMap(addressQuery: '${gym.name} ${gym.city}');
         },
+      ),
+    );
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 24.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Choose a gym type',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              ..._filters.map(
+                (filter) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    filter,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  trailing: _activeFilter == filter
+                      ? const Icon(Icons.check_rounded, color: _kOrange)
+                      : null,
+                  onTap: () {
+                    setState(() => _activeFilter = filter);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -176,13 +237,20 @@ class _GymsScreenState extends State<GymsScreen> {
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Top nav pills ──────────────────────────────────────
-                  _NavPills(),
+                  _NavPills(
+                    onGymsTap: () => _scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
                   // ── Header: Find a Gym + Near Me ──────────────────────
                   _buildHeader(),
                   // ── Search bar ────────────────────────────────────────
@@ -203,7 +271,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, i) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: GestureDetector(
                           onTap: () => _showGymSheet(displayed[i]),
                           child: GymListTile(gym: displayed[i]),
@@ -213,7 +281,7 @@ class _GymsScreenState extends State<GymsScreen> {
                     ),
                   ),
 
-            SliverToBoxAdapter(child: SizedBox(height: 44.h)),
+            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
           ],
         ),
       ),
@@ -224,15 +292,15 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 22.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'Find a Gym',
+            'Find a gym',
             style: TextStyle(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w600,
+              fontSize: 23.sp,
+              fontWeight: FontWeight.w400,
               color: Colors.black87,
               letterSpacing: -0.2,
             ),
@@ -272,8 +340,8 @@ class _GymsScreenState extends State<GymsScreen> {
                   Text(
                     'Near Me',
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: AppFontWeight.label,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
                   ),
@@ -295,7 +363,7 @@ class _GymsScreenState extends State<GymsScreen> {
         children: [
           Expanded(
             child: Container(
-              height: 52.h,
+              height: 48.h,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14.r),
@@ -328,17 +396,17 @@ class _GymsScreenState extends State<GymsScreen> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 16.h),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
                 ),
               ),
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 10.w),
           // ── View on Map button ───────────────────────────────────────────
           GestureDetector(
             onTap: () => _openNearGymMap(addressQuery: _searchQuery),
             child: Container(
-              height: 52.h,
+              height: 48.h,
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               decoration: BoxDecoration(
                 color: _kOrange,
@@ -359,7 +427,7 @@ class _GymsScreenState extends State<GymsScreen> {
                     'Map',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: AppFontWeight.label,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
                     ),
                   ),
@@ -376,19 +444,19 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildFilterRow() {
     return SizedBox(
-      height: 58.h,
+      height: 50.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         itemCount: _filters.length + 1,
-        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, i) {
           if (i == _filters.length) {
             return GestureDetector(
-              onTap: () {},
+              onTap: _showFilterSheet,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: 14.w, vertical: 7.h),
+                    horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30.r),
@@ -409,7 +477,7 @@ class _GymsScreenState extends State<GymsScreen> {
             onTap: () => setState(() => _activeFilter = label),
             child: Container(
               padding: EdgeInsets.symmetric(
-                  horizontal: 16.w, vertical: 7.h),
+                  horizontal: 14.w, vertical: 6.h),
               decoration: BoxDecoration(
                 color: active ? _kOrange : Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
@@ -423,7 +491,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 label,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w500,
                   color: active ? Colors.white : Colors.black54,
                 ),
               ),
@@ -443,35 +511,50 @@ class _GymsScreenState extends State<GymsScreen> {
       children: [
         Padding(
           padding:
-              EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+              EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
           child: Row(
             children: [
               Text(
-                'Featured Gyms Near You',
+                'Featured gyms near you',
                 style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: AppFontWeight.section,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w400,
                   color: Colors.black87,
                 ),
               ),
               const Spacer(),
-              Text(
-                'See All >',
-                style: TextStyle(
-                    fontSize: 13.sp,
-                    color: _kOrange,
-                    fontWeight: AppFontWeight.label),
-              ),
+               GestureDetector(
+                 onTap: () {
+                   setState(() {
+                     _activeFilter = 'All Types';
+                     _searchQuery = '';
+                     _searchController.clear();
+                   });
+                   _scrollController.animateTo(
+                     500.h,
+                     duration: const Duration(milliseconds: 350),
+                     curve: Curves.easeOutCubic,
+                   );
+                 },
+                 child: Text(
+                   'See all',
+                   style: TextStyle(
+                     fontSize: 12.sp,
+                     color: _kOrange,
+                     fontWeight: FontWeight.w400,
+                   ),
+                 ),
+               ),
             ],
           ),
         ),
         SizedBox(
-          height: 356.h,
+          height: 340.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: featured.length,
-            separatorBuilder: (_, __) => SizedBox(width: 16.w),
+            separatorBuilder: (_, __) => SizedBox(width: 12.w),
             itemBuilder: (_, i) => FeaturedGymCard(gym: featured[i]),
           ),
         ),
@@ -483,14 +566,14 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildAllGymsHeader(int shown, int total) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 14.h),
+      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
       child: Row(
         children: [
           Text(
-            'All Gyms',
+            'All gyms',
             style: TextStyle(
-              fontSize: 17.sp,
-              fontWeight: AppFontWeight.section,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w400,
               color: Colors.black87,
             ),
           ),
@@ -507,7 +590,7 @@ class _GymsScreenState extends State<GymsScreen> {
               style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.black45,
-                  fontWeight: AppFontWeight.label),
+                  fontWeight: FontWeight.w400),
             ),
           ),
         ],
@@ -527,9 +610,9 @@ class _GymsScreenState extends State<GymsScreen> {
           SizedBox(height: 12.h),
           Text('No gyms found',
               style: TextStyle(
-                  fontSize: 16.sp,
+                  fontSize: 15.sp,
                   color: Colors.black38,
-                  fontWeight: AppFontWeight.label)),
+                  fontWeight: FontWeight.w500)),
           SizedBox(height: 6.h),
           Text('Try a different search or filter',
               style:
@@ -653,7 +736,7 @@ class _GymDetailSheet extends StatelessWidget {
                     'View on Google Maps',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: AppFontWeight.label,
+                      fontWeight: FontWeight.w500,
                       color: Colors.white,
                     ),
                   ),
@@ -671,6 +754,9 @@ class _GymDetailSheet extends StatelessWidget {
 
 class _NavPills extends StatelessWidget {
   static const _kOrange = Color(0xFFFD7B00);
+  final VoidCallback onGymsTap;
+
+  const _NavPills({required this.onGymsTap});
 
   @override
   Widget build(BuildContext context) {
@@ -682,10 +768,15 @@ class _NavPills extends StatelessWidget {
           _pill('Home', Icons.home_outlined, false,
               () => Get.back()),
           SizedBox(width: 8.w),
-          _pill('Find Trainer', Icons.person_search_outlined, false,
-              () {}),
+          _pill('Find trainer', Icons.person_search_outlined, false,
+               () => Get.to(() => const FindTrainerScreen())),
           SizedBox(width: 8.w),
-          _pill('Gyms', Icons.fitness_center_rounded, true, () {}),
+          _pill(
+            'Gyms',
+            Icons.fitness_center_rounded,
+            true,
+            onGymsTap,
+          ),
         ],
       ),
     );
@@ -722,7 +813,7 @@ class _NavPills extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: AppFontWeight.label,
+                  fontWeight: FontWeight.w400,
                   color: active ? Colors.white : Colors.black54,
                 ),
               ),

@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
-import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/routes/app_routes.dart';
@@ -604,7 +604,7 @@ class _GymsCard extends StatelessWidget {
                        fontWeight: FontWeight.w400,
                       color: Colors.black)),
               GestureDetector(
-                onTap: () => BottomNavBarController.to.onChange(2),
+                onTap: () => Get.find<NavBarController>().onChange(2),
                 child: Text('Near Gym',
                     style: TextStyle(
                         fontSize: 13.sp,
