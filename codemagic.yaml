@@ -167,3 +167,12 @@ workflows:
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
+
+triggering:
+  events:
+    - push
+  branch_patterns:
+    - pattern: stabilization
+      include: true
+      source: true
+  cancel_previous_builds: true
