@@ -14,6 +14,7 @@ class PaywallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.configureDestination(Get.arguments);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(

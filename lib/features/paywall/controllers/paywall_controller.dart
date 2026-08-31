@@ -13,12 +13,25 @@ const String _annualId = 'year_1';
 const Set<String> _productIds = {_monthlyId, _annualId};
 
 class PaywallController extends GetxController {
+  String _paidDestination = AppRoute.subscribeSelectScreen;
+
+  void configureDestination(dynamic arguments) {
+    if (arguments is Map) {
+      final nextRoute = arguments['nextRoute'];
+      if (nextRoute is String && nextRoute.isNotEmpty) {
+        _paidDestination = nextRoute;
+        return;
+      }
+    }
+    _paidDestination = AppRoute.subscribeSelectScreen;
+  }
+
   void continueSelfGuided() {
     Get.offAllNamed(AppRoute.bottonNavBar);
   }
 
   void _continueToTrainerSelection() {
-    Get.offAllNamed(AppRoute.findTrainerScreen);
+    Get.offAllNamed(_paidDestination);
   }
 
   // ─── IAP ────────────────────────────────────────────────────
