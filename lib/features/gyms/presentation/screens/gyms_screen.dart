@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/featured_gym_card.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_list_tile.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
-import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GymsScreen extends StatefulWidget {
@@ -769,7 +769,7 @@ class _NavPills extends StatelessWidget {
               () => Get.back()),
           SizedBox(width: 8.w),
           _pill('Find trainer', Icons.person_search_outlined, false,
-               () => Get.to(() => const FindTrainerScreen())),
+               () => Get.toNamed(AppRoute.paywallScreen)),
           SizedBox(width: 8.w),
           _pill(
             'Gyms',

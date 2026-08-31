@@ -38,7 +38,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Find My Trainer',
           icon: Assets.icons.person.path,
-          onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
+          onTap: () => Get.toNamed(AppRoute.paywallScreen),
         ),
         NavFabModel(
           label: 'Generate Workout',

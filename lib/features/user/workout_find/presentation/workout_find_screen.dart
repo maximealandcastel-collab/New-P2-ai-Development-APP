@@ -147,21 +147,19 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     if (_step < _totalSteps - 1) setState(() => _step++);
   }
 
+  void _exitToHome() {
+    _workoutId = null;
+    _splitOptions = [];
+    _selectedSplitId = null;
+    Navigator.of(context).maybePop();
+  }
+
   void _back() {
-    if (_step == 7) {
-      setState(() => _step = 6);
+    if (_step == 0 || _step >= 5) {
+      _exitToHome();
       return;
     }
-    if (_step >= 5) {
-      setState(() {
-        _step = 4;
-        _workoutId = null;
-        _splitOptions = [];
-        _selectedSplitId = null;
-      });
-      return;
-    }
-    if (_step > 0) setState(() => _step--);
+    setState(() => _step--);
   }
 
   void _skip() {
@@ -193,14 +191,25 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _TopBar(step: _step, total: _totalSteps, onBack: _back, onSkip: _skip),
-            Expanded(child: _buildStep()),
-          ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _back();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F2F2),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _TopBar(
+                step: _step,
+                total: _totalSteps,
+                onBack: _back,
+                onSkip: _skip,
+              ),
+              Expanded(child: _buildStep()),
+            ],
+          ),
         ),
       ),
     );

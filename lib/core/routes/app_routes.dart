@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
+import 'package:pler_to_pler_app/features/paywall/presentation/screens/paywall_screen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/ai_instruction_screen.dart';
 import 'package:pler_to_pler_app/features/ai/presentation/screens/train_ai_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/trainer/trainer_complete_profile_screen.dart';
@@ -119,6 +121,7 @@ class AppRoute {
   static String forgotScreen = "/forgotScreen";
   static String otpVerificationScreen = "/otpVerificationScreen";
   static String signUpScreen = "/signUpScreen";
+  static String paywallScreen = "/paywallScreen";
   static String resetPasswordScreen = "/resetPasswordScreen";
   static String userCompleteProfileScreen = "/completeProfileScreen";
   static String trainerCompleteProfileScreen = "/trainerCompleteProfileScreen";
@@ -188,6 +191,15 @@ class AppRoute {
       }),
     ),
     GetPage(name: signUpScreen, page: () => SignUpScreen()),
+    GetPage(
+      name: paywallScreen,
+      page: () => PaywallScreen(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<PaywallController>()) {
+          Get.lazyPut<PaywallController>(() => PaywallController(), fenix: true);
+        }
+      }),
+    ),
     GetPage(name: loginScreen, page: () => LoginScreen()),
     // Registered so the route carries a name. Reaching it via an anonymous
     // Get.offAll builder left settings.name null, which made ReelRouteObserver

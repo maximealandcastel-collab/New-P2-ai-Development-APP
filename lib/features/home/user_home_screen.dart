@@ -17,31 +17,51 @@ import 'package:pler_to_pler_app/widgets/app_bar.dart';
 // Generate Workout Split banner → Rate My Peel → Today's overview
 // ─────────────────────────────────────────────────────────────────────────────
 
-class UserHomeScreen extends StatelessWidget {
+class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
+
+  @override
+  State<UserHomeScreen> createState() => _UserHomeScreenState();
+}
+
+class _UserHomeScreenState extends State<UserHomeScreen> {
+  final _calendarKey = GlobalKey<_DailyWorkoutCalendarState>();
+
+  Future<void> _refreshHome() async {
+    _calendarKey.currentState?.resetToToday();
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FeedAppBar(),
-              const _DailyWorkoutCalendar(),
-              SizedBox(height: 16.h),
-              const _GymsCard(),
-              SizedBox(height: 16.h),
-              const _GenerateWorkoutBanner(),
-              SizedBox(height: 16.h),
-              const _RateMyPeelBanner(),
-              SizedBox(height: 16.h),
-              _SectionTitle("Today's overview"),
-              const _TodaysOverviewCard(),
-              SizedBox(height: 24.h),
-            ],
+        child: RefreshIndicator(
+          color: const Color(0xFFFF6B35),
+          onRefresh: _refreshHome,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FeedAppBar(),
+                _DailyWorkoutCalendar(key: _calendarKey),
+                SizedBox(height: 16.h),
+                const _GymsCard(),
+                SizedBox(height: 16.h),
+                const _GenerateWorkoutBanner(),
+                SizedBox(height: 16.h),
+                const _RateMyPeelBanner(),
+                SizedBox(height: 16.h),
+                _SectionTitle("Today's overview"),
+                const _TodaysOverviewCard(),
+                SizedBox(height: 24.h),
+              ],
+            ),
           ),
         ),
       ),
@@ -72,7 +92,7 @@ class _SectionTitle extends StatelessWidget {
 
 // ─── Daily workout progress calendar ─────────────────────────────────────────
 class _DailyWorkoutCalendar extends StatefulWidget {
-  const _DailyWorkoutCalendar();
+  const _DailyWorkoutCalendar({super.key});
 
   @override
   State<_DailyWorkoutCalendar> createState() => _DailyWorkoutCalendarState();
@@ -155,6 +175,8 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
       _selectedDate = today;
     });
   }
+
+  void resetToToday() => _goToToday();
 
   _WorkoutDayProgress _progressFor(DateTime date) {
     // This remains a single source of truth for the calendar UI. When the
