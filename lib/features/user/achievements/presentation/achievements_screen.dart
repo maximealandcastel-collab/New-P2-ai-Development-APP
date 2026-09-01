@@ -27,10 +27,16 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Future<void> _loadAchievements() async {
+    if (mounted) {
+      setState(() => _error = null);
+    }
     try {
       final overview = await AchievementService.getOverview();
       if (!mounted) return;
-      setState(() => _overview = overview);
+      setState(() {
+        _overview = overview;
+        _error = null;
+      });
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = error);
@@ -117,6 +123,8 @@ class _AchievementContent extends StatelessWidget {
               : 'Keep showing up to unlock the next badge.',
         ),
         SizedBox(height: 10.h),
+        const _StreakInfoCard(),
+        SizedBox(height: 10.h),
         for (final definition in definitions) ...[
           _RoadmapCard(
             definition: definition,
@@ -128,6 +136,67 @@ class _AchievementContent extends StatelessWidget {
         if (definitions.isEmpty)
           const _NoRoadmapState(),
       ],
+    );
+  }
+}
+
+class _StreakInfoCard extends StatelessWidget {
+  const _StreakInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8EE),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFF5E3C2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38.w,
+            height: 38.w,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFE9C4),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.local_fire_department_rounded,
+              color: Color(0xFFE39A22),
+              size: 21,
+            ),
+          ),
+          SizedBox(width: 11.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'How streaks work',
+                  style: TextStyle(
+                    color: const Color(0xFF171717),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  'Your streak grows on consecutive training days. Trophy tiers '
+                  'and XP are awarded from your lifetime completed workouts.',
+                  style: TextStyle(
+                    color: const Color(0xFF777777),
+                    fontSize: 10.5.sp,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
