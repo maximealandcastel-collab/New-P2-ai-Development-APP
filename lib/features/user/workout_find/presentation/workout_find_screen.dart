@@ -49,12 +49,6 @@ _WorkoutGenerationFailure _responseFailure(
   String fallbackMessage,
 ) {
   final body = _asStringMap(response.body);
-  if (response.statusCode == 401) {
-    return const _WorkoutGenerationFailure(
-      'session_expired',
-      'Your session has expired. Please sign in again to generate your workout.',
-    );
-  }
   final serverMessage = body?['message']?.toString().trim();
   final statusMessage = response.statusText?.toString().trim();
   return _WorkoutGenerationFailure(
@@ -153,24 +147,31 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     if (_step < _totalSteps - 1) setState(() => _step++);
   }
 
-  void _exitToHome() {
-    _workoutId = null;
-    _splitOptions = [];
-    _selectedSplitId = null;
-
-    // PopScope allows a real pop only when this flow is returning Home.
-    // Keep a named fallback for deep-linked flows with no route underneath.
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) {
-      navigator.pop();
-    } else {
-      Get.offAllNamed(AppRoute.bottonNavBar);
-    }
-  }
-
   void _back() {
-    if (_step == 0 || _step >= 5) {
-      _exitToHome();
+    if (_step == 5 || _step == 7) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Generation is in progress. Please wait for this step to finish.',
+            ),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      return;
+    }
+    if (_step == 0) {
+      Get.back();
+      return;
+    }
+    if (_step >= 5) {
+      setState(() {
+        _step = 4;
+        _workoutId = null;
+        _splitOptions = [];
+        _selectedSplitId = null;
+      });
       return;
     }
     setState(() => _step--);
@@ -206,10 +207,8 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // Let the system pop when Back should leave this flow. For questionnaire
-      // steps, block the pop so the callback can move back one step instead.
-      canPop: _step == 0 || _step >= 5,
-      onPopInvokedWithResult: (didPop, result) {
+      canPop: _step == 0,
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _back();
       },
       child: Scaffold(
@@ -338,17 +337,22 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           // Back button
-          GestureDetector(
-            onTap: onBack,
-            child: Container(
-              width: 34.w,
-              height: 34.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+          Semantics(
+            button: true,
+            label: 'Go back',
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onBack,
+              child: Container(
+                width: 34.w,
+                height: 34.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                ),
+                child: Icon(Icons.chevron_left, size: 20.sp),
               ),
-              child: Icon(Icons.chevron_left, size: 20.sp),
             ),
           ),
           SizedBox(width: 12.w),
@@ -374,17 +378,28 @@ class _TopBar extends StatelessWidget {
 
           SizedBox(width: 12.w),
           // Skip
-          GestureDetector(
-            onTap: onSkip,
-            child: Text(
-              'Skip',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+          if (step < 5)
+            Semantics(
+              button: true,
+              label: 'Skip this question',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onSkip,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  child: Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
+            )
+          else
+            SizedBox(width: 30.w),
         ],
       ),
     );
@@ -481,34 +496,40 @@ class _OptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 20.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: isSelected ? const Color(0xFFFF7A00) : Colors.transparent,
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 20.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: isSelected ? const Color(0xFFFF7A00) : Colors.transparent,
+              width: 1.5,
             ),
-          ],
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: Colors.black87,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: Colors.black87,
+            ),
           ),
         ),
       ),
@@ -705,10 +726,7 @@ class _SplitLoadingStep extends StatefulWidget {
   State<_SplitLoadingStep> createState() => _SplitLoadingStepState();
 }
 
-class _SplitLoadingStepState extends State<_SplitLoadingStep>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _rotation;
+class _SplitLoadingStepState extends State<_SplitLoadingStep> {
   bool _hasCompleted = false;
   bool _isLoading = true;
   bool _requestInFlight = false;
@@ -729,14 +747,10 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-    _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
-
     _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
-      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
+      if (mounted && _phaseIndex < _phases.length - 1) {
+        setState(() => _phaseIndex++);
+      }
     });
     _workoutId = widget.existingWorkoutId;
     _generateSplits();
@@ -818,10 +832,14 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
       final splitData = _asStringMap(_asStringMap(splitRes.body)?['data']);
       final rawOptions = splitData?['splitOptions'];
       final options = rawOptions is List
-          ? rawOptions
-              .whereType<Map>()
-              .map((option) => Map<String, dynamic>.from(option))
-              .toList()
+          ? rawOptions.whereType<Map>().map((option) {
+              final normalized = Map<String, dynamic>.from(option);
+              final primaryId = normalized['id']?.toString().trim() ?? '';
+              final fallbackId = normalized['_id']?.toString().trim() ?? '';
+              final id = primaryId.isNotEmpty ? primaryId : fallbackId;
+              if (id.isNotEmpty) normalized['id'] = id;
+              return normalized;
+            }).toList()
           : <Map<String, dynamic>>[];
       final optionsAreComplete = options.length == 3 &&
           options.every((option) {
@@ -872,7 +890,6 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
   @override
   void dispose() {
     _phaseTimer?.cancel();
-    _ctrl.dispose();
     super.dispose();
   }
 
@@ -881,270 +898,42 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
     if (!_isLoading && _error != null) {
       return _GenerationError(message: _error!, onRetry: _generateSplits);
     }
-
-    final activeStage = _phaseIndex < 2
-        ? 0
-        : _phaseIndex < 4
-            ? 1
-            : 2;
-    const stages = [
-      (
-        'Reading your goals',
-        'Focus, equipment, intensity, and time',
-      ),
-      (
-        'Comparing split strategies',
-        'Balancing training frequency and recovery',
-      ),
-      (
-        'Building three recommendations',
-        'Preparing distinct options for you to choose',
-      ),
-    ];
-    final progress = ((activeStage + 1) / stages.length).clamp(0.0, 1.0);
-
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'GENERATE',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFFFF6B35),
-              letterSpacing: 1.8,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            'MY\nSPLIT',
-            style: TextStyle(
-              fontSize: 34.sp,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-              height: .98,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            'Three personalized workout structures are being built around your selections.',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.grey.shade600,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Semantics(
-            label: 'Generating three personalized workout split options',
-            child: Container(
-              height: 54.h,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
-                ),
-                borderRadius: BorderRadius.circular(27.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF16C5BC).withOpacity(.22),
-                    blurRadius: 16,
-                    offset: const Offset(0, 7),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.auto_awesome_rounded,
-                      color: Colors.white, size: 19.sp),
-                  SizedBox(width: 10.w),
-                  Text(
-                    'Generating My Split',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Icon(Icons.arrow_forward_rounded,
-                      color: Colors.white, size: 19.sp),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 22.h),
-          for (int i = 0; i < stages.length; i++)
-            Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _SplitGenerationBar(
-                number: i + 1,
-                label: stages[i].$1,
-                detail: stages[i].$2,
-                completed: i < activeStage,
-                active: i == activeStage,
-              ),
-            ),
-          SizedBox(height: 8.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _phases[_phaseIndex],
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              Text(
-                '${(progress * 100).round()}%',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFFF6B35),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4.r),
-            child: LinearProgressIndicator(
-              minHeight: 6.h,
-              value: progress,
-              backgroundColor: const Color(0xFFFFE2D6),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFFF6B35),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SplitGenerationBar extends StatelessWidget {
-  final int number;
-  final String label;
-  final String detail;
-  final bool completed;
-  final bool active;
-
-  const _SplitGenerationBar({
-    required this.number,
-    required this.label,
-    required this.detail,
-    required this.completed,
-    required this.active,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = completed
-        ? const Color(0xFF4FB36B)
-        : active
-            ? const Color(0xFFFF8A3D)
-            : const Color(0xFFD5D9D7);
-    final status = completed
-        ? 'Complete'
-        : active
-            ? 'In progress'
-            : 'Queued';
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 320),
-      padding: EdgeInsets.fromLTRB(13.w, 12.h, 13.w, 11.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: active ? accent.withOpacity(.48) : const Color(0xFFE7E9E8),
+    final progress =
+        (0.22 + (_phaseIndex * 0.14)).clamp(0.22, 0.94).toDouble();
+    return _GenerationProgressView(
+      headline: 'Building your recommended workout splits',
+      currentPhase: _phases[_phaseIndex],
+      progress: progress,
+      steps: [
+        _GenerationStepData(
+          title: 'Reading your goals',
+          detail: 'Focus, equipment, intensity, and time',
+          complete: _phaseIndex >= 1,
+          progress: _phaseIndex >= 1 ? 1 : progress,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(active ? .055 : .03),
-            blurRadius: active ? 12 : 7,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 320),
-                width: 32.w,
-                height: 32.w,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(.15),
-                  shape: BoxShape.circle,
-                ),
-                child: completed
-                    ? Icon(Icons.check_rounded, color: accent, size: 18.sp)
-                    : Text(
-                        '$number',
-                        style: TextStyle(
-                          color: accent,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-              ),
-              SizedBox(width: 11.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey.shade900,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      detail,
-                      style: TextStyle(
-                        fontSize: 10.5.sp,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                status,
-                style: TextStyle(
-                  fontSize: 10.5.sp,
-                  fontWeight: FontWeight.w600,
-                  color: completed ? const Color(0xFF3D9553) : accent,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3.r),
-            child: LinearProgressIndicator(
-              minHeight: 5.h,
-              value: completed
-                  ? 1
-                  : active
-                      ? null
-                      : 0,
-              backgroundColor: const Color(0xFFF0F1F1),
-              valueColor: AlwaysStoppedAnimation<Color>(accent),
+        _GenerationStepData(
+          title: 'Comparing split strategies',
+          detail: 'Balancing training frequency and recovery',
+          complete: _phaseIndex >= 3,
+          progress: _phaseIndex >= 3 ? 1 : progress,
+        ),
+        _GenerationStepData(
+          title: 'Building three recommendations',
+          detail: 'Preparing distinct options for you to choose',
+          complete: false,
+          progress: progress,
+        ),
+      ],
+      onHeroTap: () {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('Your workout split is already being generated.'),
+              duration: Duration(seconds: 2),
             ),
-          ),
-        ],
-      ),
+          );
+      },
     );
   }
 }
@@ -1196,16 +985,22 @@ class _SplitSelectionStep extends StatelessWidget {
             separatorBuilder: (_, __) => SizedBox(height: 12.h),
             itemBuilder: (_, index) {
               final option = options[index];
-              final id = (option['id'] ?? 'split_${index + 1}').toString();
+              final id = option['id'].toString();
               final selected = selectedSplitId == id;
               final schedule = option['weeklySchedule'] is List
                   ? (option['weeklySchedule'] as List)
                       .map((day) => day.toString())
                       .join(' • ')
                   : '';
-              return GestureDetector(
-                onTap: () => onSelected(id),
-                child: AnimatedContainer(
+              return Semantics(
+                button: true,
+                selected: selected,
+                label:
+                    '${(option['name'] ?? 'Workout Split')}. $schedule',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onSelected(id),
+                  child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
                   padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
@@ -1296,6 +1091,7 @@ class _SplitSelectionStep extends StatelessWidget {
                       ),
                     ],
                   ),
+                  ),
                 ),
               );
             },
@@ -1368,10 +1164,7 @@ class _ProgramLoadingStep extends StatefulWidget {
   State<_ProgramLoadingStep> createState() => _ProgramLoadingStepState();
 }
 
-class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _rotation;
+class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
   Timer? _phaseTimer;
   int _phaseIndex = 0;
   bool _isLoading = true;
@@ -1390,13 +1183,10 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-    _rotation = Tween<double>(begin: 0, end: 1).animate(_ctrl);
     _phaseTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
-      if (mounted) setState(() => _phaseIndex = (_phaseIndex + 1) % _phases.length);
+      if (mounted && _phaseIndex < _phases.length - 1) {
+        setState(() => _phaseIndex++);
+      }
     });
     _generateProgram();
   }
@@ -1490,7 +1280,6 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
   @override
   void dispose() {
     _phaseTimer?.cancel();
-    _ctrl.dispose();
     super.dispose();
   }
 
@@ -1499,107 +1288,338 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
     if (!_isLoading && _error != null) {
       return _GenerationError(message: _error!, onRetry: _generateProgram);
     }
+    final progress =
+        (0.24 + (_phaseIndex * 0.17)).clamp(0.24, 0.94).toDouble();
+    return _GenerationProgressView(
+      headline: 'Building your personalized workout',
+      currentPhase: _phases[_phaseIndex],
+      progress: progress,
+      steps: [
+        _GenerationStepData(
+          title: 'Reading your selected split',
+          detail: 'Confirming schedule, duration, and intensity',
+          complete: _phaseIndex >= 1,
+          progress: _phaseIndex >= 1 ? 1 : progress,
+        ),
+        _GenerationStepData(
+          title: 'Selecting approved exercises',
+          detail: 'Matching movements to your goals and equipment',
+          complete: _phaseIndex >= 3,
+          progress: _phaseIndex >= 3 ? 1 : progress,
+        ),
+        _GenerationStepData(
+          title: 'Validating your complete program',
+          detail: 'Checking every training day before delivery',
+          complete: false,
+          progress: progress,
+        ),
+      ],
+      onHeroTap: () {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('Your personalized program is being built.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+      },
+    );
+  }
+}
 
-    final activeStage = _phaseIndex < 2
-        ? 0
-        : _phaseIndex < 4
-            ? 1
-            : 2;
-    const stages = [
-      ('Reading your selected split', 'Locking in your chosen weekly structure'),
-      ('Building every training day', 'Selecting approved exercises and volume'),
-      ('Finishing your program', 'Checking recovery, order, and completeness'),
-    ];
+class _GenerationStepData {
+  final String title;
+  final String detail;
+  final bool complete;
+  final double progress;
 
+  const _GenerationStepData({
+    required this.title,
+    required this.detail,
+    required this.complete,
+    required this.progress,
+  });
+}
+
+class _GenerationProgressView extends StatelessWidget {
+  static const _orange = Color(0xFFFF6B24);
+  static const _green = Color(0xFF35B968);
+  static const _teal = Color(0xFF21B7C5);
+
+  final String headline;
+  final String currentPhase;
+  final double progress;
+  final List<_GenerationStepData> steps;
+  final VoidCallback onHeroTap;
+
+  const _GenerationProgressView({
+    required this.headline,
+    required this.currentPhase,
+    required this.progress,
+    required this.steps,
+    required this.onHeroTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage = (progress * 100).round();
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
+      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 28.h),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'BUILD',
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFFFF6B35),
-              letterSpacing: 1.8,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            'MY\nWORKOUT',
-            style: TextStyle(
-              fontSize: 34.sp,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-              height: .98,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            'Your chosen split is being turned into a complete workout you can follow.',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.grey.shade600,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Container(
-            height: 54.h,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
-              ),
-              borderRadius: BorderRadius.circular(27.r),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF16C5BC).withOpacity(.22),
-                  blurRadius: 16,
-                  offset: const Offset(0, 7),
+          Semantics(
+            button: true,
+            label: 'Workout split generation is in progress',
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onHeroTap,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.fitness_center_rounded,
-                    color: Colors.white, size: 19.sp),
-                SizedBox(width: 10.w),
-                Text(
-                  'Building My Workout',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22.r),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 1.9,
+                        child: Image.asset(
+                          'assets/images/generate_workout_split.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.fromLTRB(14.w, 18.h, 14.w, 12.h),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.50),
+                            ],
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 16.w,
+                              height: 16.w,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                headline,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 10.w),
-                Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white, size: 19.sp),
-              ],
+              ),
             ),
           ),
           SizedBox(height: 22.h),
-          for (int i = 0; i < stages.length; i++)
-            Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _SplitGenerationBar(
-                number: i + 1,
-                label: stages[i].$1,
-                detail: stages[i].$2,
-                completed: i < activeStage,
-                active: i == activeStage,
-              ),
+          for (var index = 0; index < steps.length; index++) ...[
+            _GenerationStatusCard(
+              number: index + 1,
+              data: steps[index],
+              accent: index == steps.length - 1 ? _orange : _green,
             ),
+            if (index < steps.length - 1) SizedBox(height: 12.h),
+          ],
+          SizedBox(height: 20.h),
+          Row(
+            children: [
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: Text(
+                    currentPhase,
+                    key: ValueKey(currentPhase),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: const Color(0xFF6D6D6D),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                '$percentage%',
+                style: TextStyle(
+                  color: _orange,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 8.h),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Text(
-              _phases[_phaseIndex],
-              key: ValueKey(_phaseIndex),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6.h,
+              backgroundColor: const Color(0xFFE4E4E4),
+              valueColor: const AlwaysStoppedAnimation<Color>(_orange),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Icon(Icons.auto_awesome, color: _teal, size: 14.sp),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  'Your preferences are saved and your program is being validated.',
+                  style: TextStyle(
+                    color: const Color(0xFF858585),
+                    fontSize: 10.sp,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GenerationStatusCard extends StatelessWidget {
+  final int number;
+  final _GenerationStepData data;
+  final Color accent;
+
+  const _GenerationStatusCard({
+    required this.number,
+    required this.data,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor =
+        data.complete ? const Color(0xFF28A95D) : const Color(0xFFFF6B24);
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: data.complete
+              ? const Color(0xFFE7E7E7)
+              : const Color(0xFFFFB48A),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36.w,
+            height: 36.w,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: accent.withOpacity(0.11),
+              shape: BoxShape.circle,
+            ),
+            child: data.complete
+                ? Icon(Icons.check_rounded, color: accent, size: 20.sp)
+                : Text(
+                    '$number',
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        data.title,
+                        style: TextStyle(
+                          color: const Color(0xFF202020),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      data.complete ? 'Complete' : 'In progress',
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 3.h),
+                Text(
+                  data.detail,
+                  style: TextStyle(
+                    color: const Color(0xFF878787),
+                    fontSize: 10.sp,
+                    height: 1.3,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6.r),
+                  child: LinearProgressIndicator(
+                    value: data.progress.clamp(0, 1).toDouble(),
+                    minHeight: 4.h,
+                    backgroundColor: const Color(0xFFE6E6E6),
+                    valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -410,7 +410,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
             }).toList()
           : <PlanStep>[];
       return PlanExercise(
-        id: (e['exerciseId'] ?? e['_id'] ?? '').toString(),
+        id: (e['exerciseId'] ?? e['_id'] ?? e['id'] ?? '').toString(),
         name: (e['exerciseName'] ?? e['name'] ?? 'Exercise').toString(),
         muscleGroup: (e['muscleGroup'] ?? '').toString(),
         setCount: (e['sets'] as num?)?.toInt() ?? 3,
