@@ -21,6 +21,8 @@ class AppRoute {
   static String aiPlanResult = "/aiPlanResult";
   static String paywallScreen = "/paywallScreen";
   static String rateMyPeel = "/rateMyPeel";
+  // Registered by the core route table; kept here for workout-flow navigation.
+  static String bottonNavBar = "/bottonNavBar";
 
   static List<GetPage> routes = [
     GetPage(name: init, page: () => SplashScreen()),
