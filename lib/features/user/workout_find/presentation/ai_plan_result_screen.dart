@@ -16,8 +16,10 @@ import 'package:pler_to_pler_app/services/network/api_client.dart';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 class PlanExercise {
+  final String id;
   final String name;
   final String muscleGroup;
+  final int setCount;
   final String sets;
   final String reps;
   final String rest;
@@ -25,8 +27,10 @@ class PlanExercise {
   final List<PlanStep> steps;
 
   const PlanExercise({
+    required this.id,
     required this.name,
     required this.muscleGroup,
+    required this.setCount,
     required this.sets,
     required this.reps,
     required this.rest,
@@ -62,26 +66,274 @@ class AiPlanResultScreen extends StatefulWidget {
 class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
   static final _resultLog = logger(AiPlanResultScreen);
   static final Set<String> _reportedTraceIds = <String>{};
+  bool _isStarting = false;
+  bool _isStarted = false;
   bool _isCompleting = false;
+  DateTime? _startedAt;
+  final Set<String> _completedExerciseIds = <String>{};
+  final Set<String> _exerciseRequestsInFlight = <String>{};
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _showPendingUnlocks());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showPendingUnlocks();
+      _resumeSession();
+    });
   }
 
   Future<void> _showPendingUnlocks() async {
-    final pending = await AchievementService.getPending();
-    if (!mounted || pending.isEmpty) return;
-    await CompactAchievementPresenter.showQueue(context, pending);
+    try {
+      final pending = await AchievementService.getPending();
+      if (!mounted || pending.isEmpty) return;
+      await CompactAchievementPresenter.showQueue(context, pending);
+    } catch (error) {
+      _resultLog.w('Could not load pending achievements: $error');
+    }
+  }
+
+  String _workoutId(Map<String, dynamic>? response) =>
+      response?['workoutId']?.toString().trim() ?? '';
+
+  Set<String> _completedIdsFromWorkout(dynamic workout) {
+    if (workout is! Map || workout['aiPlan'] is! Map) return const <String>{};
+    final plan = workout['aiPlan'] as Map;
+    final completed = <String>{};
+    for (final section in const ['mainWork', 'accessories', 'finisher']) {
+      final exercises = plan[section];
+      if (exercises is! List) continue;
+      for (final exercise in exercises.whereType<Map>()) {
+        final id = (exercise['exerciseId'] ?? exercise['_id'] ?? '')
+            .toString()
+            .trim();
+        if (id.isNotEmpty && exercise['isCompleted'] == true) {
+          completed.add(id);
+        }
+      }
+    }
+    return completed;
+  }
+
+  Future<void> _resumeSession() async {
+    final response = Get.arguments is Map<String, dynamic>
+        ? Get.arguments as Map<String, dynamic>
+        : null;
+    final workoutId = _workoutId(response);
+    if (workoutId.isEmpty) return;
+    final result = await ApiClient.getData(ApiUrls.workoutById(workoutId));
+    if (!mounted || result.statusCode != 200 || result.body is! Map) return;
+    final workout = (result.body as Map)['data'];
+    if (workout is! Map) return;
+    final status = workout['status']?.toString();
+    final startedAt = DateTime.tryParse('${workout['startedAt']}');
+    setState(() {
+      _isStarted = status == 'in_progress';
+      if (_isStarted) {
+        _startedAt = startedAt?.toLocal() ?? DateTime.now();
+      }
+      _completedExerciseIds
+        ..clear()
+        ..addAll(_completedIdsFromWorkout(workout));
+    });
+  }
+
+  String _apiMessage(dynamic body, String fallback) {
+    if (body is Map && body['message']?.toString().trim().isNotEmpty == true) {
+      return body['message'].toString();
+    }
+    return fallback;
+  }
+
+  Future<void> _startWorkout(Map<String, dynamic>? response) async {
+    if (_isStarting || _isStarted) return;
+    final workoutId = _workoutId(response);
+    if (workoutId.isEmpty) {
+      Get.snackbar(
+        'Workout not ready',
+        'This workout is missing its session ID. Please generate it again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    setState(() => _isStarting = true);
+    try {
+      final result = await ApiClient.patchData(
+        ApiUrls.workoutStart(workoutId),
+        const <String, dynamic>{},
+      );
+      if (result.statusCode != 200) {
+        throw Exception(
+          _apiMessage(
+            result.body,
+            result.statusText ?? 'Could not start this workout.',
+          ),
+        );
+      }
+      final data = result.body is Map ? (result.body as Map)['data'] : null;
+      final serverStartedAt =
+          data is Map ? DateTime.tryParse('${data['startedAt']}') : null;
+      final completedIds = _completedIdsFromWorkout(data);
+      if (!mounted) return;
+      setState(() {
+        _isStarted = true;
+        _startedAt = serverStartedAt?.toLocal() ?? DateTime.now();
+        _completedExerciseIds
+          ..clear()
+          ..addAll(completedIds);
+      });
+      Get.snackbar(
+        'Workout started',
+        'Complete each exercise, then finish your session.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      Get.snackbar(
+        'Could not start workout',
+        error.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      if (mounted) setState(() => _isStarting = false);
+    }
+  }
+
+  Future<void> _completeExercise(
+    Map<String, dynamic>? response,
+    PlanExercise exercise,
+  ) async {
+    if (!_isStarted ||
+        exercise.id.isEmpty ||
+        _completedExerciseIds.contains(exercise.id) ||
+        _exerciseRequestsInFlight.contains(exercise.id)) {
+      return;
+    }
+    final workoutId = _workoutId(response);
+    if (workoutId.isEmpty) return;
+
+    setState(() => _exerciseRequestsInFlight.add(exercise.id));
+    try {
+      final result = await ApiClient.patchData(
+        ApiUrls.workoutExerciseComplete(workoutId, exercise.id),
+        <String, dynamic>{
+          'completedSets': exercise.setCount,
+        },
+      );
+      if (result.statusCode != 200) {
+        throw Exception(
+          _apiMessage(
+            result.body,
+            result.statusText ?? 'Could not save this exercise.',
+          ),
+        );
+      }
+      if (!mounted) return;
+      setState(() => _completedExerciseIds.add(exercise.id));
+    } catch (error) {
+      if (!mounted) return;
+      Get.snackbar(
+        'Exercise not saved',
+        error.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _exerciseRequestsInFlight.remove(exercise.id));
+      }
+    }
+  }
+
+  Future<String?> _collectCheckIn(String question) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Finish your workout'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(question),
+            SizedBox(height: 14.h),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              minLines: 2,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                hintText: 'How did the session feel?',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(controller.text.trim()),
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
   }
 
   Future<void> _completeWorkout(
     Map<String, dynamic>? response,
-    Map<String, dynamic>? program,
+    List<PlanExercise> exercises,
+    String checkInQuestion,
   ) async {
     if (_isCompleting) return;
-    final workoutId = response?['workoutId']?.toString().trim() ?? '';
+    if (!_isStarted || _startedAt == null) {
+      Get.snackbar(
+        'Start your workout first',
+        'Tap Start Workout before completing the session.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    final trackableExercises =
+        exercises.where((exercise) => exercise.id.isNotEmpty).toList();
+    if (trackableExercises.length != exercises.length) {
+      Get.snackbar(
+        'Workout cannot be tracked',
+        'One or more exercises are missing tracking information. Please generate the workout again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    final remaining = trackableExercises
+        .where((exercise) => !_completedExerciseIds.contains(exercise.id))
+        .length;
+    if (remaining > 0) {
+      Get.snackbar(
+        'Finish every exercise',
+        '$remaining exercise${remaining == 1 ? '' : 's'} remaining.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    final checkIn = await _collectCheckIn(checkInQuestion);
+    if (!mounted || checkIn == null) return;
+    if (checkIn.isEmpty) {
+      Get.snackbar(
+        'Check-in required',
+        'Add a short note about how the workout felt.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final workoutId = _workoutId(response);
     if (workoutId.isEmpty) {
       Get.snackbar(
         'Workout not ready',
@@ -93,12 +345,15 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
 
     setState(() => _isCompleting = true);
     try {
-      final duration =
-          (program?['estimatedSessionMinutes'] as num?)?.toInt() ?? 30;
+      final duration = DateTime.now()
+          .difference(_startedAt!)
+          .inMinutes
+          .clamp(1, 600)
+          .toInt();
       final completion = await ApiClient.postData(
         ApiUrls.workoutComplete(workoutId),
         {
-          'checkInResponse': 'Workout completed in the P2P app.',
+          'checkInResponse': checkIn,
           'actualDurationMinutes': duration,
         },
       );
@@ -154,8 +409,10 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
             }).toList()
           : <PlanStep>[];
       return PlanExercise(
+        id: (e['exerciseId'] ?? e['_id'] ?? '').toString(),
         name: (e['exerciseName'] ?? e['name'] ?? 'Exercise').toString(),
         muscleGroup: (e['muscleGroup'] ?? '').toString(),
+        setCount: (e['sets'] as num?)?.toInt() ?? 3,
         sets: '${e['sets'] ?? 3} sets',
         reps: '${e['reps'] ?? '8-12'} reps',
         rest: 'Rest ${e['restTime'] ?? '60s'}',
@@ -183,11 +440,21 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
     return parsed.isEmpty ? fallback : parsed;
   }
 
-  static Widget _exerciseList(List<PlanExercise> exercises) {
+  Widget _exerciseList(
+    List<PlanExercise> exercises,
+    Map<String, dynamic>? response,
+  ) {
     return Column(
       children: [
         for (int i = 0; i < exercises.length; i++) ...[
-          _ExerciseCard(exercise: exercises[i]),
+          _ExerciseCard(
+            exercise: exercises[i],
+            showCompletionControl: true,
+            sessionStarted: _isStarted,
+            completed: _completedExerciseIds.contains(exercises[i].id),
+            saving: _exerciseRequestsInFlight.contains(exercises[i].id),
+            onComplete: () => _completeExercise(response, exercises[i]),
+          ),
           if (i != exercises.length - 1) SizedBox(height: 14.h),
         ],
       ],
@@ -345,6 +612,22 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
     final mainWork = _parseMainWork(plan);
     final accessories = _parseOptionalExercises(plan?['accessories']);
     final finisher = _parseOptionalExercises(plan?['finisher']);
+    final sessionExercises = <PlanExercise>[
+      ...mainWork,
+      ...accessories,
+      ...finisher,
+    ];
+    final completedExerciseCount = sessionExercises
+        .where(
+          (exercise) =>
+              exercise.id.isNotEmpty &&
+              _completedExerciseIds.contains(exercise.id),
+        )
+        .length;
+    final allExercisesCompleted = sessionExercises.isNotEmpty &&
+        completedExerciseCount == sessionExercises.length;
+    final checkInQuestion = (plan?['checkInQuestion'] as String?) ??
+        "How did today's session feel? Include loads, effort, pain, or equipment issues.";
     final warmUp = _parsePhaseSteps(
       plan?['warmUp'],
       fallback: _fallbackWarmUp(),
@@ -446,6 +729,12 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                       ),
                     ],
                     SizedBox(height: 16.h),
+                    _SessionProgressCard(
+                      started: _isStarted,
+                      completedExercises: completedExerciseCount,
+                      totalExercises: sessionExercises.length,
+                    ),
+                    SizedBox(height: 16.h),
                     _SectionCard(
                       title: program == null ? 'Warm up' : 'Start Day 1 — Warm up',
                       child: _phaseStepList(warmUp),
@@ -453,20 +742,20 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                     SizedBox(height: 16.h),
                     _SectionCard(
                       title: 'Main Work',
-                      child: _exerciseList(mainWork),
+                      child: _exerciseList(mainWork, response),
                     ),
                     if (accessories.isNotEmpty) ...[
                       SizedBox(height: 16.h),
                       _SectionCard(
                         title: 'Accessories',
-                        child: _exerciseList(accessories),
+                        child: _exerciseList(accessories, response),
                       ),
                     ],
                     if (finisher.isNotEmpty) ...[
                       SizedBox(height: 16.h),
                       _SectionCard(
                         title: 'Finisher',
-                        child: _exerciseList(finisher),
+                        child: _exerciseList(finisher, response),
                       ),
                     ],
                     SizedBox(height: 16.h),
@@ -487,8 +776,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                       duration:
                           (plan?['estimatedDurationMinutes'] as num?)?.toInt() ??
                               20,
-                      question: (plan?['checkInQuestion'] as String?) ??
-                          "Did you complete today's session? What loads did you use and how hard was it (RPE 1-10)? Any pain or equipment issues?",
+                      question: checkInQuestion,
                     ),
                     SizedBox(height: 20.h),
                     _WatchVideoButton(onTap: () {
@@ -498,16 +786,26 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                 ),
               ),
             ),
-            // ── Sticky Workout Completion ──
+            // ── Sticky Workout Lifecycle ──
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
               child: SizedBox(
                 width: double.infinity,
                 height: 54.h,
                 child: ElevatedButton(
-                  onPressed: _isCompleting
+                  onPressed: _isStarting ||
+                          _isCompleting ||
+                          _exerciseRequestsInFlight.isNotEmpty
                       ? null
-                      : () => _completeWorkout(response, program),
+                      : !_isStarted
+                          ? () => _startWorkout(response)
+                          : allExercisesCompleted
+                              ? () => _completeWorkout(
+                                    response,
+                                    sessionExercises,
+                                    checkInQuestion,
+                                  )
+                              : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF57C1F),
                     foregroundColor: Colors.white,
@@ -516,7 +814,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                       borderRadius: BorderRadius.circular(28.r),
                     ),
                   ),
-                  child: _isCompleting
+                  child: _isStarting || _isCompleting
                       ? SizedBox(
                           width: 22.w,
                           height: 22.w,
@@ -526,7 +824,11 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                           ),
                         )
                       : Text(
-                          'Complete Workout',
+                          !_isStarted
+                              ? 'Start Workout'
+                              : allExercisesCompleted
+                                  ? 'Complete Workout'
+                                  : '$completedExerciseCount/${sessionExercises.length} Exercises Complete',
                           style: TextStyle(
                             fontSize: 17.sp,
                             fontWeight: FontWeight.w700,
@@ -594,6 +896,88 @@ class _InvalidProgramScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SessionProgressCard extends StatelessWidget {
+  final bool started;
+  final int completedExercises;
+  final int totalExercises;
+
+  const _SessionProgressCard({
+    required this.started,
+    required this.completedExercises,
+    required this.totalExercises,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final progress =
+        totalExercises == 0 ? 0.0 : completedExercises / totalExercises;
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: started ? const Color(0xFFFFF5EA) : Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: started ? const Color(0xFFF6D1AD) : Colors.grey.shade200,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                started ? Icons.timer_outlined : Icons.play_circle_outline,
+                color: const Color(0xFFF57C1F),
+                size: 22.sp,
+              ),
+              SizedBox(width: 9.w),
+              Expanded(
+                child: Text(
+                  started ? 'Workout in progress' : 'Ready to begin',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '$completedExercises/$totalExercises',
+                style: TextStyle(
+                  color: const Color(0xFFF57C1F),
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.r),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 7.h,
+              backgroundColor: const Color(0xFFF0E7DE),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Color(0xFFF57C1F)),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            started
+                ? 'Mark each exercise complete as you train.'
+                : 'Tap Start Workout below to begin tracking.',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 12.sp,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1052,8 +1436,20 @@ class _NumberedItem extends StatelessWidget {
 // ─── Expandable exercise card ─────────────────────────────────────────────────
 class _ExerciseCard extends StatefulWidget {
   final PlanExercise exercise;
+  final bool showCompletionControl;
+  final bool sessionStarted;
+  final bool completed;
+  final bool saving;
+  final VoidCallback? onComplete;
 
-  const _ExerciseCard({required this.exercise});
+  const _ExerciseCard({
+    required this.exercise,
+    this.showCompletionControl = false,
+    this.sessionStarted = false,
+    this.completed = false,
+    this.saving = false,
+    this.onComplete,
+  });
 
   @override
   State<_ExerciseCard> createState() => _ExerciseCardState();
@@ -1061,7 +1457,6 @@ class _ExerciseCard extends StatefulWidget {
 
 class _ExerciseCardState extends State<_ExerciseCard> {
   bool _expanded = false;
-  bool _completed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1087,27 +1482,49 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () => setState(() => _completed = !_completed),
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
-                  decoration: BoxDecoration(
-                    color: _completed
-                        ? Colors.green
-                        : const Color(0xFFF57C1F),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Text(
-                    _completed ? 'Completed' : 'Mark Completed',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+              if (widget.showCompletionControl)
+                GestureDetector(
+                  onTap: !widget.sessionStarted ||
+                          widget.completed ||
+                          widget.saving ||
+                          e.id.isEmpty
+                      ? null
+                      : widget.onComplete,
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+                    decoration: BoxDecoration(
+                      color: widget.completed
+                          ? Colors.green
+                          : widget.sessionStarted && e.id.isNotEmpty
+                              ? const Color(0xFFF57C1F)
+                              : Colors.grey.shade400,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: widget.saving
+                        ? SizedBox(
+                            width: 14.w,
+                            height: 14.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            widget.completed
+                                ? 'Completed'
+                                : widget.sessionStarted
+                                    ? 'Mark Completed'
+                                    : 'Start First',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           SizedBox(height: 8.h),

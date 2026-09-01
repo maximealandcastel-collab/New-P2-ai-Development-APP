@@ -117,6 +117,49 @@ class ApiClient extends GetxService {
     }
   }
 
+  static Future<Response> patchData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+  }) async {
+    bearerToken =
+        await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
+    if (bearerToken.trim().isEmpty && Get.isRegistered<CacheService>()) {
+      bearerToken = Get.find<CacheService>()
+              .get<String>(core_constants.AppConstants.accessToken) ??
+          '';
+      if (bearerToken.isNotEmpty) {
+        await PrefsHelper.setString(AppConstants.bearerToken, bearerToken);
+      }
+    }
+    final mainHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $bearerToken',
+      if (headers != null) ...headers,
+    };
+    try {
+      final response = await client
+          .patch(
+            Uri.parse(ApiUrls.baseUrl + uri),
+            body: jsonEncode(body),
+            headers: mainHeaders,
+          )
+          .timeout(const Duration(seconds: timeoutInSeconds));
+      return handleResponse(response, uri);
+    } catch (error, stackTrace) {
+      log.e('[API_REQUEST_FAILED] ${{
+        'method': 'PATCH',
+        'uri': uri,
+        'errorType': error.runtimeType.toString(),
+      }}');
+      log.e('Stacktrace: $stackTrace');
+      return const Response(
+        statusCode: 0,
+        statusText: 'The request failed. Please try again.',
+      );
+    }
+  }
+
   //==========================================> Patch Data <======================================
   static Future<Response> patch(String uri, var body, {Map<String, String>? headers}) async {
     bearerToken =
