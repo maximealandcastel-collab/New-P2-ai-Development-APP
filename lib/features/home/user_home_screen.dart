@@ -88,53 +88,61 @@ class _AchievementsPill extends StatelessWidget {
         child: Semantics(
           button: true,
           label: 'Open your achievements',
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18.r),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const AchievementsScreen(),
-              ),
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          child: Material(
+            color: Colors.transparent,
+            child: Ink(
               decoration: BoxDecoration(
                 color: _goldSoft,
                 borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(color: _gold.withOpacity(0.18)),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.emoji_events_rounded,
-                    color: _gold,
-                    size: 16.sp,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18.r),
+                splashColor: _gold.withOpacity(0.12),
+                highlightColor: _gold.withOpacity(0.06),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AchievementsScreen(),
                   ),
-                  SizedBox(width: 6.w),
-                  Text(
-                    'Achievements',
-                    style: TextStyle(
-                      color: _ink,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                ),
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.emoji_events_rounded,
+                        color: _gold,
+                        size: 16.sp,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Achievements',
+                        style: TextStyle(
+                          color: _ink,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Container(
+                        width: 21.w,
+                        height: 21.w,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.85),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.workspace_premium_rounded,
+                          color: _gold,
+                          size: 14.sp,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 8.w),
-                  Container(
-                    width: 21.w,
-                    height: 21.w,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.85),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.workspace_premium_rounded,
-                      color: _gold,
-                      size: 14.sp,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
