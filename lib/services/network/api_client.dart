@@ -28,10 +28,19 @@ class ApiClient extends GetxService {
   static Future<Response> getData(String uri, {Map<String, String>? headers}) async {
     bearerToken =
         await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
+    if (bearerToken.trim().isEmpty && Get.isRegistered<CacheService>()) {
+      bearerToken = Get.find<CacheService>()
+              .get<String>(core_constants.AppConstants.accessToken) ??
+          '';
+      if (bearerToken.isNotEmpty) {
+        await PrefsHelper.setString(AppConstants.bearerToken, bearerToken);
+      }
+    }
 
-    var mainHeaders = {
+    final mainHeaders = <String, String>{
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $bearerToken'
+      'Authorization': 'Bearer $bearerToken',
+      if (headers != null) ...headers,
     };
     try {
       log.i(
@@ -40,7 +49,7 @@ class ApiClient extends GetxService {
 
       http.Response response = await client.get(
         Uri.parse(ApiUrls.baseUrl + uri),
-        headers: headers ?? mainHeaders,
+        headers: mainHeaders,
       ).timeout(const Duration(seconds: timeoutInSeconds));
 
       return handleResponse(response, uri);

@@ -193,6 +193,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
   Map<String, _WorkoutDayProgress> _progressByDate =
       const <String, _WorkoutDayProgress>{};
   bool _isLoading = false;
+  bool _reloadRequested = false;
 
   @override
   void initState() {
@@ -273,9 +274,25 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
   }
 
   Future<void> _loadWorkouts() async {
-    if (_isLoading) return;
+    if (_isLoading) {
+      _reloadRequested = true;
+      while (_isLoading && mounted) {
+        await Future<void>.delayed(const Duration(milliseconds: 25));
+      }
+      return;
+    }
     _isLoading = true;
     try {
+      do {
+        _reloadRequested = false;
+        await _fetchWorkouts();
+      } while (_reloadRequested && mounted);
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  Future<void> _fetchWorkouts() async {
       final response = await ApiClient.getData(ApiUrls.workoutList);
       if (!mounted || response.statusCode != 200 || response.body is! Map) {
         return;
@@ -285,8 +302,11 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
 
       final progress = <String, _WorkoutDayProgress>{};
       for (final rawWorkout in rawWorkouts.whereType<Map>()) {
-        final date = DateTime.tryParse('${rawWorkout['date']}')?.toLocal();
-        if (date == null) continue;
+        final rawDate = '${rawWorkout['date']}';
+        final dateMatch =
+            RegExp(r'^\d{4}-\d{2}-\d{2}').firstMatch(rawDate);
+        if (dateMatch == null) continue;
+        final key = dateMatch.group(0)!;
         final plan = rawWorkout['aiPlan'];
         if (plan is! Map) continue;
 
@@ -303,7 +323,6 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
         }
         if (total == 0) continue;
 
-        final key = _dateKey(date);
         final existing = progress[key];
         progress[key] = _WorkoutDayProgress(
           completed: (existing?.completed ?? 0) + completed,
@@ -311,9 +330,6 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
         );
       }
       if (mounted) setState(() => _progressByDate = progress);
-    } finally {
-      _isLoading = false;
-    }
   }
 
   _WorkoutDayProgress _progressFor(DateTime date) {
