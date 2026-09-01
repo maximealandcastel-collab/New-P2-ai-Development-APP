@@ -769,10 +769,7 @@ class _NavPills extends StatelessWidget {
               () => Get.back()),
           SizedBox(width: 8.w),
           _pill('Find trainer', Icons.person_search_outlined, false,
-               () => Get.toNamed(
-                      AppRoute.paywallScreen,
-                      arguments: {'nextRoute': AppRoute.findTrainerScreen},
-                    )),
+               () => Get.toNamed(AppRoute.findTrainerScreen)),
           SizedBox(width: 8.w),
           _pill(
             'Gyms',

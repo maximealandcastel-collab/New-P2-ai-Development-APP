@@ -68,7 +68,7 @@ class ProfileService {
   ///
   /// [isProfileCompleted] and [isSubscribed] come from the login response when
   /// available; when omitted (e.g. splash auto-login) the cached profile is
-  /// used and subscription gating is skipped.
+  /// used to resolve the completed profile state.
   Future<String> resolveInitialRoute({
     bool? isProfileCompleted,
     bool? isSubscribed,
@@ -94,9 +94,6 @@ class ProfileService {
       }else{
         return AppRoute.trainerCompleteProfileScreen;
       }
-    }
-    if (isSubscribed == false && user?.role == 'user') {
-      return AppRoute.subscribeSelectScreen;
     }
     return AppRoute.bottonNavBar;
   }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,7 @@ import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_mod
 
 const _kOrange = Color(0xFFFF6B1A);
 
-/// Shown immediately after a successful purchase.
+/// Shows an unbiased trainer suggestion with options to retry or browse all.
 /// Plays a 3-step matching animation while fetching a real trainer from the
 /// API, then reveals the matched trainer and lets the user tap into their
 /// profile.
@@ -23,6 +25,7 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
     with TickerProviderStateMixin {
   int _step = 0; // 0=start  1=analyzing  2=searching  3=matched
   FindTrainerModel? _matched;
+  final Random _random = Random();
 
   late final AnimationController _pulseCtrl;
   late final AnimationController _fadeCtrl;
@@ -72,18 +75,42 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
   Future<FindTrainerModel?> _fetchTrainer() async {
     try {
       final connect = GetConnect();
-      final resp = await connect
-          .get('https://fit-tech-ai.replit.app/api/v1/trainer?page=1&limit=5');
+      final randomPage = _random.nextInt(21) + 1;
+      final resp = await connect.get(
+        'https://fit-tech-ai.replit.app/api/v1/trainer'
+        '?page=$randomPage&limit=50&skipPinned=true',
+      );
       if (resp.isOk && resp.body != null) {
-        final list = (resp.body['data'] as List)
-            .map((e) => FindTrainerModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        if (list.isNotEmpty) return list.first;
+        final raw = resp.body['data'];
+        if (raw is List) {
+          final candidates = raw
+              .whereType<Map>()
+              .map((e) => FindTrainerModel.fromJson(Map<String, dynamic>.from(e)))
+              .where((trainer) {
+                final name = (trainer.name ?? trainer.userId?.fullName ?? '')
+                    .trim()
+                    .toLowerCase();
+                return name != 'coach max';
+              })
+              .toList()
+            ..shuffle(_random);
+          if (candidates.isNotEmpty) return candidates.first;
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('TrainerMatchScreen fetch error: $e');
     }
     return null;
+  }
+
+  void _tryAnotherMatch() {
+    if (!mounted) return;
+    _fadeCtrl.reset();
+    setState(() {
+      _step = 0;
+      _matched = null;
+    });
+    _runFlow();
   }
 
   void _goToTrainer() {
@@ -224,6 +251,25 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                             ),
                           ),
                         ),
+                      ),
+                      SizedBox(height: 10.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton.icon(
+                            onPressed: _tryAnotherMatch,
+                            icon: const Icon(Icons.shuffle_rounded),
+                            label: const Text('Try another'),
+                            style: TextButton.styleFrom(foregroundColor: Colors.white70),
+                          ),
+                          SizedBox(width: 8.w),
+                          TextButton.icon(
+                            onPressed: () => Get.offNamed(AppRoute.findTrainerScreen),
+                            icon: const Icon(Icons.grid_view_rounded),
+                            label: const Text('Browse all'),
+                            style: TextButton.styleFrom(foregroundColor: _kOrange),
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -14,6 +14,16 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets
 const _orange  = Color(0xFFF97316);
 const _bg      = Color(0xFFF9FAFB);
 
+void _openBookingPaywall(String? trainerID) {
+  Get.toNamed(
+    AppRoute.paywallScreen,
+    arguments: {
+      'nextRoute': AppRoute.subscribeSelectScreen,
+      'nextArguments': trainerID,
+    },
+  );
+}
+
 class TrainerProfileScreen extends StatefulWidget {
   const TrainerProfileScreen({super.key});
   @override
@@ -114,7 +124,11 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
           ),
         ),
         // ── Sticky bottom bar ────────────────────────────────────────────
-        bottomNavigationBar: _BottomBar(trainer: trainer, trainerID: trainerID),
+        bottomNavigationBar: _BottomBar(
+          trainer: trainer,
+          trainerID: trainerID,
+          isSubscribed: _isSubscribed,
+        ),
       );
     });
   }
@@ -328,7 +342,7 @@ class _BookBanner extends StatelessWidget {
             ]),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed(AppRoute.subscribeSelectScreen, arguments: trainerID),
+            onTap: () => _openBookingPaywall(trainerID),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20.r)),
@@ -751,7 +765,12 @@ class _ReviewsTab extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   final TrainerDetailsModel? trainer;
   final String? trainerID;
-  const _BottomBar({required this.trainer, required this.trainerID});
+  final bool isSubscribed;
+  const _BottomBar({
+    required this.trainer,
+    required this.trainerID,
+    required this.isSubscribed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -766,7 +785,9 @@ class _BottomBar extends StatelessWidget {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => Get.toNamed(AppRoute.subscribeSelectScreen, arguments: trainerID),
+              onTap: () => isSubscribed
+                  ? Get.toNamed(AppRoute.subscribeSelectScreen, arguments: trainerID)
+                  : _openBookingPaywall(trainerID),
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 decoration: BoxDecoration(
