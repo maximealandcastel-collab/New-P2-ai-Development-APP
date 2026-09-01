@@ -49,6 +49,12 @@ _WorkoutGenerationFailure _responseFailure(
   String fallbackMessage,
 ) {
   final body = _asStringMap(response.body);
+  if (response.statusCode == 401) {
+    return const _WorkoutGenerationFailure(
+      'session_expired',
+      'Your session has expired. Please sign in again to generate your workout.',
+    );
+  }
   final serverMessage = body?['message']?.toString().trim();
   final statusMessage = response.statusText?.toString().trim();
   return _WorkoutGenerationFailure(

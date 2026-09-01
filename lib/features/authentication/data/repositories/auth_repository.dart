@@ -4,6 +4,9 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart'
+    as legacy_constants;
+import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/login_result_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/trainer_profile_model.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/user_profile_model.dart';
@@ -17,6 +20,13 @@ class AuthRepository {
     required CacheService cacheService,
   }) : _apiService = apiService,
        _cacheService = cacheService;
+
+  Future<void> _storeAccessToken(String token) async {
+    await Future.wait([
+      _cacheService.put(AppConstants.accessToken, token),
+      PrefsHelper.setString(legacy_constants.AppConstants.bearerToken, token),
+    ]);
+  }
 
   // ─── Register ────────────────────────────
 
@@ -84,7 +94,7 @@ class AuthRepository {
       }
 
       await Future.wait([
-        _cacheService.put(AppConstants.accessToken, result.token),
+        _storeAccessToken(result.token),
         _cacheService.put('cacheUserEmail', email.toLowerCase()),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
@@ -149,7 +159,7 @@ class AuthRepository {
       }
 
       await Future.wait([
-        _cacheService.put(AppConstants.accessToken, accessToken),
+        _storeAccessToken(accessToken),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
       ]);
@@ -211,10 +221,7 @@ class AuthRepository {
       final accessToken = response.data?['data']?['accessToken'];
 
       if (accessToken != null) {
-        await _cacheService.put(
-          AppConstants.accessToken,
-          accessToken.toString(),
-        );
+        await _storeAccessToken(accessToken.toString());
       }
     } on AppException {
       rethrow;
@@ -291,7 +298,10 @@ class AuthRepository {
 
   // ─── Logout ──────────────────────────────
 
-  Future<void> logout() {
-    return _cacheService.clear();
+  Future<void> logout() async {
+    await Future.wait([
+      _cacheService.clear(),
+      PrefsHelper.remove(legacy_constants.AppConstants.bearerToken),
+    ]);
   }
 }

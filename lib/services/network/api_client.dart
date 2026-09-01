@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart'
+    as core_constants;
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import '../api_urls.dart';
 import '../error_response.dart';
@@ -57,6 +60,14 @@ class ApiClient extends GetxService {
   }) async {
     String bearerToken =
         await PrefsHelper.getString(AppConstants.bearerToken) ?? '';
+    if (bearerToken.trim().isEmpty && Get.isRegistered<CacheService>()) {
+      bearerToken = Get.find<CacheService>()
+              .get<String>(core_constants.AppConstants.accessToken) ??
+          '';
+      if (bearerToken.isNotEmpty) {
+        await PrefsHelper.setString(AppConstants.bearerToken, bearerToken);
+      }
+    }
 
     final mainHeaders = <String, String>{
       'Content-Type': 'application/json',
