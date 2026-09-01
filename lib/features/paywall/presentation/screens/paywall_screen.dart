@@ -45,9 +45,9 @@ import 'package:flutter/material.dart';
                         final annual = controller.selectedPlan.value == 'annual';
                         return Column(
                           children: [
-                            _tier(0, 'Self-Guided', 'Build your own rhythm', r'\$0 today', 'A flexible starting point with your AI plan and workout library.', Icons.fitness_center_rounded),
+                            _tier(0, 'Self-Guided', 'Build your own rhythm', '\$0 today', 'A flexible starting point with your AI plan and workout library.', Icons.fitness_center_rounded),
                             _tier(1, 'Personal Trainer', 'Your plan, built around you', annual ? '${controller.annualPriceStr.value}/yr' : '${controller.monthlyPriceStr.value}/mo', '1-on-1 coaching, weekly check-ins, and a plan that adapts as you do.', Icons.person_rounded, badge: 'Most chosen', benefits: const ['Live coaching', 'Weekly plan', 'Progress tracking']),
-                            _tier(2, 'Elite Coaching', 'The complete transformation', annual ? r'\$449.99/yr' : r'\$49.99/mo', 'Everything in Personal Trainer plus dedicated nutrition coaching.', Icons.workspace_premium_rounded),
+                            _tier(2, 'Elite Coaching', 'The complete transformation', annual ? '\$449.99/yr' : '\$49.99/mo', 'Everything in Personal Trainer plus dedicated nutrition coaching.', Icons.workspace_premium_rounded),
                           ],
                         );
                       }),
@@ -265,10 +265,10 @@ import 'package:flutter/material.dart';
         final tier = selectedTier.value;
         final annual = controller.selectedPlan.value == 'annual';
         final ptPrice = annual ? '${controller.annualPriceStr.value}/yr' : '${controller.monthlyPriceStr.value}/mo';
-        final ecPrice = annual ? r'\$449.99/yr' : r'\$49.99/mo';
+        final ecPrice = annual ? '\$449.99/yr' : '\$49.99/mo';
         final String ctaText;
         if (tier == 0) {
-          ctaText = 'Start 7-day free trial — \\$0 today';
+          ctaText = 'Start 7-day free trial — \$0 today';
         } else if (tier == 1) {
           ctaText = 'Start with Personal Trainer — $ptPrice';
         } else {
@@ -278,7 +278,7 @@ import 'package:flutter/material.dart';
           if (controller.purchaseError.value.isNotEmpty) Container(width: double.infinity, margin: EdgeInsets.only(bottom: 10.h), padding: EdgeInsets.all(10.w), decoration: BoxDecoration(color: const Color(0xFFFFE8E4), borderRadius: BorderRadius.circular(12)), child: Text(controller.purchaseError.value, style: TextStyle(color: AppColors.error, fontSize: 12.sp, fontWeight: FontWeight.w600), textAlign: TextAlign.center)),
           SizedBox(width: double.infinity, height: 58.h, child: DecoratedBox(decoration: BoxDecoration(gradient: const LinearGradient(colors: [_orange, _deepOrange]), borderRadius: BorderRadius.circular(19), boxShadow: [BoxShadow(color: _orange.withOpacity(.28), blurRadius: 18, offset: const Offset(0, 8))]), child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(19), onTap: controller.purchaseLoading.value ? null : () { if (tier == 0) { controller.startFreeTrial(); } else if (tier == 1) { controller.upgradeNow(); } else { Get.snackbar('Coming Soon', 'Elite Coaching is not yet available.', snackPosition: SnackPosition.BOTTOM); } }, child: Center(child: controller.purchaseLoading.value && tier == 1 ? SizedBox(height: 23.h, width: 23.h, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(ctaText, style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w900)), SizedBox(width: 8.w), Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18.sp)]))))),
           SizedBox(height: 10.h),
-          Text(tier == 0 ? '7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime' : 'Billed ${annual ? 'annually' : 'monthly'} · cancel anytime', style: TextStyle(color: _muted, fontSize: 11.sp, fontWeight: FontWeight.w600)),
+          Text(tier == 0 ? '7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime' : "Billed ${annual ? 'annually' : 'monthly'} · cancel anytime", style: TextStyle(color: _muted, fontSize: 11.sp, fontWeight: FontWeight.w600)),
           SizedBox(height: 7.h),
           Wrap(alignment: WrapAlignment.center, children: [Text('By continuing, you agree to our ', style: TextStyle(color: _muted, fontSize: 10.5.sp)), GestureDetector(onTap: () async { final opened = await launchUrl(Uri.parse(ApiUrls.termsOfService), mode: LaunchMode.externalApplication); if (!opened) { Get.snackbar('Unable to open link', 'Please try again in a moment.', snackPosition: SnackPosition.BOTTOM); } }, child: Text('Terms of Service', style: TextStyle(color: _deepOrange, fontSize: 10.5.sp, fontWeight: FontWeight.w900)))])
         ]);
