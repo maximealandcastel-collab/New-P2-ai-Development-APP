@@ -264,7 +264,9 @@ import 'package:flutter/material.dart';
       return Obx(() {
         final tier = selectedTier.value;
         final annual = controller.selectedPlan.value == 'annual';
-        final ptPrice = annual ? '${controller.annualPriceStr.value}/yr' : '${controller.monthlyPriceStr.value}/mo';
+        final ptPrice = annual
+            ? '${controller.annualPriceStr.value}/yr'
+            : '${controller.monthlyPriceStr.value}/mo';
         final ecPrice = annual ? '\$449.99/yr' : '\$49.99/mo';
         final String ctaText;
         if (tier == 0) {
@@ -274,14 +276,144 @@ import 'package:flutter/material.dart';
         } else {
           ctaText = 'Start Elite Coaching — $ecPrice';
         }
-        return Column(children: [
-          if (controller.purchaseError.value.isNotEmpty) Container(width: double.infinity, margin: EdgeInsets.only(bottom: 10.h), padding: EdgeInsets.all(10.w), decoration: BoxDecoration(color: const Color(0xFFFFE8E4), borderRadius: BorderRadius.circular(12)), child: Text(controller.purchaseError.value, style: TextStyle(color: AppColors.error, fontSize: 12.sp, fontWeight: FontWeight.w600), textAlign: TextAlign.center)),
-          SizedBox(width: double.infinity, height: 58.h, child: DecoratedBox(decoration: BoxDecoration(gradient: const LinearGradient(colors: [_orange, _deepOrange]), borderRadius: BorderRadius.circular(19), boxShadow: [BoxShadow(color: _orange.withOpacity(.28), blurRadius: 18, offset: const Offset(0, 8))]), child: Material(color: Colors.transparent, child: InkWell(borderRadius: BorderRadius.circular(19), onTap: controller.purchaseLoading.value ? null : () { if (tier == 0) { controller.startFreeTrial(); } else if (tier == 1) { controller.upgradeNow(); } else { Get.snackbar('Coming Soon', 'Elite Coaching is not yet available.', snackPosition: SnackPosition.BOTTOM); } }, child: Center(child: controller.purchaseLoading.value && tier == 1 ? SizedBox(height: 23.h, width: 23.h, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(ctaText, style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w900)), SizedBox(width: 8.w), Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18.sp)]))))),
-          SizedBox(height: 10.h),
-          Text(tier == 0 ? '7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime' : "Billed ${annual ? 'annually' : 'monthly'} · cancel anytime", style: TextStyle(color: _muted, fontSize: 11.sp, fontWeight: FontWeight.w600)),
-          SizedBox(height: 7.h),
-          Wrap(alignment: WrapAlignment.center, children: [Text('By continuing, you agree to our ', style: TextStyle(color: _muted, fontSize: 10.5.sp)), GestureDetector(onTap: () async { final opened = await launchUrl(Uri.parse(ApiUrls.termsOfService), mode: LaunchMode.externalApplication); if (!opened) { Get.snackbar('Unable to open link', 'Please try again in a moment.', snackPosition: SnackPosition.BOTTOM); } }, child: Text('Terms of Service', style: TextStyle(color: _deepOrange, fontSize: 10.5.sp, fontWeight: FontWeight.w900)))])
-        ]);
+
+        return Column(
+          children: [
+            if (controller.purchaseError.value.isNotEmpty)
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(bottom: 10.h),
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFE8E4),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  controller.purchaseError.value,
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            SizedBox(
+              width: double.infinity,
+              height: 58.h,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [_orange, _deepOrange],
+                  ),
+                  borderRadius: BorderRadius.circular(19),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _orange.withOpacity(.28),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(19),
+                    onTap: controller.purchaseLoading.value
+                        ? null
+                        : () {
+                            if (tier == 0) {
+                              controller.startFreeTrial();
+                            } else if (tier == 1) {
+                              controller.upgradeNow();
+                            } else {
+                              Get.snackbar(
+                                'Coming Soon',
+                                'Elite Coaching is not yet available.',
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            }
+                          },
+                    child: Center(
+                      child: controller.purchaseLoading.value && tier == 1
+                          ? SizedBox(
+                              height: 23.h,
+                              width: 23.h,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  ctaText,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 18.sp,
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              tier == 0
+                  ? '7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime'
+                  : 'Billed ${annual ? 'annually' : 'monthly'} · cancel anytime',
+              style: TextStyle(
+                color: _muted,
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 7.h),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                Text(
+                  'By continuing, you agree to our ',
+                  style: TextStyle(color: _muted, fontSize: 10.5.sp),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    final opened = await launchUrl(
+                      Uri.parse(ApiUrls.termsOfService),
+                      mode: LaunchMode.externalApplication,
+                    );
+                    if (!opened) {
+                      Get.snackbar(
+                        'Unable to open link',
+                        'Please try again in a moment.',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  },
+                  child: Text(
+                    'Terms of Service',
+                    style: TextStyle(
+                      color: _deepOrange,
+                      fontSize: 10.5.sp,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
       });
     }
 
@@ -308,13 +440,163 @@ import 'package:flutter/material.dart';
       return Container(
         width: double.infinity,
         padding: EdgeInsets.all(17.w),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(23), border: Border.all(color: const Color(0xFFF1E3DA)), boxShadow: [BoxShadow(color: _orange.withOpacity(.06), blurRadius: 15, offset: const Offset(0, 5))]),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [Container(width: 38.w, height: 38.w, decoration: const BoxDecoration(color: Color(0xFFFFE7D7), shape: BoxShape.circle), child: Icon(Icons.vpn_key_rounded, color: _deepOrange, size: 19.sp)), SizedBox(width: 10.w), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Already have access?', style: TextStyle(color: _ink, fontSize: 15.sp, fontWeight: FontWeight.w900)), SizedBox(height: 2.h), Text('Enter your P2P code to unlock your plan.', style: TextStyle(color: _muted, fontSize: 11.sp, fontWeight: FontWeight.w500))]))]),
-          SizedBox(height: 14.h),
-          Row(children: [Expanded(child: SizedBox(height: 49.h, child: TextField(controller: controller.accessCodeController, textCapitalization: TextCapitalization.characters, style: TextStyle(color: _ink, fontSize: 13.sp, fontWeight: FontWeight.w800, letterSpacing: .5), decoration: InputDecoration(hintText: 'Enter code', hintStyle: TextStyle(color: const Color(0xFFB9AAA0), fontSize: 13.sp, fontWeight: FontWeight.w500), filled: true, fillColor: const Color(0xFFFFFAF7), contentPadding: EdgeInsets.symmetric(horizontal: 14.w), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFF0E1D8))), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFF0E1D8))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: _orange, width: 1.5))))), SizedBox(width: 9.w), Obx(() => SizedBox(height: 49.h, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: _ink, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: EdgeInsets.symmetric(horizontal: 17.w)), onPressed: controller.accessCodeLoading.value ? null : controller.redeemAccessCode, child: controller.accessCodeLoading.value ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('Unlock', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w900)))))]),
-          Obx(() => controller.accessCodeError.value.isNotEmpty ? Padding(padding: EdgeInsets.only(top: 8.h), child: Text(controller.accessCodeError.value, style: TextStyle(color: AppColors.error, fontSize: 11.sp, fontWeight: FontWeight.w600))) : const SizedBox.shrink()),
-        ]),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(23),
+          border: Border.all(color: const Color(0xFFF1E3DA)),
+          boxShadow: [
+            BoxShadow(
+              color: _orange.withOpacity(.06),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38.w,
+                  height: 38.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFE7D7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.vpn_key_rounded,
+                    color: _deepOrange,
+                    size: 19.sp,
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Already have access?',
+                        style: TextStyle(
+                          color: _ink,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Enter your P2P code to unlock your plan.',
+                        style: TextStyle(
+                          color: _muted,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 14.h),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 49.h,
+                    child: TextField(
+                      controller: controller.accessCodeController,
+                      textCapitalization: TextCapitalization.characters,
+                      style: TextStyle(
+                        color: _ink,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: .5,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Enter code',
+                        hintStyle: TextStyle(
+                          color: const Color(0xFFB9AAA0),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFFFFAF7),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFF0E1D8),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFF0E1D8),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(color: _orange, width: 1.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 9.w),
+                Obx(
+                  () => SizedBox(
+                    height: 49.h,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _ink,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 17.w),
+                      ),
+                      onPressed: controller.accessCodeLoading.value
+                          ? null
+                          : controller.redeemAccessCode,
+                      child: controller.accessCodeLoading.value
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'Unlock',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Obx(
+              () => controller.accessCodeError.value.isNotEmpty
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 8.h),
+                      child: Text(
+                        controller.accessCodeError.value,
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
       );
     }
 
