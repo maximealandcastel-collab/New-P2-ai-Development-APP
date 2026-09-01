@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -881,48 +880,267 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep>
     if (!_isLoading && _error != null) {
       return _GenerationError(message: _error!, onRetry: _generateSplits);
     }
-    return Center(
+
+    final activeStage = _phaseIndex < 2
+        ? 0
+        : _phaseIndex < 4
+            ? 1
+            : 2;
+    const stages = [
+      (
+        'Reading your goals',
+        'Focus, equipment, intensity, and time',
+      ),
+      (
+        'Comparing split strategies',
+        'Balancing training frequency and recovery',
+      ),
+      (
+        'Building three recommendations',
+        'Preparing distinct options for you to choose',
+      ),
+    ];
+    final progress = ((activeStage + 1) / stages.length).clamp(0.0, 1.0);
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Building your recommended\nworkout splits',
-            textAlign: TextAlign.center,
+            'GENERATE',
             style: TextStyle(
-              fontSize: 24.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w700,
+              color: const Color(0xFFFF6B35),
+              letterSpacing: 1.8,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'MY\nSPLIT',
+            style: TextStyle(
+              fontSize: 34.sp,
+              fontWeight: FontWeight.w800,
               color: Colors.black,
+              height: .98,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            'Three personalized workout structures are being built around your selections.',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey.shade600,
               height: 1.35,
             ),
           ),
+          SizedBox(height: 24.h),
+          Semantics(
+            label: 'Generating three personalized workout split options',
+            child: Container(
+              height: 54.h,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
+                ),
+                borderRadius: BorderRadius.circular(27.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF16C5BC).withOpacity(.22),
+                    blurRadius: 16,
+                    offset: const Offset(0, 7),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.auto_awesome_rounded,
+                      color: Colors.white, size: 19.sp),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'Generating My Split',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Icon(Icons.arrow_forward_rounded,
+                      color: Colors.white, size: 19.sp),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          for (int i = 0; i < stages.length; i++)
+            Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: _SplitGenerationBar(
+                number: i + 1,
+                label: stages[i].$1,
+                detail: stages[i].$2,
+                completed: i < activeStage,
+                active: i == activeStage,
+              ),
+            ),
+          SizedBox(height: 8.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _phases[_phaseIndex],
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              Text(
+                '${(progress * 100).round()}%',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFFF6B35),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.r),
+            child: LinearProgressIndicator(
+              minHeight: 6.h,
+              value: progress,
+              backgroundColor: const Color(0xFFFFE2D6),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFFFF6B35),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SplitGenerationBar extends StatelessWidget {
+  final int number;
+  final String label;
+  final String detail;
+  final bool completed;
+  final bool active;
+
+  const _SplitGenerationBar({
+    required this.number,
+    required this.label,
+    required this.detail,
+    required this.completed,
+    required this.active,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = completed
+        ? const Color(0xFF4FB36B)
+        : active
+            ? const Color(0xFFFF8A3D)
+            : const Color(0xFFD5D9D7);
+    final status = completed
+        ? 'Complete'
+        : active
+            ? 'In progress'
+            : 'Queued';
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 320),
+      padding: EdgeInsets.fromLTRB(13.w, 12.h, 13.w, 11.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: active ? accent.withOpacity(.48) : const Color(0xFFE7E9E8),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(active ? .055 : .03),
+            blurRadius: active ? 12 : 7,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                width: 32.w,
+                height: 32.w,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.withOpacity(.15),
+                  shape: BoxShape.circle,
+                ),
+                child: completed
+                    ? Icon(Icons.check_rounded, color: accent, size: 18.sp)
+                    : Text(
+                        '$number',
+                        style: TextStyle(
+                          color: accent,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+              ),
+              SizedBox(width: 11.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      detail,
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                status,
+                style: TextStyle(
+                  fontSize: 10.5.sp,
+                  fontWeight: FontWeight.w600,
+                  color: completed ? const Color(0xFF3D9553) : accent,
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 10.h),
-
-          // ── Cycling status message — fades between phases ───────────────
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
-            child: Text(
-              _phases[_phaseIndex],
-              key: ValueKey(_phaseIndex),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3.r),
+            child: LinearProgressIndicator(
+              minHeight: 5.h,
+              value: completed
+                  ? 1
+                  : active
+                      ? null
+                      : 0,
+              backgroundColor: const Color(0xFFF0F1F1),
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
             ),
-          ),
-
-          SizedBox(height: 48.h),
-
-          // ── Arc spinner ─────────────────────────────────────────────────
-          AnimatedBuilder(
-            animation: _rotation,
-            builder: (_, __) => CustomPaint(
-              size: Size(120.w, 120.w),
-              painter: _ArcLoaderPainter(progress: _rotation.value),
-            ),
-          ),
-
-          SizedBox(height: 28.h),
-          Text(
-            'AI is comparing the best programming strategies',
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
@@ -1280,42 +1498,108 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep>
     if (!_isLoading && _error != null) {
       return _GenerationError(message: _error!, onRetry: _generateProgram);
     }
-    return Center(
+
+    final activeStage = _phaseIndex < 2
+        ? 0
+        : _phaseIndex < 4
+            ? 1
+            : 2;
+    const stages = [
+      ('Reading your selected split', 'Locking in your chosen weekly structure'),
+      ('Building every training day', 'Selecting approved exercises and volume'),
+      ('Finishing your program', 'Checking recovery, order, and completeness'),
+    ];
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 32.h),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Building your\npersonalized workout',
-            textAlign: TextAlign.center,
+            'BUILD',
             style: TextStyle(
-              fontSize: 24.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w700,
+              color: const Color(0xFFFF6B35),
+              letterSpacing: 1.8,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'MY\nWORKOUT',
+            style: TextStyle(
+              fontSize: 34.sp,
+              fontWeight: FontWeight.w800,
               color: Colors.black,
+              height: .98,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            'Your chosen split is being turned into a complete workout you can follow.',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey.shade600,
               height: 1.35,
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 24.h),
+          Container(
+            height: 54.h,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF16C5BC), Color(0xFF0BA9B5)],
+              ),
+              borderRadius: BorderRadius.circular(27.r),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF16C5BC).withOpacity(.22),
+                  blurRadius: 16,
+                  offset: const Offset(0, 7),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.fitness_center_rounded,
+                    color: Colors.white, size: 19.sp),
+                SizedBox(width: 10.w),
+                Text(
+                  'Building My Workout',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Icon(Icons.arrow_forward_rounded,
+                    color: Colors.white, size: 19.sp),
+              ],
+            ),
+          ),
+          SizedBox(height: 22.h),
+          for (int i = 0; i < stages.length; i++)
+            Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: _SplitGenerationBar(
+                number: i + 1,
+                label: stages[i].$1,
+                detail: stages[i].$2,
+                completed: i < activeStage,
+                active: i == activeStage,
+              ),
+            ),
+          SizedBox(height: 8.h),
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 350),
+            duration: const Duration(milliseconds: 300),
             child: Text(
               _phases[_phaseIndex],
               key: ValueKey(_phaseIndex),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
             ),
-          ),
-          SizedBox(height: 48.h),
-          AnimatedBuilder(
-            animation: _rotation,
-            builder: (_, __) => CustomPaint(
-              size: Size(120.w, 120.w),
-              painter: _ArcLoaderPainter(progress: _rotation.value),
-            ),
-          ),
-          SizedBox(height: 28.h),
-          Text(
-            'Your selected split is being programmed and validated',
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade400),
           ),
         ],
       ),
@@ -1369,48 +1653,6 @@ class _GenerationError extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ArcLoaderPainter extends CustomPainter {
-  final double progress;
-
-  _ArcLoaderPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 8;
-
-    // Track
-    final trackPaint = Paint()
-      ..color = Colors.black12
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawCircle(center, radius, trackPaint);
-
-    // Arc gradient
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final sweepAngle = pi * 1.4;
-    final startAngle = -pi / 2 + (2 * pi * progress);
-
-    final arcPaint = Paint()
-      ..shader = SweepGradient(
-        colors: const [Color(0xFFFF7A00), Color(0xFFFFB347)],
-        startAngle: startAngle,
-        endAngle: startAngle + sweepAngle,
-      ).createShader(rect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(rect, startAngle, sweepAngle, false, arcPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ArcLoaderPainter old) =>
-      old.progress != progress;
 }
 
 // ─── Shared Next Button ───────────────────────────────────────────────────────
