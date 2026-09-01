@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/user/achievements/data/achievement_service.dart';
+import 'package:pler_to_pler_app/features/user/achievements/data/achievement_unlock.dart';
 import 'package:pler_to_pler_app/features/user/achievements/presentation/compact_achievement_sheet.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
@@ -367,9 +368,9 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
       }
 
       final data = (completion.body as Map)['data'];
-      final newlyUnlocked = data is Map
+      final List<AchievementUnlock> newlyUnlocked = data is Map
           ? AchievementService.parseUnlocks(data['newlyUnlocked'])
-          : const [];
+          : const <AchievementUnlock>[];
       if (!mounted) return;
 
       if (newlyUnlocked.isNotEmpty) {
@@ -1461,6 +1462,108 @@ class _ExerciseCardState extends State<_ExerciseCard> {
   @override
   Widget build(BuildContext context) {
     final e = widget.exercise;
+    final children = <Widget>[
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              e.name,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF7A3B1E),
+              ),
+            ),
+          ),
+          if (widget.showCompletionControl)
+            GestureDetector(
+              onTap: !widget.sessionStarted ||
+                      widget.completed ||
+                      widget.saving ||
+                      e.id.isEmpty
+                  ? null
+                  : widget.onComplete,
+              child: Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
+                decoration: BoxDecoration(
+                  color: widget.completed
+                      ? Colors.green
+                      : widget.sessionStarted && e.id.isNotEmpty
+                          ? const Color(0xFFF57C1F)
+                          : Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: widget.saving
+                    ? SizedBox(
+                        width: 14.w,
+                        height: 14.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        widget.completed
+                            ? 'Completed'
+                            : widget.sessionStarted
+                                ? 'Mark Completed'
+                                : 'Start First',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
+        ],
+      ),
+      SizedBox(height: 8.h),
+      Text(
+        'Muscle group: ${e.muscleGroup}',
+        style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
+      ),
+      SizedBox(height: 12.h),
+      Wrap(
+        spacing: 8.w,
+        runSpacing: 8.h,
+        children: [
+          _Chip(e.sets),
+          _Chip(e.reps),
+          _Chip(e.rest),
+          _Chip(e.rpe),
+        ],
+      ),
+      SizedBox(height: 6.h),
+    ];
+
+    if (_expanded) {
+      children.add(SizedBox(height: 8.h));
+      for (var i = 0; i < e.steps.length; i++) {
+        children.add(_StepItem(index: i + 1, step: e.steps[i]));
+        children.add(SizedBox(height: 10.h));
+      }
+    }
+
+    children.add(
+      Center(
+        child: GestureDetector(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Padding(
+            padding: EdgeInsets.all(6.w),
+            child: Icon(
+              _expanded
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+              size: 26.sp,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ),
+    );
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -1469,104 +1572,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  e.name,
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF7A3B1E),
-                  ),
-                ),
-              ),
-              if (widget.showCompletionControl)
-                GestureDetector(
-                  onTap: !widget.sessionStarted ||
-                          widget.completed ||
-                          widget.saving ||
-                          e.id.isEmpty
-                      ? null
-                      : widget.onComplete,
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 9.h),
-                    decoration: BoxDecoration(
-                      color: widget.completed
-                          ? Colors.green
-                          : widget.sessionStarted && e.id.isNotEmpty
-                              ? const Color(0xFFF57C1F)
-                              : Colors.grey.shade400,
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: widget.saving
-                        ? SizedBox(
-                            width: 14.w,
-                            height: 14.w,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            widget.completed
-                                ? 'Completed'
-                                : widget.sessionStarted
-                                    ? 'Mark Completed'
-                                    : 'Start First',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Muscle group: ${e.muscleGroup}',
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
-          ),
-          SizedBox(height: 12.h),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: [
-              _Chip(e.sets),
-              _Chip(e.reps),
-              _Chip(e.rest),
-              _Chip(e.rpe),
-            ],
-          ),
-          SizedBox(height: 6.h),
-          if (_expanded) ...[
-            SizedBox(height: 8.h),
-            for (int i = 0; i < e.steps.length; i++) ...[
-              _StepItem(index: i + 1, step: e.steps[i]),
-              SizedBox(height: 10.h),
-            ],
-          ],
-          Center(
-            child: GestureDetector(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Padding(
-                padding: EdgeInsets.all(6.w),
-                child: Icon(
-                  _expanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 26.sp,
-                  color: Colors.black87,
-                ),
-              ),
-            ),
-          ),
-        ],
+        children: children,
       ),
     );
   }
