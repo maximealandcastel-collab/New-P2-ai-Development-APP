@@ -11,12 +11,19 @@ class WorkoutRepository {
 
   final ApiService _apiService;
 
+  Map<String, dynamic> _workoutPayload(dynamic raw) {
+    if (raw is! Map) {
+      throw const FormatException('Workout response was not an object');
+    }
+    final payload = Map<String, dynamic>.from(raw);
+    final nested = payload['data'];
+    return nested is Map ? Map<String, dynamic>.from(nested) : payload;
+  }
+
   Future<WorkoutModel> createWorkout(Map<String, dynamic> body) async {
     try {
       final response = await _apiService.post(ApiConstants.workout, data: body);
-      return WorkoutModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map),
-      );
+      return WorkoutModel.fromJson(_workoutPayload(response.data));
     } on AppException {
       rethrow;
     } catch (e) {
@@ -29,9 +36,7 @@ class WorkoutRepository {
       final response = await _apiService.post(
         ApiConstants.workoutGenerate(workoutId),
       );
-      return WorkoutModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map),
-      );
+      return WorkoutModel.fromJson(_workoutPayload(response.data));
     } on AppException {
       rethrow;
     } catch (e) {
@@ -59,9 +64,7 @@ class WorkoutRepository {
   Future<WorkoutModel> getWorkoutById(String workoutId) async {
     try {
       final response = await _apiService.get(ApiConstants.workoutById(workoutId));
-      return WorkoutModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map),
-      );
+      return WorkoutModel.fromJson(_workoutPayload(response.data));
     } on AppException {
       rethrow;
     } catch (e) {

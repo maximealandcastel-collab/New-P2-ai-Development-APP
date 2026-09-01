@@ -13,15 +13,6 @@ export interface IUserPayload extends jwt.JwtPayload {
 
 export const guardRole = (roles: TRole | TRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Admin bypass: x-admin-key header skips JWT check entirely.
-    // SECURITY: no default fallback — ADMIN_BYPASS_CODE env var must be set.
-    const adminKey = req.headers["x-admin-key"] as string | undefined;
-    const expectedKey = process.env.ADMIN_BYPASS_CODE; // intentionally no "|| '2931'" default
-    if (adminKey && expectedKey && adminKey === expectedKey) {
-      (req as any).user = { id: "admin", role: "admin", email: "admin@p2p.ai" };
-      return next();
-    }
-
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       return sendResponse(res, {

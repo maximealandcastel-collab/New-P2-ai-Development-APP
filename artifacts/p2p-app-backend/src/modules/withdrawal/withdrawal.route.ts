@@ -25,8 +25,7 @@ router.get("/my", guardRole("trainer"), getMyWithdrawalsController);
 router.post("/", guardRole("trainer"), requestWithdrawalController);
 
 // ── Admin routes ──────────────────────────────────────────────
-// All require admin role (JWT with role:"admin" issued by the bypass endpoint,
-// or x-admin-key matching ADMIN_BYPASS_CODE env var — no hardcoded default).
+// All require admin role (server-issued JWT with role:"admin").
 // GET   /withdrawals/admin/all        → all withdrawal requests
 // PATCH /withdrawals/:id/approve      → approve request
 // PATCH /withdrawals/:id/paid         → confirm payment sent

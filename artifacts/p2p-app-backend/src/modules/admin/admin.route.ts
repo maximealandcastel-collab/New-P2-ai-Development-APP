@@ -4,8 +4,7 @@ import { AdminController } from "./admin.controller";
 
 const router = Router();
 
-// All admin routes require admin role (verified JWT with role:"admin" OR valid
-// x-admin-key from ADMIN_BYPASS_CODE env var — no hardcoded default).
+// All admin routes require admin role (verified by a server-issued JWT with role:"admin").
 router
   .route("/change-user/status/:userId")
   .get(guardRole(["admin"]), AdminController.changeUserStatus);

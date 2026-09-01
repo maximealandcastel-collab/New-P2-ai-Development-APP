@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,6 +19,7 @@ import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_s
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutController extends GetxController {
+  int _generateRequestId = 0;
   WorkoutController({required WorkoutService service}) : _service = service;
 
   final WorkoutService _service;
@@ -325,13 +328,33 @@ class WorkoutController extends GetxController {
     }
 
     _generateLoadingState.value = LoadingState.loading;
+    final requestId = ++_generateRequestId;
+    final routeAtStart = Get.currentRoute;
 
     try {
-      final workout = await _service.createAndGenerateWorkout(arguments);
+      final workout = await _service
+          .createAndGenerateWorkout(arguments)
+          .timeout(const Duration(seconds: 75));
+      if (isClosed || requestId != _generateRequestId ||
+          Get.currentRoute != routeAtStart) {
+        return;
+      }
       initWorkoutDetails(workout);
       _generateLoadingState.value = LoadingState.loaded;
       Get.offNamed(AppRoute.workoutPlanDetailsScreen, arguments: workout);
+    } on TimeoutException catch (e) {
+      if (isClosed || requestId != _generateRequestId ||
+          Get.currentRoute != routeAtStart) {
+        return;
+      }
+      _generateLoadingState.value = LoadingState.error;
+      _handleGenerateFailure('Workout generation timed out. Please try again.');
+      if (kDebugMode) debugPrint('generateWorkout timeout: $e');
     } catch (e) {
+      if (isClosed || requestId != _generateRequestId ||
+          Get.currentRoute != routeAtStart) {
+        return;
+      }
       _generateLoadingState.value = LoadingState.error;
       _handleGenerateFailure(e.errorMessage);
       if (kDebugMode) debugPrint('generateWorkout error: $e');
@@ -543,6 +566,7 @@ class WorkoutController extends GetxController {
 
     @override
   void onClose() {
+    _generateRequestId++;
     checkInResponseController.dispose();
     actualDurationController.dispose();
     super.onClose();

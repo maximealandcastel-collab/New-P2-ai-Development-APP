@@ -225,7 +225,10 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
       renderer = RTCVideoRenderer();
       await renderer!.initialize();
 
-      if (generation != _startGeneration) return;
+      if (generation != _startGeneration) {
+        await _cleanupAnamOnly();
+        return;
+      }
 
       _setupClientListeners();
 
@@ -252,7 +255,10 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
         _handleStreamError,
       );
 
-      if (generation != _startGeneration) return;
+      if (generation != _startGeneration) {
+        await _cleanupAnamOnly();
+        return;
+      }
 
       _startStreamWatchdog();
       _listenForUserSpeech();
@@ -280,7 +286,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
       if (kDebugMode) debugPrint('Anam startCall error: $e');
       await _cleanupAnamOnly();
     } finally {
-      if (generation == _startGeneration) {
+      if (generation == _startGeneration || _isEnding) {
         _isStarting = false;
       }
     }
@@ -346,9 +352,7 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
       if (_streamWatchAttempts > _maxStreamWatchAttempts) {
         _streamWatchdog?.cancel();
         if (!_isEnding && !isStreamReady.value) {
-          status.value = AnamCallStatus.error;
-          errorMessage.value =
-              'Video stream timed out. Please try again.';
+          unawaited(_handleStreamTimeout());
         }
         return;
       }
@@ -360,6 +364,14 @@ class AnamCallController extends GetxController with WidgetsBindingObserver {
         _streamWatchdog?.cancel();
       }
     });
+  }
+
+  Future<void> _handleStreamTimeout() async {
+    const message = 'Video stream timed out. Please try again.';
+    await endCall(popRoute: false);
+    if (isClosed) return;
+    status.value = AnamCallStatus.error;
+    errorMessage.value = message;
   }
 
   void _handleStreamError(Object error, [StackTrace? stackTrace]) {

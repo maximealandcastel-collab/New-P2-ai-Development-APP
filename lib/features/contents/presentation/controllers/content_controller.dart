@@ -384,6 +384,7 @@ class ContentController extends GetxController with PaginatedLoaderUi {
     _isClosed = true;
     _navTabWorker?.dispose();
     _connectivityWorker?.dispose();
+    _modeWorker?.dispose();
     pageController.dispose();
     searchController.dispose();
     reelFeed?.dispose();

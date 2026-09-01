@@ -7,12 +7,10 @@ import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
-import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
-import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 
 /// Key used to read/store the admin-specific JWT token.
 /// Must match the constant declared in AdminDashboardController.
@@ -41,13 +39,13 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
   /// On success the backend upgrades the account to admin role and returns a
   /// dedicated admin JWT that subsequent API calls use via Bearer auth.
   Future<bool> _callBackendBypass(String code) async {
-    // Login stores the session token via CacheService/Hive under
-    // AppConstants.accessToken -- NOT PrefsHelper/SharedPreferences under
-    // 'bearerToken'. Reading from the wrong store meant this screen could
-    // never find a valid token from a normal login.
-    final userToken = Get.find<CacheService>().get<String>(AppConstants.accessToken);
+    final userToken =
+        Get.find<CacheService>().get<String>(AppConstants.accessToken);
     if ((userToken?.isEmpty ?? true)) {
-      setState(() => _error = 'You must be logged in to activate admin mode.');
+      if (mounted) {
+        setState(() =>
+            _error = 'You must be logged in to activate admin mode.');
+      }
       return false;
     }
 
@@ -66,29 +64,45 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
           'Content-Type': 'application/json',
         }),
       );
+      if (!mounted) return false;
 
-      final data = response.data as Map<String, dynamic>?;
-      if (data?['success'] == true) {
-        // Persist the admin-specific JWT so AdminDashboardController can use it
-        final adminToken = data!['data']?['token'] as String?;
+      final rawData = response.data;
+      final data = rawData is Map
+          ? Map<String, dynamic>.from(rawData)
+          : <String, dynamic>{};
+      if (data['success'] == true) {
+        final rawPayload = data['data'];
+        final payload = rawPayload is Map
+            ? Map<String, dynamic>.from(rawPayload)
+            : <String, dynamic>{};
+        final adminToken = payload['token']?.toString();
         if (adminToken != null && adminToken.isNotEmpty) {
           await PrefsHelper.setString(_kAdminTokenKey, adminToken);
         }
-        return true;
+        return mounted;
       }
-      setState(() => _error = data?['message']?.toString() ?? 'Activation failed.');
+      setState(() =>
+          _error = data['message']?.toString() ?? 'Activation failed.');
       return false;
-    } on DioException catch (e) {
-      final msg = (e.response?.data as Map<String, dynamic>?)?['message']?.toString();
-      setState(() => _error = msg ?? 'Could not reach the server. Try again.');
+    } on DioException catch (error) {
+      if (!mounted) return false;
+      final rawError = error.response?.data;
+      final errorData = rawError is Map
+          ? Map<String, dynamic>.from(rawError)
+          : <String, dynamic>{};
+      setState(() => _error = errorData['message']?.toString() ??
+          'Could not reach the server. Try again.');
       return false;
     } catch (_) {
-      setState(() => _error = 'Unexpected error. Please try again.');
+      if (mounted) {
+        setState(() => _error = 'Unexpected error. Please try again.');
+      }
       return false;
     }
   }
 
   Future<void> _activate() async {
+    if (_loading) return;
     final code = _codeController.text.trim();
     if (code.isEmpty) {
       setState(() => _error = 'Please enter the admin code');
@@ -100,30 +114,9 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
       _error = '';
     });
 
-    if (code.toUpperCase() == '67') {
-      // ── Affiliate / partner mode (local-only, no backend call) ──
-      setState(() => _loading = false);
-      if (!Get.isRegistered<AffiliateModeService>()) {
-        Get.put(AffiliateModeService(), permanent: true);
-      }
-      AffiliateModeService.to.activate(code);
-      if (!Get.isRegistered<AffiliateDashboardController>()) {
-        Get.put(AffiliateDashboardController(promoCode: code.toUpperCase()));
-      }
-      Get.snackbar(
-        '💰 Partner Access Activated',
-        'Welcome Samir! Your earnings dashboard is ready.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF1A1A2E),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      Get.offAllNamed(AppRoute.bottonNavBar);
-      return;
-    }
-
     // ── Admin mode — validate with the backend ──
     final ok = await _callBackendBypass(code);
+    if (!mounted) return;
     setState(() => _loading = false);
 
     if (!ok) return; // error already set in _callBackendBypass
@@ -137,6 +130,7 @@ class _AdminBypassScreenState extends State<AdminBypassScreen> {
     // the current screen before the pill could be scheduled/inserted --
     // the account was correctly promoted to admin but the pill never showed.
     await AdminModeService.to.activate();
+    if (!mounted) return;
     if (!Get.isRegistered<AdminDashboardController>()) {
       Get.put(AdminDashboardController());
     }

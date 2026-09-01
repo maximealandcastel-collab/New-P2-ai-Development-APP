@@ -19,6 +19,7 @@ class ReelPlayerManager {
 
   int? _activeIndex;
   int _operationId = 0;
+  Future<void>? _preloadFuture;
 
   ReelVideoSlot? slotFor(int index) => _slots[index];
 
@@ -84,13 +85,11 @@ class ReelPlayerManager {
     // Kick off neighbor preloads IMMEDIATELY — in parallel with center
     // initialization. Neighbors load from disk cache or network concurrently
     // so they are ready before the user swipes to them.
-    unawaited(
-      _preloadNeighbors(
-        center: center,
-        contents: contents,
-        operationId: op,
-        prioritizeNext: prioritizeNextPreload,
-      ),
+    _startPreload(
+      center: center,
+      contents: contents,
+      operationId: op,
+      prioritizeNext: prioritizeNextPreload,
     );
 
     await _ensureCenterReady(
@@ -107,6 +106,46 @@ class ReelPlayerManager {
     for (final entry in _slots.entries) {
       if (entry.key != center) {
         await Future.wait([entry.value.pause(), entry.value.setVolume(0)]);
+      }
+    }
+  }
+
+  void _startPreload({
+    required int center,
+    required List<ContentModel> contents,
+    required int operationId,
+    required bool prioritizeNext,
+  }) {
+    final preload = _preloadNeighbors(
+      center: center,
+      contents: contents,
+      operationId: operationId,
+      prioritizeNext: prioritizeNext,
+    );
+    _preloadFuture = preload;
+    unawaited(preload.catchError((Object error, StackTrace stack) {
+      if (kDebugMode) {
+        debugPrint('Reel preload error: $error');
+      }
+    }).whenComplete(() {
+      if (identical(_preloadFuture, preload)) {
+        _preloadFuture = null;
+      }
+    }));
+  }
+
+  Future<void> _waitForPreload() async {
+    final preload = _preloadFuture;
+    if (preload == null) return;
+    try {
+      await preload;
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('Reel preload shutdown error: $error');
+      }
+    } finally {
+      if (identical(_preloadFuture, preload)) {
+        _preloadFuture = null;
       }
     }
   }
@@ -206,6 +245,7 @@ class ReelPlayerManager {
 
   Future<void> reset() async {
     _operationId++;
+    await _waitForPreload();
     for (final slot in _slots.values.toList()) {
       await slot.cancel();
       slot.detach();
@@ -218,6 +258,7 @@ class ReelPlayerManager {
 
   Future<void> releaseAll() async {
     _operationId++;
+    await _waitForPreload();
     for (final slot in [..._slots.values, ..._free]) {
       await slot.release();
     }

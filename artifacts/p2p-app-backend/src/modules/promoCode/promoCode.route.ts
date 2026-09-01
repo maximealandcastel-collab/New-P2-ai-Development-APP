@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto";
 import { Router, Request, Response, NextFunction } from "express";
 import { guardRole } from "../../middlewares/roleGuard";
 import {
@@ -42,9 +43,24 @@ router.post(
 // ── Service route (admin-key guarded) ────────────────────────
 // POST /promo/issue-trial → generate a 7-day trial code (called by API server after $4.99 payment)
 const adminKeyGuard = (req: Request, res: Response, next: NextFunction) => {
-  const key = req.headers["x-admin-key"] as string;
-  const expected = process.env.ADMIN_BYPASS_CODE || "2931";
-  if (key !== expected) {
+  const expected = process.env.ADMIN_BYPASS_CODE;
+  if (!expected) {
+    res.status(503).json({
+      success: false,
+      message: "Trial-code service is not configured",
+    });
+    return;
+  }
+
+  const providedHeader = req.headers["x-admin-key"];
+  const provided = typeof providedHeader === "string" ? providedHeader : "";
+  const providedBuffer = Buffer.from(provided);
+  const expectedBuffer = Buffer.from(expected);
+  const authorized =
+    providedBuffer.length === expectedBuffer.length &&
+    timingSafeEqual(providedBuffer, expectedBuffer);
+
+  if (!authorized) {
     res.status(401).json({ success: false, message: "Unauthorized" });
     return;
   }

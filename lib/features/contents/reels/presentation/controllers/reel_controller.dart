@@ -110,8 +110,10 @@ class ReelController extends GetxController with WidgetsBindingObserver {
 
       if (shouldPlay && _player.isReady(index)) {
         await AudioFocusService.instance.activate(); // claim audio focus
+        if (_isClosed || generation != _syncGeneration || !_isActive) return;
         debugPrint('[VIDEO] activate: ${contents.length > index ? (contents[index].id ?? index.toString()) : index.toString()}');
       }
+      if (_isClosed || generation != _syncGeneration || !_isActive) return;
       isPlaying.value = _player.isReady(index) && shouldPlay;
     } catch (error) {
       if (kDebugMode) debugPrint('ReelController.activateAt: $error');
@@ -185,10 +187,12 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     if (isPlaying.value) {
       isUserPaused.value = true;
       await _player.pauseActive();
+      if (_isClosed) return;
       isPlaying.value = false;
     } else {
       isUserPaused.value = false;
       await _player.playActive();
+      if (_isClosed) return;
       isPlaying.value = true;
     }
   }
@@ -196,12 +200,14 @@ class ReelController extends GetxController with WidgetsBindingObserver {
   Future<void> pauseActive({bool userInitiated = false}) async {
     if (userInitiated) isUserPaused.value = true;
     await _player.pauseActive();
+    if (_isClosed) return;
     isPlaying.value = false;
   }
 
   Future<void> retryAt(int index, List<ContentModel> contents) async {
     if (index < 0 || index >= contents.length) return;
     await _player.retryAt(index, contents[index]);
+    if (_isClosed) return;
     if (index == currentIndex.value) {
       isPlaying.value = _player.isReady(index) && !isUserPaused.value;
     }
@@ -218,6 +224,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
       _player.pauseActive(),
       AudioFocusService.instance.deactivate(),
     ]);
+    if (_isClosed) return;
     isPlaying.value = false;
     debugPrint('[VIDEO] route hidden');
   }
@@ -239,6 +246,7 @@ class ReelController extends GetxController with WidgetsBindingObserver {
     isUserPaused.value = false;
     isPlaying.value = true;
     await _player.reset();
+    if (_isClosed) return;
     slotVersion.value++;
   }
 

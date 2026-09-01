@@ -112,6 +112,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
               thumbnailUrl: _absolute(v['thumbnailUrl']?.toString()),
             )).toList();
           }
+          if (!mounted) return;
           setState(() {
             _community = parse(data['community']);
             _trainer = parse(data['trainer']);
@@ -195,6 +196,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
                 itemCount: _videos.length,
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 itemBuilder: (ctx, i) => _VideoPage(
+                  key: ValueKey('$_tab-${_videos[i].videoUrl}-${_videos[i].title}'),
                   video: _videos[i],
                   // PageView builds neighbours; only the centred page is
                   // allowed to play, which is what stops overlapping audio.
@@ -264,7 +266,11 @@ class _VideoPage extends StatefulWidget {
   /// paused and muted, however many pages the PageView has built.
   final bool isActive;
 
-  const _VideoPage({required this.video, required this.isActive});
+  const _VideoPage({
+    super.key,
+    required this.video,
+    required this.isActive,
+  });
 
   @override
   State<_VideoPage> createState() => _VideoPageState();
@@ -273,7 +279,9 @@ class _VideoPage extends StatefulWidget {
 class _VideoPageState extends State<_VideoPage> {
   VideoPlayerController? _ctrl;
   bool _ready = false;
+  bool _failed = false;
   bool _tapped = false;
+  int _initializationId = 0;
 
   /// Set when the user explicitly pauses, so becoming active again does not
   /// override their choice.
@@ -300,21 +308,41 @@ class _VideoPageState extends State<_VideoPage> {
   }
 
   Future<void> _init() async {
+    final initializationId = ++_initializationId;
     final url = widget.video.videoUrl;
-    if (url == null || url.isEmpty) return;
+    if (url == null || url.isEmpty) {
+      if (mounted) setState(() => _failed = true);
+      return;
+    }
+
+    VideoPlayerController? controller;
     try {
-      final controller = VideoPlayerController.networkUrl(Uri.parse(url))
-        ..setLooping(true);
-      _ctrl = controller;
-      await controller.initialize();
-      if (!mounted) {
+      final uri = Uri.tryParse(url);
+      if (uri == null || !uri.hasScheme ||
+          (uri.scheme != 'http' && uri.scheme != 'https')) {
+        throw const FormatException('Unsupported video URL');
+      }
+      controller = VideoPlayerController.networkUrl(uri)..setLooping(true);
+      await controller.initialize().timeout(const Duration(seconds: 20));
+      if (!mounted || initializationId != _initializationId) {
         await controller.dispose();
         return;
       }
-      setState(() => _ready = true);
+      _ctrl = controller;
+      setState(() {
+        _ready = true;
+        _failed = false;
+      });
       _syncPlayback();
-    } catch (e) {
-      log('video init error: $e');
+    } catch (error) {
+      log('video init error: $error');
+      if (controller != null) await controller.dispose();
+      if (mounted && initializationId == _initializationId) {
+        setState(() {
+          _ready = false;
+          _failed = true;
+        });
+      }
     }
   }
 
@@ -339,6 +367,7 @@ class _VideoPageState extends State<_VideoPage> {
 
   @override
   void dispose() {
+    _initializationId++;
     final controller = _ctrl;
     if (controller != null) {
       _vpm?.unregisterPlayer(controller);
@@ -394,10 +423,30 @@ class _VideoPageState extends State<_VideoPage> {
               ),
             ),
 
-          // Loading spinner
-          if (!_ready)
+          // Loading or terminal failure state. A bad item remains swipeable
+          // and never blanks the rest of the feed.
+          if (!_ready && !_failed)
             const Center(
               child: CircularProgressIndicator(color: Colors.white54),
+            )
+          else if (_failed)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.videocam_off_outlined,
+                        color: Colors.white54, size: 42),
+                    SizedBox(height: 12),
+                    Text(
+                      'Video unavailable — swipe for the next workout.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
           // Pause/play icon flash on tap
