@@ -5,11 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
 import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,8 +31,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   final _calendarKey = GlobalKey<_DailyWorkoutCalendarState>();
 
   Future<void> _refreshHome() async {
-    _calendarKey.currentState?.resetToToday();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
+    await _calendarKey.currentState?.refresh();
     if (mounted) setState(() {});
   }
 
@@ -56,7 +57,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 SizedBox(height: 16.h),
                 const _GymsCard(),
                 SizedBox(height: 16.h),
-                const _GenerateWorkoutBanner(),
+                _GenerateWorkoutBanner(onWorkoutChanged: _refreshHome),
                 SizedBox(height: 16.h),
                 const _RateMyPeelBanner(),
                 SizedBox(height: 16.h),
@@ -189,6 +190,9 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
 
   late DateTime _weekStart;
   late DateTime _selectedDate;
+  Map<String, _WorkoutDayProgress> _progressByDate =
+      const <String, _WorkoutDayProgress>{};
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -196,6 +200,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
     final today = _dateOnly(DateTime.now());
     _weekStart = _mondayOf(today);
     _selectedDate = today;
+    _loadWorkouts();
   }
 
   static DateTime _dateOnly(DateTime date) {
@@ -259,13 +264,61 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
     });
   }
 
-  void resetToToday() => _goToToday();
+  static String _dateKey(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  Future<void> refresh() async {
+    _goToToday();
+    await _loadWorkouts();
+  }
+
+  Future<void> _loadWorkouts() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    try {
+      final response = await ApiClient.getData(ApiUrls.workoutList);
+      if (!mounted || response.statusCode != 200 || response.body is! Map) {
+        return;
+      }
+      final rawWorkouts = (response.body as Map)['data'];
+      if (rawWorkouts is! List) return;
+
+      final progress = <String, _WorkoutDayProgress>{};
+      for (final rawWorkout in rawWorkouts.whereType<Map>()) {
+        final date = DateTime.tryParse('${rawWorkout['date']}')?.toLocal();
+        if (date == null) continue;
+        final plan = rawWorkout['aiPlan'];
+        if (plan is! Map) continue;
+
+        var total = 0;
+        var completed = 0;
+        for (final section in const ['mainWork', 'accessories', 'finisher']) {
+          final exercises = plan[section];
+          if (exercises is! List) continue;
+          total += exercises.length;
+          completed += exercises
+              .whereType<Map>()
+              .where((exercise) => exercise['isCompleted'] == true)
+              .length;
+        }
+        if (total == 0) continue;
+
+        final key = _dateKey(date);
+        final existing = progress[key];
+        progress[key] = _WorkoutDayProgress(
+          completed: (existing?.completed ?? 0) + completed,
+          total: (existing?.total ?? 0) + total,
+        );
+      }
+      if (mounted) setState(() => _progressByDate = progress);
+    } finally {
+      _isLoading = false;
+    }
+  }
 
   _WorkoutDayProgress _progressFor(DateTime date) {
-    // This remains a single source of truth for the calendar UI. When the
-    // dashboard workout activity feed is connected, this method can map the
-    // persisted completion count without changing the calendar presentation.
-    return const _WorkoutDayProgress(completed: 0, total: 10);
+    return _progressByDate[_dateKey(date)] ??
+        const _WorkoutDayProgress(completed: 0, total: 0);
   }
 
   @override
@@ -309,7 +362,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     ),
                     SizedBox(height: 5.h),
                     Text(
-                      'Track and manage your clients’ workouts',
+                      'Track your workouts and progress',
                       style: TextStyle(
                         fontSize: 11.5.sp,
                         height: 1.25,
@@ -721,7 +774,8 @@ class _GymsCard extends StatelessWidget {
                     }
                   },
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                     child: Text('Near Gym',
                         style: TextStyle(
                             fontSize: 13.sp,
@@ -802,14 +856,19 @@ class _GymsCard extends StatelessWidget {
 
 // ─── Generate Workout Split banner ───────────────────────────────────────────
 class _GenerateWorkoutBanner extends StatelessWidget {
-  const _GenerateWorkoutBanner();
+  final Future<void> Function()? onWorkoutChanged;
+
+  const _GenerateWorkoutBanner({this.onWorkoutChanged});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const WorkoutFinderFlow()),
-      ),
+      onTap: () async {
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const WorkoutFinderFlow()),
+        );
+        await onWorkoutChanged?.call();
+      },
       child: Semantics(
         button: true,
         label: 'Generate workout split',

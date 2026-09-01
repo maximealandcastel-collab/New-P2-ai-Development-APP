@@ -48,6 +48,7 @@ class ApiUrls {
       '/workout/$workoutId/exercises/$exerciseId/complete';
   static String workoutComplete(String workoutId) => '/workout/$workoutId/complete';
   static String workoutById(String workoutId) => '/workout/$workoutId';
+  static const String workoutList = '/workout?limit=100';
   static const String workoutToday = '/workout/today';
   static const String pendingAchievements = '/achievements?pending=true';
   static const String achievements = '/achievements';
