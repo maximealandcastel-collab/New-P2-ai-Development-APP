@@ -22,6 +22,16 @@ class AchievementService {
     return parseUnlocks((response.body as Map)['data']);
   }
 
+  static Future<AchievementOverview> getOverview() async {
+    final response = await ApiClient.getData(ApiUrls.achievements);
+    if (response.statusCode != 200 || response.body is! Map) {
+      throw Exception('Could not load achievements.');
+    }
+    final data = (response.body as Map)['data'];
+    if (data is! Map) throw Exception('Could not load achievements.');
+    return AchievementOverview.fromJson(Map<String, dynamic>.from(data));
+  }
+
   static Future<void> markPresented(String achievementId) async {
     await ApiClient.patch(
       ApiUrls.achievementPresented(achievementId),

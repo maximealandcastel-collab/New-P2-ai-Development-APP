@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
@@ -49,6 +50,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FeedAppBar(),
+                const _AchievementsPill(),
+                SizedBox(height: 8.h),
                 _DailyWorkoutCalendar(key: _calendarKey),
                 SizedBox(height: 16.h),
                 const _GymsCard(),
@@ -61,6 +64,78 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 const _TodaysOverviewCard(),
                 SizedBox(height: 24.h),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AchievementsPill extends StatelessWidget {
+  const _AchievementsPill();
+
+  static const _gold = Color(0xFFD2A23A);
+  static const _goldSoft = Color(0xFFFFF4D9);
+  static const _ink = Color(0xFF171717);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Semantics(
+          button: true,
+          label: 'Open your achievements',
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18.r),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AchievementsScreen(),
+              ),
+            ),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: _goldSoft,
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(color: _gold.withOpacity(0.18)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.emoji_events_rounded,
+                    color: _gold,
+                    size: 16.sp,
+                  ),
+                  SizedBox(width: 6.w),
+                  Text(
+                    'Achievements',
+                    style: TextStyle(
+                      color: _ink,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    width: 21.w,
+                    height: 21.w,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.workspace_premium_rounded,
+                      color: _gold,
+                      size: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
