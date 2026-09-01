@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/features/user/achievements/data/achievement_service.dart';
+import 'package:pler_to_pler_app/features/user/achievements/presentation/compact_achievement_sheet.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/logger.dart';
+import 'package:pler_to_pler_app/services/network/api_client.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI PLAN RESULT — shown after "Finding best workout plan for you"
@@ -48,11 +52,93 @@ class WorkoutPhaseStep {
   });
 }
 
-class AiPlanResultScreen extends StatelessWidget {
+class AiPlanResultScreen extends StatefulWidget {
   const AiPlanResultScreen({super.key});
 
+  @override
+  State<AiPlanResultScreen> createState() => _AiPlanResultScreenState();
+}
+
+class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
   static final _resultLog = logger(AiPlanResultScreen);
   static final Set<String> _reportedTraceIds = <String>{};
+  bool _isCompleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showPendingUnlocks());
+  }
+
+  Future<void> _showPendingUnlocks() async {
+    final pending = await AchievementService.getPending();
+    if (!mounted || pending.isEmpty) return;
+    await CompactAchievementPresenter.showQueue(context, pending);
+  }
+
+  Future<void> _completeWorkout(
+    Map<String, dynamic>? response,
+    Map<String, dynamic>? program,
+  ) async {
+    if (_isCompleting) return;
+    final workoutId = response?['workoutId']?.toString().trim() ?? '';
+    if (workoutId.isEmpty) {
+      Get.snackbar(
+        'Workout not ready',
+        'This workout is missing its completion ID. Please reopen it and try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    setState(() => _isCompleting = true);
+    try {
+      final duration =
+          (program?['estimatedSessionMinutes'] as num?)?.toInt() ?? 30;
+      final completion = await ApiClient.postData(
+        ApiUrls.workoutComplete(workoutId),
+        {
+          'checkInResponse': 'Workout completed in the P2P app.',
+          'actualDurationMinutes': duration,
+        },
+      );
+      if (completion.statusCode != 200 || completion.body is! Map) {
+        final body = completion.body is Map ? completion.body as Map : null;
+        throw Exception(
+          body?['message']?.toString() ??
+              completion.statusText ??
+              'Could not complete this workout.',
+        );
+      }
+
+      final data = (completion.body as Map)['data'];
+      final newlyUnlocked = data is Map
+          ? AchievementService.parseUnlocks(data['newlyUnlocked'])
+          : const [];
+      if (!mounted) return;
+
+      if (newlyUnlocked.isNotEmpty) {
+        await CompactAchievementPresenter.showQueue(context, newlyUnlocked);
+      } else {
+        Get.snackbar(
+          'Workout complete',
+          'Great work. Your progress has been saved.',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+      }
+      if (mounted) Get.back(result: const {'workoutCompleted': true});
+    } catch (error) {
+      if (!mounted) return;
+      Get.snackbar(
+        'Could not complete workout',
+        error.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      if (mounted) setState(() => _isCompleting = false);
+    }
+  }
 
   /// Parse exercises from the backend AI plan. Older plans may omit optional
   /// sections, so those sections stay empty instead of showing fake content.
@@ -412,22 +498,16 @@ class AiPlanResultScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // ── Sticky Session Start ──
+            // ── Sticky Workout Completion ──
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
               child: SizedBox(
                 width: double.infinity,
                 height: 54.h,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Get.snackbar(
-                      'Session Started!',
-                      "Great work — go crush it! Your progress is being tracked.",
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 3),
-                    );
-                    Future.delayed(const Duration(seconds: 1), () => Get.back());
-                  },
+                  onPressed: _isCompleting
+                      ? null
+                      : () => _completeWorkout(response, program),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF57C1F),
                     foregroundColor: Colors.white,
@@ -436,11 +516,22 @@ class AiPlanResultScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(28.r),
                     ),
                   ),
-                  child: Text(
-                    'Session Start',
-                    style: TextStyle(
-                        fontSize: 17.sp, fontWeight: FontWeight.w700),
-                  ),
+                  child: _isCompleting
+                      ? SizedBox(
+                          width: 22.w,
+                          height: 22.w,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Complete Workout',
+                          style: TextStyle(
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                 ),
               ),
             ),

@@ -40,7 +40,13 @@ class ApiUrls {
   static String workoutGenerate(String workoutId) => '/workout/$workoutId/generate';
   static String workoutSplits(String workoutId) => '/workout/$workoutId/splits';
   static String workoutProgram(String workoutId) => '/workout/$workoutId/program';
+  static String workoutComplete(String workoutId) => '/workout/$workoutId/complete';
   static const String workoutToday = '/workout/today';
+  static const String pendingAchievements = '/achievements?pending=true';
+  static String achievementPresented(String achievementId) =>
+      '/achievements/$achievementId/presented';
+  static String achievementShared(String achievementId) =>
+      '/achievements/$achievementId/shared';
 
   /// ============= device / watch sync ===========>>>
   static const String devicePair = '/devices/pair';
