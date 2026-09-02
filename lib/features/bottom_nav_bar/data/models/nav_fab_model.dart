@@ -22,7 +22,7 @@ class NavFabModel {
           onTap: () => Get.toNamed(AppRoute.contentCategoryScreen),
         ),
         NavFabModel(
-          label: 'Post content',
+          label: 'Post Photo/Video',
           icon: Assets.icons.post.path,
           onTap: () => Get.toNamed(AppRoute.createContentScreen),
         ),
@@ -44,6 +44,11 @@ class NavFabModel {
           label: 'Generate Workout',
           icon: Assets.icons.exercise.path,
           onTap: () => Get.toNamed(AppRoute.workoutScreen),
+        ),
+        NavFabModel(
+          label: 'Post Photo/Video',
+          icon: Assets.icons.post.path,
+          onTap: () => Get.toNamed(AppRoute.createContentScreen),
         ),
       ];
 }
