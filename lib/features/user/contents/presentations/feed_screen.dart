@@ -48,6 +48,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
   VideoPlaybackManager get _vpm => Get.find<VideoPlaybackManager>();
   Worker? _navWorker;
+  bool _feedActive = false;
+  int _currentPage = 0;
 
   // Contents tab is index 2 in the user nav bar.
   static const _contentsTabIndex = 2;
@@ -56,15 +58,28 @@ class _FeedScreenState extends State<FeedScreen> {
   void initState() {
     super.initState();
 
-    // Enter immediately — we are visible right now.
-    _vpm.enterVideoModule();
-
-    // Watch nav-bar index in real time.
-    // IndexedStack keeps this widget alive when tabs switch, so dispose()
-    // is never called on tab change — this worker is the only reliable hook.
+    // IndexedStack constructs this screen while Home is still visible.
+    // Derive the initial gate from the actual selected tab instead of
+    // authorizing hidden playback during initState.
     final navController = Get.find<NavBarController>();
+    _feedActive = navController.selectedIndex.value == _contentsTabIndex;
+    if (_feedActive) {
+      _vpm.enterVideoModule();
+    } else {
+      _vpm.exitVideoModule();
+    }
+
+    // IndexedStack keeps this widget alive when tabs switch, so dispose()
+    // is never called on tab change. Every non-Contents index hard-stops all
+    // tracked players; returning rebuilds the active page and resumes safely.
     _navWorker = ever(navController.selectedIndex, (int index) {
-      if (index == _contentsTabIndex) {
+      final isFeedActive = index == _contentsTabIndex;
+      if (mounted && _feedActive != isFeedActive) {
+        setState(() => _feedActive = isFeedActive);
+      } else {
+        _feedActive = isFeedActive;
+      }
+      if (isFeedActive) {
         _vpm.enterVideoModule();
       } else {
         _vpm.exitVideoModule();
@@ -118,7 +133,10 @@ class _FeedScreenState extends State<FeedScreen> {
 
   void _switchTab(int tab) {
     if (tab == _selectedTab) return;
-    setState(() => _selectedTab = tab);
+    setState(() {
+      _selectedTab = tab;
+      _currentPage = 0;
+    });
     // Reset paging so the controller never points past the new list's length.
     if (_pageController.hasClients) {
       _pageController.jumpToPage(0);
@@ -157,8 +175,12 @@ class _FeedScreenState extends State<FeedScreen> {
               controller: _pageController,
               scrollDirection: Axis.vertical,
               itemCount: _videos.length,
-              itemBuilder: (_, i) =>
-                  _VideoPage(key: ValueKey('$_selectedTab-$i'), video: _videos[i]),
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemBuilder: (_, i) => _VideoPage(
+                key: ValueKey('$_selectedTab-$i'),
+                video: _videos[i],
+                isActive: _feedActive && i == _currentPage,
+              ),
             ),
 
           // ── Top tabs: Community | My Trainer + search ──
@@ -239,8 +261,13 @@ class _TopTab extends StatelessWidget {
 
 class _VideoPage extends StatefulWidget {
   final ExerciseVideo video;
+  final bool isActive;
 
-  const _VideoPage({super.key, required this.video});
+  const _VideoPage({
+    super.key,
+    required this.video,
+    required this.isActive,
+  });
 
   @override
   State<_VideoPage> createState() => _VideoPageState();
@@ -262,8 +289,7 @@ class _VideoPageState extends State<_VideoPage> {
         ..initialize().then((_) {
           if (mounted) {
             setState(() => _ready = true);
-            // Route through the manager — respects module-active gate
-            _vpm.play(_controller!);
+            _syncPlayback();
           }
         }).catchError((e) {
           log('video init error: $e');
@@ -272,13 +298,29 @@ class _VideoPageState extends State<_VideoPage> {
   }
 
   @override
-  void dispose() {
-    // Hard-stop this controller before releasing it so the OS audio session
-    // closes cleanly — prevents bleed onto the next screen.
-    if (_controller != null) {
-      _vpm.pause(_controller!);
+  void didUpdateWidget(covariant _VideoPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive != widget.isActive) _syncPlayback();
+  }
+
+  void _syncPlayback() {
+    final controller = _controller;
+    if (!_ready || controller == null) return;
+    if (widget.isActive) {
+      _vpm.play(controller);
     }
-    _controller?.dispose();
+  }
+
+  @override
+  void dispose() {
+    // Remove disposed controllers from the central registry so future tab
+    // changes cannot touch stale native players.
+    final controller = _controller;
+    if (controller != null) {
+      _vpm.pause(controller);
+      _vpm.unregisterPlayer(controller);
+      controller.dispose();
+    }
     super.dispose();
   }
 

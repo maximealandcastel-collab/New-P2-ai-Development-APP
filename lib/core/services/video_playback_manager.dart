@@ -52,9 +52,16 @@ class VideoPlaybackManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> play(VideoPlayerController controller) async {
-    if (!_videoModuleActive) return;
     final operationId = ++_operationId;
     _players.add(controller);
+
+    // Fail closed: a hidden/prebuilt page may still finish initializing after
+    // Home becomes active. Mute and stop that controller instead of merely
+    // ignoring its play request.
+    if (!_videoModuleActive) {
+      await _hardStop(controller, operationId);
+      return;
+    }
 
     for (final other in List<VideoPlayerController>.of(_players)) {
       if (operationId != _operationId || !_videoModuleActive) return;
