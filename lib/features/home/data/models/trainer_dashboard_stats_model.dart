@@ -36,6 +36,7 @@ class TrainerDashboardData {
   final int? activeUsersCount;
   final NewUsersThisWeek? newUsersThisWeek;
   final ContentStats? contentStats;
+  final int? mealsAssigned;
   final WorkoutBlocksStats? workoutBlocksStats;
 
   TrainerDashboardData({
@@ -44,6 +45,7 @@ class TrainerDashboardData {
     this.activeUsersCount,
     this.newUsersThisWeek,
     this.contentStats,
+    this.mealsAssigned,
     this.workoutBlocksStats,
   });
 
@@ -58,6 +60,7 @@ class TrainerDashboardData {
       contentStats: json['contentStats'] != null
           ? ContentStats.fromJson(Map<String, dynamic>.from(json['contentStats'] as Map))
           : null,
+      mealsAssigned: json['mealsAssigned'] as int?,
       workoutBlocksStats: json['workoutBlocksStats'] != null
           ? WorkoutBlocksStats.fromJson(Map<String, dynamic>.from(json['workoutBlocksStats'] as Map))
           : null,
@@ -71,6 +74,7 @@ class TrainerDashboardData {
       'activeUsersCount': activeUsersCount,
       'newUsersThisWeek': newUsersThisWeek?.toJson(),
       'contentStats': contentStats?.toJson(),
+      'mealsAssigned': mealsAssigned,
       'workoutBlocksStats': workoutBlocksStats?.toJson(),
     };
   }

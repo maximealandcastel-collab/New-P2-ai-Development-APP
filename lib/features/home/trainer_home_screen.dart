@@ -63,6 +63,7 @@ class TrainerHomeScreen extends StatelessWidget {
       final activeClients = stats?.activeUsersCount?.toString() ?? '0';
       final newRolling7Days = stats?.newUsersThisWeek?.rolling7Days?.toString() ?? '0';
       final newCalendarWeek = stats?.newUsersThisWeek?.calendarWeek?.toString() ?? '0';
+      final mealsAssigned = stats?.mealsAssigned?.toString() ?? '0';
       final totalWorkoutBlocks = stats?.workoutBlocksStats?.total?.toString() ?? '0';
       return CustomContainer(
         radiusAll: 16.r,
@@ -79,37 +80,57 @@ class TrainerHomeScreen extends StatelessWidget {
               bottom: 12.h,
               text: 'Client Overview',
             ),
-            GridView.count(
-              padding: EdgeInsets.zero,
-              crossAxisCount: 2,
-              crossAxisSpacing: 10.w,
-              mainAxisSpacing: 10.h,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 151.w / 112.h,
+            Column(
               children: [
-                _buildClientOverviewCard(
-                  icon: Assets.icons.clients.path,
-                  label: 'Active Clients',
-                  point: activeClients,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildClientOverviewCard(
+                        icon: Assets.icons.clients.path,
+                        label: 'Active Clients',
+                        point: activeClients,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: _buildClientOverviewCard(
+                        icon: Assets.icons.star.path,
+                        label: 'New Clients (7 Days)',
+                        point: newRolling7Days,
+                      ),
+                    ),
+                  ],
                 ),
-                _buildClientOverviewCard(
-                  icon: Assets.icons.star.path,
-                  label: 'New (7 Days)',
-                  point: newRolling7Days,
-                ),
-                _buildClientOverviewCard(
-                  icon: Assets.icons.attention.path,
-                  label: 'This Calendar Week',
-                  point: newCalendarWeek,
-                ),
-                _buildClientOverviewCard(
-                  icon: Assets.icons.exercise.path,
-                  label: 'Workouts Assigned',
-                  point: totalWorkoutBlocks,
+                SizedBox(height: 10.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildClientOverviewCard(
+                        icon: Assets.icons.attention.path,
+                        label: 'This Week',
+                        point: newCalendarWeek,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: _buildClientOverviewCard(
+                        materialIcon: Icons.restaurant_menu_rounded,
+                        label: 'Meals Assigned',
+                        point: mealsAssigned,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: _buildClientOverviewCard(
+                        icon: Assets.icons.exercise.path,
+                        label: 'Workouts Assigned',
+                        point: totalWorkoutBlocks,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
+            )
           ],
         ),
       );
@@ -190,7 +211,8 @@ class TrainerHomeScreen extends StatelessWidget {
   }
 
   Widget _buildClientOverviewCard({
-    required String icon,
+    String? icon,
+    IconData? materialIcon,
     required String label,
     required String point,
   }) {
@@ -198,13 +220,16 @@ class TrainerHomeScreen extends StatelessWidget {
       radiusAll: 12.r,
       paddingAll: 10.r,
       alignment: Alignment.centerLeft,
-      color: Colors.black.withValues(alpha: 0.08),
+      color: const Color(0xFFF5F5F5),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SvgPicture.asset(icon, height: 24.r, width: 24.r),
+          if (materialIcon != null)
+            Icon(materialIcon, size: 24.r, color: Colors.black87)
+          else if (icon != null)
+            SvgPicture.asset(icon, height: 24.r, width: 24.r),
           CustomText(
             text: label,
             fontSize: 11.sp,
