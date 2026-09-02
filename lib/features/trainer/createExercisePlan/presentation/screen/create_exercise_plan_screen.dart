@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/widgets/custom_button2.dart';
 
@@ -18,7 +19,9 @@ import '../../../../../widgets/custom_text_field.dart';
 import '../widgets/add_exercise_block.dart';
 
 class CreateExercisePlanScreen extends StatefulWidget {
-  const CreateExercisePlanScreen({super.key});
+  final ClientInvoiceModel client;
+
+  const CreateExercisePlanScreen({super.key, required this.client});
 
   @override
   State<CreateExercisePlanScreen> createState() => _CreateExercisePlanScreenState();
@@ -77,14 +80,14 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomText(
-                text: "Generating personalized\nexercise for Johnson",
+                text: "Generating personalized\nexercise for ${widget.client.clientName}",
                 fontSize: 22.sp,
                 fontWeight: AppFontWeight.section,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 12.h),
               CustomText(
-                text: "Processing all data from johnson’s profile to build personalized exercise",
+                text: "Processing ${widget.client.clientName}'s profile to build a personalized exercise plan",
                 color: Colors.grey,
                 textAlign: TextAlign.center,
               ),
@@ -135,14 +138,18 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
                     color: Colors.black.withOpacity(0.05),
                     child: Row(
                       children: [
-                        CustomNetworkImage(
-                          imageUrl: "https://picsum.photos/100",
-                          width: 24.w,
-                          height: 24.w,
-                          boxShape: BoxShape.circle,
+                        CircleAvatar(
+                          radius: 12.r,
+                          backgroundColor: Colors.orange.withOpacity(0.12),
+                          child: Text(
+                            widget.client.clientName.isNotEmpty
+                                ? widget.client.clientName[0].toUpperCase()
+                                : '?',
+                            style: const TextStyle(color: Colors.orange),
+                          ),
                         ),
                         SizedBox(width: 8.w),
-                        CustomText(text: "Johnson jr", fontSize: 13.sp),
+                        CustomText(text: widget.client.clientName, fontSize: 13.sp),
                       ],
                     ),
                   ),
@@ -285,7 +292,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
             ],
           ),
           SizedBox(height: 8.h),
-          CustomText(text: "Johnson needs upper body exercise", fontSize: 13.sp),
+          CustomText(text: 'Plan insight for ${widget.client.clientName}', fontSize: 13.sp),
           SizedBox(height: 12.h),
           CustomContainer(
             paddingAll: 12.r, radiusAll: 12.r, color: Colors.black.withOpacity(0.05),
