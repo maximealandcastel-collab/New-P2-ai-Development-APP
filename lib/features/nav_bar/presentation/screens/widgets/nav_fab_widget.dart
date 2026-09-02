@@ -14,6 +14,7 @@ class NavFabWidget {
       BuildContext context, {
         VoidCallback? onPostContent,
         VoidCallback? onAddSchedule,
+        String? findActionLabel,
         VoidCallback? onAddExercise,
       }) {
     return showCupertinoDialog(
@@ -45,7 +46,7 @@ class NavFabWidget {
                     ),
                     _buildMenuItem(
                       icon: Assets.icons.person.svg(),
-                      label: 'Find Trainer',
+                      label: findActionLabel ?? 'Find Trainer',
                       onTap: () {
                         Get.back();
                         onAddSchedule?.call();

@@ -275,8 +275,11 @@ class _NavBarState extends State<NavBar> {
                         context,
                         onPostContent: () =>
                             Get.to(() => const ContentPostScreen()),
+                        findActionLabel: _isTrainer ? 'Find Clients' : 'Find Trainer',
                         onAddSchedule: () {
-                          if (_isAdminView || _isTrainer) {
+                          if (_isTrainer) {
+                            _navBarController.onChange(1);
+                          } else if (_isAdminView) {
                             _navBarController.onChange(3);
                           } else {
                             Get.to(() => const FindTrainerScreen());
