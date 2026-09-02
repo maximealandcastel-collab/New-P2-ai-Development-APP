@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 
 class EarningsScreen extends StatefulWidget {
   const EarningsScreen({super.key});
@@ -11,208 +10,204 @@ class EarningsScreen extends StatefulWidget {
 }
 
 class _EarningsScreenState extends State<EarningsScreen> {
+  String _selectedRefill = 'Elite';
+  String _selectedSubscription = 'Pro';
+
+  static const _orange = Color(0xFFFF6B00);
+  static const _ink = Color(0xFF111318);
+  static const _muted = Color(0xFF777A82);
+  static const _page = Color(0xFFF7F7F8);
+
+  final _refillPlans = const [
+    _RefillPlan('Starter', '250', '\$9.99', '\$0.039 / token'),
+    _RefillPlan('Pro', '750', '\$24.99', '\$0.033 / token'),
+    _RefillPlan('Power', '2,000', '\$59.99', '\$0.030 / token'),
+    _RefillPlan('Elite', '5,000', '\$129.99', '\$0.026 / token', bestValue: true),
+  ];
+
+  final _subscriptionPlans = const [
+    _SubscriptionPlan('Basic', '500 tokens / mo', '\$14.99 / mo'),
+    _SubscriptionPlan('Pro', '1,500 tokens / mo', '\$34.99 / mo', popular: true),
+    _SubscriptionPlan('Premium', '3,000 tokens / mo', '\$64.99 / mo'),
+    _SubscriptionPlan('Ultimate', '10,000 tokens / mo', '\$149.99 / mo'),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      appBar: CustomAppBar(
-        title: 'Deposits',
-      ),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: CustomText(
-                      text: 'Available tokens',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16.sp,
-                      color: AppColors.textSecondary,
-                      bottom: 8.h,
-                      top: 24.h,
-                    ),
+    return Scaffold(
+      backgroundColor: _page,
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildHeader(context)),
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 20.h),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _buildBalanceCard(),
+                  SizedBox(height: 22.h),
+                  _buildSectionHeading(
+                    'What You Get With Your Refill',
+                    'Your tokens power cutting-edge AI tools integrated into P2P Fit Tech AI.',
                   ),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 40.sp,
-                        ),
-                        text: '0',
-                        children: [
-                          TextSpan(
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20.sp,
-                            ),
-                            text: ' tokens',
-                          ),
-                        ],
-                      ),
-                    ),
+                  SizedBox(height: 12.h),
+                  _buildProviderRow(),
+                  SizedBox(height: 22.h),
+                  _buildSectionHeading(
+                    'Choose Your Refill',
+                    'More tokens. More power. More results.',
                   ),
-                  SizedBox(height: 24.h),
-                  CustomContainer(
-                    width: double.infinity,
-                    radiusAll: 16.r,
-                    color: Colors.white,
-                    paddingAll: 18.r,
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.sp,
-                        ),
-                        text: 'Deposited balance ',
-                        children: [
-                          TextSpan(
-                            style: TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            text: ' \$0.00',
-                          ),
-                          const TextSpan(text: ' USD'),
-                        ],
-                      ),
-                    ),
+                  SizedBox(height: 12.h),
+                  _buildRefillPlans(),
+                  SizedBox(height: 22.h),
+                  _buildSectionHeading(
+                    'Subscribe & Save More',
+                    'Lock in value with bulk subscriptions.',
                   ),
-                  CustomText(
-                    text: 'How tokens are used',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.sp,
-                    bottom: 12.h,
-                    top: 24.h,
-                  ),
-                  _buildProviderCard(
-                    badge: 'A',
-                    name: 'Anam AI',
-                    description: 'Interactive AI coach voice and avatar sessions.',
-                    color: const Color(0xFF7C3AED),
-                  ),
-                  _buildProviderCard(
-                    badge: 'C',
-                    name: 'Claude',
-                    description: 'Primary workout planning and coaching intelligence.',
-                    color: const Color(0xFFD97706),
-                  ),
-                  _buildProviderCard(
-                    badge: 'G',
-                    name: 'ChatGPT',
-                    description: 'Backup assistance when the primary coach is unavailable.',
-                    color: const Color(0xFF059669),
-                  ),
+                  SizedBox(height: 12.h),
+                  _buildSubscriptionPlans(),
                   SizedBox(height: 20.h),
-                  CustomText(
-                    text: 'Deposit history',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.sp,
-                    bottom: 12.h,
-                  ),
-                  CustomContainer(
-                    width: double.infinity,
-                    radiusAll: 16.r,
-                    color: Colors.white,
-                    paddingAll: 22.r,
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 34.r,
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(height: 10.h),
-                        CustomText(
-                          text: 'No deposits yet',
-                          fontWeight: FontWeight.w500,
-                        ),
-                        SizedBox(height: 4.h),
-                        CustomText(
-                          text: 'Your completed token refills will appear here.',
-                          fontSize: 12.sp,
-                          color: AppColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  _buildPaymentMethods(),
+                  SizedBox(height: 14.h),
+                  _buildSecurityNote(),
+                  SizedBox(height: 12.h),
+                ]),
               ),
             ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _buildCheckoutBar(),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _roundHeaderButton(
+                icon: Icons.chevron_left_rounded,
+                onTap: () => Navigator.maybePop(context),
+              ),
+              _roundHeaderButton(
+                icon: Icons.help_outline_rounded,
+                onTap: () => _showHelp(context),
+              ),
+            ],
           ),
-          SliverToBoxAdapter(
-            child: SizedBox(height: 30.h),
+          SizedBox(height: 6.h),
+          Assets.images.appLogo.image(height: 34.h, width: 92.w),
+          SizedBox(height: 5.h),
+          Text(
+            'Refill Tokens',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 27.sp,
+              height: 1.08,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Power your AI. Unlock your potential.',
+            style: TextStyle(color: _muted, fontSize: 13.sp),
           ),
         ],
       ),
+    );
+  }
 
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.r),
-          child: CustomButton(
-              onPressed: _showRefillSheet,
-              label: 'Refill tokens',
-            width: double.infinity,
-          ),
+  Widget _roundHeaderButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      shape: const CircleBorder(),
+      elevation: 1.5,
+      shadowColor: Colors.black12,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: SizedBox(
+          width: 42.r,
+          height: 42.r,
+          child: Icon(icon, color: _ink, size: 23.r),
         ),
       ),
     );
   }
 
-  Widget _buildProviderCard({
-    required String badge,
-    required String name,
-    required String description,
-    required Color color,
-  }) {
-    return CustomContainer(
-      width: double.infinity,
-      radiusAll: 16.r,
-      color: Colors.white,
-      paddingAll: 14.r,
-      marginBottom: 8.h,
+  Widget _buildBalanceCard() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(15.w, 13.h, 14.w, 13.h),
+      decoration: BoxDecoration(
+        color: _ink,
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          Container(
-            width: 42.r,
-            height: 42.r,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: CustomText(
-              text: badge,
-              color: color,
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: name,
-                  textAlign: TextAlign.start,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  'Current Token Balance',
+                  style: TextStyle(color: Colors.white, fontSize: 11.sp),
                 ),
                 SizedBox(height: 3.h),
-                CustomText(
-                  text: description,
-                  textAlign: TextAlign.start,
-                  fontSize: 11.sp,
-                  color: AppColors.textSecondary,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '0',
+                      style: TextStyle(
+                        color: _orange,
+                        fontSize: 34.sp,
+                        height: 1,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(width: 7.w),
+                    Text(
+                      'Tokens',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ],
+            ),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => _showHistory(context),
+            icon: Icon(Icons.bar_chart_rounded, size: 16.r),
+            label: Text('Usage History', style: TextStyle(fontSize: 10.sp)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              side: BorderSide(color: _orange, width: 1),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+              ),
             ),
           ),
         ],
@@ -220,74 +215,455 @@ class _EarningsScreenState extends State<EarningsScreen> {
     );
   }
 
-  void _showRefillSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => SafeArea(
-        child: Container(
-          padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 24.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+  Widget _buildSectionHeading(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 15.sp,
+            fontWeight: FontWeight.w700,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
+        ),
+        SizedBox(height: 3.h),
+        Text(
+          subtitle,
+          style: TextStyle(color: _muted, fontSize: 10.5.sp),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProviderRow() {
+    final providers = const [
+      _Provider('ANAM', 'Anam AI', 'Advanced content generation for workouts, nutrition plans, and more.', Color(0xFF101010)),
+      _Provider('R', 'Replit', 'Scalable infrastructure and seamless deployment.', Color(0xFFFF7A00)),
+      _Provider('◎', 'ChatGPT', 'AI-powered coaching support, smart responses, and personalized advice.', Color(0xFF101010)),
+      _Provider('✳', 'Claude', 'Intelligent analysis and insights for your fitness and health journey.', Color(0xFFC76F4B)),
+    ];
+
+    return SizedBox(
+      height: 194.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: providers.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (_, index) => _buildProviderCard(providers[index]),
+      ),
+    );
+  }
+
+  Widget _buildProviderCard(_Provider provider) {
+    return Container(
+      width: 107.w,
+      padding: EdgeInsets.fromLTRB(8.w, 12.h, 8.w, 8.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFEAEAEC)),
+        boxShadow: const [
+          BoxShadow(color: Color(0x08000000), blurRadius: 5, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 48.r,
+            height: 48.r,
+            decoration: BoxDecoration(
+              color: provider.color,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              provider.badge,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: provider.badge == 'ANAM' ? 9.sp : 26.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(height: 9.h),
+          Text(
+            provider.name,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(height: 5.h),
+          Expanded(
+            child: Text(
+              provider.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: _muted,
+                fontSize: 9.2.sp,
+                height: 1.25,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF0E6),
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+            child: Text(
+              'Included',
+              style: TextStyle(
+                color: _orange,
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRefillPlans() {
+    return SizedBox(
+      height: 128.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: _refillPlans.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (_, index) {
+          final plan = _refillPlans[index];
+          final selected = _selectedRefill == plan.name;
+          return _buildRefillCard(plan, selected);
+        },
+      ),
+    );
+  }
+
+  Widget _buildRefillCard(_RefillPlan plan, bool selected) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRefill = plan.name),
+      child: Container(
+        width: 107.w,
+        padding: EdgeInsets.fromLTRB(10.w, 10.h, 8.w, 8.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: selected ? _orange : const Color(0xFFEAEAEC),
+            width: selected ? 1.3 : 1,
+          ),
+          boxShadow: const [
+            BoxShadow(color: Color(0x08000000), blurRadius: 5, offset: Offset(0, 2)),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(plan.name, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700)),
+                SizedBox(height: 5.h),
+                Text(
+                  plan.tokens,
+                  style: TextStyle(color: _orange, fontSize: 18.sp, fontWeight: FontWeight.w700),
+                ),
+                Text('Tokens', style: TextStyle(color: _muted, fontSize: 9.sp)),
+                const Spacer(),
+                Text(plan.price, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
+                SizedBox(height: 2.h),
+                Text(plan.unitPrice, style: TextStyle(color: _muted, fontSize: 8.5.sp)),
+              ],
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: _radio(selected),
+            ),
+            if (plan.bestValue)
+              Positioned(
+                top: -10.h,
+                left: 3.w,
                 child: Container(
-                  width: 42.w,
-                  height: 4.h,
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(4.r),
+                    color: _orange,
+                    borderRadius: BorderRadius.circular(3.r),
+                  ),
+                  child: Text(
+                    'BEST VALUE',
+                    style: TextStyle(color: Colors.white, fontSize: 6.5.sp, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
-              SizedBox(height: 18.h),
-              CustomText(
-                text: 'Refill tokens',
-                textAlign: TextAlign.start,
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              SizedBox(height: 8.h),
-              CustomText(
-                text:
-                    'Token package amounts are being finalized. No charge will be made until a secure package and price are shown for your approval.',
-                textAlign: TextAlign.start,
-                fontSize: 13.sp,
-                color: AppColors.textSecondary,
-              ),
-              SizedBox(height: 18.h),
-              CustomContainer(
-                width: double.infinity,
-                radiusAll: 14.r,
-                paddingAll: 14.r,
-                color: AppColors.primary.withOpacity(0.08),
-                child: CustomText(
-                  text:
-                      'Tokens can be used for fresh workout generation, AI coach chat, and Anam AI sessions.',
-                  textAlign: TextAlign.start,
-                  fontSize: 13.sp,
-                  color: AppColors.textPrimary,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionPlans() {
+    return SizedBox(
+      height: 104.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: _subscriptionPlans.length,
+        separatorBuilder: (_, __) => SizedBox(width: 8.w),
+        itemBuilder: (_, index) {
+          final plan = _subscriptionPlans[index];
+          final selected = _selectedSubscription == plan.name;
+          return GestureDetector(
+            onTap: () => setState(() => _selectedSubscription = plan.name),
+            child: Container(
+              width: 107.w,
+              padding: EdgeInsets.fromLTRB(9.w, 11.h, 7.w, 7.h),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: selected ? _orange : const Color(0xFFEAEAEC),
+                  width: selected ? 1.2 : 1,
                 ),
               ),
-              SizedBox(height: 18.h),
-              CustomButton(
-                onPressed: () => Navigator.pop(sheetContext),
-                label: 'Got it',
-                width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (plan.popular)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0E6),
+                        borderRadius: BorderRadius.circular(3.r),
+                      ),
+                      child: Text(
+                        'MOST POPULAR',
+                        style: TextStyle(
+                          color: _orange,
+                          fontSize: 6.5.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  Row(
+                    children: [
+                      _radio(selected),
+                      SizedBox(width: 5.w),
+                      Expanded(
+                        child: Text(
+                          plan.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(plan.tokens, style: TextStyle(color: _muted, fontSize: 8.5.sp)),
+                  SizedBox(height: 5.h),
+                  Text(plan.price, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700)),
+                ],
               ),
-            ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _radio(bool selected) {
+    return Container(
+      width: 16.r,
+      height: 16.r,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: selected ? _orange : const Color(0xFFD6D8DC), width: 1.2),
+      ),
+      padding: EdgeInsets.all(3.r),
+      child: selected
+          ? Container(decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle))
+          : null,
+    );
+  }
+
+  Widget _buildPaymentMethods() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFE9EAEC)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lock_outline_rounded, size: 22.r, color: _ink),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              'Secure Checkout\nAll payments are encrypted and secure.',
+              style: TextStyle(color: _muted, fontSize: 8.5.sp, height: 1.35),
+            ),
           ),
+          _paymentPill('VISA'),
+          SizedBox(width: 4.w),
+          _paymentPill('●●'),
+          SizedBox(width: 4.w),
+          _paymentPill(' Pay'),
+          SizedBox(width: 4.w),
+          _paymentPill('G Pay'),
+        ],
+      ),
+    );
+  }
+
+  Widget _paymentPill(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5.r),
+        border: Border.all(color: const Color(0xFFE1E2E5)),
+      ),
+      child: Text(label, style: TextStyle(fontSize: 8.sp, fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _buildSecurityNote() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.verified_user_outlined, size: 14.r, color: _muted),
+        SizedBox(width: 5.w),
+        Text(
+          'Your purchase is protected and tokens are delivered instantly.',
+          style: TextStyle(color: _muted, fontSize: 9.sp),
         ),
+      ],
+    );
+  }
+
+  Widget _buildCheckoutBar() {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16.w, 9.h, 16.w, 10.h),
+        decoration: const BoxDecoration(
+          color: _page,
+          boxShadow: [
+            BoxShadow(color: Color(0x14000000), blurRadius: 10, offset: Offset(0, -3)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 49.h,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showPurchaseNotice(context),
+                  icon: const Icon(Icons.bolt_rounded, color: Colors.white),
+                  label: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Refill Now', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700)),
+                      Text('Instant delivery to your account', style: TextStyle(fontSize: 8.sp)),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _orange,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10.w),
+            SizedBox(
+              width: 108.w,
+              height: 49.h,
+              child: ElevatedButton.icon(
+                onPressed: () => _showPurchaseNotice(context),
+                icon: const Icon(Icons.apple, color: Colors.white, size: 21),
+                label: Text('Pay', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPurchaseNotice(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Secure checkout for ${_selectedRefill} tokens will be available once payments are connected.',
+        ),
+      ),
+    );
+  }
+
+  void _showHistory(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Usage History'),
+        content: const Text('No token usage has been recorded yet.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        ],
+      ),
+    );
+  }
+
+  void _showHelp(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('About tokens'),
+        content: const Text(
+          'Tokens can be used for workout generation, AI coach conversations, and Anam AI sessions.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Got it')),
+        ],
       ),
     );
   }
 }
 
+class _RefillPlan {
+  const _RefillPlan(this.name, this.tokens, this.price, this.unitPrice, {this.bestValue = false});
 
+  final String name;
+  final String tokens;
+  final String price;
+  final String unitPrice;
+  final bool bestValue;
+}
 
+class _SubscriptionPlan {
+  const _SubscriptionPlan(this.name, this.tokens, this.price, {this.popular = false});
+
+  final String name;
+  final String tokens;
+  final String price;
+  final bool popular;
+}
+
+class _Provider {
+  const _Provider(this.badge, this.name, this.description, this.color);
+
+  final String badge;
+  final String name;
+  final String description;
+  final Color color;
+}
