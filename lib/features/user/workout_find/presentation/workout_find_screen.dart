@@ -75,6 +75,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   String? _workoutId;
   List<Map<String, dynamic>> _splitOptions = [];
   String? _selectedSplitId;
+  bool _generationInFlight = false;
 
   // ── Step 1: Goals
   final List<String> _goals = [
@@ -144,11 +145,16 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
       _slug(value);
 
   void _next() {
-    if (_step < _totalSteps - 1) setState(() => _step++);
+    if (_step < _totalSteps - 1) {
+      setState(() {
+        _step++;
+        if (_step == 5) _generationInFlight = true;
+      });
+    }
   }
 
   void _back() {
-    if (_step == 5 || _step == 7) {
+    if ((_step == 5 || _step == 7) && _generationInFlight) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -159,6 +165,13 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
             duration: Duration(seconds: 2),
           ),
         );
+      return;
+    }
+    if (_step == 7) {
+      setState(() {
+        _step = 6;
+        _generationInFlight = false;
+      });
       return;
     }
     if (_step == 0) {
@@ -285,12 +298,19 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           payload: _workoutPayload,
           existingWorkoutId: _workoutId,
           onWorkoutCreated: (workoutId) => _workoutId = workoutId,
+          onLoadingChanged: (loading) {
+            if (!mounted || _step != 5 || _generationInFlight == loading) {
+              return;
+            }
+            setState(() => _generationInFlight = loading);
+          },
           onLoaded: (workoutId, options) {
             if (!mounted) return;
             setState(() {
               _workoutId = workoutId;
               _splitOptions = options;
               _selectedSplitId = null;
+              _generationInFlight = false;
               _step = 6;
             });
           },
@@ -302,13 +322,22 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onSelected: (id) => setState(() => _selectedSplitId = id),
           onNext: () {
             if (_selectedSplitId == null) return;
-            setState(() => _step = 7);
+            setState(() {
+              _step = 7;
+              _generationInFlight = true;
+            });
           },
         );
       case 7:
         return _ProgramLoadingStep(
           workoutId: _workoutId!,
           selectedSplitId: _selectedSplitId!,
+          onLoadingChanged: (loading) {
+            if (!mounted || _step != 7 || _generationInFlight == loading) {
+              return;
+            }
+            setState(() => _generationInFlight = loading);
+          },
         );
       default:
         return const SizedBox();
@@ -712,6 +741,7 @@ class _SplitLoadingStep extends StatefulWidget {
   final Map<String, dynamic> payload;
   final String? existingWorkoutId;
   final ValueChanged<String> onWorkoutCreated;
+  final ValueChanged<bool> onLoadingChanged;
   final void Function(String workoutId, List<Map<String, dynamic>> options)
       onLoaded;
 
@@ -719,6 +749,7 @@ class _SplitLoadingStep extends StatefulWidget {
     required this.payload,
     required this.existingWorkoutId,
     required this.onWorkoutCreated,
+    required this.onLoadingChanged,
     required this.onLoaded,
   });
 
@@ -760,6 +791,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
     if (_requestInFlight || _hasCompleted) return;
     final traceId = _newWorkoutTraceId('splits');
     _requestInFlight = true;
+    widget.onLoadingChanged(true);
     if (_isLoading == false) {
       setState(() {
         _isLoading = true;
@@ -858,6 +890,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
         'optionCount': options.length,
       });
       if (!mounted || _hasCompleted) return;
+      widget.onLoadingChanged(false);
       _hasCompleted = true;
       widget.onLoaded(_workoutId!, options);
       _logWorkoutHandoff(traceId, 'state_set', {
@@ -876,6 +909,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
         'reason': error.toString(),
       });
       if (!mounted) return;
+      widget.onLoadingChanged(false);
       setState(() {
         _isLoading = false;
         _error = error is _WorkoutGenerationFailure
@@ -1154,10 +1188,12 @@ class _SplitChip extends StatelessWidget {
 class _ProgramLoadingStep extends StatefulWidget {
   final String workoutId;
   final String selectedSplitId;
+  final ValueChanged<bool> onLoadingChanged;
 
   const _ProgramLoadingStep({
     required this.workoutId,
     required this.selectedSplitId,
+    required this.onLoadingChanged,
   });
 
   @override
@@ -1195,6 +1231,7 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
     if (_requestInFlight || _hasNavigated) return;
     final traceId = _newWorkoutTraceId('program');
     _requestInFlight = true;
+    widget.onLoadingChanged(true);
     if (!_isLoading) {
       setState(() {
         _isLoading = true;
@@ -1249,6 +1286,7 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
         'workoutCount': workouts.length,
       });
       if (!mounted || _hasNavigated) return;
+      widget.onLoadingChanged(false);
       _hasNavigated = true;
       final resultData = Map<String, dynamic>.from(data)
         ..['_workoutTraceId'] = traceId;
@@ -1266,6 +1304,7 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
         'reason': error.toString(),
       });
       if (!mounted) return;
+      widget.onLoadingChanged(false);
       setState(() {
         _isLoading = false;
         _error = error is _WorkoutGenerationFailure
