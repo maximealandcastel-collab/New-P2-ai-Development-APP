@@ -9,14 +9,12 @@ import '../features/authentication/presentation/screens/sign_up_screen.dart';
 import '../features/paywall/controllers/paywall_controller.dart';
 import '../features/paywall/presentation/screens/paywall_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
-import '../features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 
 class AppRoute {
   static String init = "/";
   static String loginScreen = "/loginScreen";
   static String signUpScreen = "/signUpScreen";
   static String workoutFinderFlow = "/workoutFinderFlow";
-  static String createExercisePlan = "/createExercisePlan";
   static String createExercisePlan2 = "/createExercisePlan2";
   static String aiPlanResult = "/aiPlanResult";
   static String paywallScreen = "/paywallScreen";
@@ -29,7 +27,6 @@ class AppRoute {
     GetPage(name: loginScreen, page: () => LoginScreen()),
     GetPage(name: signUpScreen, page: () => SignUpScreen()),
     GetPage(name: workoutFinderFlow, page: () => WorkoutFinderFlow()),
-    GetPage(name: createExercisePlan, page: () => CreateExercisePlanScreen()),
     GetPage(name: createExercisePlan2, page: () => CreateExercisePlanScreen2()),
     GetPage(name: aiPlanResult, page: () => const AiPlanResultScreen()),
     GetPage(name: rateMyPeel, page: () => const RateMyPeelScreen()),
