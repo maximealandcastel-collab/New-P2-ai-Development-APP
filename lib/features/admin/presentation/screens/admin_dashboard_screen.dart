@@ -179,12 +179,42 @@ class _KpiGrid extends StatelessWidget {
     final verified   = m?.overview.verifiedUsers ?? 0;
 
     final cards = [
-      _KpiData('👥', 'TOTAL TRAINERS', '$trainerCount', '+$weekNew this week', _blue,   const Color(0xFFEFF6FF)),
-      _KpiData('🏃', 'ACTIVE USERS',   '$userCount',   '+$todayNew today',    _green,  const Color(0xFFF0FDF4)),
-      _KpiData('💰', 'ACTIVE SUBS',    '$activeSubs',  'Paying members',       _orange, const Color(0xFFFFF7ED)),
-      _KpiData('✅', 'VERIFIED',        '$verified',    'Email confirmed',      _purple, const Color(0xFFFAF5FF)),
-      _KpiData('📊', 'NEW THIS WEEK',  '$weekNew',     'Signups this week',    _pink,   const Color(0xFFFFF1F5)),
-      _KpiData('📱', 'NEW TODAY',      '$todayNew',    'Signups today',        _yellow, const Color(0xFFFFFBEB)),
+      _KpiData(
+        '👥', 'TOTAL TRAINERS', '$trainerCount', '+$weekNew this week',
+        _blue, const Color(0xFFEFF6FF),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'trainer', 'title': 'Trainers'}),
+      ),
+      _KpiData(
+        '🏃', 'ACTIVE USERS', '$userCount', '+$todayNew today',
+        _green, const Color(0xFFF0FDF4),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'user', 'title': 'Active Users'}),
+      ),
+      _KpiData(
+        '💰', 'ACTIVE SUBS', '$activeSubs', 'Paying members',
+        _orange, const Color(0xFFFFF7ED),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'active_subs', 'title': 'Active Subscribers'}),
+      ),
+      _KpiData(
+        '✅', 'VERIFIED', '$verified', 'Email confirmed',
+        _purple, const Color(0xFFFAF5FF),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'verified', 'title': 'Verified Accounts'}),
+      ),
+      _KpiData(
+        '📊', 'NEW THIS WEEK', '$weekNew', 'Signups this week',
+        _pink, const Color(0xFFFFF1F5),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'week', 'title': 'New This Week'}),
+      ),
+      _KpiData(
+        '📱', 'NEW TODAY', '$todayNew', 'Signups today',
+        _yellow, const Color(0xFFFFFBEB),
+        () => Get.toNamed(AppRoute.adminUserListScreen,
+            arguments: {'filter': 'today', 'title': 'New Today'}),
+      ),
     ];
 
     return Padding(
@@ -204,7 +234,16 @@ class _KpiGrid extends StatelessWidget {
 class _KpiData {
   final String emoji, label, value, sub;
   final Color accent, bg;
-  const _KpiData(this.emoji, this.label, this.value, this.sub, this.accent, this.bg);
+  final VoidCallback onTap;
+  const _KpiData(
+    this.emoji,
+    this.label,
+    this.value,
+    this.sub,
+    this.accent,
+    this.bg,
+    this.onTap,
+  );
 }
 
 class _KpiCard extends StatelessWidget {
@@ -213,35 +252,42 @@ class _KpiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: d.bg,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: d.onTap,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: d.accent.withValues(alpha: 0.2)),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(d.emoji, style: TextStyle(fontSize: 20.sp)),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-            decoration: BoxDecoration(
-              color: d.accent.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
-            // tinted pill is micro-type, and the lighter scale stops it reading
-            // as a badge. Same exception as the P2P and YOUR GYM badges.
-            child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w600, color: d.accent)),
+        child: Ink(
+          padding: EdgeInsets.all(14.w),
+          decoration: BoxDecoration(
+            color: d.bg,
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: d.accent.withValues(alpha: 0.2)),
           ),
-        ]),
-        SizedBox(height: 10.h),
-        Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.stat, color: d.accent)),
-        SizedBox(height: 2.h),
-        Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
-        SizedBox(height: 2.h),
-        Text(d.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
-      ]),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text(d.emoji, style: TextStyle(fontSize: 20.sp)),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: d.accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
+                // tinted pill is micro-type, and the lighter scale stops it reading
+                // as a badge. Same exception as the P2P and YOUR GYM badges.
+                child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w600, color: d.accent)),
+              ),
+            ]),
+            SizedBox(height: 10.h),
+            Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.stat, color: d.accent)),
+            SizedBox(height: 2.h),
+            Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
+            SizedBox(height: 2.h),
+            Text(d.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
+          ]),
+        ),
+      ),
     );
   }
 }
