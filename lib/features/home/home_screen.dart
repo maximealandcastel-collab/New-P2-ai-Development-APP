@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
 import 'package:pler_to_pler_app/features/home/widgets/session_card_widget.dart';
+import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/widgets/rate_my_peel_banner.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/widgets/app_bar.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -71,6 +72,9 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
+            SizedBox(height: 8.h),
+            SizedBox(height: 8.h),
+            const RateMyPeelBanner(),
             SizedBox(height: 8.h),
             CustomContainer(
               radiusAll: 16.r,
