@@ -183,7 +183,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
     required String hint,
     required TextEditingController controller,
     required IconData icon,
-    required String? Function(String?) validator,
+    required String? Function(dynamic) validator,
     TextInputType? keyboardType,
     String? helper,
   }) {

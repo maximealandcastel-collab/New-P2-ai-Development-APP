@@ -154,8 +154,8 @@ workflows:
             # so every new upload must use a higher build number.
           flutter build ipa --release \
             --build-name=4.11 \
-             --build-number=3067 \
-             --dart-define=BUILD_NUMBER=3067
+             --build-number=3068 \
+             --dart-define=BUILD_NUMBER=3068
 
     artifacts:
       - build/ios/ipa/*.ipa
