@@ -16,10 +16,12 @@ class ChatScreenArgs {
     this.trainerId,
     this.subtitle = 'Active now',
     this.isAnamEnabled = false,
+    this.otherUserId,
   });
 
   final String displayName;
   final String? trainerId;
   final String subtitle;
   final bool isAnamEnabled;
+  final String? otherUserId;
 }
