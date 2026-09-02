@@ -51,6 +51,14 @@ class _FeedAppBarState extends State<FeedAppBar> {
   String get _initial =>
       _name.trim().isNotEmpty ? _name.trim()[0].toUpperCase() : 'P';
 
+  String get _subtitle {
+    final role = _role.toLowerCase();
+    if (role == 'trainer' || role == 'admin') {
+      return 'Let’s manage your clients';
+    }
+    return 'Let’s keep your progress moving';
+  }
+
   @override
   Widget build(BuildContext context) {
     // Avatar: real photo if available, orange initial circle otherwise.
@@ -101,7 +109,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  'Let\'s Manage your users',
+                  _subtitle,
                   style: TextStyle(
                       fontSize: 12.sp, color: Colors.grey.shade500),
                 ),

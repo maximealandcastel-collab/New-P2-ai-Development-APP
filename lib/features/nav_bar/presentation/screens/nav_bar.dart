@@ -171,13 +171,26 @@ class _NavBarState extends State<NavBar> {
             color: Colors.black.withOpacity(0.62),
             borderRadius: BorderRadius.circular(14.r),
           ),
-          child: Text(
-            'Viewing as ${_viewMode == 'admin' ? 'Admin' : 'User'}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w400,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _viewMode == 'admin'
+                    ? Icons.supervisor_account_outlined
+                    : Icons.person_outline_rounded,
+                color: Colors.white,
+                size: 13.sp,
+              ),
+              SizedBox(width: 5.w),
+              Text(
+                _viewMode == 'admin' ? 'Trainer Dashboard' : 'User Dashboard',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -275,11 +288,8 @@ class _NavBarState extends State<NavBar> {
                         context,
                         onPostContent: () =>
                             Get.to(() => const ContentPostScreen()),
-                        findActionLabel: _isTrainer ? 'Find Clients' : 'Find Trainer',
                         onAddSchedule: () {
-                          if (_isTrainer) {
-                            _navBarController.onChange(1);
-                          } else if (_isAdminView) {
+                          if (_isAdminView || _isTrainer) {
                             _navBarController.onChange(3);
                           } else {
                             Get.to(() => const FindTrainerScreen());

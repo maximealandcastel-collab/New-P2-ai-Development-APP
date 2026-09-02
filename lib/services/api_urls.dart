@@ -93,6 +93,8 @@ class ApiUrls {
       '/chat/trainer-conversation/messages';
   static const String trainerConversationTyping =
       '/chat/trainer-conversation/typing';
+  static const String trainerDashboardStats = '/trainer/me/dashboard-stats';
+  static const String trainerClients = '/trainer/me/clients';
   static const String updateProfile = '/auth/profile-update';
   static const String changePassword = '/auth/change-password';
   static String myFavourites( String type, int page, int limit ) => '/favorites/my-favorites?type=$type&page=$page&limit=$limit';
