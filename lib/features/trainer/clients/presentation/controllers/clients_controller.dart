@@ -159,7 +159,12 @@ class ClientsController extends GetxController with PaginatedLoaderUi {
   void onChatTap(ClientInvoiceModel invoice) {
     Get.toNamed(
       AppRoute.chatScreen,
-      arguments: ChatScreenArgs(displayName: invoice.clientName),
+      arguments: ChatScreenArgs(
+        displayName: invoice.clientName,
+        subtitle: 'client',
+        otherUserId: invoice.userId?.id,
+        otherUserImage: invoice.userId?.profilePicture,
+      ),
     );
   }
 

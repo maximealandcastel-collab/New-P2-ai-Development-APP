@@ -88,6 +88,9 @@ class ApiUrls {
   static const String earnings = '/earnings/my-earnings';
   static const String checkout = '/order/create';
   static const String conversation = '/conversation/';
+  static const String trainerConversation = '/chat/trainer-conversation';
+  static const String trainerConversationMessages =
+      '/chat/trainer-conversation/messages';
   static const String updateProfile = '/auth/profile-update';
   static const String changePassword = '/auth/change-password';
   static String myFavourites( String type, int page, int limit ) => '/favorites/my-favorites?type=$type&page=$page&limit=$limit';
