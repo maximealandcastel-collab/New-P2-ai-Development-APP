@@ -105,7 +105,7 @@ class TrainerHomeScreen extends StatelessWidget {
                 ),
                 _buildClientOverviewCard(
                   icon: Assets.icons.exercise.path,
-                  label: 'Workout Blocks',
+                  label: 'Workouts Assigned',
                   point: totalWorkoutBlocks,
                 ),
               ],
