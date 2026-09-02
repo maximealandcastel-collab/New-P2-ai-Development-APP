@@ -37,7 +37,7 @@ class NavFabWidget {
                   children: [
                     _buildMenuItem(
                       icon: Assets.icons.contents.svg(),
-                      label: 'Post a content',
+                      label: 'Post Photo/Video',
                       onTap: () {
                         Get.back();
                         onPostContent?.call();
