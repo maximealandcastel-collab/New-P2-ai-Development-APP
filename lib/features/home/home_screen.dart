@@ -295,63 +295,73 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPaidClients() {
-    return CustomContainer(
-      width: double.infinity,
-      paddingAll: 18.r,
-      radiusAll: 24.r,
-      color: Colors.white,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CustomText(
-                text: 'Paid Clients',
-                textAlign: TextAlign.start,
-                fontSize: 19.sp,
-                fontWeight: FontWeight.w600,
-              ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _openClients,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 4.w,
-                    vertical: 6.h,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _openClients,
+        borderRadius: BorderRadius.circular(24.r),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(18.r),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      text: 'Paid Clients',
+                      textAlign: TextAlign.start,
+                      fontSize: 19.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    Semantics(
+                      button: true,
+                      label: 'View all paid clients',
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.w,
+                          vertical: 6.h,
+                        ),
+                        child: CustomText(
+                          text: 'View all',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20.h),
+                Container(
+                  width: 70.r,
+                  height: 70.r,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F3F3),
+                    shape: BoxShape.circle,
                   ),
-                  child: CustomText(
-                    text: 'View all',
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+                  child: Icon(
+                    Icons.assignment_ind_outlined,
+                    size: 32.r,
+                    color: AppColors.textSecondary,
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
-          Container(
-            width: 70.r,
-            height: 70.r,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F3F3),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.assignment_ind_outlined,
-              size: 32.r,
-              color: AppColors.textSecondary,
+                SizedBox(height: 14.h),
+                CustomText(
+                  text: 'Not enough data to view',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
+                ),
+                SizedBox(height: 42.h),
+              ],
             ),
           ),
-          SizedBox(height: 14.h),
-          CustomText(
-            text: 'Not enough data to view',
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
-          ),
-          SizedBox(height: 42.h),
-        ],
+        ),
       ),
     );
   }
