@@ -29,8 +29,8 @@ class EmptyData extends StatelessWidget {
             CustomText(
               textAlign: TextAlign.start,
               text: title!,
-              fontWeight: AppFontWeight.label,
-              fontSize: 16.h,
+              fontWeight: AppFontWeight.body,
+              fontSize: 13.sp,
             ),
             SizedBox(height: 16.h),
           ],
@@ -58,13 +58,13 @@ class EmptyData extends StatelessWidget {
                 children: [
                   CustomText(
                     textAlign: TextAlign.start,
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     color: Colors.black.withValues(alpha: 0.5),
                     text: 'Recommendation',
                   ),
                   CustomText(
                     textAlign: TextAlign.start,
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     text: 'Set your workout goal to get data',
                   ),
                 ],

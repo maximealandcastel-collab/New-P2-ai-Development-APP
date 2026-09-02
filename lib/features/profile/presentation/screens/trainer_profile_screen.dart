@@ -272,7 +272,7 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(title,
-          style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
+          style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
     );
   }
 }
@@ -329,9 +329,17 @@ class _MenuTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(item.title,
-                          style: TextStyle(fontSize: 14.5.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
+                          style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: const Color(0xFF202020))),
                       SizedBox(height: 2.h),
-                      Text(item.subtitle, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF9CA3AF))),
+                      Text(
+                        item.subtitle,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: AppFontWeight.body,
+                          color: const Color(0xFF9CA3AF),
+                          height: 1.25,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -344,7 +352,7 @@ class _MenuTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Text(item.badge!,
-                        style: TextStyle(fontSize: 10.5.sp, fontWeight: AppFontWeight.label, color: const Color(0xFFEA580C))),
+                        style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: const Color(0xFFEA580C))),
                   ),
                 ],
                 SizedBox(width: 6.w),

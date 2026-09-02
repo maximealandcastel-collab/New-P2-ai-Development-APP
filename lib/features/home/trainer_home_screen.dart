@@ -75,7 +75,7 @@ class TrainerHomeScreen extends StatelessWidget {
           children: [
             CustomText(
               fontWeight: AppFontWeight.label,
-              fontSize: 16.sp,
+              fontSize: 15.5.sp,
               bottom: 12.h,
               text: 'Client Overview',
             ),
@@ -131,7 +131,7 @@ class TrainerHomeScreen extends StatelessWidget {
             children: [
               CustomText(
                 fontWeight: AppFontWeight.label,
-                fontSize: 16.sp,
+                fontSize: 15.5.sp,
                 text: 'Paid Clients',
               ),
               GestureDetector(
@@ -141,7 +141,7 @@ class TrainerHomeScreen extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 child: CustomText(
                   fontWeight: AppFontWeight.label,
-                  fontSize: 14.sp,
+                  fontSize: 13.sp,
                   color: AppColors.primary,
                   text: 'View all',
                 ),
@@ -207,8 +207,9 @@ class TrainerHomeScreen extends StatelessWidget {
           SvgPicture.asset(icon, height: 24.r, width: 24.r),
           CustomText(
             text: label,
-            fontSize: 12.sp,
-            color: AppColors.textSecondary,
+            fontSize: 11.sp,
+            fontWeight: AppFontWeight.body,
+            color: const Color(0xFF9CA3AF),
           ),
           CustomText(
             textAlign: TextAlign.start,
