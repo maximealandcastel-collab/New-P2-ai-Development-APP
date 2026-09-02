@@ -1,4 +1,3 @@
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -36,7 +35,10 @@ class ClientCardWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              CustomImageAvatar(image: 'https://picsum.photos/300', radius: 22.r),
+              CustomImageAvatar(
+                image: client['profilePicture'] ?? '',
+                radius: 22.r,
+              ),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
@@ -45,7 +47,7 @@ class ClientCardWidget extends StatelessWidget {
                     CustomText(
                       text: client['name'] ?? '',
                       fontSize: 15.sp,
-                      fontWeight: AppFontWeight.title,
+                      fontWeight: FontWeight.w700,
                     ),
                     CustomText(
                       text: isPending
@@ -68,19 +70,21 @@ class ClientCardWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
-          CustomText(
-            text: 'Pain/Condition',
-            fontSize: 12.sp,
-            color: AppColors.textSecondary,
-            bottom: 4.h,
-          ),
-          CustomText(
-            text: client['condition'] ?? '',
-            fontSize: 14.sp,
-            fontWeight: AppFontWeight.label,
-            bottom: 12.h,
-          ),
+          if ((client['condition'] ?? '').trim().isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            CustomText(
+              text: 'Goal',
+              fontSize: 12.sp,
+              color: AppColors.textSecondary,
+              bottom: 4.h,
+            ),
+            CustomText(
+              text: client['condition'] ?? '',
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              bottom: 12.h,
+            ),
+          ],
           if (!isPending)
             _buildAiInsight(client['insight'] ?? '')
           else ...[
@@ -109,7 +113,7 @@ class ClientCardWidget extends StatelessWidget {
               text: text,
               color: Colors.white,
               fontSize: 13.sp,
-              fontWeight: AppFontWeight.emphasis,
+              fontWeight: FontWeight.w500,
               textAlign: TextAlign.start,
             ),
           ),
@@ -129,7 +133,7 @@ class ClientCardWidget extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.message, size: 14.r, color: Colors.black54),
-              CustomText(text: 'Message', fontSize: 13.sp, left: 6.w, fontWeight: AppFontWeight.title),
+              CustomText(text: 'Message', fontSize: 13.sp, left: 6.w, fontWeight: FontWeight.w700),
             ],
           ),
           SizedBox(height: 4.h),
