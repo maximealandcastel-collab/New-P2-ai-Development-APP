@@ -184,6 +184,26 @@ class TrainerMessagingService {
     );
   }
 
+  Future<void> setTyping({
+    required bool isTyping,
+    String? customerUserId,
+  }) async {
+    final response = await http.post(
+      Uri.parse('${ApiUrls.baseUrl}${ApiUrls.trainerConversationTyping}'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'isTyping': isTyping,
+        if (customerUserId != null && customerUserId.isNotEmpty)
+          'userId': customerUserId,
+      }),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw const TrainerMessagingException(
+        'Unable to update typing status.',
+      );
+    }
+  }
+
   Map<String, dynamic> _decode(http.Response response) {
     try {
       return Map<String, dynamic>.from(jsonDecode(response.body) as Map);

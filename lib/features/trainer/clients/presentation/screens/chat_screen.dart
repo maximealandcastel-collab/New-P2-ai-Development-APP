@@ -46,7 +46,9 @@ class _ChatScreenState extends State<ChatScreen> {
   late ChatScreenArgs _args;
   bool _loading = true;
   bool _sending = false;
+  bool _otherPersonTyping = false;
   String? _error;
+  Timer? _typingTimer;
 
   @override
   void initState() {
@@ -61,6 +63,40 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _connectRealtime() async {
     await SocketServices.init();
     SocketServices().on('trainer-message', _handleRealtimeMessage);
+    SocketServices().on('trainer-typing', _handleRealtimeTyping);
+  }
+
+  void _handleRealtimeTyping(dynamic payload) {
+    if (!mounted || payload is! Map) return;
+    if (payload['conversationId']?.toString() != _conversation?.id) return;
+    if (payload['senderUserId']?.toString() ==
+        _conversation?.currentUserId) {
+      return;
+    }
+    setState(() => _otherPersonTyping = payload['isTyping'] == true);
+  }
+
+  void _onComposerChanged(String text) {
+    _typingTimer?.cancel();
+    _sendTyping(text.trim().isNotEmpty);
+    if (text.trim().isNotEmpty) {
+      _typingTimer = Timer(
+        const Duration(milliseconds: 1200),
+        () => _sendTyping(false),
+      );
+    }
+  }
+
+  Future<void> _sendTyping(bool isTyping) async {
+    if (_conversation == null) return;
+    try {
+      await _messaging.setTyping(
+        isTyping: isTyping,
+        customerUserId: _args.otherUserId,
+      );
+    } catch (_) {
+      // Typing status is ephemeral; message delivery remains available.
+    }
   }
 
   void _handleRealtimeMessage(dynamic payload) {
@@ -118,6 +154,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty || _sending) return;
     FocusScope.of(context).unfocus();
     setState(() => _sending = true);
+    _typingTimer?.cancel();
+    _sendTyping(false);
     try {
       final sent = await _messaging.send(
         message: text,
@@ -161,6 +199,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     SocketServices().off('trainer-message', _handleRealtimeMessage);
+    SocketServices().off('trainer-typing', _handleRealtimeTyping);
+    _typingTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -394,15 +434,52 @@ class _ChatScreenState extends State<ChatScreen> {
           parent: BouncingScrollPhysics(),
         ),
         padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 20.h),
-        itemCount: messages.length + 1,
+        itemCount: messages.length + 1 + (_otherPersonTyping ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == 0) return _dateDivider(messages.first.createdAt);
+          if (_otherPersonTyping && index == messages.length + 1) {
+            return _typingIndicator();
+          }
           final message = messages[index - 1];
           return _messageBubble(
             message,
             message.isMine(_conversation!.currentUserId),
           );
         },
+      ),
+    );
+  }
+
+  Widget _typingIndicator() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(18.r),
+            topRight: Radius.circular(18.r),
+            bottomRight: Radius.circular(18.r),
+            bottomLeft: Radius.circular(5.r),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(
+            3,
+            (index) => Container(
+              width: 6.r,
+              height: 6.r,
+              margin: EdgeInsets.symmetric(horizontal: 2.w),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade500,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -538,6 +615,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               onSubmitted: (_) => _sendMessage(),
+              onChanged: _onComposerChanged,
             ),
           ),
           SizedBox(width: 8.w),
