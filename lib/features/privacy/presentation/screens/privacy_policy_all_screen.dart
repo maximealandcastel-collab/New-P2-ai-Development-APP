@@ -7,6 +7,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
+import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class PrivacyPolicyAllScreen extends StatefulWidget {
@@ -40,6 +41,10 @@ class _PrivacyPolicyAllScreenState extends State<PrivacyPolicyAllScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isConsentMode) {
+      return const LegalPrivacyScreen(consentMode: true);
+    }
+
     return CustomScaffold(
       appBar: _isConsentMode
           ? null

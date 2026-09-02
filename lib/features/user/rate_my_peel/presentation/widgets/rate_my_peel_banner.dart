@@ -4,7 +4,9 @@ import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my_peel_screen.dart';
 
 class RateMyPeelBanner extends StatelessWidget {
-  const RateMyPeelBanner({super.key});
+  final EdgeInsetsGeometry? margin;
+
+  const RateMyPeelBanner({super.key, this.margin});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,7 @@ class RateMyPeelBanner extends StatelessWidget {
           MaterialPageRoute(builder: (_) => const RateMyPeelScreen()),
         ),
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 20.w),
+          margin: margin ?? EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(16.r),

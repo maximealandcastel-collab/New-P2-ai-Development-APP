@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 
 /// The two documents shown in the Legal & Privacy center.
 enum LegalDocument {
@@ -10,10 +12,12 @@ enum LegalDocument {
 
 class LegalPrivacyScreen extends StatefulWidget {
   final LegalDocument initialDocument;
+  final bool consentMode;
 
   const LegalPrivacyScreen({
     super.key,
     this.initialDocument = LegalDocument.privacy,
+    this.consentMode = false,
   });
 
   @override
@@ -24,11 +28,13 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
   static const _accent = Color(0xFFFF5B1A);
   late LegalDocument _selectedDocument;
   int? _expandedIndex;
+  bool _agreed = false;
 
   @override
   void initState() {
     super.initState();
     _selectedDocument = widget.initialDocument;
+    _expandedIndex = widget.consentMode ? 0 : null;
   }
 
   @override
@@ -42,18 +48,23 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            if (widget.consentMode) _buildConsentHeader() else _buildAppBar(),
+            if (widget.consentMode)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: _buildDocumentSwitcher(),
+              ),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(16.w, 2.h, 16.w, 32.h),
+                padding: EdgeInsets.fromLTRB(16.w, 2.h, 16.w, 22.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDocumentSwitcher(),
-                    SizedBox(height: 25.h),
-                    _buildDocumentHeader(document),
-                    SizedBox(height: 20.h),
+                    if (!widget.consentMode) _buildDocumentSwitcher(),
+                    SizedBox(height: widget.consentMode ? 18.h : 25.h),
+                    if (!widget.consentMode) _buildDocumentHeader(document),
+                    if (!widget.consentMode) SizedBox(height: 20.h),
                     ...document.sections.asMap().entries.map(
                           (entry) => Padding(
                             padding: EdgeInsets.only(bottom: 9.h),
@@ -76,10 +87,150 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
                 ),
               ),
             ),
+            if (widget.consentMode) _buildConsentFooter(),
           ],
         ),
       ),
     );
+  }
+
+
+  Widget _buildConsentHeader() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 18.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42.r,
+                height: 42.r,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFF78A1D), Color(0xFFE85A12)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(Icons.monitor_heart_outlined, color: Colors.white, size: 22.sp),
+              ),
+              SizedBox(width: 12.w),
+              Text(
+                'Before you get started',
+                style: TextStyle(color: const Color(0xFF76777C), fontSize: 14.sp),
+              ),
+            ],
+          ),
+          SizedBox(height: 18.h),
+          Text(
+            'Privacy & Terms',
+            style: TextStyle(
+              color: const Color(0xFF15161A),
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.35,
+            ),
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            "Everything's laid out below — no PDFs to chase down. Skim it, expand what you need, and accept when you're ready.",
+            style: TextStyle(
+              color: const Color(0xFF76777C),
+              fontSize: 14.sp,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConsentFooter() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(20.w, 14.h, 20.w, 10.h),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFE8E8EA))),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Semantics(
+            checked: _agreed,
+            label: 'Agree to the Privacy Policy and Terms of Service',
+            child: InkWell(
+              onTap: () => setState(() => _agreed = !_agreed),
+              borderRadius: BorderRadius.circular(10.r),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 5.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: _agreed,
+                      activeColor: _accent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.r)),
+                      onChanged: (value) => setState(() => _agreed = value ?? false),
+                    ),
+                    SizedBox(width: 4.w),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10.h),
+                        child: Text.rich(
+                          TextSpan(
+                            style: TextStyle(color: const Color(0xFF3C3D42), fontSize: 13.sp, height: 1.35),
+                            children: const [
+                              TextSpan(text: "I've read and agree to the "),
+                              TextSpan(text: 'Privacy Policy', style: TextStyle(fontWeight: FontWeight.w700)),
+                              TextSpan(text: ' and '),
+                              TextSpan(text: 'Terms of Service', style: TextStyle(fontWeight: FontWeight.w700)),
+                              TextSpan(text: ' above.'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 9.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _agreed ? _acceptConsent : null,
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: _accent,
+                disabledBackgroundColor: const Color(0xFFE2E3E6),
+                foregroundColor: Colors.white,
+                disabledForegroundColor: const Color(0xFF98999E),
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
+              ),
+              child: Text(
+                'Accept & continue',
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Not right now', style: TextStyle(color: const Color(0xFF77787D), fontSize: 13.sp)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _acceptConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('privacyAccepted', true);
+    if (!mounted) return;
+    Get.offAllNamed(AppRoute.onboardingMainScreen);
   }
 
   Widget _buildAppBar() {
@@ -262,13 +413,15 @@ class _DocumentTab extends StatelessWidget {
           curve: Curves.easeOut,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? accent : Colors.transparent,
+            color: selected
+                ? accent.withValues(alpha: 0.14)
+                : const Color(0xFFE9EAED),
             borderRadius: BorderRadius.circular(21.r),
           ),
           child: Text(
             label,
             style: TextStyle(
-              color: selected ? Colors.white : const Color(0xFF25262B),
+              color: selected ? accent : const Color(0xFF67686D),
               fontSize: 12.5.sp,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),

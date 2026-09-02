@@ -15,6 +15,7 @@ import 'package:pler_to_pler_app/features/trainer/clients/presentation/controlle
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/mealPlan/presentation/screens/create_meal_plan_screen.dart';
+import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/widgets/rate_my_peel_banner.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_card_widget.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -48,7 +49,9 @@ class TrainerHomeScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildClientOverviewSection(context, homeController, clientsController),
-                SizedBox(height: 8.h),
+                SizedBox(height: 14.h),
+                const RateMyPeelBanner(margin: EdgeInsets.zero),
+                SizedBox(height: 14.h),
                 const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
                 _buildTodaySessionsSection(clientsController),
@@ -68,7 +71,6 @@ class TrainerHomeScreen extends StatelessWidget {
       final newCalendarWeek = stats?.newUsersThisWeek?.calendarWeek?.toString() ?? '0';
       final mealsAssigned = stats?.mealsAssigned?.toString() ?? '0';
       final totalWorkoutBlocks = stats?.workoutBlocksStats?.total?.toString() ?? '0';
-      final hasClients = (stats?.activeUsersCount ?? 0) > 0;
       return CustomContainer(
         radiusAll: 16.r,
         paddingAll: 14.r,
@@ -125,8 +127,8 @@ class TrainerHomeScreen extends StatelessWidget {
                         materialIcon: Icons.restaurant_menu_rounded,
                         label: 'Meals Assigned',
                         point: mealsAssigned,
-                        onTap: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.meal) : null,
-                        onAdd: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.meal) : null,
+                        onTap: () => _showClientPicker(context, clientsController, _AssignmentType.meal),
+                        onAdd: () => _showClientPicker(context, clientsController, _AssignmentType.meal),
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -135,8 +137,8 @@ class TrainerHomeScreen extends StatelessWidget {
                         icon: Assets.icons.exercise.path,
                         label: 'Workouts Assigned',
                         point: totalWorkoutBlocks,
-                        onTap: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.workout) : null,
-                        onAdd: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.workout) : null,
+                        onTap: () => _showClientPicker(context, clientsController, _AssignmentType.workout),
+                        onAdd: () => _showClientPicker(context, clientsController, _AssignmentType.workout),
                       ),
                     ),
                   ],
