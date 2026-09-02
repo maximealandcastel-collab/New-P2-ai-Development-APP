@@ -17,6 +17,7 @@ class ChatScreenArgs {
     this.subtitle = 'Active now',
     this.isAnamEnabled = false,
     this.otherUserId,
+    this.otherUserImage,
   });
 
   final String displayName;
@@ -24,4 +25,5 @@ class ChatScreenArgs {
   final String subtitle;
   final bool isAnamEnabled;
   final String? otherUserId;
+  final String? otherUserImage;
 }
