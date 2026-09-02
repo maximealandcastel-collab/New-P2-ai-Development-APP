@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
-import 'package:pler_to_pler_app/core/utils/helpers/menu_show_helper.dart';
-import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
-import 'package:pler_to_pler_app/custom_assets/fonts.gen.dart';
-import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
-import 'package:pler_to_pler_app/features/settings/widgets/transation_history_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class EarningsScreen extends StatefulWidget {
@@ -21,32 +15,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
   Widget build(BuildContext context) {
     return CustomScaffold(
       appBar: CustomAppBar(
-        title: 'Earnings',
-        actions: [
-          GestureDetector(
-            onTapDown: (details) async {
-              final selected = await MenuShowHelper.showCustomMenu(
-                context: context,
-                details: details,
-                options: ['Payout method', 'Invoices'],
-              );
-
-              if (selected == 'Payout method') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Payout method management is not available yet.'),
-                  ),
-                );
-              } else if (selected == 'Invoices') {
-                Get.to(() => const InvoicesScreen());
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.0.r),
-              child: Assets.icons.more.svg(),
-            ),
-          ),
-        ],
+        title: 'Deposits',
       ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
@@ -59,7 +28,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 children: [
                   Center(
                     child: CustomText(
-                      text: 'Available balance',
+                      text: 'Available tokens',
                       fontWeight: FontWeight.w500,
                       fontSize: 16.sp,
                       color: AppColors.textSecondary,
@@ -75,7 +44,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                           fontWeight: FontWeight.w700,
                           fontSize: 40.sp,
                         ),
-                        text: '48.54',
+                        text: '0',
                         children: [
                           TextSpan(
                             style: TextStyle(
@@ -83,7 +52,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                               fontWeight: FontWeight.w500,
                               fontSize: 20.sp,
                             ),
-                            text: ' USD',
+                            text: ' tokens',
                           ),
                         ],
                       ),
@@ -102,43 +71,82 @@ class _EarningsScreenState extends State<EarningsScreen> {
                           fontWeight: FontWeight.w500,
                           fontSize: 16.sp,
                         ),
-                        text: 'Pending balance ',
+                        text: 'Deposited balance ',
                         children: [
                           TextSpan(
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w700,
                             ),
-                            text: ' 48.54',
+                            text: ' \$0.00',
                           ),
-                          TextSpan(text: ' USD'),
+                          const TextSpan(text: ' USD'),
                         ],
                       ),
                     ),
                   ),
                   CustomText(
-                    text: 'Transaction history',
+                    text: 'How tokens are used',
                     fontWeight: FontWeight.w600,
                     fontSize: 18.sp,
                     bottom: 12.h,
                     top: 24.h,
                   ),
+                  _buildProviderCard(
+                    badge: 'A',
+                    name: 'Anam AI',
+                    description: 'Interactive AI coach voice and avatar sessions.',
+                    color: const Color(0xFF7C3AED),
+                  ),
+                  _buildProviderCard(
+                    badge: 'C',
+                    name: 'Claude',
+                    description: 'Primary workout planning and coaching intelligence.',
+                    color: const Color(0xFFD97706),
+                  ),
+                  _buildProviderCard(
+                    badge: 'G',
+                    name: 'ChatGPT',
+                    description: 'Backup assistance when the primary coach is unavailable.',
+                    color: const Color(0xFF059669),
+                  ),
+                  SizedBox(height: 20.h),
+                  CustomText(
+                    text: 'Deposit history',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18.sp,
+                    bottom: 12.h,
+                  ),
+                  CustomContainer(
+                    width: double.infinity,
+                    radiusAll: 16.r,
+                    color: Colors.white,
+                    paddingAll: 22.r,
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 34.r,
+                          color: AppColors.textSecondary,
+                        ),
+                        SizedBox(height: 10.h),
+                        CustomText(
+                          text: 'No deposits yet',
+                          fontWeight: FontWeight.w500,
+                        ),
+                        SizedBox(height: 4.h),
+                        CustomText(
+                          text: 'Your completed token refills will appear here.',
+                          fontSize: 12.sp,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) => const TransationHistoryWidget(),
-                childCount: 10,
-              ),
-            ),
-          ),
-
-          // FIXED HERE: Wrapped in SliverToBoxAdapter
           SliverToBoxAdapter(
             child: SizedBox(height: 30.h),
           ),
@@ -149,17 +157,131 @@ class _EarningsScreenState extends State<EarningsScreen> {
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: CustomButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Withdrawals require a configured payout method and withdrawal service.',
+              onPressed: _showRefillSheet,
+              label: 'Refill tokens',
+            width: double.infinity,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProviderCard({
+    required String badge,
+    required String name,
+    required String description,
+    required Color color,
+  }) {
+    return CustomContainer(
+      width: double.infinity,
+      radiusAll: 16.r,
+      color: Colors.white,
+      paddingAll: 14.r,
+      marginBottom: 8.h,
+      child: Row(
+        children: [
+          Container(
+            width: 42.r,
+            height: 42.r,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: CustomText(
+              text: badge,
+              color: color,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text: name,
+                  textAlign: TextAlign.start,
+                  fontWeight: FontWeight.w500,
+                ),
+                SizedBox(height: 3.h),
+                CustomText(
+                  text: description,
+                  textAlign: TextAlign.start,
+                  fontSize: 11.sp,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRefillSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => SafeArea(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 24.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 42.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.black12,
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                 ),
-              );
-            },
-            label: 'Withdraw',
-            width: double.infinity,
+              ),
+              SizedBox(height: 18.h),
+              CustomText(
+                text: 'Refill tokens',
+                textAlign: TextAlign.start,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+              ),
+              SizedBox(height: 8.h),
+              CustomText(
+                text:
+                    'Token package amounts are being finalized. No charge will be made until a secure package and price are shown for your approval.',
+                textAlign: TextAlign.start,
+                fontSize: 13.sp,
+                color: AppColors.textSecondary,
+              ),
+              SizedBox(height: 18.h),
+              CustomContainer(
+                width: double.infinity,
+                radiusAll: 14.r,
+                paddingAll: 14.r,
+                color: AppColors.primary.withOpacity(0.08),
+                child: CustomText(
+                  text:
+                      'Tokens can be used for fresh workout generation, AI coach chat, and Anam AI sessions.',
+                  textAlign: TextAlign.start,
+                  fontSize: 13.sp,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              SizedBox(height: 18.h),
+              CustomButton(
+                onPressed: () => Navigator.pop(sheetContext),
+                label: 'Got it',
+                width: double.infinity,
+              ),
+            ],
           ),
         ),
       ),

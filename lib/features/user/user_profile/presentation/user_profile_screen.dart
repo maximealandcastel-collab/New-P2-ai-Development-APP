@@ -1,8 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/settings/settings_screen.dart';
 import 'package:pler_to_pler_app/features/profile/children/edit_profile_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/chat_screen.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN 1 — PROFILE
@@ -41,12 +42,10 @@ class _ProfileHeader extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: const Color(0xFF1A1A2E),
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(
-                'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
-              ),
-              fit: BoxFit.cover,
-              colorFilter: const ColorFilter.mode(Colors.black45, BlendMode.darken),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF242424), Color(0xFF515151)],
             ),
           ),
         ),
@@ -90,13 +89,9 @@ class _ProfileHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 3),
-                      image: DecorationImage(
-                        image: CachedNetworkImageProvider(
-                          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
+                      color: const Color(0xFFFF7A00),
                     ),
+                    child: Icon(Icons.person_outline, color: Colors.white, size: 38.sp),
                   ),
                   Positioned(
                     bottom: 2.h,
@@ -171,16 +166,16 @@ class _ProfileBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Name
-          Text('Ethen carter',
+          Text('Your profile',
               style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.black)),
           SizedBox(height: 12.h),
 
           // Bio
-          _LabelText(label: 'Bio', value: 'New to the app trying to gain'),
+          _LabelText(label: 'Bio', value: 'No bio added'),
           SizedBox(height: 10.h),
 
           // Specialties
-          _LabelText(label: 'Specialties', value: 'losing weight , building body this year'),
+          _LabelText(label: 'Goals', value: 'No fitness goals added'),
           SizedBox(height: 18.h),
 
           // Stats card
@@ -195,9 +190,9 @@ class _ProfileBody extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
-                _StatItem(icon: Icons.fitness_center, iconColor: Color(0xFF4CAF50), label: 'Workout\nConsistency', value: '87%'),
-                _StatItem(icon: Icons.local_fire_department, iconColor: Color(0xFFFF7A00), label: 'Calories\nBurned', value: '3,240', unit: 'kcal'),
-                _StatItem(icon: Icons.directions_run, iconColor: Color(0xFF2196F3), label: 'Exercise\nduration', value: '450', unit: 'min'),
+                _StatItem(icon: Icons.fitness_center, iconColor: Color(0xFF4CAF50), label: 'Workout\nConsistency', value: '0%'),
+                _StatItem(icon: Icons.local_fire_department, iconColor: Color(0xFFFF7A00), label: 'Calories\nBurned', value: '0', unit: 'kcal'),
+                _StatItem(icon: Icons.directions_run, iconColor: Color(0xFF2196F3), label: 'Exercise\nduration', value: '0', unit: 'min'),
               ],
             ),
           ),
@@ -223,16 +218,15 @@ class _ProfileBody extends StatelessWidget {
                           Text('Trainer',
                               style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
                           SizedBox(height: 4.h),
-                          Text('Maxime Castel',
+                          Text('Your trainer',
                               style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
                         ],
                       ),
                     ),
                     CircleAvatar(
                       radius: 22.r,
-                      backgroundImage: CachedNetworkImageProvider(
-                        'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200',
-                      ),
+                      backgroundColor: const Color(0xFFF1F1F1),
+                      child: Icon(Icons.person_outline, color: Colors.grey, size: 24.sp),
                     ),
                   ],
                 ),
@@ -250,7 +244,7 @@ class _ProfileBody extends StatelessWidget {
                       Text('Specialties',
                           style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
                       SizedBox(height: 4.h),
-                      Text('Strength, Rehab, Post-Op Recovery',
+                      Text('Connect with a trainer to begin',
                           style: TextStyle(fontSize: 13.sp, color: Colors.black87)),
                     ],
                   ),
@@ -273,9 +267,12 @@ class _ProfileBody extends StatelessWidget {
                       child: _FilledBtn(
                         icon: Icons.chat_bubble_outline,
                         label: 'Message',
-                        onTap: () => _showUnavailableMessage(
-                          context,
-                          'Messaging your trainer is not available yet.',
+                        onTap: () => Get.to(
+                          () => const ChatScreen(),
+                          arguments: const ChatScreenArgs(
+                            displayName: 'Your trainer',
+                            subtitle: 'Trainer conversation',
+                          ),
                         ),
                       ),
                     ),

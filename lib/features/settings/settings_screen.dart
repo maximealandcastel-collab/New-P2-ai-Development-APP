@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: 'Options',
               children: [
                 _buildCardListWidget(
-                  label: 'Earnings',
+                  label: _role == 'Trainer' ? 'Earnings' : 'Deposits',
                   onTap: () => Get.to(() => const EarningsScreen()),
                 ),
                 _buildCardListWidget(
