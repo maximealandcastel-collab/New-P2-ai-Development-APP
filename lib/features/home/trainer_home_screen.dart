@@ -12,6 +12,9 @@ import 'package:pler_to_pler_app/features/home/widgets/trainer_client_plans_sect
 import 'package:pler_to_pler_app/features/home/widgets/empty_data.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/controllers/clients_controller.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
+import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
+import 'package:pler_to_pler_app/features/trainer/mealPlan/presentation/screens/create_meal_plan_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_card_widget.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -44,7 +47,7 @@ class TrainerHomeScreen extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 130.h),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildClientOverviewSection(homeController),
+                _buildClientOverviewSection(context, homeController, clientsController),
                 SizedBox(height: 8.h),
                 const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
@@ -57,7 +60,7 @@ class TrainerHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClientOverviewSection(TrainerHomeController controller) {
+  Widget _buildClientOverviewSection(BuildContext context, TrainerHomeController controller, ClientsController clientsController) {
     return Obx(() {
       final stats = controller.dashboardStats?.data;
       final activeClients = stats?.activeUsersCount?.toString() ?? '0';
@@ -65,6 +68,7 @@ class TrainerHomeScreen extends StatelessWidget {
       final newCalendarWeek = stats?.newUsersThisWeek?.calendarWeek?.toString() ?? '0';
       final mealsAssigned = stats?.mealsAssigned?.toString() ?? '0';
       final totalWorkoutBlocks = stats?.workoutBlocksStats?.total?.toString() ?? '0';
+      final hasClients = (stats?.activeUsersCount ?? 0) > 0;
       return CustomContainer(
         radiusAll: 16.r,
         paddingAll: 14.r,
@@ -117,6 +121,7 @@ class TrainerHomeScreen extends StatelessWidget {
                         materialIcon: Icons.restaurant_menu_rounded,
                         label: 'Meals Assigned',
                         point: mealsAssigned,
+                        onAdd: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.meal) : null,
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -125,6 +130,7 @@ class TrainerHomeScreen extends StatelessWidget {
                         icon: Assets.icons.exercise.path,
                         label: 'Workouts Assigned',
                         point: totalWorkoutBlocks,
+                        onAdd: hasClients ? () => _showClientPicker(context, clientsController, _AssignmentType.workout) : null,
                       ),
                     ),
                   ],
@@ -210,11 +216,34 @@ class TrainerHomeScreen extends StatelessWidget {
     );
   }
 
+  void _showClientPicker(BuildContext context, ClientsController controller, _AssignmentType type) {
+    final clients = controller.clients;
+    if (clients.isEmpty) { Get.snackbar('No clients available', 'A paid client must be active before you can assign a plan.'); return; }
+    Get.bottomSheet(
+      SafeArea(child: Container(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * .65),
+        padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 22.h),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24.r))),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          CustomText(text: type == _AssignmentType.meal ? 'Assign a meal plan' : 'Assign a workout plan', fontSize: 18.sp, fontWeight: AppFontWeight.section),
+          SizedBox(height: 4.h),
+          CustomText(text: 'Choose one of your active clients.', fontSize: 12.sp, color: const Color(0xFF6B7280)),
+          SizedBox(height: 12.h),
+          Flexible(child: ListView.separated(shrinkWrap: true, itemCount: clients.length, separatorBuilder: (_, __) => const Divider(height: 1), itemBuilder: (_, index) {
+            final client = clients[index]; final initial = client.clientName.isNotEmpty ? client.clientName[0].toUpperCase() : '?';
+            return ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundColor: AppColors.primary.withOpacity(.12), child: Text(initial, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))), title: Text(client.clientName), subtitle: Text(client.userId?.email ?? 'Active client'), trailing: const Icon(Icons.chevron_right), onTap: () { Get.back(); if (type == _AssignmentType.meal) { Get.to(() => CreateMealPlanScreen(client: client)); } else { Get.to(() => CreateExercisePlanScreen(client: client)); } });
+          })),
+        ]),
+      )),
+      isScrollControlled: true,
+    );
+  }
   Widget _buildClientOverviewCard({
     String? icon,
     IconData? materialIcon,
     required String label,
     required String point,
+    VoidCallback? onAdd,
   }) {
     return CustomContainer(
       radiusAll: 12.r,
@@ -226,10 +255,10 @@ class TrainerHomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (materialIcon != null)
-            Icon(materialIcon, size: 24.r, color: Colors.black87)
-          else if (icon != null)
-            SvgPicture.asset(icon, height: 24.r, width: 24.r),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            if (materialIcon != null) Icon(materialIcon, size: 24.r, color: Colors.black87) else if (icon != null) SvgPicture.asset(icon, height: 24.r, width: 24.r),
+            if (onAdd != null) Semantics(button: true, label: 'Add $label', child: InkWell(onTap: onAdd, borderRadius: BorderRadius.circular(20.r), child: Padding(padding: EdgeInsets.all(2.r), child: Icon(Icons.add_circle_rounded, size: 22.r, color: AppColors.primary)))),
+          ]),
           CustomText(
             text: label,
             fontSize: 11.sp,
@@ -247,3 +276,5 @@ class TrainerHomeScreen extends StatelessWidget {
     );
   }
 }
+
+enum _AssignmentType { meal, workout }
