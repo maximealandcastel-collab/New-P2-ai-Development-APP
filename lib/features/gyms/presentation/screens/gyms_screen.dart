@@ -26,6 +26,7 @@ class _GymsScreenState extends State<GymsScreen> {
     'HIIT',
     'Yoga',
     'Pilates',
+    'Boxing',
     'Cycling',
     'Strength',
   ];
@@ -147,7 +148,11 @@ class _GymsScreenState extends State<GymsScreen> {
         gym: gym,
         onOpenMaps: () {
           Navigator.pop(context);
-          _openNearGymMap(addressQuery: '${gym.name} ${gym.city}');
+          _openNearGymMap(
+            addressQuery: gym.address.isNotEmpty
+                ? gym.address
+                : '${gym.name} ${gym.city}',
+          );
         },
       ),
     );
@@ -211,7 +216,8 @@ class _GymsScreenState extends State<GymsScreen> {
           g.name.toLowerCase().contains(q) ||
           g.category.toLowerCase().contains(q) ||
           g.city.toLowerCase().contains(q) ||
-          g.zipCode.contains(q);
+           g.zipCode.contains(q) ||
+           g.address.toLowerCase().contains(q);
       final matchFilter = _activeFilter == 'All Types' ||
           g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
@@ -220,10 +226,15 @@ class _GymsScreenState extends State<GymsScreen> {
 
   List<EnterpriseGymModel> get _featuredGyms {
     final all = _displayedGyms;
-    // Own gyms first, then top 6
+    // Own gyms first, then founder-pinned partners, then the top results.
     final own = all.where((g) => g.isOwnGym).toList();
-    final rest = all.where((g) => !g.isOwnGym).take(5).toList();
-    return [...own, ...rest];
+    final pinned =
+        all.where((g) => !g.isOwnGym && g.isPinned).toList();
+    final rest = all
+        .where((g) => !g.isOwnGym && !g.isPinned)
+        .take(5)
+        .toList();
+    return [...own, ...pinned, ...rest];
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -673,16 +684,66 @@ class _GymDetailSheet extends StatelessWidget {
                         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black)),
                     Text(gym.category,
                         style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
+                    if (gym.address.isNotEmpty)
+                      Text(
+                        gym.address,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.grey.shade500,
+                          height: 1.25,
+                        ),
+                      ),
+                    if (gym.tagline.isNotEmpty)
+                      Text(
+                        gym.tagline,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                          color: gym.accentColor,
+                        ),
+                      ),
                   ],
                 ),
               ),
-              if (gym.city.isNotEmpty)
+              if (gym.address.isEmpty && gym.city.isNotEmpty)
                 Text(gym.city,
                     style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
             ],
           ),
 
           SizedBox(height: 16.h),
+
+          if (gym.galleryAssetPaths.isNotEmpty) ...[
+            Text(
+              'Facility photos',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            SizedBox(
+              height: 112.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: gym.galleryAssetPaths.length,
+                separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                itemBuilder: (_, index) => ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: Image.asset(
+                    gym.galleryAssetPaths[index],
+                    width: 156.w,
+                    height: 112.h,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
 
           // Status / partnership label
           if (isLocked) ...[

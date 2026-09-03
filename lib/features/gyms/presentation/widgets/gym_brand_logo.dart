@@ -100,7 +100,13 @@ class GymStockImage extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (gym.imageUrl.isNotEmpty)
+            if (gym.imageAssetPath.isNotEmpty)
+              Image.asset(
+                gym.imageAssetPath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _fallback(),
+              )
+            else if (gym.imageUrl.isNotEmpty)
               Image.network(
                 gym.imageUrl,
                 fit: BoxFit.cover,

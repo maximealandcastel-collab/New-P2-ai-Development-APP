@@ -59,6 +59,9 @@ class GymLocationService {
       // Own gym always first
       if (a.isOwnGym && !b.isOwnGym) return -1;
       if (!a.isOwnGym && b.isOwnGym) return 1;
+      // Contract-pending gyms explicitly pinned by the founder stay next.
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
       final da = a.distanceMi ?? double.infinity;
       final db = b.distanceMi ?? double.infinity;
       return da.compareTo(db);

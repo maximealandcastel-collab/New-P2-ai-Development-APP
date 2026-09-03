@@ -5,6 +5,7 @@ class EnterpriseGymModel {
     'p2p_fit_factor': 'assets/images/facility_app_logo.png',
     'la_fitness': 'assets/images/gym_logos/la_fitness.jpg',
     'yogasix': 'assets/images/gym_logos/yogasix.png',
+    'kmf_fitness_club': 'assets/images/gym_logos/kmf_fitness_club.jpg',
   };
 
   static const Map<String, String> _officialDomains = {
@@ -41,12 +42,17 @@ class EnterpriseGymModel {
   final Color textColor;
   final bool isActive;
   final bool isOwnGym;
+  final bool isPinned;
   final bool isActivated; // true = visible in the app; false = contract not signed yet
   final double rating;
   final String imageUrl;
+  final String imageAssetPath;
+  final List<String> galleryAssetPaths;
   final List<String> filterTags;
   final String city;
   final String zipCode;
+  final String address;
+  final String tagline;
   final double lat;
   final double lng;
   double? distanceMi;
@@ -64,12 +70,17 @@ class EnterpriseGymModel {
     this.textColor = Colors.white,
     this.isActive = true,
     this.isOwnGym = false,
+    this.isPinned = false,
     this.isActivated = false,
     this.rating = 4.5,
     this.imageUrl = '',
+    this.imageAssetPath = '',
+    this.galleryAssetPaths = const [],
     this.filterTags = const [],
     this.city = '',
     this.zipCode = '',
+    this.address = '',
+    this.tagline = '',
     this.lat = 0.0,
     this.lng = 0.0,
     this.distanceMi,
@@ -98,7 +109,7 @@ class EnterpriseGymModel {
 
   String get logoAssetPath => _localLogoAssets[id] ?? '';
 
-  /// All 22 gyms — stored regardless of contract status.
+  /// All 23 gyms — stored regardless of contract status.
   static List<EnterpriseGymModel> get partners => _partners;
 
   /// Only gyms with a signed contract. Use this everywhere in the app UI.
@@ -116,6 +127,7 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFFFF6B35),
       accentColor: const Color(0xFFFF8C00),
       isOwnGym: true,
+      isPinned: true,
       isActive: true,
       isActivated: true, // ✅ LIVE — brick & mortar
       rating: 4.9,
@@ -126,6 +138,35 @@ class EnterpriseGymModel {
       zipCode: '33101',
       lat: 25.7617,
       lng: -80.1918,
+    ),
+
+    // ── KMF FITNESS CLUB — PINNED, LOCKED UNTIL PARTNERSHIP ───────────────
+    EnterpriseGymModel(
+      id: 'kmf_fitness_club',
+      name: 'KMF Fitness Club',
+      initials: 'KMF',
+      category: 'Boxing',
+      memberCount: 'Local boxing club',
+      brandColor: const Color(0xFF0A0A0A),
+      accentColor: const Color(0xFF39FF14),
+      textColor: Colors.white,
+      isPinned: true,
+      isActivated: false,
+      rating: 0.0,
+      imageAssetPath: 'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
+      galleryAssetPaths: const [
+        'assets/images/gym_photos/kmf_fitness_club_exterior.jpg',
+        'assets/images/gym_photos/kmf_fitness_club_equipment.jpg',
+        'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
+      ],
+      filterTags: const ['Boxing', 'Strength'],
+      city: 'Levittown',
+      zipCode: '11756',
+      address: '3361 Hempstead Tpke, Levittown, NY 11756',
+      tagline: 'Keep Moving Forward',
+      lat: 40.7259,
+      lng: -73.5143,
+      statusLabel: 'Coming soon — partnership not yet established.',
     ),
 
     // ── Enterprise Partners ──────────────────────────────────────────────

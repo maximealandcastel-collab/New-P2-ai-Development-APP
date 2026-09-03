@@ -837,14 +837,20 @@ class _GymsCard extends StatelessWidget {
                           Icon(Icons.location_on_outlined,
                               size: 12.sp, color: Colors.black54),
                           SizedBox(width: 2.w),
-                           Text(
-                               gym.distanceLabel.isEmpty
-                                   ? gym.city
-                                   : gym.distanceLabel,
-                              style: TextStyle(
-                                   fontSize: 10.sp,
-                                   fontWeight: FontWeight.w400,
-                                   color: Colors.black45)),
+                          Expanded(
+                            child: Text(
+                                gym.address.isNotEmpty
+                                    ? gym.address
+                                    : (gym.distanceLabel.isEmpty
+                                        ? gym.city
+                                        : gym.distanceLabel),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                     fontSize: 9.sp,
+                                     fontWeight: FontWeight.w400,
+                                     color: Colors.black45)),
+                          ),
                         ],
                       ),
                       SizedBox(height: 4.h),

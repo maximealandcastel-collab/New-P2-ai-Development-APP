@@ -88,15 +88,25 @@ class GymListTile extends StatelessWidget {
                   SizedBox(height: 5.h),
                   Row(
                     children: [
-                      Icon(Icons.star_rounded,
-                          size: 11.sp,
-                          color: const Color(0xFFFFAB00)),
-                      SizedBox(width: 2.w),
-                      Text(gym.rating.toStringAsFixed(1),
+                      if (gym.rating > 0) ...[
+                        Icon(Icons.star_rounded,
+                            size: 11.sp,
+                            color: const Color(0xFFFFAB00)),
+                        SizedBox(width: 2.w),
+                        Text(gym.rating.toStringAsFixed(1),
+                            style: TextStyle(
+                                fontSize: 11.sp,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w400)),
+                      ] else
+                        Text(
+                          'New partner',
                           style: TextStyle(
-                              fontSize: 11.sp,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w500)),
+                            fontSize: 11.sp,
+                            color: gym.accentColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       SizedBox(width: 6.w),
                       Text('· ${gym.memberCount}',
                           style: TextStyle(
