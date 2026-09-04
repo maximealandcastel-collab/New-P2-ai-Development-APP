@@ -20,10 +20,10 @@ class OnboardingTypography {
           minimum: 34,
           maximum: 40,
         ),
-        fontWeight: FontWeight.w600,
-        color: Colors.black,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF111111),
         height: 1.08,
-        letterSpacing: -0.7,
+        letterSpacing: -0.4,
       );
 
   static TextStyle description(BuildContext context) => TextStyle(
@@ -34,7 +34,7 @@ class OnboardingTypography {
           maximum: 19,
         ),
         fontWeight: FontWeight.w400,
-        color: const Color(0xFF5F5F63),
+        color: const Color(0xFF6B6B70),
         height: 1.42,
         letterSpacing: -0.1,
       );
@@ -46,7 +46,7 @@ class OnboardingTypography {
           minimum: 15,
           maximum: 17,
         ),
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w400,
         height: 1.15,
       );
 

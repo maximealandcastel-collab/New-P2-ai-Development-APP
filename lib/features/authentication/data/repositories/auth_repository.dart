@@ -81,6 +81,7 @@ class AuthRepository {
       final response = await _apiService.post(
         ApiConstants.login,
         data: {'email': email, 'password': password},
+        options: ApiService.withoutAuth,
       );
 
       final responseData = response.data?['data'];

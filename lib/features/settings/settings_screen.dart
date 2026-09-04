@@ -8,14 +8,11 @@ import 'package:pler_to_pler_app/features/settings/children/earnings_screen.dart
 import 'package:pler_to_pler_app/features/settings/children/invoices_screen.dart';
 import 'package:pler_to_pler_app/features/settings/widgets/confirmation_dialog.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
-import 'package:pler_to_pler_app/features/authentication/data/data_sources/auth_local_data_source.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
 import 'package:pler_to_pler_app/features/user/connect_device/presentation/connect_device_screen.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/invoice_screens.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
-import 'package:pler_to_pler_app/services/network/api_client.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,8 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onConfirm: () async {
           Get.back();
           try {
-            await AuthLocalDataSourceImpl().clearAuthData();
-            Get.offAllNamed(AppRoute.loginScreen);
+            await LoginController.to.logout();
           } catch (_) {
             Get.snackbar(
               'Logout failed',
@@ -62,12 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onConfirm: () async {
           Get.back();
           try {
-            final response = await ApiClient.deleteData('/auth/account-delete');
-            if (response.statusCode != 200) {
-              throw Exception(response.statusText);
-            }
-            await AuthLocalDataSourceImpl().clearAuthData();
-            Get.offAllNamed(AppRoute.loginScreen);
+            await LoginController.to.deleteAccount();
           } catch (_) {
             Get.snackbar(
               'Account not deleted',

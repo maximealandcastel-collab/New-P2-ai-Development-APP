@@ -95,7 +95,7 @@ class OnboardingMainScreen extends StatelessWidget {
                     height: 54.h,
                     radius: 18.r,
                     fontSize: OnboardingTypography.action(context).fontSize,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     onPressed: controller.nextPage,
                   ),
                 ],
