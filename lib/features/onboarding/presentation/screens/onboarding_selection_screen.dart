@@ -15,6 +15,8 @@ class OnboardingSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -27,7 +29,7 @@ class OnboardingSelectionScreen extends StatelessWidget {
           Positioned(
             left: 16.w,
             right: 16.w,
-            bottom: 46.h,
+            bottom: bottomInset + 24.h,
             child: Column(
               children: [
                 Text(
