@@ -20,6 +20,10 @@ workflows:
           source: true
       cancel_previous_builds: true
 
+    cache:
+      cache_paths:
+        - $HOME/.p2p-signing
+
     scripts:
       - name: Set up keychain
         script: |
@@ -28,7 +32,7 @@ workflows:
 
       - name: Create signing files automatically
         script: |
-          set -e
+          set -euo pipefail
 
           python3 - <<'PYEOF'
           import os, re, sys
@@ -45,17 +49,133 @@ workflows:
           print("App Store Connect API key prepared")
           PYEOF
 
-          openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
+          SIGNING_DIR="$HOME/.p2p-signing"
+          CERTIFICATE_KEY="$SIGNING_DIR/distribution_private_key.pem"
+          mkdir -p "$SIGNING_DIR"
+          chmod 700 "$SIGNING_DIR"
 
-          app-store-connect fetch-signing-files \
-            "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --certificate-key @file:/tmp/cert_key.pem \
-            --private-key @file:/tmp/api_key.pem \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --create \
-            --verbose
+          if [ -s "$CERTIFICATE_KEY" ]; then
+            echo "Reusing stable Apple Distribution private key"
+          else
+            echo "Creating stable Apple Distribution private key"
+            openssl genrsa -out "$CERTIFICATE_KEY" 2048 2>/dev/null
+          fi
+          chmod 600 "$CERTIFICATE_KEY"
+
+          fetch_signing_files() {
+            app-store-connect fetch-signing-files \
+              "$BUNDLE_ID" \
+              --type IOS_APP_STORE \
+              --certificate-key "@file:$CERTIFICATE_KEY" \
+              --private-key @file:/tmp/api_key.pem \
+              --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+              --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+              --create \
+              --verbose
+          }
+
+          set +e
+          SIGNING_OUTPUT="$(fetch_signing_files 2>&1)"
+          SIGNING_STATUS=$?
+          set -e
+          printf '%s\n' "$SIGNING_OUTPUT"
+
+          if [ "$SIGNING_STATUS" -ne 0 ]; then
+            if ! printf '%s' "$SIGNING_OUTPUT" | grep -Eq \
+              "POST https://api\\.appstoreconnect\\.apple\\.com/v1/certificates returned 409:" \
+              || ! printf '%s' "$SIGNING_OUTPUT" | grep -Fq \
+              "You already have a current Distribution certificate or a pending certificate request"; then
+              exit "$SIGNING_STATUS"
+            fi
+
+            echo "Apple certificate limit reached; replacing exactly one oldest distribution certificate"
+            app-store-connect certificates list \
+              --type DISTRIBUTION IOS_DISTRIBUTION \
+              --json \
+              --private-key @file:/tmp/api_key.pem \
+              --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+              --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+              --silent > /tmp/distribution_certificates.json
+
+            CERTIFICATE_ID="$(python3 - <<'PYEOF'
+          import datetime as dt
+          import json
+          import sys
+
+          with open('/tmp/distribution_certificates.json') as source:
+              payload = json.load(source)
+
+          found = {}
+
+          def visit(value):
+              if isinstance(value, list):
+                  for item in value:
+                      visit(item)
+                  return
+              if not isinstance(value, dict):
+                  return
+
+              attributes = value.get('attributes')
+              merged = dict(attributes) if isinstance(attributes, dict) else {}
+              merged.update(value)
+
+              resource_id = (
+                  merged.get('id')
+                  or merged.get('resourceId')
+                  or merged.get('resource_id')
+              )
+              certificate_type = (
+                  merged.get('certificateType')
+                  or merged.get('certificate_type')
+                  or merged.get('type')
+              )
+              expiration = (
+                  merged.get('expirationDate')
+                  or merged.get('expiration_date')
+                  or merged.get('expiresAt')
+                  or ''
+              )
+
+              if (
+                  resource_id
+                  and certificate_type in {'DISTRIBUTION', 'IOS_DISTRIBUTION'}
+              ):
+                  found[str(resource_id)] = str(expiration)
+
+              for child in value.values():
+                  visit(child)
+
+          visit(payload)
+          if not found:
+              sys.exit('ERROR: Could not identify a distribution certificate to replace')
+
+          def expiration_key(item):
+              value = item[1]
+              try:
+                  parsed = dt.datetime.fromisoformat(value.replace('Z', '+00:00'))
+                  return (0, parsed.timestamp())
+              except (TypeError, ValueError):
+                  return (1, value)
+
+          selected_id, _ = min(found.items(), key=expiration_key)
+          print(selected_id)
+          PYEOF
+            )"
+
+            if [ -z "$CERTIFICATE_ID" ]; then
+              echo "ERROR: No targeted distribution certificate selected"
+              exit 1
+            fi
+
+            app-store-connect certificates delete "$CERTIFICATE_ID" \
+              --private-key @file:/tmp/api_key.pem \
+              --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+              --issuer-id "$APP_STORE_CONNECT_ISSUER_ID"
+
+            echo "One stale distribution certificate replaced; waiting for Apple to update"
+            sleep 15
+            fetch_signing_files
+          fi
 
       - name: Add certificates to keychain
         script: |
