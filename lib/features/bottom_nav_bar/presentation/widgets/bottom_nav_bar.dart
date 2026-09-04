@@ -61,62 +61,76 @@ class BottomNavBar extends StatelessWidget {
         12.w,
         MediaQuery.of(context).padding.bottom + 8.h,
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20.r),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            decoration: BoxDecoration(
-              // Smooth frosted-glass white — matches the photo 2 UX direction
-              color: Colors.white.withOpacity(0.78),
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.5),
-                width: 0.8,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.09),
+              blurRadius: 24,
+              offset: const Offset(0, 6),
             ),
-            padding: EdgeInsets.symmetric(vertical: 10.h),
-            // Built from navItems.length rather than fixed indices. The old
-            // version hardcoded 0-4, which left the 6th tab with no tap target
-            // at all — that is trainers' Messages tab and affiliates' Earnings
-            // tab, both mounted in the stack but unreachable.
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (int i = 0; i < _fabPosition(navItems.length); i++)
-                  _buildNavTapTarget(controller, i, navItems[i]),
-                // Centre FAB
-                SizedBox(
-                  width: 56.w,
-                  height: 52.h,
-                  child: Semantics(
-                    button: true,
-                    label: 'Create',
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () =>
-                          NavFabWidget.show(context, controller.fabItems),
-                      child: Center(
-                        child: Assets.icons.addButton.svg(
-                          height: 44.h,
-                          width: 44.w,
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32.r),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.96),
+                borderRadius: BorderRadius.circular(32.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10.h),
+              // Built from navItems.length rather than fixed indices. The old
+              // version hardcoded 0-4, which left the 6th tab with no tap target
+              // at all — that is trainers' Messages tab and affiliates' Earnings
+              // tab, both mounted in the stack but unreachable.
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        for (int i = 0;
+                            i < _fabPosition(navItems.length);
+                            i++)
+                          _buildNavTapTarget(controller, i, navItems[i]),
+                      ],
+                    ),
+                  ),
+                  // Equal-width left and right groups keep this geometrically
+                  // centered for both five-tab and six-tab role sets.
+                  SizedBox(
+                    width: 56.w,
+                    height: 52.h,
+                    child: Semantics(
+                      button: true,
+                      label: 'Create',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () =>
+                            NavFabWidget.show(context, controller.fabItems),
+                        child: Center(
+                          child: Assets.icons.addButton.svg(
+                            height: 44.h,
+                            width: 44.w,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                for (int i = _fabPosition(navItems.length);
-                    i < navItems.length;
-                    i++)
-                  _buildNavTapTarget(controller, i, navItems[i]),
-              ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        for (int i = _fabPosition(navItems.length);
+                            i < navItems.length;
+                            i++)
+                          _buildNavTapTarget(controller, i, navItems[i]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
