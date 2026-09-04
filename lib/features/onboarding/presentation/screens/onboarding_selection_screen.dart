@@ -6,7 +6,7 @@ import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:pler_to_pler_app/features/onboarding/presentation/widgets/onboarding_typography.dart';
 
 class OnboardingSelectionScreen extends StatelessWidget {
   OnboardingSelectionScreen({super.key});
@@ -30,19 +30,22 @@ class OnboardingSelectionScreen extends StatelessWidget {
             bottom: 46.h,
             child: Column(
               children: [
-                CustomText(
-                  text: "Smarter care. effortless workflow",
-                  fontSize: 40.sp,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  "Smarter Care.\nEffortless Workflow.",
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: OnboardingTypography.headline(context),
                 ),
-                SizedBox(height: 8.h),
-                CustomText(
-                  text:
-                      "Get AI-guided plans, track progress, and stay connected to experts all in one platform.",
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w400,
+                SizedBox(height: 14.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  child: Text(
+                    "Get AI-guided plans, track progress, and stay connected to experts all in one platform.",
+                    textAlign: TextAlign.center,
+                    style: OnboardingTypography.description(context),
+                  ),
                 ),
-                SizedBox(height: 40.h),
+                SizedBox(height: 32.h),
                 Row(
                   children: [
                     Expanded(
@@ -105,12 +108,11 @@ Widget _helperSelection({
             fit: BoxFit.cover,
           ),
           SizedBox(height: 8.h),
-          CustomText(text: title, fontSize: 16.sp, fontWeight: FontWeight.w600),
+          Text(title, style: OnboardingTypography.cardTitle),
           SizedBox(height: 8.h),
-          CustomText(
-            text: subTitle,
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w400,
+          Text(
+            subTitle,
+            style: OnboardingTypography.cardDescription,
           ),
         ],
       ),

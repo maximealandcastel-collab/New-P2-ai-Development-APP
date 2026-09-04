@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,6 +6,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/onboarding/model/onboarding_item_model.dart';
+import 'package:pler_to_pler_app/features/onboarding/presentation/widgets/onboarding_typography.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class OnboardingMainScreen extends StatelessWidget {
@@ -34,23 +34,22 @@ class OnboardingMainScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                   Positioned(
-                    left: 16.w,
-                    right: 16.w,
-                    bottom: 180.h,
+                    left: 28.w,
+                    right: 28.w,
+                    bottom: 184.h,
                     child: Column(
                       children: [
-                        CustomText(
-                          text: item.title,
-                          fontSize: 40.sp,
-                          fontWeight: AppFontWeight.label,
+                        Text(
+                          item.title,
                           textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: OnboardingTypography.headline(context),
                         ),
-                        SizedBox(height: 8.h),
-                        CustomText(
-                          text: item.subtitle,
-                          fontSize: 16.sp,
-                          fontWeight: AppFontWeight.body,
+                        SizedBox(height: 14.h),
+                        Text(
+                          item.subtitle,
                           textAlign: TextAlign.center,
+                          style: OnboardingTypography.description(context),
                         ),
                       ],
                     ),
@@ -73,15 +72,15 @@ class OnboardingMainScreen extends StatelessWidget {
                       children: List.generate(
                         onboardingList.length,
                         (index) => Container(
-                          margin: EdgeInsets.symmetric(horizontal: 6.w),
-                          height: 10.r,
+                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                          height: 6.r,
                           width: controller.currentIndex.value == index
-                              ? 40.r
-                              : 10.r,
+                              ? 34.r
+                              : 6.r,
                           decoration: BoxDecoration(
                             color: controller.currentIndex.value == index
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
+                                ? AppColors.primary
+                                : AppColors.primary.withOpacity(0.25),
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
@@ -89,26 +88,37 @@ class OnboardingMainScreen extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 36.h),
+                  SizedBox(height: 28.h),
 
-                  CustomButton(label: "Next", onPressed: controller.nextPage),
+                  CustomButton(
+                    label: "Next",
+                    height: 54.h,
+                    radius: 18.r,
+                    fontSize: OnboardingTypography.action(context).fontSize,
+                    fontWeight: FontWeight.w500,
+                    onPressed: controller.nextPage,
+                  ),
                 ],
               ),
             ),
           ),
           Positioned(
-            top: 70.h,
-            right: 26.w,
+            top: MediaQuery.paddingOf(context).top + 18.h,
+            right: 20.w,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 log("Skip");
                 Get.offAllNamed(AppRoute.smarterCareScreen);
               },
-              child: CustomText(
-                text: "Skip",
-                fontSize: 16.sp,
-                fontWeight: AppFontWeight.label,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                child: Text(
+                  "Skip",
+                  style: OnboardingTypography.action(context).copyWith(
+                    color: const Color(0xFF343438),
+                  ),
+                ),
               ),
             ),
           ),

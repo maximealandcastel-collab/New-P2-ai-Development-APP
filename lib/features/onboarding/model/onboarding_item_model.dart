@@ -16,19 +16,19 @@ class OnboardingItem {
 final onboardingList = [
   OnboardingItem(
     image: Assets.images.onboardingOneBgImg.path,
-    title: "Your Fitness & Rehab Hub",
+    title: "Your Fitness &\nRehab Hub",
     subtitle:
         "Receive real-time notifications about kiosk fill levels & specific waste types plan your routes accordingly and maximize efficiency ",
   ),
   OnboardingItem(
     image: Assets.images.onbordingTwoBgImg.path,
-    title: "Smart Insights. Faster Results.",
+    title: "Smart Insights.\nFaster Results.",
     subtitle:
         "From body scans to symptom-based routines, P2Bot analyzes your needs and builds the right plan for you.",
   ),
   OnboardingItem(
     image: Assets.images.onboardingThreeBgImg.path,
-    title: "Train & improve With Professionals",
+    title: "Train & Improve\nWith Professionals",
     subtitle:
         "Book sessions, follow guided routines, and get support from trainers, clinicians, and therapists anytime, anywhere.",
   ),
