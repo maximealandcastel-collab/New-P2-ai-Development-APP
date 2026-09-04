@@ -44,10 +44,12 @@ class SignUpController extends GetxController {
 
   bool _customerGatePassed = false;
   bool _trainerEntry = false;
+  String? _tenantId;
 
   bool get canShowRegistrationForm => _customerGatePassed || _trainerEntry;
 
   void configureEntry(dynamic arguments) {
+    _tenantId = arguments is Map ? arguments['tenantId']?.toString() : null;
     if (arguments is Map && arguments['trainerEntry'] == true) {
       _trainerEntry = true;
       _customerGatePassed = false;
@@ -75,6 +77,7 @@ class SignUpController extends GetxController {
         'nextArguments': {
           'paywallPassed': true,
           'role': 'User',
+          if (_tenantId != null) 'tenantId': _tenantId,
         },
       },
     );
@@ -124,6 +127,7 @@ class SignUpController extends GetxController {
         role: _selectedRole.value.toLowerCase(),
         password: confirmPasswordController.text,
         referredByCode: referral.isNotEmpty ? referral : null,
+        tenantId: _tenantId,
       );
       // Persist the referral code so the paywall can auto-apply 50% off
       if (referral.isNotEmpty) {

@@ -38,6 +38,7 @@ class AuthRepository {
     required String role,
     required String password,
     String? referredByCode,
+    String? tenantId,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -50,6 +51,9 @@ class AuthRepository {
       };
       if (referredByCode != null && referredByCode.isNotEmpty) {
         body['referredByCode'] = referredByCode.toUpperCase();
+      }
+      if (tenantId != null && tenantId.isNotEmpty) {
+        body['tenantId'] = tenantId;
       }
       final response = await _apiService.post(
         ApiConstants.register,
@@ -89,6 +93,7 @@ class AuthRepository {
         Map<String, dynamic>.from(responseData ?? {}),
       );
       final userRole = responseData?['user']?['role']?.toString();
+      final tenantScope = result.tenantScope;
 
       if (result.token.isEmpty) {
         throw UnknownException('Access token not found');
@@ -99,6 +104,15 @@ class AuthRepository {
         _cacheService.put('cacheUserEmail', email.toLowerCase()),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
+        _cacheService.put(
+          'gymAdminTenantIds',
+          tenantScope?.gymAdminTenantIds ?? const <String>[],
+        ),
+        _cacheService.put('tenantId', tenantScope?.tenantId ?? ''),
+        _cacheService.put(
+          'tenantCapabilities',
+          tenantScope?.capabilities ?? const <String>[],
+        ),
       ]);
 
       return result;

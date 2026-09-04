@@ -419,9 +419,10 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
     }
     Get.toNamed(
       AppRoute.signUpScreen,
-      arguments: _entryRole == 'Trainer'
-          ? <String, bool>{'trainerEntry': true}
-          : null,
+      arguments: <String, dynamic>{
+        'tenantId': 'kmf-fitness',
+        if (_entryRole == 'Trainer') 'trainerEntry': true,
+      },
     );
   }
 

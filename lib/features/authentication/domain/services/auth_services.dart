@@ -27,6 +27,7 @@ class AuthService {
     required String role,
     required String password,
     String? referredByCode,
+    String? tenantId,
   }) async {
     return await _repository.register(
       firstName: firstName,
@@ -36,6 +37,7 @@ class AuthService {
       role: role,
       password: password,
       referredByCode: referredByCode,
+      tenantId: tenantId,
     );
   }
 

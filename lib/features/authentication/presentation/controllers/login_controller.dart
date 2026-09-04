@@ -11,7 +11,9 @@ import 'package:pler_to_pler_app/features/authentication/domain/services/auth_se
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/kmf_gym_admin_dashboard_screen.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
@@ -102,6 +104,18 @@ class LoginController extends GetxController {
 
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
+      final gymAdminTenantIds =
+          CacheService().get<List<dynamic>>('gymAdminTenantIds') ?? const [];
+
+      // Tenant authorization is backend-issued and deliberately takes
+      // precedence over the global admin flow. KMF administrators never enter
+      // the Founder Console or the global Admin/User view toggle.
+      if (gymAdminTenantIds
+          .map((tenantId) => tenantId.toString())
+          .contains('kmf-fitness')) {
+        Get.offAll(() => const KmfGymAdminDashboardScreen());
+        return;
+      }
 
       // Owner accounts must complete the official admin activation step.
       // The bypass screen sends the entered code to the authenticated backend;
