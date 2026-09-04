@@ -140,7 +140,7 @@ class EnterpriseGymModel {
       lng: -80.1918,
     ),
 
-    // ── KMF FITNESS CLUB — PINNED, LOCKED UNTIL PARTNERSHIP ───────────────
+    // ── KMF FITNESS CLUB — ACTIVE P2P-POWERED MEMBER ACCESS ───────────────
     EnterpriseGymModel(
       id: 'kmf_fitness_club',
       name: 'KMF Fitness Club',
@@ -151,7 +151,7 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFF39FF14),
       textColor: Colors.white,
       isPinned: true,
-      isActivated: false,
+      isActivated: true,
       rating: 0.0,
       imageAssetPath: 'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
       galleryAssetPaths: const [
@@ -166,7 +166,7 @@ class EnterpriseGymModel {
       tagline: 'Keep Moving Forward',
       lat: 40.7259,
       lng: -73.5143,
-      statusLabel: 'Coming soon — partnership not yet established.',
+      statusLabel: 'Member, trainer, and owner access powered by P2P FitTech AI.',
     ),
 
     // ── Enterprise Partners ──────────────────────────────────────────────

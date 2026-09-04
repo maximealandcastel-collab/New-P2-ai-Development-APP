@@ -22,10 +22,20 @@ class SignUpController extends GetxController {
   final genderController = TextEditingController();
   final phoneController = TextEditingController();
   final emailController = TextEditingController(
-    text: kDebugMode ? 'dev.milon923@gmail.com' : '',
+    text: kDebugMode
+        ? const String.fromEnvironment(
+            'PREFILL_SIGNUP_EMAIL',
+            defaultValue: '',
+          )
+        : '',
   );
   final passwordController = TextEditingController(
-    text: kDebugMode ? '1qazxsw2' : '',
+    text: kDebugMode
+        ? const String.fromEnvironment(
+            'PREFILL_SIGNUP_PASSWORD',
+            defaultValue: '',
+          )
+        : '',
   );
   final confirmPasswordController = TextEditingController();
   final referralCodeController = TextEditingController();

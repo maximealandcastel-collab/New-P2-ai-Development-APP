@@ -2,7 +2,9 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
@@ -27,6 +29,9 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     final gym = widget.gym;
+    if (gym.id == 'kmf_fitness_club') {
+      return _KmfFitnessLoginScreen(gym: gym);
+    }
 
     return Scaffold(
       backgroundColor: _kBg,
@@ -369,6 +374,418 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _KmfFitnessLoginScreen extends StatefulWidget {
+  final EnterpriseGymModel gym;
+
+  const _KmfFitnessLoginScreen({required this.gym});
+
+  @override
+  State<_KmfFitnessLoginScreen> createState() =>
+      _KmfFitnessLoginScreenState();
+}
+
+class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
+  static const _green = Color(0xFF39FF14);
+  static const _black = Color(0xFF090A09);
+  final LoginController _controller = LoginController.to;
+  String _entryRole = 'Member';
+
+  void _selectRole(String role) {
+    setState(() => _entryRole = role);
+    _controller.setRole(
+      switch (role) {
+        'Trainer' => 'Trainer',
+        'Admin' => 'Admin',
+        _ => 'User',
+      },
+    );
+  }
+
+  void _openSignUp() {
+    if (_entryRole == 'Admin') {
+      Get.snackbar(
+        'Admin accounts are invitation-only',
+        'Authorized KMF business owners should sign in with their existing account.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.white,
+        colorText: _black,
+        margin: EdgeInsets.all(16.r),
+      );
+      return;
+    }
+    Get.toNamed(
+      AppRoute.signUpScreen,
+      arguments: _entryRole == 'Trainer'
+          ? <String, bool>{'trainerEntry': true}
+          : null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _black,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(22.w, 12.h, 22.w, 30.h),
+          child: Form(
+            key: _controller.loginFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: Get.back,
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                Center(
+                  child: Container(
+                    width: 126.r,
+                    height: 126.r,
+                    padding: EdgeInsets.all(10.r),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28.r),
+                      border: Border.all(color: _green, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _green.withOpacity(0.18),
+                          blurRadius: 30,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: GymBrandLogo(
+                      gym: widget.gym,
+                      size: 104.r,
+                      borderRadius: 20.r,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Text(
+                  'KMF Fitness',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 29.sp,
+                    height: 1.05,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: 7.h),
+                Text(
+                  'Keep Moving Forward',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _green,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Container(
+                  padding: EdgeInsets.all(18.r),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24.r),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Sign in',
+                        style: TextStyle(
+                          color: _black,
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 5.h),
+                      Text(
+                        'Use your P2P FitTech AI account.',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      SizedBox(height: 18.h),
+                      Row(
+                        children: ['Member', 'Trainer', 'Admin']
+                            .map(
+                              (role) => Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 3.w),
+                                  child: _KmfRoleButton(
+                                    label: role,
+                                    selected: _entryRole == role,
+                                    onTap: () => _selectRole(role),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      if (_entryRole == 'Admin') ...[
+                        SizedBox(height: 9.h),
+                        Text(
+                          'Admin access is verified from your authorized owner account after sign in.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 11.sp,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                      SizedBox(height: 18.h),
+                      _KmfTextField(
+                        controller: _controller.emailController,
+                        label: 'Email',
+                        hint: 'Enter your email address',
+                        icon: Icons.person_outline_rounded,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          if (email.isEmpty) return 'Enter your email address';
+                          if (!GetUtils.isEmail(email)) {
+                            return 'Enter a valid email address';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 14.h),
+                      _KmfTextField(
+                        controller: _controller.passwordController,
+                        label: 'Password',
+                        hint: 'Enter your password',
+                        icon: Icons.lock_outline_rounded,
+                        obscureText: true,
+                        validator: (value) => (value ?? '').isEmpty
+                            ? 'Enter your password'
+                            : null,
+                      ),
+                      SizedBox(height: 10.h),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () =>
+                              Get.toNamed(AppRoute.forgotScreen),
+                          child: const Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: Color(0xFF187900),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Obx(() {
+                        final loading =
+                            _controller.loginState == LoadingState.loading;
+                        return SizedBox(
+                          height: 52.h,
+                          child: ElevatedButton(
+                            onPressed:
+                                loading ? null : () => _controller.login(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _green,
+                              foregroundColor: _black,
+                              disabledBackgroundColor:
+                                  _green.withOpacity(0.45),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14.r),
+                              ),
+                            ),
+                            child: loading
+                                ? SizedBox(
+                                    width: 22.r,
+                                    height: 22.r,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      color: _black,
+                                    ),
+                                  )
+                                : Text(
+                                    'Sign in as $_entryRole',
+                                    style: TextStyle(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        );
+                      }),
+                      SizedBox(height: 16.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'New to KMF? ',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _openSignUp,
+                            child: Text(
+                              _entryRole == 'Admin'
+                                  ? 'Owner access'
+                                  : 'Create account',
+                              style: TextStyle(
+                                color: const Color(0xFF187900),
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 18.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/app_icon.png',
+                      width: 23.r,
+                      height: 23.r,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Powered by P2P FitTech AI',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KmfRoleButton extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _KmfRoleButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? const Color(0xFF39FF14) : const Color(0xFFF0F2EF),
+      borderRadius: BorderRadius.circular(11.r),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(11.r),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 11.h),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: const Color(0xFF090A09),
+              fontSize: 12.sp,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KmfTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final String? Function(String?)? validator;
+
+  const _KmfTextField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.icon,
+    this.keyboardType,
+    this.obscureText = false,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: const Color(0xFF333333),
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: 7.h),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          validator: validator,
+          textInputAction:
+              obscureText ? TextInputAction.done : TextInputAction.next,
+          onFieldSubmitted:
+              obscureText ? (_) => LoginController.to.login() : null,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, color: Colors.black45),
+            filled: true,
+            fillColor: const Color(0xFFF3F5F2),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(13.r),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(13.r),
+              borderSide:
+                  const BorderSide(color: Color(0xFF39FF14), width: 1.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
