@@ -7,9 +7,6 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.p2pfittech.ai
       groups:
         - appstore
       vars:
@@ -24,6 +21,47 @@ workflows:
       cancel_previous_builds: true
 
     scripts:
+      - name: Set up keychain
+        script: |
+          set -e
+          keychain initialize
+
+      - name: Create signing files automatically
+        script: |
+          set -e
+
+          python3 - <<'PYEOF'
+          import os, re, sys
+          raw = os.environ.get('APP_STORE_CONNECT_PRIVATE_KEY', '')
+          if not raw.strip():
+              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY is empty")
+          body = re.sub(r'-----[^-]+-----', '', raw).replace('\n','').replace('\r','').replace(' ','').strip()
+          if not body:
+              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY has no content")
+          folded = '\n'.join(body[i:i+64] for i in range(0, len(body), 64))
+          pem = '-----BEGIN PRIVATE KEY-----\n' + folded + '\n-----END PRIVATE KEY-----\n'
+          with open('/tmp/api_key.pem', 'w') as f:
+              f.write(pem)
+          print("App Store Connect API key prepared")
+          PYEOF
+
+          openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
+
+          app-store-connect fetch-signing-files \
+            "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key @file:/tmp/cert_key.pem \
+            --private-key @file:/tmp/api_key.pem \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --create \
+            --verbose
+
+      - name: Add certificates to keychain
+        script: |
+          set -e
+          keychain add-certificates
+
       - name: Set up Xcode code signing
         script: |
           set -e
