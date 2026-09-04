@@ -7,59 +7,23 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.p2pfittech.ai
       groups:
         - appstore
       vars:
         BUNDLE_ID: com.p2pfittech.ai
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: stabilization
+          include: true
+          source: true
+      cancel_previous_builds: true
 
     scripts:
-      - name: Set up keychain
-        script: |
-          set -e
-          keychain initialize
-
-      - name: Fetch signing files
-        script: |
-          set -e
-
-          # 1. Reformat App Store Connect API key (.p8 files are PKCS8 — PRIVATE KEY header)
-          python3 - <<'PYEOF'
-          import os, re, sys
-          raw = os.environ.get('APP_STORE_CONNECT_PRIVATE_KEY', '')
-          if not raw.strip():
-              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY is empty")
-          body = re.sub(r'-----[^-]+-----', '', raw).replace('\n','').replace('\r','').replace(' ','').strip()
-          if not body:
-              sys.exit("ERROR: APP_STORE_CONNECT_PRIVATE_KEY has no content")
-          folded = '\n'.join(body[i:i+64] for i in range(0, len(body), 64))
-          pem = '-----BEGIN PRIVATE KEY-----\n' + folded + '\n-----END PRIVATE KEY-----\n'
-          with open('/tmp/api_key.pem', 'w') as f:
-              f.write(pem)
-          print("API key written")
-          PYEOF
-
-          # 2. Generate a fresh RSA cert key on this machine (avoids cross-platform issues)
-          openssl genrsa -out /tmp/cert_key.pem 2048 2>/dev/null
-          echo "Cert key generated"
-
-          # 3. Fetch (or create) signing cert + provisioning profile.
-          # Never revoke team certificates automatically: they can be shared
-          # by other apps and build pipelines.
-          app-store-connect fetch-signing-files \
-            "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --certificate-key @file:/tmp/cert_key.pem \
-            --private-key @file:/tmp/api_key.pem \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --create \
-            --verbose
-
-      - name: Add certificates to keychain
-        script: |
-          set -e
-          keychain add-certificates
-
       - name: Set up Xcode code signing
         script: |
           set -e
@@ -79,12 +43,14 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-            # Release 4.11.0 / build 3077. Apple already has earlier builds,
-            # so every new upload must use a higher build number.
+          # Build 3077 is the last manually assigned release. Adding the
+          # workflow counter guarantees a unique, increasing TestFlight build.
+          IOS_BUILD_NUMBER=$((3077 + BUILD_NUMBER))
+          echo "Building release 4.11.0 ($IOS_BUILD_NUMBER)"
           flutter build ipa --release \
             --build-name=4.11.0 \
-             --build-number=3077 \
-             --dart-define=BUILD_NUMBER=3077
+            --build-number="$IOS_BUILD_NUMBER" \
+            --dart-define=BUILD_NUMBER="$IOS_BUILD_NUMBER"
 
     artifacts:
       - build/ios/ipa/*.ipa
