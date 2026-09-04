@@ -42,7 +42,7 @@ class BottomNavBar extends StatelessWidget {
             }
           },
           child: SizedBox(
-            height: 52.h,
+            height: 46.h,
             child: BottomNavItem(index: index, navItem: navItem),
           ),
         ),
@@ -63,25 +63,25 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32.r),
+          borderRadius: BorderRadius.circular(30.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.09),
-              blurRadius: 24,
-              offset: const Offset(0, 6),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(32.r),
+          borderRadius: BorderRadius.circular(30.r),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.96),
-                borderRadius: BorderRadius.circular(32.r),
+                color: Colors.white.withOpacity(0.94),
+                borderRadius: BorderRadius.circular(30.r),
               ),
-              padding: EdgeInsets.symmetric(vertical: 10.h),
+              padding: EdgeInsets.symmetric(vertical: 6.h),
               // Built from navItems.length rather than fixed indices. The old
               // version hardcoded 0-4, which left the 6th tab with no tap target
               // at all — that is trainers' Messages tab and affiliates' Earnings
@@ -101,8 +101,8 @@ class BottomNavBar extends StatelessWidget {
                   // Equal-width left and right groups keep this geometrically
                   // centered for both five-tab and six-tab role sets.
                   SizedBox(
-                    width: 56.w,
-                    height: 52.h,
+                    width: 52.w,
+                    height: 46.h,
                     child: Semantics(
                       button: true,
                       label: 'Create',
@@ -112,8 +112,8 @@ class BottomNavBar extends StatelessWidget {
                             NavFabWidget.show(context, controller.fabItems),
                         child: Center(
                           child: Assets.icons.addButton.svg(
-                            height: 44.h,
-                            width: 44.w,
+                            height: 42.h,
+                            width: 42.w,
                           ),
                         ),
                       ),

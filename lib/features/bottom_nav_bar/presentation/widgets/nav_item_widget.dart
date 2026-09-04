@@ -84,7 +84,7 @@ class _BottomNavItemState extends State<BottomNavItem>
       return ScaleTransition(
         scale: _scale,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 5.h),
+          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 3.h),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -95,8 +95,8 @@ class _BottomNavItemState extends State<BottomNavItem>
                   builder: (context, color, child) {
                     return SvgPicture.asset(
                       widget.navItem.icon,
-                      width: 24.w,
-                      height: 24.h,
+                      width: 22.w,
+                      height: 22.h,
                       colorFilter: ColorFilter.mode(
                         color ?? iconColor,
                         BlendMode.srcIn,
@@ -104,12 +104,12 @@ class _BottomNavItemState extends State<BottomNavItem>
                     );
                   },
                 ),
-                SizedBox(height: 3.h),
+                SizedBox(height: 2.h),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     fontWeight:
                         isSelected ? AppFontWeight.label : AppFontWeight.body,
                     color: isSelected
