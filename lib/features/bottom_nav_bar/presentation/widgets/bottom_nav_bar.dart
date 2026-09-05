@@ -113,16 +113,24 @@ class BottomNavBar extends StatelessWidget {
                         onTap: () =>
                             NavFabWidget.show(context, controller.fabItems),
                         child: Center(
-                          child: Assets.icons.addButton.svg(
-                            height: 42.h,
-                            width: 42.w,
-                            colorFilter: tenant.isWhiteLabeled
-                                ? ColorFilter.mode(
-                                    tenant.primaryColor,
-                                    BlendMode.srcIn,
-                                  )
-                                : null,
-                          ),
+                          child: tenant.isWhiteLabeled
+                                  ? Container(
+                                      height: 42.h,
+                                      width: 42.w,
+                                      decoration: BoxDecoration(
+                                        color: tenant.primaryColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 26.sp,
+                                      ),
+                                    )
+                                  : Assets.icons.addButton.svg(
+                                      height: 42.h,
+                                      width: 42.w,
+                                    ),
                         ),
                       ),
                     ),
