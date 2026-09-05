@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
     @override
     Widget build(BuildContext context) {
       controller.configureDestination(Get.arguments);
-      final tenant = TenantBrandService.to;
       return Scaffold(
         backgroundColor: _cream,
         body: SafeArea(
@@ -72,6 +71,7 @@ import 'package:flutter/material.dart';
     }
 
     Widget _header() {
+      final tenant = TenantBrandService.to;
       return Padding(
         padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 4.h),
         child: Row(

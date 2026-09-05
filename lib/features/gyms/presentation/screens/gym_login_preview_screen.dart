@@ -648,7 +648,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                 ? SizedBox(
                                     width: 22.r,
                                     height: 22.r,
-                                    child: const CircularProgressIndicator(
+                                    child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
                                       color: _black,
                                     ),
