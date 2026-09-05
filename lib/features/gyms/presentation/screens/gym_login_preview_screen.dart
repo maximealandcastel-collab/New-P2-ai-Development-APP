@@ -27,6 +27,38 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
   bool _obscure = true;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          !Get.isRegistered<LoginController>() ||
+          !LoginController.to.isLoggedIn()) {
+        return;
+      }
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Text('You are currently logged in'),
+            content: const Text("You are currently using P2P Fit's login."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  if (mounted) Get.back();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final gym = widget.gym;
     if (gym.id == 'kmf_fitness_club') {
