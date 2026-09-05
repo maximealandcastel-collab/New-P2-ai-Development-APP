@@ -74,6 +74,7 @@ import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_generating_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_plan_details_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout_find/presentation/ai_plan_result_screen.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/privacy_policy_all_screen.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/children/earnings_screen.dart';
@@ -159,6 +160,7 @@ class AppRoute {
   static String workoutScreen = "/workoutScreen";
   static String workoutGeneratingScreen = "/workoutGeneratingScreen";
   static String workoutPlanDetailsScreen = "/workoutPlanDetailsScreen";
+  static String aiPlanResult = "/aiPlanResult";
   static String paymentRequestScreen = "/paymentRequestScreen";
   static String earningsScreen = "/earningsScreen";
   static String invoicesScreen = "/invoicesScreen";
@@ -398,6 +400,10 @@ class AppRoute {
     GetPage(
       name: workoutGeneratingScreen,
       page: () => const WorkoutGeneratingScreen(),
+    ),
+    GetPage(
+      name: aiPlanResult,
+      page: () => const AiPlanResultScreen(),
     ),
     GetPage(
       name: workoutPlanDetailsScreen,
