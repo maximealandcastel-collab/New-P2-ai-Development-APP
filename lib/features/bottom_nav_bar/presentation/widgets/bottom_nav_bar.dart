@@ -116,7 +116,7 @@ class BottomNavBar extends StatelessWidget {
                           child: Assets.icons.addButton.svg(
                             height: 42.h,
                             width: 42.w,
-                            colorFilter: tenant.isKmf
+                            colorFilter: tenant.isWhiteLabeled
                                 ? ColorFilter.mode(
                                     tenant.primaryColor,
                                     BlendMode.srcIn,

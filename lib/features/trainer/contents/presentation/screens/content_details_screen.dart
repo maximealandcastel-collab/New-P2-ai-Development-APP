@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 
 import '../../../../../widgets/custom_container.dart';
 import '../../../../../widgets/custom_image_avatar.dart';
@@ -108,7 +109,7 @@ class ContentDetailsScreen extends StatelessWidget {
                         isFilled: true,
                         onTap: () => SharePlus.instance.share(
                           ShareParams(
-                            text: '${content['title'] ?? 'P2P FitTech AI content'}\n${content['videoUrl'] ?? content['image'] ?? ''}',
+                            text: '${content['title'] ?? '${TenantBrandService.to.displayName} content'}\n${content['videoUrl'] ?? content['image'] ?? ''}',
                           ),
                         ),
                       ),

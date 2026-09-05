@@ -4,6 +4,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
 import 'package:pler_to_pler_app/features/profile/profile_screen.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/user_profile_screen.dart';
@@ -52,6 +53,10 @@ class _FeedAppBarState extends State<FeedAppBar> {
       _name.trim().isNotEmpty ? _name.trim()[0].toUpperCase() : 'P';
 
   String get _subtitle {
+    final tenant = TenantBrandService.to;
+    if (tenant.isWhiteLabeled) {
+      return '${tenant.displayName} · ${tenant.tagline}';
+    }
     final role = _role.toLowerCase();
     if (role == 'trainer' || role == 'admin') {
       return 'Let’s manage your clients';
@@ -61,16 +66,17 @@ class _FeedAppBarState extends State<FeedAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final tenant = TenantBrandService.to;
     // Avatar: real photo if available, orange initial circle otherwise.
     final Widget avatar = _profilePicture.isNotEmpty
         ? CircleAvatar(
             radius: 22.r,
-            backgroundColor: const Color(0xFFFF6B35),
+            backgroundColor: tenant.primaryColor,
             backgroundImage: NetworkImage(_profilePicture),
           )
         : CircleAvatar(
             radius: 22.r,
-            backgroundColor: const Color(0xFFFF6B35),
+            backgroundColor: tenant.primaryColor,
             child: Text(
               _initial,
               style: TextStyle(

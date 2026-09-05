@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
@@ -37,11 +38,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tenant = TenantBrandService.to;
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: tenant.scaffoldBackground,
       body: SafeArea(
         child: RefreshIndicator(
-          color: const Color(0xFFFF6B35),
+          color: tenant.primaryColor,
           onRefresh: _refreshHome,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
@@ -183,7 +185,7 @@ class _DailyWorkoutCalendar extends StatefulWidget {
 }
 
 class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
-  static const _orange = Color(0xFFFF6B35);
+  Color get _orange => TenantBrandService.to.primaryColor;
   static const _ink = Color(0xFF171717);
   static const _muted = Color(0xFF777777);
   static const _line = Color(0xFFE9E9E9);
@@ -593,7 +595,7 @@ class _CalendarDayCard extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _orange = Color(0xFFFF6B35);
+  Color get _orange => TenantBrandService.to.primaryColor;
 
   static const _weekdayLabels = [
     'MON',
@@ -748,7 +750,7 @@ class _WorkoutDayProgress {
     if (completed >= total && total > 0) return const Color(0xFF38A169);
     if (completed == 0) return const Color(0xFFA3A3A3);
     if (completed < total / 2) return const Color(0xFFF2B531);
-    return const Color(0xFFFF6B35);
+    return TenantBrandService.to.primaryColor;
   }
 }
 
@@ -796,7 +798,7 @@ class _GymsCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFFFF6B35))),
+                            color: TenantBrandService.to.primaryColor)),
                   ),
                 ),
               ),
@@ -1050,7 +1052,7 @@ class _CircleProgressPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
     final fgPaint = Paint()
-      ..color = const Color(0xFFFF6B35)
+      ..color = TenantBrandService.to.primaryColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;

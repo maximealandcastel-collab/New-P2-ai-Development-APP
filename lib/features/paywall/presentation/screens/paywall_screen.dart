@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
     import 'package:get/get.dart';
     import 'package:flutter_screenutil/flutter_screenutil.dart';
     import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+    import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
     import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
     import 'package:pler_to_pler_app/features/paywall/controllers/paywall_controller.dart';
     import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
     @override
     Widget build(BuildContext context) {
       controller.configureDestination(Get.arguments);
+      final tenant = TenantBrandService.to;
       return Scaffold(
         backgroundColor: _cream,
         body: SafeArea(
@@ -107,7 +109,7 @@ import 'package:flutter/material.dart';
                   child: ClipOval(
                     child: Transform.scale(
                       scale: 1.12,
-                      child: Image.asset('assets/images/app_logo.png', fit: BoxFit.cover, filterQuality: FilterQuality.high, errorBuilder: (_, __, ___) => Icon(Icons.fitness_center_rounded, color: _orange, size: 17.sp)),
+                      child: Image.asset(tenant.logoAssetPath ?? 'assets/images/app_logo.png', fit: BoxFit.cover, filterQuality: FilterQuality.high, errorBuilder: (_, __, ___) => Icon(Icons.fitness_center_rounded, color: tenant.primaryColor, size: 17.sp)),
                     ),
                   ),
                 ),
@@ -115,8 +117,9 @@ import 'package:flutter/material.dart';
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text.rich(TextSpan(children: [const TextSpan(text: 'P2P '), TextSpan(text: 'FIT', style: TextStyle(color: _deepOrange))]), style: TextStyle(color: _ink, fontSize: 14.sp, fontWeight: FontWeight.w900, letterSpacing: .5, height: 1)),
-                    Text('TECH AI', style: TextStyle(color: _deepOrange, fontSize: 8.sp, fontWeight: FontWeight.w800, letterSpacing: 1.2, height: 1.1)),
+                    Text(tenant.displayName, style: TextStyle(color: tenant.isWhiteLabeled ? tenant.primaryColor : _ink, fontSize: 14.sp, fontWeight: FontWeight.w900, letterSpacing: .5, height: 1)),
+                    if (!tenant.isWhiteLabeled)
+                      Text('TECH AI', style: TextStyle(color: _deepOrange, fontSize: 8.sp, fontWeight: FontWeight.w800, letterSpacing: 1.2, height: 1.1)),
                   ],
                 ),
               ],
@@ -485,7 +488,7 @@ import 'package:flutter/material.dart';
                       ),
                       SizedBox(height: 2.h),
                       Text(
-                        'Enter your P2P code to unlock your plan.',
+                        'Enter your access code to unlock your plan.',
                         style: TextStyle(
                           color: _muted,
                           fontSize: 11.sp,

@@ -12,7 +12,10 @@ import 'package:pler_to_pler_app/features/profile/domain/services/profile_servic
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/kmf_gym_admin_dashboard_screen.dart';
 
 class LoginController extends GetxController {
@@ -84,7 +87,7 @@ class LoginController extends GetxController {
     _loginState.value = LoadingState.loading;
 
     try {
-      await _authService.login(
+      final loginResult = await _authService.login(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
@@ -97,6 +100,8 @@ class LoginController extends GetxController {
         await prefs.remove('sessionPersisted');
       }
 
+      await _resetUiForAuthenticatedSession();
+
       // ── Connect Stream Chat in the background (non-blocking) ─────────────
       // We fire-and-forget so login navigation is instant; the chat screen
       // itself also calls initFromBackend() as a safety net.
@@ -104,15 +109,16 @@ class LoginController extends GetxController {
 
       final loginEmail  = emailController.text.trim().toLowerCase();
       final role        = _authService.getRole() ?? '';
+      final tenantScope = loginResult.tenantScope;
       final gymAdminTenantIds =
-          CacheService().get<List<dynamic>>('gymAdminTenantIds') ?? const [];
+          tenantScope?.gymAdminTenantIds ?? const <String>[];
+      final adminBrand =
+          TenantBrandService.to.firstAdminBrand(gymAdminTenantIds);
 
       // Tenant authorization is backend-issued and deliberately takes
       // precedence over the global admin flow. KMF administrators never enter
       // the Founder Console or the global Admin/User view toggle.
-      if (gymAdminTenantIds
-          .map((tenantId) => tenantId.toString())
-          .contains('kmf-fitness')) {
+      if (adminBrand?.adminExperience == TenantAdminExperience.kmf) {
         Get.offAll(() => const KmfGymAdminDashboardScreen());
         return;
       }
@@ -131,7 +137,12 @@ class LoginController extends GetxController {
         return;
       }
 
-      Get.offAllNamed(AppRoute.bottonNavBar);
+      Get.offAllNamed(
+        AppRoute.bottonNavBar,
+        parameters: <String, String>{
+          'tenantSession': tenantScope?.tenantId ?? 'default',
+        },
+      );
     } on NoInternetException {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show('No internet connection');
@@ -142,6 +153,29 @@ class LoginController extends GetxController {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
     }
+  }
+
+  Future<void> _resetUiForAuthenticatedSession() async {
+    try {
+      if (Get.isRegistered<AdminModeService>()) {
+        await AdminModeService.to.deactivate();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<AffiliateModeService>()) {
+        AffiliateModeService.to.deactivate();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<BottomNavBarController>()) {
+        BottomNavBarController.to.resetIndex();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<VideoPlaybackManager>()) {
+        Get.find<VideoPlaybackManager>().stopAll();
+      }
+    } catch (_) {}
   }
   /// Returns true if a user is currently signed in.
   bool isLoggedIn() => _authService.getRole() != null;

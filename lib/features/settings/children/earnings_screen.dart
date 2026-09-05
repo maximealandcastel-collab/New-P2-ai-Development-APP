@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 
 class EarningsScreen extends StatefulWidget {
   const EarningsScreen({super.key});
@@ -50,7 +51,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   SizedBox(height: 22.h),
                   _buildSectionHeading(
                     'What You Get With Your Refill',
-                    'Your tokens power cutting-edge AI tools integrated into P2P Fit Tech AI.',
+                    'Your tokens power the AI tools available in ${TenantBrandService.to.displayName}.',
                   ),
                   SizedBox(height: 12.h),
                   _buildProviderRow(),
@@ -102,7 +103,12 @@ class _EarningsScreenState extends State<EarningsScreen> {
             ],
           ),
           SizedBox(height: 6.h),
-          Assets.images.appLogo.image(height: 34.h, width: 92.w),
+          Image.asset(
+            TenantBrandService.to.logoAssetPath ?? 'assets/images/app_logo.png',
+            height: 54.h,
+            width: 92.w,
+            fit: BoxFit.contain,
+          ),
           SizedBox(height: 5.h),
           Text(
             'Refill Tokens',

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 
@@ -253,7 +254,7 @@ class PaywallController extends GetxController {
         if (hasPromo) await _redeemPromo();
         Get.snackbar(
           "You're subscribed!",
-          "Welcome to P2P FitTech AI. Full access unlocked.",
+          "Welcome to ${TenantBrandService.to.displayName}. Full access unlocked.",
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );

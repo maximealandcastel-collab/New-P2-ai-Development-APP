@@ -38,8 +38,10 @@ class BottomNavBarMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = BottomNavBarController.to;
+    final tenantSession = Get.parameters['tenantSession'] ?? 'default';
 
     return Obx(() {
+      final tenant = TenantBrandService.to;
       final isAdmin = Get.isRegistered<AdminModeService>() &&
           AdminModeService.to.isAdmin;
       final adminMode = isAdmin && !AdminModeService.to.viewAsUser;
@@ -88,8 +90,8 @@ class BottomNavBarMain extends StatelessWidget {
       final pillInset = isAdmin ? 82.h : 0.0;
 
       return Scaffold(
-        key: const ValueKey('bottomNavMainScaffold'),
-        backgroundColor: TenantBrandService.to.scaffoldBackground,
+        key: ValueKey('bottomNavMainScaffold-$tenantSession'),
+        backgroundColor: tenant.scaffoldBackground,
         body: Stack(
           children: [
             Positioned.fill(
@@ -100,9 +102,18 @@ class BottomNavBarMain extends StatelessWidget {
                     bottom: navBarHeight,
                   ),
                 ),
-                child: IndexedStack(
-                  index: activeIndex,
-                  children: activeItems.map((e) => e.screen).toList(),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: Theme.of(context).colorScheme.copyWith(
+                      primary: tenant.primaryColor,
+                      secondary: tenant.primaryColor,
+                    ),
+                  ),
+                  child: IndexedStack(
+                    key: ValueKey('tenantTabs-$tenantSession'),
+                    index: activeIndex,
+                    children: activeItems.map((e) => e.screen).toList(),
+                  ),
                 ),
               ),
             ),

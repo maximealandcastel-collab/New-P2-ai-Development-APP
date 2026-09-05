@@ -60,8 +60,8 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     final gym = widget.gym;
-    if (gym.loginExperience == GymLoginExperience.kmf) {
-      return _KmfFitnessLoginScreen(gym: gym);
+    if (gym.loginExperience == GymLoginExperience.whiteLabel) {
+      return _WhiteLabelGymLoginScreen(gym: gym);
     }
 
     return Scaffold(
@@ -409,19 +409,19 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
   }
 }
 
-class _KmfFitnessLoginScreen extends StatefulWidget {
+class _WhiteLabelGymLoginScreen extends StatefulWidget {
   final EnterpriseGymModel gym;
 
-  const _KmfFitnessLoginScreen({required this.gym});
+  const _WhiteLabelGymLoginScreen({required this.gym});
 
   @override
-  State<_KmfFitnessLoginScreen> createState() =>
-      _KmfFitnessLoginScreenState();
+  State<_WhiteLabelGymLoginScreen> createState() =>
+      _WhiteLabelGymLoginScreenState();
 }
 
-class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
-  static const _green = Color(0xFF39FF14);
-  static const _black = Color(0xFF090A09);
+class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
+  Color get _green => widget.gym.accentColor;
+  Color get _black => widget.gym.brandColor;
   final LoginController _controller = LoginController.to;
   String _entryRole = 'Member';
 
@@ -440,7 +440,7 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
     if (_entryRole == 'Admin') {
       Get.snackbar(
         'Admin accounts are invitation-only',
-        'Authorized KMF business owners should sign in with their existing account.',
+        'Authorized ${widget.gym.name} business owners should sign in with their existing account.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.white,
         colorText: _black,
@@ -451,7 +451,7 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
     Get.toNamed(
       AppRoute.signUpScreen,
       arguments: <String, dynamic>{
-        'tenantId': 'kmf-fitness',
+        if (widget.gym.tenantId != null) 'tenantId': widget.gym.tenantId,
         if (_entryRole == 'Trainer') 'trainerEntry': true,
       },
     );
@@ -507,7 +507,7 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
                 ),
                 SizedBox(height: 20.h),
                 Text(
-                  'KMF Fitness',
+                  widget.gym.name,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -548,7 +548,7 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
                       ),
                       SizedBox(height: 5.h),
                       Text(
-                        'Use your P2P FitTech AI account.',
+                        'Use your ${widget.gym.name} account.',
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 13.sp,
@@ -668,7 +668,7 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'New to KMF? ',
+                            'New to ${widget.gym.initials}? ',
                             style: TextStyle(
                               color: Colors.black54,
                               fontSize: 13.sp,
@@ -693,24 +693,14 @@ class _KmfFitnessLoginScreenState extends State<_KmfFitnessLoginScreen> {
                   ),
                 ),
                 SizedBox(height: 18.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/app_icon.png',
-                      width: 23.r,
-                      height: 23.r,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Powered by P2P FitTech AI',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
+                Text(
+                  '${widget.gym.name} · ${widget.gym.tagline}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             ),
