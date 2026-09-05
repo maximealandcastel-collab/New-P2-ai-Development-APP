@@ -82,15 +82,21 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
-    if (!loginFormKey.currentState!.validate()) return;
+    if (!loginFormKey.currentState!.validate()) {
+      passwordController.clear();
+      return;
+    }
 
     _loginState.value = LoadingState.loading;
+    final submittedEmail = emailController.text.trim().toLowerCase();
+    var authenticated = false;
 
     try {
       final loginResult = await _authService.login(
-        email: emailController.text.trim(),
+        email: submittedEmail,
         password: passwordController.text,
       );
+      authenticated = true;
       _loginState.value = LoadingState.loaded;
 
       final prefs = await SharedPreferences.getInstance();
@@ -107,7 +113,7 @@ class LoginController extends GetxController {
       // itself also calls initFromBackend() as a safety net.
       StreamChatService.instance.initFromBackend().ignore();
 
-      final loginEmail  = emailController.text.trim().toLowerCase();
+      final loginEmail  = submittedEmail;
       final role        = _authService.getRole() ?? '';
       final tenantScope = loginResult.tenantScope;
       final gymAdminTenantIds =
@@ -127,7 +133,6 @@ class LoginController extends GetxController {
       // The bypass screen sends the entered code to the authenticated backend;
       // never embed the owner PIN in the client or silently grant admin mode.
       if (AppConstants.ownerEmails.contains(loginEmail)) {
-        await prefs.setBool('sessionPersisted', true);
         Get.offAllNamed(AppRoute.adminBypassScreen);
         return;
       }
@@ -152,6 +157,14 @@ class LoginController extends GetxController {
     } catch (e) {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      // LoginController is permanent, so field values otherwise survive route
+      // changes and can appear when another person opens a tenant login.
+      // Passwords are never retained, even after a failed attempt.
+      passwordController.clear();
+      if (authenticated && !saveLogin.value) {
+        emailController.clear();
+      }
     }
   }
 
