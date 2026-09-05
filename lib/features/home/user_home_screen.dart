@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
@@ -30,6 +31,32 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   final _calendarKey = GlobalKey<_DailyWorkoutCalendarState>();
+  Worker? _tabActivationWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    // Bug 2 — Stale bottom modules (Enterprise Demo user side):
+    // IndexedStack intentionally preserves each module, so returning to Home
+    // does not rerun initState. Refresh live Home data when this tab becomes
+    // active instead of rebuilding or forcibly reloading the entire shell.
+    _tabActivationWorker = ever<int>(
+      BottomNavBarController.to.tabChangedSignal,
+      (_) {
+        final controller = BottomNavBarController.to;
+        final homeIndex = controller.indexOfTab(NavItemId.home);
+        if (homeIndex >= 0 && controller.selectedIndex == homeIndex) {
+          _refreshHome();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabActivationWorker?.dispose();
+    super.dispose();
+  }
 
   Future<void> _refreshHome() async {
     await _calendarKey.currentState?.refresh();
