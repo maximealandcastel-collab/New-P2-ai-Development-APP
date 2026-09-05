@@ -15,6 +15,7 @@ import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/kmf_gym_admin_dashboard_screen.dart';
 
@@ -231,6 +232,33 @@ class LoginController extends GetxController {
   bool isTrainer() => _authService.getRole() == 'trainer';
 
   Future<void> logout() async {
+    final isAdminOriginatedPreview =
+        Get.isRegistered<AdminModeService>() &&
+        AdminModeService.to.isAdmin &&
+        AdminModeService.to.viewAsUser &&
+        Get.isRegistered<BottomNavBarController>();
+    var hasBackendIssuedAdminToken = false;
+    if (isAdminOriginatedPreview) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        hasBackendIssuedAdminToken =
+            (prefs.getString(AppConstants.prefAdminToken)?.isNotEmpty ?? false);
+      } catch (_) {}
+    }
+    if (isAdminOriginatedPreview && hasBackendIssuedAdminToken) {
+      // Bug 1 — Logout redirect (Admin/Enterprise Demo):
+      // "Logout" exits the authorized user preview without destroying the
+      // underlying admin session, then returns to the Admin Dashboard.
+      await AdminModeService.to.setViewAsUser(false);
+      final adminTab =
+          BottomNavBarController.to.indexOfTab(NavItemId.admin);
+      if (adminTab >= 0) {
+        BottomNavBarController.to.onChange(adminTab);
+      }
+      Get.offAllNamed(AppRoute.bottonNavBar);
+      return;
+    }
+
     // Clear the sign-in form. This controller is permanent, so its
     // TextEditingControllers survive logout — the login screen was coming back
     // with the previous account's email filled in and their password still in
