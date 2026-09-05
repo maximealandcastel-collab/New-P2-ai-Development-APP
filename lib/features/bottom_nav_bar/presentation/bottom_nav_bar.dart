@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/bottom_nav_bar.dart';
@@ -88,7 +89,7 @@ class BottomNavBarMain extends StatelessWidget {
 
       return Scaffold(
         key: const ValueKey('bottomNavMainScaffold'),
-        backgroundColor: AppColors.backgroundLight,
+        backgroundColor: TenantBrandService.to.scaffoldBackground,
         body: Stack(
           children: [
             Positioned.fill(

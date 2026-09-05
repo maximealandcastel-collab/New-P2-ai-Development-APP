@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_fab_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -40,10 +41,17 @@ class NavFabWidget {
                 child: GestureDetector(
                   onTap: Get.back,
                   child: CustomContainer(
-                    color: Colors.white,
+                    color: TenantBrandService.to.isKmf
+                        ? TenantBrandService.to.primaryColor
+                        : Colors.white,
                     shape: BoxShape.circle,
                     paddingAll: 11.r,
-                    child: const Icon(Icons.clear, color: Colors.black),
+                    child: Icon(
+                      Icons.clear,
+                      color: TenantBrandService.to.isKmf
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
                 ),
               ),
@@ -55,9 +63,10 @@ class NavFabWidget {
   }
 
   static Widget _buildMenuItem(NavFabModel item) {
+    final tenant = TenantBrandService.to;
     return CustomContainer(
       width: 245.w,
-      color: Colors.white,
+      color: tenant.isKmf ? tenant.primaryColor : Colors.white,
       radiusAll: 12.r,
       paddingAll: 10.r,
       onTap: () {
@@ -67,13 +76,21 @@ class NavFabWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SvgPicture.asset(item.icon, width: 24.w, height: 24.h),
+          SvgPicture.asset(
+            item.icon,
+            width: 24.w,
+            height: 24.h,
+            colorFilter: tenant.isKmf
+                ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                : null,
+          ),
           Flexible(
             child: CustomText(
               left: 4.w,
               fontSize: 16.sp,
               fontWeight: AppFontWeight.label,
               text: item.label,
+              color: tenant.isKmf ? Colors.white : null,
             ),
           ),
         ],

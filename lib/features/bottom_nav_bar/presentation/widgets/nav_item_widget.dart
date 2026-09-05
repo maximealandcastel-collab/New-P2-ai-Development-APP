@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 
@@ -77,7 +78,7 @@ class _BottomNavItemState extends State<BottomNavItem>
       // where index 2 was the centre item. The FAB is now a separate widget, so
       // index 2 is an ordinary tab — Gyms for users, Contents for admins — and
       // white rendered it invisible against the white frosted bar when selected.
-      const Color selectedColor = AppColors.primary;
+      final Color selectedColor = TenantBrandService.to.primaryColor;
       final Color iconColor =
           isSelected ? selectedColor : AppColors.textSecondary;
 
