@@ -47,7 +47,8 @@ class BottomNavBarMain extends StatelessWidget {
       final rawIndex = adminMode ? ctrl.adminIndex : ctrl.userIndex;
       // Nav sets differ in length, so a preserved index from the other mode can
       // fall outside this one. IndexedStack throws on an out-of-range index.
-      final activeIndex = rawIndex.clamp(0, activeItems.length - 1);
+      final activeIndex =
+          rawIndex.clamp(0, activeItems.length - 1).toInt();
 
       // The nav bar is stacked over the body rather than passed to
       // Scaffold.bottomNavigationBar, and extendBody is left false.

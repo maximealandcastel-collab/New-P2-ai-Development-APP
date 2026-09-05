@@ -97,7 +97,8 @@ class _NavBarState extends State<NavBar> {
     return Obx(() {
       final screens = _screens;
       final safeIndex = _navBarController.selectedIndex.value
-          .clamp(0, screens.length - 1);
+          .clamp(0, screens.length - 1)
+          .toInt();
       return Scaffold(
         backgroundColor: AppColors.backgroundLight,
 
