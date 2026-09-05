@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
@@ -141,8 +140,10 @@ class GymListTile extends StatelessWidget {
                 ],
                 gym.isActivated
                     ? GestureDetector(
-                        onTap: () =>
-                            Get.to(() => GymLoginPreviewScreen(gym: gym)),
+                        onTap: () => GymLoginPreviewScreen.open(
+                          context,
+                          gym: gym,
+                        ),
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.w, vertical: 8.h),

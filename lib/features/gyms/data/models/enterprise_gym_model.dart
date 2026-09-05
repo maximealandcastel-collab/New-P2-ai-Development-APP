@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum GymLoginExperience { standard, kmf }
+
 class EnterpriseGymModel {
   static const Map<String, String> _localLogoAssets = {
     'p2p_fit_factor': 'assets/images/facility_app_logo.png',
@@ -44,6 +46,8 @@ class EnterpriseGymModel {
   final bool isOwnGym;
   final bool isPinned;
   final bool isActivated; // true = visible in the app; false = contract not signed yet
+  final bool requiresLoggedOutSession;
+  final GymLoginExperience loginExperience;
   final double rating;
   final String imageUrl;
   final String imageAssetPath;
@@ -72,6 +76,8 @@ class EnterpriseGymModel {
     this.isOwnGym = false,
     this.isPinned = false,
     this.isActivated = false,
+    this.requiresLoggedOutSession = false,
+    this.loginExperience = GymLoginExperience.standard,
     this.rating = 4.5,
     this.imageUrl = '',
     this.imageAssetPath = '',
@@ -130,6 +136,7 @@ class EnterpriseGymModel {
       isPinned: true,
       isActive: true,
       isActivated: true, // ✅ LIVE — brick & mortar
+      requiresLoggedOutSession: true,
       rating: 4.9,
       imageUrl:
           'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
@@ -152,6 +159,7 @@ class EnterpriseGymModel {
       textColor: Colors.white,
       isPinned: true,
       isActivated: true,
+      loginExperience: GymLoginExperience.kmf,
       rating: 0.0,
       imageAssetPath: 'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
       galleryAssetPaths: const [

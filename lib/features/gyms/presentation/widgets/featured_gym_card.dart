@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
@@ -146,8 +145,10 @@ class FeaturedGymCard extends StatelessWidget {
                 EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             child: gym.isActivated
                 ? GestureDetector(
-                    onTap: () =>
-                        Get.to(() => GymLoginPreviewScreen(gym: gym)),
+                    onTap: () => GymLoginPreviewScreen.open(
+                      context,
+                      gym: gym,
+                    ),
                     child: Container(
                       width: double.infinity,
                        height: 44.h,

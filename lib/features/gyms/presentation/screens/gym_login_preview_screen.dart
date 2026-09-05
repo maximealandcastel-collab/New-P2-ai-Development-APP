@@ -16,6 +16,37 @@ class GymLoginPreviewScreen extends StatefulWidget {
   final EnterpriseGymModel gym;
   const GymLoginPreviewScreen({super.key, required this.gym});
 
+  static Future<void> open(
+    BuildContext context, {
+    required EnterpriseGymModel gym,
+  }) async {
+    final hasActiveSession = Get.isRegistered<LoginController>() &&
+        LoginController.to.isLoggedIn();
+    if (gym.requiresLoggedOutSession && hasActiveSession) {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Text('You are currently logged in'),
+            content: const Text("You are currently using P2P Fit's login."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (!context.mounted) return;
+    Get.to(() => GymLoginPreviewScreen(gym: gym));
+  }
+
   @override
   State<GymLoginPreviewScreen> createState() => _GymLoginPreviewScreenState();
 }
@@ -27,42 +58,9 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
   bool _obscure = true;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted ||
-          widget.gym.id != 'p2p_fit_factor' ||
-          !Get.isRegistered<LoginController>() ||
-          !LoginController.to.isLoggedIn()) {
-        return;
-      }
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) => PopScope(
-          canPop: false,
-          child: AlertDialog(
-            title: const Text('You are currently logged in'),
-            content: const Text("You are currently using P2P Fit's login."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  if (mounted) Get.back();
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final gym = widget.gym;
-    if (gym.id == 'kmf_fitness_club') {
+    if (gym.loginExperience == GymLoginExperience.kmf) {
       return _KmfFitnessLoginScreen(gym: gym);
     }
 
