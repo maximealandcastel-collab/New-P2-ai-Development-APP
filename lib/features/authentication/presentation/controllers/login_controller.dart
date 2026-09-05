@@ -180,11 +180,11 @@ class LoginController extends GetxController {
         AffiliateModeService.to.deactivate();
       }
     } catch (_) {}
-    try {
-      if (Get.isRegistered<BottomNavBarController>()) {
-        BottomNavBarController.to.resetIndex();
-      }
-    } catch (_) {}
+        // Do not resolve BottomNavBarController here. It is lazy-registered, and
+        // resolving it while the login route is active makes GetX associate it
+        // with the route that Get.offAllNamed removes moments later. The new shell
+        // then retains a controller that is disposed at the end of the transition.
+        // A controller created by BottomNavBarMain starts at Home by default.
     try {
       if (Get.isRegistered<VideoPlaybackManager>()) {
         Get.find<VideoPlaybackManager>().stopAll();
