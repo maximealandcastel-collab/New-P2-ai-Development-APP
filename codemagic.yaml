@@ -203,7 +203,7 @@ workflows:
           set -e
           # Build 3077 is the last manually assigned release. Adding the
           # workflow counter guarantees a unique, increasing TestFlight build.
-          IOS_BUILD_NUMBER=$((3077 + BUILD_NUMBER))
+          IOS_BUILD_NUMBER=$((3078 + BUILD_NUMBER))
           echo "Building release 4.11.0 ($IOS_BUILD_NUMBER)"
           flutter build ipa --release \
             --build-name=4.11.0 \
