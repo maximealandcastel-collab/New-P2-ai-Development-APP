@@ -31,6 +31,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
+          widget.gym.id != 'p2p_fit_factor' ||
           !Get.isRegistered<LoginController>() ||
           !LoginController.to.isLoggedIn()) {
         return;
