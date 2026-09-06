@@ -13,6 +13,7 @@ import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/affiliate_mode_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
@@ -170,6 +171,15 @@ class LoginController extends GetxController {
   }
 
   Future<void> _resetUiForAuthenticatedSession() async {
+    final activeBrand = TenantBrandService.to.activeBrand;
+    Get.changeTheme(
+      activeBrand == null
+          ? AppThemeData.themeData
+          : AppThemeData.forBrand(
+              primaryColor: activeBrand.primaryColor,
+              scaffoldBackground: activeBrand.scaffoldBackground,
+            ),
+    );
     try {
       if (Get.isRegistered<AdminModeService>()) {
         await AdminModeService.to.deactivate();
@@ -272,6 +282,7 @@ class LoginController extends GetxController {
     try {
       await _authService.logout();
     } catch (_) {}
+    Get.changeTheme(AppThemeData.themeData);
     // Admin/affiliate state lives outside Hive and both services are registered
     // permanent, so AuthRepository.logout() does not touch them. Without this
     // the next account signed in on the same device inherits admin mode.

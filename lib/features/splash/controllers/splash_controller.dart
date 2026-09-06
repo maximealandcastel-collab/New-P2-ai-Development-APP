@@ -6,6 +6,8 @@ import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
 class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -92,6 +94,16 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     } catch (_) {
       // If prefs fail, fall through and allow the restored session.
     }
+
+    final activeBrand = TenantBrandService.to.activeBrand;
+    Get.changeTheme(
+      activeBrand == null
+          ? AppThemeData.themeData
+          : AppThemeData.forBrand(
+              primaryColor: activeBrand.primaryColor,
+              scaffoldBackground: activeBrand.scaffoldBackground,
+            ),
+    );
 
     // ── Restore admin mode for the owner account ─────────────────────────
     final cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';

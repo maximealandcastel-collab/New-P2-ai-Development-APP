@@ -58,4 +58,45 @@ class AppThemeData {
       ),
     ),
   );
+
+
+  /// Runtime theme for a backend-issued licensed-gym tenant.
+  ///
+  /// P2P remains the default theme; tenant sessions replace only presentation
+  /// tokens and never infer identity from email, role, or route.
+  static ThemeData forBrand({
+    required Color primaryColor,
+    required Color scaffoldBackground,
+  }) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryColor,
+      brightness: Brightness.light,
+    ).copyWith(
+      primary: primaryColor,
+      onPrimary: AppColors.textWhite,
+      secondary: primaryColor,
+      surface: AppColors.primaryBackground,
+      onSurface: AppColors.textPrimary,
+    );
+
+    return themeData.copyWith(
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: scaffoldBackground,
+      appBarTheme: themeData.appBarTheme.copyWith(
+        backgroundColor: scaffoldBackground,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: scaffoldBackground,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: primaryColor,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primaryColor,
+        foregroundColor: AppColors.textWhite,
+      ),
+    );
+  }
 }
