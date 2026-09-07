@@ -8,6 +8,7 @@ import 'package:pler_to_pler_app/features/authentication/presentation/screens/co
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/children/names_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/children/profile_picture_page.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/complete_profile/complete_payment_screen.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/screens/widgets/app_logo.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
@@ -22,12 +23,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   late PageController pageController;
 
   List<Widget> get pages => [
-        NamesPage(),
-        DatePage(),
-        GenderPage(),
-        ProfilePicturePage(onSkip: () => _navigateToPage(4)),
-        BioPage(),
-      ];
+    NamesPage(),
+    DatePage(),
+    GenderPage(),
+    ProfilePicturePage(onSkip: () => _navigateToPage(4)),
+    BioPage(),
+  ];
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             pages.length,
-                (index) => Expanded(
+            (index) => Expanded(
               child: CustomContainer(
                 marginLeft: 4.w,
                 height: 6.h,
@@ -94,9 +95,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       body: Column(
         children: [
           SizedBox(height: 24.h),
-          AppLogoWidget(
-              subtitle: 'Let\'s start with building your profile',
-          ),
+          AppLogoWidget(subtitle: 'Let\'s start with building your profile'),
           SizedBox(height: 40.h),
           Expanded(
             child: PageView.builder(
@@ -112,7 +111,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 });
               },
             ),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: SafeArea(

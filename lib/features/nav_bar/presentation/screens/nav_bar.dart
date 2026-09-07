@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/features/home/home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/widgets/nav_fab_widget.dart';
+import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/trainer_home_schedule_screen.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
 import 'package:pler_to_pler_app/features/user/find_trainer/presentation/find_trainer_screen.dart';
@@ -82,12 +83,13 @@ class _NavBarState extends State<NavBar> {
     if (!mounted) return;
     setState(() {
       _role = role;
-      _viewMode = role.toLowerCase() == 'admin' &&
+      _viewMode =
+          role.toLowerCase() == 'admin' &&
               (savedViewMode == 'user' || savedViewMode == 'admin')
           ? savedViewMode
           : role.toLowerCase() == 'admin'
-              ? 'admin'
-              : role;
+          ? 'admin'
+          : role;
     });
     _navBarController.onChange(0);
   }
@@ -111,10 +113,7 @@ class _NavBarState extends State<NavBar> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: _isAdmin ? 76.h : 0),
-              child: IndexedStack(
-                index: safeIndex,
-                children: screens,
-              ),
+              child: IndexedStack(index: safeIndex, children: screens),
             ),
             if (_isAdmin)
               Positioned(
@@ -260,10 +259,7 @@ class _NavBarState extends State<NavBar> {
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.96),
                 borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(
-                  color: const Color(0xFFE9E9E9),
-                  width: 0.8,
-                ),
+                border: Border.all(color: const Color(0xFFE9E9E9), width: 0.8),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -272,10 +268,7 @@ class _NavBarState extends State<NavBar> {
                   ),
                 ],
               ),
-              padding: EdgeInsets.symmetric(
-                vertical: 8.h,
-                horizontal: 8.w,
-              ),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -298,7 +291,11 @@ class _NavBarState extends State<NavBar> {
                         },
                         onAddExercise: () {
                           if (_isAdminView || _isTrainer) {
-                            Get.to(() => const CreateExercisePlanScreen());
+                            Get.to(
+                              () => CreateExercisePlanScreen(
+                                client: ClientInvoiceModel(), //need to checked
+                              ),
+                            );
                           } else {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -327,8 +324,7 @@ class _NavBarState extends State<NavBar> {
   }
 
   Widget _buildNavItem(int index) {
-    final bool isSelected =
-        _navBarController.selectedIndex.value == index;
+    final bool isSelected = _navBarController.selectedIndex.value == index;
 
     return GestureDetector(
       onTap: () => _navBarController.onChange(index),
@@ -344,9 +340,7 @@ class _NavBarState extends State<NavBar> {
               width: 21.w,
               height: 21.h,
               colorFilter: ColorFilter.mode(
-                isSelected
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
+                isSelected ? AppColors.primary : AppColors.textSecondary,
                 BlendMode.srcIn,
               ),
             ),
@@ -355,9 +349,7 @@ class _NavBarState extends State<NavBar> {
               text: _navItems[index]["label"],
               fontSize: 9.5.sp,
               fontWeight: FontWeight.w400,
-              color: isSelected
-                  ? AppColors.primary
-                  : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
             ),
           ],
         ),
