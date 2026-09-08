@@ -20,16 +20,17 @@ class AppThemeData {
   // the app had a configured typeface. Weight, not family, is the actual
   // problem — see core/themes/app_typography.dart.
   static final ThemeData themeData = ThemeData(
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: AppColors.primary,
-      onPrimary: AppColors.textWhite,
-      secondary: AppColors.primary,
-      surface: AppColors.primaryBackground,
-      onSurface: AppColors.textPrimary,
-    ),
+    colorScheme:
+        ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: AppColors.primary,
+          onPrimary: AppColors.textWhite,
+          secondary: AppColors.primary,
+          surface: AppColors.primaryBackground,
+          onSurface: AppColors.textPrimary,
+        ),
     scaffoldBackgroundColor: AppColors.backgroundLight,
 
     appBarTheme: AppBarTheme(
@@ -59,7 +60,6 @@ class AppThemeData {
     ),
   );
 
-
   /// Runtime theme for a backend-issued licensed-gym tenant.
   ///
   /// P2P remains the default theme; tenant sessions replace only presentation
@@ -68,16 +68,21 @@ class AppThemeData {
     required Color primaryColor,
     required Color scaffoldBackground,
   }) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: primaryColor,
-      onPrimary: AppColors.textWhite,
-      secondary: primaryColor,
-      surface: AppColors.primaryBackground,
-      onSurface: AppColors.textPrimary,
-    );
+    final onPrimary =
+        ThemeData.estimateBrightnessForColor(primaryColor) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: primaryColor,
+          onPrimary: onPrimary,
+          secondary: primaryColor,
+          surface: AppColors.primaryBackground,
+          onSurface: AppColors.textPrimary,
+        );
 
     return themeData.copyWith(
       colorScheme: colorScheme,
@@ -90,12 +95,10 @@ class AppThemeData {
           statusBarBrightness: Brightness.light,
         ),
       ),
-      progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: primaryColor,
-      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primaryColor),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: primaryColor,
-        foregroundColor: AppColors.textWhite,
+        foregroundColor: onPrimary,
       ),
     );
   }

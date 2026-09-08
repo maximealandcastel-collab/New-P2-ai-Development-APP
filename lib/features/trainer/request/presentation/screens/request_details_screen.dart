@@ -62,8 +62,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             child: CustomButton(
               height: 42.h,
               backgroundColor: Colors.white,
-              foregroundColor: AppColors.primary,
-              bordersColor: AppColors.primary,
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              bordersColor: Theme.of(context).colorScheme.primary,
               onPressed: () => _showAcceptDialog(context),
               label: 'Accept',
             ),
@@ -127,8 +127,8 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
       title: 'Accept request?',
       description: 'Are you sure you want to accept ${_request.clientName}?',
       rightButtonLabel: 'Yes, Accept',
-      titleColor: AppColors.primary,
-      rightButtonBgColor: AppColors.primary,
+      titleColor: Theme.of(context).colorScheme.primary,
+      rightButtonBgColor: Theme.of(context).colorScheme.primary,
       onConfirm: _acceptRequest,
     );
   }
@@ -152,7 +152,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
       description: 'Send invoice to ${_request.clientName}?',
       rightButtonLabel: 'Send Invoice',
       titleColor: AppColors.textPrimary,
-      rightButtonBgColor: AppColors.primary,
+      rightButtonBgColor: Theme.of(context).colorScheme.primary,
       onConfirm: _sendInvoice,
     );
   }

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -173,7 +174,7 @@ class _AddStepSheetState extends State<AddStepSheet> {
             onPressed: () => Get.back(),
             label: "Add step",
             // Button lights up if name is entered
-            backgroundColor: _stepController.text.isNotEmpty ? Colors.orange : Colors.black.withOpacity(0.05),
+            backgroundColor: _stepController.text.isNotEmpty ? BrandColors.of(context).primary : Colors.black.withOpacity(0.05),
             foregroundColor: _stepController.text.isNotEmpty ? Colors.white : Colors.grey,
           ),
           SizedBox(height: 10.h),

@@ -34,7 +34,7 @@ class AuthSwitchLink extends StatelessWidget {
             text: actionLabel,
             fontSize: 14.sp,
             fontWeight: AppFontWeight.label,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ],

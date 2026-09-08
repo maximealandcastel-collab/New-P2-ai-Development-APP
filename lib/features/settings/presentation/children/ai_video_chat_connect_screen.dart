@@ -34,7 +34,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
                   bottom: 10.h,
                 ),
                 if (_controller.hasConfiguredPersona.value)
-                  ..._buildConfiguredContent()
+                  ..._buildConfiguredContent(context)
                 else
                   ..._buildSetupContent(),
               ],
@@ -45,7 +45,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildConfiguredContent() {
+  List<Widget> _buildConfiguredContent(BuildContext context) {
     return [
       CustomText(
         text: 'AI video chat is already enabled for your account.',
@@ -57,7 +57,7 @@ class AiVideoChatConnectScreen extends StatelessWidget {
         width: double.infinity,
         paddingAll: 12.r,
         radiusAll: 12.r,
-        color: AppColors.backgroundLight,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: CustomText(
           text: _controller.configuredPersonaId ?? '',
           fontSize: 14.sp,

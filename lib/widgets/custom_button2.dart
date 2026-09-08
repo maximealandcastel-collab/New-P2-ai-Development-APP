@@ -37,7 +37,7 @@ class CustomButton2 extends StatelessWidget {
           maximumSize: Size(width ?? Get.width, height ?? 48.h),
         padding: paddingInner,
         splashFactory: InkSplash.splashFactory,
-          foregroundColor: AppColors.primary,
+          foregroundColor: Theme.of(context).colorScheme.primary,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap, // its give 0 for all extra space Outside of button
         // visualDensity: VisualDensity.compact,  // its give 0 for all extra space inside button
       ),

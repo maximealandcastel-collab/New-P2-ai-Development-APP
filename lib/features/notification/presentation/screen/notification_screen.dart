@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_card_widget.dart';
 import 'package:pler_to_pler_app/features/notification/presentation/screen/widgets/notification_shimmer.dart';
@@ -33,7 +32,7 @@ class NotificationsScreen extends StatelessWidget {
                 text: 'Mark all',
                 fontSize: 13.sp,
                 fontWeight: AppFontWeight.label,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             );
           }),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -351,9 +352,9 @@ class _VideoPlayer extends StatelessWidget {
                       child: SliderTheme(
                         data: SliderThemeData(
                           trackHeight: 3.h,
-                          activeTrackColor: const Color(0xFFFF7A00),
+                          activeTrackColor: BrandColors.of(context).primary,
                           inactiveTrackColor: Colors.white30,
-                          thumbColor: const Color(0xFFFF7A00),
+                          thumbColor: BrandColors.of(context).primary,
                           thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5.r),
                           overlayShape: SliderComponentShape.noOverlay,
                         ),

@@ -414,7 +414,7 @@ class WorkoutController extends GetxController {
     actualDurationController.clear();
 
     Get.dialog(
-      Obx(
+      Builder(builder: (context) => Obx(
         () => CustomDialog(
           title: 'Mark this session as completed',
           description: "Did you complete today's session? What loads did you use and how hard was it (RPE 1-10)? Any pain or equipment issues?",
@@ -436,15 +436,15 @@ class WorkoutController extends GetxController {
               ),
             ],
           ),
-          titleColor: AppColors.primary,
+          titleColor: Theme.of(context).colorScheme.primary,
           rightButtonLabel: 'Complete',
-          rightButtonBgColor: AppColors.primary,
+          rightButtonBgColor: Theme.of(context).colorScheme.primary,
           rightButtonLabelColor: AppColors.textWhite,
           isLoading: completeSessionLoadingState.isLoading,
           onTapLeftButton: () => Get.back(),
           onTapRightButton: completeSession,
         ),
-      ),
+      )),
       barrierDismissible: !completeSessionLoadingState.isLoading,
     );
   }

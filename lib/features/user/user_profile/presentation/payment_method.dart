@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,7 +35,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -111,7 +112,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                         width: double.infinity,
                         height: 52.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7A00),
+                          color: BrandColors.of(context).primary,
                           borderRadius: BorderRadius.circular(14.r),
                         ),
                         alignment: Alignment.center,
@@ -181,7 +182,7 @@ class _PaymentMethodTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? Colors.black : Colors.grey.shade300,
+                      color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
                       width: 2,
                     ),
                   ),

@@ -124,7 +124,7 @@ class _DurationRulerPickerState extends State<DurationRulerPicker> {
                 child: Container(
                   width: 2.w,
                   height: 26.h,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],

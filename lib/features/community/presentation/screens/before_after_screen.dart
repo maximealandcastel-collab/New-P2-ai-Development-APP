@@ -1,9 +1,9 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:io';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/community/presentation/controllers/before_after_controller.dart';
 
 class BeforeAfterScreen extends StatelessWidget {
@@ -13,9 +13,9 @@ class BeforeAfterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(BeforeAfterController());
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundLight,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
@@ -60,7 +60,7 @@ class BeforeAfterScreen extends StatelessWidget {
                           label: 'Before',
                           file: controller.beforeFile.value,
                           onTap: controller.pickBefore,
-                          accentColor: Colors.orange,
+                          accentColor: BrandColors.of(context).primary,
                         )),
                   ),
                   SizedBox(width: 12.w),
@@ -69,7 +69,7 @@ class BeforeAfterScreen extends StatelessWidget {
                           label: 'After',
                           file: controller.afterFile.value,
                           onTap: controller.pickAfter,
-                          accentColor: AppColors.primary,
+                          accentColor: Theme.of(context).colorScheme.primary,
                         )),
                   ),
                 ],
@@ -104,7 +104,7 @@ class BeforeAfterScreen extends StatelessWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: AppColors.primary),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 onChanged: (v) => controller.caption.value = v,
@@ -166,9 +166,9 @@ class BeforeAfterScreen extends StatelessWidget {
                       onPressed:
                           controller.isSubmitting.value ? null : controller.submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         disabledBackgroundColor:
-                            AppColors.primary.withOpacity(0.6),
+                            Theme.of(context).colorScheme.primary.withOpacity(0.6),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14.r),
                         ),

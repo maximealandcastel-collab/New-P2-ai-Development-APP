@@ -34,7 +34,7 @@ class ExerciseBlockDetailsInfo extends StatelessWidget {
               radiusAll: 12.r,
               paddingHorizontal: 14.w,
               paddingVertical: 12.h,
-              color: AppColors.backgroundLight,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
 
 class FindTrainerCard extends StatelessWidget {
@@ -89,7 +88,7 @@ class FindTrainerCard extends StatelessWidget {
                   Text(
                     specLabel,
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 10.sp,
                       fontWeight: AppFontWeight.stat,
                     ),
@@ -115,7 +114,7 @@ class FindTrainerCard extends StatelessWidget {
                       onPressed: () =>
                           Get.toNamed(AppRoute.trainerProfileScreen, arguments: trainer?.sId ?? ''),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         elevation: 0,
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(

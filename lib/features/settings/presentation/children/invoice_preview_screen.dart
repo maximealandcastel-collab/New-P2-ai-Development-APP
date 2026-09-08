@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/settings/presentation/controllers/invoice_preview_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -74,7 +73,7 @@ class InvoicePreviewScreen extends StatelessWidget {
         return SizedBox(
           height: MediaQuery.sizeOf(context).height * 0.75,
           child: PDFView(
-            backgroundColor: AppColors.backgroundLight,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             filePath: filePath,
             enableSwipe: true,
             swipeHorizontal: false,

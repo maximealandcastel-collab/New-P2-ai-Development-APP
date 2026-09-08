@@ -1,10 +1,10 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'widgets/home_gym_brand.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
@@ -29,8 +29,8 @@ class TrainerHomeScreen extends StatelessWidget {
     final clientsController = ClientsController.to;
 
     return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.backgroundLight,
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       onRefresh: () async {
         await Future.wait([
           homeController.refresh(),
@@ -44,6 +44,7 @@ class TrainerHomeScreen extends StatelessWidget {
         ),
         slivers: [
           const FeedAppBarSliver(),
+          const SliverToBoxAdapter(child: HomeGymBrand()),
           SliverPadding(
             padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 130.h),
             sliver: SliverList(
@@ -54,7 +55,7 @@ class TrainerHomeScreen extends StatelessWidget {
                 SizedBox(height: 14.h),
                 const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
-                _buildTodaySessionsSection(clientsController),
+                _buildTodaySessionsSection(context, clientsController),
               ]),
             ),
           ),
@@ -92,6 +93,7 @@ class TrainerHomeScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _buildClientOverviewCard(
+                        context,
                         icon: Assets.icons.clients.path,
                         label: 'Active Clients',
                         point: activeClients,
@@ -101,6 +103,7 @@ class TrainerHomeScreen extends StatelessWidget {
                     SizedBox(width: 10.w),
                     Expanded(
                       child: _buildClientOverviewCard(
+                        context,
                         icon: Assets.icons.star.path,
                         label: 'New Clients (7 Days)',
                         point: newRolling7Days,
@@ -114,6 +117,7 @@ class TrainerHomeScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _buildClientOverviewCard(
+                        context,
                         icon: Assets.icons.attention.path,
                         label: 'This Week',
                         point: newCalendarWeek,
@@ -124,6 +128,7 @@ class TrainerHomeScreen extends StatelessWidget {
                     SizedBox(width: 10.w),
                     Expanded(
                       child: _buildClientOverviewCard(
+                        context,
                         materialIcon: Icons.restaurant_menu_rounded,
                         label: 'Meals Assigned',
                         point: mealsAssigned,
@@ -134,6 +139,7 @@ class TrainerHomeScreen extends StatelessWidget {
                     SizedBox(width: 10.w),
                     Expanded(
                       child: _buildClientOverviewCard(
+                        context,
                         icon: Assets.icons.exercise.path,
                         label: 'Workouts Assigned',
                         point: totalWorkoutBlocks,
@@ -151,7 +157,7 @@ class TrainerHomeScreen extends StatelessWidget {
     });
   }
 
-  Widget _buildTodaySessionsSection(ClientsController clientsController) {
+  Widget _buildTodaySessionsSection(BuildContext context, ClientsController clientsController) {
     return CustomContainer(
       radiusAll: 16.r,
       paddingAll: 16.r,
@@ -177,7 +183,7 @@ class TrainerHomeScreen extends StatelessWidget {
                 child: CustomText(
                   fontWeight: AppFontWeight.label,
                   fontSize: 13.sp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   text: 'View all',
                 ),
               ),
@@ -239,14 +245,14 @@ class TrainerHomeScreen extends StatelessWidget {
           SizedBox(height: 12.h),
           Flexible(child: ListView.separated(shrinkWrap: true, itemCount: clients.length, separatorBuilder: (_, __) => const Divider(height: 1), itemBuilder: (_, index) {
             final client = clients[index]; final initial = client.clientName.isNotEmpty ? client.clientName[0].toUpperCase() : '?';
-            return ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundColor: AppColors.primary.withOpacity(.12), child: Text(initial, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))), title: Text(client.clientName), subtitle: Text(client.userId?.email ?? 'Active client'), trailing: const Icon(Icons.chevron_right), onTap: () { Get.back(); if (type == _AssignmentType.meal) { Get.to(() => CreateMealPlanScreen(client: client)); } else { Get.to(() => CreateExercisePlanScreen(client: client)); } });
+            return ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(.12), child: Text(initial, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold))), title: Text(client.clientName), subtitle: Text(client.userId?.email ?? 'Active client'), trailing: const Icon(Icons.chevron_right), onTap: () { Get.back(); if (type == _AssignmentType.meal) { Get.to(() => CreateMealPlanScreen(client: client)); } else { Get.to(() => CreateExercisePlanScreen(client: client)); } });
           })),
         ]),
       )),
       isScrollControlled: true,
     );
   }
-  Widget _buildClientOverviewCard({
+  Widget _buildClientOverviewCard(BuildContext context, {
     String? icon,
     IconData? materialIcon,
     required String label,
@@ -267,7 +273,7 @@ class TrainerHomeScreen extends StatelessWidget {
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             if (materialIcon != null) Icon(materialIcon, size: 24.r, color: Colors.black87) else if (icon != null) SvgPicture.asset(icon, height: 24.r, width: 24.r),
-            if (onAdd != null) Semantics(button: true, label: 'Add $label', child: InkWell(onTap: onAdd, borderRadius: BorderRadius.circular(20.r), child: Padding(padding: EdgeInsets.all(2.r), child: Icon(Icons.add_circle_rounded, size: 22.r, color: AppColors.primary)))),
+            if (onAdd != null) Semantics(button: true, label: 'Add $label', child: InkWell(onTap: onAdd, borderRadius: BorderRadius.circular(20.r), child: Padding(padding: EdgeInsets.all(2.r), child: Icon(Icons.add_circle_rounded, size: 22.r, color: Theme.of(context).colorScheme.primary)))),
           ]),
           CustomText(
             text: label,

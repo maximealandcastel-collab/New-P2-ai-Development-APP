@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -462,7 +463,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
     );
   }
 
-  static Widget _phaseStepList(List<WorkoutPhaseStep> steps) {
+  static Widget _phaseStepList(BuildContext context, List<WorkoutPhaseStep> steps) {
     return Column(
       children: [
         for (int i = 0; i < steps.length; i++)
@@ -475,14 +476,14 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                   width: 25.w,
                   height: 25.w,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFDEBD9),
+                  decoration: BoxDecoration(
+                    color: BrandColors.of(context).soft,
                     shape: BoxShape.circle,
                   ),
                   child: Text(
                     '${i + 1}',
                     style: TextStyle(
-                      color: const Color(0xFFF57C1F),
+                      color: BrandColors.of(context).primary,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -645,7 +646,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -738,7 +739,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                     SizedBox(height: 16.h),
                     _SectionCard(
                       title: program == null ? 'Warm up' : 'Start Day 1 — Warm up',
-                      child: _phaseStepList(warmUp),
+                      child: _phaseStepList(context, warmUp),
                     ),
                     SizedBox(height: 16.h),
                     _SectionCard(
@@ -762,7 +763,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                     SizedBox(height: 16.h),
                     _SectionCard(
                       title: 'Cool down',
-                      child: _phaseStepList(coolDown),
+                      child: _phaseStepList(context, coolDown),
                     ),
                     SizedBox(height: 16.h),
                     _InfoCard(
@@ -808,7 +809,7 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
                                   )
                               : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF57C1F),
+                    backgroundColor: BrandColors.of(context).primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -851,7 +852,7 @@ class _InvalidProgramScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -861,7 +862,7 @@ class _InvalidProgramScreen extends StatelessWidget {
               children: [
                 Icon(
                   Icons.error_outline,
-                  color: const Color(0xFFF57C1F),
+                  color: BrandColors.of(context).primary,
                   size: 44.sp,
                 ),
                 SizedBox(height: 14.h),
@@ -889,7 +890,7 @@ class _InvalidProgramScreen extends StatelessWidget {
                 FilledButton(
                   onPressed: () => Get.back(),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFF57C1F),
+                    backgroundColor: BrandColors.of(context).primary,
                   ),
                   child: const Text('Go back'),
                 ),
@@ -923,7 +924,7 @@ class _SessionProgressCard extends StatelessWidget {
         color: started ? const Color(0xFFFFF5EA) : Colors.white,
         borderRadius: BorderRadius.circular(18.r),
         border: Border.all(
-          color: started ? const Color(0xFFF6D1AD) : Colors.grey.shade200,
+          color: started ? BrandColors.of(context).border : Colors.grey.shade200,
         ),
       ),
       child: Column(
@@ -933,7 +934,7 @@ class _SessionProgressCard extends StatelessWidget {
             children: [
               Icon(
                 started ? Icons.timer_outlined : Icons.play_circle_outline,
-                color: const Color(0xFFF57C1F),
+                color: BrandColors.of(context).primary,
                 size: 22.sp,
               ),
               SizedBox(width: 9.w),
@@ -950,7 +951,7 @@ class _SessionProgressCard extends StatelessWidget {
               Text(
                 '$completedExercises/$totalExercises',
                 style: TextStyle(
-                  color: const Color(0xFFF57C1F),
+                  color: BrandColors.of(context).primary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -965,7 +966,7 @@ class _SessionProgressCard extends StatelessWidget {
               minHeight: 7.h,
               backgroundColor: const Color(0xFFF0E7DE),
               valueColor:
-                  const AlwaysStoppedAnimation<Color>(Color(0xFFF57C1F)),
+                  AlwaysStoppedAnimation<Color>(BrandColors.of(context).primary),
             ),
           ),
           SizedBox(height: 8.h),
@@ -1016,7 +1017,7 @@ class _ProgramOverviewCard extends StatelessWidget {
             'Selected Split',
             style: TextStyle(
               fontSize: 13.sp,
-              color: const Color(0xFFF57C1F),
+              color: BrandColors.of(context).primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1051,14 +1052,14 @@ class _ProgramOverviewCard extends StatelessWidget {
                       width: 24.w,
                       height: 24.w,
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFDEBD9),
+                      decoration: BoxDecoration(
+                        color: BrandColors.of(context).soft,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         '${i + 1}',
                         style: TextStyle(
-                          color: const Color(0xFFF57C1F),
+                          color: BrandColors.of(context).primary,
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1155,7 +1156,7 @@ class _ProgramDayCardState extends State<_ProgramDayCard> {
                   height: 40.w,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF57C1F),
+                    color: BrandColors.of(context).primary,
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Text(
@@ -1203,7 +1204,7 @@ class _ProgramDayCardState extends State<_ProgramDayCard> {
             Text(
               widget.muscleGroups.join(', '),
               style: TextStyle(
-                color: const Color(0xFFF57C1F),
+                color: BrandColors.of(context).primary,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -1289,7 +1290,7 @@ class _ProgramGuidanceCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFFF57C1F),
+                color: BrandColors.of(context).primary,
               ),
             ),
             SizedBox(height: 4.h),
@@ -1323,7 +1324,7 @@ class _PlanHeader extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF57C1F),
+        color: BrandColors.of(context).primary,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Column(
@@ -1422,7 +1423,7 @@ class _NumberedItem extends StatelessWidget {
                   TextSpan(text: '$text — '),
                   TextSpan(
                     text: highlight,
-                    style: const TextStyle(color: Color(0xFFF57C1F)),
+                    style: TextStyle(color: BrandColors.of(context).primary),
                   ),
                 ],
               ),
@@ -1471,7 +1472,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF7A3B1E),
+                color: BrandColors.of(context).dark,
               ),
             ),
           ),
@@ -1490,7 +1491,7 @@ class _ExerciseCardState extends State<_ExerciseCard> {
                   color: widget.completed
                       ? Colors.green
                       : widget.sessionStarted && e.id.isNotEmpty
-                          ? const Color(0xFFF57C1F)
+                          ? BrandColors.of(context).primary
                           : Colors.grey.shade400,
                   borderRadius: BorderRadius.circular(20.r),
                 ),
@@ -1642,7 +1643,7 @@ class _StepItem extends StatelessWidget {
             'Tip: ${step.tip}',
             style: TextStyle(
               fontSize: 13.sp,
-              color: const Color(0xFFF57C1F),
+              color: BrandColors.of(context).primary,
               height: 1.4,
             ),
           ),
@@ -1718,14 +1719,14 @@ class _WeekFocusCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFFDEBD9),
+              color: BrandColors.of(context).soft,
               borderRadius: BorderRadius.circular(16.r),
             ),
             child: Text(
               focus,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: const Color(0xFFF57C1F),
+                color: BrandColors.of(context).primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1758,7 +1759,7 @@ class _CheckInCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 15.sp,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFFF57C1F),
+              color: BrandColors.of(context).primary,
             ),
           ),
           SizedBox(height: 8.h),
@@ -1786,7 +1787,7 @@ class _WatchVideoButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF5A623),
+          backgroundColor: BrandColors.of(context).primary,
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

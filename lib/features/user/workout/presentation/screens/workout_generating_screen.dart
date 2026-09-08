@@ -1,16 +1,16 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
     import 'package:flutter_screenutil/flutter_screenutil.dart';
     import 'package:get/get.dart';
     import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-    import 'package:pler_to_pler_app/core/utils/app_colors.dart';
     import 'package:pler_to_pler_app/features/user/workout/presentation/controllers/workout_controller.dart';
     import 'package:pler_to_pler_app/widgets/gradient_ring_loader.dart';
 
-    const _kOrange = Color(0xFFFF6B1A);
+
     const _kDark   = Color(0xFF1A1A1A);
-    const _kAqua1  = Color(0xFF00BFA5);
-    const _kAqua2  = Color(0xFF26C6DA);
+
+
 
     /// Shown while the AI builds the user's workout plan.
     /// Matches the Generate Workout Split card design — white layout,
@@ -131,7 +131,7 @@ import 'package:flutter/material.dart';
                   Text(
                     'GENERATE',
                     style: TextStyle(
-                      color: _kOrange,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 12.sp,
                       fontWeight: AppFontWeight.display,
                       letterSpacing: 2.8,
@@ -154,7 +154,7 @@ import 'package:flutter/material.dart';
                         TextSpan(
                           text: 'SPLIT',
                           style: TextStyle(
-                            color: _kOrange,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 30.sp,
                             fontWeight: AppFontWeight.display,
                             height: 1.1,
@@ -169,7 +169,7 @@ import 'package:flutter/material.dart';
                     width: 40.w,
                     height: 2.5.h,
                     decoration: BoxDecoration(
-                      color: _kOrange,
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
@@ -211,9 +211,9 @@ import 'package:flutter/material.dart';
               fit: BoxFit.cover,
               alignment: const Alignment(0.4, 0.0),
               errorBuilder: (_, __, ___) => Container(
-                color: _kOrange.withOpacity(0.12),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                 child: Icon(Icons.fitness_center_rounded,
-                    color: _kOrange, size: 48.sp),
+                    color: Theme.of(context).colorScheme.primary, size: 48.sp),
               ),
             ),
             // Gradient blending into white at bottom
@@ -269,15 +269,15 @@ import 'package:flutter/material.dart';
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 15.h),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [_kAqua1, _kAqua2],
+          gradient: LinearGradient(
+            colors: [BrandColors.of(context).primary, BrandColors.of(context).light],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(50.r),
           boxShadow: [
             BoxShadow(
-              color: _kAqua1.withOpacity(0.4),
+              color: BrandColors.of(context).primary.withOpacity(0.4),
               blurRadius: 14,
               offset: const Offset(0, 5),
             ),
@@ -335,12 +335,12 @@ import 'package:flutter/material.dart';
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: BoxDecoration(
               color: active
-                  ? _kOrange.withOpacity(done ? 0.08 : 0.05)
+                  ? Theme.of(context).colorScheme.primary.withOpacity(done ? 0.08 : 0.05)
                   : Colors.grey.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: active
-                    ? _kOrange.withOpacity(done ? 0.45 : 0.25)
+                    ? Theme.of(context).colorScheme.primary.withOpacity(done ? 0.45 : 0.25)
                     : Colors.grey.withOpacity(0.15),
                 width: 1,
               ),
@@ -354,9 +354,9 @@ import 'package:flutter/material.dart';
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: done
-                        ? _kOrange
+                        ? Theme.of(context).colorScheme.primary
                         : active
-                            ? _kOrange.withOpacity(0.15)
+                            ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
                             : Colors.grey.withOpacity(0.1),
                   ),
                   child: Icon(
@@ -364,7 +364,7 @@ import 'package:flutter/material.dart';
                     color: done
                         ? Colors.white
                         : active
-                            ? _kOrange
+                            ? Theme.of(context).colorScheme.primary
                             : Colors.grey.shade400,
                     size: 16.sp,
                   ),
@@ -387,7 +387,7 @@ import 'package:flutter/material.dart';
                     height: 14.w,
                     child: CircularProgressIndicator(
                       strokeWidth: 1.8,
-                      valueColor: AlwaysStoppedAnimation(_kOrange),
+                      valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                     ),
                   ),
               ],
@@ -409,7 +409,7 @@ import 'package:flutter/material.dart';
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 11.sp)),
               Text('$pct%',
                   style: TextStyle(
-                      color: _kOrange,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 11.sp,
                       fontWeight: AppFontWeight.section)),
             ],
@@ -424,7 +424,7 @@ import 'package:flutter/material.dart';
               child: LinearProgressIndicator(
                 value: _step / _stepMeta.length,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation(_kOrange),
+                valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
               ),
             ),
           ),
@@ -446,10 +446,10 @@ import 'package:flutter/material.dart';
                 height: 80.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _kOrange.withOpacity(0.12),
-                  border: Border.all(color: _kOrange, width: 2),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
-                child: Icon(Icons.check_rounded, color: _kOrange, size: 36.sp),
+                child: Icon(Icons.check_rounded, color: Theme.of(context).colorScheme.primary, size: 36.sp),
               ),
               SizedBox(height: 28.h),
               Text(
@@ -512,8 +512,8 @@ import 'package:flutter/material.dart';
                 padding:
                     EdgeInsets.symmetric(horizontal: 36.w, vertical: 16.h),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                      colors: [_kAqua1, _kAqua2]),
+                  gradient: LinearGradient(
+                      colors: [BrandColors.of(context).primary, BrandColors.of(context).light]),
                   borderRadius: BorderRadius.circular(50.r),
                 ),
                 child: Text('Try Again',
@@ -528,4 +528,4 @@ import 'package:flutter/material.dart';
       );
     }
     }
-    
+

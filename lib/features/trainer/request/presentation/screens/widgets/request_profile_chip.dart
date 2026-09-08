@@ -20,18 +20,18 @@ class RequestProfileChip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: highlighted
-            ? AppColors.primary.withValues(alpha: 0.12)
-            : AppColors.backgroundLight,
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+            : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(999.r),
         border: highlighted
-            ? Border.all(color: AppColors.primary.withValues(alpha: 0.35))
+            ? Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35))
             : null,
       ),
       child: CustomText(
         text: label,
         fontSize: 12.sp,
         fontWeight: AppFontWeight.label,
-        color: highlighted ? AppColors.primary : AppColors.textPrimary,
+        color: highlighted ? Theme.of(context).colorScheme.primary : AppColors.textPrimary,
         textAlign: TextAlign.start,
       ),
     );

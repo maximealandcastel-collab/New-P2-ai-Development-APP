@@ -91,7 +91,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                       CustomContainer(
                         shape: BoxShape.circle,
                         paddingAll: 6.r,
-                        bordersColor: AppColors.primary,
+                        bordersColor: Theme.of(context).colorScheme.primary,
                         child: CustomNetworkImage(
                           height: 124.r,
                           width: 124.r,
@@ -113,7 +113,7 @@ class ProfileFlexibleBackground extends StatelessWidget {
                           },
                           shape: BoxShape.circle,
                           paddingAll: 8.r,
-                          color: AppColors.primary.withValues(alpha: 0.8),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                           child: Icon(
                             Icons.edit,
                             size: 14.r,

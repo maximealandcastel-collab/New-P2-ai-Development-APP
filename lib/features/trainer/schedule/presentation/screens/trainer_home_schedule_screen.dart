@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -31,7 +32,7 @@ class ScheduleScreen extends StatelessWidget {
         repository: Get.find<ScheduleRepository>(),
       ),
       builder: (controller) => Scaffold(
-        backgroundColor: const Color(0xFFF2F2F2),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -144,7 +145,7 @@ class SessionDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -245,7 +246,7 @@ class SessionDetailsScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 52.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7A00),
+                          color: BrandColors.of(context).primary,
                           borderRadius: BorderRadius.circular(14.r),
                         ),
                         alignment: Alignment.center,

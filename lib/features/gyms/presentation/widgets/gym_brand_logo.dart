@@ -1,3 +1,4 @@
+import 'tenant_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
@@ -34,41 +35,12 @@ class GymBrandLogo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius * 0.72),
-        child: gym.logoAssetPath.isNotEmpty
-            ? Image.asset(
-                gym.logoAssetPath,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => _fallback(),
-              )
-            : Image.network(
-                gym.logoUrl,
-                fit: BoxFit.contain,
-                gaplessPlayback: true,
-                errorBuilder: (_, __, ___) => _fallback(),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return _fallback();
-                },
-              ),
+        child: TenantImage(gym.logoUrl, fit: BoxFit.contain),
       ),
     );
   }
 
-  Widget _fallback() {
-    return ColoredBox(
-      color: gym.brandColor.withOpacity(0.10),
-      child: Center(
-        child: Text(
-          gym.initials,
-          style: TextStyle(
-            color: gym.brandColor,
-            fontSize: size * 0.22,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
+
 }
 
 /// Displays the gym's real stock-photo backdrop and keeps the brand mark
@@ -101,11 +73,7 @@ class GymStockImage extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (gym.imageAssetPath.isNotEmpty)
-              Image.asset(
-                gym.imageAssetPath,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallback(),
-              )
+              TenantImage(gym.imageAssetPath)
             else if (gym.imageUrl.isNotEmpty)
               Image.network(
                 gym.imageUrl,
@@ -133,11 +101,7 @@ class GymStockImage extends StatelessWidget {
               Positioned(
                 right: 12.w,
                 bottom: 12.h,
-                child: GymBrandLogo(
-                  gym: gym,
-                  size: 54.r,
-                  borderRadius: 14.r,
-                ),
+                child: GymBrandLogo(gym: gym, size: 54.r, borderRadius: 14.r),
               ),
           ],
         ),

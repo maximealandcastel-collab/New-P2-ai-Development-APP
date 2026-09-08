@@ -1,7 +1,6 @@
 class ApiConstants {
-    /// Override at run time, e.g.:
-    /// `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:4001`
-    //static const String baseUrl = 'https://fit-tech-ai.replit.app';
+    /// Shared backend origin. Override when launching/building, e.g.:
+    /// `flutter run --dart-define=API_ORIGIN=http://127.0.0.1:4001`
     static const String baseUrl = String.fromEnvironment(
       'API_ORIGIN',
       defaultValue: 'https://p2pfitechai.com',

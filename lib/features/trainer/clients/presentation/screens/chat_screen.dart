@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/services/socket_services.dart';
 import 'package:pler_to_pler_app/services/trainer_messaging_service.dart';
 
@@ -253,7 +252,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               CircleAvatar(
                 radius: 22.r,
-                backgroundColor: AppColors.primary.withOpacity(0.12),
+                backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                 backgroundImage:
                     image == null ? null : NetworkImage(image),
                 child: image == null
@@ -262,7 +261,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? '?'
                             : displayName[0].toUpperCase(),
                         style: TextStyle(
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -339,8 +338,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildConversation(String displayName) {
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
       );
     }
     if (_error != null) {
@@ -397,7 +396,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Icon(
                   Icons.waving_hand_outlined,
                   size: 30.r,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               SizedBox(height: 16.h),
@@ -426,7 +425,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     return RefreshIndicator(
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       onRefresh: _loadConversation,
       child: ListView.builder(
         controller: _scrollController,
@@ -519,7 +518,7 @@ class _ChatScreenState extends State<ChatScreen> {
               constraints: BoxConstraints(maxWidth: 292.w),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
               decoration: BoxDecoration(
-                color: isMine ? AppColors.primary : Colors.white,
+                color: isMine ? Theme.of(context).colorScheme.primary : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18.r),
                   topRight: Radius.circular(18.r),
@@ -552,7 +551,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Icons.done_all_rounded,
                     color: message.readAt == null
                         ? Colors.grey.shade500
-                        : AppColors.primary,
+                        : Theme.of(context).colorScheme.primary,
                     size: 13.r,
                   ),
                 ],
@@ -624,8 +623,8 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               width: 42.r,
               height: 42.r,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,

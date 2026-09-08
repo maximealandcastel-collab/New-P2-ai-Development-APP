@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
@@ -122,9 +123,9 @@ class _RateMyPeelAssetFallback extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.camera_alt_outlined,
-            color: Color(0xFFFF6B35),
+            color: BrandColors.of(context).primary,
             size: 22,
           ),
           const SizedBox(width: 10),

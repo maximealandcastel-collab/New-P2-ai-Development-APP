@@ -86,7 +86,7 @@ class ClientCardWidget extends StatelessWidget {
             ),
           ],
           if (!isPending)
-            _buildAiInsight(client['insight'] ?? '')
+            _buildAiInsight(context, client['insight'] ?? '')
           else ...[
             _buildPendingMessage(client['message'] ?? ''),
             SizedBox(height: 16.h),
@@ -97,12 +97,12 @@ class ClientCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAiInsight(String text) {
+  Widget _buildAiInsight(BuildContext context, String text) {
     if (text.isEmpty) return const SizedBox.shrink();
     return CustomContainer(
       paddingAll: 12.r,
       radiusAll: 12.r,
-      color: const Color(0xFFD45D4C),
+      color: Theme.of(context).colorScheme.primary,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

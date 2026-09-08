@@ -21,11 +21,11 @@ class OverviewSection extends StatelessWidget {
         return EmptyData(title: "Today's overview", subtitle: "Not enough data to view");
       }
 
-      return _buildOverviewContent(overview);
+      return _buildOverviewContent(context, overview);
     });
   }
 
-  Widget _buildOverviewContent(WorkoutTodayOverviewModel overview) {
+  Widget _buildOverviewContent(BuildContext context, WorkoutTodayOverviewModel overview) {
     final completionPercentage = overview.completionPercentage ?? 0;
     final progressValue =
         (completionPercentage / 100).clamp(0.0, 1.0).toDouble();
@@ -53,6 +53,7 @@ class OverviewSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildProgressCircle(
+                      context,
                       progressValue,
                       '$completionPercentage%',
                     ),
@@ -62,8 +63,8 @@ class OverviewSection extends StatelessWidget {
                         children: [
                           _buildOverviewItem(
                             Icons.gps_fixed,
-                            AppColors.primary.withValues(alpha: 0.14),
-                            AppColors.primary,
+                            Theme.of(context).colorScheme.primary.withValues(alpha: 0.14),
+                            Theme.of(context).colorScheme.primary,
                             'Goal',
                             StringFormat.formatSelectedList(
                               overview.goal ?? [],
@@ -93,11 +94,11 @@ class OverviewSection extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 6.h),
-                Divider(color: AppColors.primary, thickness: 0.1),
+                Divider(color: Theme.of(context).colorScheme.primary, thickness: 0.1),
                 SizedBox(height: 10.h),
                 _buildDetailItem(
                   Icons.local_fire_department_outlined,
-                  AppColors.primary,
+                  Theme.of(context).colorScheme.primary,
                   'Workout Intensity',
                   StringFormat.formatSelectedList(
                     overview.workoutIntensity ?? [],
@@ -113,7 +114,7 @@ class OverviewSection extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 14.h),
-                Divider(color: AppColors.primary, thickness: 0.1),
+                Divider(color: Theme.of(context).colorScheme.primary, thickness: 0.1),
                 SizedBox(height: 6.h),
                 Row(
                   children: [
@@ -128,7 +129,7 @@ class OverviewSection extends StatelessWidget {
                         text: StringFormat.formatSelectedList(
                           overview.workoutEnvironment ?? [],
                         ),
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -142,7 +143,7 @@ class OverviewSection extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressCircle(double progressValue, String label) {
+  Widget _buildProgressCircle(BuildContext context, double progressValue, String label) {
     return Column(
       children: [
         SizedBox(height: 10.h),
@@ -159,7 +160,7 @@ class OverviewSection extends StatelessWidget {
                   value: progressValue,
                   strokeWidth: 10.h,
                   backgroundColor: AppColors.secondary,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                  valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                 ),
               ),
               CustomText(

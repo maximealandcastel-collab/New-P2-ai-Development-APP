@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
@@ -13,7 +14,6 @@ class InvoicePreviewScreen extends StatefulWidget {
 }
 
 class _InvoicePreviewScreenState extends State<InvoicePreviewScreen> {
-
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +55,9 @@ class InvoiceWidget extends StatelessWidget {
                 children: [
                   // Header with orange gradient
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFFFF8C00), Color(0xFFFF6B00)],
+                        colors: [BrandColors.of(context).primary, BrandColors.of(context).primary],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -83,14 +83,14 @@ class InvoiceWidget extends StatelessWidget {
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: const Color(0xFFFF8C00),
+                                      color: BrandColors.of(context).primary,
                                       width: 3,
                                     ),
                                   ),
                                   child: Center(
                                     child: CustomPaint(
                                       size: const Size(40, 40),
-                                      painter: LogoPainter(),
+                                      painter: LogoPainter(color: BrandColors.of(context).primary),
                                     ),
                                   ),
                                 ),
@@ -485,21 +485,23 @@ class InvoiceWidget extends StatelessWidget {
 
 // Custom Painter for Logo
 class LogoPainter extends CustomPainter {
+  LogoPainter({required this.color});
+  final Color color;
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFFF8C00)
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
     // Draw P2P text stylized
     final textPainter = TextPainter(
-      text: const TextSpan(
+      text: TextSpan(
         text: 'P2P',
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Color(0xFFFF8C00),
+          color: color,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -515,7 +517,7 @@ class LogoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant LogoPainter oldDelegate) => oldDelegate.color != color;
 }
 
 // Custom Painter for Bottom Wave

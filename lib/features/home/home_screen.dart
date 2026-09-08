@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/home_gym_brand.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
@@ -72,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return CustomScaffold(
       body: RefreshIndicator(
-        color: AppColors.primary,
+        color: Theme.of(context).colorScheme.primary,
         onRefresh: _loadDashboard,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(
@@ -82,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               const FeedAppBar(),
+              const HomeGymBrand(),
               SizedBox(height: 18.h),
               if (_loadError != null) _buildLoadError(),
               _buildClientOverview(),
@@ -105,11 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFF3ED),
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: AppColors.primary.withOpacity(0.24)),
+          border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.24)),
         ),
         child: Row(
           children: [
-            Icon(Icons.cloud_off_outlined, size: 18.r, color: AppColors.primary),
+            Icon(Icons.cloud_off_outlined, size: 18.r, color: Theme.of(context).colorScheme.primary),
             SizedBox(width: 8.w),
             const Expanded(
               child: Text(
@@ -279,12 +281,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 30.r,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primary, width: 2),
+                    border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
                   child: Icon(
                     Icons.add,
                     size: 21.r,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -330,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           text: 'View all',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),

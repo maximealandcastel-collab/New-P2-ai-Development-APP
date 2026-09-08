@@ -47,7 +47,7 @@ class WorkoutIntensitySelector extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16.r),
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.primary
+                        ? Theme.of(context).colorScheme.primary
                         : Colors.transparent,
                   ),
                 ),

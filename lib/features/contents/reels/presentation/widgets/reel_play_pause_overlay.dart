@@ -74,7 +74,7 @@ class _ReelPlayPauseOverlayState extends State<ReelPlayPauseOverlay>
                     width: 64.r,
                     height: 64.r,
                     decoration: BoxDecoration(
-                      color: AppColors.backgroundLight.withValues(alpha: 0.75),
+                      color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.75),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(

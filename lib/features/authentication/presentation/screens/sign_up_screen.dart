@@ -1,9 +1,9 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 
@@ -190,7 +190,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextSpan(
                               text: 'Sign in',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -230,7 +230,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           TextSpan(
             text: 'P2P ',
             children: [
-              TextSpan(text: 'FIT TECH AI', style: TextStyle(color: AppColors.primary)),
+              TextSpan(text: 'FIT TECH AI', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
             ],
           ),
           style: TextStyle(
@@ -276,7 +276,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           color: selected ? const Color(0xFFFFFBF6) : Colors.transparent,
           borderRadius: BorderRadius.circular(11),
           border: Border.all(
-            color: selected ? AppColors.primary : Colors.transparent,
+            color: selected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             width: 1.2,
           ),
         ),
@@ -284,14 +284,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 16.sp, color: selected ? AppColors.primary : const Color(0xFF777777)),
+              Icon(icon, size: 16.sp, color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFF777777)),
               SizedBox(width: 7.w),
               Text(
                 role,
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: selected ? AppColors.primary : const Color(0xFF666666),
+                  color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFF666666),
                 ),
               ),
             ],
@@ -354,7 +354,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       isDense: true,
       contentPadding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 14.h),
       enabledBorder: border(const Color(0xFFE7E7E7)),
-      focusedBorder: border(AppColors.primary, 1.2),
+      focusedBorder: border(Theme.of(context).colorScheme.primary, 1.2),
       errorBorder: border(const Color(0xFFE26060)),
       focusedErrorBorder: border(const Color(0xFFE26060), 1.2),
       errorStyle: TextStyle(fontSize: 10.5.sp, color: const Color(0xFFB83232), height: 1.15),
@@ -419,7 +419,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Icon(
                       check.value ? Icons.check_circle : Icons.radio_button_unchecked,
                       size: 13.sp,
-                      color: check.value ? AppColors.primary : const Color(0xFFB7B7B7),
+                      color: check.value ? Theme.of(context).colorScheme.primary : const Color(0xFFB7B7B7),
                     ),
                     SizedBox(width: 7.w),
                     Text(check.key, style: TextStyle(fontSize: 10.5.sp, color: const Color(0xFF666666))),
@@ -442,12 +442,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Icon(
                     controller.showReferralField.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                     size: 18.sp,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(width: 4.w),
                   Text(
                     'Have a referral or P2P code?',
-                    style: TextStyle(fontSize: 11.5.sp, color: AppColors.primary, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 11.5.sp, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -479,7 +479,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Checkbox(
                   value: controller.acceptedTerms.value,
                   onChanged: (value) => controller.acceptedTerms.value = value ?? false,
-                  activeColor: AppColors.primary,
+                  activeColor: Theme.of(context).colorScheme.primary,
                   side: const BorderSide(color: Color(0xFF999999)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
                 ),
@@ -493,9 +493,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       text: 'I agree to the ',
                       style: TextStyle(fontSize: 10.5.sp, height: 1.4, color: const Color(0xFF666666)),
                       children: [
-                        TextSpan(text: 'Terms of Service', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                        TextSpan(text: 'Terms of Service', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
                         const TextSpan(text: ' and '),
-                        TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                        TextSpan(text: 'Privacy Policy', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -512,7 +512,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.primary, const Color(0xFFFF8A00)],
+            colors: [Theme.of(context).colorScheme.primary, BrandColors.of(context).light],
           ),
           borderRadius: BorderRadius.circular(12),
         ),

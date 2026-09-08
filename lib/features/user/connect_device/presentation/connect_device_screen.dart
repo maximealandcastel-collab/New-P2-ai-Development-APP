@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -139,7 +140,7 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -279,7 +280,7 @@ class _MainContent extends StatelessWidget {
                 width: double.infinity,
                 height: 52.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF7A00),
+                  color: BrandColors.of(context).primary,
                   borderRadius: BorderRadius.circular(14.r),
                 ),
                 alignment: Alignment.center,
@@ -479,7 +480,7 @@ class _StatusBadge extends StatelessWidget {
           height: 18.h,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: const Color(0xFFFF7A00),
+            color: BrandColors.of(context).primary,
           ),
         );
 

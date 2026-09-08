@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -96,8 +97,8 @@ class ProfileScreen extends StatelessWidget {
         ),
         _MenuItem(
           icon: Icons.calendar_today_rounded,
-          iconBg: const Color(0xFFFFF7ED),
-          iconColor: const Color(0xFFEA580C),
+          iconBg: BrandColors.of(context).soft,
+          iconColor: BrandColors.of(context).primary,
           title: 'Sessions & Packages',
           subtitle: 'Manage sessions and packages',
           onTap: () => Get.toNamed(AppRoute.paymentRequestScreen),
@@ -134,8 +135,8 @@ class ProfileScreen extends StatelessWidget {
         ),
         _MenuItem(
           icon: Icons.receipt_long_rounded,
-          iconBg: const Color(0xFFFFF7ED),
-          iconColor: const Color(0xFFEA580C),
+          iconBg: BrandColors.of(context).soft,
+          iconColor: BrandColors.of(context).primary,
           title: 'Invoices & Statements',
           subtitle: 'View and download invoices',
           onTap: () => Get.toNamed(AppRoute.invoicesScreen),
@@ -166,8 +167,8 @@ class ProfileScreen extends StatelessWidget {
         ),
         _MenuItem(
           icon: Icons.headset_mic_rounded,
-          iconBg: const Color(0xFFFFF7ED),
-          iconColor: const Color(0xFFEA580C),
+          iconBg: BrandColors.of(context).soft,
+          iconColor: BrandColors.of(context).primary,
           title: 'Admin Support',
           subtitle: 'Get help from the P2P FitTech AI team',
           badge: 'Contact',
@@ -234,7 +235,7 @@ class _AccessCodeCard extends StatelessWidget {
               children: [
                 Text('YOUR ACCESS CODE',
                     style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label,
-                        color: const Color(0xFFEA580C), letterSpacing: 0.8)),
+                        color: BrandColors.of(context).primary, letterSpacing: 0.8)),
                 SizedBox(height: 5.h),
                 Row(
                   children: [
@@ -247,7 +248,7 @@ class _AccessCodeCard extends StatelessWidget {
                         Clipboard.setData(ClipboardData(text: code));
                         ToastMessageHelper.show('Code copied!');
                       },
-                      child: Icon(Icons.copy_rounded, size: 18.sp, color: const Color(0xFFEA580C)),
+                      child: Icon(Icons.copy_rounded, size: 18.sp, color: BrandColors.of(context).primary),
                     ),
                   ],
                 ),
@@ -348,11 +349,11 @@ class _MenuTile extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: BrandColors.of(context).soft,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Text(item.badge!,
-                        style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: const Color(0xFFEA580C))),
+                        style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: BrandColors.of(context).primary)),
                   ),
                 ],
                 SizedBox(width: 6.w),

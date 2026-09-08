@@ -21,14 +21,14 @@ class ProfileScreen extends StatelessWidget {
     final ProfileController controller = Get.find<ProfileController>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 232.h,
             floating: true,
             pinned: true,
-            backgroundColor: AppColors.backgroundLight,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             foregroundColor: Colors.black,
             elevation: 0,
             scrolledUnderElevation: 0,
@@ -41,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
                   text: controller.isLoading ? 'Loading...' : 'Profile',
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.backgroundLight,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                 )),
             actions: [
               IconButton(

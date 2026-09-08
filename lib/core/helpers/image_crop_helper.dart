@@ -40,6 +40,7 @@ class ImageCropHelper {
   static Future<File?> cropImage({
     required String imagePath,
     required ImageCropConfig config,
+    required Color accentColor,
   }) async {
     if (config.cropWidth <= 0 || config.cropHeight <= 0) {
       return null;
@@ -56,7 +57,7 @@ class ImageCropHelper {
           toolbarTitle: 'Crop Image',
           toolbarColor: AppColors.textPrimary,
           toolbarWidgetColor: Colors.white,
-          activeControlsWidgetColor: AppColors.primary,
+          activeControlsWidgetColor: accentColor,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: true,
           hideBottomControls: false,

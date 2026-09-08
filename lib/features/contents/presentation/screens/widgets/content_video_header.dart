@@ -24,7 +24,7 @@ class ContentVideoHeader extends StatelessWidget {
     final thumbnailUrl = ContentMediaResolver.resolveThumbnailUrl(content);
 
     return ColoredBox(
-      color: AppColors.backgroundLight,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Hero(

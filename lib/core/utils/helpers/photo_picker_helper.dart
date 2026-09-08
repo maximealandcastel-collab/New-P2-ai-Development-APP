@@ -165,11 +165,11 @@ class PhotoPickerHelper {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             padding: EdgeInsets.all(16.r),
-            child: Icon(icon, size: 30.r, color: AppColors.primary),
+            child: Icon(icon, size: 30.r, color: Theme.of(context).colorScheme.primary),
           ),
           SizedBox(height: 8.h),
           CustomText(
@@ -199,11 +199,11 @@ class PhotoPickerHelper {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             padding:  EdgeInsets.all(16.r),
-            child: Icon(icon, size: 30.r, color: AppColors.primary),
+            child: Icon(icon, size: 30.r, color: Theme.of(context).colorScheme.primary),
           ),
           SizedBox(height: 8.h),
           CustomText(text:

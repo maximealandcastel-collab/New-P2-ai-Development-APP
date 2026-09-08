@@ -25,7 +25,7 @@ Future<AnamSessionRecoveryChoice?> showAnamSessionRecoveryDialog({
         rightButtonLabel: 'End session',
         leftButtonLabelColor: forceEndOnly
             ? AppColors.textSecondary
-            : AppColors.primary,
+            : Theme.of(context).colorScheme.primary,
         rightButtonBgColor: AppColors.error,
         onTapLeftButton: () {
           Navigator.of(dialogContext).pop(

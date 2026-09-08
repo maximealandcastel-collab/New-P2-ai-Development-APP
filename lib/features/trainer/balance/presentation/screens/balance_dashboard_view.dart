@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +7,7 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/features/trainer/balance/data/models/balance_model.dart';
 import 'package:pler_to_pler_app/features/trainer/balance/presentation/controllers/balance_controller.dart';
 
-const _kOrange = Color(0xFFFF6B1A);
+
 const _kDark   = Color(0xFF0E0E10);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ class BalanceDashboardView extends StatelessWidget {
           return _buildShimmer();
         case LoadingState.error:
         case LoadingState.offline:
-          return _buildError(controller);
+          return _buildError(context, controller);
         case LoadingState.loaded:
           return _buildContent(context, controller);
       }
@@ -72,7 +73,7 @@ class BalanceDashboardView extends StatelessWidget {
   }
 
   // ── Error ──────────────────────────────────────────────────────
-  Widget _buildError(BalanceController controller) {
+  Widget _buildError(BuildContext context, BalanceController controller) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -85,7 +86,7 @@ class BalanceDashboardView extends StatelessWidget {
           ElevatedButton(
             onPressed: controller.fetchAll,
             style: ElevatedButton.styleFrom(
-                backgroundColor: _kOrange, shape: const StadiumBorder()),
+                backgroundColor: Theme.of(context).colorScheme.primary, shape: const StadiumBorder()),
             child: Text('Try again',
                 style: TextStyle(color: Colors.white, fontSize: 13.sp)),
           ),
@@ -100,7 +101,7 @@ class BalanceDashboardView extends StatelessWidget {
     if (earnings == null) return const SizedBox.shrink();
 
     return RefreshIndicator(
-      color: _kOrange,
+      color: Theme.of(context).colorScheme.primary,
       onRefresh: controller.fetchAll,
       child: ListView(
         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 130.h),
@@ -123,13 +124,13 @@ class BalanceDashboardView extends StatelessWidget {
               _StatTile(
                 label: 'Pending',
                 value: earnings.pendingFormatted,
-                color: _kOrange,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: 8.w),
               _StatTile(
                 label: 'This Month',
                 value: controller.thisMonthFormatted,
-                color: _kOrange,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ],
           ),
@@ -139,7 +140,7 @@ class BalanceDashboardView extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _kOrange,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(14.r),
             ),
             child: Row(
@@ -250,17 +251,17 @@ class BalanceDashboardView extends StatelessWidget {
                   margin: EdgeInsets.only(top: 8.h),
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: BrandColors.of(context).soft,
                     borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: _kOrange.withOpacity(0.4)),
+                    border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
                   ),
                   child: Row(children: [
-                    Icon(Icons.info_outline, color: _kOrange, size: 16.sp),
+                    Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary, size: 16.sp),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
                         'Amounts over \$2,000 require admin approval before payout.',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.orange.shade800),
+                        style: TextStyle(fontSize: 12.sp, color: BrandColors.of(context).dark),
                       ),
                     ),
                   ]),
@@ -279,7 +280,7 @@ class BalanceDashboardView extends StatelessWidget {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: _kOrange),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 onChanged: (_) => error.value = '',
@@ -305,7 +306,7 @@ class BalanceDashboardView extends StatelessWidget {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: const BorderSide(color: _kOrange),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -335,7 +336,7 @@ class BalanceDashboardView extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _kOrange,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                   ),
@@ -370,7 +371,7 @@ class BalanceDashboardView extends StatelessWidget {
                               cents > threshold
                                   ? 'Your withdrawal is pending admin approval.'
                                   : 'Your withdrawal has been submitted.',
-                              backgroundColor: _kOrange,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               colorText: Colors.white,
                             );
                           } else {
@@ -416,7 +417,7 @@ class _HeroBalanceCard extends StatelessWidget {
         children: [
           Row(children: [
             Container(width: 8.w, height: 8.w,
-                decoration: const BoxDecoration(color: _kOrange, shape: BoxShape.circle)),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle)),
             SizedBox(width: 6.w),
             Text('P2P Direct Pay™ · Available Balance',
                 style: TextStyle(color: Colors.white60, fontSize: 11.sp, letterSpacing: 0.3)),
@@ -435,7 +436,7 @@ class _HeroBalanceCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kOrange,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                 padding: EdgeInsets.symmetric(vertical: 16.h),
               ),
@@ -492,7 +493,7 @@ class _StepTile extends StatelessWidget {
         Container(
           width: 28.w, height: 28.w,
           decoration: BoxDecoration(
-            color: active ? _kOrange : Colors.grey.shade200,
+            color: active ? Theme.of(context).colorScheme.primary : Colors.grey.shade200,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
@@ -531,12 +532,12 @@ class _SubscriberRow extends StatelessWidget {
       child: Row(children: [
         CircleAvatar(
           radius: 22.r,
-          backgroundColor: _kOrange.withOpacity(0.12),
+          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
           backgroundImage: (subscriber.subscriberImage?.isNotEmpty ?? false)
               ? NetworkImage(subscriber.subscriberImage!) : null,
           child: (subscriber.subscriberImage?.isNotEmpty ?? false)
               ? null
-              : Text(initials, style: TextStyle(color: _kOrange, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
+              : Text(initials, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
         ),
         SizedBox(width: 12.w),
         Expanded(
@@ -582,18 +583,18 @@ class _MethodChip extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: selected ? _kOrange.withOpacity(0.1) : Colors.grey.shade100,
+          color: selected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(10.r),
           border: Border.all(
-              color: selected ? _kOrange : Colors.grey.shade300,
+              color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
               width: selected ? 1.5 : 1),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 14.sp, color: selected ? _kOrange : Colors.grey.shade600),
+          Icon(icon, size: 14.sp, color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade600),
           SizedBox(width: 4.w),
           Text(label, style: TextStyle(
               fontSize: 12.sp,
-              color: selected ? _kOrange : Colors.grey.shade700,
+              color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade700,
               fontWeight: selected ? AppFontWeight.label : AppFontWeight.emphasis)),
         ]),
       ),

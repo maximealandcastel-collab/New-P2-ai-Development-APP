@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,7 @@ class _ExerciseSummaryScreenState extends State<ExerciseSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(bottom: 30.h),
@@ -214,7 +215,7 @@ class _Bar extends StatelessWidget {
             width: 28.w,
             height: maxHeight * data.value,
             decoration: BoxDecoration(
-              color: data.isHighlighted ? const Color(0xFFFF7A00) : const Color(0xFFEEEEEE),
+              color: data.isHighlighted ? BrandColors.of(context).primary : const Color(0xFFEEEEEE),
               borderRadius: BorderRadius.circular(8.r),
             ),
           ),
@@ -267,7 +268,7 @@ class _StatsRow extends StatelessWidget {
           SizedBox(width: 10.w),
           _StatCard(
             icon: Icons.local_fire_department,
-            iconColor: const Color(0xFFFF7A00),
+            iconColor: BrandColors.of(context).primary,
             label: 'Calories\nBurned',
             value: '3,240 kcal',
             valueSize: 16,
@@ -384,9 +385,9 @@ class _DonutChart extends StatelessWidget {
       width: 52.w,
       height: 52.w,
       child: CustomPaint(
-        painter: _DonutPainter(progress: progress),
+        painter: _DonutPainter(progress: progress, color: BrandColors.of(context).primary),
         child: Center(
-          child: Icon(Icons.local_fire_department, size: 20.sp, color: const Color(0xFFFF7A00)),
+          child: Icon(Icons.local_fire_department, size: 20.sp, color: BrandColors.of(context).primary),
         ),
       ),
     );
@@ -396,7 +397,8 @@ class _DonutChart extends StatelessWidget {
 class _DonutPainter extends CustomPainter {
   final double progress;
 
-  _DonutPainter({required this.progress});
+  _DonutPainter({required this.progress, required this.color});
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -421,7 +423,7 @@ class _DonutPainter extends CustomPainter {
       2 * pi * progress,
       false,
       Paint()
-        ..color = const Color(0xFFFF7A00)
+        ..color = color
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round,
@@ -429,7 +431,7 @@ class _DonutPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DonutPainter old) => old.progress != progress;
+  bool shouldRepaint(covariant _DonutPainter old) => old.progress != progress || old.color != color;
 }
 
 class _MacroRow extends StatelessWidget {
@@ -505,7 +507,7 @@ class _ActivitySection extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.black : Colors.transparent,
+                        color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       alignment: Alignment.center,
@@ -514,7 +516,7 @@ class _ActivitySection extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: AppFontWeight.label,
-                          color: isSelected ? Colors.white : Colors.black54,
+                          color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black54,
                         ),
                       ),
                     ),

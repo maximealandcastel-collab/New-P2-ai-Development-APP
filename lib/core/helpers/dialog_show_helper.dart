@@ -75,7 +75,7 @@ class DialogShowHelper {
                   ),
                   child: Center(
                     child: CircularProgressIndicator(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       strokeWidth: 2.5,
                     ),
                   ),

@@ -101,13 +101,13 @@ class _WatchTypeCard extends StatelessWidget {
             radiusAll: 12.r,
             paddingAll: 10.r,
             color: enabled
-                ? AppColors.primary.withValues(alpha: 0.1)
-                : AppColors.backgroundLight,
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Theme.of(context).scaffoldBackgroundColor,
             child: Icon(
               watchType.usesHealthKit
                   ? Icons.favorite_outline
                   : Icons.bluetooth,
-              color: enabled ? AppColors.primary : AppColors.textSecondary,
+              color: enabled ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
               size: 22.r,
             ),
           ),

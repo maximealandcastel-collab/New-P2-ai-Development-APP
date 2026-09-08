@@ -50,7 +50,7 @@ class ContentsReelsOverlay extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
                 child: CustomContainer(
-                  color: AppColors.backgroundLight,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   radiusAll: 12.r,
                   paddingHorizontal: 12.w,
                   paddingVertical: 10.h,
@@ -63,7 +63,7 @@ class ContentsReelsOverlay extends StatelessWidget {
                           value: progress > 0 ? progress : null,
                           minHeight: 5.h,
                           backgroundColor: AppColors.secondary,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       SizedBox(height: 6.h),

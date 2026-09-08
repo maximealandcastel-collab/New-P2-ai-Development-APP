@@ -2,7 +2,6 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/affiliate/presentation/controllers/affiliate_dashboard_controller.dart';
 
 class AffiliateDashboardScreen extends StatelessWidget {
@@ -15,8 +14,8 @@ class AffiliateDashboardScreen extends StatelessWidget {
       body: Obx(() {
         final c = AffiliateDashboardController.to;
         if (c.loading && c.stats == null) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          return Center(
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
         if (c.error.isNotEmpty && c.stats == null) {
@@ -28,7 +27,7 @@ class AffiliateDashboardScreen extends StatelessWidget {
                 SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: c.loadAll,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                  style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
                   child: const Text('Retry'),
                 ),
               ],
@@ -37,7 +36,7 @@ class AffiliateDashboardScreen extends StatelessWidget {
         }
         final s = c.stats;
         return RefreshIndicator(
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           onRefresh: c.loadAll,
           child: CustomScrollView(
             slivers: [
@@ -117,10 +116,10 @@ class AffiliateDashboardScreen extends StatelessWidget {
                       SizedBox(height: 10.h),
                     ],
                     if (c.referralsLoading && c.referrals.isEmpty)
-                      const Center(
+                      Center(
                         child: Padding(
                           padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(color: AppColors.primary),
+                          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                         ),
                       )
                     else if (c.referrals.isEmpty)
@@ -158,14 +157,14 @@ class _EarningsCard extends StatelessWidget {
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withOpacity(0.85), AppColors.primary],
+          colors: [Theme.of(context).colorScheme.primary.withOpacity(0.85), Theme.of(context).colorScheme.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -306,7 +305,7 @@ class _WithdrawButton extends StatelessWidget {
                 controller: amountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 style: const TextStyle(color: Colors.white),
-                decoration: _sheetInputDec('e.g. 50.00'),
+                decoration: _sheetInputDec(context, 'e.g. 50.00'),
               ),
               SizedBox(height: 14.h),
 
@@ -316,7 +315,7 @@ class _WithdrawButton extends StatelessWidget {
                 value: methodVal.value,
                 dropdownColor: const Color(0xFF2A2A2A),
                 style: const TextStyle(color: Colors.white),
-                decoration: _sheetInputDec(''),
+                decoration: _sheetInputDec(context, ''),
                 items: const [
                   DropdownMenuItem(value: 'paypal', child: Text('PayPal')),
                   DropdownMenuItem(value: 'zelle', child: Text('Zelle')),
@@ -333,7 +332,7 @@ class _WithdrawButton extends StatelessWidget {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
-                decoration: _sheetInputDec('your@email.com'),
+                decoration: _sheetInputDec(context, 'your@email.com'),
               ),
               SizedBox(height: 8.h),
 
@@ -378,7 +377,7 @@ class _WithdrawButton extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   ),
                   child: loading.value
@@ -394,7 +393,7 @@ class _WithdrawButton extends StatelessWidget {
     );
   }
 
-  InputDecoration _sheetInputDec(String hint) => InputDecoration(
+  InputDecoration _sheetInputDec(BuildContext context, String hint) => InputDecoration(
     hintText: hint,
     hintStyle: TextStyle(color: Colors.grey.shade600),
     filled: true,
@@ -405,7 +404,7 @@ class _WithdrawButton extends StatelessWidget {
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.r),
-      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
     ),
     contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
   );
@@ -435,7 +434,7 @@ class _ReferralTile extends StatelessWidget {
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: referral.isPaid ? AppColors.primary.withOpacity(0.4) : Colors.transparent,
+          color: referral.isPaid ? Theme.of(context).colorScheme.primary.withOpacity(0.4) : Colors.transparent,
         ),
       ),
       child: Row(
@@ -443,12 +442,12 @@ class _ReferralTile extends StatelessWidget {
           CircleAvatar(
             radius: 18.r,
             backgroundColor: referral.isPaid
-                ? AppColors.primary.withOpacity(0.2)
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                 : Colors.grey.shade800,
             child: Text(
               referral.displayName.isNotEmpty ? referral.displayName[0].toUpperCase() : '?',
               style: TextStyle(
-                color: referral.isPaid ? AppColors.primary : Colors.grey.shade400,
+                color: referral.isPaid ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
                 fontWeight: AppFontWeight.section,
                 fontSize: 14.sp,
               ),
@@ -590,9 +589,9 @@ class _StatBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
     decoration: BoxDecoration(
-      color: accent ? AppColors.primary.withOpacity(0.12) : const Color(0xFF1A1A1A),
+      color: accent ? Theme.of(context).colorScheme.primary.withOpacity(0.12) : const Color(0xFF1A1A1A),
       borderRadius: BorderRadius.circular(12.r),
-      border: Border.all(color: accent ? AppColors.primary.withOpacity(0.4) : Colors.transparent),
+      border: Border.all(color: accent ? Theme.of(context).colorScheme.primary.withOpacity(0.4) : Colors.transparent),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

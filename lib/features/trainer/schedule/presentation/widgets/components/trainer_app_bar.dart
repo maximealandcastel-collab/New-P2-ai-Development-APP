@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -161,7 +162,7 @@ class _NotificationIcon extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF7A00),
+                  color: BrandColors.of(context).primary,
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Text(

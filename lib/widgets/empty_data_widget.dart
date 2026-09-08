@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/custom_text.dart';
 
@@ -35,7 +34,7 @@ class EmptyDataWidget extends StatelessWidget {
               onPressed: onRefresh,
               child: CustomText(
                 text: 'Refresh',
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: AppFontWeight.label,
               ),
             ),

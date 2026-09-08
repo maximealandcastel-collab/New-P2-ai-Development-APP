@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -201,9 +202,9 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selectedTab == 0
                       ? (selectedVideo != null
-                          ? AppColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.grey.shade300)
-                      : AppColors.primary,
+                      : Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
                   ),
@@ -291,12 +292,12 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFFFFF8F1),
             borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: const Color(0xFFFFD9AA)),
+            border: Border.all(color: BrandColors.of(context).border),
           ),
           child: Row(
             children: [
               Icon(Icons.people_outline,
-                  size: 16.sp, color: AppColors.primary),
+                  size: 16.sp, color: Theme.of(context).colorScheme.primary),
               SizedBox(width: 8.w),
               Expanded(
                 child: CustomText(
@@ -326,13 +327,13 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
         child: CustomContainer(
           radiusAll: 12.r,
           paddingVertical: 10.h,
-          color: isSelected ? Colors.black : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           alignment: Alignment.center,
           child: CustomText(
             text: label,
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.grey,
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
           ),
         ),
       ),
@@ -352,7 +353,7 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: selectedVideo != null
-                ? AppColors.primary
+                ? Theme.of(context).colorScheme.primary
                 : Colors.black12,
             width: selectedVideo != null ? 2 : 1,
           ),
@@ -363,7 +364,7 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
             CircleAvatar(
               radius: 35.r,
               backgroundColor: selectedVideo != null
-                  ? const Color(0xFFFDEFE0)
+                  ? BrandColors.of(context).soft
                   : Colors.black.withOpacity(0.05),
               child: Icon(
                 selectedVideo != null
@@ -371,7 +372,7 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
                     : Icons.videocam_rounded,
                 size: 32.sp,
                 color: selectedVideo != null
-                    ? AppColors.primary
+                    ? Theme.of(context).colorScheme.primary
                     : Colors.black,
               ),
             ),
@@ -385,7 +386,7 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
                   ? FontWeight.w600
                   : FontWeight.w400,
               color: selectedVideo != null
-                  ? AppColors.primary
+                  ? Theme.of(context).colorScheme.primary
                   : Colors.grey,
               textAlign: TextAlign.center,
               maxline: 2,

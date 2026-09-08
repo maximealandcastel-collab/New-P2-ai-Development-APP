@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -63,8 +64,8 @@ class SessionInfoHeader extends StatelessWidget {
                         Container(
                           width: 6.w,
                           height: 6.h,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF7A00),
+                          decoration: BoxDecoration(
+                            color: BrandColors.of(context).primary,
                             shape: BoxShape.circle,
                           ),
                         ),

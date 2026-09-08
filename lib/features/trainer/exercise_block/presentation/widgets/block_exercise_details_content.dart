@@ -21,16 +21,16 @@ class BlockExerciseDetailsContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 12.h),
-        ..._buildMetaChips(),
-        ..._buildWorkoutMetrics(),
+        ..._buildMetaChips(context),
+        ..._buildWorkoutMetrics(context),
         ..._buildTags(),
-        ..._buildSubstitutions(),
-        ..._buildSteps(steps),
+        ..._buildSubstitutions(context),
+        ..._buildSteps(context, steps),
       ],
     );
   }
 
-  List<Widget> _buildMetaChips() {
+  List<Widget> _buildMetaChips(BuildContext context) {
     final chips = <String>[
       if ((exercise.difficulty ?? '').isNotEmpty)
         StringFormat.formatLabel(exercise.difficulty!),
@@ -44,27 +44,28 @@ class BlockExerciseDetailsContent extends StatelessWidget {
       Wrap(
         spacing: 8.w,
         runSpacing: 8.h,
-        children: chips.map(_metaChip).toList(),
+        children: chips.map((chip) => _metaChip(context, chip)).toList(),
       ),
       SizedBox(height: 14.h),
     ];
   }
 
-  List<Widget> _buildWorkoutMetrics() {
+  List<Widget> _buildWorkoutMetrics(BuildContext context) {
     if (!_hasWorkoutMetrics) return [];
 
     final metrics = <Widget>[
       if (exercise.sets != null)
-        _metricCard(label: 'Sets', value: '${exercise.sets}'),
+        _metricCard(context, label: 'Sets', value: '${exercise.sets}'),
       if ((exercise.reps ?? '').trim().isNotEmpty)
-        _metricCard(label: 'Reps range', value: exercise.reps!.trim()),
+        _metricCard(context, label: 'Reps range', value: exercise.reps!.trim()),
       if ((exercise.restTime ?? '').trim().isNotEmpty)
         _metricCard(
+          context,
           label: 'Rest times',
           value: _formatRestTime(exercise.restTime!.trim()),
         ),
       if ((exercise.rpe ?? '').trim().isNotEmpty)
-        _metricCard(label: 'RPE', value: exercise.rpe!.trim()),
+        _metricCard(context, label: 'RPE', value: exercise.rpe!.trim()),
     ];
 
     return [
@@ -101,7 +102,7 @@ class BlockExerciseDetailsContent extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildSubstitutions() {
+  List<Widget> _buildSubstitutions(BuildContext context) {
     if (!_hasSubstitutions) return [];
 
     return [
@@ -116,7 +117,7 @@ class BlockExerciseDetailsContent extends StatelessWidget {
           margin: EdgeInsets.only(bottom: 8.h),
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           decoration: BoxDecoration(
-            color: AppColors.backgroundLight,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -142,19 +143,19 @@ class BlockExerciseDetailsContent extends StatelessWidget {
     ];
   }
 
-  List<Widget> _buildSteps(List<ExerciseStepModel> steps) {
+  List<Widget> _buildSteps(BuildContext context, List<ExerciseStepModel> steps) {
     if (steps.isEmpty) return [];
 
     return [
       _sectionTitle('Steps'),
       SizedBox(height: 10.h),
       ...steps.asMap().entries.map(
-            (entry) => _buildStepItem(entry.key, entry.value),
+            (entry) => _buildStepItem(context, entry.key, entry.value),
           ),
     ];
   }
 
-  Widget _buildStepItem(int index, ExerciseStepModel step) {
+  Widget _buildStepItem(BuildContext context, int index, ExerciseStepModel step) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
@@ -183,7 +184,7 @@ class BlockExerciseDetailsContent extends StatelessWidget {
               radiusAll: 12.r,
               paddingHorizontal: 12.w,
               paddingVertical: 10.h,
-              color: AppColors.backgroundLight,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -219,11 +220,11 @@ class BlockExerciseDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _metricCard({required String label, required String value}) {
+  Widget _metricCard(BuildContext context, {required String label, required String value}) {
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -248,11 +249,11 @@ class BlockExerciseDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _metaChip(String label) {
+  Widget _metaChip(BuildContext context, String label) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(999.r),
       ),
       child: CustomText(

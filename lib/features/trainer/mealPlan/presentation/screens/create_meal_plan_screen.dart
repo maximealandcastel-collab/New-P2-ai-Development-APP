@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/presentation/controllers/trainer_home_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 
@@ -48,7 +47,7 @@ class _CreateMealPlanScreenState extends State<CreateMealPlanScreen> {
       appBar: AppBar(title: const Text('Create meal plan')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)), child: Row(children: [
-          CircleAvatar(backgroundColor: AppColors.primary.withOpacity(.12), child: Text(widget.client.clientName.isNotEmpty ? widget.client.clientName[0].toUpperCase() : '?', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
+          CircleAvatar(backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(.12), child: Text(widget.client.clientName.isNotEmpty ? widget.client.clientName[0].toUpperCase() : '?', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold))),
           const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('ASSIGNED CLIENT', style: TextStyle(fontSize: 11, color: Colors.grey)), Text(widget.client.clientName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))]))
         ])),
         const SizedBox(height: 20), const Text('Meal plan name', style: TextStyle(fontWeight: FontWeight.w600)), const SizedBox(height: 7), TextField(controller: title, decoration: decoration('Example: Strength and recovery')),
@@ -61,7 +60,7 @@ class _CreateMealPlanScreenState extends State<CreateMealPlanScreen> {
           const SizedBox(height: 10), TextField(controller: entry.value.foods, maxLines: 3, decoration: decoration('Foods, portions, and preparation instructions'))
         ]))),
         const SizedBox(height: 4), const Text('Trainer notes', style: TextStyle(fontWeight: FontWeight.w600)), const SizedBox(height: 7), TextField(controller: notes, maxLines: 4, decoration: decoration('Hydration, substitutions, allergies, or preparation notes')),
-        const SizedBox(height: 24), SizedBox(height: 54, child: FilledButton(onPressed: saving ? null : save, style: FilledButton.styleFrom(backgroundColor: AppColors.primary), child: Text(saving ? 'Assigning...' : 'Assign meal plan'))),
+        const SizedBox(height: 24), SizedBox(height: 54, child: FilledButton(onPressed: saving ? null : save, style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary), child: Text(saving ? 'Assigning...' : 'Assign meal plan'))),
       ]),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,7 @@ class ContentDetailsScreen extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: _buildVideoControls(),
+                child: _buildVideoControls(context),
               ),
             ],
           ),
@@ -143,7 +144,7 @@ class ContentDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoControls() {
+  Widget _buildVideoControls(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       color: Colors.black26,
@@ -160,7 +161,7 @@ class ContentDetailsScreen extends StatelessWidget {
             data: SliderThemeData(
               trackHeight: 3,
               thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.r),
-              activeTrackColor: Colors.orange,
+              activeTrackColor: BrandColors.of(context).primary,
               inactiveTrackColor: Colors.white30,
               thumbColor: Colors.white,
             ),

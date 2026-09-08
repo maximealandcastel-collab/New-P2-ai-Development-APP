@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,11 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
         child: CustomContainer(
           paddingVertical: 12.h,
           radiusAll: 25.r,
-          color: isSelected ? Colors.black : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           alignment: Alignment.center,
           child: CustomText(
             text: label,
-            color: isSelected ? Colors.white : Colors.grey,
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
             fontWeight: AppFontWeight.label,
             fontSize: 14.sp,
           ),
@@ -124,7 +125,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
             CustomContainer(
               width: 40.w,
               radiusAll: 10.r,
-              color: isSelected ? Colors.orange : Colors.black.withOpacity(0.03),
+              color: isSelected ? BrandColors.of(context).primary : Colors.black.withOpacity(0.03),
               paddingAll: 4.r,
               child: Column(
                 children: [
@@ -132,10 +133,10 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                   CustomContainer(
                     paddingAll: 6.r,
                     radiusAll: 8.r,
-                    color: isSelected ? Colors.black : Colors.transparent,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                     child: Icon(data['icon'] as IconData,
                         size: 18.sp,
-                        color: isSelected ? Colors.white : Colors.black
+                        color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black
                     ),
                   ),
                 ],
@@ -242,7 +243,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
               width: 45.w,
               height: 65.h,
               radiusAll: 14.r,
-              color: isSelected ? Colors.orange : Colors.white,
+              color: isSelected ? BrandColors.of(context).primary : Colors.white,
               bordersColor: isSelected ? null : Colors.black.withOpacity(0.05),
               alignment: Alignment.center,
               child: Container(
@@ -255,7 +256,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                 ),
                 child: CustomText(
                   text: "$date",
-                  color: isSelected ? Colors.white : Colors.black,
+                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black,
                   fontWeight: AppFontWeight.section,
                   fontSize: 14.sp,
                 ),
@@ -372,7 +373,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
               width: 45.w,
               height: 60.h,
               radiusAll: 12.r,
-              color: isSelected ? Colors.orange : Colors.white,
+              color: isSelected ? BrandColors.of(context).primary : Colors.white,
               bordersColor: isSelected ? null : Colors.black12,
               alignment: Alignment.center,
               child: Container(
@@ -383,7 +384,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
                 ),
                 child: CustomText(
                     text: "$date",
-                    color: isSelected ? Colors.white : Colors.black,
+                    color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black,
                     fontWeight: AppFontWeight.section
                 ),
               ),
@@ -411,7 +412,7 @@ class _AssignedPlanScreenState extends State<AssignedPlanScreen> {
           LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.black12,
-            color: Colors.orange,
+            color: BrandColors.of(context).primary,
             minHeight: 6.h,
             borderRadius: BorderRadius.circular(10.r),
           ),

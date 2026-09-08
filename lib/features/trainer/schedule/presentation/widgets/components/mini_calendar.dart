@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +22,7 @@ class MiniCalendar extends StatelessWidget {
   });
 
   static const _weekDays = ['FR', 'SA', 'SU', 'MO', 'TU', 'WE', 'TH'];
-  
+
   // January 2025 grid (starting from Fri Dec 27 to cover full weeks)
   static const _calRows = [
     [29, 30, 31, 1, 2, 3, 4],
@@ -30,7 +31,7 @@ class MiniCalendar extends StatelessWidget {
     [19, 20, 21, 22, 23, 24, 25],
     [26, 27, 28, 29, 30, 1, 2],
   ];
-  
+
   static const _prevMonthDays = {29, 30, 31};
   static const _nextMonthDays = {1, 2};
 
@@ -128,7 +129,7 @@ class CalendarDayItem extends StatelessWidget {
         width: 32.w,
         height: 32.w,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFF7A00) : Colors.transparent,
+          color: isSelected ? BrandColors.of(context).primary : Colors.transparent,
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,

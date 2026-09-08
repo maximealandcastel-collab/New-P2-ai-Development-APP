@@ -23,7 +23,7 @@ class NotificationCardWidget extends StatelessWidget {
       radiusAll: 16.r,
       color: notification.isRead
           ? Colors.white
-          : AppColors.primary.withValues(alpha: 0.06),
+          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,8 +32,8 @@ class NotificationCardWidget extends StatelessWidget {
               width: 8.w,
               height: 8.w,
               margin: EdgeInsets.only(top: 6.h, right: 8.w),
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
                 shape: BoxShape.circle,
               ),
             ),

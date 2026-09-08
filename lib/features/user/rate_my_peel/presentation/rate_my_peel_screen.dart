@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,7 +6,7 @@ import 'package:get/get.dart';
 class RateMyPeelScreen extends StatelessWidget {
   const RateMyPeelScreen({super.key});
 
-  static const _orange = Color(0xFFFF6B35);
+
   static const _ink = Color(0xFF171717);
   static const _muted = Color(0xFF666666);
   static const _line = Color(0xFFE8E8E8);
@@ -54,7 +55,7 @@ class RateMyPeelScreen extends StatelessWidget {
                     vertical: 8.h,
                   ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: _orange, width: 1.2),
+                    border: Border.all(color: BrandColors.of(context).primary, width: 1.2),
                     borderRadius: BorderRadius.circular(22.r),
                   ),
                   child: Text(
@@ -63,7 +64,7 @@ class RateMyPeelScreen extends StatelessWidget {
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.4,
-                      color: _orange,
+                      color: BrandColors.of(context).primary,
                     ),
                   ),
                 ),
@@ -89,7 +90,7 @@ class RateMyPeelScreen extends StatelessWidget {
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.8,
-                    color: _orange,
+                    color: BrandColors.of(context).primary,
                   ),
                 ),
               ),
@@ -136,11 +137,11 @@ class RateMyPeelScreen extends StatelessWidget {
                       height: 42.r,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: _orange.withOpacity(0.45)),
+                        border: Border.all(color: BrandColors.of(context).primary.withOpacity(0.45)),
                       ),
                       child: Icon(
                         Icons.calendar_month_outlined,
-                        color: _orange,
+                        color: BrandColors.of(context).primary,
                         size: 21.sp,
                       ),
                     ),
@@ -163,7 +164,7 @@ class RateMyPeelScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600,
-                              color: _orange,
+                              color: BrandColors.of(context).primary,
                             ),
                           ),
                           SizedBox(height: 4.h),
@@ -213,10 +214,10 @@ class _RateMyPeelHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: RateMyPeelScreen._orange, width: 1.2),
+        border: Border.all(color: BrandColors.of(context).primary, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: RateMyPeelScreen._orange.withOpacity(0.08),
+            color: BrandColors.of(context).primary.withOpacity(0.08),
             blurRadius: 18,
             offset: const Offset(0, 6),
           ),
@@ -228,7 +229,7 @@ class _RateMyPeelHeader extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
             decoration: BoxDecoration(
               color: const Color(0xFFFFF3EE),
-              border: Border.all(color: RateMyPeelScreen._orange),
+              border: Border.all(color: BrandColors.of(context).primary),
               borderRadius: BorderRadius.circular(18.r),
             ),
             child: RichText(
@@ -238,10 +239,10 @@ class _RateMyPeelHeader extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   fontStyle: FontStyle.italic,
                 ),
-                children: const [
+                children: [
                   TextSpan(
                     text: 'split ',
-                    style: TextStyle(color: RateMyPeelScreen._orange),
+                    style: TextStyle(color: BrandColors.of(context).primary),
                   ),
                   TextSpan(
                     text: 'bod',
@@ -259,12 +260,12 @@ class _RateMyPeelHeader extends StatelessWidget {
               color: const Color(0xFFFFF3EE),
               shape: BoxShape.circle,
               border: Border.all(
-                color: RateMyPeelScreen._orange.withOpacity(0.32),
+                color: BrandColors.of(context).primary.withOpacity(0.32),
               ),
             ),
             child: Icon(
               Icons.photo_camera_outlined,
-              color: RateMyPeelScreen._orange,
+              color: BrandColors.of(context).primary,
               size: 34.sp,
             ),
           ),
@@ -326,12 +327,12 @@ class _FeatureRow extends StatelessWidget {
               color: const Color(0xFFF8F8F8),
               shape: BoxShape.circle,
               border: Border.all(
-                color: RateMyPeelScreen._orange.withOpacity(0.22),
+                color: BrandColors.of(context).primary.withOpacity(0.22),
               ),
             ),
             child: Icon(
               icon,
-              color: RateMyPeelScreen._orange,
+              color: BrandColors.of(context).primary,
               size: 23.sp,
             ),
           ),

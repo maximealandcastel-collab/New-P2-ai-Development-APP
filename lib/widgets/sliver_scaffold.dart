@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/services/paginated_list.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/custom_sliver_app_bar.dart';
 import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 
@@ -67,11 +66,11 @@ class SliverScaffold extends StatelessWidget {
     );
   }
 
-  Widget _wrapRefreshable(Widget child) {
+  Widget _wrapRefreshable(BuildContext context, Widget child) {
     if (onRefresh == null) return child;
     return RefreshIndicator(
-      backgroundColor: AppColors.backgroundLight,
-      color: AppColors.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      color: Theme.of(context).colorScheme.primary,
       edgeOffset: refreshEdgeOffset ?? 0,
       onRefresh: onRefresh!,
       child: child,
@@ -82,14 +81,14 @@ class SliverScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       endDrawer: endDrawer,
       floatingActionButton: floatingActionButton,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
       bottomNavigationBar: bottomNavigationBar != null
           ? RepaintBoundary(
               child: Container(
-                color: AppColors.backgroundLight.withValues(alpha: 0.6),
+                color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.6),
                 padding: EdgeInsets.only(
                   left: 16.w,
                   right: 16.w,
@@ -113,7 +112,7 @@ class SliverScaffold extends StatelessWidget {
                 ),
               ),
           ],
-          body: _wrapPagination(_wrapRefreshable(_buildBody(context))),
+          body: _wrapPagination(_wrapRefreshable(context, _buildBody(context))),
         ),
       ),
     );

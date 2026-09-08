@@ -39,10 +39,10 @@ class SubscribeOptionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
+          color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.secondary,
+            color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.secondary,
           ),
           boxShadow: [
             if(!isSelected)
@@ -70,7 +70,7 @@ class SubscribeOptionCard extends StatelessWidget {
                   : AppColors.secondary,
 
                 color: isSelected
-                      ? AppColors.primary
+                      ? Theme.of(context).colorScheme.primary
                       : Colors.transparent,
                   child: isSelected
                       ? Icon(
@@ -103,7 +103,7 @@ class SubscribeOptionCard extends StatelessWidget {
                     // card read as one undifferentiated string.
                     fontSize: 16.sp,
                     fontWeight: AppFontWeight.stat,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     textAlign: TextAlign.start,
                   ),
                   SizedBox(width: 2.w),
@@ -126,7 +126,7 @@ class SubscribeOptionCard extends StatelessWidget {
                     Icon(
                       Icons.check_circle_outline,
                       size: 14.sp,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: 6.w),
                     Expanded(
@@ -148,13 +148,13 @@ class SubscribeOptionCard extends StatelessWidget {
                 paddingHorizontal: 12.w,
                 paddingVertical: 8.h,
                 radiusAll: 10.r,
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                 child: Row(
                   children: [
                     Icon(
                       Icons.local_fire_department,
                       size: 16.sp,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     SizedBox(width: 6.w),
                     Column(

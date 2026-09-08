@@ -57,7 +57,7 @@ class OtpVerificationScreen extends StatelessWidget {
                         child: CustomText(text:
                         'Resend',
                           fontWeight: AppFontWeight.label,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       )
                           : CustomText(text:

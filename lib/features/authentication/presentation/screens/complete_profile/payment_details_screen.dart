@@ -23,11 +23,10 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
   ];
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -43,8 +42,8 @@ class _TrainerUpgradeScreenState extends State<TrainerUpgradeScreen> {
                   child: CustomContainer(
                     marginTop: 100.h,
                     linearColors: [
-                      AppColors.backgroundLight.withAlpha(0),
-                      AppColors.backgroundLight,
+                      Theme.of(context).scaffoldBackgroundColor.withAlpha(0),
+                      Theme.of(context).scaffoldBackgroundColor,
                     ],
 
                   ),

@@ -25,7 +25,7 @@ class SearchScreen extends SearchDelegate {
 
   @override
   ThemeData appBarTheme(BuildContext context) =>
-      CustomSearchTheme.instance.appBarTheme;
+      CustomSearchTheme.instance.appBarTheme(context);
 
   @override
   List<Widget> buildActions(BuildContext context) {

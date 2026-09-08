@@ -47,7 +47,7 @@ class ProfileFixedAccountCard extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 child: Row(
                   children: [
                     CustomContainer(
@@ -147,7 +147,7 @@ class _CredentialRow extends StatelessWidget {
         CustomContainer(
           radiusAll: 12.r,
           paddingAll: 10.r,
-          color: AppColors.backgroundLight,
+          color: Theme.of(context).scaffoldBackgroundColor,
           child: icon,
         ),
         SizedBox(width: 12.w),
@@ -187,7 +187,7 @@ class _UsernameRow extends StatelessWidget {
       radiusAll: 10.r,
       paddingHorizontal: 10.w,
       paddingVertical: 8.h,
-      color: AppColors.backgroundLight,
+      color: Theme.of(context).scaffoldBackgroundColor,
       width: double.infinity,
       child: _InlineMetaItem(
         label: '@username',

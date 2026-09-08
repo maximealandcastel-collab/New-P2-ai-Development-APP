@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -183,10 +184,10 @@ class _ContentsScreenState extends State<ContentsScreen> {
                 padding: EdgeInsets.only(bottom: 6.h, left: 8.w),
                 child: Row(
                   children: [
-                    Icon(Icons.arrow_upward, size: 14.sp, color: Colors.orange),
+                    Icon(Icons.arrow_upward, size: 14.sp, color: BrandColors.of(context).primary),
                     CustomText(
                       text: "5.3%",
-                      color: Colors.orange,
+                      color: BrandColors.of(context).primary,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -242,7 +243,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
               width: 35.w,
               radiusAll: 8.r,
               color: data['selected'] == true
-                  ? Colors.orange
+                  ? BrandColors.of(context).primary
                   : Colors.black.withOpacity(0.1),
             ),
             SizedBox(height: 8.h),

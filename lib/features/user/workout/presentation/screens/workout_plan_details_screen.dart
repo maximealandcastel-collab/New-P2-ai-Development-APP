@@ -64,7 +64,6 @@ class WorkoutPlanDetailsScreen extends StatelessWidget {
       WorkoutPlanDetailsContent(plan: plan)
           .asSliverWithPadding(horizontal: 16.w, vertical: 12.h),
       CustomButton(
-        backgroundColor: const Color(0xffE7A700),
         radius: 12.r,
         label: 'Watch Video',
         onPressed: controller.hasVideo ? controller.watchVideo : null,

@@ -95,7 +95,7 @@ class ContentVideoPlayer extends StatelessWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: _buildProgressBar(),
+          child: _buildProgressBar(context),
         ),
         if (showActions)
           Positioned(
@@ -107,7 +107,7 @@ class ContentVideoPlayer extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(BuildContext context) {
     return Obx(() {
       final total = controller.duration.value;
       final current = controller.position.value;
@@ -137,10 +137,10 @@ class ContentVideoPlayer extends StatelessWidget {
                   trackHeight: 3.h,
                   thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5.r),
                   overlayShape: RoundSliderOverlayShape(overlayRadius: 10.r),
-                  activeTrackColor: AppColors.primary,
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
                   inactiveTrackColor:
                       AppColors.textWhite.withValues(alpha: 0.25),
-                  thumbColor: AppColors.primary,
+                  thumbColor: Theme.of(context).colorScheme.primary,
                 ),
                 child: Slider(
                   min: 0,

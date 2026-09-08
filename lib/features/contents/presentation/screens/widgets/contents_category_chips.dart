@@ -44,7 +44,7 @@ class ContentsCategoryChips extends StatelessWidget {
                     ? (isSelected
                         ? AppColors.textWhite
                         : AppColors.textWhite.withValues(alpha: 0.55))
-                    : (isSelected ? Colors.black : AppColors.secondary),
+                    : (isSelected ? Theme.of(context).colorScheme.primary : AppColors.secondary),
                 radiusAll: 99.r,
                 marginTop: forOverlay ? 0 : 3.h,
                 marginLeft: forOverlay
@@ -58,7 +58,7 @@ class ContentsCategoryChips extends StatelessWidget {
                     ? (isSelected
                         ? AppColors.textWhite
                         : AppColors.backgroundDark.withValues(alpha: 0.35))
-                    : (isSelected ? Colors.black : Colors.transparent),
+                    : (isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent),
                 child: CustomText(
                   fontWeight: AppFontWeight.label,
                   fontSize: forOverlay ? 13.sp : 16.sp,

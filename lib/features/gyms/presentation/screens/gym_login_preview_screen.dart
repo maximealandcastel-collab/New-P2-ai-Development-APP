@@ -1,3 +1,6 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'enterprise_session_screen.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,9 +23,14 @@ class GymLoginPreviewScreen extends StatefulWidget {
     BuildContext context, {
     required EnterpriseGymModel gym,
   }) async {
-    final hasActiveSession = Get.isRegistered<LoginController>() &&
-        LoginController.to.isLoggedIn();
-    if (gym.requiresLoggedOutSession && hasActiveSession) {
+    final hasActiveSession =
+        Get.isRegistered<LoginController>() && LoginController.to.isLoggedIn();
+    if (!isSingleMode && gym.tenantId != null && hasActiveSession) {
+      Get.to(() => EnterpriseJoinScreen(gym: gym));
+      return;
+    }
+    if ((gym.requiresLoggedOutSession || isSingleMode) &&
+        hasActiveSession) {
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
@@ -52,8 +60,8 @@ class GymLoginPreviewScreen extends StatefulWidget {
 }
 
 class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
-  static const _kOrange = Color(0xFFFD7B00);
-  static const _kBg = Color(0xFFF7F8FA);
+
+
   bool _isLogin = true;
   bool _obscure = true;
 
@@ -65,7 +73,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
     }
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -132,8 +140,16 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
         ),
         child: Row(
           children: [
-            _togglePill('Login', _isLogin, () => setState(() => _isLogin = true)),
-            _togglePill('Sign Up', !_isLogin, () => setState(() => _isLogin = false)),
+            _togglePill(
+              'Login',
+              _isLogin,
+              () => setState(() => _isLogin = true),
+            ),
+            _togglePill(
+              'Sign Up',
+              !_isLogin,
+              () => setState(() => _isLogin = false),
+            ),
           ],
         ),
       ),
@@ -147,7 +163,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
         child: Container(
           height: 48.h,
           decoration: BoxDecoration(
-            color: active ? _kOrange : Colors.transparent,
+            color: active ? BrandColors.of(context).primary : Colors.transparent,
             borderRadius: BorderRadius.circular(30.r),
           ),
           alignment: Alignment.center,
@@ -186,9 +202,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isLogin
-                  ? 'Welcome back'
-                  : 'Join ${gym.name}',
+              _isLogin ? 'Welcome back' : 'Join ${gym.name}',
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: AppFontWeight.display,
@@ -206,10 +220,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             SizedBox(height: 20.h),
 
             if (!_isLogin) ...[
-              _field(
-                icon: Icons.person_outline_rounded,
-                hint: 'Full name',
-              ),
+              _field(icon: Icons.person_outline_rounded, hint: 'Full name'),
               SizedBox(height: 12.h),
             ],
 
@@ -252,7 +263,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                   'Forgot password?',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: _kOrange,
+                    color: BrandColors.of(context).primary,
                     fontWeight: AppFontWeight.label,
                   ),
                 ),
@@ -267,7 +278,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _kOrange,
+                  backgroundColor: BrandColors.of(context).primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -334,9 +345,10 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             child: Text(
               'or continue with',
               style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.black38,
-                  fontWeight: AppFontWeight.body),
+                fontSize: 12.sp,
+                color: Colors.black38,
+                fontWeight: AppFontWeight.body,
+              ),
             ),
           ),
           Expanded(child: Divider(color: Colors.black12, thickness: 1)),
@@ -427,13 +439,11 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
 
   void _selectRole(String role) {
     setState(() => _entryRole = role);
-    _controller.setRole(
-      switch (role) {
-        'Trainer' => 'Trainer',
-        'Admin' => 'Admin',
-        _ => 'User',
-      },
-    );
+    _controller.setRole(switch (role) {
+      'Trainer' => 'Trainer',
+      'Admin' => 'Admin',
+      _ => 'User',
+    });
   }
 
   void _openSignUp() {
@@ -561,8 +571,10 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                             .map(
                               (role) => Expanded(
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 3.w),
-                                  child: _KmfRoleButton(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 3.w,
+                                  ),
+                                  child: _EnterpriseRoleButton(
                                     label: role,
                                     selected: _entryRole == role,
                                     onTap: () => _selectRole(role),
@@ -585,7 +597,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         ),
                       ],
                       SizedBox(height: 18.h),
-                      _KmfTextField(
+                      _EnterpriseTextField(
                         controller: _controller.emailController,
                         label: 'Email',
                         hint: 'Enter your email address',
@@ -601,12 +613,15 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         },
                       ),
                       SizedBox(height: 14.h),
-                      _KmfTextField(
+                      _EnterpriseTextField(
                         controller: _controller.passwordController,
                         label: 'Password',
                         hint: 'Enter your password',
                         icon: Icons.lock_outline_rounded,
                         obscureText: true,
+                        onSubmitted: () => _controller.login(
+                          requestedTenantId: widget.gym.tenantId,
+                        ),
                         validator: (value) => (value ?? '').isEmpty
                             ? 'Enter your password'
                             : null,
@@ -615,8 +630,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () =>
-                              Get.toNamed(AppRoute.forgotScreen),
+                          onPressed: () => Get.toNamed(AppRoute.forgotScreen),
                           child: const Text(
                             'Forgot password?',
                             style: TextStyle(
@@ -632,13 +646,15 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         return SizedBox(
                           height: 52.h,
                           child: ElevatedButton(
-                            onPressed:
-                                loading ? null : () => _controller.login(),
+                            onPressed: loading
+                                ? null
+                                : () => _controller.login(
+                                    requestedTenantId: widget.gym.tenantId,
+                                  ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _green,
                               foregroundColor: _black,
-                              disabledBackgroundColor:
-                                  _green.withOpacity(0.45),
+                              disabledBackgroundColor: _green.withOpacity(0.45),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14.r),
@@ -711,12 +727,12 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   }
 }
 
-class _KmfRoleButton extends StatelessWidget {
+class _EnterpriseRoleButton extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  const _KmfRoleButton({
+  const _EnterpriseRoleButton({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -747,7 +763,8 @@ class _KmfRoleButton extends StatelessWidget {
   }
 }
 
-class _KmfTextField extends StatelessWidget {
+class _EnterpriseTextField extends StatelessWidget {
+  final VoidCallback? onSubmitted;
   final TextEditingController controller;
   final String label;
   final String hint;
@@ -756,9 +773,10 @@ class _KmfTextField extends StatelessWidget {
   final bool obscureText;
   final String? Function(String?)? validator;
 
-  const _KmfTextField({
+  const _EnterpriseTextField({
     required this.controller,
     required this.label,
+    this.onSubmitted,
     required this.hint,
     required this.icon,
     this.keyboardType,
@@ -785,25 +803,29 @@ class _KmfTextField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
-          textInputAction:
-              obscureText ? TextInputAction.done : TextInputAction.next,
-          onFieldSubmitted:
-              obscureText ? (_) => LoginController.to.login() : null,
+          textInputAction: obscureText
+              ? TextInputAction.done
+              : TextInputAction.next,
+          onFieldSubmitted: obscureText ? (_) => onSubmitted?.call() : null,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: Icon(icon, color: Colors.black45),
             filled: true,
             fillColor: const Color(0xFFF3F5F2),
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 14.w, vertical: 15.h),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 14.w,
+              vertical: 15.h,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(13.r),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(13.r),
-              borderSide:
-                  const BorderSide(color: Color(0xFF39FF14), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF39FF14),
+                width: 1.5,
+              ),
             ),
           ),
         ),
@@ -840,8 +862,11 @@ class _TopBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.black87, size: 16.sp),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.black87,
+                size: 16.sp,
+              ),
             ),
           ),
 
@@ -865,15 +890,12 @@ class _TopBar extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.w),
-                child: Text('×',
-                    style:
-                        TextStyle(color: Colors.black26, fontSize: 12.sp)),
+                child: Text(
+                  '×',
+                  style: TextStyle(color: Colors.black26, fontSize: 12.sp),
+                ),
               ),
-              GymBrandLogo(
-                gym: gym,
-                size: 28.r,
-                borderRadius: 7.r,
-              ),
+              GymBrandLogo(gym: gym, size: 28.r, borderRadius: 7.r),
             ],
           ),
 
@@ -881,8 +903,7 @@ class _TopBar extends StatelessWidget {
 
           // Live demo badge
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             decoration: BoxDecoration(
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(20.r),
@@ -899,11 +920,14 @@ class _TopBar extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 4.w),
-                Text('Live',
-                    style: TextStyle(
-                        color: const Color(0xFF2E7D32),
-                        fontSize: 11.sp,
-                        fontWeight: AppFontWeight.label)),
+                Text(
+                  'Live',
+                  style: TextStyle(
+                    color: const Color(0xFF2E7D32),
+                    fontSize: 11.sp,
+                    fontWeight: AppFontWeight.label,
+                  ),
+                ),
               ],
             ),
           ),
@@ -938,11 +962,7 @@ class _GymIdentityBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            GymBrandLogo(
-              gym: gym,
-              size: 54.r,
-              borderRadius: 14.r,
-            ),
+            GymBrandLogo(gym: gym, size: 54.r, borderRadius: 14.r),
 
             SizedBox(width: 14.w),
 
@@ -961,15 +981,16 @@ class _GymIdentityBanner extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Text(
                     gym.category,
-                    style:
-                        TextStyle(fontSize: 12.sp, color: Colors.black45),
+                    style: TextStyle(fontSize: 12.sp, color: Colors.black45),
                   ),
                   SizedBox(height: 6.h),
                   Row(
                     children: [
-                      Icon(Icons.star_rounded,
-                          size: 12.sp,
-                          color: const Color(0xFFFFAB00)),
+                      Icon(
+                        Icons.star_rounded,
+                        size: 12.sp,
+                        color: const Color(0xFFFFAB00),
+                      ),
                       SizedBox(width: 3.w),
                       Text(
                         '${gym.rating.toStringAsFixed(1)}  ·  ${gym.memberCount}',
@@ -989,33 +1010,43 @@ class _GymIdentityBanner extends StatelessWidget {
             gym.isOwnGym
                 ? Container(
                     padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, vertical: 4.h),
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFD7B00).withOpacity(0.1),
+                      color: BrandColors.of(context).primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Text('YOUR\nGYM',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: const Color(0xFFFD7B00),
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3)),
+                    child: Text(
+                      'YOUR\nGYM',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: BrandColors.of(context).primary,
+                        fontSize: 8.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                      ),
+                    ),
                   )
                 : Container(
                     padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, vertical: 4.h),
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE8F5E9),
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Text('LICENSED\nPARTNER',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: const Color(0xFF2E7D32),
-                            fontSize: 7.sp,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3)),
+                    child: Text(
+                      'LICENSED\nPARTNER',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: const Color(0xFF2E7D32),
+                        fontSize: 7.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                      ),
+                    ),
                   ),
           ],
         ),
@@ -1041,23 +1072,27 @@ class _P2PFooter extends StatelessWidget {
               width: 20.r,
               height: 20.r,
               decoration: BoxDecoration(
-                color: const Color(0xFFFD7B00),
+                color: BrandColors.of(context).primary,
                 borderRadius: BorderRadius.circular(5.r),
               ),
               alignment: Alignment.center,
-              child: Text('P2',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w700)),
+              child: Text(
+                'P2',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 7.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
             SizedBox(width: 6.w),
             Text(
               'Powered by P2P FitTech AI',
               style: TextStyle(
-                  fontSize: 11.sp,
-                  color: Colors.black45,
-                  fontWeight: AppFontWeight.body),
+                fontSize: 11.sp,
+                color: Colors.black45,
+                fontWeight: AppFontWeight.body,
+              ),
             ),
           ],
         ),

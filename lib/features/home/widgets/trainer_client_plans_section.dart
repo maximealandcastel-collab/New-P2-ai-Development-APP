@@ -41,7 +41,7 @@ class TrainerClientPlansSection extends StatelessWidget {
                 CustomText(
                   text: '${plans.length} active',
                   fontSize: 12.sp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: AppFontWeight.label,
                   bottom: 12.h,
                 ),
@@ -76,7 +76,7 @@ class _ClientPlanCard extends StatelessWidget {
             radiusAll: 24.r,
             width: 44.w,
             height: 44.h,
-            color: AppColors.primary.withOpacity(0.12),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
             child: plan.client.profilePicture != null &&
                     (plan.client.profilePicture!).isNotEmpty
                 ? ClipRRect(
@@ -86,10 +86,10 @@ class _ClientPlanCard extends StatelessWidget {
                       width: 44.w,
                       height: 44.h,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _initials(plan.client.displayName),
+                      errorBuilder: (_, __, ___) => _initials(context, plan.client.displayName),
                     ),
                   )
-                : _initials(plan.client.displayName),
+                : _initials(context, plan.client.displayName),
           ),
           SizedBox(width: 12.w),
 
@@ -123,11 +123,11 @@ class _ClientPlanCard extends StatelessWidget {
               radiusAll: 20.r,
               paddingHorizontal: 10.w,
               paddingVertical: 5.h,
-              color: AppColors.primary.withOpacity(0.10),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.10),
               child: CustomText(
                 text: '${today.exerciseCount} exercises',
                 fontSize: 11.sp,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: AppFontWeight.section,
               ),
             ),
@@ -136,7 +136,7 @@ class _ClientPlanCard extends StatelessWidget {
     );
   }
 
-  Widget _initials(String name) {
+  Widget _initials(BuildContext context, String name) {
     final parts = name.split(' ');
     final initials = parts.length >= 2
         ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
@@ -148,7 +148,7 @@ class _ClientPlanCard extends StatelessWidget {
         text: initials,
         fontSize: 16.sp,
         fontWeight: AppFontWeight.section,
-        color: AppColors.primary,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }

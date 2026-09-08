@@ -9,14 +9,9 @@ class CustomSearchTheme {
   static CustomSearchTheme instance = CustomSearchTheme._();
 
 
-  ThemeData get appBarTheme => _appBarTheme;
-
-
-
-
-   final ThemeData _appBarTheme = ThemeData(
+  ThemeData appBarTheme(BuildContext context) => Theme.of(context).copyWith(
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: 60,
@@ -49,6 +44,6 @@ class CustomSearchTheme {
       cursorColor: AppColors.textSecondary,
     ),
 
-    scaffoldBackgroundColor: AppColors.backgroundLight,
+    scaffoldBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
   );
 }

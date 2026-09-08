@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -102,7 +103,7 @@ class _NavBarState extends State<NavBar> {
           .clamp(0, screens.length - 1)
           .toInt();
       return Scaffold(
-        backgroundColor: AppColors.backgroundLight,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
         // ✅ Use extendBody so body renders behind the nav bar.
         //    The blur/transparent nav bar will show body content through it.
@@ -220,7 +221,7 @@ class _NavBarState extends State<NavBar> {
           curve: Curves.easeOut,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : Colors.transparent,
+            color: selected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Row(
@@ -307,6 +308,7 @@ class _NavBarState extends State<NavBar> {
                       );
                     },
                     child: Assets.icons.addButton.svg(
+                      colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary),
                       height: 42.h,
                       width: 42.w,
                     ),
@@ -340,7 +342,7 @@ class _NavBarState extends State<NavBar> {
               width: 21.w,
               height: 21.h,
               colorFilter: ColorFilter.mode(
-                isSelected ? AppColors.primary : AppColors.textSecondary,
+                isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
                 BlendMode.srcIn,
               ),
             ),
@@ -349,7 +351,7 @@ class _NavBarState extends State<NavBar> {
               text: _navItems[index]["label"],
               fontSize: 9.5.sp,
               fontWeight: FontWeight.w400,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
             ),
           ],
         ),

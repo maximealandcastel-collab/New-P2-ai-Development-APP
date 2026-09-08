@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -65,8 +66,8 @@ class PaymentDetailsScreen extends StatelessWidget {
         body: Stack(
           children: [
             RefreshIndicator(
-              color: AppColors.primary,
-              backgroundColor: AppColors.backgroundLight,
+              color: Theme.of(context).colorScheme.primary,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               onRefresh: controller.refreshProducts,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(
@@ -96,7 +97,8 @@ class PaymentDetailsScreen extends StatelessWidget {
                       color: Colors.white,
                       child: Column(
                         children: [
-                          Assets.icons.subscribeIcons.svg(),
+                          Assets.icons.subscribeIcons.svg(
+                          colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary), ),
                           SizedBox(height: 20.h),
 
                           // ── Plan Cards ──────────────────────────────────
@@ -182,7 +184,7 @@ class PaymentDetailsScreen extends StatelessWidget {
                           text: 'Restore Purchases',
                           fontSize: 13.sp,
                           fontWeight: AppFontWeight.label,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       );
                     }),

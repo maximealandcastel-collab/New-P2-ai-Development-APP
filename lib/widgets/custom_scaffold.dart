@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/keyboard_dismiss_on_tap.dart';
 class CustomScaffold extends StatelessWidget {
   const CustomScaffold(
@@ -22,7 +21,7 @@ class CustomScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       backgroundColor: AppColors.backgroundLight,
+       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: appBar,
       body: KeyboardDismissOnTap(
         child: SafeArea(

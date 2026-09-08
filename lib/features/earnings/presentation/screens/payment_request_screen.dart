@@ -49,7 +49,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
           child: CustomButton(
             onPressed: _saveDraft,
             label: 'Save & Secure',
-            backgroundColor: AppColors.primary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             radius: 30.r,
           ),
         ),

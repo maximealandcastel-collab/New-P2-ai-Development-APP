@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -162,7 +163,7 @@ class DaySelectorItem extends StatelessWidget {
             dayLabel,
             style: TextStyle(
               fontSize: 11.sp,
-              color: isSelected ? Colors.black : Colors.grey.shade400,
+              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
               fontWeight: isSelected ? AppFontWeight.label : AppFontWeight.body,
             ),
           ),
@@ -172,7 +173,7 @@ class DaySelectorItem extends StatelessWidget {
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFFF7A00) : const Color(0xFFF5F5F5),
+              color: isSelected ? BrandColors.of(context).primary : const Color(0xFFF5F5F5),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -181,7 +182,7 @@ class DaySelectorItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: AppFontWeight.title,
-                color: isSelected ? Colors.white : Colors.black87,
+                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black87,
               ),
             ),
           ),
@@ -190,8 +191,8 @@ class DaySelectorItem extends StatelessWidget {
             Container(
               width: 4.w,
               height: 4.h,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF7A00),
+              decoration: BoxDecoration(
+                color: BrandColors.of(context).primary,
                 shape: BoxShape.circle,
               ),
             ),

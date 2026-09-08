@@ -42,10 +42,10 @@ class ContentPlayerSheet {
                     return ChoiceChip(
                       label: Text('${speed}x'),
                       selected: selected,
-                      selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                      selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                       labelStyle: TextStyle(
                         color:
-                            selected ? AppColors.primary : AppColors.textPrimary,
+                            selected ? Theme.of(context).colorScheme.primary : AppColors.textPrimary,
                         fontWeight: AppFontWeight.label,
                       ),
                       onSelected: (_) {

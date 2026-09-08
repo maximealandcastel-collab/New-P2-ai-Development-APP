@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 
 
 class CustomLoader extends StatelessWidget {
@@ -14,7 +13,7 @@ class CustomLoader extends StatelessWidget {
       padding:  EdgeInsets.only(top: top ?? 0, bottom: bottom ?? 0),
       child: Center(
         child: CircularProgressIndicator(
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           strokeWidth: 3.w,
         ),
       ),

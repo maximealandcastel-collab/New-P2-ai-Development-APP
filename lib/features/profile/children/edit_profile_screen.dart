@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -63,14 +64,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // Reuse the same SliverAppBar logic from ProfileScreen
           SliverAppBar(
             expandedHeight: 232.h,
             pinned: true,
-            backgroundColor: AppColors.backgroundLight,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             leading: IconButton(
               icon: Assets.icons.arrowBack.svg(),
               onPressed: () => Navigator.pop(context),
@@ -422,7 +423,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             CustomButton(
               label: 'Choose time',
-              backgroundColor: const Color(0xFFFF7A00), // Matching the orange in your UI
+              backgroundColor: BrandColors.of(context).primary,
               foregroundColor: Colors.white,
               radius: 12.r,
               onPressed: () {
@@ -482,7 +483,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             SizedBox(height: 32.h),
             CustomButton(
               label: 'Save',
-              backgroundColor: Colors.orange, // Based on UI screenshot
+              backgroundColor: BrandColors.of(context).primary,
               foregroundColor: Colors.white,
               onPressed: () => Get.back(),
             ),
@@ -500,8 +501,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         CustomContainer(
           height: 28.r, width: 28.r,
           shape: BoxShape.circle,
-          color: isSelected ? Colors.green : Colors.grey.shade50,
-          bordersColor: isSelected ? Colors.green : Colors.grey.shade300,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade50,
+          bordersColor: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
           child: isSelected ? Icon(Icons.check, color: Colors.white, size: 16.r) : null,
         ),
       ],

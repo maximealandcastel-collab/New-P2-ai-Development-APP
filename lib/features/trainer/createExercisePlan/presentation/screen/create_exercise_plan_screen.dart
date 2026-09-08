@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 
 
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
@@ -97,8 +98,8 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
                 height: 100.w,
                 child: CircularProgressIndicator(
                   strokeWidth: 8.w,
-                  color: Colors.orange,
-                  backgroundColor: Colors.orange.withOpacity(0.1),
+                  color: BrandColors.of(context).primary,
+                  backgroundColor: BrandColors.of(context).primary.withOpacity(0.1),
                 ),
               ),
               SizedBox(height: 40.h),
@@ -140,12 +141,12 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
                       children: [
                         CircleAvatar(
                           radius: 12.r,
-                          backgroundColor: Colors.orange.withOpacity(0.12),
+                          backgroundColor: BrandColors.of(context).primary.withOpacity(0.12),
                           child: Text(
                             widget.client.clientName.isNotEmpty
                                 ? widget.client.clientName[0].toUpperCase()
                                 : '?',
-                            style: const TextStyle(color: Colors.orange),
+                            style: TextStyle(color: BrandColors.of(context).primary),
                           ),
                         ),
                         SizedBox(width: 8.w),
@@ -255,7 +256,7 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Get.offAllNamed(AppRoute.bottonNavBar);
                 });
-          }, text: "Assign to client",color: Colors.orange,),
+          }, text: "Assign to client",color: BrandColors.of(context).primary,),
           SizedBox(height: 12.h),
           CustomButton2(
             color: Colors.grey,
@@ -388,14 +389,14 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
   Widget _buildDayCircle(int dayNum, bool isSelected) {
     return CustomContainer(
       width: 55.w, height: 55.w, radiusAll: 30.r,
-      color: isSelected ? Colors.orange : Colors.white,
+      color: isSelected ? BrandColors.of(context).primary : Colors.white,
       bordersColor: isSelected ? null : Colors.black.withOpacity(0.05),
       alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CustomText(text: "Day", fontSize: 10.sp, color: isSelected ? Colors.white70 : Colors.grey),
-          CustomText(text: "$dayNum", fontSize: 16.sp, fontWeight: AppFontWeight.stat, color: isSelected ? Colors.white : Colors.black),
+          CustomText(text: "$dayNum", fontSize: 16.sp, fontWeight: AppFontWeight.stat, color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black),
         ],
       ),
     );
@@ -423,9 +424,9 @@ class _CreateExercisePlanScreenState extends State<CreateExercisePlanScreen> {
         }),
         child: CustomContainer(
           paddingVertical: 12.h, radiusAll: 25.r,
-          color: isSelected ? Colors.black : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           alignment: Alignment.center,
-          child: CustomText(text: type, color: isSelected ? Colors.white : Colors.grey, fontWeight: AppFontWeight.label),
+          child: CustomText(text: type, color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey, fontWeight: AppFontWeight.label),
         ),
       ),
     );

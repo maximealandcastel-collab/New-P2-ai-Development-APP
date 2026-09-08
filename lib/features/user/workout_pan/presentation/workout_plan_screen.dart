@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -156,13 +157,13 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
               width: 44.w,
               height: 64.h,
               decoration: BoxDecoration(
-                color: isSelected ? Colors.black : Colors.transparent,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(10.r),
                 border: isSelected
                     ? null
                     : Border.all(
                         color: today
-                            ? const Color(0xFFFF6B35).withOpacity(0.5)
+                            ? BrandColors.of(context).primary.withOpacity(0.5)
                             : Colors.grey.shade200,
                         width: 1,
                       ),
@@ -184,7 +185,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : Colors.black87,
+                      color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 4.h),
@@ -195,7 +196,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                       shape: BoxShape.circle,
                       color: isSelected
                           ? Colors.white.withOpacity(0.5)
-                          : (today ? const Color(0xFFFF6B35) : Colors.transparent),
+                          : (today ? BrandColors.of(context).primary : Colors.transparent),
                     ),
                   ),
                 ],
@@ -301,7 +302,7 @@ class _TaskRow extends StatelessWidget {
               value: progress,
               minHeight: 5.h,
               backgroundColor: const Color(0xFFEEEEEE),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF6B35)),
+              valueColor: AlwaysStoppedAnimation<Color>(BrandColors.of(context).primary),
             ),
           ),
         ],

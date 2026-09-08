@@ -23,13 +23,13 @@ class PhoneOtpWaitingScreen extends StatelessWidget {
               width: 96.w,
               height: 96.w,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.sms_outlined,
                 size: 48.sp,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             SizedBox(height: 32.h),
@@ -58,10 +58,10 @@ class PhoneOtpWaitingScreen extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.07),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.07),
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
-                  color: AppColors.primary.withOpacity(0.25),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
                 ),
               ),
               child: Column(
@@ -109,7 +109,7 @@ class PhoneOtpWaitingScreen extends StatelessWidget {
                     height: 28.w,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.5,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   SizedBox(height: 10.h),
@@ -129,7 +129,7 @@ class PhoneOtpWaitingScreen extends StatelessWidget {
               onPressed: ctrl.isSending ? null : ctrl.resend,
               child: CustomText(
                 text: ctrl.isSending ? 'Sending…' : 'Resend text',
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             )),
@@ -162,7 +162,7 @@ class _Step extends StatelessWidget {
           height: 26.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             shape: BoxShape.circle,
           ),
           child: Text(
@@ -184,7 +184,7 @@ class _Step extends StatelessWidget {
                       fontSize: 14.sp,
                       color: AppColors.textPrimary,
                     ),
-                    children: _buildSpans(text, highlight!),
+                    children: _buildSpans(context, text, highlight!),
                   ),
                 ),
         ),
@@ -192,7 +192,7 @@ class _Step extends StatelessWidget {
     );
   }
 
-  List<TextSpan> _buildSpans(String text, String highlight) {
+  List<TextSpan> _buildSpans(BuildContext context, String text, String highlight) {
     final parts = text.split(highlight);
     if (parts.length < 2) return [TextSpan(text: text)];
     return [
@@ -201,7 +201,7 @@ class _Step extends StatelessWidget {
         text: highlight,
         style: TextStyle(
           fontWeight: FontWeight.w800,
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           letterSpacing: 1.5,
         ),
       ),

@@ -64,14 +64,17 @@ class ApiService {
           //  3. Only ONE redirect per expiry event — use a flag to deduplicate
           //     multiple concurrent 4xx responses (e.g. 5 controllers fire at once).
           final path = error.requestOptions.path;
-          final isAuthEndpoint = path.contains('/auth/login') ||
+          final isAuthEndpoint =
+              path.contains('/auth/login') ||
               path.contains('/auth/register') ||
               path.contains('/auth/forget-password') ||
               path.contains('/auth/verify-otp') ||
               path.contains('/auth/resend-otp') ||
               path.contains('/auth/reset-password');
 
-          if ((status == 401 || status == 498) && !isAuthEndpoint && !_handlingExpiredSession) {
+          if ((status == 401 || status == 498) &&
+              !isAuthEndpoint &&
+              !_handlingExpiredSession) {
             _handlingExpiredSession = true;
             await _cacheService.clear();
             final currentRoute = Get.currentRoute;
@@ -83,7 +86,9 @@ class ApiService {
                 currentRoute.contains('onboarding');
             if (!isPreAuthScreen) {
               try {
-                ToastMessageHelper.show('Session expired — please sign in again.');
+                ToastMessageHelper.show(
+                  'Session expired — please sign in again.',
+                );
                 Get.offAllNamed('/loginScreen');
               } catch (_) {}
             }
@@ -106,16 +111,7 @@ class ApiService {
               '\n🔵 ──── REQUEST ────────────────────────────────────',
             );
             debugPrint('   METHOD : ${options.method}');
-            debugPrint('   PATH   : ${options.path}');
-            if (options.headers.isNotEmpty) {
-              debugPrint('   HEADERS: ${options.headers}');
-            }
-            if (options.queryParameters.isNotEmpty) {
-              debugPrint('   PARAMS : ${options.queryParameters}');
-            }
-            if (options.data != null) {
-              debugPrint('   BODY   : ${options.data}');
-            }
+            debugPrint('   URL    : ${options.uri.origin}${options.uri.path}');
             debugPrint('$sep\n');
           }
           return handler.next(options);
@@ -127,8 +123,7 @@ class ApiService {
               '\n🟢 ──── RESPONSE ───────────────────────────────────',
             );
             debugPrint('   STATUS : ${response.statusCode}');
-            debugPrint('   PATH   : ${response.requestOptions.path}');
-            debugPrint('   BODY   : ${response.data}');
+            debugPrint('   PATH   : ${response.requestOptions.uri.path}');
             debugPrint('$sep\n');
           }
           return handler.next(response);
@@ -140,11 +135,8 @@ class ApiService {
               '\n🔴 ──── ERROR ──────────────────────────────────────',
             );
             debugPrint('   TYPE      : ${error.type}');
-            debugPrint('   MESSAGE   : ${error.message}');
             debugPrint('   STATUS    : ${error.response?.statusCode}');
-            debugPrint('   PATH      : ${error.requestOptions.path}');
-            debugPrint('   ERROR BODY: ${error.response?.data}');
-            debugPrint('   SENT DATA : ${error.requestOptions.data}');
+            debugPrint('   PATH      : ${error.requestOptions.uri.path}');
             debugPrint('$sep\n');
           }
           return handler.next(error);

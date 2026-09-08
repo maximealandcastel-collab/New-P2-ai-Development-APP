@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/trainer/exercise_block/presentation/controllers/create_exercise_block_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
@@ -45,11 +44,11 @@ class _GenerateExerciseBlockScreenState
             width: 88.w,
             height: 88.w,
             shape: BoxShape.circle,
-            color: AppColors.primary.withValues(alpha: 0.12),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
             child: Icon(
               Icons.auto_awesome_rounded,
               size: 40.sp,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ).asSliver,

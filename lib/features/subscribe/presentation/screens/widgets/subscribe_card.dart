@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/plan_model.dart';
 
 class SubscribeCard extends StatelessWidget {
@@ -27,7 +26,7 @@ class SubscribeCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18.r),
           border: Border.all(
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -37,7 +36,7 @@ class SubscribeCard extends StatelessWidget {
               isSelected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_off,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               size: 24.sp,
             ),
 

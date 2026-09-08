@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -173,10 +174,10 @@ class AdminModeService extends GetxController {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _pillButton('Admin',
+                        _pillButton(context, 'Admin',
                             active: !viewUser,
                             onTap: viewUser ? () => setViewAsUser(false) : null),
-                        _pillButton('User',
+                        _pillButton(context, 'User',
                             active: viewUser,
                             onTap:
                                 !viewUser ? () => setViewAsUser(true) : null),
@@ -218,7 +219,7 @@ class AdminModeService extends GetxController {
                                 ? Icons.person_rounded
                                 : Icons.admin_panel_settings_rounded,
                             color: viewUser
-                                ? const Color(0xFFFF6B1A)
+                                ? BrandColors.of(context).primary
                                 : Colors.white70,
                             size: 12,
                           ),
@@ -227,7 +228,7 @@ class AdminModeService extends GetxController {
                             viewUser ? 'Viewing as User' : 'Trainer Dashboard',
                             style: TextStyle(
                               color: viewUser
-                                  ? const Color(0xFFFF6B1A)
+                                  ? BrandColors.of(context).primary
                                   : Colors.white70,
                               fontSize: 11,
                               fontWeight: AppFontWeight.label,
@@ -247,7 +248,7 @@ class AdminModeService extends GetxController {
     });
   }
 
-  Widget _pillButton(String label, {required bool active, VoidCallback? onTap}) {
+  Widget _pillButton(BuildContext context, String label, {required bool active, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap ?? () {},
       child: AnimatedContainer(
@@ -255,7 +256,7 @@ class AdminModeService extends GetxController {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFFFF6B1A) : Colors.transparent,
+          color: active ? BrandColors.of(context).primary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(

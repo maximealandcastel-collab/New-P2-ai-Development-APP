@@ -28,8 +28,8 @@ class PairingScanResultTile extends StatelessWidget {
           CustomContainer(
             radiusAll: 12.r,
             paddingAll: 10.r,
-            color: AppColors.backgroundLight,
-            child: Icon(Icons.watch_outlined, color: AppColors.primary, size: 22.r),
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Icon(Icons.watch_outlined, color: Theme.of(context).colorScheme.primary, size: 22.r),
           ),
           SizedBox(width: 12.w),
           Expanded(

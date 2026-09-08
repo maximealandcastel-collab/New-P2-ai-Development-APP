@@ -62,11 +62,12 @@ class ContentMediaPickerTile extends StatelessWidget {
               width: double.infinity,
               child: hasSelection
                   ? _buildSelectedPreview(
+                      context,
                       hasPreview: hasPreview,
                       hasLocalPreview: hasLocalPreview,
                       hasRemotePreview: hasRemotePreview,
                     )
-                  : _buildEmptyPreview(),
+                  : _buildEmptyPreview(context),
             ),
           ),
         ),
@@ -74,17 +75,17 @@ class ContentMediaPickerTile extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyPreview() {
+  Widget _buildEmptyPreview(BuildContext context) {
     return Container(
-      color: AppColors.primary.withValues(alpha: 0.04),
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.04),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CustomContainer(
             radiusAll: 999,
             paddingAll: 18.r,
-            color: AppColors.primary.withValues(alpha: 0.12),
-            child: Icon(icon, color: AppColors.primary, size: 36.sp),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 36.sp),
           ),
           SizedBox(height: 12.h),
           CustomText(
@@ -104,13 +105,14 @@ class ContentMediaPickerTile extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedPreview({
+  Widget _buildSelectedPreview(BuildContext context, {
     required bool hasPreview,
     required bool hasLocalPreview,
     required bool hasRemotePreview,
   }) {
     if (isVideo) {
       return _buildVideoPreview(
+        context,
         hasPreview: hasPreview,
         hasLocalPreview: hasLocalPreview,
         hasRemotePreview: hasRemotePreview,
@@ -118,12 +120,13 @@ class ContentMediaPickerTile extends StatelessWidget {
     }
 
     return _buildImagePreview(
+      context,
       hasLocalPreview: hasLocalPreview,
       hasRemotePreview: hasRemotePreview,
     );
   }
 
-  Widget _buildVideoPreview({
+  Widget _buildVideoPreview(BuildContext context, {
     required bool hasPreview,
     required bool hasLocalPreview,
     required bool hasRemotePreview,
@@ -153,7 +156,7 @@ class ContentMediaPickerTile extends StatelessWidget {
           Container(
             color: Colors.black.withValues(alpha: 0.35),
           ),
-        Center(child: _buildPlayIcon()),
+        Center(child: _buildPlayIcon(context)),
         Positioned(
           left: 12.w,
           right: 12.w,
@@ -163,13 +166,13 @@ class ContentMediaPickerTile extends StatelessWidget {
         Positioned(
           top: 12.h,
           right: 12.w,
-          child: _buildChangeBadge(),
+          child: _buildChangeBadge(context),
         ),
       ],
     );
   }
 
-  Widget _buildImagePreview({
+  Widget _buildImagePreview(BuildContext context, {
     required bool hasLocalPreview,
     required bool hasRemotePreview,
   }) {
@@ -183,7 +186,7 @@ class ContentMediaPickerTile extends StatelessWidget {
         Positioned(
           top: 12.h,
           right: 12.w,
-          child: _buildChangeBadge(),
+          child: _buildChangeBadge(context),
         ),
       ],
     );
@@ -210,7 +213,7 @@ class ContentMediaPickerTile extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayIcon() {
+  Widget _buildPlayIcon(BuildContext context) {
     return Container(
       width: 64.r,
       height: 64.r,
@@ -227,7 +230,7 @@ class ContentMediaPickerTile extends StatelessWidget {
       ),
       child: Icon(
         Icons.play_arrow_rounded,
-        color: AppColors.primary,
+        color: Theme.of(context).colorScheme.primary,
         size: 40.sp,
       ),
     );
@@ -260,7 +263,7 @@ class ContentMediaPickerTile extends StatelessWidget {
     );
   }
 
-  Widget _buildChangeBadge() {
+  Widget _buildChangeBadge(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
@@ -277,13 +280,13 @@ class ContentMediaPickerTile extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.upload_file, color: AppColors.primary, size: 16.sp),
+          Icon(Icons.upload_file, color: Theme.of(context).colorScheme.primary, size: 16.sp),
           SizedBox(width: 4.w),
           CustomText(
             text: 'Change',
             fontSize: 12.sp,
             fontWeight: AppFontWeight.label,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ],
       ),

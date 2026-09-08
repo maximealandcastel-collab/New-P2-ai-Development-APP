@@ -21,7 +21,7 @@ class WorkoutPlanHeader extends StatelessWidget {
       width: double.infinity,
       paddingAll: 18.r,
       radiusAll: 20.r,
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

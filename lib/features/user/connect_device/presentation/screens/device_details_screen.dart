@@ -126,7 +126,7 @@ class _DeviceDetailsScreenState extends State<DeviceDetailsScreen> {
                 isDisabled: controller.isSyncing.value,
                 onPressed: controller.syncMetrics,
                 backgroundColor:
-                    currentDevice.isConnected ? AppColors.primary : null,
+                    currentDevice.isConnected ? Theme.of(context).colorScheme.primary : null,
               ),
             ],
           ),
@@ -187,11 +187,11 @@ class _DeviceHeaderCard extends StatelessWidget {
           CustomContainer(
             radiusAll: 16.r,
             paddingAll: 14.r,
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             child: Icon(
               Icons.watch_outlined,
               size: 28.sp,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           SizedBox(width: 14.w),
@@ -227,7 +227,7 @@ class _DeviceHeaderCard extends StatelessWidget {
             paddingHorizontal: 12.w,
             paddingVertical: 6.h,
             radiusAll: 20.r,
-            color: isConnecting ? AppColors.primary : statusColor,
+            color: isConnecting ? Theme.of(context).colorScheme.primary : statusColor,
             child: isConnecting
                 ? SizedBox(
                     width: 14.r,
@@ -260,7 +260,7 @@ class _HealthPermissionBanner extends StatelessWidget {
     return CustomContainer(
       radiusAll: 14.r,
       paddingAll: 14.r,
-      color: const Color(0xFFFFF4E5),
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.10),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +268,7 @@ class _HealthPermissionBanner extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.health_and_safety_outlined,
-                  color: AppColors.primary, size: 20.sp),
+                  color: Theme.of(context).colorScheme.primary, size: 20.sp),
               SizedBox(width: 8.w),
               Expanded(
                 child: CustomText(
@@ -320,7 +320,7 @@ class _MetricsGrid extends StatelessWidget {
           radiusAll: 14.r,
           paddingHorizontal: 14.w,
           paddingVertical: 10.h,
-          color: AppColors.backgroundLight,
+          color: Theme.of(context).scaffoldBackgroundColor,
           width: double.infinity,
           child: Row(
             children: [
@@ -353,7 +353,7 @@ class _MetricsGrid extends StatelessWidget {
                 label: 'Steps',
                 value: numberFormat.format(metrics.steps),
                 unit: '',
-                accentColor: AppColors.primary,
+                accentColor: Theme.of(context).colorScheme.primary,
               ),
             ),
             SizedBox(width: 10.w),

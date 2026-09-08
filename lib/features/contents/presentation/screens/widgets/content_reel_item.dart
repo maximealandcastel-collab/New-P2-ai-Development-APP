@@ -99,6 +99,7 @@ class ContentReelItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildActionButton(
+              context,
               icon: Icons.info_outline_rounded,
               label: 'Info',
               onTap: () {
@@ -109,6 +110,7 @@ class ContentReelItem extends StatelessWidget {
             if (showTrainerActions) ...[
               SizedBox(height: 16.h),
               _buildActionButton(
+                context,
                 icon: Icons.edit_outlined,
                 label: 'Edit',
                 onTap: () {
@@ -117,6 +119,7 @@ class ContentReelItem extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
               _buildActionButton(
+                context,
                 icon: Icons.delete_outline_rounded,
                 label: 'Delete',
                 onTap: () => _showDeleteDialog(context, controller),
@@ -128,7 +131,7 @@ class ContentReelItem extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildActionButton(BuildContext context, {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -141,7 +144,7 @@ class ContentReelItem extends StatelessWidget {
             width: 44.r,
             height: 44.r,
             decoration: BoxDecoration(
-              color: AppColors.backgroundLight,
+              color: Theme.of(context).scaffoldBackgroundColor,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: AppColors.textPrimary, size: 22.r),

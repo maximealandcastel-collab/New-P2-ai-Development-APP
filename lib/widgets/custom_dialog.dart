@@ -27,7 +27,7 @@ class CustomDialog extends StatelessWidget {
     this.rightButtonBgColor = AppColors.error,
     this.rightButtonLabelColor = Colors.white,
     this.leftButtonBgColor = Colors.transparent,
-    this.leftButtonLabelColor = AppColors.primary,
+    this.leftButtonLabelColor,
     this.description,
     this.content,
     this.titleColor = AppColors.error,
@@ -37,7 +37,7 @@ class CustomDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       insetPadding: EdgeInsets.symmetric(horizontal: 32.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.r)),
       child: Stack(
@@ -78,9 +78,9 @@ class CustomDialog extends StatelessWidget {
                         height: 38.h,
                         fontSize: 14.sp,
                         fontWeight: AppFontWeight.body,
-                        bordersColor: leftButtonLabelColor,
+                        bordersColor: leftButtonLabelColor ?? Theme.of(context).colorScheme.primary,
                         backgroundColor: leftButtonBgColor,
-                        foregroundColor: leftButtonLabelColor,
+                        foregroundColor: leftButtonLabelColor ?? Theme.of(context).colorScheme.primary,
                         onPressed: isLoading ? null : onTapLeftButton,
                         label: leftButtonLabel!,
                       ),
@@ -114,7 +114,7 @@ class CustomDialog extends StatelessWidget {
                 ),
                 child: Center(
                   child: CircularProgressIndicator(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     strokeWidth: 2.5,
                   ),
                 ),

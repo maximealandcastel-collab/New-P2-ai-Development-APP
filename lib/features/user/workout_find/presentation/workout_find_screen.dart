@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -225,7 +226,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F2F2),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -540,7 +541,7 @@ class _OptionTile extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: isSelected ? const Color(0xFFFF7A00) : Colors.transparent,
+              color: isSelected ? BrandColors.of(context).primary : Colors.transparent,
               width: 1.5,
             ),
             boxShadow: [
@@ -629,7 +630,7 @@ class _IntensityDurationStep extends StatelessWidget {
                             duration: const Duration(milliseconds: 180),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.black : Colors.white,
+                              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
                               borderRadius: BorderRadius.circular(14.r),
                               boxShadow: [
                                 BoxShadow(
@@ -647,7 +648,7 @@ class _IntensityDurationStep extends StatelessWidget {
                                       : level == 'Medium'
                                       ? Icons.directions_run
                                       : Icons.fitness_center,
-                                  color: isSelected ? Colors.white : Colors.black54,
+                                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black54,
                                   size: 24.sp,
                                 ),
                                 SizedBox(height: 6.h),
@@ -656,7 +657,7 @@ class _IntensityDurationStep extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w500,
-                                    color: isSelected ? Colors.white : Colors.black87,
+                                    color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black87,
                                   ),
                                 ),
                               ],
@@ -1042,7 +1043,7 @@ class _SplitSelectionStep extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18.r),
                     border: Border.all(
                       color: selected
-                          ? const Color(0xFFFF7A00)
+                          ? BrandColors.of(context).primary
                           : Colors.grey.shade200,
                       width: selected ? 2 : 1,
                     ),
@@ -1074,7 +1075,7 @@ class _SplitSelectionStep extends StatelessWidget {
                                 ? Icons.radio_button_checked
                                 : Icons.radio_button_off,
                             color: selected
-                                ? const Color(0xFFFF7A00)
+                                ? BrandColors.of(context).primary
                                 : Colors.grey.shade400,
                           ),
                         ],
@@ -1084,7 +1085,7 @@ class _SplitSelectionStep extends StatelessWidget {
                         schedule,
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: const Color(0xFFF57C1F),
+                          color: BrandColors.of(context).primary,
                           fontWeight: FontWeight.w600,
                           height: 1.4,
                         ),
@@ -1139,7 +1140,7 @@ class _SplitSelectionStep extends StatelessWidget {
             child: ElevatedButton(
               onPressed: selectedSplitId == null ? null : onNext,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF7A00),
+                backgroundColor: BrandColors.of(context).primary,
                 disabledBackgroundColor: Colors.grey.shade300,
                 foregroundColor: Colors.white,
                 elevation: 0,
@@ -1169,13 +1170,13 @@ class _SplitChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDEBD9),
+        color: BrandColors.of(context).soft,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: const Color(0xFFF57C1F),
+          color: BrandColors.of(context).primary,
           fontSize: 11.sp,
           fontWeight: FontWeight.w600,
         ),
@@ -1382,7 +1383,7 @@ class _GenerationStepData {
 }
 
 class _GenerationProgressView extends StatelessWidget {
-  static const _orange = Color(0xFFFF6B24);
+
   static const _green = Color(0xFF35B968);
   static const _teal = Color(0xFF21B7C5);
 
@@ -1488,7 +1489,7 @@ class _GenerationProgressView extends StatelessWidget {
             _GenerationStatusCard(
               number: index + 1,
               data: steps[index],
-              accent: index == steps.length - 1 ? _orange : _green,
+              accent: index == steps.length - 1 ? BrandColors.of(context).primary : _green,
             ),
             if (index < steps.length - 1) SizedBox(height: 12.h),
           ],
@@ -1514,7 +1515,7 @@ class _GenerationProgressView extends StatelessWidget {
               Text(
                 '$percentage%',
                 style: TextStyle(
-                  color: _orange,
+                  color: BrandColors.of(context).primary,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1528,7 +1529,7 @@ class _GenerationProgressView extends StatelessWidget {
               value: progress,
               minHeight: 6.h,
               backgroundColor: const Color(0xFFE4E4E4),
-              valueColor: const AlwaysStoppedAnimation<Color>(_orange),
+              valueColor: AlwaysStoppedAnimation<Color>(BrandColors.of(context).primary),
             ),
           ),
           SizedBox(height: 10.h),
@@ -1568,7 +1569,7 @@ class _GenerationStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor =
-        data.complete ? const Color(0xFF28A95D) : const Color(0xFFFF6B24);
+        data.complete ? const Color(0xFF28A95D) : BrandColors.of(context).primary;
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
@@ -1577,7 +1578,7 @@ class _GenerationStatusCard extends StatelessWidget {
         border: Border.all(
           color: data.complete
               ? const Color(0xFFE7E7E7)
-              : const Color(0xFFFFB48A),
+              : BrandColors.of(context).light,
         ),
         boxShadow: [
           BoxShadow(
@@ -1681,7 +1682,7 @@ class _GenerationError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.refresh_rounded, size: 46.sp, color: const Color(0xFFFF7A00)),
+            Icon(Icons.refresh_rounded, size: 46.sp, color: BrandColors.of(context).primary),
             SizedBox(height: 16.h),
             Text(
               message,
@@ -1695,7 +1696,7 @@ class _GenerationError extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onRetry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF7A00),
+                  backgroundColor: BrandColors.of(context).primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -1731,7 +1732,7 @@ class _NextButton extends StatelessWidget {
           width: double.infinity,
           height: 52.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFFF7A00),
+            color: BrandColors.of(context).primary,
             borderRadius: BorderRadius.circular(14.r),
           ),
           alignment: Alignment.center,

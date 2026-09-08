@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -128,6 +129,7 @@ class BottomNavBar extends StatelessWidget {
                                       ),
                                     )
                                   : Assets.icons.addButton.svg(
+                                      colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary),
                                       height: 42.h,
                                       width: 42.w,
                                     ),

@@ -342,7 +342,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
           paddingVertical: 12.h,
 
-          color: isSelected ? Colors.black : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
 
           alignment: Alignment.center,
 
@@ -353,7 +353,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
             fontWeight: FontWeight.w600,
 
-            color: isSelected ? Colors.white : Colors.grey,
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
           ),
         ),
       ),

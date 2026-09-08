@@ -1,6 +1,11 @@
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/legacy_kmf_configuration.dart';
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'widgets/home_gym_brand.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
@@ -80,7 +85,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FeedAppBar(),
-                const _AchievementsPill(),
+                const HomeGymBrand(trailing: _AchievementsPill()),
                 SizedBox(height: 8.h),
                 _DailyWorkoutCalendar(key: _calendarKey),
                 SizedBox(height: 16.h),
@@ -112,7 +117,7 @@ class _AchievementsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 0),
+      padding: EdgeInsets.zero,
       child: Align(
         alignment: Alignment.centerLeft,
         child: Semantics(
@@ -782,12 +787,31 @@ class _WorkoutDayProgress {
 }
 
 // ─── Gyms near you ───────────────────────────────────────────────────────────
-class _GymsCard extends StatelessWidget {
+class _GymsCard extends StatefulWidget {
   const _GymsCard();
+  @override
+  State<_GymsCard> createState() => _GymsCardState();
+}
+class _GymsCardState extends State<_GymsCard> {
+  List<EnterpriseGymModel> gyms = [];
+  String? error;
+  bool loading = true;
+  @override
+  void initState() { super.initState(); load(); }
+  Future<void> load() async {
+    setState(() { loading = true; error = null; });
+    try {
+      final page = isSingleMode
+          ? const EnterprisePage([legacyKmfConfiguration], null)
+          : await EnterpriseService.instance.directory();
+      if (mounted) setState(() => gyms = page.items.take(3).map((e) => TenantConfiguration.fromJson(e).toGym()).toList());
+    } catch (_) { if (mounted) setState(() => error = 'Gyms are temporarily unavailable.'); }
+    finally { if (mounted) setState(() => loading = false); }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final gyms = EnterpriseGymModel.partners.take(3).toList();
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(16.w),
@@ -798,6 +822,9 @@ class _GymsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (loading) const LinearProgressIndicator(),
+          if (error != null) TextButton(onPressed: load, child: Text('$error Retry')),
+          if (!loading && error == null && gyms.isEmpty) const Text('No enterprise gyms available yet.'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
 import 'package:pler_to_pler_app/features/onboarding/model/onboarding_item_model.dart';
 import 'package:pler_to_pler_app/features/onboarding/presentation/widgets/onboarding_typography.dart';
@@ -79,8 +78,8 @@ class OnboardingMainScreen extends StatelessWidget {
                               : 6.r,
                           decoration: BoxDecoration(
                             color: controller.currentIndex.value == index
-                                ? AppColors.primary
-                                : AppColors.primary.withOpacity(0.25),
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.primary.withOpacity(0.25),
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),

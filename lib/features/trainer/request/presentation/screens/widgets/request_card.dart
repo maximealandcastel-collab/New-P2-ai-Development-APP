@@ -167,8 +167,8 @@ class RequestCard extends StatelessWidget {
                 radius: 16.r,
                 fontSize: 14.sp,
                 backgroundColor: Colors.white,
-                foregroundColor: AppColors.primary,
-                bordersColor: AppColors.primary,
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                bordersColor: Theme.of(context).colorScheme.primary,
                 onPressed: () => _showAcceptDialog(context),
                 label: 'Accept',
               ),
@@ -200,8 +200,8 @@ class RequestCard extends StatelessWidget {
       title: 'Accept request?',
       description: 'Are you sure you want to accept ${request.clientName}?',
       rightButtonLabel: 'Yes, Accept',
-      titleColor: AppColors.primary,
-      rightButtonBgColor: AppColors.primary,
+      titleColor: Theme.of(context).colorScheme.primary,
+      rightButtonBgColor: Theme.of(context).colorScheme.primary,
       onConfirm: () => _controller.acceptRequest(request.id ?? ''),
     );
   }
@@ -225,7 +225,7 @@ class RequestCard extends StatelessWidget {
       description: 'Send invoice to ${request.clientName}?',
       rightButtonLabel: 'Send Invoice',
       titleColor: AppColors.textPrimary,
-      rightButtonBgColor: AppColors.primary,
+      rightButtonBgColor: Theme.of(context).colorScheme.primary,
       onConfirm: () => _controller.sendInvoice(request),
     );
   }

@@ -37,7 +37,7 @@ class AppLogoWidget extends StatelessWidget {
             style: TextStyle(fontSize: 24.sp, color: Colors.black,fontWeight: FontWeight.w600),
             children: [
               TextSpan(
-                style: TextStyle(color: AppColors.primary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                 text: 'Pier to Pier',)]
           )),
           SizedBox(height: 10.h),

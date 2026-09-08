@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/data/models/gym_model.dart';
 import 'package:pler_to_pler_app/features/home/widgets/gym_card_widget.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -40,7 +39,7 @@ class GymSection extends StatelessWidget {
                     textAlign: TextAlign.start,
                     text: 'Near Gym',
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],

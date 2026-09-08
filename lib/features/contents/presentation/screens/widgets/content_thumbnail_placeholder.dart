@@ -28,12 +28,12 @@ class ContentThumbnailPlaceholder extends StatelessWidget {
                 width: 72.r,
                 height: 72.r,
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundLight.withValues(alpha: 0.12),
+                  color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.play_circle_outline_rounded,
-                  color: AppColors.primary.withValues(alpha: 0.9),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
                   size: 40.r,
                 ),
               ),

@@ -14,7 +14,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   AchievementOverview? _overview;
   Object? _error;
 
-  static const _background = Color(0xFFF2F2F2);
+
   static const _ink = Color(0xFF171717);
   static const _muted = Color(0xFF777777);
   static const _gold = Color(0xFFD2A23A);
@@ -46,9 +46,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: _background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Back',
@@ -89,7 +89,6 @@ class _AchievementContent extends StatelessWidget {
   static const _muted = Color(0xFF777777);
   static const _gold = Color(0xFFD2A23A);
   static const _goldSoft = Color(0xFFFFF4D9);
-  static const _orange = Color(0xFFFF6B35);
 
   @override
   Widget build(BuildContext context) {

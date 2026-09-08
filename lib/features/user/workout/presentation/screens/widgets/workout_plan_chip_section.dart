@@ -41,12 +41,12 @@ class WorkoutPlanChipSection extends StatelessWidget {
                     paddingHorizontal: 14.w,
                     paddingVertical: 6.h,
                     radiusAll: 99.r,
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     child: CustomText(
                       text: StringFormat.formatLabel(value),
                       fontSize: 13.sp,
                       fontWeight: AppFontWeight.label,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 )

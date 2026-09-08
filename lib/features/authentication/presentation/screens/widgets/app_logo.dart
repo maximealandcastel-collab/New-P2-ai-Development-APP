@@ -54,7 +54,7 @@ class AppLogoWidget extends StatelessWidget {
             ),
             children: [
               TextSpan(
-                style: TextStyle(color: AppColors.primary),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                 text: 'P2P Fit tech Ai',
               ),
             ],

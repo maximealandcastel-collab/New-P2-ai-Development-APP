@@ -116,8 +116,8 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                   child: LinearProgressIndicator(
                     value: widget.uploadProgress,
                     minHeight: 6.h,
-                    backgroundColor: AppColors.backgroundLight,
-                    color: AppColors.primary,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 SizedBox(height: 8.h),

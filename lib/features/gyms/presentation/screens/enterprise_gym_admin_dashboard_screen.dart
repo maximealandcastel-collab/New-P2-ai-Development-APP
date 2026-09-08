@@ -1,32 +1,33 @@
-import 'dart:convert';
-
+import '../widgets/enterprise_theme.dart';
+import '../../data/models/legacy_kmf_configuration.dart';
+import '../../data/models/enterprise_dashboard_data.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:pler_to_pler_app/core/services/cache_service.dart';
+
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
+import '../../data/services/enterprise_service.dart';
+import 'enterprise_module_screen.dart';
+import 'enterprise_session_screen.dart';
+import '../widgets/tenant_image.dart';
 
-/// Dedicated tenant-isolated experience for KMF Fitness administrators.
-///
-/// This screen never enters BottomNavBarMain, AdminModeService, or any global
-/// Founder Console route. All operational data comes from the KMF-protected API.
-class KmfGymAdminDashboardScreen extends StatefulWidget {
-  const KmfGymAdminDashboardScreen({super.key});
+/// Shared dashboard for every authorized enterprise administrator.
+class EnterpriseGymAdminDashboardScreen extends StatefulWidget {
+  final bool legacyKmf;
+  const EnterpriseGymAdminDashboardScreen({super.key, this.legacyKmf = false});
 
   @override
-  State<KmfGymAdminDashboardScreen> createState() =>
-      _KmfGymAdminDashboardScreenState();
+  State<EnterpriseGymAdminDashboardScreen> createState() =>
+      _EnterpriseGymAdminDashboardScreenState();
 }
 
-class _KmfGymAdminDashboardScreenState
-    extends State<KmfGymAdminDashboardScreen> {
-  static final EnterpriseGymModel _gym = EnterpriseGymModel.partners.firstWhere(
-    (gym) => gym.id == 'kmf_fitness_club',
-  );
+class _EnterpriseGymAdminDashboardScreenState
+    extends State<EnterpriseGymAdminDashboardScreen> {
+  EnterpriseGymModel get _gym => widget.legacyKmf
+      ? legacyKmfTenant.toGym()
+      : EnterpriseService.instance.active.value!.tenant.toGym();
 
-  late Future<_KmfDashboardData> _dashboard;
+  late Future<EnterpriseDashboardData> _dashboard;
 
   @override
   void initState() {
@@ -34,37 +35,16 @@ class _KmfGymAdminDashboardScreenState
     _dashboard = _loadDashboard();
   }
 
-  Future<_KmfDashboardData> _loadDashboard() async {
-    final token = CacheService().get<String>('accessToken');
-    if (token == null || token.isEmpty) {
-      throw StateError('Your session has expired. Please sign in again.');
-    }
-
-    final response = await http.get(
-      Uri.parse('${ApiUrls.baseUrl}/gym-admin/kmf-fitness/dashboard'),
-      headers: {'Authorization': 'Bearer $token'},
+  Future<EnterpriseDashboardData> _loadDashboard() async {
+    final data = widget.legacyKmf
+        ? await EnterpriseService.instance.request(
+            '/gym-admin/kmf-fitness/dashboard',
+          )
+        : await EnterpriseService.instance.scoped('dashboard', admin: true);
+    return EnterpriseDashboardData.fromJson(
+      data,
+      requireMembers: !widget.legacyKmf,
     );
-
-    dynamic decoded;
-    try {
-      decoded = jsonDecode(response.body);
-    } catch (_) {
-      throw StateError('KMF services are temporarily unavailable.');
-    }
-
-    if (response.statusCode < 200 ||
-        response.statusCode >= 300 ||
-        decoded is! Map) {
-      final message =
-          decoded is Map ? decoded['message']?.toString() : response.reasonPhrase;
-      throw StateError(message ?? 'Unable to load the KMF dashboard.');
-    }
-
-    final body = decoded['data'];
-    if (body is! Map) {
-      throw StateError('Invalid KMF dashboard response.');
-    }
-    return _KmfDashboardData.fromJson(Map<String, dynamic>.from(body));
   }
 
   Future<void> _refresh() async {
@@ -74,23 +54,32 @@ class _KmfGymAdminDashboardScreenState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => widget.legacyKmf
+      ? Theme(
+          data: enterpriseTheme(context, legacyKmfTenant),
+          child: Builder(builder: _buildDashboard),
+        )
+      : _buildDashboard(context);
+
+  Widget _buildDashboard(BuildContext context) {
     return Scaffold(
       backgroundColor: _gym.brandColor,
-      body: FutureBuilder<_KmfDashboardData>(
+      body: FutureBuilder<EnterpriseDashboardData>(
         future: _dashboard,
         builder: (context, snapshot) {
           return RefreshIndicator(
             color: _gym.accentColor,
-            backgroundColor: const Color(0xFF171917),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
             onRefresh: _refresh,
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                _KmfHeader(
+                _EnterpriseHeader(
+                  legacyKmf: widget.legacyKmf,
                   gym: _gym,
-                  administratorName:
-                      snapshot.hasData ? snapshot.requireData.administratorName : '',
+                  administratorName: snapshot.hasData
+                      ? snapshot.requireData.administratorName
+                      : '',
                   onRefresh: () => _refresh(),
                   onLogout: () => LoginController.to.logout(),
                 ),
@@ -106,14 +95,19 @@ class _KmfGymAdminDashboardScreenState
                     hasScrollBody: false,
                     child: _DashboardMessage(
                       accentColor: _gym.accentColor,
-                      message: snapshot.error
-                          .toString()
-                          .replaceFirst('Bad state: ', ''),
+                      message: snapshot.error.toString().replaceFirst(
+                        'Bad state: ',
+                        '',
+                      ),
                       onRetry: () => _refresh(),
                     ),
                   )
                 else
-                  _DashboardBody(gym: _gym, dashboard: snapshot.requireData),
+                  _DashboardBody(
+                    legacyKmf: widget.legacyKmf,
+                    gym: _gym,
+                    dashboard: snapshot.requireData,
+                  ),
               ],
             ),
           );
@@ -123,13 +117,15 @@ class _KmfGymAdminDashboardScreenState
   }
 }
 
-class _KmfHeader extends StatelessWidget {
+class _EnterpriseHeader extends StatelessWidget {
+  final bool legacyKmf;
   final EnterpriseGymModel gym;
   final String administratorName;
   final VoidCallback onRefresh;
   final VoidCallback onLogout;
 
-  const _KmfHeader({
+  const _EnterpriseHeader({
+    required this.legacyKmf,
     required this.gym,
     required this.administratorName,
     required this.onRefresh,
@@ -138,18 +134,23 @@ class _KmfHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final welcomeName =
-        administratorName.trim().isEmpty ? 'KMF Team' : administratorName.trim();
+    final welcomeName = administratorName.trim().isEmpty
+        ? '${gym.name} Team'
+        : administratorName.trim();
     return SliverAppBar(
-      expandedHeight: 286,
+      expandedHeight:
+          340 + (MediaQuery.textScalerOf(context).scale(25) - 25) * 4,
       pinned: true,
       backgroundColor: gym.brandColor,
       foregroundColor: gym.textColor,
-      title: Text(
-        gym.name,
-        style: const TextStyle(fontWeight: FontWeight.w700),
-      ),
+      title: Text(gym.name, style: TextStyle(fontWeight: FontWeight.w700)),
       actions: [
+        if (!legacyKmf)
+          IconButton(
+            tooltip: 'Switch gym',
+            icon: const Icon(Icons.swap_horiz),
+            onPressed: () => Get.to(() => const EnterpriseMembershipScreen()),
+          ),
         IconButton(
           tooltip: 'Refresh',
           onPressed: onRefresh,
@@ -165,8 +166,8 @@ class _KmfHeader extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(gym.imageAssetPath, fit: BoxFit.cover),
-            const DecoratedBox(
+            TenantImage(gym.imageAssetPath, fit: BoxFit.cover),
+            DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -174,7 +175,7 @@ class _KmfHeader extends StatelessWidget {
                   colors: [
                     Color(0x33000000),
                     Color(0xAA000000),
-                    Color(0xFF0A0A0A),
+                    gym.brandColor,
                   ],
                 ),
               ),
@@ -191,7 +192,7 @@ class _KmfHeader extends StatelessWidget {
                       height: 72,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: gym.accentColor, width: 2),
                         boxShadow: const [
@@ -204,12 +205,14 @@ class _KmfHeader extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(gym.logoAssetPath, fit: BoxFit.cover),
+                        child: TenantImage(gym.logoUrl, fit: BoxFit.cover),
                       ),
                     ),
                     const SizedBox(height: 14),
                     Text(
                       'Welcome back, $welcomeName',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: gym.textColor,
                         fontSize: 25,
@@ -219,6 +222,8 @@ class _KmfHeader extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       gym.tagline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: gym.accentColor,
                         fontSize: 14,
@@ -238,10 +243,15 @@ class _KmfHeader extends StatelessWidget {
 }
 
 class _DashboardBody extends StatelessWidget {
+  final bool legacyKmf;
   final EnterpriseGymModel gym;
-  final _KmfDashboardData dashboard;
+  final EnterpriseDashboardData dashboard;
 
-  const _DashboardBody({required this.gym, required this.dashboard});
+  const _DashboardBody({
+    required this.legacyKmf,
+    required this.gym,
+    required this.dashboard,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +262,7 @@ class _DashboardBody extends StatelessWidget {
           _LocationCard(gym: gym),
           const SizedBox(height: 22),
           Text(
-            'KMF operations',
+            '${gym.name} operations',
             style: TextStyle(
               color: gym.textColor,
               fontSize: 20,
@@ -274,13 +284,14 @@ class _DashboardBody extends StatelessWidget {
                     icon: Icons.person_add_alt_1_rounded,
                     accentColor: gym.accentColor,
                   ),
-                  _MetricCard(
-                    width: width,
-                    label: 'Members',
-                    count: dashboard.signups,
-                    icon: Icons.groups_rounded,
-                    accentColor: gym.accentColor,
-                  ),
+                  if (dashboard.members != null)
+                    _MetricCard(
+                      width: width,
+                      label: 'Members',
+                      count: dashboard.members!,
+                      icon: Icons.groups_rounded,
+                      accentColor: gym.accentColor,
+                    ),
                   _MetricCard(
                     width: width,
                     label: 'Active plans',
@@ -300,29 +311,48 @@ class _DashboardBody extends StatelessWidget {
             },
           ),
           const SizedBox(height: 26),
+          if (!legacyKmf)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: enterpriseModules
+                  .map(
+                    (module) => ActionChip(
+                      label: Text(module.title),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              EnterpriseModuleScreen(module: module),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          const SizedBox(height: 26),
           _GymGallery(gym: gym),
           const SizedBox(height: 28),
           _ActivitySection(
-            title: 'Recent KMF signups',
-            emptyMessage: 'New KMF members will appear here.',
+            title: 'Recent signups',
+            emptyMessage: 'New members will appear here.',
             items: dashboard.recentSignups,
             accentColor: gym.accentColor,
           ),
           _ActivitySection(
-            title: 'Active KMF subscriptions',
-            emptyMessage: 'No active KMF subscriptions yet.',
+            title: 'Active subscriptions',
+            emptyMessage: 'No active subscriptions yet.',
             items: dashboard.activeSubscriptionItems,
             accentColor: gym.accentColor,
           ),
           _ActivitySection(
-            title: 'KMF trainers',
-            emptyMessage: 'KMF trainers will appear here once assigned.',
+            title: 'Trainers',
+            emptyMessage: 'Trainers will appear here once assigned.',
             items: dashboard.recentTrainers,
             accentColor: gym.accentColor,
           ),
           _ActivitySection(
-            title: 'Recent KMF activity',
-            emptyMessage: 'KMF activity will appear here as your gym grows.',
+            title: 'Recent activity',
+            emptyMessage: 'Gym activity will appear here as your gym grows.',
             items: dashboard.recentActivity,
             accentColor: gym.accentColor,
           ),
@@ -341,7 +371,7 @@ class _LocationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF171917),
+        color: Theme.of(context).colorScheme.secondary,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: gym.accentColor.withOpacity(.28)),
       ),
@@ -422,7 +452,7 @@ class _MetricCard extends StatelessWidget {
       width: width,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFF171917),
+          color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: accentColor.withOpacity(.3)),
         ),
@@ -435,8 +465,8 @@ class _MetricCard extends StatelessWidget {
               const SizedBox(height: 15),
               Text(
                 '$count',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
                 ),
@@ -444,7 +474,12 @@ class _MetricCard extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 label,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSecondary.withValues(alpha: .7),
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -464,10 +499,10 @@ class _GymGallery extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Your facility',
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSecondary,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -481,7 +516,7 @@ class _GymGallery extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(width: 10),
             itemBuilder: (context, index) => ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
+              child: TenantImage(
                 gym.galleryAssetPaths[index],
                 width: 194,
                 height: 128,
@@ -517,8 +552,8 @@ class _ActivitySection extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSecondary,
               fontSize: 17,
               fontWeight: FontWeight.w700,
             ),
@@ -529,12 +564,17 @@ class _ActivitySection extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF171917),
+                color: Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(
                 emptyMessage,
-                style: const TextStyle(color: Colors.white54, fontSize: 13),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSecondary.withValues(alpha: .54),
+                  fontSize: 13,
+                ),
               ),
             )
           else
@@ -548,11 +588,12 @@ class _ActivitySection extends StatelessWidget {
               final itemTitle = personName.isNotEmpty
                   ? personName
                   : data['name'] ??
-                      data['title'] ??
-                      data['email'] ??
-                      data['type'] ??
-                      'KMF activity';
-              final detail = data['email'] ??
+                        data['title'] ??
+                        data['email'] ??
+                        data['type'] ??
+                        'Gym activity';
+              final detail =
+                  data['email'] ??
                   data['specialty'] ??
                   data['createdAt'] ??
                   data['date'] ??
@@ -560,7 +601,7 @@ class _ActivitySection extends StatelessWidget {
                   data['detail'] ??
                   '';
               return Card(
-                color: const Color(0xFF171917),
+                color: Theme.of(context).colorScheme.secondary,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -572,8 +613,8 @@ class _ActivitySection extends StatelessWidget {
                   ),
                   title: Text(
                     '$itemTitle',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -581,7 +622,11 @@ class _ActivitySection extends StatelessWidget {
                       ? null
                       : Text(
                           '$detail',
-                          style: const TextStyle(color: Colors.white60),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSecondary.withValues(alpha: .6),
+                          ),
                         ),
                 ),
               );
@@ -605,77 +650,33 @@ class _DashboardMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline_rounded, color: accentColor, size: 42),
-              const SizedBox(height: 12),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 14),
-              OutlinedButton(
-                onPressed: onRetry,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: accentColor,
-                  side: BorderSide(color: accentColor),
-                ),
-                child: const Text('Try again'),
-              ),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline_rounded, color: accentColor, size: 42),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSecondary.withValues(alpha: .7),
+            ),
           ),
-        ),
-      );
-}
-
-class _KmfDashboardData {
-  final String administratorName;
-  final int signups;
-  final int activeSubscriptions;
-  final int trainers;
-  final List<dynamic> recentSignups;
-  final List<dynamic> activeSubscriptionItems;
-  final List<dynamic> recentTrainers;
-  final List<dynamic> recentActivity;
-
-  const _KmfDashboardData({
-    required this.administratorName,
-    required this.signups,
-    required this.activeSubscriptions,
-    required this.trainers,
-    required this.recentSignups,
-    required this.activeSubscriptionItems,
-    required this.recentTrainers,
-    required this.recentActivity,
-  });
-
-  factory _KmfDashboardData.fromJson(Map<String, dynamic> json) {
-    final counts = json['counts'] is Map
-        ? Map<String, dynamic>.from(json['counts'] as Map)
-        : const <String, dynamic>{};
-    final administrator = json['administrator'] is Map
-        ? Map<String, dynamic>.from(json['administrator'] as Map)
-        : const <String, dynamic>{};
-    int count(String key) => (counts[key] as num?)?.toInt() ?? 0;
-    List<dynamic> list(String key) =>
-        json[key] is List ? List<dynamic>.from(json[key] as List) : const [];
-    final administratorName =
-        '${administrator['firstName'] ?? ''} ${administrator['lastName'] ?? ''}'
-            .trim();
-
-    return _KmfDashboardData(
-      administratorName: administratorName,
-      signups: count('signups'),
-      activeSubscriptions: count('activeSubscriptions'),
-      trainers: count('trainers'),
-      recentSignups: list('recentSignups'),
-      activeSubscriptionItems: list('activeSubscriptions'),
-      recentTrainers: list('recentTrainers'),
-      recentActivity: list('recentActivity'),
-    );
-  }
+          const SizedBox(height: 14),
+          OutlinedButton(
+            onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: accentColor,
+              side: BorderSide(color: accentColor),
+            ),
+            child: const Text('Try again'),
+          ),
+        ],
+      ),
+    ),
+  );
 }

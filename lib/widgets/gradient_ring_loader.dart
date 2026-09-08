@@ -50,7 +50,7 @@ class _GradientRingLoaderState extends State<GradientRingLoader>
         width: widget.size.w,
         height: widget.size.w,
         child: CustomPaint(
-          painter: _GradientRingPainter(strokeWidth: widget.strokeWidth.w),
+          painter: _GradientRingPainter(strokeWidth: widget.strokeWidth.w, color: Theme.of(context).colorScheme.primary),
         ),
       ),
     );
@@ -60,7 +60,9 @@ class _GradientRingLoaderState extends State<GradientRingLoader>
 class _GradientRingPainter extends CustomPainter {
   final double strokeWidth;
 
-  _GradientRingPainter({required this.strokeWidth});
+  final Color color;
+
+  _GradientRingPainter({required this.strokeWidth, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -74,8 +76,8 @@ class _GradientRingPainter extends CustomPainter {
       endAngle: 3.14159265 * 2,
       colors: [
         Colors.transparent,
-        AppColors.primary,
-        AppColors.primary,
+        color,
+        color,
         AppColors.secondary,
         Colors.white,
       ],
@@ -93,7 +95,7 @@ class _GradientRingPainter extends CustomPainter {
 
     // Glow at the leading edge (near angle 0 / top after rotation)
     final glowPaint = Paint()
-      ..color = AppColors.primary.withValues(alpha: 0.1)
+      ..color = color.withValues(alpha: 0.1)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth * 2.2
       ..strokeCap = StrokeCap.round
@@ -103,5 +105,5 @@ class _GradientRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GradientRingPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GradientRingPainter oldDelegate) => oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
 }

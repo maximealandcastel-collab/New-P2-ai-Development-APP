@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -67,7 +68,7 @@ class ClientDetailsScreen extends StatelessWidget {
               },
               label: 'Message',
               prefixIcon: const Icon(Icons.chat_bubble, color: Colors.white),
-              backgroundColor: Colors.orange,
+              backgroundColor: BrandColors.of(context).primary,
               width: double.infinity,
             ),
 
@@ -243,9 +244,9 @@ class ClientDetailsScreen extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          _buildTaskProgress("Daily pushup", 0.75, "15/20"),
+          _buildTaskProgress(context, "Daily pushup", 0.75, "15/20"),
           SizedBox(height: 12.h),
-          _buildTaskProgress("Run 1 km", 0.15, "0.15km/1km"),
+          _buildTaskProgress(context, "Run 1 km", 0.15, "0.15km/1km"),
           SizedBox(height: 12.h),
           CustomButton(
             onPressed: () => _showMessage(
@@ -263,7 +264,7 @@ class ClientDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskProgress(String title, double progress, String trailing) {
+  Widget _buildTaskProgress(BuildContext context, String title, double progress, String trailing) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -275,7 +276,7 @@ class ClientDetailsScreen extends StatelessWidget {
           ],
         ),
         SizedBox(height: 6.h),
-        LinearProgressIndicator(value: progress, backgroundColor: Colors.black12, color: Colors.orange, minHeight: 6.h),
+        LinearProgressIndicator(value: progress, backgroundColor: Colors.black12, color: BrandColors.of(context).primary, minHeight: 6.h),
       ],
     );
   }

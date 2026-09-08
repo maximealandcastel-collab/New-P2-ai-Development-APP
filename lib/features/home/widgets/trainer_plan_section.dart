@@ -61,7 +61,7 @@ class TrainerPlanSection extends StatelessWidget {
                 CustomText(
                   text: plan.trainerName!,
                   fontSize: 12.sp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
                   bottom: 12.h,
                 ),
@@ -74,18 +74,18 @@ class TrainerPlanSection extends StatelessWidget {
               radiusAll: 10.r,
               paddingAll: 10.r,
               marginBottom: 10.h,
-              color: AppColors.primary.withOpacity(0.07),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.07),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.directions_run_rounded,
-                      size: 16.sp, color: AppColors.primary),
+                      size: 16.sp, color: Theme.of(context).colorScheme.primary),
                   SizedBox(width: 6.w),
                   Expanded(
                     child: CustomText(
                       text: '🔥 Warm-up: ${day!.warmupNotes}',
                       fontSize: 12.sp,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                       textAlign: TextAlign.start,
                     ),

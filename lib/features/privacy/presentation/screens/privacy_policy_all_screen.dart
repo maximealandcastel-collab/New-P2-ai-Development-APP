@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/controllers/privacy_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -105,7 +104,7 @@ class _PrivacyPolicyAllScreenState extends State<PrivacyPolicyAllScreen> {
                   child: ElevatedButton(
                     onPressed: _onAccept,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       shape: RoundedRectangleBorder(

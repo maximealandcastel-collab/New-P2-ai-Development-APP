@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
 
 /// Stub — Stream Chat integration pending (messaging task).
 /// Keeps the same public interface so callers compile.
@@ -11,10 +12,7 @@ class StreamChatService {
 
   bool get isConnected => false;
 
-  static const _baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'https://fit-tech-ai.replit.app/api/v1',
-  );
+  static const _baseUrl = ApiUrls.baseUrl;
 
   static Future<String> _getJwt() async {
     final prefs = await SharedPreferences.getInstance();

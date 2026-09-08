@@ -144,10 +144,10 @@ class CustomSliverAppBar extends StatelessWidget {
       snap: snap,
       elevation: 0,
       scrolledUnderElevation: 10,
-      shadowColor: AppColors.backgroundLight.withValues(alpha: 0.1),
-      surfaceTintColor: AppColors.backgroundLight.withValues(alpha: 0.1),
+      shadowColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.1),
+      surfaceTintColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.1),
       backgroundColor: backgroundColor?.withValues(alpha: 0.6) ??
-          AppColors.backgroundLight.withValues(alpha: 0.6),
+          Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.6),
       foregroundColor: _foreground,
       toolbarHeight: _toolbarH,
       expandedHeight: _expandedH,

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,7 +35,7 @@ const _specialtyFilters = [
   _Filter(id: 'nutrition',         emoji: '🍎', label: 'Nutrition'),
 ];
 
-const _kOrange = Color(0xFFFF6B1A);
+
 
 // ─── Screen ───────────────────────────────────────────────────────────────
 class FindTrainerScreen extends StatelessWidget {
@@ -45,13 +46,13 @@ class FindTrainerScreen extends StatelessWidget {
     final controller = Get.find<SubscribeController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: NestedScrollView(
           headerSliverBuilder: (context, _) => [
             // ── App bar ──────────────────────────────────────────────
             SliverAppBar(
-              backgroundColor: const Color(0xFFF5F5F5),
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               elevation: 0,
               pinned: true,
               centerTitle: true,
@@ -95,8 +96,15 @@ class FindTrainerScreen extends StatelessWidget {
                       SizedBox(width: 16.w),
                       Icon(Icons.search, color: Colors.grey.shade400, size: 20.sp),
                       SizedBox(width: 10.w),
-                      Text('Search trainer by name or needs',
-                          style: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp)),
+                      Expanded(
+                        child: Text(
+                          'Search trainer by name or needs',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp),
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
                     ]),
                   ),
                 ),
@@ -147,7 +155,7 @@ class FindTrainerScreen extends StatelessWidget {
                               onPressed: () => Navigator.pop(context),
                               child: Text('Got it',
                                   style: TextStyle(
-                                      color: const Color(0xFFFF6B00),
+                                      color: BrandColors.of(context).primary,
                                       fontWeight: AppFontWeight.label)),
                             ),
                           ],
@@ -224,7 +232,11 @@ class FindTrainerScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 4.h),
-                child: Row(
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8.w,
+                  runSpacing: 8.h,
                   children: [
                     // 🎯 Find My Match — auto-picks the ideal trainer
                     GestureDetector(
@@ -233,14 +245,14 @@ class FindTrainerScreen extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                             horizontal: 14.w, vertical: 9.h),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                              colors: [Color(0xFFFF6B00), Color(0xFFFF8C42)],
+                          gradient: LinearGradient(
+                              colors: [BrandColors.of(context).primary, BrandColors.of(context).light],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight),
                           borderRadius: BorderRadius.circular(22.r),
                           boxShadow: [
                             BoxShadow(
-                                color: const Color(0xFFFF6B00).withOpacity(0.32),
+                                color: BrandColors.of(context).primary.withOpacity(0.32),
                                 blurRadius: 10,
                                 offset: const Offset(0, 3))
                           ],
@@ -260,7 +272,6 @@ class FindTrainerScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Spacer(),
                     // 1,000+ badge (compact)
                     RichText(
                       text: TextSpan(
@@ -270,7 +281,7 @@ class FindTrainerScreen extends StatelessWidget {
                           TextSpan(
                             text: '1,000+ ',
                             style: TextStyle(
-                                color: _kOrange,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: AppFontWeight.stat,
                                 fontSize: 12.sp),
                           ),
@@ -322,7 +333,7 @@ class FindTrainerScreen extends StatelessWidget {
                       ElevatedButton(
                         onPressed: controller.refresh,
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: _kOrange,
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             shape: const StadiumBorder()),
                         child: Text('Try again',
                             style: TextStyle(color: Colors.white, fontSize: 13.sp)),
@@ -366,7 +377,7 @@ class FindTrainerScreen extends StatelessWidget {
                           SizedBox(width: 8.w),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                            decoration: BoxDecoration(color: _kOrange,
+                            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.circular(10.r)),
                             child: Text('TOP PICKS', style: TextStyle(
                               fontSize: 9.sp, fontWeight: AppFontWeight.stat,
@@ -402,7 +413,7 @@ class FindTrainerScreen extends StatelessWidget {
                             color: Colors.black87)),
                           const Spacer(),
                           Text('${females.length}', style: TextStyle(
-                            fontSize: 13.sp, color: _kOrange,
+                            fontSize: 13.sp, color: Theme.of(context).colorScheme.primary,
                             fontWeight: AppFontWeight.label)),
                         ]),
                       )),
@@ -426,7 +437,7 @@ class FindTrainerScreen extends StatelessWidget {
                             color: Colors.black87)),
                           const Spacer(),
                           Text('${males.length}', style: TextStyle(
-                            fontSize: 13.sp, color: _kOrange,
+                            fontSize: 13.sp, color: Theme.of(context).colorScheme.primary,
                             fontWeight: AppFontWeight.label)),
                         ]),
                       )),
@@ -491,10 +502,10 @@ class _FilterChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(horizontal: 14.w),
         decoration: BoxDecoration(
-          color: active ? _kOrange.withOpacity(0.08) : Colors.white,
+          color: active ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : Colors.white,
           borderRadius: BorderRadius.circular(30.r),
           border: Border.all(
-            color: active ? _kOrange : const Color(0xFFD8D8D8),
+            color: active ? Theme.of(context).colorScheme.primary : const Color(0xFFD8D8D8),
             width: active ? 2.0 : 1.0,
           ),
           boxShadow: active
@@ -516,7 +527,7 @@ class _FilterChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: active ? AppFontWeight.label : AppFontWeight.emphasis,
-                color: active ? _kOrange : Colors.black87,
+                color: active ? Theme.of(context).colorScheme.primary : Colors.black87,
               ),
             ),
           ],
@@ -525,4 +536,3 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
-

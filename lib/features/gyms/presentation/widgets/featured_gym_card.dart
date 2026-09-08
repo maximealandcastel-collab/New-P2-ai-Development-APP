@@ -8,7 +8,6 @@ class FeaturedGymCard extends StatelessWidget {
   final EnterpriseGymModel gym;
   const FeaturedGymCard({super.key, required this.gym});
 
-  static const _kOrange = Color(0xFFFD7B00);
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +94,7 @@ class FeaturedGymCard extends StatelessWidget {
                   ),
                 ),
                 // Badge
-                _badge(gym),
+                _badge(context, gym),
               ],
             ),
           ),
@@ -153,7 +152,7 @@ class FeaturedGymCard extends StatelessWidget {
                       width: double.infinity,
                        height: 44.h,
                       decoration: BoxDecoration(
-                        color: _kOrange,
+                        color: Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       alignment: Alignment.center,
@@ -202,13 +201,13 @@ class FeaturedGymCard extends StatelessWidget {
     );
   }
 
-  Widget _badge(EnterpriseGymModel gym) {
+  Widget _badge(BuildContext context, EnterpriseGymModel gym) {
     if (gym.isOwnGym) {
       return Container(
         padding:
             EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFFD7B00),
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Text('Your gym',

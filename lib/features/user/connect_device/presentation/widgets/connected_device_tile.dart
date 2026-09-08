@@ -42,7 +42,7 @@ class ConnectedDeviceTile extends StatelessWidget {
             height: 40.r,
             width: 40.r,
             radiusAll: 10.r,
-            color: AppColors.backgroundLight,
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: Icon(
               Icons.watch_outlined,
               size: 20.sp,
@@ -82,7 +82,7 @@ class ConnectedDeviceTile extends StatelessWidget {
             paddingHorizontal: 10.w,
             paddingVertical: 5.h,
             radiusAll: 20.r,
-            color: isConnecting ? AppColors.primary : statusColor,
+            color: isConnecting ? Theme.of(context).colorScheme.primary : statusColor,
             child: isConnecting
                 ? SizedBox(
                     width: 12.r,

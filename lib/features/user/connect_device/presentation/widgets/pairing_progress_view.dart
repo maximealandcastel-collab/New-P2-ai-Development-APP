@@ -46,11 +46,11 @@ class _PairingProgressViewState extends State<PairingProgressView>
           child: CustomContainer(
             shape: BoxShape.circle,
             paddingAll: 24.r,
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             child: Icon(
               isSaving ? Icons.cloud_upload_outlined : Icons.link,
               size: 40.r,
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -76,8 +76,8 @@ class _PairingProgressViewState extends State<PairingProgressView>
             child: LinearProgressIndicator(
               value: widget.controller.pairingProgress.value,
               minHeight: 8.h,
-              backgroundColor: AppColors.backgroundLight,
-              color: AppColors.primary,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),

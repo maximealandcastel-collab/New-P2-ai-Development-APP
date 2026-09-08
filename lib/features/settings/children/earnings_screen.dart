@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/custom_assets/assets.gen.dart';
@@ -14,10 +15,10 @@ class _EarningsScreenState extends State<EarningsScreen> {
   String _selectedRefill = 'Elite';
   String _selectedSubscription = 'Pro';
 
-  static const _orange = Color(0xFFFF6B00);
+
   static const _ink = Color(0xFF111318);
   static const _muted = Color(0xFF777A82);
-  static const _page = Color(0xFFF7F7F8);
+
 
   final _refillPlans = const [
     _RefillPlan('Starter', '250', '\$9.99', '\$0.039 / token'),
@@ -36,7 +37,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _page,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
@@ -103,7 +104,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
             ],
           ),
           SizedBox(height: 6.h),
-          Image.asset(
+          TenantImage(
             TenantBrandService.to.logoAssetPath ?? 'assets/images/app_logo.png',
             height: 54.h,
             width: 92.w,
@@ -183,7 +184,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                     Text(
                       '0',
                       style: TextStyle(
-                        color: _orange,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 34.sp,
                         height: 1,
                         fontWeight: FontWeight.w700,
@@ -209,7 +210,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
             label: Text('Usage History', style: TextStyle(fontSize: 10.sp)),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
-              side: BorderSide(color: _orange, width: 1),
+              side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),
@@ -245,7 +246,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
   Widget _buildProviderRow() {
     final providers = const [
       _Provider('ANAM', 'Anam AI', 'Advanced content generation for workouts, nutrition plans, and more.', Color(0xFF101010)),
-      _Provider('R', 'Replit', 'Scalable infrastructure and seamless deployment.', Color(0xFFFF7A00)),
+      _Provider('R', 'Replit', 'Scalable infrastructure and seamless deployment.', Color(0xFFFF7A00)), // fixed-color: provider logo
       _Provider('◎', 'ChatGPT', 'AI-powered coaching support, smart responses, and personalized advice.', Color(0xFF101010)),
       _Provider('✳', 'Claude', 'Intelligent analysis and insights for your fitness and health journey.', Color(0xFFC76F4B)),
     ];
@@ -320,7 +321,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
             child: Text(
               'Included',
               style: TextStyle(
-                color: _orange,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -358,7 +359,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: selected ? _orange : const Color(0xFFEAEAEC),
+            color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFFEAEAEC),
             width: selected ? 1.3 : 1,
           ),
           boxShadow: const [
@@ -374,7 +375,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 SizedBox(height: 5.h),
                 Text(
                   plan.tokens,
-                  style: TextStyle(color: _orange, fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 18.sp, fontWeight: FontWeight.w700),
                 ),
                 Text('Tokens', style: TextStyle(color: _muted, fontSize: 9.sp)),
                 const Spacer(),
@@ -395,7 +396,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: _orange,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(3.r),
                   ),
                   child: Text(
@@ -430,7 +431,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: selected ? _orange : const Color(0xFFEAEAEC),
+                  color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFFEAEAEC),
                   width: selected ? 1.2 : 1,
                 ),
               ),
@@ -447,7 +448,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                       child: Text(
                         'MOST POPULAR',
                         style: TextStyle(
-                          color: _orange,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 6.5.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -485,11 +486,11 @@ class _EarningsScreenState extends State<EarningsScreen> {
       height: 16.r,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: selected ? _orange : const Color(0xFFD6D8DC), width: 1.2),
+        border: Border.all(color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFFD6D8DC), width: 1.2),
       ),
       padding: EdgeInsets.all(3.r),
       child: selected
-          ? Container(decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle))
+          ? Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle))
           : null,
     );
   }
@@ -555,8 +556,8 @@ class _EarningsScreenState extends State<EarningsScreen> {
       top: false,
       child: Container(
         padding: EdgeInsets.fromLTRB(16.w, 9.h, 16.w, 10.h),
-        decoration: const BoxDecoration(
-          color: _page,
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(color: Color(0x14000000), blurRadius: 10, offset: Offset(0, -3)),
           ],
@@ -577,7 +578,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                     ],
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _orange,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),

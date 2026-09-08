@@ -65,9 +65,9 @@ class _GenderPageState extends State<GenderPage> {
               width: 24.w,
               height: 24.h,
                 shape: BoxShape.circle,
-                bordersColor: isSelected ? Colors.black : Colors.grey.shade400,
+                bordersColor: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
                 borderWidth: isSelected ? 2 : 1,
-                color: isSelected ? Colors.black : Colors.transparent,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               child: isSelected
                   ? Icon(
                 Icons.circle,

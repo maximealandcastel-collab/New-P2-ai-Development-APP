@@ -53,8 +53,8 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
           SizedBox(height: 16.h),
           CustomText(text: '$selectedPayment detail'),
           SizedBox(height: 8.h),
-      
-      
+
+
           CustomContainer(
             paddingAll: 16.r,
             color: Colors.white,
@@ -68,7 +68,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
                   hintText: 'Enter your $selectedPayment email',
                   controller: emailController,
                 ),
-      
+
                 CustomContainer(
                   alignment: Alignment.center,
                   width: double.infinity,
@@ -81,7 +81,7 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
                     textAlign: TextAlign.start,
                       text: 'A verification mail will be sent to connect to $selectedPayment.'),
                 )
-      
+
               ],
             ),
           )
@@ -119,9 +119,9 @@ class _PaymentSelectPageState extends State<PaymentSelectPage> {
               width: 24.w,
               height: 24.h,
                 shape: BoxShape.circle,
-                bordersColor: isSelected ? Colors.black : Colors.grey.shade400,
+                bordersColor: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade400,
                 borderWidth: isSelected ? 2 : 1,
-                color: isSelected ? Colors.black : Colors.transparent,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               child: isSelected
                   ? Icon(
                 Icons.circle,

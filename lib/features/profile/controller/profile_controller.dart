@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +8,7 @@ import 'package:pler_to_pler_app/features/authentication/data/data_sources/auth_
 import 'package:pler_to_pler_app/features/authentication/data/models/user_model.dart';
 
 /// Profile Controller - Manages profile state and data using GetX
-/// 
+///
 /// Features:
 /// - Load profile from cache first (instant load)
 /// - Refresh from API in background
@@ -59,7 +60,7 @@ class ProfileController extends GetxController {
   Future<void> loadProfile() async {
     _isLoading.value = true;
     _errorMessage.value = '';
-    
+
     try {
       // Try to load from cache first (fast)
       final cachedData = await HiveCacheHelper.getWithExpiration<Map<String, dynamic>>(
@@ -70,7 +71,7 @@ class ProfileController extends GetxController {
         _currentUser.value = UserModel.fromJson(cachedData);
         _hasLoadedInitialData.value = true;
         _isLoading.value = false;
-        
+
         // Refresh from API in background
         _refreshFromApi();
         return;
@@ -93,7 +94,7 @@ class ProfileController extends GetxController {
       _hasLoadedInitialData.value = true;
       _isLoading.value = false;
       _errorMessage.value = '';
-      
+
       // Save to local storage as well
       await _localDataSource.saveUserData(user.toJson());
     } catch (e) {
@@ -107,9 +108,9 @@ class ProfileController extends GetxController {
   Future<void> refreshProfile() async {
     _isLoading.value = true;
     _errorMessage.value = '';
-    
+
     await _refreshFromApi();
-    
+
     if (_errorMessage.value.isEmpty) {
       Get.snackbar(
         'Success',
@@ -143,10 +144,10 @@ class ProfileController extends GetxController {
       _currentUser.value = updatedUser;
       _errorMessage.value = '';
       _isLoading.value = false;
-      
+
       // Save to local storage
       await _localDataSource.saveUserData(updatedUser.toJson());
-      
+
       _showSuccessSnackbar('Profile updated successfully');
       return true;
     } catch (e) {
@@ -165,20 +166,20 @@ class ProfileController extends GetxController {
     try {
       // Upload file to server (implement based on your API)
       // For now, we'll simulate with a local file path
-      
+
       // TODO: Implement actual file upload to your server
       // Example: final uploadedUrl = await _uploadFileToServer(imageFile);
-      
+
       final updatedUser = await _remoteDataSource.updateProfile(
         profilePicture: imageFile.path, // Replace with actual URL after upload
       );
 
       _currentUser.value = updatedUser;
       _isUploading.value = false;
-      
+
       // Save to local storage
       await _localDataSource.saveUserData(updatedUser.toJson());
-      
+
       _showSuccessSnackbar('Profile picture updated successfully');
       return true;
     } catch (e) {
@@ -296,11 +297,11 @@ class ProfileController extends GetxController {
         .where((day) => day['isAvailable'] == true)
         .map((day) => day['day'] as String)
         .toList();
-    
+
     if (availableDays.isEmpty) {
       return 'Not available';
     }
-    
+
     return availableDays.join(', ');
   }
 
@@ -359,11 +360,11 @@ class ProfileController extends GetxController {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: available
-                              ? const Color(0xFFF57C1F)
+                              ? BrandColors.of(context).primary
                               : Colors.grey.shade100,
                           border: Border.all(
                             color: available
-                                ? const Color(0xFFF57C1F)
+                                ? BrandColors.of(context).primary
                                 : Colors.grey.shade300,
                           ),
                         ),
@@ -384,7 +385,7 @@ class ProfileController extends GetxController {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF57C1F),
+                  backgroundColor: BrandColors.of(context).primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
@@ -407,11 +408,11 @@ class ProfileController extends GetxController {
   /// Save availability to server
   Future<bool> saveAvailability() async {
     _isLoading.value = true;
-    
+
     try {
       // TODO: Implement API call to save availability
       // Example: await _remoteDataSource.updateAvailability(availabilityDays);
-      
+
       _isLoading.value = false;
       _showSuccessSnackbar('Availability updated successfully');
       return true;
@@ -438,12 +439,12 @@ class ProfileController extends GetxController {
     if (name.isEmpty) {
       return 'U';
     }
-    
+
     final parts = name.split(' ');
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    
+
     return name.substring(0, 1).toUpperCase();
   }
 

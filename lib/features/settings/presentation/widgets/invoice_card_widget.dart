@@ -49,7 +49,7 @@ class InvoiceCardWidget extends StatelessWidget {
                   radiusAll: 99.r,
                   paddingVertical: 2.h,
                   paddingHorizontal: 10.w,
-                  color: isReceived ? AppColors.success : AppColors.primary,
+                  color: isReceived ? AppColors.success : Theme.of(context).colorScheme.primary,
                   child: Row(
                     children: [
                       isReceived

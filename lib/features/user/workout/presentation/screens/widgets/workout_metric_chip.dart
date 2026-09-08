@@ -15,7 +15,7 @@ class WorkoutMetricChip extends StatelessWidget {
       paddingHorizontal: 10.w,
       paddingVertical: 7.h,
       radiusAll: 10.r,
-      color: AppColors.backgroundLight,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: CustomText(
         text: label,
         fontSize: 12.sp,

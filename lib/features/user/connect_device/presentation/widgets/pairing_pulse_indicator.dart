@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class PairingPulseIndicator extends StatefulWidget {
@@ -56,11 +55,11 @@ class _PairingPulseIndicatorState extends State<PairingPulseIndicator>
         child: CustomContainer(
           shape: BoxShape.circle,
           paddingAll: 22.r,
-          color: AppColors.primary.withValues(alpha: 0.12),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
           child: Icon(
             Icons.bluetooth_searching,
             size: 36.r,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),
@@ -86,7 +85,7 @@ class _PulseRing extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.primary.withValues(alpha: opacity),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: opacity),
             width: 2,
           ),
         ),

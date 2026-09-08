@@ -1,3 +1,10 @@
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/legacy_kmf_configuration.dart';
+import 'dart:async';
+import '../widgets/tenant_image.dart';
+import '../../data/services/enterprise_service.dart';
+import '../../data/models/tenant_configuration.dart';
+import 'enterprise_session_screen.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +27,7 @@ class GymsScreen extends StatefulWidget {
 }
 
 class _GymsScreenState extends State<GymsScreen> {
-  static const _kOrange = Color(0xFFFD7B00);
+
   static const _filters = [
     'All Types',
     'HIIT',
@@ -38,16 +45,57 @@ class _GymsScreenState extends State<GymsScreen> {
   String _activeFilter = 'All Types';
   String _searchQuery = '';
   bool _locationLoading = false;
-  List<EnterpriseGymModel> _sortedGyms = List.from(EnterpriseGymModel.partners);
+  List<EnterpriseGymModel> _sortedGyms = [];
+  Timer? _searchDebounce;
+  int _requestVersion = 0;
+  String? _cursor, _directoryError;
+  bool _directoryLoading = false;
+  Future<void> _loadDirectory({bool refresh = false}) async {
+    if (_directoryLoading && !refresh) return;
+    final version = ++_requestVersion;
+    setState(() {
+      _directoryLoading = true;
+      _directoryError = null;
+      if (refresh) {
+        _cursor = null;
+        _sortedGyms = [];
+      }
+    });
+    try {
+      final page = isSingleMode
+          ? const EnterprisePage([legacyKmfConfiguration], null)
+          : await EnterpriseService.instance.directory(
+              cursor: _cursor,
+              query: _searchQuery,
+              tag: _activeFilter == 'All Types' ? null : _activeFilter,
+            );
+      final gyms = page.items
+          .map((e) => TenantConfiguration.fromJson(e).toGym())
+          .toList();
+      if (mounted && version == _requestVersion)
+        setState(() {
+          _sortedGyms.addAll(gyms);
+          _cursor = page.nextCursor;
+        });
+    } catch (e) {
+      if (mounted && version == _requestVersion)
+        setState(() => _directoryError = e.toString());
+    } finally {
+      if (mounted && version == _requestVersion)
+        setState(() => _directoryLoading = false);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadDirectory();
     _detectLocationSilently();
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -60,7 +108,7 @@ class _GymsScreenState extends State<GymsScreen> {
     if (position != null && mounted) {
       setState(() {
         _sortedGyms = _locationService.sortByDistance(
-          List.from(EnterpriseGymModel.partners),
+          List.from(_sortedGyms),
           position,
         );
       });
@@ -74,7 +122,7 @@ class _GymsScreenState extends State<GymsScreen> {
       if (!mounted) return;
       setState(() {
         _sortedGyms = _locationService.sortByDistance(
-          List.from(EnterpriseGymModel.partners),
+          List.from(_sortedGyms),
           position,
         );
       });
@@ -192,10 +240,11 @@ class _GymsScreenState extends State<GymsScreen> {
                     ),
                   ),
                   trailing: _activeFilter == filter
-                      ? const Icon(Icons.check_rounded, color: _kOrange)
+                      ? Icon(Icons.check_rounded, color: Theme.of(context).colorScheme.primary)
                       : null,
                   onTap: () {
                     setState(() => _activeFilter = filter);
+                    _loadDirectory(refresh: true);
                     Navigator.pop(sheetContext);
                   },
                 ),
@@ -212,14 +261,15 @@ class _GymsScreenState extends State<GymsScreen> {
   List<EnterpriseGymModel> get _displayedGyms {
     return _sortedGyms.where((g) {
       final q = _searchQuery.toLowerCase();
-      final matchSearch = q.isEmpty ||
+      final matchSearch =
+          q.isEmpty ||
           g.name.toLowerCase().contains(q) ||
           g.category.toLowerCase().contains(q) ||
           g.city.toLowerCase().contains(q) ||
-           g.zipCode.contains(q) ||
-           g.address.toLowerCase().contains(q);
-      final matchFilter = _activeFilter == 'All Types' ||
-          g.filterTags.contains(_activeFilter);
+          g.zipCode.contains(q) ||
+          g.address.toLowerCase().contains(q);
+      final matchFilter =
+          _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
     }).toList();
   }
@@ -228,12 +278,8 @@ class _GymsScreenState extends State<GymsScreen> {
     final all = _displayedGyms;
     // Own gyms first, then founder-pinned partners, then the top results.
     final own = all.where((g) => g.isOwnGym).toList();
-    final pinned =
-        all.where((g) => !g.isOwnGym && g.isPinned).toList();
-    final rest = all
-        .where((g) => !g.isOwnGym && !g.isPinned)
-        .take(5)
-        .toList();
+    final pinned = all.where((g) => !g.isOwnGym && g.isPinned).toList();
+    final rest = all.where((g) => !g.isOwnGym && !g.isPinned).take(5).toList();
     return [...own, ...pinned, ...rest];
   }
 
@@ -242,14 +288,42 @@ class _GymsScreenState extends State<GymsScreen> {
   @override
   Widget build(BuildContext context) {
     final displayed = _displayedGyms;
-    final total = EnterpriseGymModel.partners.length;
+    final total = _sortedGyms.length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  if (!isSingleMode)
+                    TextButton.icon(
+                      onPressed: () =>
+                          Get.to(() => const EnterpriseMembershipScreen()),
+                      icon: const Icon(Icons.swap_horiz),
+                      label: const Text('My gyms & invitations'),
+                    ),
+                  if (_directoryLoading) const LinearProgressIndicator(),
+                  if (_directoryError != null) Text(_directoryError!),
+                  TextButton(
+                    onPressed: _directoryLoading
+                        ? null
+                        : () => _loadDirectory(refresh: true),
+                    child: const Text('Refresh gyms'),
+                  ),
+                  if (_cursor != null)
+                    TextButton(
+                      onPressed: _directoryLoading
+                          ? null
+                          : () => _loadDirectory(),
+                      child: const Text('Load more gyms'),
+                    ),
+                ],
+              ),
+            ),
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,8 +394,7 @@ class _GymsScreenState extends State<GymsScreen> {
           GestureDetector(
             onTap: _onNearMeTapped,
             child: Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
@@ -342,11 +415,14 @@ class _GymsScreenState extends State<GymsScreen> {
                           height: 14.r,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: _kOrange,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         )
-                      : Icon(Icons.location_on_rounded,
-                          color: _kOrange, size: 16.sp),
+                      : Icon(
+                          Icons.location_on_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 16.sp,
+                        ),
                   SizedBox(width: 5.w),
                   Text(
                     'Near Me',
@@ -388,22 +464,39 @@ class _GymsScreenState extends State<GymsScreen> {
               ),
               child: TextField(
                 controller: _searchController,
-                onChanged: (v) => setState(() => _searchQuery = v.trim()),
+                onChanged: (v) {
+                  setState(() => _searchQuery = v.trim());
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(
+                    const Duration(milliseconds: 300),
+                    () => _loadDirectory(refresh: true),
+                  );
+                },
                 onSubmitted: (v) {
-                  if (v.trim().isNotEmpty) _openNearGymMap(addressQuery: v.trim());
+                  if (v.trim().isNotEmpty)
+                    _openNearGymMap(addressQuery: v.trim());
                 },
                 style: TextStyle(fontSize: 13.sp, color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'City, zip, or gym name…',
                   hintStyle: TextStyle(color: Colors.black38, fontSize: 13.sp),
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.black38, size: 18.sp),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: Colors.black38,
+                    size: 18.sp,
+                  ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
                           onTap: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
+                            _loadDirectory(refresh: true);
                           },
-                          child: Icon(Icons.close_rounded, color: Colors.black38, size: 16.sp),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: Colors.black38,
+                            size: 16.sp,
+                          ),
                         )
                       : null,
                   border: InputBorder.none,
@@ -420,11 +513,11 @@ class _GymsScreenState extends State<GymsScreen> {
               height: 48.h,
               padding: EdgeInsets.symmetric(horizontal: 14.w),
               decoration: BoxDecoration(
-                color: _kOrange,
+                color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(14.r),
                 boxShadow: [
                   BoxShadow(
-                    color: _kOrange.withOpacity(0.35),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.35),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -466,36 +559,42 @@ class _GymsScreenState extends State<GymsScreen> {
             return GestureDetector(
               onTap: _showFilterSheet,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30.r),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 6),
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 6,
+                    ),
                   ],
                 ),
-                child: Icon(Icons.tune_rounded,
-                    size: 16.sp, color: Colors.black54),
+                child: Icon(
+                  Icons.tune_rounded,
+                  size: 16.sp,
+                  color: Colors.black54,
+                ),
               ),
             );
           }
           final label = _filters[i];
           final active = _activeFilter == label;
           return GestureDetector(
-            onTap: () => setState(() => _activeFilter = label),
+            onTap: () {
+              setState(() => _activeFilter = label);
+              _loadDirectory(refresh: true);
+            },
             child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 14.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: active ? _kOrange : Colors.white,
+                color: active ? Theme.of(context).colorScheme.primary : Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 6),
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 6,
+                  ),
                 ],
               ),
               child: Text(
@@ -521,8 +620,7 @@ class _GymsScreenState extends State<GymsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-              EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
           child: Row(
             children: [
               Text(
@@ -534,28 +632,28 @@ class _GymsScreenState extends State<GymsScreen> {
                 ),
               ),
               const Spacer(),
-               GestureDetector(
-                 onTap: () {
-                   setState(() {
-                     _activeFilter = 'All Types';
-                     _searchQuery = '';
-                     _searchController.clear();
-                   });
-                   _scrollController.animateTo(
-                     500.h,
-                     duration: const Duration(milliseconds: 350),
-                     curve: Curves.easeOutCubic,
-                   );
-                 },
-                 child: Text(
-                   'See all',
-                   style: TextStyle(
-                     fontSize: 12.sp,
-                     color: _kOrange,
-                     fontWeight: FontWeight.w400,
-                   ),
-                 ),
-               ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _activeFilter = 'All Types';
+                    _searchQuery = '';
+                    _searchController.clear();
+                  });
+                  _scrollController.animateTo(
+                    500.h,
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeOutCubic,
+                  );
+                },
+                child: Text(
+                  'See all',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -590,8 +688,7 @@ class _GymsScreenState extends State<GymsScreen> {
           ),
           const Spacer(),
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
             decoration: BoxDecoration(
               color: const Color(0xFFF2F3F5),
               borderRadius: BorderRadius.circular(20.r),
@@ -599,9 +696,10 @@ class _GymsScreenState extends State<GymsScreen> {
             child: Text(
               '$shown / $total gyms',
               style: TextStyle(
-                  fontSize: 11.sp,
-                  color: Colors.black45,
-                  fontWeight: FontWeight.w400),
+                fontSize: 11.sp,
+                color: Colors.black45,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
@@ -616,18 +714,21 @@ class _GymsScreenState extends State<GymsScreen> {
       padding: EdgeInsets.all(40.r),
       child: Column(
         children: [
-          Icon(Icons.search_off_rounded,
-              size: 48.sp, color: Colors.black26),
+          Icon(Icons.search_off_rounded, size: 48.sp, color: Colors.black26),
           SizedBox(height: 12.h),
-          Text('No gyms found',
-              style: TextStyle(
-                  fontSize: 15.sp,
-                  color: Colors.black38,
-                  fontWeight: FontWeight.w500)),
+          Text(
+            'No gyms found',
+            style: TextStyle(
+              fontSize: 15.sp,
+              color: Colors.black38,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           SizedBox(height: 6.h),
-          Text('Try a different search or filter',
-              style:
-                  TextStyle(fontSize: 13.sp, color: Colors.black26)),
+          Text(
+            'Try a different search or filter',
+            style: TextStyle(fontSize: 13.sp, color: Colors.black26),
+          ),
         ],
       ),
     );
@@ -658,7 +759,8 @@ class _GymDetailSheet extends StatelessWidget {
           // Handle
           Center(
             child: Container(
-              width: 36.w, height: 4.h,
+              width: 36.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: const Color(0xFFE0E0E0),
                 borderRadius: BorderRadius.circular(2.r),
@@ -670,20 +772,27 @@ class _GymDetailSheet extends StatelessWidget {
           // Gym brand row
           Row(
             children: [
-              GymBrandLogo(
-                gym: gym,
-                size: 44.r,
-                borderRadius: 10.r,
-              ),
+              GymBrandLogo(gym: gym, size: 44.r, borderRadius: 10.r),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(gym.name,
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black)),
-                    Text(gym.category,
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500)),
+                    Text(
+                      gym.name,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      gym.category,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                     if (gym.address.isNotEmpty)
                       Text(
                         gym.address,
@@ -708,8 +817,13 @@ class _GymDetailSheet extends StatelessWidget {
                 ),
               ),
               if (gym.address.isEmpty && gym.city.isNotEmpty)
-                Text(gym.city,
-                    style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
+                Text(
+                  gym.city,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
             ],
           ),
 
@@ -733,7 +847,7 @@ class _GymDetailSheet extends StatelessWidget {
                 separatorBuilder: (_, __) => SizedBox(width: 8.w),
                 itemBuilder: (_, index) => ClipRRect(
                   borderRadius: BorderRadius.circular(12.r),
-                  child: Image.asset(
+                  child: TenantImage(
                     gym.galleryAssetPaths[index],
                     width: 156.w,
                     height: 112.h,
@@ -751,14 +865,18 @@ class _GymDetailSheet extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF8F0),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: const Color(0xFFFFD9A8), width: 1),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25), width: 1),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 15.sp, color: const Color(0xFFFD7B00)),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 15.sp,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
@@ -766,7 +884,7 @@ class _GymDetailSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF8B4A00),
+                        color: Theme.of(context).colorScheme.primary,
                         height: 1.4,
                       ),
                     ),
@@ -784,7 +902,7 @@ class _GymDetailSheet extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 14.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFFD7B00),
+                color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(14.r),
               ),
               alignment: Alignment.center,
@@ -814,7 +932,7 @@ class _GymDetailSheet extends StatelessWidget {
 // ── Top navigation pills ────────────────────────────────────────────────────
 
 class _NavPills extends StatelessWidget {
-  static const _kOrange = Color(0xFFFD7B00);
+
   final VoidCallback onGymsTap;
 
   const _NavPills({required this.onGymsTap});
@@ -826,37 +944,35 @@ class _NavPills extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
-          _pill('Home', Icons.home_outlined, false,
-              () => Get.back()),
-          SizedBox(width: 8.w),
-          _pill('Find trainer', Icons.person_search_outlined, false,
-               () => Get.toNamed(AppRoute.findTrainerScreen)),
+          _pill(context, 'Home', Icons.home_outlined, false, () => Get.back()),
           SizedBox(width: 8.w),
           _pill(
-            'Gyms',
-            Icons.fitness_center_rounded,
-            true,
-            onGymsTap,
+            context,
+            'Find trainer',
+            Icons.person_search_outlined,
+            false,
+            () => Get.toNamed(AppRoute.findTrainerScreen),
           ),
+          SizedBox(width: 8.w),
+          _pill(context, 'Gyms', Icons.fitness_center_rounded, true, onGymsTap),
         ],
       ),
     );
   }
 
-  Widget _pill(
-      String label, IconData icon, bool active, VoidCallback onTap) {
+  Widget _pill(BuildContext context, String label, IconData icon, bool active, VoidCallback onTap) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
-            color: active ? _kOrange : Colors.white,
+            color: active ? Theme.of(context).colorScheme.primary : Colors.white,
             borderRadius: BorderRadius.circular(30.r),
             boxShadow: [
               BoxShadow(
                 color: active
-                    ? _kOrange.withOpacity(0.3)
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
                     : Colors.black.withOpacity(0.06),
                 blurRadius: active ? 10 : 6,
                 offset: const Offset(0, 3),
@@ -866,9 +982,11 @@ class _NavPills extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon,
-                  size: 14.sp,
-                  color: active ? Colors.white : Colors.black54),
+              Icon(
+                icon,
+                size: 14.sp,
+                color: active ? Colors.white : Colors.black54,
+              ),
               SizedBox(width: 5.w),
               Text(
                 label,

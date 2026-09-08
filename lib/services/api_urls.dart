@@ -1,19 +1,21 @@
+import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+
 class ApiUrls {
   /// ============= base urls ===========>>>
   ///
   /// Override at build time:
   ///   flutter build ipa \
-  ///     --dart-define=API_BASE_URL=https://<production-domain>:8099/api/v1 \
-  ///     --dart-define=SOCKET_URL=https://<production-domain>:8099
+  ///     --dart-define=API_ORIGIN=https://p2pfitechai.com
+  /// API_BASE_URL and SOCKET_URL optionally override the derived endpoints.
   ///
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: "https://fit-tech-ai.replit.app/api/v1",
+    defaultValue: '${ApiConstants.baseUrl}/api/v1',
   );
   static const String imageBaseUrl = "$baseUrl/";
   static const String socketUrl = String.fromEnvironment(
     'SOCKET_URL',
-    defaultValue: "https://fit-tech-ai.replit.app",
+    defaultValue: ApiConstants.baseUrl,
   );
 
   /// ============= all urls ===========>>>
@@ -33,7 +35,7 @@ class ApiUrls {
   static const String userPost = '/user-posts';
 
   /// Terms of Service — live page on the P2P website
-  static const String termsOfService = 'https://fit-tech-ai.replit.app/p2p-website/terms';
+  static const String termsOfService = '${ApiConstants.baseUrl}/p2p-website/terms';
 
   /// ============= workout goals / AI plan ===========>>>
   static const String workoutCreate = '/workout';

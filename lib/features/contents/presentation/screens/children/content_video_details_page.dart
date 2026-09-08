@@ -51,9 +51,9 @@ class ContentVideoDetailsPage extends StatelessWidget {
                   SizedBox(
                     width: 14.r,
                     height: 14.r,
-                    child: const CircularProgressIndicator(
+                    child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   SizedBox(width: 8.w),

@@ -41,14 +41,14 @@ class NavFabWidget {
                 child: GestureDetector(
                   onTap: Get.back,
                   child: CustomContainer(
-                    color: TenantBrandService.to.isKmf
+                    color: TenantBrandService.to.isWhiteLabeled
                         ? TenantBrandService.to.primaryColor
                         : Colors.white,
                     shape: BoxShape.circle,
                     paddingAll: 11.r,
                     child: Icon(
                       Icons.clear,
-                      color: TenantBrandService.to.isKmf
+                      color: TenantBrandService.to.isWhiteLabeled
                           ? Colors.white
                           : Colors.black,
                     ),
@@ -66,7 +66,7 @@ class NavFabWidget {
     final tenant = TenantBrandService.to;
     return CustomContainer(
       width: 245.w,
-      color: tenant.isKmf ? tenant.primaryColor : Colors.white,
+      color: tenant.isWhiteLabeled ? tenant.primaryColor : Colors.white,
       radiusAll: 12.r,
       paddingAll: 10.r,
       onTap: () {
@@ -80,7 +80,7 @@ class NavFabWidget {
             item.icon,
             width: 24.w,
             height: 24.h,
-            colorFilter: tenant.isKmf
+            colorFilter: tenant.isWhiteLabeled
                 ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
                 : null,
           ),
@@ -90,7 +90,7 @@ class NavFabWidget {
               fontSize: 16.sp,
               fontWeight: AppFontWeight.label,
               text: item.label,
-              color: tenant.isKmf ? Colors.white : null,
+              color: tenant.isWhiteLabeled ? Colors.white : null,
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,7 +45,7 @@ class ChatBubbleMessage extends StatelessWidget {
               Flexible(
                 child: CustomContainer(
                   paddingAll: 10.r,
-                  color: isMe ? const Color(0xffCC7108) : const Color(0xffECECEC),
+                  color: isMe ? BrandColors.of(context).primary : const Color(0xffECECEC),
                   bottomRight: 10.r,
                   bottomLeft: 10.r,
                   topLeftRadius: isMe ? 10.r : 0,

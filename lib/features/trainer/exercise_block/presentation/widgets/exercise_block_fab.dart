@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ExerciseBlockFab extends StatelessWidget {
@@ -20,13 +19,13 @@ class ExerciseBlockFab extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomContainer(
       onTap: onPressed,
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
       radiusAll: 100.r,
       paddingHorizontal: 20.w,
       paddingVertical: 14.h,
       boxShadow: [
         BoxShadow(
-          color: AppColors.primary.withValues(alpha: 0.35),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),

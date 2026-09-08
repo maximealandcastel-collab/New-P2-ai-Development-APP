@@ -7,8 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/subscribe/data/models/find_trainer_model.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
 
-const _kOrange = Color(0xFFFF6B1A);
+
 
 /// Shows an unbiased trainer suggestion with options to retry or browse all.
 /// Plays a 3-step matching animation while fetching a real trainer from the
@@ -77,7 +78,7 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
       final connect = GetConnect();
       final randomPage = _random.nextInt(21) + 1;
       final resp = await connect.get(
-        'https://fit-tech-ai.replit.app/api/v1/trainer'
+        '${ApiUrls.baseUrl}/trainer'
         '?page=$randomPage&limit=50&skipPinned=true',
       );
       if (resp.isOk && resp.body != null) {
@@ -146,12 +147,12 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(colors: [
-                      _kOrange.withOpacity(0.75),
-                      _kOrange.withOpacity(0.18),
+                      Theme.of(context).colorScheme.primary.withOpacity(0.75),
+                      Theme.of(context).colorScheme.primary.withOpacity(0.18),
                     ]),
                     boxShadow: [
                       BoxShadow(
-                        color: _kOrange.withOpacity(0.38),
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.38),
                         blurRadius: 32,
                         spreadRadius: 4,
                       )
@@ -228,13 +229,13 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(vertical: 17.h),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF6B1A), Color(0xFFFF9D5C)],
+                            gradient: LinearGradient(
+                              colors: [Theme.of(context).colorScheme.primary, Color.lerp(Theme.of(context).colorScheme.primary, Colors.white, 0.25)!],
                             ),
                             borderRadius: BorderRadius.circular(16.r),
                             boxShadow: [
                               BoxShadow(
-                                color: _kOrange.withOpacity(0.42),
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.42),
                                 blurRadius: 14,
                                 offset: const Offset(0, 4),
                               )
@@ -267,7 +268,7 @@ class _TrainerMatchScreenState extends State<TrainerMatchScreen>
                             onPressed: () => Get.offNamed(AppRoute.findTrainerScreen),
                             icon: const Icon(Icons.grid_view_rounded),
                             label: const Text('Browse all'),
-                            style: TextButton.styleFrom(foregroundColor: _kOrange),
+                            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
                           ),
                         ],
                       ),
@@ -302,10 +303,10 @@ class _StepRow extends StatelessWidget {
           height: 30.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: done ? _kOrange : Colors.white10,
+            color: done ? Theme.of(context).colorScheme.primary : Colors.white10,
             border: Border.all(
               color: done
-                  ? _kOrange
+                  ? Theme.of(context).colorScheme.primary
                   : active
                       ? Colors.white38
                       : Colors.white12,
@@ -364,7 +365,7 @@ class _TrainerCard extends StatelessWidget {
         color: Colors.white.withOpacity(0.07),
         borderRadius: BorderRadius.circular(22.r),
         border: Border.all(
-            color: _kOrange.withOpacity(0.45), width: 1.5),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.45), width: 1.5),
       ),
       child: Row(
         children: [
@@ -374,14 +375,14 @@ class _TrainerCard extends StatelessWidget {
             height: 68.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: _kOrange, width: 2),
+              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
             ),
             child: ClipOval(
               child: photo != null
                   ? Image.network(photo,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _avatar())
-                  : _avatar(),
+                      errorBuilder: (_, __, ___) => _avatar(context))
+                  : _avatar(context),
             ),
           ),
           SizedBox(width: 16.w),
@@ -401,7 +402,7 @@ class _TrainerCard extends StatelessWidget {
                     padding: EdgeInsets.symmetric(
                         horizontal: 8.w, vertical: 3.h),
                     decoration: BoxDecoration(
-                      color: _kOrange.withOpacity(0.18),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
@@ -411,7 +412,7 @@ class _TrainerCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: AppFontWeight.label,
-                        color: _kOrange,
+                        color: Theme.of(context).colorScheme.primary,
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -429,8 +430,8 @@ class _TrainerCard extends StatelessWidget {
     );
   }
 
-  Widget _avatar() => Container(
-        color: _kOrange.withOpacity(0.25),
+  Widget _avatar(BuildContext context) => Container(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
         child: Icon(Icons.person_rounded,
             color: Colors.white54, size: 34.sp),
       );
@@ -445,7 +446,7 @@ class _FallbackCard extends StatelessWidget {
         color: Colors.white.withOpacity(0.07),
         borderRadius: BorderRadius.circular(22.r),
         border:
-            Border.all(color: _kOrange.withOpacity(0.45), width: 1.5),
+            Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.45), width: 1.5),
       ),
       child: Row(
         children: [
@@ -454,8 +455,8 @@ class _FallbackCard extends StatelessWidget {
             height: 68.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _kOrange.withOpacity(0.25),
-              border: Border.all(color: _kOrange, width: 2),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
             ),
             child: Icon(Icons.fitness_center_rounded,
                 color: Colors.white70, size: 30.sp),

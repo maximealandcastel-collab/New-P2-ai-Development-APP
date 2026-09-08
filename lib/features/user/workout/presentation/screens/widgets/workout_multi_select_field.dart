@@ -2,7 +2,6 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutMultiSelectField extends StatelessWidget {
@@ -43,7 +42,7 @@ class WorkoutMultiSelectField extends StatelessWidget {
               paddingVertical: 12.h,
               radiusAll: 12.r,
               color:  Colors.white,
-              bordersColor: isSelected ? AppColors.primary : Colors.transparent,
+              bordersColor: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               child: CustomText(
                 text: StringFormat.formatLabel(option),
                 fontSize: 16.sp,

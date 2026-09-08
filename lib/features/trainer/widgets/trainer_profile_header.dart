@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class TrainerProfileHeader extends StatelessWidget {
@@ -39,7 +38,7 @@ class TrainerProfileHeader extends StatelessWidget {
                 CustomContainer(
                   shape: BoxShape.circle,
                   paddingAll: 6.r,
-                  bordersColor: AppColors.primary,
+                  bordersColor: Theme.of(context).colorScheme.primary,
                   child: CustomNetworkImage(
                     height: 124.r,
                     width: 124.r,

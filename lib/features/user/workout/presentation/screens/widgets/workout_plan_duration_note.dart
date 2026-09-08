@@ -23,7 +23,7 @@ class WorkoutPlanDurationNote extends StatelessWidget {
           CustomText(
             text: 'Duration in min: ${plan.estimatedDurationMinutes}',
             fontWeight: AppFontWeight.label,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
           ),
           if ((plan.checkInQuestion ?? '').isNotEmpty) ...[
             SizedBox(height: 6.h),

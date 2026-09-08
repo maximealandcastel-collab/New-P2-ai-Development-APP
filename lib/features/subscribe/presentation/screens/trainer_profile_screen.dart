@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
@@ -11,8 +12,8 @@ import 'package:pler_to_pler_app/features/subscribe/presentation/controllers/sub
 import 'package:pler_to_pler_app/features/subscribe/presentation/screens/widgets/trainer_profile_shimmer.dart';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
-const _orange  = Color(0xFFF97316);
-const _bg      = Color(0xFFF9FAFB);
+
+
 
 void _openBookingPaywall(String? trainerID) {
   Get.toNamed(
@@ -76,17 +77,17 @@ class _TrainerProfileScreenState extends State<TrainerProfileScreen>
 
       if (loading) {
         return Scaffold(
-          backgroundColor: _bg,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
-            child: Column(children: TrainerProfileShimmer.contentSlivers()
-                .map((s) => SliverToBoxAdapter(child: s) as Widget)
-                .toList()),
+            child: CustomScrollView(
+              slivers: TrainerProfileShimmer.contentSlivers(),
+            ),
           ),
         );
       }
 
       return Scaffold(
-        backgroundColor: _bg,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         extendBodyBehindAppBar: true,
         body: DefaultTabController(
           length: 3,
@@ -256,7 +257,7 @@ class _TierBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-      decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20.r)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r)),
       child: Text(tier, style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
     );
   }
@@ -270,7 +271,7 @@ class _RatingPill extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20.r)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.star_rounded, color: _orange, size: 14.sp),
+        Icon(Icons.star_rounded, color: Theme.of(context).colorScheme.primary, size: 14.sp),
         SizedBox(width: 3.w),
         Text('4.9', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: Colors.black)),
       ]),
@@ -295,7 +296,7 @@ class _SubBanner extends StatelessWidget {
         children: [
           Container(
             width: 42.w, height: 42.w,
-            decoration: BoxDecoration(color: _orange, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle),
             child: Icon(Icons.check_circle_outline, color: Colors.white, size: 22.sp),
           ),
           SizedBox(width: 12.w),
@@ -307,7 +308,7 @@ class _SubBanner extends StatelessWidget {
                   style: TextStyle(color: Colors.white54, fontSize: 11.sp)),
             ]),
           ),
-          Text('Manage', style: TextStyle(color: _orange, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
+          Text('Manage', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
         ],
       ),
     );
@@ -329,7 +330,7 @@ class _BookBanner extends StatelessWidget {
         children: [
           Container(
             width: 42.w, height: 42.w,
-            decoration: BoxDecoration(color: _orange, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, shape: BoxShape.circle),
             child: Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 20.sp),
           ),
           SizedBox(width: 12.w),
@@ -345,7 +346,7 @@ class _BookBanner extends StatelessWidget {
             onTap: () => _openBookingPaywall(trainerID),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20.r)),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r)),
               child: Text('Book', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
             ),
           ),
@@ -363,7 +364,7 @@ class _StatRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _StatItem('🔥', '7', 'Streak', const Color(0xFFFFF7ED), const Color(0xFFFED7AA)),
+      _StatItem('🔥', '7', 'Streak', BrandColors.of(context).soft, BrandColors.of(context).border),
       _StatItem('📈', '85%', 'Progress', const Color(0xFFF0FDF4), const Color(0xFFBBF7D0)),
       _StatItem('📅', '4/5', 'Sessions', const Color(0xFFEFF6FF), const Color(0xFFBFDBFE)),
       _StatItem('🏆', '120', 'Points', const Color(0xFFFAF5FF), const Color(0xFFE9D5FF)),
@@ -422,7 +423,7 @@ class _ProfileTabBar extends StatelessWidget {
         unselectedLabelColor: const Color(0xFF9CA3AF),
         labelStyle: TextStyle(fontWeight: AppFontWeight.label, fontSize: 14.sp),
         unselectedLabelStyle: TextStyle(fontWeight: AppFontWeight.emphasis, fontSize: 14.sp),
-        indicatorColor: _orange,
+        indicatorColor: Theme.of(context).colorScheme.primary,
         indicatorWeight: 2.5,
         indicatorSize: TabBarIndicatorSize.label,
         tabs: const [Tab(text: 'Overview'), Tab(text: 'Programs'), Tab(text: 'Reviews')],
@@ -467,7 +468,7 @@ class _OverviewTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _SectionTitle("This Week's Plan"),
-            Text('View All >', style: TextStyle(fontSize: 13.sp, color: _orange, fontWeight: AppFontWeight.label)),
+            Text('View All >', style: TextStyle(fontSize: 13.sp, color: Theme.of(context).colorScheme.primary, fontWeight: AppFontWeight.label)),
           ],
         ),
         SizedBox(height: 10.h),
@@ -495,7 +496,7 @@ class _OverviewTab extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
                   child: Row(children: [
-                    Icon(Icons.check_circle_outline, color: _orange, size: 18.sp),
+                    Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.primary, size: 18.sp),
                     SizedBox(width: 10.w),
                     Expanded(child: Text(e.value, style: TextStyle(fontSize: 13.sp, color: Colors.black))),
                   ]),
@@ -528,11 +529,11 @@ class _TagChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
       decoration: BoxDecoration(
-        color: _orange.withValues(alpha: 0.08),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: _orange.withValues(alpha: 0.25)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25)),
       ),
-      child: Text(label, style: TextStyle(fontSize: 12.sp, color: _orange, fontWeight: AppFontWeight.label)),
+      child: Text(label, style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.primary, fontWeight: AppFontWeight.label)),
     );
   }
 }
@@ -620,12 +621,12 @@ class _SessionRow extends StatelessWidget {
           Container(
             width: 48.w, height: 48.w,
             decoration: BoxDecoration(
-              color: _orange.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(day, style: TextStyle(color: _orange, fontSize: 9.sp, fontWeight: AppFontWeight.label)),
-              Text(date, style: TextStyle(color: _orange, fontSize: 18.sp, fontWeight: AppFontWeight.stat)),
+              Text(day, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 9.sp, fontWeight: AppFontWeight.label)),
+              Text(date, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 18.sp, fontWeight: AppFontWeight.stat)),
             ]),
           ),
           SizedBox(width: 14.w),
@@ -681,7 +682,7 @@ class _ProgramCard extends StatelessWidget {
               color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(10.r),
             ),
-            child: Icon(Icons.fitness_center_rounded, color: _orange, size: 24.sp),
+            child: Icon(Icons.fitness_center_rounded, color: Theme.of(context).colorScheme.primary, size: 24.sp),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -695,7 +696,7 @@ class _ProgramCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     backgroundColor: const Color(0xFFE5E7EB),
-                    valueColor: AlwaysStoppedAnimation(_orange),
+                    valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                     minHeight: 4.h,
                   ),
                 ),
@@ -726,7 +727,7 @@ class _ProgramCard extends StatelessWidget {
                     snackPosition: SnackPosition.BOTTOM,
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _orange,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
                     padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
@@ -797,7 +798,13 @@ class _BottomBar extends StatelessWidget {
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.videocam_rounded, color: Colors.white, size: 18.sp),
                   SizedBox(width: 8.w),
-                  Text('Book Live Session', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 15.sp)),
+                  Flexible(
+                    child: Text(
+                      'Book Live Session',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 15.sp),
+                    ),
+                  ),
                 ]),
               ),
             ),
@@ -812,7 +819,7 @@ class _BottomBar extends StatelessWidget {
                 )),
             child: Container(
               width: 52.r, height: 52.r,
-              decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(16.r)),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(16.r)),
               child: Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 22.sp),
             ),
           ),

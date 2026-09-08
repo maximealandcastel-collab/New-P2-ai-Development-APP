@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +81,8 @@ class SubscriptionPricePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 16.h),
-              Assets.icons.trainerSubIcons.svg(),
+              Assets.icons.trainerSubIcons.svg(
+              colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary), ),
               SizedBox(height: 16.h),
             ],
           ),

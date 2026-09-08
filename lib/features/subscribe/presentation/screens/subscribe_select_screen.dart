@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -54,7 +55,7 @@ class SubscribeSelectScreen extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  style: TextStyle(color: AppColors.primary),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   text: 'Full Potential',
                 ),
               ],
@@ -71,7 +72,8 @@ class SubscribeSelectScreen extends StatelessWidget {
         SizedBox(height: 24.h).asSliver,
         Obx(
           () => SubscribeOptionCard(
-            icon: Assets.icons.defultTrainer.svg(),
+            icon: Assets.icons.defultTrainer.svg(
+            colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary), ),
             title: 'Use app default trainer',
             price: '\$19.99',
             features: const [
@@ -89,7 +91,8 @@ class SubscribeSelectScreen extends StatelessWidget {
         SizedBox(height: 14.h).asSliver,
         Obx(
           () => SubscribeOptionCard(
-            icon: Assets.icons.personalTrainer.svg(),
+            icon: Assets.icons.personalTrainer.svg(
+            colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary), ),
             title: 'Choose personal trainer',
             price: 'Custom',
             features: const [
@@ -135,7 +138,7 @@ class SubscribeSelectScreen extends StatelessWidget {
                 TextSpan(
                   text: 'Terms of Service',
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: AppFontWeight.label,
                   ),
                 ),

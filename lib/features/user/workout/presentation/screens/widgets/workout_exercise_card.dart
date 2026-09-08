@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,7 +53,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                   textAlign: TextAlign.start,
                   text: exercise.exerciseName ?? '',
                   fontSize: 18.sp,
-                  color: const Color(0xff6A3400),
+                  color: BrandColors.of(context).dark,
                   fontWeight: AppFontWeight.section,
                 ),
               ),
@@ -186,9 +187,9 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
         () => CustomDialog(
           title: 'Mark Completed',
           description: 'Mark "$exerciseName" as completed?',
-          titleColor: AppColors.primary,
+          titleColor: Theme.of(context).colorScheme.primary,
           rightButtonLabel: 'Confirm',
-          rightButtonBgColor: AppColors.primary,
+          rightButtonBgColor: Theme.of(context).colorScheme.primary,
           rightButtonLabelColor: AppColors.textWhite,
           isLoading: controller.completeExerciseLoadingState.isLoading,
           onTapLeftButton: () => Get.back(),
@@ -229,7 +230,7 @@ class _WorkoutExerciseCardState extends State<WorkoutExerciseCard> {
                   CustomText(
                     text: 'Tip: ${entry.value.tip!}',
                     fontSize: 11.sp,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: AppFontWeight.label,
                     textAlign: TextAlign.start,
                   ),

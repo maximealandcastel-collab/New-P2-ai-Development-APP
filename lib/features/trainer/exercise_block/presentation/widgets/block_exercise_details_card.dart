@@ -43,7 +43,7 @@ class _BlockExerciseDetailsCardState extends State<BlockExerciseDetailsCard> {
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: _isExpanded
-                ? AppColors.primary.withValues(alpha: 0.1)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                 : AppColors.colorE6E6E6,
           ),
         ),

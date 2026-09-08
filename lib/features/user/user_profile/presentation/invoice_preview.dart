@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/data/invoice_models.dart';
@@ -39,7 +40,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -66,7 +67,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                           Container(
                             height: 5.h,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF7A00),
+                              color: BrandColors.of(context).primary,
                               borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
                             ),
                           ),
@@ -226,7 +227,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                         width: double.infinity,
                         height: 52.h,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7A00),
+                          color: BrandColors.of(context).primary,
                           borderRadius: BorderRadius.circular(14.r),
                         ),
                         child: Row(

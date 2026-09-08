@@ -9,7 +9,6 @@ class GymListTile extends StatelessWidget {
   final EnterpriseGymModel gym;
   const GymListTile({super.key, required this.gym});
 
-  static const _kOrange = Color(0xFFFD7B00);
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +62,12 @@ class GymListTile extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 7.w, vertical: 3.h),
                           decoration: BoxDecoration(
-                            color: _kOrange.withOpacity(0.12),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                             child: Text('Your Gym',
                               style: TextStyle(
-                                  color: _kOrange,
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontSize: 8.sp,
                                   fontWeight: FontWeight.w500)),
                         ),
@@ -148,7 +147,7 @@ class GymListTile extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.w, vertical: 8.h),
                           decoration: BoxDecoration(
-                            color: _kOrange,
+                            color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           child: Text(

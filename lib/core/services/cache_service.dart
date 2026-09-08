@@ -23,7 +23,7 @@ class CacheService {
 
   Future<void> put(String key, dynamic value) async {
     await box.put(key, value);
-    debugPrint('Saved to cache: ----------------------->>>  $key: $value');
+    debugPrint('Saved cache key: $key');
   }
 
   // T? get<T>(String key, {T? defaultValue}) {
@@ -52,7 +52,9 @@ class CacheService {
   Map<String, dynamic> _deepCastMap(dynamic value) {
     if (value is Map) {
       return value.map((k, v) {
-        final castedValue = v is Map ? _deepCastMap(v) : (v is List ? _deepCastList(v) : v);
+        final castedValue = v is Map
+            ? _deepCastMap(v)
+            : (v is List ? _deepCastList(v) : v);
         return MapEntry(k.toString(), castedValue);
       });
     }
@@ -62,8 +64,6 @@ class CacheService {
   List<dynamic> _deepCastList(List value) {
     return value.map((e) => e is Map ? _deepCastMap(e) : e).toList();
   }
-
-
 
   bool containsKey(String key) {
     return box.containsKey(key);

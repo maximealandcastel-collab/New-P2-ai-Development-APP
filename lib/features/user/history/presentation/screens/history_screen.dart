@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/screens/widgets/history_card.dart';
@@ -18,8 +17,8 @@ class HistoryScreen extends StatelessWidget {
     final controller = HistoryController.to;
 
     return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.backgroundLight,
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       onRefresh: controller.refresh,
       edgeOffset: MediaQuery.heightOf(context) * 0.2,
       child: CustomScrollView(
@@ -42,16 +41,19 @@ class HistoryScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         _buildTabItem(
+                          context,
                           controller: controller,
                           label: 'All',
                           index: 0,
                         ),
                         _buildTabItem(
+                          context,
                           controller: controller,
                           label: 'Pending',
                           index: 1,
                         ),
                         _buildTabItem(
+                          context,
                           controller: controller,
                           label: 'Complete',
                           index: 2,
@@ -115,7 +117,7 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTabItem({
+  Widget _buildTabItem(BuildContext context, {
     required HistoryController controller,
     required String label,
     required int index,
@@ -128,13 +130,13 @@ class HistoryScreen extends StatelessWidget {
         child: CustomContainer(
           radiusAll: 12.r,
           paddingVertical: 12.h,
-          color: isSelected ? Colors.black : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
           alignment: Alignment.center,
           child: CustomText(
             text: label,
             fontSize: 14.sp,
             fontWeight: AppFontWeight.label,
-            color: isSelected ? Colors.white : Colors.grey,
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
           ),
         ),
       ),

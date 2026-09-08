@@ -45,6 +45,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
                   .entries
                   .map(
                     (entry) => _buildTimedStepRow(
+                      context,
                       index: entry.key + 1,
                       step: entry.value,
                       isLast: entry.key == sortedSteps.length - 1,
@@ -58,7 +59,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
     );
   }
 
-  Widget _buildTimedStepRow({
+  Widget _buildTimedStepRow(BuildContext context, {
     required int index,
     required WorkoutPlanStepModel step,
     required bool isLast,
@@ -91,7 +92,7 @@ class WorkoutTimedStepSection extends StatelessWidget {
                       TextSpan(text: '${step.instruction ?? ''} — '),
                       TextSpan(
                         text: step.duration ?? '',
-                        style: const TextStyle(color: AppColors.primary),
+                        style: TextStyle(color: Theme.of(context).colorScheme.primary),
                       ),
                     ],
                   ),

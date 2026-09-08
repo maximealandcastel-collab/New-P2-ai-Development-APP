@@ -90,7 +90,7 @@ class MuscleGroupPickerField extends StatelessWidget {
                 Icon(
                   Icons.check,
                   size: 18.sp,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
             ],
           ),

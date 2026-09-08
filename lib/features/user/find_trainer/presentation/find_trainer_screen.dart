@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -166,7 +167,7 @@ class _FindTrainerScreenState extends State<FindTrainerScreen> {
         });
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F2F2),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -395,7 +396,7 @@ class _FilterTabs extends StatelessWidget {
               margin: EdgeInsets.only(right: 8.w),
               padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 7.h),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.black : Colors.white,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
                 borderRadius: BorderRadius.circular(20.r),
                 boxShadow: isSelected
                     ? []
@@ -406,7 +407,7 @@ class _FilterTabs extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black54,
+                  color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black54,
                 ),
               ),
             ),
@@ -808,7 +809,7 @@ class _TrainerProfileSheet extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onRequest,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF7A00),
+                  backgroundColor: BrandColors.of(context).primary,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
@@ -1073,7 +1074,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
                     width: double.infinity,
                     height: 52.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF7A00),
+                      color: BrandColors.of(context).primary,
                       borderRadius: BorderRadius.circular(14.r),
                     ),
                     alignment: Alignment.center,

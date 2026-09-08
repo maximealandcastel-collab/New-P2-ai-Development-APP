@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -66,7 +67,8 @@ class CategoryScreen extends StatelessWidget {
           CategoryController.to.clearForm();
           Get.toNamed(AppRoute.createCategoryScreen);
         },
-        icon: Assets.icons.addButton.svg(height: 57.r, width: 57.r),
+        icon: Assets.icons.addButton.svg(
+      colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary), height: 57.r, width: 57.r),
       ),
     );
   }

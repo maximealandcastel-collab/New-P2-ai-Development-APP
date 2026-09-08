@@ -94,7 +94,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(onTap: () => Get.back(), child: const CustomText(text: 'Cancel',color: AppColors.primary,)),
+          GestureDetector(onTap: () => Get.back(), child: CustomText(text: 'Cancel',color: Theme.of(context).colorScheme.primary,)),
           GestureDetector(onTap: () => Get.back(), child:  CustomText(text: 'Done',color : AppColors.textPrimary)),
         ],
       ),
@@ -191,7 +191,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
           child: CustomButton(
             onPressed: _addExerciseBlock,
             label: "Add exercise block",
-            backgroundColor: AppColors.primary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
           ),
         ),

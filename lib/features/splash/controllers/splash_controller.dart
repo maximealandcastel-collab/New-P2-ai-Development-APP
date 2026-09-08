@@ -1,3 +1,8 @@
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_admin_dashboard_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_session_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,8 +15,8 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
-class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
-
+class SplashController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   static SplashController get to => Get.find();
 
   late AnimationController animationController;
@@ -69,7 +74,11 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     if (!privacyAccepted) {
       Get.offAllNamed(
         AppRoute.privacyPolicyScreen,
-        arguments: {'title': 'Privacy Policy & Terms', 'key': 'privacy', 'consent': true},
+        arguments: {
+          'title': 'Privacy Policy & Terms',
+          'key': 'privacy',
+          'consent': true,
+        },
       );
       return;
     }
@@ -95,6 +104,29 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
       // If prefs fail, fall through and allow the restored session.
     }
 
+    if (!isSingleMode) {
+      try {
+        await EnterpriseService.instance.restore();
+        if (EnterpriseService.instance.active.value != null) {
+          Get.offAll(() => const EnterpriseSessionScreen());
+          return;
+        }
+      } catch (_) {
+        Get.offAll(() => const EnterpriseSessionScreen());
+        return;
+      }
+    } else {
+      EnterpriseService.instance.clear();
+      // Cached scope selects a screen only; the dashboard API rechecks access.
+      final adminIds =
+          CacheService().get<List>('gymAdminTenantIds') ?? const [];
+      if (adminIds.contains('kmf-fitness')) {
+        Get.offAll(
+          () => const EnterpriseGymAdminDashboardScreen(legacyKmf: true),
+        );
+        return;
+      }
+    }
     final activeBrand = TenantBrandService.to.activeBrand;
     Get.changeTheme(
       activeBrand == null
@@ -106,7 +138,8 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     );
 
     // ── Restore admin mode for the owner account ─────────────────────────
-    final cachedEmail = LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
+    final cachedEmail =
+        LoginController.to.getCachedEmail()?.toLowerCase() ?? '';
     if (AppConstants.ownerEmails.contains(cachedEmail)) {
       // permanent: true is required — under SmartManagement.full a non-permanent
       // instance is linked to the splash route and deleted by the offAllNamed

@@ -25,7 +25,7 @@ class DateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = isSelected ? AppColors.primary : Colors.white;
+    final activeColor = isSelected ? Theme.of(context).colorScheme.primary : Colors.white;
     final backgroundColor = isDisabled ? Colors.white.withValues(alpha: 0.4) : activeColor;
 
     return GestureDetector(
@@ -37,7 +37,7 @@ class DateCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8.r),
-          border: isDisabled 
+          border: isDisabled
               ? Border.all(color: Colors.black.withValues(alpha: 0.05), width: 1.r)
               : null,
           boxShadow: !isDisabled && !isSelected
@@ -72,7 +72,7 @@ class DateCard extends StatelessWidget {
                     if (!isDisabled && isToday && !isSelected)
                       CustomPaint(
                         size: Size(36.w, 36.h),
-                        painter: _DashedRingPainter(color: AppColors.primary),
+                        painter: _DashedRingPainter(color: Theme.of(context).colorScheme.primary),
                       )
                     else
                       TweenAnimationBuilder<double>(
@@ -86,7 +86,7 @@ class DateCard extends StatelessWidget {
                                 : Colors.black.withValues(alpha: 0.05),
                             color: isSelected
                                 ? Colors.white
-                                : (isDisabled ? AppColors.primary.withValues(alpha: 0.4) : AppColors.primary),
+                                : (isDisabled ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4) : Theme.of(context).colorScheme.primary),
                             strokeWidth: 3.5.r,
                           );
                         },

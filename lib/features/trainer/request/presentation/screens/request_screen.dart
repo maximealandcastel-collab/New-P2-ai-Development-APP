@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/search/model/search_model.dart';
 import 'package:pler_to_pler_app/features/search/search_screen.dart';
@@ -20,8 +19,8 @@ class RequestScreen extends StatelessWidget {
     final controller = RequestsController.to;
 
     return RefreshIndicator(
-      color: AppColors.primary,
-      backgroundColor: AppColors.backgroundLight,
+      color: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       onRefresh: controller.refresh,
       edgeOffset: MediaQuery.heightOf(context) * 0.19,
       child: CustomScrollView(

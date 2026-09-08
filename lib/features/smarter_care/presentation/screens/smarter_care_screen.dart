@@ -1,9 +1,9 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
-import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 
 class SmarterCareScreen extends StatelessWidget {
   const SmarterCareScreen({super.key});
@@ -35,14 +35,14 @@ class SmarterCareScreen extends StatelessWidget {
             right: 0,
             height: 280.h,
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0, -0.4),
                   radius: 0.9,
                   colors: [
-                    Color(0xFFFF8C00),
-                    Color(0xFFFFA040),
-                    Color(0xFFFFDAAA),
+                    BrandColors.of(context).primary,
+                    BrandColors.of(context).light,
+                    BrandColors.of(context).light,
                     Colors.white,
                   ],
                   stops: [0.0, 0.35, 0.65, 1.0],
@@ -76,11 +76,11 @@ class SmarterCareScreen extends StatelessWidget {
                         height: 1.05,
                         letterSpacing: -0.5,
                       ),
-                      children: const [
+                      children: [
                         TextSpan(text: 'Smarter care'),
                         TextSpan(
                           text: '.',
-                          style: TextStyle(color: AppColors.primary),
+                          style: TextStyle(color: Theme.of(context).colorScheme.primary),
                         ),
                         TextSpan(text: '\neffortless\nworkflow'),
                       ],
@@ -235,13 +235,13 @@ class _ChoiceCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Text(
                   'Coming Soon',
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 10.sp,
                     fontWeight: AppFontWeight.label,
                   ),
@@ -306,13 +306,13 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
                     'Coming Soon',
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 11.sp,
                       fontWeight: AppFontWeight.label,
                     ),
@@ -384,7 +384,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
                 width: _currentPage == i ? 20.w : 7.w,
                 height: 7.h,
                 decoration: BoxDecoration(
-                  color: _currentPage == i ? AppColors.primary : Colors.grey.shade700,
+                  color: _currentPage == i ? Theme.of(context).colorScheme.primary : Colors.grey.shade700,
                   borderRadius: BorderRadius.circular(99.r),
                 ),
               ),
@@ -434,7 +434,7 @@ class _ClinicalPreviewSheetState extends State<_ClinicalPreviewSheet> {
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
                   ),

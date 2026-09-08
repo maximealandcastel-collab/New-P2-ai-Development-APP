@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,7 @@ class LegalPrivacyScreen extends StatefulWidget {
 }
 
 class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
-  static const _accent = Color(0xFFFF5B1A);
+
   late LegalDocument _selectedDocument;
   int? _expandedIndex;
   bool _agreed = false;
@@ -44,7 +45,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
         : _termsOfService;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -72,7 +73,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
                               section: entry.value,
                               number: entry.key + 1,
                               isExpanded: _expandedIndex == entry.key,
-                              accent: _accent,
+                              accent: BrandColors.of(context).primary,
                               onTap: () => setState(() {
                                 _expandedIndex = _expandedIndex == entry.key
                                     ? null
@@ -107,8 +108,8 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
                 width: 42.r,
                 height: 42.r,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFF78A1D), Color(0xFFE85A12)],
+                  gradient: LinearGradient(
+                    colors: [BrandColors.of(context).primary, BrandColors.of(context).primary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -170,7 +171,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
                   children: [
                     Checkbox(
                       value: _agreed,
-                      activeColor: _accent,
+                      activeColor: BrandColors.of(context).primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.r)),
                       onChanged: (value) => setState(() => _agreed = value ?? false),
                     ),
@@ -204,7 +205,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
               onPressed: _agreed ? _acceptConsent : null,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                backgroundColor: _accent,
+                backgroundColor: BrandColors.of(context).primary,
                 disabledBackgroundColor: const Color(0xFFE2E3E6),
                 foregroundColor: Colors.white,
                 disabledForegroundColor: const Color(0xFF98999E),
@@ -299,7 +300,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
             child: _DocumentTab(
               label: 'Privacy Policy',
               selected: _selectedDocument == LegalDocument.privacy,
-              accent: _accent,
+              accent: BrandColors.of(context).primary,
               onTap: () => _selectDocument(LegalDocument.privacy),
             ),
           ),
@@ -307,7 +308,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
             child: _DocumentTab(
               label: 'Terms of Service',
               selected: _selectedDocument == LegalDocument.terms,
-              accent: _accent,
+              accent: BrandColors.of(context).primary,
               onTap: () => _selectDocument(LegalDocument.terms),
             ),
           ),
@@ -359,7 +360,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.mail_outline_rounded, color: _accent, size: 18.sp),
+          Icon(Icons.mail_outline_rounded, color: BrandColors.of(context).primary, size: 18.sp),
           SizedBox(width: 9.w),
           Expanded(
             child: Text(

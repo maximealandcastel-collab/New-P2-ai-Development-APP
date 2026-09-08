@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "abc-fitness",
+  "name": "ABC Fitness",
+  "slogan": "Stronger together",
+  "logoUrl": "https://example.com/abc/logo.png",
+  "primaryColor": "#102A43",
+  "secondaryColor": "#243B53",
+  "accentColor": "#38BEC9",
+  "timezone": "America/New_York",
+  "photos": [
+    "https://example.com/abc/facility.jpg"
+  ],
+  "locations": [
+    {
+      "name": "Main facility",
+      "address": "Replace with actual street address",
+      "city": "Replace with city",
+      "zipCode": "00000"
+    }
+  ],
+  "contact": {},
+  "category": "Strength",
+  "tags": [
+    "Strength"
+  ]
+}

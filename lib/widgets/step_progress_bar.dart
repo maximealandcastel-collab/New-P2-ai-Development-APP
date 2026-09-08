@@ -26,7 +26,7 @@ class StepProgressBar extends StatelessWidget {
             marginLeft: (index == 0 && !showLeading) ? 16.w : 4.w,
             height: 6.h,
             color: currentIndex == index
-                ? AppColors.primary
+                ? Theme.of(context).colorScheme.primary
                 : AppColors.textWhite,
             radiusAll: 99.r,
           ),

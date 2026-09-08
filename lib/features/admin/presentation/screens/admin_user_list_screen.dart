@@ -155,7 +155,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -227,7 +227,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
                 })
             : null,
         filled: true,
-        fillColor: AppColors.backgroundLight,
+        fillColor: Theme.of(context).scaffoldBackgroundColor,
         contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
@@ -258,10 +258,10 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
               duration: const Duration(milliseconds: 150),
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: active ? AppColors.primary : AppColors.backgroundLight,
+                color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(20.r),
                 border: Border.all(
-                  color: active ? AppColors.primary : Colors.grey.shade300,
+                  color: active ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
                   width: 1,
                 ),
               ),
@@ -314,7 +314,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   Widget _buildList() => Obx(() {
     if (_c.filteredUsersLoading && _c.filteredUsers.isEmpty) {
       return Center(
-          child: CircularProgressIndicator(color: AppColors.primary));
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
     }
     final list = _derived;
     if (list.isEmpty) {
@@ -701,7 +701,7 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
           child: Text(value,
               style: TextStyle(
                   fontSize: 11.sp,
-                  color: copyable ? AppColors.primary : AppColors.textPrimary,
+                  color: copyable ? Theme.of(context).colorScheme.primary : AppColors.textPrimary,
                   fontWeight: AppFontWeight.label,
                   decoration: copyable ? TextDecoration.underline : null)),
         ),
@@ -876,7 +876,8 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
     );
     if (picked == null) return;
 
-    final confirm = await _confirm(context,
+    final confirm = await _confirm(
+      context,
       title: 'Change role to $picked?',
       message: '${_user.email} will be assigned the role: $picked',
       confirmLabel: 'Change',
@@ -924,7 +925,8 @@ class _UserDetailSheetState extends State<_UserDetailSheet> {
       if (entered == null) return;
       reason = entered;
     } else {
-      final ok = await _confirm(context,
+      final ok = await _confirm(
+        context,
         title: 'Reactivate Account?',
         message: '${_user.email} will be reactivated.',
         confirmLabel: 'Reactivate',

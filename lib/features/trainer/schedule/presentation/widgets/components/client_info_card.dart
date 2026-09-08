@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +99,7 @@ class ClientInfoCard extends StatelessWidget {
                   label: 'Message',
                   onTap: onMessage,
                   isOutlined: false,
-                  primaryColor: const Color(0xFFFF7A00),
+                  primaryColor: BrandColors.of(context).primary,
                 ),
               ),
             ],
@@ -168,7 +169,7 @@ class ActionButton extends StatelessWidget {
       child: Container(
         height: 40.h,
         decoration: BoxDecoration(
-          color: isOutlined ? Colors.white : (primaryColor ?? const Color(0xFFFF7A00)),
+          color: isOutlined ? Colors.white : (primaryColor ?? BrandColors.of(context).primary),
           borderRadius: BorderRadius.circular(10.r),
           border: isOutlined ? Border.all(color: Colors.grey.shade200) : null,
         ),

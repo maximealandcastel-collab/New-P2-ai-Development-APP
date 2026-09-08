@@ -1,7 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import '../widgets/widgets.dart';
 
 
@@ -59,7 +58,7 @@ class CustomButton extends StatelessWidget {
     return CustomContainer(
       elevation: elevation,
       onTap: (isLoading || isDisabled) ? null : onPressed,
-      color: (backgroundColor ?? AppColors.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
+      color: (backgroundColor ?? Theme.of(context).colorScheme.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
       height: height ?? 52.h,
       width: width ?? double.infinity,
       radiusAll: radius ?? 16.r,
@@ -75,7 +74,7 @@ class CustomButton extends StatelessWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2.w,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  foregroundColor ?? Colors.white,
+                  foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             )
@@ -90,7 +89,7 @@ class CustomButton extends StatelessWidget {
               Flexible(
                 child: CustomText(
                   text: label ?? '',
-                  color: foregroundColor ?? Colors.white,
+                  color: foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
                   fontName: fontName, // null = SF Pro on iOS
                    fontWeight: fontWeight ?? FontWeight.w500,
                    fontSize: fontSize ?? 14.sp,

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,10 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 
 // ─── App theme (matches AppColors exactly) ────────────────────────────────────
-const _bg         = Color(0xFFF0F0F0);   // AppColors.backgroundLight
+
 const _card       = Colors.white;
 const _border     = Color(0xFFE5E7EB);
-const _orange     = Color(0xFFFD7B00);   // AppColors.primary
+
 const _green      = Color(0xFF22C55E);
 const _blue       = Color(0xFF3B82F6);
 const _purple     = Color(0xFFA855F7);
@@ -52,10 +53,10 @@ class AdminDashboardScreen extends StatelessWidget {
         : Get.put(AdminDashboardController());
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
-          color: _orange,
+          color: Theme.of(context).colorScheme.primary,
           backgroundColor: _card,
           onRefresh: c.loadAll,
           child: CustomScrollView(
@@ -109,10 +110,10 @@ class _DashHeader extends StatelessWidget {
           Container(
             width: 42.w, height: 42.w,
             decoration: BoxDecoration(
-              color: _orange.withValues(alpha: 0.12),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12.r),
             ),
-            child: Icon(Icons.shield_rounded, color: _orange, size: 22.sp),
+            child: Icon(Icons.shield_rounded, color: Theme.of(context).colorScheme.primary, size: 22.sp),
           ),
           SizedBox(width: 12.w),
           // Expanded, not a bare Column + Spacer: the title is unbounded text
@@ -137,7 +138,7 @@ class _DashHeader extends StatelessWidget {
           SizedBox(width: 8.w),
           Obx(() => c.metricsLoading
               ? SizedBox(width: 18.w, height: 18.w,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: _orange))
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary))
               : GestureDetector(
                   onTap: c.loadAll,
                   child: Container(
@@ -161,13 +162,13 @@ class _KpiGrid extends StatelessWidget {
   final AdminDashboardController c;
   const _KpiGrid({required this.c});
 
-  // Obx(_content): _content() is invoked inside the Obx builder, so the
+  // Obx(() => _content(context)): _content() is invoked inside the Obx builder, so the
   // c.metrics read below happens where GetX is recording. Obx(() => SomeWidget())
   // would not — see the note in AdminDashboardScreen.build.
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final m = c.metrics;
     final trainerCount = m?.roleBreakdown
         .where((r) => r.role == 'trainer').fold(0, (s, r) => s + r.count) ?? 0;
@@ -193,7 +194,7 @@ class _KpiGrid extends StatelessWidget {
       ),
       _KpiData(
         '💰', 'ACTIVE SUBS', '$activeSubs', 'Paying members',
-        _orange, const Color(0xFFFFF7ED),
+        Theme.of(context).colorScheme.primary, BrandColors.of(context).soft,
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'active_subs', 'title': 'Active Subscribers'}),
       ),
@@ -299,16 +300,16 @@ class _ActivityFeed extends StatelessWidget {
   const _ActivityFeed({required this.c});
 
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final users = c.metrics?.recentUsers ?? [];
     final items = users.take(8).toList();
 
     return _Section(
       title: 'Live Activity Feed',
       icon: Icons.bolt_rounded,
-      iconColor: _orange,
+      iconColor: Theme.of(context).colorScheme.primary,
       child: Column(
         children: items.map((u) {
           final isTrainer = u.role == 'trainer';
@@ -365,9 +366,9 @@ class _QuickActions extends StatelessWidget {
   // This section reads c.withdrawals for its pending badge but was not reactive
   // before, so the badge kept whatever count it had at first build.
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final pending = c.withdrawals.where((w) => w.status == 'pending').length;
     final actions = [
       _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
@@ -386,14 +387,14 @@ class _QuickActions extends StatelessWidget {
       // building announcements or report export is not in this scope.
       _QaData('Send Platform Announcement', null, _green,
           () => _notBuiltYet('Platform announcements')),
-      _QaData('Export Revenue Report', 'This month', _orange,
+      _QaData('Export Revenue Report', 'This month', Theme.of(context).colorScheme.primary,
           () => _notBuiltYet('Revenue export')),
     ];
 
     return _Section(
       title: 'Quick Actions',
       icon: Icons.flash_on_rounded,
-      iconColor: _orange,
+      iconColor: Theme.of(context).colorScheme.primary,
       child: Column(children: actions.map((a) => _QaButton(data: a)).toList()),
     );
   }
@@ -447,9 +448,9 @@ class _RevenueOverview extends StatelessWidget {
   const _RevenueOverview({required this.c});
 
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final ov = c.metrics?.overview;
     final sb = c.metrics?.subscriptionBreakdown ?? [];
     final monthlyCount = sb.where((s) => s.tier == 'monthly').fold(0, (s, r) => s + r.count);
@@ -462,7 +463,7 @@ class _RevenueOverview extends StatelessWidget {
       _StatCard('TOTAL USERS',    '${ov?.totalUsers ?? 0}',        'All time',        _blue),
       _StatCard('ACTIVE SUBS',    '${ov?.activeSubscriptions ?? 0}','Currently active', _green),
       _StatCard('MONTHLY PLANS',  '$monthlyCount',                  'Monthly billing',  _purple),
-      _StatCard('ANNUAL PLANS',   '$annualCount',                   'Annual billing',   _orange),
+      _StatCard('ANNUAL PLANS',   '$annualCount',                   'Annual billing',   Theme.of(context).colorScheme.primary),
     ];
 
     return _Section(
@@ -475,7 +476,7 @@ class _RevenueOverview extends StatelessWidget {
         Row(children: [Expanded(child: _MiniStat(s: stats[2])), SizedBox(width: 10.w), Expanded(child: _MiniStat(s: stats[3]))]),
         SizedBox(height: 20.h),
         Row(children: [
-          Icon(Icons.bar_chart_rounded, color: _orange, size: 16.sp),
+          Icon(Icons.bar_chart_rounded, color: Theme.of(context).colorScheme.primary, size: 16.sp),
           SizedBox(width: 6.w),
           Expanded(
             child: Text('Daily Signups · Last 7 days',
@@ -502,7 +503,7 @@ class _RevenueOverview extends StatelessWidget {
                           Container(
                             height: (80 * ratio).clamp(4.0, 80.0).h,
                             decoration: BoxDecoration(
-                              color: _orange,
+                              color: Theme.of(context).colorScheme.primary,
                               borderRadius: BorderRadius.vertical(top: Radius.circular(4.r)),
                             ),
                           ),
@@ -577,9 +578,9 @@ class _TrainerManagementState extends State<_TrainerManagement> {
   }
 
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final c = widget.c;
     final allUsers = c.metrics?.recentUsers ?? [];
     final trainers = allUsers.where((u) => u.role == 'trainer').toList();
@@ -601,7 +602,7 @@ class _TrainerManagementState extends State<_TrainerManagement> {
       trailing: GestureDetector(
         onTap: () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'trainer', 'title': 'Trainers'}),
-        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: _orange)),
+        child: Text('View All', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: Theme.of(context).colorScheme.primary)),
       ),
       child: Column(children: [
         // Filter tabs. Three natural-width pills plus their counts have no room
@@ -669,9 +670,9 @@ class _FilterTab extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: active ? _orange : Colors.white,
+          color: active ? Theme.of(context).colorScheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: active ? _orange : _border),
+          border: Border.all(color: active ? Theme.of(context).colorScheme.primary : _border),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
@@ -731,19 +732,19 @@ class _Withdrawals extends StatelessWidget {
   const _Withdrawals({super.key, required this.c});
 
   @override
-  Widget build(BuildContext context) => Obx(_content);
+  Widget build(BuildContext context) => Obx(() => _content(context));
 
-  Widget _content() {
+  Widget _content(BuildContext context) {
     final withdrawals = c.withdrawals;
     if (withdrawals.isEmpty && !c.withdrawalsLoading) return const SizedBox.shrink();
 
     return _Section(
       title: 'Pending Withdrawals',
       icon: Icons.account_balance_wallet_rounded,
-      iconColor: _orange,
+      iconColor: Theme.of(context).colorScheme.primary,
       child: c.withdrawalsLoading
           ? Padding(padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: Center(child: CircularProgressIndicator(color: _orange, strokeWidth: 2)))
+              child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)))
           : Column(children: withdrawals.map((w) => _WithdrawalCard(w: w, c: c)).toList()),
     );
   }
@@ -775,7 +776,7 @@ class _WithdrawalCard extends StatelessWidget {
                   style: TextStyle(fontSize: 11.sp, color: _tSec)),
             ])),
             Text('\$${w.amountDollars.toStringAsFixed(0)}',
-                style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.display, color: _orange)),
+                style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.display, color: Theme.of(context).colorScheme.primary)),
           ]),
           SizedBox(height: 12.h),
           Row(children: [
