@@ -120,7 +120,7 @@ class BottomNavBarController extends GetxController {
       try {
         if (index != contentsTabIndex &&
             Get.isRegistered<VideoPlaybackManager>()) {
-          Get.find<VideoPlaybackManager>().stopAll();
+          Get.find<VideoPlaybackManager>().exitVideoModule();
         }
       } catch (_) {}
 

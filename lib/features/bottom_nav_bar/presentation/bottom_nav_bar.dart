@@ -112,7 +112,13 @@ class BottomNavBarMain extends StatelessWidget {
                   child: IndexedStack(
                     key: ValueKey('tenantTabs-$tenantSession'),
                     index: activeIndex,
-                    children: activeItems.map((e) => e.screen).toList(),
+                    children: [
+                      for (var i = 0; i < activeItems.length; i++)
+                        TickerMode(
+                          enabled: i == activeIndex,
+                          child: activeItems[i].screen,
+                        ),
+                    ],
                   ),
                 ),
               ),
