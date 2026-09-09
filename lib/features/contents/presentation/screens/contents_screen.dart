@@ -9,7 +9,7 @@ import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:video_player/video_player.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import 'package:pler_to_pler_app/core/widgets/video_playback_visibility.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENTS SCREEN — TikTok-style vertical video feed
@@ -18,16 +18,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 // Community tab  → workout reels from all trainers
 // My Trainer tab → videos from the subscriber's assigned trainer
 //
-// PLAYBACK OWNERSHIP — read before changing anything here.
-// This screen is a tab inside an IndexedStack, so its State is NOT disposed
-// when the user switches tabs and dispose() is therefore useless as a teardown
-// hook. Playback is instead owned by VideoPlaybackManager and gated two ways:
-//   1. A screen-level VisibilityDetector enters/exits the manager's video
-//      module. Leaving the tab, or pushing any route on top, drops visibility
-//      to zero and hard-stops every player — this is what stopped audio from
-//      following the user onto the dashboard.
-//   2. Only the centred page is marked active, so the pages PageView builds
-//      ahead of and behind it stay silent instead of stacking audio.
+// Playback follows the selected tab, current route, and app lifecycle. The
+// IndexedStack keeps this screen mounted even when another tab is selected.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 class _FeedVideo {
@@ -138,16 +130,13 @@ class _ContentsScreenState extends State<ContentsScreen> {
     if (_pageCtrl.hasClients) _pageCtrl.jumpToPage(0);
   }
 
-  void _onVisibilityChanged(VisibilityInfo info) {
-    final visible = info.visibleFraction > 0.5;
+  void _onVisibilityChanged(bool visible) {
     if (visible == _visible) return;
 
     final manager = _vpm;
     if (visible) {
       manager?.enterVideoModule();
     } else {
-      // exitVideoModule() hard-stops every tracked player. This is the single
-      // line that eliminates the dashboard audio bleed.
       manager?.exitVideoModule();
     }
     if (mounted) setState(() => _visible = visible);
@@ -162,8 +151,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: const Key('contentsScreenVisibility'),
+    return VideoPlaybackVisibility(
       onVisibilityChanged: _onVisibilityChanged,
       child: Scaffold(
         backgroundColor: Colors.black,
