@@ -122,7 +122,7 @@ class EnterpriseGymModel {
 
   String get logoAssetPath => _localLogoAssets[id] ?? '';
 
-  /// All 24 gyms — licensed tenants and visible prospects.
+  /// All 25 gyms — licensed tenants and visible prospects.
   static List<EnterpriseGymModel> get partners => _partners;
 
   /// Only gyms with a signed contract. Authentication must also be authorized by the backend.
@@ -562,6 +562,23 @@ class EnterpriseGymModel {
       zipCode: '10023',
       lat: 40.7756,
       lng: -73.9811,
+    ),
+    EnterpriseGymModel(
+      id: 'lifetime_fitness',
+      name: 'Life Time',
+      initials: 'LIFE',
+      category: 'Athletic Country Club',
+      memberCount: 'Targeted partnership',
+      brandColor: const Color(0xFF111111),
+      accentColor: const Color(0xFFFFFFFF),
+      textColor: Colors.white,
+      rating: 4.6,
+      imageUrl:
+          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
+      filterTags: const ['Strength', 'Yoga', 'Cycling'],
+      city: 'Multiple locations',
+      zipCode: '',
+      statusLabel: 'Targeted integration — partnership not yet established.',
     ),
     EnterpriseGymModel(
       id: 'corepower',
