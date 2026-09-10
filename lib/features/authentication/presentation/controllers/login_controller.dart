@@ -91,9 +91,12 @@ class LoginController extends GetxController {
     } catch (_) {}
   }
 
-  Future<void> login({String? requestedTenantId}) async {
+  Future<void> login({
+    String? requestedTenantId,
+    GlobalKey<FormState>? formKey,
+  }) async {
     if (_loginState.value == LoadingState.loading) return;
-    final formState = loginFormKey.currentState;
+    final formState = (formKey ?? loginFormKey).currentState;
     if (formState == null || !formState.validate()) {
       passwordController.clear();
       return;

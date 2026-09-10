@@ -434,6 +434,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   Color get _green => widget.gym.accentColor;
   Color get _black => widget.gym.brandColor;
   final LoginController _controller = LoginController.to;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _entryRole = 'Member';
 
   void _selectRole(String role) {
@@ -475,7 +476,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(22.w, 12.h, 22.w, 30.h),
           child: Form(
-            key: _controller.loginFormKey,
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -623,6 +624,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         obscureText: true,
                         onSubmitted: () => _controller.login(
                           requestedTenantId: widget.gym.tenantId,
+                          formKey: _formKey,
                         ),
                         validator: (value) => (value ?? '').isEmpty
                             ? 'Enter your password'
@@ -652,6 +654,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                 ? null
                                 : () => _controller.login(
                                     requestedTenantId: widget.gym.tenantId,
+                                    formKey: _formKey,
                                   ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _black,
