@@ -93,7 +93,8 @@ class LoginController extends GetxController {
 
   Future<void> login({String? requestedTenantId}) async {
     if (_loginState.value == LoadingState.loading) return;
-    if (!loginFormKey.currentState!.validate()) {
+    final formState = loginFormKey.currentState;
+    if (formState == null || !formState.validate()) {
       passwordController.clear();
       return;
     }
@@ -233,8 +234,12 @@ class LoginController extends GetxController {
 
     if (isSingleMode &&
         (tenantScope?.gymAdminTenantIds.isNotEmpty ?? false)) {
-      final adminTenantId = authorizedTenantId ??
-          tenantScope!.gymAdminTenantIds.first;
+      final adminTenantIds = tenantScope!.gymAdminTenantIds;
+      final adminTenantId = requestedTenantId != null &&
+              adminTenantIds.contains(requestedTenantId)
+          ? requestedTenantId
+          : adminTenantIds.first;
+      await CacheService().put('tenantId', adminTenantId);
       Get.offAll(
         () => EnterpriseGymAdminDashboardScreen(tenantId: adminTenantId),
       );

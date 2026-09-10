@@ -39,7 +39,8 @@ class _EnterpriseGymAdminDashboardScreenState
         if (gym.tenantId == tenantId) return gym;
       }
     }
-    return legacyKmfTenant.toGym();
+    if (widget.legacyKmf) return legacyKmfTenant.toGym();
+    throw StateError('No branding configuration for tenant: $tenantId');
   }
 
   late Future<EnterpriseDashboardData> _dashboard;
@@ -221,7 +222,12 @@ class _EnterpriseHeader extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: TenantImage(gym.logoUrl, fit: BoxFit.cover),
+                        child: TenantImage(
+                          gym.logoAssetPath.isNotEmpty
+                              ? gym.logoAssetPath
+                              : gym.logoUrl,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
