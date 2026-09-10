@@ -293,8 +293,8 @@ class _GymsScreenState extends State<GymsScreen> {
     }).toList();
     const priority = <String, int>{
       'ymca_yonkers': 0,
-      'kmf_fitness_club': 1,
-      'p2p_fit_factor': 2,
+      'p2p_fit_factor': 1,
+      'kmf_fitness_club': 2,
     };
     displayed.sort((a, b) {
       final aPriority = priority[a.id];

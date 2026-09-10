@@ -801,10 +801,8 @@ class _GymsCardState extends State<_GymsCard> {
   Future<void> load() async {
     setState(() { loading = true; error = null; });
     try {
-      final page = isSingleMode
-          ? const EnterprisePage([legacyKmfConfiguration], null)
-          : await EnterpriseService.instance.directory();
-      if (mounted) setState(() => gyms = page.items.take(3).map((e) => TenantConfiguration.fromJson(e).toGym()).toList());
+      final activatedGyms = EnterpriseGymModel.activatedPartners.take(3).toList();
+      if (mounted) setState(() => gyms = activatedGyms);
     } catch (_) { if (mounted) setState(() => error = 'Gyms are temporarily unavailable.'); }
     finally { if (mounted) setState(() => loading = false); }
   }

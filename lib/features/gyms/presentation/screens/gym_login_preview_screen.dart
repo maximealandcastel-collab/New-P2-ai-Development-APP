@@ -29,8 +29,7 @@ class GymLoginPreviewScreen extends StatefulWidget {
       Get.to(() => EnterpriseJoinScreen(gym: gym));
       return;
     }
-    if ((gym.requiresLoggedOutSession || isSingleMode) &&
-        hasActiveSession) {
+    if (gym.id == 'p2p_fit_factor' && hasActiveSession) {
       await showDialog<void>(
         context: context,
         barrierDismissible: false,

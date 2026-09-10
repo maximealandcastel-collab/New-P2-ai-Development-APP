@@ -167,6 +167,30 @@ class EnterpriseGymModel {
       statusLabel: 'YMCA member, trainer, and authorized administrator access.',
     ),
 
+    // ── P2P's OWN GYM — ACTIVATED (brick & mortar) ──────────────────────
+    EnterpriseGymModel(
+      id: 'p2p_fit_factor',
+      name: 'P2P Fit Factor',
+      initials: 'P2F',
+      category: 'P2P Partner Gym',
+      memberCount: '2.4K members',
+      brandColor: const Color(0xFFFF6B35),
+      accentColor: const Color(0xFFFF8C00),
+      isOwnGym: true,
+      isPinned: true,
+      isActive: true,
+      isActivated: true, // ✅ LIVE — brick & mortar
+      requiresLoggedOutSession: true,
+      rating: 4.9,
+      imageUrl:
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
+      filterTags: const ['HIIT', 'Strength', 'Cycling'],
+      city: 'Miami',
+      zipCode: '33101',
+      lat: 25.7617,
+      lng: -80.1918,
+    ),
+
     // ── KMF FITNESS CLUB — ACTIVE P2P-POWERED MEMBER ACCESS ───────────────
     EnterpriseGymModel(
       id: 'kmf_fitness_club',
@@ -196,30 +220,6 @@ class EnterpriseGymModel {
       lat: 40.7259,
       lng: -73.5143,
       statusLabel: 'KMF member, trainer, and owner access.',
-    ),
-
-    // ── P2P's OWN GYM — ACTIVATED (brick & mortar) ──────────────────────
-    EnterpriseGymModel(
-      id: 'p2p_fit_factor',
-      name: 'P2P Fit Factor',
-      initials: 'P2F',
-      category: 'P2P Partner Gym',
-      memberCount: '2.4K members',
-      brandColor: const Color(0xFFFF6B35),
-      accentColor: const Color(0xFFFF8C00),
-      isOwnGym: true,
-      isPinned: true,
-      isActive: true,
-      isActivated: true, // ✅ LIVE — brick & mortar
-      requiresLoggedOutSession: true,
-      rating: 4.9,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
-      filterTags: const ['HIIT', 'Strength', 'Cycling'],
-      city: 'Miami',
-      zipCode: '33101',
-      lat: 25.7617,
-      lng: -80.1918,
     ),
 
     // ── Visible partnership prospects — no tenant access until licensed ────
