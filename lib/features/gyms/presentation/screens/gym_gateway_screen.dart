@@ -105,6 +105,8 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               _buildMembershipToggle(),
               SizedBox(height: 16.h),
               _buildCredentialLogin(),
+              SizedBox(height: 14.h),
+              _buildAdminActions(),
               if (_isMember) ...[
                 SizedBox(height: 16.h),
                 _buildSearchBar(),
@@ -631,7 +633,14 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                 final gym = gyms[index];
                 final isSelected = _selectedGym?.id == gym.id;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedGym = gym),
+                  onTap: () {
+                    setState(() => _selectedGym = gym);
+                    if (gym.isActivated) {
+                      GymLoginPreviewScreen.open(context, gym: gym);
+                    } else {
+                      Get.to(() => GymApplicationScreen(initialGym: gym));
+                    }
+                  },
                   child: Container(
                     width: 108.w,
                     padding: EdgeInsets.all(8.r),
@@ -690,21 +699,19 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
       children: [
         Expanded(
           child: _buildAdminButton(
-            icon: Icons.person_add_alt_1_outlined,
-            title: 'Admin Sign Up',
-            subtitle: 'For gym owners & authorized staff',
-            onTap: () => Get.to(
-              () => GymApplicationScreen(initialGym: _selectedGym),
-            ),
+            icon: Icons.shield_outlined,
+            title: 'Admin Demo Login',
+            subtitle: 'Use approved demo credentials',
+            onTap: _loginWithGymCredentials,
           ),
         ),
         SizedBox(width: 12.w),
         Expanded(
           child: _buildAdminButton(
             icon: Icons.login_outlined,
-            title: 'Admin Login',
-            subtitle: 'Access your gym dashboard',
-            onTap: _onAdminLogin,
+            title: 'Gym Admin Login',
+            subtitle: 'Use your facility credentials',
+            onTap: _loginWithGymCredentials,
           ),
         ),
       ],
