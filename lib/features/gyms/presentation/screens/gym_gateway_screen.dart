@@ -60,7 +60,6 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
       if (Get.isRegistered<LoginController>()) {
         Get.find<LoginController>().setRole(_selectedRole);
       }
-      }
       Get.toNamed(AppRoute.p2pLoginScreen);
     } else {
       // Gym Member flow
