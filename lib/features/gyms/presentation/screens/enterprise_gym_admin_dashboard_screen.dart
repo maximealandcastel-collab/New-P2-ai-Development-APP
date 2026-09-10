@@ -380,16 +380,11 @@ class _DashboardBody extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 14),
-          if (!legacyKmf)
+          if (!legacyKmf && !isSingleMode)
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: (isSingleMode
-                      ? enterpriseModules.where(
-                          (module) => module.resource == 'analytics',
-                        )
-                      : enterpriseModules)
-                  .map(
+              children: enterpriseModules.map(
                     (module) => ActionChip(
                       label: Text(module.title),
                       onPressed: () => onOpenModule(module.resource),
