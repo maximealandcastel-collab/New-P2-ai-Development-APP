@@ -89,7 +89,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+          padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -123,6 +123,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
             fontWeight: FontWeight.w800,
             color: Colors.black,
             letterSpacing: -0.5,
+            height: 1.15,
           ),
         ),
         SizedBox(height: 4.h),
@@ -438,7 +439,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           Text('No gyms found.', style: TextStyle(color: Colors.black54))
         else
           SizedBox(
-            height: 110.h,
+            height: 138.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: gyms.length,
@@ -449,7 +450,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _selectedGym = gym),
                   child: Container(
-                    width: 90.w,
+                    width: 108.w,
                     padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -473,19 +474,21 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                         Expanded(
                           child: GymBrandLogo(
                             gym: gym,
-                            size: 50.r,
+                            size: 56.r,
                             borderRadius: 8.r,
                           ),
                         ),
                         SizedBox(height: 8.h),
                         Text(
                           gym.name,
-                          maxLines: 1,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w500,
                             color: Colors.black87,
+                            height: 1.15,
                           ),
                         ),
                       ],
