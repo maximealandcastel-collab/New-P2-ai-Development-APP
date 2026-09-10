@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
@@ -25,6 +26,8 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
   String _searchQuery = '';
   EnterpriseGymModel? _selectedGym;
   final TextEditingController _searchController = TextEditingController();
+  final LoginController _loginController = LoginController.to;
+  bool _obscurePassword = true;
 
   List<EnterpriseGymModel> get _filteredGyms {
     final gyms = EnterpriseGymModel.partners;
@@ -96,14 +99,18 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               _buildHeader(),
               SizedBox(height: 20.h),
               _buildClaimGymCard(),
-              SizedBox(height: 24.h),
-              _buildSearchBar(),
               SizedBox(height: 20.h),
-              _buildPopularGyms(),
+              _buildRoleToggle(),
               SizedBox(height: 20.h),
-              _buildAdminActions(),
-              SizedBox(height: 24.h),
-              _buildContinueButton(),
+              _buildMembershipToggle(),
+              SizedBox(height: 16.h),
+              _buildCredentialLogin(),
+              if (_isMember) ...[
+                SizedBox(height: 16.h),
+                _buildSearchBar(),
+                SizedBox(height: 20.h),
+                _buildPopularGyms(),
+              ],
               SizedBox(height: 24.h),
             ],
           ),
@@ -244,9 +251,14 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           return Expanded(
             child: GestureDetector(
               onTap: () {
+                if (role != 'Gym') {
+                  _loginController.setRole(role);
+                  Get.offNamed(AppRoute.loginScreen);
+                  return;
+                }
                 setState(() {
                   _selectedRole = role;
-                  if (role == 'Gym') _isMember = true;
+                  _isMember = true;
                 });
               },
               child: Container(
@@ -377,6 +389,177 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
     );
   }
 
+  Future<void> _loginWithGymCredentials() async {
+    final gym = _selectedGym;
+    if (_isMember && gym != null && !gym.isActivated) {
+      Get.to(() => GymApplicationScreen(initialGym: gym));
+      return;
+    }
+    await _loginController.login(
+      requestedTenantId: _isMember ? gym?.tenantId : null,
+    );
+  }
+
+  Widget _buildCredentialLogin() {
+    return Form(
+      key: _loginController.loginFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _loginController.emailController,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.username, AutofillHints.email],
+            decoration: InputDecoration(
+              hintText: 'Email',
+              prefixIcon: const Icon(Icons.person_outline_rounded),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: const BorderSide(color: Color(0xFFDADADA)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: const BorderSide(color: Color(0xFFDADADA)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: BorderSide(
+                  color: BrandColors.of(context).primary,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            validator: (value) {
+              final email = value?.trim() ?? '';
+              if (email.isEmpty) return 'Enter your email address';
+              if (!GetUtils.isEmail(email)) return 'Enter a valid email address';
+              return null;
+            },
+          ),
+          SizedBox(height: 10.h),
+          TextFormField(
+            controller: _loginController.passwordController,
+            obscureText: _obscurePassword,
+            autofillHints: const [AutofillHints.password],
+            onFieldSubmitted: (_) => _loginWithGymCredentials(),
+            decoration: InputDecoration(
+              hintText: 'Password',
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              suffixIcon: IconButton(
+                onPressed: () => setState(
+                  () => _obscurePassword = !_obscurePassword,
+                ),
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: const BorderSide(color: Color(0xFFDADADA)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: const BorderSide(color: Color(0xFFDADADA)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14.r),
+                borderSide: BorderSide(
+                  color: BrandColors.of(context).primary,
+                  width: 1.5,
+                ),
+              ),
+            ),
+            validator: (value) => (value?.isEmpty ?? true)
+                ? 'Enter your password'
+                : null,
+          ),
+          SizedBox(height: 12.h),
+          Obx(() {
+            final loading =
+                _loginController.loginState == LoadingState.loading;
+            return SizedBox(
+              height: 50.h,
+              child: ElevatedButton(
+                onPressed: loading ? null : _loginWithGymCredentials,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BrandColors.of(context).primary,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      BrandColors.of(context).primary.withOpacity(0.5),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                ),
+                child: loading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'Log In',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            );
+          }),
+          TextButton(
+            onPressed: () => Get.toNamed(AppRoute.forgotScreen),
+            child: Text(
+              'Forgot Email or Password?',
+              style: TextStyle(
+                color: BrandColors.of(context).primary,
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+          Center(
+            child: GestureDetector(
+              onTap: () => Get.toNamed(
+                AppRoute.signUpScreen,
+                arguments: <String, dynamic>{
+                  if (_selectedGym?.isActivated == true &&
+                      _selectedGym?.tenantId != null)
+                    'tenantId': _selectedGym!.tenantId,
+                },
+              ),
+              child: Text.rich(
+                TextSpan(
+                  text: "Don't have an account yet? ",
+                  style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+                  children: [
+                    TextSpan(
+                      text: 'Create account',
+                      style: TextStyle(
+                        color: BrandColors.of(context).primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSearchBar() {
     return Container(
       height: 48.h,
@@ -409,7 +592,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Gyms',
+              'Popular gyms',
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
