@@ -7,7 +7,6 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/admin_bypass_screen.dart';
 
 class SignUpController extends GetxController {
   final AuthService _authService;
@@ -45,11 +44,30 @@ class SignUpController extends GetxController {
   bool _customerGatePassed = false;
   bool _trainerEntry = false;
   String? _tenantId;
+  String? gymName;
+  Map<String, dynamic>? _memberDraft;
+  Map<String, dynamic>? _registeredMemberDraft;
+
+  Map<String, dynamic>? takeMemberDraft() {
+    final draft = _registeredMemberDraft;
+    _registeredMemberDraft = null;
+    return draft;
+  }
+  bool get hasPartnerGym => _tenantId != null;
 
   bool get canShowRegistrationForm => _customerGatePassed || _trainerEntry;
 
   void configureEntry(dynamic arguments) {
+    final draft = arguments is Map ? arguments['memberDraft'] : null;
+    _memberDraft = draft is Map ? Map<String, dynamic>.from(draft) : null;
+    if (_memberDraft != null) {
+      firstNameController.text = _memberDraft!['firstName'] as String? ?? '';
+      lastNameController.text = _memberDraft!['lastName'] as String? ?? '';
+      emailController.text = _memberDraft!['email'] as String? ?? '';
+      genderController.text = _memberDraft!['gender'] as String? ?? '';
+    }
     _tenantId = arguments is Map ? arguments['tenantId']?.toString() : null;
+    gymName = arguments is Map ? arguments['gymName']?.toString() : null;
     if (arguments is Map && arguments['trainerEntry'] == true) {
       _trainerEntry = true;
       _customerGatePassed = false;
@@ -78,6 +96,8 @@ class SignUpController extends GetxController {
           'paywallPassed': true,
           'role': 'User',
           if (_tenantId != null) 'tenantId': _tenantId,
+          if (gymName != null) 'gymName': gymName,
+          if (_memberDraft != null) 'memberDraft': _memberDraft,
         },
       },
     );
@@ -110,7 +130,8 @@ class SignUpController extends GetxController {
       openCustomerPaywall();
       return;
     }
-    if (!registerFormKey.currentState!.validate()) return;
+    if (_registerState.value == LoadingState.loading) return;
+    if (!(registerFormKey.currentState?.validate() ?? false)) return;
     if (!acceptedTerms.value) {
       ToastMessageHelper.show('Please accept the Terms of Service and Privacy Policy.');
       return;
@@ -127,8 +148,13 @@ class SignUpController extends GetxController {
         role: _selectedRole.value.toLowerCase(),
         password: confirmPasswordController.text,
         referredByCode: referral.isNotEmpty ? referral : null,
-        tenantId: _tenantId,
+        tenantId: _selectedRole.value == 'User' ? _tenantId : null,
       );
+      _registeredMemberDraft = _selectedRole.value == 'User' && _memberDraft != null
+          ? {..._memberDraft!, 'firstName': firstNameController.text.trim(),
+              'lastName': lastNameController.text.trim(), 'email': emailController.text.trim(),
+              'gender': genderController.text.trim()}
+          : null;
       // Persist the referral code so the paywall can auto-apply 50% off
       if (referral.isNotEmpty) {
         await CacheService().put('pendingPromoCode', referral.toUpperCase());

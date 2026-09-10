@@ -32,6 +32,24 @@ class ProfileCompleteController extends GetxController {
 
   LoadingState get userState => _userState.value;
 
+  /// Applied only after this signup's email verification succeeds.
+  List<String> onboardingGoals = [];
+  void applyMemberDraft(Map<String, dynamic>? draft) {
+    if (draft == null) return;
+    final inches = (draft['heightInches'] as num?)?.round();
+    final pounds = (draft['weightLbs'] as num?)?.round();
+    if (inches != null) {
+      heightController.text =
+          "${inches ~/ 12}'${inches % 12}\" (${(inches * 2.54).round()} cm)";
+    }
+    if (pounds != null) weightController.text = '$pounds lb';
+    onboardingGoals = List<String>.from(draft['goals'] as List? ?? []);
+    if (onboardingGoals.isNotEmpty) {
+      primaryGoalController.text = onboardingGoals.first;
+    }
+    preferredNameController.text = draft['firstName'] as String? ?? '';
+  }
+
   // ─── Trainer fields ───────────────────────
   final usernameController = TextEditingController();
   final bioController = TextEditingController();
@@ -129,7 +147,8 @@ class ProfileCompleteController extends GetxController {
           name: usernameController.text.trim(),
           bio: bioController.text.trim(),
           certifications: _certifications,
-          specialty: MenuShowHelper.specialityBackendValue(
+          specialty:
+              MenuShowHelper.specialityBackendValue(
                 specialityController.text.trim(),
               ) ??
               specialityController.text.trim(),
@@ -180,25 +199,28 @@ class ProfileCompleteController extends GetxController {
 
       await _authService.registerUser(
         UserProfileModel(
-          primaryGoal: MenuShowHelper.goalBackendValue(
+          primaryGoal:
+              MenuShowHelper.goalBackendValue(
                 primaryGoalController.text.trim(),
               ) ??
               primaryGoalController.text.trim(),
           gender: gender,
           dateOfBirth: selectedDateOfBirth.toIso8601String().split('T').first,
           height: StringFormat.parseHeight(heightController.text),
-          weight: StringFormat.parseWeight(heightController.text)?.round(),
+          weight: StringFormat.parseWeight(weightController.text)?.round(),
           fitnessLevel: MenuShowHelper.fitnessLevelBackendValue(
             fitnessLevelController.text.trim(),
           ),
-          availableEquipment: MenuShowHelper.equipmentBackendValue(
+          availableEquipment:
+              MenuShowHelper.equipmentBackendValue(
                 equipmentController.text.trim(),
               ) ??
               equipmentController.text.trim(),
           trainingDaysPerWeek: int.tryParse(trainingDaysController.text.trim()),
           injuries: _injuries,
           preferredName: preferredNameController.text.trim(),
-          motivationStyle: MenuShowHelper.motivationStyleBackendValue(
+          motivationStyle:
+              MenuShowHelper.motivationStyleBackendValue(
                 motivationStyleController.text.trim(),
               ) ??
               motivationStyleController.text.trim(),

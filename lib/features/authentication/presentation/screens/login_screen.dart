@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_onboarding_screen.dart';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,6 +65,21 @@ class LoginScreen extends StatelessWidget {
                       child: _helperTabBar(
                         text: "User",
                         controller: controller,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.to(
+                          () => const GymOnboardingScreen(gymEntry: true),
+                        ),
+                        child: Text(
+                          'Gym',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                       ),
                     ),
                   ],

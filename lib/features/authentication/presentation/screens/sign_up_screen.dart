@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_onboarding_screen.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,20 +25,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.initState();
     controller = SignUpController.to;
     controller.configureEntry(Get.arguments);
-    if (!controller.canShowRegistrationForm) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) controller.openCustomerPaywall();
-      });
-    }
+
   }
 
   @override
   Widget build(BuildContext context) {
     if (!controller.canShowRegistrationForm) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFFCFCFC),
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const GymOnboardingScreen();
     }
 
     return Scaffold(
@@ -75,6 +69,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 SizedBox(height: 20.h),
                 _buildRoleToggle(),
+                if (controller.gymName != null) ...[
+                  SizedBox(height: 12.h),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.fitness_center),
+                    title: Text(controller.gymName!),
+                    subtitle: Text(controller.hasPartnerGym
+                        ? 'Membership status: verification required'
+                        : 'Gym not partnered • continue with P2P'),
+                  ),
+                ],
                 SizedBox(height: 20.h),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,6 +265,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               Expanded(child: _roleOption('Trainer', Icons.fitness_center_outlined)),
               Expanded(child: _roleOption('User', Icons.person_outline)),
+              Expanded(child: _roleOption('Gym', Icons.business_outlined)),
             ],
           ),
         ));
@@ -268,15 +274,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget _roleOption(String role, IconData icon) {
     final selected = controller.selectedRole == role;
     return GestureDetector(
-      onTap: () => controller.changeRole(role),
+      onTap: () {
+        if (role == 'Gym') {
+          Get.to(() => const GymOnboardingScreen(gymEntry: true));
+        } else {
+          controller.changeRole(role);
+        }
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFFFFBF6) : Colors.transparent,
+          color: selected ? Colors.black : Colors.transparent,
           borderRadius: BorderRadius.circular(11),
           border: Border.all(
-            color: selected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+            color: Colors.transparent,
             width: 1.2,
           ),
         ),
@@ -284,14 +296,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 16.sp, color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFF777777)),
+              Icon(icon, size: 16.sp, color: selected ? Colors.white : const Color(0xFF777777)),
               SizedBox(width: 7.w),
               Text(
                 role,
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: selected ? Theme.of(context).colorScheme.primary : const Color(0xFF666666),
+                  color: selected ? Colors.white : const Color(0xFF666666),
                 ),
               ),
             ],
@@ -362,7 +374,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _genderField() {
-    final values = HelperData.genderOptions.map((value) => value.toString()).toList();
+    final values = {...HelperData.genderOptions, 'Non-binary', 'Prefer not to say'}.toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

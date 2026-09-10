@@ -108,6 +108,39 @@ class EnterpriseService {
     return Map<String, dynamic>.from(decoded['data'] as Map);
   }
 
+  /// Public intake only. The server must verify licensing and authority before
+  /// creating a tenant, membership, or admin privileges.
+  Future<String> submitGymApplication(Map<String, dynamic> application) async {
+    final data = await request(
+      '/enterprise/gym-applications',
+      method: 'POST',
+      authenticated: false,
+      body: application,
+    );
+    final id = data['applicationId'];
+    if (id is! String ||
+        id.trim().isEmpty ||
+        data['status'] != 'pending_review') {
+      throw const EnterpriseException('Invalid application receipt.');
+    }
+    return id;
+  }
+
+  /// Public intake. Requested roles and codes never grant client-side access.
+  Future<String> requestStaffAccess(Map<String, dynamic> application) async {
+    final data = await request(
+      '/enterprise/staff-access-requests',
+      method: 'POST',
+      authenticated: false,
+      body: application,
+    );
+    final id = data['requestId'];
+    if (id is! String || id.trim().isEmpty || data['status'] != 'pending_review') {
+      throw const EnterpriseException('Invalid staff access receipt.');
+    }
+    return id;
+  }
+
   Future<EnterprisePage> directory({
     String? cursor,
     String query = '',

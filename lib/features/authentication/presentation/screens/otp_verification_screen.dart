@@ -1,3 +1,5 @@
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
+import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -91,6 +93,7 @@ class OtpVerificationScreen extends StatelessWidget {
         if(OtpController.to.isTrainer()){
           Get.toNamed(AppRoute.trainerCompleteProfileScreen);
         }else{
+          ProfileCompleteController.to.applyMemberDraft(SignUpController.to.takeMemberDraft());
           Get.toNamed(AppRoute.userCompleteProfileScreen);
         }
       } else {
