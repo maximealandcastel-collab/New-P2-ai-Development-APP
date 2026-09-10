@@ -184,9 +184,10 @@ class EnterpriseGymModel {
       rating: 0.0,
       imageAssetPath: 'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
       galleryAssetPaths: const [
-        'assets/images/gym_photos/ymca_yonkers_exterior.jpeg',
         'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
+        'assets/images/gym_photos/ymca_yonkers_exterior.jpeg',
         'assets/images/gym_photos/ymca_yonkers_building.jpeg',
+        'assets/images/gym_photos/ymca_yonkers_mural.jpeg',
       ],
       filterTags: const ['Community', 'Strength', 'Basketball'],
       city: 'Yonkers',
