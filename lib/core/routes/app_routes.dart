@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_gateway_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -119,6 +120,7 @@ class AppRoute {
   static String init = "/";
   static String onboardingMainScreen = "/onboardingMainScreen";
   static String loginScreen = "/loginScreen";
+  static String p2pLoginScreen = "/p2pLoginScreen";
   static String forgotScreen = "/forgotScreen";
   static String otpVerificationScreen = "/otpVerificationScreen";
   static String signUpScreen = "/signUpScreen";
@@ -202,7 +204,8 @@ class AppRoute {
         }
       }),
     ),
-    GetPage(name: loginScreen, page: () => LoginScreen()),
+    GetPage(name: loginScreen, page: () => const GymGatewayScreen()),
+    GetPage(name: p2pLoginScreen, page: () => LoginScreen()),
     // Registered so the route carries a name. Reaching it via an anonymous
     // Get.offAll builder left settings.name null, which made ReelRouteObserver
     // and ApiService's pre-auth check both misread the current route.

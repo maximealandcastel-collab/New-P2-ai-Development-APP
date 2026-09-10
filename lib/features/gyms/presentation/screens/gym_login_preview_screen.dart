@@ -286,7 +286,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                   ),
                 ),
                 onPressed: () => Get.toNamed(
-                  _isLogin ? AppRoute.loginScreen : AppRoute.signUpScreen,
+                  _isLogin ? AppRoute.p2pLoginScreen : AppRoute.signUpScreen,
                 ),
                 child: Text(
                   _isLogin ? 'Login' : 'Create Account',
