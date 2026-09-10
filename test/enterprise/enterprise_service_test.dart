@@ -50,6 +50,20 @@ void main() {
       );
     },
   );
+  test('dashboard accepts an omitted optional members metric', () {
+    final data = EnterpriseDashboardData.fromJson(
+      {
+        'counts': {
+          'signups': 10,
+          'activeSubscriptions': 2,
+          'trainers': 1,
+        },
+      },
+      requireMembers: false,
+    );
+    expect(data.members, isNull);
+    expect(data.signups, 10);
+  });
   test('KMF seed and a second gym use the same configuration model', () {
     for (final file in ['kmf.tenant.json', 'abc.example.tenant.json']) {
       final tenant = TenantConfiguration.fromJson(

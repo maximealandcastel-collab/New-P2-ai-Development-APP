@@ -60,7 +60,9 @@ class _EnterpriseGymAdminDashboardScreenState
         : await EnterpriseService.instance.scoped('dashboard', admin: true);
     return EnterpriseDashboardData.fromJson(
       data,
-      requireMembers: !widget.legacyKmf,
+      // Older deployed gym-admin responses may not include this newer metric.
+      // When present, the model still validates that it is a nonnegative int.
+      requireMembers: false,
     );
   }
 
@@ -68,6 +70,17 @@ class _EnterpriseGymAdminDashboardScreenState
     final next = _loadDashboard();
     setState(() => _dashboard = next);
     await next;
+  }
+
+  void _openModule(String resource) {
+    final module = enterpriseModules.firstWhere(
+      (candidate) => candidate.resource == resource,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => EnterpriseModuleScreen(module: module),
+      ),
+    );
   }
 
   @override
@@ -305,6 +318,7 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.signups,
                     icon: Icons.person_add_alt_1_rounded,
                     accentColor: gym.accentColor,
+                    onTap: () => _openModule('signups'),
                   ),
                   if (dashboard.members != null)
                     _MetricCard(
@@ -313,6 +327,7 @@ class _DashboardBody extends StatelessWidget {
                       count: dashboard.members!,
                       icon: Icons.groups_rounded,
                       accentColor: gym.accentColor,
+                      onTap: () => _openModule('members'),
                     ),
                   _MetricCard(
                     width: width,
@@ -320,6 +335,7 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.activeSubscriptions,
                     icon: Icons.card_membership_rounded,
                     accentColor: gym.accentColor,
+                    onTap: () => _openModule('subscriptions'),
                   ),
                   _MetricCard(
                     width: width,
@@ -327,12 +343,29 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.trainers,
                     icon: Icons.fitness_center_rounded,
                     accentColor: gym.accentColor,
+                    onTap: () => _openModule('trainers'),
                   ),
                 ],
               );
             },
           ),
-          const SizedBox(height: 26),
+          const SizedBox(height: 16),
+          if (!legacyKmf)
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                key: const ValueKey('enterprise-analytics-button'),
+                onPressed: () => _openModule('analytics'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: gym.accentColor,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                icon: const Icon(Icons.analytics_rounded),
+                label: const Text('Open Analytics'),
+              ),
+            ),
+          const SizedBox(height: 14),
           if (!legacyKmf)
             Wrap(
               spacing: 8,
@@ -341,12 +374,7 @@ class _DashboardBody extends StatelessWidget {
                   .map(
                     (module) => ActionChip(
                       label: Text(module.title),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              EnterpriseModuleScreen(module: module),
-                        ),
-                      ),
+                      onPressed: () => _openModule(module.resource),
                     ),
                   )
                   .toList(),
@@ -459,6 +487,7 @@ class _MetricCard extends StatelessWidget {
   final int count;
   final IconData icon;
   final Color accentColor;
+  final VoidCallback? onTap;
 
   const _MetricCard({
     required this.width,
@@ -466,19 +495,25 @@ class _MetricCard extends StatelessWidget {
     required this.count,
     required this.icon,
     required this.accentColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary,
+      child: Material(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: accentColor.withOpacity(.3)),
-        ),
-        child: Padding(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: accentColor.withOpacity(.3)),
+            ),
+            child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,6 +539,8 @@ class _MetricCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),
