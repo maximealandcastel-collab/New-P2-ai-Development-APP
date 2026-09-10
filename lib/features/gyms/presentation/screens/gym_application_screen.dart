@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
+import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 
 class GymApplicationScreen extends StatefulWidget {
-  const GymApplicationScreen({super.key});
+  final EnterpriseGymModel? initialGym;
+  const GymApplicationScreen({super.key, this.initialGym});
   @override
   State<GymApplicationScreen> createState() => _GymApplicationScreenState();
 }
@@ -92,6 +94,23 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   @override
   void initState() {
     super.initState();
+    final gym = widget.initialGym;
+    if (gym != null) {
+      fields['gymName']!.text = gym.name;
+      final shortCode = gym.initials.replaceAll(
+        RegExp(r'[^A-Za-z0-9]'),
+        '',
+      );
+      fields['shortCode']!.text = shortCode.substring(
+        0,
+        shortCode.length.clamp(0, 5),
+      );
+      fields['city']!.text = gym.city;
+      primary.text = '#${gym.brandColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      secondary.text = '#${gym.accentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      gymType = types.contains(gym.category) ? gym.category : 'Other';
+      codeEdited = true;
+    }
     loadGyms();
   }
 

@@ -5,6 +5,8 @@ import '../widgets/tenant_image.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
 import 'enterprise_session_screen.dart';
+import 'gym_application_screen.dart';
+import 'gym_login_preview_screen.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -207,6 +209,14 @@ class _GymsScreenState extends State<GymsScreen> {
                 : '${gym.name} ${gym.city}',
           );
         },
+        onClaim: () {
+          Navigator.pop(context);
+          Get.to(() => GymApplicationScreen(initialGym: gym));
+        },
+        onEnter: () {
+          Navigator.pop(context);
+          GymLoginPreviewScreen.open(context, gym: gym);
+        },
       ),
     );
   }
@@ -264,7 +274,11 @@ class _GymsScreenState extends State<GymsScreen> {
   // ── Filtering ─────────────────────────────────────────────────────────────
 
   List<EnterpriseGymModel> get _displayedGyms {
-    return _sortedGyms.where((g) {
+    final originalOrder = <String, int>{
+      for (var index = 0; index < _sortedGyms.length; index++)
+        _sortedGyms[index].id: index,
+    };
+    final displayed = _sortedGyms.where((g) {
       final q = _searchQuery.toLowerCase();
       final matchSearch =
           q.isEmpty ||
@@ -277,15 +291,28 @@ class _GymsScreenState extends State<GymsScreen> {
           _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
     }).toList();
+    const priority = <String, int>{
+      'ymca_yonkers': 0,
+      'kmf_fitness_club': 1,
+      'p2p_fit_factor': 2,
+    };
+    displayed.sort((a, b) {
+      final aPriority = priority[a.id];
+      final bPriority = priority[b.id];
+      if (aPriority != null || bPriority != null) {
+        return (aPriority ?? 999).compareTo(bPriority ?? 999);
+      }
+      return (originalOrder[a.id] ?? 9999).compareTo(
+        originalOrder[b.id] ?? 9999,
+      );
+    });
+    return displayed;
   }
 
   List<EnterpriseGymModel> get _featuredGyms {
     final all = _displayedGyms;
-    // Own gyms first, then founder-pinned partners, then the top results.
-    final own = all.where((g) => g.isOwnGym).toList();
-    final pinned = all.where((g) => !g.isOwnGym && g.isPinned).toList();
-    final rest = all.where((g) => !g.isOwnGym && !g.isPinned).take(5).toList();
-    return [...own, ...pinned, ...rest];
+    // The first three licensed experiences stay fixed, followed by prospects.
+    return all.take(8).toList();
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -744,8 +771,15 @@ class _GymsScreenState extends State<GymsScreen> {
 class _GymDetailSheet extends StatelessWidget {
   final EnterpriseGymModel gym;
   final VoidCallback onOpenMaps;
+  final VoidCallback onClaim;
+  final VoidCallback onEnter;
 
-  const _GymDetailSheet({required this.gym, required this.onOpenMaps});
+  const _GymDetailSheet({
+    required this.gym,
+    required this.onOpenMaps,
+    required this.onClaim,
+    required this.onEnter,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -900,27 +934,31 @@ class _GymDetailSheet extends StatelessWidget {
             SizedBox(height: 16.h),
           ],
 
-          // Open in Google Maps CTA
+          // Locked prospects can apply; activated gyms enter branded auth.
           GestureDetector(
-            onTap: onOpenMaps,
+            onTap: isLocked ? onClaim : onEnter,
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 14.h),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: isLocked ? Colors.black87 : gym.brandColor,
                 borderRadius: BorderRadius.circular(14.r),
               ),
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.map_outlined, color: Colors.white, size: 16.sp),
+                  Icon(
+                    isLocked ? Icons.lock_outline_rounded : Icons.lock_open_rounded,
+                    color: Colors.white,
+                    size: 17.sp,
+                  ),
                   SizedBox(width: 8.w),
                   Text(
-                    'View on Google Maps',
+                    isLocked ? 'Claim your gym' : 'Enter ${gym.name}',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
@@ -928,6 +966,18 @@ class _GymDetailSheet extends StatelessWidget {
               ),
             ),
           ),
+          if (gym.address.isNotEmpty || gym.city.isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            TextButton.icon(
+              onPressed: onOpenMaps,
+              icon: const Icon(Icons.map_outlined),
+              label: const Text('View on Google Maps'),
+              style: TextButton.styleFrom(
+                foregroundColor: gym.brandColor,
+                minimumSize: const Size.fromHeight(44),
+              ),
+            ),
+          ],
         ],
       ),
     );

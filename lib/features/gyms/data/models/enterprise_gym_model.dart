@@ -130,28 +130,36 @@ class EnterpriseGymModel {
       _partners.where((g) => g.isActivated).toList();
 
   static final List<EnterpriseGymModel> _partners = [
-    // ── P2P's OWN GYM — ACTIVATED (brick & mortar) ──────────────────────
+    // ── YMCA YONKERS — ACTIVE WHITE-LABEL TENANT ───────────────────────
     EnterpriseGymModel(
-      id: 'p2p_fit_factor',
-      name: 'P2P Fit Factor',
-      initials: 'P2F',
-      category: 'P2P Partner Gym',
-      memberCount: '2.4K members',
-      brandColor: const Color(0xFFFF6B35),
-      accentColor: const Color(0xFFFF8C00),
-      isOwnGym: true,
+      id: 'ymca_yonkers',
+      name: 'YMCA Yonkers',
+      initials: 'Y',
+      category: 'Community Fitness',
+      memberCount: 'Yonkers community',
+      brandColor: const Color(0xFF0072E3),
+      accentColor: const Color(0xFF9EDAF5),
+      textColor: Colors.white,
       isPinned: true,
-      isActive: true,
-      isActivated: true, // ✅ LIVE — brick & mortar
+      isActivated: true,
       requiresLoggedOutSession: true,
-      rating: 4.9,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
-      filterTags: const ['HIIT', 'Strength', 'Cycling'],
-      city: 'Miami',
-      zipCode: '33101',
-      lat: 25.7617,
-      lng: -80.1918,
+      loginExperience: GymLoginExperience.whiteLabel,
+      tenantId: 'ymca-yonkers',
+      rating: 0.0,
+      imageAssetPath: 'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
+      galleryAssetPaths: const [
+        'assets/images/gym_photos/ymca_yonkers_exterior.jpeg',
+        'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
+        'assets/images/gym_photos/ymca_yonkers_building.jpeg',
+      ],
+      filterTags: const ['Community', 'Strength', 'Basketball'],
+      city: 'Yonkers',
+      zipCode: '10701',
+      address: '17 Riverdale Ave, Yonkers, NY 10701',
+      tagline: 'For a better us.®',
+      lat: 40.9312,
+      lng: -73.8988,
+      statusLabel: 'YMCA member, trainer, and authorized administrator access.',
     ),
 
     // ── KMF FITNESS CLUB — ACTIVE P2P-POWERED MEMBER ACCESS ───────────────
@@ -185,36 +193,28 @@ class EnterpriseGymModel {
       statusLabel: 'KMF member, trainer, and owner access.',
     ),
 
-    // ── Enterprise Partners ──────────────────────────────────────────────
+    // ── P2P's OWN GYM — ACTIVATED (brick & mortar) ──────────────────────
     EnterpriseGymModel(
-      id: 'ymca_yonkers',
-      name: 'YMCA Yonkers',
-      initials: 'Y',
-      category: 'Community Fitness',
-      memberCount: 'Yonkers community',
-      brandColor: const Color(0xFF0072E3),
-      accentColor: const Color(0xFF9EDAF5),
-      textColor: Colors.white,
+      id: 'p2p_fit_factor',
+      name: 'P2P Fit Factor',
+      initials: 'P2F',
+      category: 'P2P Partner Gym',
+      memberCount: '2.4K members',
+      brandColor: const Color(0xFFFF6B35),
+      accentColor: const Color(0xFFFF8C00),
+      isOwnGym: true,
       isPinned: true,
-      isActivated: true,
+      isActive: true,
+      isActivated: true, // ✅ LIVE — brick & mortar
       requiresLoggedOutSession: true,
-      loginExperience: GymLoginExperience.whiteLabel,
-      tenantId: 'ymca-yonkers',
-      rating: 0.0,
-      imageAssetPath: 'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
-      galleryAssetPaths: const [
-        'assets/images/gym_photos/ymca_yonkers_exterior.jpeg',
-        'assets/images/gym_photos/ymca_yonkers_gymnasium.jpeg',
-        'assets/images/gym_photos/ymca_yonkers_building.jpeg',
-      ],
-      filterTags: const ['Community', 'Strength', 'Basketball'],
-      city: 'Yonkers',
-      zipCode: '10701',
-      address: '17 Riverdale Ave, Yonkers, NY 10701',
-      tagline: 'For a better us.®',
-      lat: 40.9312,
-      lng: -73.8988,
-      statusLabel: 'YMCA member, trainer, and authorized administrator access.',
+      rating: 4.9,
+      imageUrl:
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
+      filterTags: const ['HIIT', 'Strength', 'Cycling'],
+      city: 'Miami',
+      zipCode: '33101',
+      lat: 25.7617,
+      lng: -80.1918,
     ),
 
     // ── Visible partnership prospects — no tenant access until licensed ────
