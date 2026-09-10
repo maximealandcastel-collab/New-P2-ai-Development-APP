@@ -20,6 +20,7 @@ class SignUpController extends GetxController {
   final lastNameController = TextEditingController();
   final genderController = TextEditingController();
   final phoneController = TextEditingController();
+  final dobController = TextEditingController();
   final emailController = TextEditingController(
     text: kDebugMode
         ? const String.fromEnvironment(
@@ -125,16 +126,16 @@ class SignUpController extends GetxController {
     debugPrint('Selected role: $role');
   }
 
-  Future<void> register() async {
+  Future<bool> register({bool navigateOnSuccess = true}) async {
     if (!canShowRegistrationForm) {
       openCustomerPaywall();
-      return;
+      return false;
     }
-    if (_registerState.value == LoadingState.loading) return;
-    if (!(registerFormKey.currentState?.validate() ?? false)) return;
+    if (_registerState.value == LoadingState.loading) return false;
+    if (!(registerFormKey.currentState?.validate() ?? false)) return false;
     if (!acceptedTerms.value) {
       ToastMessageHelper.show('Please accept the Terms of Service and Privacy Policy.');
-      return;
+      return false;
     }
 
     _registerState.value = LoadingState.loading;
@@ -147,26 +148,32 @@ class SignUpController extends GetxController {
         gender: genderController.text.trim().toLowerCase(),
         role: _selectedRole.value.toLowerCase(),
         password: confirmPasswordController.text,
+        phone: phoneController.text.trim(),
+        dob: dobController.text.trim(),
         referredByCode: referral.isNotEmpty ? referral : null,
         tenantId: _selectedRole.value == 'User' ? _tenantId : null,
       );
       _registeredMemberDraft = _selectedRole.value == 'User' && _memberDraft != null
           ? {..._memberDraft!, 'firstName': firstNameController.text.trim(),
               'lastName': lastNameController.text.trim(), 'email': emailController.text.trim(),
-              'gender': genderController.text.trim()}
+              'gender': genderController.text.trim(), 'phone': phoneController.text.trim(), 'dob': dobController.text.trim()}
           : null;
       // Persist the referral code so the paywall can auto-apply 50% off
       if (referral.isNotEmpty) {
         await CacheService().put('pendingPromoCode', referral.toUpperCase());
       }
       _registerState.value = LoadingState.loaded;
-      Get.toNamed(
-        AppRoute.otpVerificationScreen,
-        arguments: 'signup',
-      );
+      if (navigateOnSuccess) {
+        Get.toNamed(
+          AppRoute.otpVerificationScreen,
+          arguments: 'signup',
+        );
+      }
+      return true;
     } catch (e) {
       ToastMessageHelper.show(e.errorMessage);
       _registerState.value = LoadingState.error;
+      return false;
     }
   }
 
@@ -176,6 +183,7 @@ class SignUpController extends GetxController {
     lastNameController.dispose();
     genderController.dispose();
     phoneController.dispose();
+    dobController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();

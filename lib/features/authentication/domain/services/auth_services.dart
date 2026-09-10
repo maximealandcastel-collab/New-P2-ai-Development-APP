@@ -26,6 +26,8 @@ class AuthService {
     required String gender,
     required String role,
     required String password,
+    String? phone,
+    String? dob,
     String? referredByCode,
     String? tenantId,
   }) async {
@@ -36,6 +38,8 @@ class AuthService {
       gender: gender,
       role: role,
       password: password,
+      phone: phone,
+      dob: dob,
       referredByCode: referredByCode,
       tenantId: tenantId,
     );
@@ -47,8 +51,11 @@ class AuthService {
   }
 
   /// ─── OTP VERIFY ───────────────────
-  Future<bool> otpVerify({required String otp}) async {
-    return await _repository.otpVerify(otp: otp);
+  Future<bool> otpVerify({required String otp, String? requiredTenantId}) async {
+    return await _repository.otpVerify(
+      otp: otp,
+      requiredTenantId: requiredTenantId,
+    );
   }
 
   /// ─── RESEND OTP ───────────────────

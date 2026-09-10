@@ -18,11 +18,15 @@ class LoginResultModel {
       onboardingCompleted:
           json['onboardingCompleted'] == true || json['isProfile'] == true,
       isSubscribed: json['isSubscribed'] == true,
-      tenantScope: json['user'] is Map
+      tenantScope: json['user'] is Map && json['user']['tenantScope'] != null
           ? TenantScope.fromJson(
-              Map<String, dynamic>.from(json['user']['tenantScope'] as Map? ?? {}),
+              Map<String, dynamic>.from(json['user']['tenantScope'] as Map),
             )
-          : null,
+          : json['tenantScope'] is Map
+              ? TenantScope.fromJson(
+                  Map<String, dynamic>.from(json['tenantScope'] as Map),
+                )
+              : null,
     );
   }
 }

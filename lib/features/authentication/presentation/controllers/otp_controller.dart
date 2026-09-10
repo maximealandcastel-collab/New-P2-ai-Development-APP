@@ -33,12 +33,15 @@ class OtpController extends GetxController {
 
 
 
-  Future<bool> otpVerify() async {
+  Future<bool> otpVerify({String? requiredTenantId}) async {
     if (!otpFormKey.currentState!.validate()) return false;
 
     _otpState.value = LoadingState.loading;
     try {
-      await _authService.otpVerify(otp: otpController.text.trim());
+      await _authService.otpVerify(
+        otp: otpController.text.trim(),
+        requiredTenantId: requiredTenantId,
+      );
       if ((Get.arguments ?? '') == 'signup' && !isTrainer()) {
         final activated = await PaywallController.to.activatePendingEntitlement();
         if (!activated) {

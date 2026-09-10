@@ -37,6 +37,8 @@ class AuthRepository {
     required String gender,
     required String role,
     required String password,
+    String? phone,
+    String? dob,
     String? referredByCode,
     String? tenantId,
   }) async {
@@ -49,6 +51,8 @@ class AuthRepository {
         'gender': gender,
         'role': role,
       };
+      if (phone != null && phone.isNotEmpty) body['phone'] = phone;
+      if (dob != null && dob.isNotEmpty) body['dob'] = dob;
       if (referredByCode != null && referredByCode.isNotEmpty) {
         body['referredByCode'] = referredByCode.toUpperCase();
       }
@@ -155,7 +159,7 @@ class AuthRepository {
 
   // ─── OTP Verify ──────────────────────────
 
-  Future<bool> otpVerify({required String otp}) async {
+  Future<bool> otpVerify({required String otp, String? requiredTenantId}) async {
     try {
       final token = await _cacheService.get(AppConstants.otpToken);
       final response = await _apiService.post(
@@ -165,10 +169,19 @@ class AuthRepository {
       );
 
       final responseData = response.data?['data'];
-      final accessToken = responseData?['token']?.toString();
-      final userRole = responseData?['role']?.toString();
+      final result = LoginResultModel.fromJson(
+        Map<String, dynamic>.from(responseData ?? {}),
+      );
+      final accessToken = result.token;
+      final userRole = responseData?['role']?.toString() ?? responseData?['user']?['role']?.toString();
+      final tenantScope = result.tenantScope;
 
-      if (accessToken == null) {
+      if (requiredTenantId != null &&
+          tenantScope?.tenantId != requiredTenantId) {
+        throw UnknownException('Verified gym access could not be confirmed');
+      }
+
+      if (accessToken.isEmpty) {
         throw UnknownException('Access token not found');
       }
 
@@ -176,6 +189,15 @@ class AuthRepository {
         _storeAccessToken(accessToken),
         if (userRole != null)
           _cacheService.put(AppConstants.cacheUserRole, userRole),
+        _cacheService.put(
+          'gymAdminTenantIds',
+          tenantScope?.gymAdminTenantIds ?? const <String>[],
+        ),
+        _cacheService.put('tenantId', tenantScope?.tenantId ?? ''),
+        _cacheService.put(
+          'tenantCapabilities',
+          tenantScope?.capabilities ?? const <String>[],
+        ),
       ]);
 
       return true;

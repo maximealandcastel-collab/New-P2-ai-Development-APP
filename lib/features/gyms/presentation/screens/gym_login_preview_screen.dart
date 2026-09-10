@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_signup_flow.dart';
 
 /// Gym-branded login screen that stays inside the P2P Fit Tech AI design system.
 ///
@@ -460,6 +461,10 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
         colorText: _black,
         margin: EdgeInsets.all(16.r),
       );
+      return;
+    }
+    if (widget.gym.loginExperience == GymLoginExperience.whiteLabel) {
+      Get.to(() => EnterpriseGymSignupFlow(gym: widget.gym, initialRole: _entryRole));
       return;
     }
     Get.toNamed(
