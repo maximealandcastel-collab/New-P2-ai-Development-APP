@@ -140,10 +140,8 @@ class _EnterpriseGymAdminDashboardScreenState
                     hasScrollBody: false,
                     child: _DashboardMessage(
                       accentColor: _gym.accentColor,
-                      message: snapshot.error.toString().replaceFirst(
-                        'Bad state: ',
-                        '',
-                      ),
+                      message:
+                          'We couldn’t load the dashboard right now. Please try again.',
                       onRetry: () => _refresh(),
                     ),
                   )
