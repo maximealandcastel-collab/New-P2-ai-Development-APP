@@ -558,7 +558,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                       ),
                       SizedBox(height: 5.h),
                       Text(
-                        'Use your ${widget.gym.name} account.',
+                        'Already registered? Enter your ${widget.gym.name} email and password.',
                         style: TextStyle(
                           color: Colors.black54,
                           fontSize: 13.sp,
@@ -687,7 +687,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'New to ${widget.gym.initials}? ',
+                            "Don't have a ${widget.gym.initials} account yet? ",
                             style: TextStyle(
                               color: Colors.black54,
                               fontSize: 13.sp,
