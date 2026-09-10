@@ -1,4 +1,5 @@
 import '../widgets/enterprise_theme.dart';
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
 import '../../data/models/enterprise_dashboard_data.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,12 @@ import '../widgets/tenant_image.dart';
 /// Shared dashboard for every authorized enterprise administrator.
 class EnterpriseGymAdminDashboardScreen extends StatefulWidget {
   final bool legacyKmf;
-  const EnterpriseGymAdminDashboardScreen({super.key, this.legacyKmf = false});
+  final String? tenantId;
+  const EnterpriseGymAdminDashboardScreen({
+    super.key,
+    this.legacyKmf = false,
+    this.tenantId,
+  });
 
   @override
   State<EnterpriseGymAdminDashboardScreen> createState() =>
@@ -23,9 +29,18 @@ class EnterpriseGymAdminDashboardScreen extends StatefulWidget {
 
 class _EnterpriseGymAdminDashboardScreenState
     extends State<EnterpriseGymAdminDashboardScreen> {
-  EnterpriseGymModel get _gym => widget.legacyKmf
-      ? legacyKmfTenant.toGym()
-      : EnterpriseService.instance.active.value!.tenant.toGym();
+  EnterpriseGymModel get _gym {
+    final active = EnterpriseService.instance.active.value?.tenant;
+    if (!isSingleMode && active != null) return active.toGym();
+    final tenantId = widget.tenantId ??
+        (widget.legacyKmf ? 'kmf-fitness' : null);
+    if (tenantId != null) {
+      for (final gym in EnterpriseGymModel.activatedPartners) {
+        if (gym.tenantId == tenantId) return gym;
+      }
+    }
+    return legacyKmfTenant.toGym();
+  }
 
   late Future<EnterpriseDashboardData> _dashboard;
 
@@ -36,9 +51,10 @@ class _EnterpriseGymAdminDashboardScreenState
   }
 
   Future<EnterpriseDashboardData> _loadDashboard() async {
-    final data = widget.legacyKmf
+    final tenantId = _gym.tenantId;
+    final data = (isSingleMode || widget.tenantId != null) && tenantId != null
         ? await EnterpriseService.instance.request(
-            '/gym-admin/kmf-fitness/dashboard',
+            '/gym-admin/${Uri.encodeComponent(tenantId)}/dashboard',
           )
         : await EnterpriseService.instance.scoped('dashboard', admin: true);
     return EnterpriseDashboardData.fromJson(

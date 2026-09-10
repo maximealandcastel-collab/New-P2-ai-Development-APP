@@ -103,7 +103,38 @@ class EnterpriseGymModel {
     this.distanceMi,
     this.statusLabel =
         'Targeted integration — partnership not yet established.',
-  });
+  }) : assert(
+          loginExperience != GymLoginExperience.whiteLabel ||
+              (tenantId != null && tenantId.isNotEmpty),
+          'White-label gyms require a tenantId.',
+        ),
+        assert(
+          loginExperience != GymLoginExperience.whiteLabel ||
+              remoteLogoUrl.isNotEmpty ||
+              _localLogoAssets.containsKey(id),
+          'White-label gyms require a logo.',
+        ),
+        assert(
+          loginExperience != GymLoginExperience.whiteLabel ||
+              (imageAssetPath.isNotEmpty && galleryAssetPaths.isNotEmpty),
+          'White-label gyms require hero and facility photos.',
+        ),
+        assert(
+          loginExperience != GymLoginExperience.whiteLabel ||
+              (address.isNotEmpty && tagline.isNotEmpty),
+          'White-label gyms require an address and tagline.',
+        );
+
+  bool get hasCompleteTenantFoundation =>
+      isActivated &&
+      loginExperience == GymLoginExperience.whiteLabel &&
+      tenantId != null &&
+      tenantId!.isNotEmpty &&
+      (remoteLogoUrl.isNotEmpty || logoAssetPath.isNotEmpty) &&
+      imageAssetPath.isNotEmpty &&
+      galleryAssetPaths.isNotEmpty &&
+      address.isNotEmpty &&
+      tagline.isNotEmpty;
 
   String get distanceLabel {
     if (distanceMi == null) return '';

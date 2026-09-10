@@ -1,9 +1,11 @@
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_admin_dashboard_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/login_result_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_access_recovery_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -192,15 +194,49 @@ class LoginController extends GetxController {
     final loginEmail = submittedEmail;
     final role = _authService.getRole() ?? '';
     final tenantScope = loginResult.tenantScope;
+    String? authorizedTenantId;
+    if (isSingleMode) {
+      final authorizedTenantIds = <String>{
+        ...?tenantScope?.gymAdminTenantIds,
+      };
+      final memberTenantId = tenantScope?.tenantId;
+      if (memberTenantId != null) authorizedTenantIds.add(memberTenantId);
+
+      if (requestedTenantId != null &&
+          !authorizedTenantIds.contains(requestedTenantId)) {
+        EnterpriseGymModel? requestedGym;
+        for (final gym in EnterpriseGymModel.activatedPartners) {
+          if (gym.tenantId == requestedTenantId) requestedGym = gym;
+        }
+        if (requestedGym != null) {
+          Get.offAll(() => EnterpriseJoinScreen(gym: requestedGym!));
+          return;
+        }
+      }
+
+      authorizedTenantId =
+          requestedTenantId != null &&
+              authorizedTenantIds.contains(requestedTenantId)
+          ? requestedTenantId
+          : memberTenantId ??
+              (tenantScope?.gymAdminTenantIds.isNotEmpty ?? false
+                  ? tenantScope!.gymAdminTenantIds.first
+                  : null);
+      if (authorizedTenantId != null) {
+        await CacheService().put('tenantId', authorizedTenantId);
+      }
+    }
     if (EnterpriseService.instance.active.value != null) {
       Get.offAll(() => const EnterpriseSessionScreen());
       return;
     }
 
     if (isSingleMode &&
-        (tenantScope?.gymAdminTenantIds.contains('kmf-fitness') ?? false)) {
+        (tenantScope?.gymAdminTenantIds.isNotEmpty ?? false)) {
+      final adminTenantId = authorizedTenantId ??
+          tenantScope!.gymAdminTenantIds.first;
       Get.offAll(
-        () => const EnterpriseGymAdminDashboardScreen(legacyKmf: true),
+        () => EnterpriseGymAdminDashboardScreen(tenantId: adminTenantId),
       );
       return;
     }
