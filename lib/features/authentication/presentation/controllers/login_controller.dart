@@ -102,12 +102,13 @@ class LoginController extends GetxController {
       return;
     }
 
+    await CacheService().delete('tenantId');
+    EnterpriseService.instance.clear();
     _loginState.value = LoadingState.loading;
     final submittedEmail = emailController.text.trim().toLowerCase();
     var authenticated = false;
 
     try {
-      EnterpriseService.instance.clear();
       final loginResult = await _authService.login(
         email: submittedEmail,
         password: passwordController.text,

@@ -85,7 +85,7 @@ class DependencyInjection {
 
     /// Cache Service
     final cacheService = CacheService();
-    await CacheService().init();
+    await cacheService.init();
     Get.put<CacheService>(cacheService, permanent: true);
 
     /// Storage Service

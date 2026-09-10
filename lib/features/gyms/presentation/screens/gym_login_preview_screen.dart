@@ -51,6 +51,10 @@ class GymLoginPreviewScreen extends StatefulWidget {
     }
 
     if (!context.mounted) return;
+    if (gym.id == 'p2p_fit_factor') {
+      Get.toNamed(AppRoute.p2pLoginScreen);
+      return;
+    }
     Get.to(() => GymLoginPreviewScreen(gym: gym));
   }
 

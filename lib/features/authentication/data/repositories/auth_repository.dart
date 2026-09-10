@@ -108,7 +108,6 @@ class AuthRepository {
           'gymAdminTenantIds',
           tenantScope?.gymAdminTenantIds ?? const <String>[],
         ),
-        _cacheService.put('tenantId', tenantScope?.tenantId ?? ''),
         _cacheService.put(
           'tenantCapabilities',
           tenantScope?.capabilities ?? const <String>[],

@@ -97,7 +97,6 @@ class NetworkCaller {
   /// Build request headers with optional bearer token
   Future<Map<String, String>> _getHeaders([Map<String, String>? customHeaders]) async {
     _cachedBearerToken = (await SharedPreferences.getInstance()).getString('token') ?? '';
-    print(_cachedBearerToken);
     final headers = <String, String>{
       'Content-Type': 'application/json',
       if (_cachedBearerToken?.isNotEmpty ?? false)
@@ -147,7 +146,7 @@ class NetworkCaller {
     }
 
     final errorMessage = _extractErrorMessage(response.data);
-    log.w('⚠️ Request failed [$statusCode]: $errorMessage');
+    log.w('Request failed with status $statusCode');
 
     return NetworkResponseModel(
       statusCode: statusCode,
@@ -230,27 +229,25 @@ class NetworkCaller {
   // ==========================================================================
 
   void _logRequestStart(String method, String url) {
-    log.i('|📍|---------- [$method] REQUEST ----------|📍|');
-    log.i('URL: $url');
+    log.i('HTTP $method request started');
   }
 
   void _logResponse(String method, String url, Response response) {
-    log.i('=====> Response [$method]: ${response.statusCode}');
-    log.i('=====> API: [${response.statusCode}] $url');
-    log.i('Body: ${response.data}');
+    log.i('HTTP $method completed with status ${response.statusCode}');
   }
 
-  void _logDioError(String method, DioException e) {
-    log.e('🐞 DioException [$method]: ${e.message}');
-    log.e('Type: ${e.type}');
-    if (e.response != null) {
-      log.e('Response: ${e.response?.data}');
-    }
+  void _logDioError(String method, DioException error) {
+    log.e(
+      'HTTP $method failed (type: ${error.type}, status: ${error.response?.statusCode})',
+    );
   }
 
-  void _logUnexpectedError(String method, Object error, StackTrace stackTrace) {
-    log.e('🐞 Unexpected Error [$method]: $error');
-    log.e('Stacktrace: $stackTrace');
+  void _logUnexpectedError(
+    String method,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    log.e('HTTP $method failed unexpectedly');
   }
 
   // ==========================================================================
@@ -264,10 +261,8 @@ class NetworkCaller {
     Map<String, dynamic>? queryParameters,
   }) async {
     final requestHeaders = await _getHeaders(headers);
-    log.i('Headers: $requestHeaders');
 
     if (queryParameters != null) {
-      log.i('Query: $queryParameters');
     }
 
     return _executeRequest(
@@ -330,10 +325,8 @@ class NetworkCaller {
     Map<String, dynamic>? body,
   }) async {
     final requestHeaders = await _getHeaders(headers);
-    log.i('Headers: $requestHeaders');
 
     if (body != null) {
-      log.i('Body: $body');
     }
 
     return _executeRequest(
@@ -355,8 +348,6 @@ class NetworkCaller {
     Map<String, String>? headers,
   }) async {
     final requestHeaders = await _getHeaders(headers);
-    log.i('Headers: $requestHeaders');
-    log.i('Body: $body');
 
     return _executeRequest(
       requestFunction: () => _getDioMethodWithBody(method, url, body, requestHeaders),
@@ -400,15 +391,11 @@ class NetworkCaller {
   }) async {
     try {
       final methodName = method.name.toUpperCase();
-      log.i('|📍|---------- [$methodName MULTIPART] ----------|📍|');
-      log.i('URL: $url');
 
       final requestHeaders = await _getHeaders(headers);
       requestHeaders.remove('Content-Type'); // Let Dio set multipart Content-Type
 
-      log.i('Headers: $requestHeaders');
-      _logMultipartBody(body);
-
+  
       final formData = FormData.fromMap(body);
       final response = await _executeMultipartRequest(
         method: method,
@@ -418,8 +405,6 @@ class NetworkCaller {
         onSendProgress: onSendProgress,
       );
 
-      log.i('=====> Response [$methodName Multipart]: ${response.statusCode}');
-      log.i('Body: ${response.data}');
 
       return _buildResponse(response);
 
@@ -432,7 +417,7 @@ class NetworkCaller {
       return NetworkResponseModel(
         statusCode: -1,
         isSuccess: false,
-        errorMassage: 'Upload failed: ${e.toString()}',
+        errorMassage: 'Upload failed. Please retry.',
       );
     }
   }
@@ -457,18 +442,6 @@ class NetworkCaller {
       default:
         throw UnsupportedError('Method $method not supported for multipart');
     }
-  }
-
-  /// Log multipart request body with file count
-  void _logMultipartBody(Map<String, dynamic> body) {
-    int fileCount = 0;
-    body.forEach((key, value) {
-      if (value is MultipartFile) {
-        fileCount++;
-        log.i('File: $key - ${value.filename}');
-      }
-    });
-    log.i('Body Keys: ${body.keys.toList()} | Files: $fileCount');
   }
 
   // ── Create MultipartFile from path ────────────────────
@@ -519,13 +492,9 @@ class NetworkCaller {
     CancelToken? cancelToken,
   }) async {
     try {
-      log.i('|📍|---------- [DOWNLOAD] ----------|📍|');
-      log.i('URL: $url');
-      log.i('Path: $savePath');
 
       final requestHeaders = await _getHeaders(headers);
-      log.i('Headers: $requestHeaders');
-
+  
       await _dio.download(
         url,
         savePath,
@@ -534,7 +503,6 @@ class NetworkCaller {
         cancelToken: cancelToken,
       );
 
-      log.i('✅ Download completed: $savePath');
 
       return NetworkResponseModel(
         statusCode: 200,
