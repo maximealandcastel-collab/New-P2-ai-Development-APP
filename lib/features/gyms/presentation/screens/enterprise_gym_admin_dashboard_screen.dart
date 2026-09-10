@@ -137,6 +137,7 @@ class _EnterpriseGymAdminDashboardScreenState
                     legacyKmf: widget.legacyKmf,
                     gym: _gym,
                     dashboard: snapshot.requireData,
+                    onOpenModule: _openModule,
                   ),
               ],
             ),
@@ -281,11 +282,13 @@ class _DashboardBody extends StatelessWidget {
   final bool legacyKmf;
   final EnterpriseGymModel gym;
   final EnterpriseDashboardData dashboard;
+  final ValueChanged<String> onOpenModule;
 
   const _DashboardBody({
     required this.legacyKmf,
     required this.gym,
     required this.dashboard,
+    required this.onOpenModule,
   });
 
   @override
@@ -318,7 +321,7 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.signups,
                     icon: Icons.person_add_alt_1_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => _openModule('signups'),
+                    onTap: () => onOpenModule('signups'),
                   ),
                   if (dashboard.members != null)
                     _MetricCard(
@@ -327,7 +330,7 @@ class _DashboardBody extends StatelessWidget {
                       count: dashboard.members!,
                       icon: Icons.groups_rounded,
                       accentColor: gym.accentColor,
-                      onTap: () => _openModule('members'),
+                      onTap: () => onOpenModule('members'),
                     ),
                   _MetricCard(
                     width: width,
@@ -335,7 +338,7 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.activeSubscriptions,
                     icon: Icons.card_membership_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => _openModule('subscriptions'),
+                    onTap: () => onOpenModule('subscriptions'),
                   ),
                   _MetricCard(
                     width: width,
@@ -343,7 +346,7 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.trainers,
                     icon: Icons.fitness_center_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => _openModule('trainers'),
+                    onTap: () => onOpenModule('trainers'),
                   ),
                 ],
               );
@@ -355,7 +358,7 @@ class _DashboardBody extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 key: const ValueKey('enterprise-analytics-button'),
-                onPressed: () => _openModule('analytics'),
+                onPressed: () => onOpenModule('analytics'),
                 style: FilledButton.styleFrom(
                   backgroundColor: gym.accentColor,
                   foregroundColor: Colors.black,
@@ -374,7 +377,7 @@ class _DashboardBody extends StatelessWidget {
                   .map(
                     (module) => ActionChip(
                       label: Text(module.title),
-                      onPressed: () => _openModule(module.resource),
+                      onPressed: () => onOpenModule(module.resource),
                     ),
                   )
                   .toList(),
