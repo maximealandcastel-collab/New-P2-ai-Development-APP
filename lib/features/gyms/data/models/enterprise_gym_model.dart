@@ -5,7 +5,11 @@ enum GymLoginExperience { standard, whiteLabel }
 class EnterpriseGymModel {
   static const Map<String, String> _localLogoAssets = {
     'p2p_fit_factor': 'assets/images/facility_app_logo.png',
-    'la_fitness': 'assets/images/gym_logos/la_fitness.jpg',
+    'la_fitness': 'assets/images/gym_logos/la_fitness.png',
+    'planet_fitness': 'assets/images/gym_logos/planet_fitness.png',
+    'equinox': 'assets/images/gym_logos/equinox.png',
+    'crunch_fitness': 'assets/images/gym_logos/crunch_fitness.png',
+    'lifetime_fitness': 'assets/images/gym_logos/lifetime_fitness.png',
     'yogasix': 'assets/images/gym_logos/yogasix.png',
     'kmf_fitness_club': 'assets/images/gym_logos/kmf_fitness_club.jpg',
     'ymca_yonkers': 'assets/images/gym_logos/ymca_yonkers.png',
@@ -33,6 +37,7 @@ class EnterpriseGymModel {
     'barrys': 'barrys.com',
     'soulcycle': 'soul-cycle.com',
     'corepower': 'corepoweryoga.com',
+    'lifetime_fitness': 'lifetime.life',
     'ymca_yonkers': 'ymca.org',
   };
 
