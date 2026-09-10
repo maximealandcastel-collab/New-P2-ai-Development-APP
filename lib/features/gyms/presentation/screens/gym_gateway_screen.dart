@@ -59,8 +59,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
       // Continue with P2P standard auth
       if (Get.isRegistered<LoginController>()) {
         Get.find<LoginController>().setRole(_selectedRole);
-      } else {
-        Get.put(LoginController()).setRole(_selectedRole);
+      }
       }
       Get.toNamed(AppRoute.p2pLoginScreen);
     } else {
