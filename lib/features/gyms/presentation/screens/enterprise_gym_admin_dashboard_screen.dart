@@ -44,6 +44,7 @@ class _EnterpriseGymAdminDashboardScreenState
   }
 
   late Future<EnterpriseDashboardData> _dashboard;
+  EnterpriseDashboardData? _latestDashboard;
 
   @override
   void initState() {
@@ -58,12 +59,14 @@ class _EnterpriseGymAdminDashboardScreenState
             '/gym-admin/${Uri.encodeComponent(tenantId)}/dashboard',
           )
         : await EnterpriseService.instance.scoped('dashboard', admin: true);
-    return EnterpriseDashboardData.fromJson(
+    final dashboard = EnterpriseDashboardData.fromJson(
       data,
       // Older deployed gym-admin responses may not include this newer metric.
       // When present, the model still validates that it is a nonnegative int.
       requireMembers: false,
     );
+    _latestDashboard = dashboard;
+    return dashboard;
   }
 
   Future<void> _refresh() async {
@@ -73,6 +76,18 @@ class _EnterpriseGymAdminDashboardScreenState
   }
 
   void _openModule(String resource) {
+    final dashboard = _latestDashboard;
+    if (resource == 'analytics' && dashboard != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => _EnterpriseAnalyticsOverviewScreen(
+            gym: _gym,
+            dashboard: dashboard,
+          ),
+        ),
+      );
+      return;
+    }
     final module = enterpriseModules.firstWhere(
       (candidate) => candidate.resource == resource,
     );
@@ -321,7 +336,6 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.signups,
                     icon: Icons.person_add_alt_1_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => onOpenModule('signups'),
                   ),
                   if (dashboard.members != null)
                     _MetricCard(
@@ -330,15 +344,13 @@ class _DashboardBody extends StatelessWidget {
                       count: dashboard.members!,
                       icon: Icons.groups_rounded,
                       accentColor: gym.accentColor,
-                      onTap: () => onOpenModule('members'),
-                    ),
+                      ),
                   _MetricCard(
                     width: width,
                     label: 'Active plans',
                     count: dashboard.activeSubscriptions,
                     icon: Icons.card_membership_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => onOpenModule('subscriptions'),
                   ),
                   _MetricCard(
                     width: width,
@@ -346,7 +358,6 @@ class _DashboardBody extends StatelessWidget {
                     count: dashboard.trainers,
                     icon: Icons.fitness_center_rounded,
                     accentColor: gym.accentColor,
-                    onTap: () => onOpenModule('trainers'),
                   ),
                 ],
               );
@@ -373,7 +384,11 @@ class _DashboardBody extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: enterpriseModules
+              children: (isSingleMode
+                      ? enterpriseModules.where(
+                          (module) => module.resource == 'analytics',
+                        )
+                      : enterpriseModules)
                   .map(
                     (module) => ActionChip(
                       label: Text(module.title),
@@ -479,6 +494,112 @@ class _LocationCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
+  final EnterpriseGymModel gym;
+  final EnterpriseDashboardData dashboard;
+
+  const _EnterpriseAnalyticsOverviewScreen({
+    required this.gym,
+    required this.dashboard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: gym.brandColor,
+      appBar: AppBar(
+        backgroundColor: gym.brandColor,
+        foregroundColor: gym.textColor,
+        title: const Text('Analytics'),
+      ),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 36),
+          children: [
+            Text(
+              gym.name,
+              style: TextStyle(
+                color: gym.textColor,
+                fontSize: 25,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Live membership overview',
+              style: TextStyle(
+                color: gym.textColor.withValues(alpha: .7),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 20),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = (constraints.maxWidth - 12) / 2;
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _MetricCard(
+                      width: width,
+                      label: 'Signups',
+                      count: dashboard.signups,
+                      icon: Icons.person_add_alt_1_rounded,
+                      accentColor: gym.accentColor,
+                    ),
+                    if (dashboard.members != null)
+                      _MetricCard(
+                        width: width,
+                        label: 'Members',
+                        count: dashboard.members!,
+                        icon: Icons.groups_rounded,
+                        accentColor: gym.accentColor,
+                      ),
+                    _MetricCard(
+                      width: width,
+                      label: 'Active plans',
+                      count: dashboard.activeSubscriptions,
+                      icon: Icons.card_membership_rounded,
+                      accentColor: gym.accentColor,
+                    ),
+                    _MetricCard(
+                      width: width,
+                      label: 'Trainers',
+                      count: dashboard.trainers,
+                      icon: Icons.fitness_center_rounded,
+                      accentColor: gym.accentColor,
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 26),
+            _ActivitySection(
+              title: 'Recent signups',
+              emptyMessage: 'New members will appear here.',
+              items: dashboard.recentSignups,
+              accentColor: gym.accentColor,
+            ),
+            _ActivitySection(
+              title: 'Active subscriptions',
+              emptyMessage: 'No active subscriptions yet.',
+              items: dashboard.activeSubscriptionItems,
+              accentColor: gym.accentColor,
+            ),
+            _ActivitySection(
+              title: 'Trainers',
+              emptyMessage: 'No trainers yet.',
+              items: dashboard.recentTrainers,
+              accentColor: gym.accentColor,
+            ),
+          ],
+        ),
       ),
     );
   }
