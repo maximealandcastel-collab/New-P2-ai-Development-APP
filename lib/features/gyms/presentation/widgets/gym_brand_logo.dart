@@ -35,7 +35,10 @@ class GymBrandLogo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius * 0.72),
-        child: TenantImage(gym.logoUrl, fit: BoxFit.contain),
+        child: TenantImage(
+          gym.logoAssetPath.isNotEmpty ? gym.logoAssetPath : gym.logoUrl,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
