@@ -411,7 +411,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.username, AutofillHints.email],
             decoration: InputDecoration(
-              hintText: 'Email',
+              hintText: 'Username (email)',
               prefixIcon: const Icon(Icons.person_outline_rounded),
               filled: true,
               fillColor: Colors.white,
@@ -519,7 +519,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           TextButton(
             onPressed: () => Get.toNamed(AppRoute.forgotScreen),
             child: Text(
-              'Forgot Email or Password?',
+              'Forgot Username or Password?',
               style: TextStyle(
                 color: BrandColors.of(context).primary,
                 fontSize: 11.sp,
