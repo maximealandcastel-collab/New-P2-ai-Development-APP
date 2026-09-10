@@ -62,20 +62,25 @@ class _GymsScreenState extends State<GymsScreen> {
       }
     });
     try {
-      final page = isSingleMode
-          ? const EnterprisePage([legacyKmfConfiguration], null)
-          : await EnterpriseService.instance.directory(
-              cursor: _cursor,
-              query: _searchQuery,
-              tag: _activeFilter == 'All Types' ? null : _activeFilter,
-            );
-      final gyms = page.items
-          .map((e) => TenantConfiguration.fromJson(e).toGym())
-          .toList();
+      late final List<EnterpriseGymModel> gyms;
+      String? nextCursor;
+      if (isSingleMode) {
+        gyms = EnterpriseGymModel.partners;
+      } else {
+        final page = await EnterpriseService.instance.directory(
+          cursor: _cursor,
+          query: _searchQuery,
+          tag: _activeFilter == 'All Types' ? null : _activeFilter,
+        );
+        gyms = page.items
+            .map((e) => TenantConfiguration.fromJson(e).toGym())
+            .toList();
+        nextCursor = page.nextCursor;
+      }
       if (mounted && version == _requestVersion)
         setState(() {
           _sortedGyms.addAll(gyms);
-          _cursor = page.nextCursor;
+          _cursor = nextCursor;
         });
     } catch (e) {
       if (mounted && version == _requestVersion)

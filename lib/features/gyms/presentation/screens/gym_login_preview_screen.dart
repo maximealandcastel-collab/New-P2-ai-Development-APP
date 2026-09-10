@@ -529,7 +529,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                 ),
                 SizedBox(height: 7.h),
                 Text(
-                  'Keep Moving Forward',
+                  widget.gym.tagline,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _green,
@@ -577,6 +577,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   child: _EnterpriseRoleButton(
                                     label: role,
                                     selected: _entryRole == role,
+                                    selectedColor: _green,
                                     onTap: () => _selectRole(role),
                                   ),
                                 ),
@@ -697,7 +698,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   ? 'Owner access'
                                   : 'Create account',
                               style: TextStyle(
-                                color: const Color(0xFF187900),
+                                color: _green,
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -730,18 +731,20 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
 class _EnterpriseRoleButton extends StatelessWidget {
   final String label;
   final bool selected;
+  final Color selectedColor;
   final VoidCallback onTap;
 
   const _EnterpriseRoleButton({
     required this.label,
     required this.selected,
+    required this.selectedColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? const Color(0xFF39FF14) : const Color(0xFFF0F2EF),
+      color: selected ? selectedColor : const Color(0xFFF0F2EF),
       borderRadius: BorderRadius.circular(11.r),
       child: InkWell(
         onTap: onTap,
