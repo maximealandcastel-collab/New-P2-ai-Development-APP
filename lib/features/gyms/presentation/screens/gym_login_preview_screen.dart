@@ -577,7 +577,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   child: _EnterpriseRoleButton(
                                     label: role,
                                     selected: _entryRole == role,
-                                    selectedColor: _green,
+                                    selectedColor: _black,
                                     onTap: () => _selectRole(role),
                                   ),
                                 ),
@@ -603,6 +603,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         label: 'Email',
                         hint: 'Enter your email address',
                         icon: Icons.person_outline_rounded,
+                        focusColor: _green,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           final email = value?.trim() ?? '';
@@ -619,6 +620,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         label: 'Password',
                         hint: 'Enter your password',
                         icon: Icons.lock_outline_rounded,
+                        focusColor: _green,
                         obscureText: true,
                         onSubmitted: () => _controller.login(
                           requestedTenantId: widget.gym.tenantId,
@@ -653,9 +655,9 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     requestedTenantId: widget.gym.tenantId,
                                   ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _green,
-                              foregroundColor: _black,
-                              disabledBackgroundColor: _green.withOpacity(0.45),
+                              backgroundColor: _black,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: _black.withOpacity(0.45),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14.r),
@@ -698,7 +700,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   ? 'Owner access'
                                   : 'Create account',
                               style: TextStyle(
-                                color: _green,
+                                color: _black,
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -772,6 +774,7 @@ class _EnterpriseTextField extends StatelessWidget {
   final String label;
   final String hint;
   final IconData icon;
+  final Color focusColor;
   final TextInputType? keyboardType;
   final bool obscureText;
   final String? Function(String?)? validator;
@@ -782,6 +785,7 @@ class _EnterpriseTextField extends StatelessWidget {
     this.onSubmitted,
     required this.hint,
     required this.icon,
+    required this.focusColor,
     this.keyboardType,
     this.obscureText = false,
     this.validator,
@@ -825,10 +829,7 @@ class _EnterpriseTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(13.r),
-              borderSide: const BorderSide(
-                color: Color(0xFF39FF14),
-                width: 1.5,
-              ),
+              borderSide: BorderSide(color: focusColor, width: 1.5),
             ),
           ),
         ),
