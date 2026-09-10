@@ -121,6 +121,7 @@ class AppRoute {
   static String onboardingMainScreen = "/onboardingMainScreen";
   static String loginScreen = "/loginScreen";
   static String p2pLoginScreen = "/p2pLoginScreen";
+  static String gymGatewayScreen = "/gymGatewayScreen";
   static String forgotScreen = "/forgotScreen";
   static String otpVerificationScreen = "/otpVerificationScreen";
   static String signUpScreen = "/signUpScreen";
@@ -204,8 +205,9 @@ class AppRoute {
         }
       }),
     ),
-    GetPage(name: loginScreen, page: () => const GymGatewayScreen()),
+    GetPage(name: loginScreen, page: () => LoginScreen()),
     GetPage(name: p2pLoginScreen, page: () => LoginScreen()),
+    GetPage(name: gymGatewayScreen, page: () => const GymGatewayScreen()),
     // Registered so the route carries a name. Reaching it via an anonymous
     // Get.offAll builder left settings.name null, which made ReelRouteObserver
     // and ApiService's pre-auth check both misread the current route.

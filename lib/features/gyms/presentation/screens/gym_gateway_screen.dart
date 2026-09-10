@@ -20,27 +20,17 @@ class GymGatewayScreen extends StatefulWidget {
 }
 
 class _GymGatewayScreenState extends State<GymGatewayScreen> {
-  String _selectedRole = 'User';
+  String _selectedRole = 'Gym';
   bool _isMember = true;
   String _searchQuery = '';
   EnterpriseGymModel? _selectedGym;
   final TextEditingController _searchController = TextEditingController();
 
-  static const _popularGymIds = <String>[
-    'la_fitness',
-    'planet_fitness',
-    'equinox',
-    'crunch_fitness',
-    'lifetime_fitness',
-  ];
-
   List<EnterpriseGymModel> get _filteredGyms {
     final gyms = EnterpriseGymModel.partners;
     if (_searchQuery.isEmpty) {
-      return _popularGymIds
-          .map((id) => gyms.firstWhereOrNull((gym) => gym.id == id))
-          .whereType<EnterpriseGymModel>()
-          .toList();
+      // partners is intentionally ordered: YMCA, KMF, P2P, then prospects.
+      return gyms;
     }
     final query = _searchQuery.toLowerCase();
     return gyms.where((gym) {
@@ -107,21 +97,14 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               SizedBox(height: 20.h),
               _buildClaimGymCard(),
               SizedBox(height: 24.h),
-              _buildRoleToggle(),
-              SizedBox(height: 24.h),
-              _buildMembershipToggle(),
+              _buildSearchBar(),
               SizedBox(height: 20.h),
-              if (_isMember) ...[
-                _buildSearchBar(),
-                SizedBox(height: 20.h),
-                _buildPopularGyms(),
-                SizedBox(height: 20.h),
-              ],
+              _buildPopularGyms(),
+              SizedBox(height: 20.h),
               _buildAdminActions(),
               SizedBox(height: 24.h),
               _buildContinueButton(),
               SizedBox(height: 24.h),
-              _buildSocialLogin(),
             ],
           ),
         ),
@@ -425,7 +408,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Popular gyms',
+              'Gyms',
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
