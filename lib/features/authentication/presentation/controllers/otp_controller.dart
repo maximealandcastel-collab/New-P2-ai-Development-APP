@@ -33,8 +33,8 @@ class OtpController extends GetxController {
 
 
 
-  Future<bool> otpVerify({String? requiredTenantId}) async {
-    if (!otpFormKey.currentState!.validate()) return false;
+  Future<bool> otpVerify({String? requiredTenantId, GlobalKey<FormState>? formKey}) async {
+    if (!(formKey ?? otpFormKey).currentState!.validate()) return false;
 
     _otpState.value = LoadingState.loading;
     try {

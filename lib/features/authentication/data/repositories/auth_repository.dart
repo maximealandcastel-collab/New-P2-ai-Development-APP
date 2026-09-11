@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/exceptions/app_exceptions.dart';
@@ -59,22 +60,37 @@ class AuthRepository {
       if (tenantId != null && tenantId.isNotEmpty) {
         body['tenantId'] = tenantId;
       }
+      debugPrint('🌐 [AuthRepository.register] POST ${ApiConstants.register}');
+      debugPrint('   Payload: ${body.map((k, v) => MapEntry(k, k == 'password' ? '***' : v))}');
+
       final response = await _apiService.post(
         ApiConstants.register,
         data: body,
       );
 
-      final token = response.data?['data']['token'];
+      debugPrint('🌐 [AuthRepository.register] Response status: ${response.statusCode}');
+      debugPrint('   Response data: ${response.data}');
+
+      final dynamic dataMap = response.data is Map ? response.data['data'] : null;
+      final String token = (dataMap is Map ? dataMap['token'] : null)?.toString() ??
+          (response.data is Map ? response.data['token'] : null)?.toString() ??
+          '';
+
+      if (token.isEmpty) {
+        debugPrint('⚠️ [AuthRepository.register] No token found in response payload: ${response.data}');
+      }
 
       await Future.wait([
-        _cacheService.put(AppConstants.otpToken, token),
+        if (token.isNotEmpty) _cacheService.put(AppConstants.otpToken, token),
         _cacheService.put(AppConstants.cacheUserGender, gender.toLowerCase()),
       ]);
 
       return token;
-    } on AppException {
+    } on AppException catch (e, st) {
+      debugPrint('🔴 [AuthRepository.register] AppException: $e\n$st');
       rethrow;
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('🔴 [AuthRepository.register] Unexpected error: $e\n$st');
       throw UnknownException(e.toString());
     }
   }

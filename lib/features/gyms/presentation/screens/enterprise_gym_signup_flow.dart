@@ -1,18 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 bool enterpriseRoleCanSelfRegister(String role) => role == 'Member';
 
@@ -26,29 +23,37 @@ bool isStrongEnterprisePassword(String password) {
 class EnterpriseGymSignupFlow extends StatefulWidget {
   final EnterpriseGymModel gym;
   final String initialRole;
-  const EnterpriseGymSignupFlow({super.key, required this.gym, this.initialRole = 'Member'});
+  const EnterpriseGymSignupFlow({
+    super.key,
+    required this.gym,
+    this.initialRole = 'Member',
+  });
 
   @override
-  State<EnterpriseGymSignupFlow> createState() => _EnterpriseGymSignupFlowState();
+  State<EnterpriseGymSignupFlow> createState() =>
+      _EnterpriseGymSignupFlowState();
 }
 
 class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   final PageController _pageController = PageController();
+  final _personalInfoFormKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
+  final _otpFormKey = GlobalKey<FormState>();
   int _currentStep = 0;
-  
+
   final SignUpController _signUpController = SignUpController.to;
   final OtpController _otpController = OtpController.to;
 
   // Selected values
   late String _selectedRole;
   late String _selectedLocation;
-  
+
   // Custom focus nodes
   final _otpFocusNode = FocusNode();
 
   Timer? _resendTimer;
-  int _resendSeconds = 30;
-  bool _canResend = false;
+  final ValueNotifier<int> _resendSecondsNotifier = ValueNotifier(30);
+  final ValueNotifier<bool> _canResendNotifier = ValueNotifier(false);
 
   @override
   void initState() {
@@ -74,31 +79,30 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   }
 
   void _startResendTimer() {
-    setState(() {
-      _resendSeconds = 30;
-      _canResend = false;
-    });
+    _resendSecondsNotifier.value = 30;
+    _canResendNotifier.value = false;
     _resendTimer?.cancel();
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_resendSeconds > 0) {
-        setState(() {
-          _resendSeconds--;
-        });
+      if (_resendSecondsNotifier.value > 0) {
+        _resendSecondsNotifier.value--;
       } else {
-        setState(() {
-          _canResend = true;
-        });
+        _canResendNotifier.value = true;
         timer.cancel();
       }
     });
   }
 
   Future<void> _handleResend() async {
-    if (!_canResend) return;
+    if (!_canResendNotifier.value) return;
     _startResendTimer();
     try {
-      await Get.find<AuthService>().resendOtp(email: _signUpController.emailController.text.trim());
-      Get.snackbar('OTP Sent', 'A new verification code has been sent to your email.');
+      await Get.find<AuthService>().resendOtp(
+        email: _signUpController.emailController.text.trim(),
+      );
+      Get.snackbar(
+        'OTP Sent',
+        'A new verification code has been sent to your email.',
+      );
     } catch (e) {
       Get.snackbar('Error', 'Failed to resend OTP. Please try again.');
     }
@@ -107,6 +111,8 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   @override
   void dispose() {
     _resendTimer?.cancel();
+    _resendSecondsNotifier.dispose();
+    _canResendNotifier.dispose();
     _otpFocusNode.dispose();
     _pageController.dispose();
     super.dispose();
@@ -135,21 +141,34 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   }
 
   Future<void> _submitRegistration() async {
-    _signUpController.changeRole(_selectedRole == 'Member' ? 'User' : _selectedRole);
-    final success = await _signUpController.register(navigateOnSuccess: false);
+    _signUpController.changeRole(
+      _selectedRole == 'Member' ? 'User' : _selectedRole,
+    );
+    final success = await _signUpController.register(
+      navigateOnSuccess: false,
+    );
     if (success) {
       _startResendTimer();
       _nextStep();
+    } else {
+      debugPrint(success.toString());
+      debugPrint("Registration failed");
     }
   }
 
   Future<void> _submitOtp() async {
     final tenantId = widget.gym.tenantId;
     if (tenantId == null || tenantId.isEmpty) {
-      Get.snackbar('Unable to verify gym', 'This gym is not configured for signup.');
+      Get.snackbar(
+        'Unable to verify gym',
+        'This gym is not configured for signup.',
+      );
       return;
     }
-    final success = await _otpController.otpVerify(requiredTenantId: tenantId);
+    final success = await _otpController.otpVerify(
+      requiredTenantId: tenantId,
+      formKey: _otpFormKey,
+    );
     if (success) {
       _nextStep();
     }
@@ -159,7 +178,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     if (_otpController.isTrainer()) {
       Get.offAllNamed(AppRoute.trainerCompleteProfileScreen);
     } else {
-      ProfileCompleteController.to.applyMemberDraft(_signUpController.takeMemberDraft());
+      ProfileCompleteController.to.applyMemberDraft(
+        _signUpController.takeMemberDraft(),
+      );
       Get.offAllNamed(AppRoute.userCompleteProfileScreen);
     }
   }
@@ -170,7 +191,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       builder: (context) => AlertDialog(
         title: Text('$role access is invitation-only'),
         content: Text(
-          'Authorized ${widget.gym.name} business owners and staff should sign in with their existing account or contact their administrator.'
+          'Authorized ${widget.gym.name} business owners and staff should sign in with their existing account or contact their administrator.',
         ),
         actions: [
           TextButton(
@@ -196,7 +217,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   Widget _buildStepIndicator() {
     // Top progress bar: 6 segments (Role, Location, Info, Password, Terms, OTP). Account Created has none.
     if (_currentStep == 6) return const SizedBox.shrink();
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       child: Row(
@@ -216,7 +237,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       ),
     );
   }
-  
+
   Widget _buildHeader(String title, String subtitle) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -235,10 +256,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           SizedBox(height: 8.h),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.black54,
-            ),
+            style: TextStyle(fontSize: 14.sp, color: Colors.black54),
           ),
           SizedBox(height: 30.h),
         ],
@@ -257,14 +275,20 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             style: TextStyle(fontSize: 12.sp, color: Colors.black54),
           ),
           GymBrandLogo(
-            gym: EnterpriseGymModel.partners.firstWhere((g) => g.id == 'p2p_fit_factor'),
+            gym: EnterpriseGymModel.partners.firstWhere(
+              (g) => g.id == 'p2p_fit_factor',
+            ),
             size: 14.r,
             borderRadius: 4.r,
           ),
           SizedBox(width: 4.w),
           Text(
             'P2P Fit Tech AI',
-            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
         ],
       ),
@@ -278,12 +302,12 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: _currentStep < 6 
-          ? IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-              onPressed: _prevStep,
-            )
-          : null,
+        leading: _currentStep < 6
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+                onPressed: _prevStep,
+              )
+            : null,
       ),
       body: SafeArea(
         child: Column(
@@ -319,11 +343,30 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader('Create your account', 'Join the ${widget.gym.name} community.'),
-          _buildRoleOption('Member', 'Access workouts, classes, trainers & more', Icons.person_outline),
-          _buildRoleOption('Trainer', 'Coach, manage clients, and grow', Icons.fitness_center),
-          _buildRoleOption('Gym Staff', 'Manage operations and members', Icons.badge_outlined),
-          _buildRoleOption('Admin', 'Full facility management', Icons.settings_outlined),
+          _buildHeader(
+            'Create your account',
+            'Join the ${widget.gym.name} community.',
+          ),
+          _buildRoleOption(
+            'Member',
+            'Access workouts, classes, trainers & more',
+            Icons.person_outline,
+          ),
+          _buildRoleOption(
+            'Trainer',
+            'Coach, manage clients, and grow',
+            Icons.fitness_center,
+          ),
+          _buildRoleOption(
+            'Gym Staff',
+            'Manage operations and members',
+            Icons.badge_outlined,
+          ),
+          _buildRoleOption(
+            'Admin',
+            'Full facility management',
+            Icons.settings_outlined,
+          ),
           SizedBox(height: 40.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -333,7 +376,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _actionColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
                 ),
                 onPressed: () {
                   if (!enterpriseRoleCanSelfRegister(_selectedRole)) {
@@ -342,10 +387,13 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                     _nextStep();
                   }
                 },
-                child: Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                child: Text(
+                  'Continue',
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -361,7 +409,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
         decoration: BoxDecoration(
           color: isSelected ? _actionColor : Colors.grey[50],
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isSelected ? _actionColor : Colors.grey[300]!),
+          border: Border.all(
+            color: isSelected ? _actionColor : Colors.grey[300]!,
+          ),
         ),
         child: Row(
           children: [
@@ -396,7 +446,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -432,8 +482,14 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           _buildLocationOption(widget.gym.name, widget.gym.address),
           // Additional mock locations if YMCA
           if (widget.gym.id == 'ymca_yonkers') ...[
-             _buildLocationOption('YMCA New Rochelle', '50 Weyman Ave, New Rochelle, NY 10805'),
-             _buildLocationOption('YMCA White Plains', '250 Mamaroneck Ave, White Plains, NY 10605'),
+            _buildLocationOption(
+              'YMCA New Rochelle',
+              '50 Weyman Ave, New Rochelle, NY 10805',
+            ),
+            _buildLocationOption(
+              'YMCA White Plains',
+              '250 Mamaroneck Ave, White Plains, NY 10605',
+            ),
           ],
           SizedBox(height: 40.h),
           Padding(
@@ -444,13 +500,18 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _actionColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
                 ),
                 onPressed: _nextStep,
-                child: Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                child: Text(
+                  'Continue',
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -466,7 +527,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isSelected ? _actionColor : Colors.grey[300]!),
+          border: Border.all(
+            color: isSelected ? _actionColor : Colors.grey[300]!,
+          ),
         ),
         child: Row(
           children: [
@@ -478,7 +541,11 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 children: [
                   Text(
                     name,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp, color: Colors.black87),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                      color: Colors.black87,
+                    ),
                   ),
                   SizedBox(height: 4.h),
                   Text(
@@ -500,17 +567,61 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
 
   Widget _buildPersonalInfoStep() {
     return Form(
-      key: _signUpController.registerFormKey,
+      key: _personalInfoFormKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader('Your information', 'Create your ${widget.gym.name} account.'),
-            _buildTextField('First name', 'John', Icons.person_outline, _signUpController.firstNameController, validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
-            _buildTextField('Last name', 'Doe', Icons.person_outline, _signUpController.lastNameController, validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
-            _buildTextField('Email', 'john.doe@email.com', Icons.email_outlined, _signUpController.emailController, keyboardType: TextInputType.emailAddress, validator: (v) => (v == null || !GetUtils.isEmail(v)) ? 'Valid email required' : null),
-            _buildTextField('Phone number', '+1 (914) 123-4567', Icons.phone_outlined, _signUpController.phoneController, keyboardType: TextInputType.phone, validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
-            _buildDatePickerField('Date of birth', 'MM/DD/YYYY', Icons.calendar_today_outlined, _signUpController.dobController, validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+            _buildHeader(
+              'Your information',
+              'Create your ${widget.gym.name} account.',
+            ),
+            _buildTextField(
+              'First name',
+              'John',
+              Icons.person_outline,
+              _signUpController.firstNameController,
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
+            _buildTextField(
+              'Last name',
+              'Doe',
+              Icons.person_outline,
+              _signUpController.lastNameController,
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
+            _buildTextField(
+              'Email',
+              'john.doe@email.com',
+              Icons.email_outlined,
+              _signUpController.emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: (v) => (v == null || !GetUtils.isEmail(v))
+                  ? 'Valid email required'
+                  : null,
+            ),
+            _buildTextField(
+              'Phone number',
+              '+1 (914) 123-4567',
+              Icons.phone_outlined,
+              _signUpController.phoneController,
+              keyboardType: TextInputType.phone,
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
+            _buildDatePickerField(
+              'Date of birth',
+              'MM/DD/YYYY',
+              Icons.calendar_today_outlined,
+              _signUpController.dobController,
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
+            _buildGenderDropdownField(
+              'Gender',
+              'Select gender',
+              Icons.person_pin_outlined,
+              _signUpController.genderController,
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
             SizedBox(height: 20.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -520,52 +631,130 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _actionColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                   ),
                   onPressed: () {
-                    if (_signUpController.registerFormKey.currentState?.validate() ?? false) {
+                    if (_personalInfoFormKey.currentState?.validate() ??
+                        false) {
                       _nextStep();
                     }
                   },
-                  child: Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDatePickerField(String label, String hint, IconData icon, TextEditingController controller, {String? Function(String?)? validator}) {
+  Widget _buildGenderDropdownField(
+    String label,
+    String hint,
+    IconData icon,
+    TextEditingController controller, {
+    String? Function(String?)? validator,
+  }) {
+    const options = [
+      'Male',
+      'Female',
+      'Not prefer to say',
+    ];
+
+    final currentVal = controller.text.trim();
+    final selectedVal = options.contains(currentVal) ? currentVal : null;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 12.sp, color: Colors.black54)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
+          SizedBox(height: 8.h),
+          DropdownButtonFormField<String>(
+            initialValue: selectedVal,
+            validator: validator,
+            isExpanded: true,
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+            items: options.map((opt) {
+              return DropdownMenuItem<String>(
+                value: opt,
+                child: Text(opt, style: TextStyle(fontSize: 14.sp, color: Colors.black87)),
+              );
+            }).toList(),
+            onChanged: (v) {
+              if (v != null) {
+                controller.text = v;
+              }
+            },
+            decoration: InputDecoration(
+              hintText: hint,
+              prefixIcon: Icon(icon, color: Colors.grey),
+              filled: true,
+              fillColor: Colors.grey[50],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDatePickerField(
+    String label,
+    String hint,
+    IconData icon,
+    TextEditingController controller, {
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
           SizedBox(height: 8.h),
           GestureDetector(
             onTap: () async {
               FocusScope.of(context).unfocus();
               final date = await showDatePicker(
                 context: context,
-                initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+                initialDate: DateTime.now().subtract(
+                  const Duration(days: 365 * 18),
+                ),
                 firstDate: DateTime(1900),
                 lastDate: DateTime.now(),
                 builder: (context, child) {
                   return Theme(
                     data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: _actionColor,
-                      ),
+                      colorScheme: ColorScheme.light(primary: _actionColor),
                     ),
                     child: child!,
                   );
                 },
               );
               if (date != null) {
-                controller.text = "${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}";
+                controller.text =
+                    "${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}";
               }
             },
             child: AbsorbPointer(
@@ -594,13 +783,24 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     );
   }
 
-  Widget _buildTextField(String label, String hint, IconData icon, TextEditingController controller, {bool obscure = false, TextInputType? keyboardType, String? Function(String?)? validator}) {
+  Widget _buildTextField(
+    String label,
+    String hint,
+    IconData icon,
+    TextEditingController controller, {
+    bool obscure = false,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 12.sp, color: Colors.black54)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+          ),
           SizedBox(height: 8.h),
           TextFormField(
             controller: controller,
@@ -629,7 +829,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
 
   Widget _buildPasswordStep() {
     return Form(
-      key: GlobalKey<FormState>(), // Use local form key
+      key: _passwordFormKey,
       child: AnimatedBuilder(
         animation: Listenable.merge([
           _signUpController.passwordController,
@@ -641,7 +841,12 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           final hasUpper = RegExp(r'[A-Z]').hasMatch(pwd);
           final hasLower = RegExp(r'[a-z]').hasMatch(pwd);
           final hasNumber = RegExp(r'[0-9]').hasMatch(pwd);
-          final isValid = hasLength && hasUpper && hasLower && hasNumber && pwd == _signUpController.confirmPasswordController.text;
+          final isValid =
+              hasLength &&
+              hasUpper &&
+              hasLower &&
+              hasNumber &&
+              pwd == _signUpController.confirmPasswordController.text;
 
           return SingleChildScrollView(
             child: Column(
@@ -649,11 +854,20 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               children: [
                 _buildHeader('Create a password', 'Keep your account secure.'),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 8.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Password', style: TextStyle(fontSize: 12.sp, color: Colors.black54)),
+                      Text(
+                        'Password',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.black54,
+                        ),
+                      ),
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _signUpController.passwordController,
@@ -665,7 +879,10 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                         autofillHints: const [AutofillHints.newPassword],
                         decoration: InputDecoration(
                           hintText: '••••••••',
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.grey,
+                          ),
                           filled: true,
                           fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
@@ -682,11 +899,20 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 8.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Confirm password', style: TextStyle(fontSize: 12.sp, color: Colors.black54)),
+                      Text(
+                        'Confirm password',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.black54,
+                        ),
+                      ),
                       SizedBox(height: 8.h),
                       TextFormField(
                         controller: _signUpController.confirmPasswordController,
@@ -698,7 +924,10 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                         autofillHints: const [AutofillHints.newPassword],
                         decoration: InputDecoration(
                           hintText: '••••••••',
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.grey,
+                          ),
                           filled: true,
                           fillColor: Colors.grey[50],
                           border: OutlineInputBorder(
@@ -723,7 +952,14 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                       _buildPasswordRule('One uppercase letter', hasUpper),
                       _buildPasswordRule('One lowercase letter', hasLower),
                       _buildPasswordRule('One number', hasNumber),
-                      _buildPasswordRule('Passwords match', pwd.isNotEmpty && pwd == _signUpController.confirmPasswordController.text),
+                      _buildPasswordRule(
+                        'Passwords match',
+                        pwd.isNotEmpty &&
+                            pwd ==
+                                _signUpController
+                                    .confirmPasswordController
+                                    .text,
+                      ),
                     ],
                   ),
                 ),
@@ -736,17 +972,22 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _actionColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
                       ),
                       onPressed: isValid ? _nextStep : null,
-                      child: Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                      child: Text(
+                        'Continue',
+                        style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                      ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -756,66 +997,90 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         children: [
-          Icon(met ? Icons.check_circle : Icons.radio_button_unchecked, color: met ? Colors.green : Colors.grey, size: 16.sp),
+          Icon(
+            met ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: met ? Colors.green : Colors.grey,
+            size: 16.sp,
+          ),
           SizedBox(width: 8.w),
-          Text(rule, style: TextStyle(fontSize: 12.sp, color: met ? Colors.black87 : Colors.black54)),
+          Text(
+            rule,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: met ? Colors.black87 : Colors.black54,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTermsStep() {
-    return Obx(() => SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader('Terms & Privacy', 'Review and accept to continue.'),
-          _buildTermItem('Terms of Service'),
-          _buildTermItem('Privacy Policy'),
-          _buildTermItem('${widget.gym.name} Member Agreement'),
-          _buildTermItem('Data Sharing & Health Privacy'),
-          SizedBox(height: 20.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: _signUpController.acceptedTerms.value,
-                  onChanged: (val) => _signUpController.acceptedTerms.value = val ?? false,
-                  activeColor: _actionColor,
-                ),
-                Expanded(
-                  child: Text(
-                    'I agree to the terms and conditions and acknowledge the privacy policy.',
-                    style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+    return Obx(
+      () => SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader('Terms & Privacy', 'Review and accept to continue.'),
+            _buildTermItem('Terms of Service'),
+            _buildTermItem('Privacy Policy'),
+            _buildTermItem('${widget.gym.name} Member Agreement'),
+            _buildTermItem('Data Sharing & Health Privacy'),
+            SizedBox(height: 20.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: _signUpController.acceptedTerms.value,
+                    onChanged: (val) =>
+                        _signUpController.acceptedTerms.value = val ?? false,
+                    activeColor: _actionColor,
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 40.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52.h,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _actionColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                ),
-                onPressed: _signUpController.acceptedTerms.value && _signUpController.registerState != LoadingState.loading
-                    ? _submitRegistration
-                    : null,
-                child: _signUpController.registerState == LoadingState.loading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                  Expanded(
+                    child: Text(
+                      'I agree to the terms and conditions and acknowledge the privacy policy.',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                    ),
+                  ),
+                ],
               ),
             ),
-          )
-        ],
+            SizedBox(height: 40.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52.h,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _actionColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  onPressed:
+                      _signUpController.acceptedTerms.value &&
+                          _signUpController.registerState !=
+                              LoadingState.loading
+                      ? _submitRegistration
+                      : null,
+                  child: _signUpController.registerState == LoadingState.loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          'Continue',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget _buildTermItem(String title) {
@@ -823,7 +1088,10 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
       children: [
         ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
-          title: Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
+          title: Text(
+            title,
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+          ),
           trailing: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
         ),
         Divider(height: 1, color: Colors.grey[200]),
@@ -833,12 +1101,15 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
 
   Widget _buildOtpStep() {
     return Form(
-      key: _otpController.otpFormKey,
+      key: _otpFormKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader('Verify your email', 'We sent a 6-digit code to\n${_signUpController.emailController.text}'),
+            _buildHeader(
+              'Verify your email',
+              'We sent a 6-digit code to\n${_signUpController.emailController.text}',
+            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Center(
@@ -861,14 +1132,25 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             ),
             SizedBox(height: 20.h),
             Center(
-              child: TextButton(
-                onPressed: _canResend ? _handleResend : null,
-                child: Text(
-                  _canResend ? 'Resend code' : 'Resend code (${_resendSeconds}s)',
-                  style: TextStyle(
-                    color: _canResend ? _actionColor : Colors.grey,
-                  ),
-                ),
+              child: ListenableBuilder(
+                listenable: Listenable.merge([
+                  _resendSecondsNotifier,
+                  _canResendNotifier,
+                ]),
+                builder: (context, _) {
+                  final canResend = _canResendNotifier.value;
+                  return TextButton(
+                    onPressed: canResend ? _handleResend : null,
+                    child: Text(
+                      canResend
+                          ? 'Resend code'
+                          : 'Resend code (${_resendSecondsNotifier.value}s)',
+                      style: TextStyle(
+                        color: canResend ? _actionColor : Colors.grey,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(height: 40.h),
@@ -877,22 +1159,37 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               child: SizedBox(
                 width: double.infinity,
                 height: 52.h,
-                child: Obx(() => ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _actionColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _actionColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    onPressed: _otpController.otpState == LoadingState.loading
+                        ? null
+                        : _submitOtp,
+                    child: _otpController.otpState == LoadingState.loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            'Verify',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
-                  onPressed: _otpController.otpState == LoadingState.loading ? null : _submitOtp,
-                  child: _otpController.otpState == LoadingState.loading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text('Verify', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
-                )),
+                ),
               ),
             ),
             Center(
               child: TextButton(
                 onPressed: _prevStep,
-                child: Text('Change email', style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'Change email',
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
             ),
           ],
@@ -923,7 +1220,11 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           Text(
             'Welcome to\n${widget.gym.name}',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18.sp, color: _actionColor, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 18.sp,
+              color: _actionColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           SizedBox(height: 16.h),
           Padding(
@@ -943,13 +1244,18 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _actionColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
                 ),
                 onPressed: _finish,
-                child: Text('Continue', style: TextStyle(fontSize: 16.sp, color: Colors.white)),
+                child: Text(
+                  'Continue',
+                  style: TextStyle(fontSize: 16.sp, color: Colors.white),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
-import 'package:pler_to_pler_app/core/helpers/helper_data.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
 
@@ -374,17 +373,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _genderField() {
-    final values = {...HelperData.genderOptions, 'Non-binary', 'Prefer not to say'}.toList();
+    const values = ['Male', 'Female', 'Not prefer to say'];
+    final currentVal = controller.genderController.text;
+    final selectedVal = values.contains(currentVal) ? currentVal : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Gender', style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w600, color: const Color(0xFF272727))),
         SizedBox(height: 7.h),
         DropdownButtonFormField<String>(
-          value: controller.genderController.text.isEmpty ? null : controller.genderController.text,
+          initialValue: selectedVal,
           isExpanded: true,
           icon: Icon(Icons.keyboard_arrow_down, size: 19.sp, color: const Color(0xFF777777)),
-          decoration: _inputDecoration('Select gender', Icons.male_outlined, null),
+          decoration: _inputDecoration('Select gender', Icons.person_pin_outlined, null),
           style: TextStyle(fontSize: 13.sp, color: const Color(0xFF222222)),
           items: values.map((value) => DropdownMenuItem<String>(value: value, child: Text(value))).toList(),
           onChanged: (value) => controller.genderController.text = value ?? '',

@@ -1,5 +1,4 @@
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
+import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -89,13 +88,9 @@ class OtpVerificationScreen extends StatelessWidget {
   void _onTapNextScreen() async {
     final success = await OtpController.to.otpVerify();
     if (success) {
-      if((Get.arguments ?? '') == 'signup') {
-        if(OtpController.to.isTrainer()){
-          Get.toNamed(AppRoute.trainerCompleteProfileScreen);
-        }else{
-          ProfileCompleteController.to.applyMemberDraft(SignUpController.to.takeMemberDraft());
-          Get.toNamed(AppRoute.userCompleteProfileScreen);
-        }
+      if ((Get.arguments ?? '') == 'signup') {
+        ToastMessageHelper.show('Account verified successfully. Please sign in.');
+        Get.offAllNamed(AppRoute.loginScreen);
       } else {
         Get.offNamed(AppRoute.resetPasswordScreen);
       }

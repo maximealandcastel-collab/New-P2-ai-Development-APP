@@ -19,7 +19,6 @@ import 'package:pler_to_pler_app/features/user/progress/presentation/exercise_su
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
-import '../../../trainer/assignedPlan/presentation/screen/assigned_plan_screen.dart';
 import '../../../trainer/clients/presentation/screens/clients_screen.dart';
 import '../../../trainer/contentPost/presentation/screens/content_post_screen.dart';
 import '../../../trainer/contents/presentation/screens/contents_screen.dart';
@@ -221,7 +220,9 @@ class _NavBarState extends State<NavBar> {
           curve: Curves.easeOut,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: selected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Row(
@@ -308,7 +309,9 @@ class _NavBarState extends State<NavBar> {
                       );
                     },
                     child: Assets.icons.addButton.svg(
-                      colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary),
+                      colorMapper: BrandColorMapper(
+                        Theme.of(context).colorScheme.primary,
+                      ),
                       height: 42.h,
                       width: 42.w,
                     ),
@@ -342,7 +345,9 @@ class _NavBarState extends State<NavBar> {
               width: 21.w,
               height: 21.h,
               colorFilter: ColorFilter.mode(
-                isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
+                isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : AppColors.textSecondary,
                 BlendMode.srcIn,
               ),
             ),
@@ -351,7 +356,9 @@ class _NavBarState extends State<NavBar> {
               text: _navItems[index]["label"],
               fontSize: 9.5.sp,
               fontWeight: FontWeight.w400,
-              color: isSelected ? Theme.of(context).colorScheme.primary : AppColors.textSecondary,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : AppColors.textSecondary,
             ),
           ],
         ),
