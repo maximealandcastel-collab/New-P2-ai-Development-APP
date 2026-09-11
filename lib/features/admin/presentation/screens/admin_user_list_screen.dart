@@ -20,6 +20,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
   late final AdminDashboardController _c;
   late final String _baseFilter;
   late final String _title;
+  String? _tenantId;
   final _search = TextEditingController();
 
   // Local sub-filter & sort state
@@ -94,7 +95,8 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     _baseFilter = args['filter'] as String? ?? 'all';
     _title      = args['title']  as String? ?? 'Users';
-    _c.fetchFilteredUsers(_baseFilter);
+    _tenantId   = args['tenantId'] as String?;
+    _c.fetchFilteredUsers(_baseFilter, tenantId: _tenantId);
   }
 
   @override
@@ -200,7 +202,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
             color: AppColors.textSecondary, size: 20.sp),
         onPressed: () {
           setState(() => _subFilter = 'all');
-          _c.fetchFilteredUsers(_baseFilter);
+          _c.fetchFilteredUsers(_baseFilter, tenantId: _tenantId);
         },
       ),
     ],

@@ -261,6 +261,35 @@ class AdminUserModel {
       );
 }
 
+class OnboardedGymStats {
+  final String tenantId;
+  final int members;
+  final int trainers;
+  final int staff;
+  final int activeSubscriptions;
+  final int? classes;
+
+  const OnboardedGymStats({
+    required this.tenantId,
+    required this.members,
+    required this.trainers,
+    required this.staff,
+    required this.activeSubscriptions,
+    required this.classes,
+  });
+
+  factory OnboardedGymStats.fromJson(Map<String, dynamic> json) =>
+      OnboardedGymStats(
+        tenantId: json['tenantId']?.toString() ?? '',
+        members: (json['members'] as num?)?.toInt() ?? 0,
+        trainers: (json['trainers'] as num?)?.toInt() ?? 0,
+        staff: (json['staff'] as num?)?.toInt() ?? 0,
+        activeSubscriptions:
+            (json['activeSubscriptions'] as num?)?.toInt() ?? 0,
+        classes: (json['classes'] as num?)?.toInt(),
+      );
+}
+
 // ─── Controller ─────────────────────────────────────────────────────────────
 
 /// Key used to persist the admin-specific JWT returned by the bypass endpoint.
@@ -282,6 +311,8 @@ class AdminDashboardController extends GetxController {
   final _metricsLoading = false.obs;
   final _withdrawalsLoading = false.obs;
   final _actionLoading = ''.obs;
+  final _onboardedGymsLoading = false.obs;
+  final _onboardedGymsError = false.obs;
 
   bool get metricsLoading => _metricsLoading.value;
   bool get withdrawalsLoading => _withdrawalsLoading.value;
@@ -290,6 +321,7 @@ class AdminDashboardController extends GetxController {
   final _metrics = Rxn<AdminMetrics>();
   final _withdrawals = <WithdrawalItem>[].obs;
   final _error = ''.obs;
+  final _onboardedGyms = <String, OnboardedGymStats>{}.obs;
 
   // Filtered user list (for drill-down screens)
   final _filteredUsers = <AdminUserModel>[].obs;
@@ -301,6 +333,9 @@ class AdminDashboardController extends GetxController {
   String get error => _error.value;
   List<AdminUserModel> get filteredUsers => _filteredUsers;
   bool get filteredUsersLoading => _filteredUsersLoading.value;
+  bool get onboardedGymsLoading => _onboardedGymsLoading.value;
+  bool get onboardedGymsError => _onboardedGymsError.value;
+  Map<String, OnboardedGymStats> get onboardedGyms => _onboardedGyms;
 
   @override
   void onInit() {
@@ -337,7 +372,7 @@ class AdminDashboardController extends GetxController {
   }
 
   Future<void> loadAll() async {
-    await Future.wait([fetchMetrics(), fetchWithdrawals()]);
+    await Future.wait([fetchMetrics(), fetchWithdrawals(), fetchOnboardedGyms()]);
   }
 
   Future<void> fetchMetrics() async {
@@ -353,6 +388,30 @@ class AdminDashboardController extends GetxController {
       _error.value = 'Could not load metrics';
     } finally {
       _metricsLoading.value = false;
+    }
+  }
+
+
+  Future<void> fetchOnboardedGyms() async {
+    _onboardedGymsLoading.value = true;
+    _onboardedGymsError.value = false;
+    try {
+      final resp = await _dio.get('/api/v1/admin/onboarded-gyms');
+      if (resp.data['success'] != true) {
+        throw StateError('Onboarded gyms request failed');
+      }
+      final data = resp.data['data'] as Map<String, dynamic>? ?? const {};
+      final gyms = (data['gyms'] as List? ?? const [])
+          .whereType<Map>()
+          .map((item) => OnboardedGymStats.fromJson(
+              Map<String, dynamic>.from(item)))
+          .where((item) => item.tenantId.isNotEmpty);
+      _onboardedGyms.assignAll({for (final gym in gyms) gym.tenantId: gym});
+    } catch (_) {
+      _onboardedGyms.clear();
+      _onboardedGymsError.value = true;
+    } finally {
+      _onboardedGymsLoading.value = false;
     }
   }
 
@@ -404,13 +463,17 @@ class AdminDashboardController extends GetxController {
     }
   }
 
-  Future<void> fetchFilteredUsers(String filter) async {
+  Future<void> fetchFilteredUsers(String filter, {String? tenantId}) async {
     _filteredUsersLoading.value = true;
     filterSearchQuery.value = '';
     try {
       final resp = await _dio.get(
         '/api/v1/admin/users',
-        queryParameters: {'filter': filter, 'limit': 100},
+        queryParameters: {
+          'filter': filter,
+          'limit': 100,
+          if (tenantId != null && tenantId.isNotEmpty) 'tenantId': tenantId,
+        },
       );
       if (resp.data['success'] == true) {
         final list = (resp.data['data']['users'] as List? ?? [])
