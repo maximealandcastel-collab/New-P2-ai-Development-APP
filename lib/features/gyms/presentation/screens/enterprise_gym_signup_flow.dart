@@ -630,8 +630,12 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   Widget _buildPasswordStep() {
     return Form(
       key: GlobalKey<FormState>(), // Use local form key
-      child: StatefulBuilder(
-        builder: (context, setState) {
+      child: AnimatedBuilder(
+        animation: Listenable.merge([
+          _signUpController.passwordController,
+          _signUpController.confirmPasswordController,
+        ]),
+        builder: (context, _) {
           final pwd = _signUpController.passwordController.text;
           final hasLength = pwd.length >= 8;
           final hasUpper = RegExp(r'[A-Z]').hasMatch(pwd);
@@ -654,7 +658,11 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                       TextFormField(
                         controller: _signUpController.passwordController,
                         obscureText: true,
-                        onChanged: (_) => setState(() {}),
+                        keyboardType: TextInputType.visiblePassword,
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        autofillHints: const [AutofillHints.newPassword],
                         decoration: InputDecoration(
                           hintText: '••••••••',
                           prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
@@ -683,7 +691,11 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                       TextFormField(
                         controller: _signUpController.confirmPasswordController,
                         obscureText: true,
-                        onChanged: (_) => setState(() {}),
+                        keyboardType: TextInputType.visiblePassword,
+                        textInputAction: TextInputAction.done,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        autofillHints: const [AutofillHints.newPassword],
                         decoration: InputDecoration(
                           hintText: '••••••••',
                           prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
