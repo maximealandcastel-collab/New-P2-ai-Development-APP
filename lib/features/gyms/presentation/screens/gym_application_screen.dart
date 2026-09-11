@@ -166,12 +166,18 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     });
     try {
       final query = text('gymName');
-      final page = isSingleMode
-          ? const EnterprisePage([legacyKmfConfiguration], null)
-          : await EnterpriseService.instance.directory(
-              query: query,
-              cursor: more ? cursor : null,
-            );
+      var page = const EnterprisePage([], null);
+      Object? partnerFailure;
+      try {
+        page = isSingleMode
+            ? const EnterprisePage([legacyKmfConfiguration], null)
+            : await EnterpriseService.instance.directory(
+                query: query,
+                cursor: more ? cursor : null,
+              );
+      } catch (failure) {
+        partnerFailure = failure;
+      }
       final partnerItems = page.items
           .map(TenantConfiguration.fromJson)
           .where(
@@ -180,9 +186,18 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                 g.name.toLowerCase().contains(query.toLowerCase()),
           )
           .toList();
-      final facilityItems = !isSingleMode && !more && query.length >= 2
-          ? await EnterpriseService.instance.searchFacilities(query)
-          : const <TenantConfiguration>[];
+      var facilityItems = const <TenantConfiguration>[];
+      Object? facilityFailure;
+      if (!isSingleMode && !more && query.length >= 2) {
+        try {
+          facilityItems = await EnterpriseService.instance.searchFacilities(query);
+        } catch (failure) {
+          facilityFailure = failure;
+        }
+      }
+      if (partnerFailure != null && facilityFailure != null) {
+        throw const EnterpriseException('Both gym search sources are unavailable.');
+      }
       final seen = <String>{};
       final items = [...partnerItems, ...facilityItems]
           .where((item) => seen.add(
