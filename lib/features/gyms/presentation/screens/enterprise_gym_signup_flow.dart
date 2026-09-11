@@ -189,6 +189,10 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     );
   }
 
+  Color get _actionColor => widget.gym.id == 'kmf_fitness_club'
+      ? const Color(0xFF22C55E)
+      : widget.gym.brandColor;
+
   Widget _buildStepIndicator() {
     // Top progress bar: 6 segments (Role, Location, Info, Password, Terms, OTP). Account Created has none.
     if (_currentStep == 6) return const SizedBox.shrink();
@@ -203,7 +207,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               margin: EdgeInsets.symmetric(horizontal: 2.w),
               height: 4.h,
               decoration: BoxDecoration(
-                color: isActive ? widget.gym.brandColor : Colors.grey[300],
+                color: isActive ? _actionColor : Colors.grey[300],
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -328,7 +332,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.gym.brandColor,
+                  backgroundColor: _actionColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 ),
                 onPressed: () {
@@ -355,9 +359,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
         margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          color: isSelected ? widget.gym.brandColor : Colors.grey[50],
+          color: isSelected ? _actionColor : Colors.grey[50],
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isSelected ? widget.gym.brandColor : Colors.grey[300]!),
+          border: Border.all(color: isSelected ? _actionColor : Colors.grey[300]!),
         ),
         child: Row(
           children: [
@@ -367,7 +371,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: widget.gym.brandColor),
+              child: Icon(icon, color: _actionColor),
             ),
             SizedBox(width: 16.w),
             Expanded(
@@ -439,7 +443,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.gym.brandColor,
+                  backgroundColor: _actionColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 ),
                 onPressed: _nextStep,
@@ -462,7 +466,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: isSelected ? widget.gym.brandColor : Colors.grey[300]!),
+          border: Border.all(color: isSelected ? _actionColor : Colors.grey[300]!),
         ),
         child: Row(
           children: [
@@ -486,7 +490,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             ),
             Icon(
               isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-              color: isSelected ? widget.gym.brandColor : Colors.grey[300],
+              color: isSelected ? _actionColor : Colors.grey[300],
             ),
           ],
         ),
@@ -515,7 +519,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 height: 52.h,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.gym.brandColor,
+                    backgroundColor: _actionColor,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   ),
                   onPressed: () {
@@ -553,7 +557,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                   return Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: ColorScheme.light(
-                        primary: widget.gym.brandColor,
+                        primary: _actionColor,
                       ),
                     ),
                     child: child!,
@@ -719,7 +723,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                     height: 52.h,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.gym.brandColor,
+                        backgroundColor: _actionColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                       ),
                       onPressed: isValid ? _nextStep : null,
@@ -766,7 +770,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 Checkbox(
                   value: _signUpController.acceptedTerms.value,
                   onChanged: (val) => _signUpController.acceptedTerms.value = val ?? false,
-                  activeColor: widget.gym.brandColor,
+                  activeColor: _actionColor,
                 ),
                 Expanded(
                   child: Text(
@@ -785,7 +789,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.gym.brandColor,
+                  backgroundColor: _actionColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 ),
                 onPressed: _signUpController.acceptedTerms.value && _signUpController.registerState != LoadingState.loading
@@ -850,7 +854,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 child: Text(
                   _canResend ? 'Resend code' : 'Resend code (${_resendSeconds}s)',
                   style: TextStyle(
-                    color: _canResend ? widget.gym.brandColor : Colors.grey,
+                    color: _canResend ? _actionColor : Colors.grey,
                   ),
                 ),
               ),
@@ -863,7 +867,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                 height: 52.h,
                 child: Obx(() => ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.gym.brandColor,
+                    backgroundColor: _actionColor,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   ),
                   onPressed: _otpController.otpState == LoadingState.loading ? null : _submitOtp,
@@ -907,7 +911,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           Text(
             'Welcome to\n${widget.gym.name}',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18.sp, color: widget.gym.brandColor, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 18.sp, color: _actionColor, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 16.h),
           Padding(
@@ -926,7 +930,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.gym.brandColor,
+                  backgroundColor: _actionColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 ),
                 onPressed: _finish,

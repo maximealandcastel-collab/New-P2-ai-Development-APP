@@ -12,6 +12,17 @@ import 'enterprise_module_screen.dart';
 import 'enterprise_session_screen.dart';
 import '../widgets/tenant_image.dart';
 
+const _kmfGreen = Color(0xFF22C55E);
+const _kmfBlack = Color(0xFF090A09);
+
+bool _isKmfGym(EnterpriseGymModel gym) => gym.id == 'kmf_fitness_club';
+Color _dashboardBackground(EnterpriseGymModel gym) =>
+    _isKmfGym(gym) ? Colors.white : gym.brandColor;
+Color _dashboardText(EnterpriseGymModel gym) =>
+    _isKmfGym(gym) ? _kmfBlack : gym.textColor;
+Color _dashboardAccent(EnterpriseGymModel gym) =>
+    _isKmfGym(gym) ? _kmfGreen : gym.accentColor;
+
 /// Shared dashboard for every authorized enterprise administrator.
 class EnterpriseGymAdminDashboardScreen extends StatefulWidget {
   final bool legacyKmf;
@@ -99,21 +110,39 @@ class _EnterpriseGymAdminDashboardScreenState
   }
 
   @override
-  Widget build(BuildContext context) => widget.legacyKmf
-      ? Theme(
-          data: enterpriseTheme(context, legacyKmfTenant),
-          child: Builder(builder: _buildDashboard),
-        )
-      : _buildDashboard(context);
+  Widget build(BuildContext context) {
+    if (_isKmfGym(_gym)) {
+      final base = Theme.of(context);
+      return Theme(
+        data: base.copyWith(
+          scaffoldBackgroundColor: Colors.white,
+          colorScheme: base.colorScheme.copyWith(
+            primary: _kmfGreen,
+            secondary: Colors.white,
+            onSecondary: _kmfBlack,
+            surface: Colors.white,
+            onSurface: _kmfBlack,
+          ),
+        ),
+        child: Builder(builder: _buildDashboard),
+      );
+    }
+    return widget.legacyKmf
+        ? Theme(
+            data: enterpriseTheme(context, legacyKmfTenant),
+            child: Builder(builder: _buildDashboard),
+          )
+        : _buildDashboard(context);
+  }
 
   Widget _buildDashboard(BuildContext context) {
     return Scaffold(
-      backgroundColor: _gym.brandColor,
+      backgroundColor: _dashboardBackground(_gym),
       body: FutureBuilder<EnterpriseDashboardData>(
         future: _dashboard,
         builder: (context, snapshot) {
           return RefreshIndicator(
-            color: _gym.accentColor,
+            color: _dashboardAccent(_gym),
             backgroundColor: Theme.of(context).colorScheme.secondary,
             onRefresh: _refresh,
             child: CustomScrollView(
@@ -132,7 +161,7 @@ class _EnterpriseGymAdminDashboardScreenState
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
-                      child: CircularProgressIndicator(color: _gym.accentColor),
+                      child: CircularProgressIndicator(color: _dashboardAccent(_gym)),
                     ),
                   )
                 else if (snapshot.hasError)
@@ -185,8 +214,8 @@ class _EnterpriseHeader extends StatelessWidget {
       expandedHeight:
           340 + (MediaQuery.textScalerOf(context).scale(25) - 25) * 4,
       pinned: true,
-      backgroundColor: gym.brandColor,
-      foregroundColor: gym.textColor,
+      backgroundColor: _dashboardBackground(gym),
+      foregroundColor: _dashboardText(gym),
       title: Text(gym.name, style: TextStyle(fontWeight: FontWeight.w700)),
       actions: [
         if (!legacyKmf)
@@ -219,7 +248,7 @@ class _EnterpriseHeader extends StatelessWidget {
                   colors: [
                     Color(0x33000000),
                     Color(0xAA000000),
-                    gym.brandColor,
+                    _dashboardBackground(gym),
                   ],
                 ),
               ),
@@ -238,7 +267,7 @@ class _EnterpriseHeader extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.onSecondary,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: gym.accentColor, width: 2),
+                        border: Border.all(color: _dashboardAccent(gym), width: 2),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x66000000),
@@ -263,7 +292,7 @@ class _EnterpriseHeader extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: gym.textColor,
+                        color: _dashboardText(gym),
                         fontSize: 25,
                         fontWeight: FontWeight.w800,
                       ),
@@ -274,7 +303,7 @@ class _EnterpriseHeader extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: gym.accentColor,
+                        color: _dashboardAccent(gym),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         letterSpacing: .4,
@@ -315,7 +344,7 @@ class _DashboardBody extends StatelessWidget {
           Text(
             '${gym.name} operations',
             style: TextStyle(
-              color: gym.textColor,
+              color: _dashboardText(gym),
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
@@ -333,7 +362,8 @@ class _DashboardBody extends StatelessWidget {
                     label: 'Signups',
                     count: dashboard.signups,
                     icon: Icons.person_add_alt_1_rounded,
-                    accentColor: gym.accentColor,
+                    accentColor: _dashboardAccent(gym),
+                    onTap: () => onOpenModule('analytics'),
                   ),
                   if (dashboard.members != null)
                     _MetricCard(
@@ -341,29 +371,31 @@ class _DashboardBody extends StatelessWidget {
                       label: 'Members',
                       count: dashboard.members!,
                       icon: Icons.groups_rounded,
-                      accentColor: gym.accentColor,
+                      accentColor: _dashboardAccent(gym),
+                    onTap: () => onOpenModule('analytics'),
                       ),
                   _MetricCard(
                     width: width,
                     label: 'Active plans',
                     count: dashboard.activeSubscriptions,
                     icon: Icons.card_membership_rounded,
-                    accentColor: gym.accentColor,
+                    accentColor: _dashboardAccent(gym),
+                    onTap: () => onOpenModule('analytics'),
                   ),
                   _MetricCard(
                     width: width,
                     label: 'Trainers',
                     count: dashboard.trainers,
                     icon: Icons.fitness_center_rounded,
-                    accentColor: gym.accentColor,
+                    accentColor: _dashboardAccent(gym),
+                    onTap: () => onOpenModule('analytics'),
                   ),
                 ],
               );
             },
           ),
           const SizedBox(height: 16),
-          if (!legacyKmf)
-            SizedBox(
+          SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 key: const ValueKey('enterprise-analytics-button'),
@@ -397,25 +429,25 @@ class _DashboardBody extends StatelessWidget {
             title: 'Recent signups',
             emptyMessage: 'New members will appear here.',
             items: dashboard.recentSignups,
-            accentColor: gym.accentColor,
+            accentColor: _dashboardAccent(gym),
           ),
           _ActivitySection(
             title: 'Active subscriptions',
             emptyMessage: 'No active subscriptions yet.',
             items: dashboard.activeSubscriptionItems,
-            accentColor: gym.accentColor,
+            accentColor: _dashboardAccent(gym),
           ),
           _ActivitySection(
             title: 'Trainers',
             emptyMessage: 'Trainers will appear here once assigned.',
             items: dashboard.recentTrainers,
-            accentColor: gym.accentColor,
+            accentColor: _dashboardAccent(gym),
           ),
           _ActivitySection(
             title: 'Recent activity',
             emptyMessage: 'Gym activity will appear here as your gym grows.',
             items: dashboard.recentActivity,
-            accentColor: gym.accentColor,
+            accentColor: _dashboardAccent(gym),
           ),
         ]),
       ),
@@ -434,7 +466,7 @@ class _LocationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: gym.accentColor.withOpacity(.28)),
+        border: Border.all(color: _dashboardAccent(gym).withOpacity(.28)),
       ),
       child: Row(
         children: [
@@ -442,10 +474,10 @@ class _LocationCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: gym.accentColor.withOpacity(.12),
+              color: _dashboardAccent(gym).withOpacity(.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.location_on_rounded, color: gym.accentColor),
+            child: Icon(Icons.location_on_rounded, color: _dashboardAccent(gym)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -455,7 +487,7 @@ class _LocationCard extends StatelessWidget {
                 Text(
                   gym.name,
                   style: TextStyle(
-                    color: gym.textColor,
+                    color: _dashboardText(gym),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -463,7 +495,7 @@ class _LocationCard extends StatelessWidget {
                 Text(
                   gym.address,
                   style: TextStyle(
-                    color: gym.textColor.withOpacity(.65),
+                    color: _dashboardText(gym).withOpacity(.65),
                     fontSize: 12,
                     height: 1.35,
                   ),
@@ -474,7 +506,7 @@ class _LocationCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
-              color: gym.accentColor,
+              color: _dashboardAccent(gym),
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(
@@ -504,10 +536,10 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: gym.brandColor,
+      backgroundColor: _dashboardBackground(gym),
       appBar: AppBar(
-        backgroundColor: gym.brandColor,
-        foregroundColor: gym.textColor,
+        backgroundColor: _dashboardBackground(gym),
+        foregroundColor: _dashboardText(gym),
         title: const Text('Analytics'),
       ),
       body: SafeArea(
@@ -518,7 +550,7 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
             Text(
               gym.name,
               style: TextStyle(
-                color: gym.textColor,
+                color: _dashboardText(gym),
                 fontSize: 25,
                 fontWeight: FontWeight.w800,
               ),
@@ -527,7 +559,7 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
             Text(
               'Live membership overview',
               style: TextStyle(
-                color: gym.textColor.withValues(alpha: .7),
+                color: _dashboardText(gym).withValues(alpha: .7),
                 fontSize: 14,
               ),
             ),
@@ -544,7 +576,7 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
                       label: 'Signups',
                       count: dashboard.signups,
                       icon: Icons.person_add_alt_1_rounded,
-                      accentColor: gym.accentColor,
+                      accentColor: _dashboardAccent(gym),
                     ),
                     if (dashboard.members != null)
                       _MetricCard(
@@ -552,21 +584,21 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
                         label: 'Members',
                         count: dashboard.members!,
                         icon: Icons.groups_rounded,
-                        accentColor: gym.accentColor,
+                        accentColor: _dashboardAccent(gym),
                       ),
                     _MetricCard(
                       width: width,
                       label: 'Active plans',
                       count: dashboard.activeSubscriptions,
                       icon: Icons.card_membership_rounded,
-                      accentColor: gym.accentColor,
+                      accentColor: _dashboardAccent(gym),
                     ),
                     _MetricCard(
                       width: width,
                       label: 'Trainers',
                       count: dashboard.trainers,
                       icon: Icons.fitness_center_rounded,
-                      accentColor: gym.accentColor,
+                      accentColor: _dashboardAccent(gym),
                     ),
                   ],
                 );
@@ -577,19 +609,19 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
               title: 'Recent signups',
               emptyMessage: 'New members will appear here.',
               items: dashboard.recentSignups,
-              accentColor: gym.accentColor,
+              accentColor: _dashboardAccent(gym),
             ),
             _ActivitySection(
               title: 'Active subscriptions',
               emptyMessage: 'No active subscriptions yet.',
               items: dashboard.activeSubscriptionItems,
-              accentColor: gym.accentColor,
+              accentColor: _dashboardAccent(gym),
             ),
             _ActivitySection(
               title: 'Trainers',
               emptyMessage: 'No trainers yet.',
               items: dashboard.recentTrainers,
-              accentColor: gym.accentColor,
+              accentColor: _dashboardAccent(gym),
             ),
           ],
         ),

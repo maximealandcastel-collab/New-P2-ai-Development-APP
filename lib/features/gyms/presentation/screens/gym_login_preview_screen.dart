@@ -436,8 +436,10 @@ class _WhiteLabelGymLoginScreen extends StatefulWidget {
 }
 
 class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
-  Color get _green => widget.gym.accentColor;
-  Color get _black => widget.gym.brandColor;
+  bool get _isKmf => widget.gym.id == 'kmf_fitness_club';
+  Color get _green => _isKmf ? const Color(0xFF22C55E) : widget.gym.accentColor;
+  Color get _black => const Color(0xFF090A09);
+  Color get _pageBackground => _isKmf ? Colors.white : widget.gym.brandColor;
   final LoginController _controller = LoginController.to;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _entryRole = 'Member';
@@ -479,7 +481,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _black,
+      backgroundColor: _pageBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -493,9 +495,9 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     onPressed: Get.back,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: Colors.white,
+                      color: _isKmf ? _black : Colors.white,
                     ),
                   ),
                 ),
@@ -529,7 +531,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   widget.gym.name,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: _isKmf ? _black : Colors.white,
                     fontSize: 29.sp,
                     height: 1.05,
                     fontWeight: FontWeight.w600,
@@ -586,7 +588,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   child: _EnterpriseRoleButton(
                                     label: role,
                                     selected: _entryRole == role,
-                                    selectedColor: _black,
+                                    selectedColor: _green,
                                     onTap: () => _selectRole(role),
                                   ),
                                 ),
@@ -666,9 +668,9 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     formKey: _formKey,
                                   ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _black,
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor: _black.withOpacity(0.45),
+                              backgroundColor: _green,
+                              foregroundColor: _black,
+                              disabledBackgroundColor: _green.withOpacity(0.45),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14.r),
@@ -727,7 +729,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   '${widget.gym.name} · ${widget.gym.tagline}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: _isKmf ? Colors.black54 : Colors.white70,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                   ),
@@ -768,7 +770,7 @@ class _EnterpriseRoleButton extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: const Color(0xFF090A09),
+              color: selected ? Colors.white : const Color(0xFF090A09),
               fontSize: 12.sp,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
