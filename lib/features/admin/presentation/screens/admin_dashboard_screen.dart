@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 // ─── App theme (matches AppColors exactly) ────────────────────────────────────
 
@@ -80,6 +82,7 @@ class AdminDashboardScreen extends StatelessWidget {
             slivers: [
               const SliverToBoxAdapter(child: SizedBox(height: 56)),
               SliverToBoxAdapter(child: _DashHeader(c: c)),
+              const SliverToBoxAdapter(child: _OnboardedGymsPill()),
               SliverToBoxAdapter(child: _KpiGrid(c: c)),
               SliverToBoxAdapter(child: _ActivityFeed(c: c)),
               SliverToBoxAdapter(child: _QuickActions(c: c)),
@@ -154,6 +157,138 @@ class _DashHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─── Onboarded gyms ───────────────────────────────────────────────────────────
+
+
+class _OnboardedGymStats {
+  final int members, trainers, classes, staff;
+  const _OnboardedGymStats(this.members, this.trainers, this.classes, this.staff);
+}
+
+const _onboardedStats = <String, _OnboardedGymStats>{
+  'ymca_yonkers': _OnboardedGymStats(42, 12, 8, 3),
+  'kmf_fitness_club': _OnboardedGymStats(28, 6, 5, 2),
+};
+
+class _OnboardedGymsPill extends StatelessWidget {
+  const _OnboardedGymsPill();
+
+  @override
+  Widget build(BuildContext context) {
+    final gyms = EnterpriseGymModel.activatedPartners
+        .where((gym) => _onboardedStats.containsKey(gym.id))
+        .toList();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(30.r),
+          onTap: () => showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => _OnboardedGymsSheet(gyms: gyms),
+          ),
+          child: Ink(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30.r),
+              border: Border.all(color: _border),
+              boxShadow: const [BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 3))],
+            ),
+            child: Row(children: [
+              Icon(Icons.apartment_rounded, color: Theme.of(context).colorScheme.primary, size: 20.sp),
+              SizedBox(width: 10.w),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Gyms Onboarded', style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+                Text('${gyms.length} active partner gyms', style: TextStyle(fontSize: 10.sp, color: _tSec)),
+              ])),
+              Icon(Icons.keyboard_arrow_up_rounded, color: _tSec, size: 22.sp),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OnboardedGymsSheet extends StatelessWidget {
+  final List<EnterpriseGymModel> gyms;
+  const _OnboardedGymsSheet({required this.gyms});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .78),
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28.r))),
+    child: SafeArea(top: false, child: Padding(
+      padding: EdgeInsets.fromLTRB(18.w, 12.h, 18.w, 24.h),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 42.w, height: 4.h, decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(4.r))),
+        SizedBox(height: 16.h),
+        Row(children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Gyms Onboarded', style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+            Text('${gyms.length} active partner gyms', style: TextStyle(fontSize: 13.sp, color: _tSec)),
+          ])),
+          IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
+        ]),
+        SizedBox(height: 10.h),
+        Flexible(child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: gyms.length,
+          separatorBuilder: (_, __) => SizedBox(height: 12.h),
+          itemBuilder: (_, i) => _OnboardedGymCard(gym: gyms[i], stats: _onboardedStats[gyms[i].id]!),
+        )),
+      ]),
+    )),
+  );
+}
+
+class _OnboardedGymCard extends StatelessWidget {
+  final EnterpriseGymModel gym;
+  final _OnboardedGymStats stats;
+  const _OnboardedGymCard({required this.gym, required this.stats});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    borderRadius: BorderRadius.circular(18.r),
+    onTap: () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'all', 'title': '${gym.name} Members', 'tenantId': gym.tenantId}),
+    child: Ink(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18.r), border: Border.all(color: _border)),
+      child: Column(children: [
+        Row(children: [
+          GymBrandLogo(gym: gym, size: 64.r, borderRadius: 10.r),
+          SizedBox(width: 14.w),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(gym.name, style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+            Text(gym.address, maxLines: 2, style: TextStyle(fontSize: 12.sp, color: _tSec)),
+          ])),
+          Container(padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h), decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(20.r)), child: Text('Active', style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: const Color(0xFF16A34A)))),
+          Icon(Icons.chevron_right_rounded, color: _tSec, size: 22.sp),
+        ]),
+        SizedBox(height: 16.h),
+        Row(children: [
+          _GymStat('${stats.members}', 'Members'), _GymStat('${stats.trainers}', 'Trainers'),
+          _GymStat('${stats.classes}', 'Classes'), _GymStat('${stats.staff}', 'Staff'),
+        ]),
+      ]),
+    ),
+  );
+}
+
+class _GymStat extends StatelessWidget {
+  final String value, label;
+  const _GymStat(this.value, this.label);
+  @override
+  Widget build(BuildContext context) => Expanded(child: Column(children: [
+    Text(value, style: TextStyle(fontSize: 18.sp, fontWeight: AppFontWeight.stat, color: _tPrim)),
+    Text(label, style: TextStyle(fontSize: 10.sp, color: _tSec)),
+  ]));
 }
 
 // ─── KPI Grid (2×3) ───────────────────────────────────────────────────────────

@@ -32,8 +32,13 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
   List<EnterpriseGymModel> get _filteredGyms {
     final gyms = EnterpriseGymModel.partners;
     if (_searchQuery.isEmpty) {
-      // partners is intentionally ordered: YMCA, KMF, P2P, then prospects.
-      return gyms;
+      const priority = <String, int>{
+        'ymca_yonkers': 0,
+        'kmf_fitness_club': 1,
+        'p2p_fit_factor': 2,
+      };
+      return [...gyms]..sort((a, b) =>
+          (priority[a.id] ?? 999).compareTo(priority[b.id] ?? 999));
     }
     final query = _searchQuery.toLowerCase();
     return gyms.where((gym) {
@@ -594,7 +599,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Popular gyms',
+              'Targeted partnerships',
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
