@@ -165,19 +165,29 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       }
     });
     try {
+      final query = text('gymName');
       final page = isSingleMode
           ? const EnterprisePage([legacyKmfConfiguration], null)
           : await EnterpriseService.instance.directory(
-              query: text('gymName'),
+              query: query,
               cursor: more ? cursor : null,
             );
-      final items = page.items
+      final partnerItems = page.items
           .map(TenantConfiguration.fromJson)
           .where(
             (g) =>
                 !isSingleMode ||
-                g.name.toLowerCase().contains(text('gymName').toLowerCase()),
+                g.name.toLowerCase().contains(query.toLowerCase()),
           )
+          .toList();
+      final facilityItems = !isSingleMode && !more && query.length >= 2
+          ? await EnterpriseService.instance.searchFacilities(query)
+          : const <TenantConfiguration>[];
+      final seen = <String>{};
+      final items = [...partnerItems, ...facilityItems]
+          .where((item) => seen.add(
+                '$4{item.name.toLowerCase()}|$4{item.locations.isEmpty ? '' : item.locations.first['address']}',
+              ))
           .toList();
       if (mounted && version == generation)
         setState(() {
@@ -362,8 +372,12 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           color: Colors.white,
                           child: ListTile(
                             title: Text(g.name),
-                            subtitle: const Text(
-                              'Request a claim • ownership verification required',
+                            subtitle: Text(
+                              g.locations.isNotEmpty &&
+                                      (g.locations.first['address'] as String? ?? '').isNotEmpty
+                                  ? '$4{g.locations.first['address']}
+Request a claim • ownership verification required'
+                                  : 'Request a claim • ownership verification required',
                             ),
                             trailing: Icon(
                               tenantId == g.id

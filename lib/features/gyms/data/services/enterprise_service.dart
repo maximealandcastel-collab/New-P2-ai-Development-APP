@@ -16,6 +16,95 @@ class EnterpriseException implements Exception {
 /// No protected data is persisted. Each request belongs to a session generation.
 /// Backend authorization is mandatory; these guards only protect client state.
 class EnterpriseService {
+  static const _facilitySearchUrl = 'https://photon.komoot.io/api/';
+
+  /// Searches the public OpenStreetMap facility directory. Results are discovery
+  /// candidates only; selecting one never grants tenant access or ownership.
+  Future<List<TenantConfiguration>> searchFacilities(String query) async {
+    final normalized = query.trim();
+    if (normalized.length < 2) return const [];
+    final uri = Uri.parse(_facilitySearchUrl).replace(
+      queryParameters: {
+        'q': '$4normalized gym fitness',
+        'limit': '15',
+        'lang': 'en',
+      },
+    );
+    final response = await _client.get(
+      uri,
+      headers: const {
+        'Accept': 'application/json',
+        'User-Agent': 'P2P-FitTech-AI/1.0 facility-search',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw EnterpriseException('Facility search is temporarily unavailable.', response.statusCode);
+    }
+    final decoded = jsonDecode(response.body);
+    final features = decoded is Map ? decoded['features'] : null;
+    if (features is! List) return const [];
+    final seen = <String>{};
+    final results = <TenantConfiguration>[];
+    for (final raw in features) {
+      if (raw is! Map) continue;
+      final properties = raw['properties'];
+      final geometry = raw['geometry'];
+      if (properties is! Map || geometry is! Map) continue;
+      final name = (properties['name'] as String? ?? '').trim();
+      if (name.isEmpty) continue;
+      final osmValue = (properties['osm_value'] as String? ?? '').toLowerCase();
+      final searchable = [
+        name,
+        properties['street'],
+        properties['city'],
+        properties['state'],
+      ].whereType<String>().join(' ').toLowerCase();
+      final looksFitnessRelated = const {
+        'fitness_centre', 'sports_centre', 'gym', 'fitness_station',
+        'swimming_pool', 'stadium', 'recreation_ground', 'sports_hall',
+      }.contains(osmValue) || RegExp(r'gym|fitness|ymca|wellness|training|athletic|recreation|sports|pilates|yoga|crossfit', caseSensitive: false).hasMatch(searchable);
+      if (!looksFitnessRelated) continue;
+      final city = (properties['city'] as String? ?? properties['county'] as String? ?? '').trim();
+      final state = (properties['state'] as String? ?? '').trim();
+      final street = [properties['housenumber'], properties['street']]
+          .whereType<String>().where((value) => value.trim().isNotEmpty).join(' ');
+      final address = [street, city, state]
+          .where((value) => value.trim().isNotEmpty).join(', ');
+      final coordinates = geometry['coordinates'];
+      final lng = coordinates is List && coordinates.length >= 2 && coordinates[0] is num
+          ? (coordinates[0] as num).toDouble() : 0.0;
+      final lat = coordinates is List && coordinates.length >= 2 && coordinates[1] is num
+          ? (coordinates[1] as num).toDouble() : 0.0;
+      final sourceId = '$4{properties['osm_type'] ?? 'osm'}:$4{properties['osm_id'] ?? '$4name-$4lat-$4lng'}';
+      final dedupeKey = '$4{name.toLowerCase()}|$4{address.toLowerCase()}';
+      if (!seen.add(dedupeKey)) continue;
+      results.add(TenantConfiguration(
+        id: 'facility:$4sourceId',
+        name: name,
+        slogan: address,
+        logoUrl: '',
+        timezone: 'America/New_York',
+        primary: const Color(0xFFFF6833),
+        secondary: const Color(0xFF1A1A1A),
+        accent: const Color(0xFFFF6833),
+        photos: const [],
+        locations: [{
+          'address': address,
+          'city': city,
+          'state': state,
+          'lat': lat,
+          'lng': lng,
+          'source': 'openstreetmap',
+          'sourceId': sourceId,
+        }],
+        contact: const {},
+        category: 'Fitness Facility',
+        tags: const ['directory_candidate'],
+      ));
+    }
+    return results;
+  }
+
   static EnterpriseService _instance = EnterpriseService();
   static EnterpriseService get instance => _instance;
   @visibleForTesting
