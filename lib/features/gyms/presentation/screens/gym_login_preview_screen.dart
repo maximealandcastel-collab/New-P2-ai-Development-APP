@@ -454,17 +454,6 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   }
 
   void _openSignUp() {
-    if (_entryRole == 'Admin') {
-      Get.snackbar(
-        'Admin accounts are invitation-only',
-        'Authorized ${widget.gym.name} business owners should sign in with their existing account.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.white,
-        colorText: _black,
-        margin: EdgeInsets.all(16.r),
-      );
-      return;
-    }
     if (widget.gym.loginExperience == GymLoginExperience.whiteLabel) {
       Get.to(() => EnterpriseGymSignupFlow(gym: widget.gym, initialRole: _entryRole));
       return;
@@ -474,6 +463,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
       arguments: <String, dynamic>{
         if (widget.gym.tenantId != null) 'tenantId': widget.gym.tenantId,
         if (_entryRole == 'Trainer') 'trainerEntry': true,
+        if (_entryRole == 'Admin') 'role': 'Admin',
       },
     );
   }
@@ -709,9 +699,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                           GestureDetector(
                             onTap: _openSignUp,
                             child: Text(
-                              _entryRole == 'Admin'
-                                  ? 'Owner access'
-                                  : 'Create account',
+                              'Create account',
                               style: TextStyle(
                                 color: _black,
                                 fontSize: 13.sp,

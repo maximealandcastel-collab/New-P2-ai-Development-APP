@@ -84,6 +84,13 @@ class SignUpController extends GetxController {
       debugPrint('   Configured as Trainer: _trainerEntry=true, _customerGatePassed=false');
       return;
     }
+    if (arguments is Map && (arguments['role'] == 'Admin' || arguments['role'] == 'admin')) {
+      _customerGatePassed = true;
+      _trainerEntry = false;
+      _selectedRole.value = 'Admin';
+      debugPrint('   Configured as Admin: _customerGatePassed=true, _trainerEntry=false');
+      return;
+    }
     if (arguments is Map && arguments['paywallPassed'] == true) {
       _customerGatePassed = true;
       _trainerEntry = false;
@@ -135,6 +142,9 @@ class SignUpController extends GetxController {
     }
     if (role.toLowerCase() == 'trainer') {
       _trainerEntry = true;
+    }
+    if (role.toLowerCase() == 'admin' || role.toLowerCase() == 'gym staff') {
+      _customerGatePassed = true;
     }
     _selectedRole.value = role;
     debugPrint('   Updated selectedRole: $role, _trainerEntry: $_trainerEntry, _customerGatePassed: $_customerGatePassed');
@@ -233,7 +243,7 @@ class SignUpController extends GetxController {
       final referral = referralCodeController.text.trim();
       final sanitizedGender = formatGenderForBackend(rawGender);
       final sanitizedRole = _selectedRole.value.toLowerCase();
-      final resolvedTenantId = _selectedRole.value == 'User' ? _tenantId : null;
+      final resolvedTenantId = (_selectedRole.value == 'User' || _selectedRole.value == 'Admin') ? _tenantId : null;
       final passwordToSend = confirmPasswordController.text.isNotEmpty
           ? confirmPasswordController.text
           : passwordController.text;

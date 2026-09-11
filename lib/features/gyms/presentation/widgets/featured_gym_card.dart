@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
@@ -9,8 +12,23 @@ class FeaturedGymCard extends StatelessWidget {
   const FeaturedGymCard({super.key, required this.gym});
 
 
+  bool _isCurrentGym(EnterpriseGymModel gym) {
+    final cachedTenantId = CacheService().get<String>('tenantId');
+    final activeTenantId = EnterpriseService.instance.active.value?.tenant.id;
+    final activeBrandTenantId = TenantBrandService.to.activeBrand?.tenantId;
+    final currentTenantId =
+        activeTenantId ?? cachedTenantId ?? activeBrandTenantId;
+
+    if (currentTenantId != null && currentTenantId.isNotEmpty) {
+      return gym.tenantId == currentTenantId || gym.id == currentTenantId;
+    }
+    return gym.isOwnGym;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isCurrent = _isCurrentGym(gym);
+
     return Container(
       width: 280.w,
       decoration: BoxDecoration(
@@ -18,7 +36,7 @@ class FeaturedGymCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 18,
             offset: const Offset(0, 5),
           ),
@@ -65,36 +83,46 @@ class FeaturedGymCard extends StatelessWidget {
                       SizedBox(height: 4.h),
                       Row(
                         children: [
-                           if (gym.rating > 0) ...[
-                             Icon(Icons.star_rounded,
-                                 size: 12.sp,
-                                 color: const Color(0xFFFFAB00)),
-                             SizedBox(width: 2.w),
-                             Text(gym.rating.toStringAsFixed(1),
-                                 style: TextStyle(
-                                     fontSize: 11.sp,
-                                     color: Colors.black54,
-                                     fontWeight: FontWeight.w400)),
-                           ] else
-                             Text(
-                               'New partner',
-                               style: TextStyle(
-                                 fontSize: 11.sp,
-                                 color: gym.accentColor,
-                                 fontWeight: FontWeight.w500,
-                               ),
-                             ),
-                          SizedBox(width: 6.w),
-                          Text('· ${gym.memberCount}',
+                          if (gym.rating > 0) ...[
+                            Icon(Icons.star_rounded,
+                                size: 12.sp,
+                                color: const Color(0xFFFFAB00)),
+                            SizedBox(width: 2.w),
+                            Text(gym.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                    fontSize: 11.sp,
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.w400)),
+                          ] else
+                            Flexible(
+                              child: Text(
+                                'New partner',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: gym.accentColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          SizedBox(width: 4.w),
+                          Flexible(
+                            child: Text(
+                              '· ${gym.memberCount}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontSize: 11.sp, color: Colors.black38)),
+                                  fontSize: 11.sp, color: Colors.black38),
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
                 // Badge
-                _badge(context, gym),
+                _badge(context, gym, isCurrent: isCurrent),
               ],
             ),
           ),
@@ -117,7 +145,7 @@ class FeaturedGymCard extends StatelessWidget {
                     padding: EdgeInsets.symmetric(
                         horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65),
+                      color: Colors.black.withValues(alpha: 0.65),
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Row(
@@ -138,71 +166,99 @@ class FeaturedGymCard extends StatelessWidget {
             ],
           ),
 
-          // ── Bottom: Login / Signup button (locked if not yet activated) ─
+          // ── Bottom: Login / Signup button (disabled if current gym, locked if not yet activated) ─
           Padding(
             padding:
                 EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-            child: gym.isActivated
-                ? GestureDetector(
-                    onTap: () => GymLoginPreviewScreen.open(
-                      context,
-                      gym: gym,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                       height: 44.h,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Log in / sign up',
-                        style: TextStyle(
-                          color: Colors.white,
-                         fontSize: 12.5.sp,
-                         fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(
+            child: isCurrent
+                ? Container(
                     width: double.infinity,
+                    height: 44.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F1F1),
+                      color: const Color(0xFFF3F4F6),
                       borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 12.w, vertical: 10.h),
+                    alignment: Alignment.center,
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.lock_outline_rounded,
-                            size: 14.sp, color: Colors.black38),
+                        Icon(Icons.check_circle_rounded,
+                            size: 16.sp, color: const Color(0xFF10B981)),
                         SizedBox(width: 6.w),
-                        Flexible(
-                          child: Text(
-                            gym.statusLabel,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black38,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w400,
-                              height: 1.3,
-                            ),
+                        Text(
+                          'Current Gym',
+                          style: TextStyle(
+                            color: const Color(0xFF374151),
+                            fontSize: 12.5.sp,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  )
+                : gym.isActivated
+                    ? GestureDetector(
+                        onTap: () => GymLoginPreviewScreen.open(
+                          context,
+                          gym: gym,
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          height: 44.h,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Log in / sign up',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.5.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F1F1),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 10.h),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.lock_outline_rounded,
+                                size: 14.sp, color: Colors.black38),
+                            SizedBox(width: 6.w),
+                            Flexible(
+                              child: Text(
+                                gym.statusLabel,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
           ),
         ],
       ),
     );
   }
 
-  Widget _badge(BuildContext context, EnterpriseGymModel gym) {
-    if (gym.isOwnGym) {
+  Widget _badge(BuildContext context, EnterpriseGymModel gym,
+      {bool isCurrent = false}) {
+    if (gym.isOwnGym || isCurrent) {
       return Container(
         padding:
             EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
@@ -231,5 +287,4 @@ class FeaturedGymCard extends StatelessWidget {
               fontWeight: FontWeight.w400)),
     );
   }
-
 }

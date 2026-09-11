@@ -11,7 +11,7 @@ import 'package:pler_to_pler_app/features/authentication/domain/services/auth_se
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
-bool enterpriseRoleCanSelfRegister(String role) => role == 'Member';
+bool enterpriseRoleCanSelfRegister(String role) => true;
 
 bool isStrongEnterprisePassword(String password) {
   return password.length >= 8 &&
@@ -141,9 +141,22 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   }
 
   Future<void> _submitRegistration() async {
-    _signUpController.changeRole(
-      _selectedRole == 'Member' ? 'User' : _selectedRole,
-    );
+    final String roleToSend;
+    switch (_selectedRole) {
+      case 'Member':
+        roleToSend = 'User';
+        break;
+      case 'Trainer':
+        roleToSend = 'Trainer';
+        break;
+      case 'Gym Staff':
+      case 'Admin':
+        roleToSend = 'Admin';
+        break;
+      default:
+        roleToSend = _selectedRole;
+    }
+    _signUpController.changeRole(roleToSend);
     final success = await _signUpController.register(
       navigateOnSuccess: false,
     );
@@ -177,37 +190,14 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   void _finish() {
     if (_otpController.isTrainer()) {
       Get.offAllNamed(AppRoute.trainerCompleteProfileScreen);
+    } else if (_selectedRole == 'Admin' || _selectedRole == 'Gym Staff') {
+      Get.offAllNamed(AppRoute.loginScreen);
     } else {
       ProfileCompleteController.to.applyMemberDraft(
         _signUpController.takeMemberDraft(),
       );
       Get.offAllNamed(AppRoute.userCompleteProfileScreen);
     }
-  }
-
-  void _showRestrictedRoleDialog(String role) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('$role access is invitation-only'),
-        content: Text(
-          'Authorized ${widget.gym.name} business owners and staff should sign in with their existing account or contact their administrator.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Get.back(); // Go back to login screen
-            },
-            child: const Text('Go to Sign In'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 
   Color get _actionColor => widget.gym.id == 'kmf_fitness_club'
@@ -380,13 +370,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                onPressed: () {
-                  if (!enterpriseRoleCanSelfRegister(_selectedRole)) {
-                    _showRestrictedRoleDialog(_selectedRole);
-                  } else {
-                    _nextStep();
-                  }
-                },
+                onPressed: _nextStep,
                 child: Text(
                   'Continue',
                   style: TextStyle(fontSize: 16.sp, color: Colors.white),
