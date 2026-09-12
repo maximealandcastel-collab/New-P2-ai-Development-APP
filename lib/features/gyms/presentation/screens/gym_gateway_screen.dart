@@ -198,58 +198,77 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
             ],
           ),
           SizedBox(height: 12.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () => Get.to(() => const GymApplicationScreen()),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 8.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: BrandColors.of(context).primary.withOpacity(0.5),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.workspace_premium,
-                          color: BrandColors.of(context).primary,
-                          size: 14.sp,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Opacity(
+                opacity: 0.82,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 78.r,
+                  height: 78.r,
+                  fit: BoxFit.contain,
+                  semanticLabel: 'P2P FitTech AI logo',
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.to(() => const GymApplicationScreen()),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
                         ),
-                        SizedBox(width: 6.w),
-                        Text(
-                          'CLAIM YOUR GYM →',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                            color: BrandColors.of(context).primary,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.92),
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: BrandColors.of(context).primary.withOpacity(0.5),
                           ),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.workspace_premium,
+                              color: BrandColors.of(context).primary,
+                              size: 14.sp,
+                            ),
+                            SizedBox(width: 6.w),
+                            Flexible(
+                              child: Text(
+                                'CLAIM YOUR GYM →',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: BrandColors.of(context).primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      'TARGETED PARTNERSHIP',
+                      style: TextStyle(
+                        fontSize: 8.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 6.h),
-                Text(
-                  'TARGETED PARTNERSHIP',
-                  style: TextStyle(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
