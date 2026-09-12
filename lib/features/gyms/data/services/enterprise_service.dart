@@ -26,7 +26,7 @@ class EnterpriseService {
     if (normalized.length < 2) return const [];
     final uri = Uri.parse(_facilitySearchUrl).replace(
       queryParameters: {
-        'q': '$4normalized gym fitness',
+        'q': '$normalized gym fitness',
         'limit': '15',
         'lang': 'en',
       },
@@ -76,11 +76,11 @@ class EnterpriseService {
           ? (coordinates[0] as num).toDouble() : 0.0;
       final lat = coordinates is List && coordinates.length >= 2 && coordinates[1] is num
           ? (coordinates[1] as num).toDouble() : 0.0;
-      final sourceId = '$4{properties['osm_type'] ?? 'osm'}:$4{properties['osm_id'] ?? '$4name-$4lat-$4lng'}';
-      final dedupeKey = '$4{name.toLowerCase()}|$4{address.toLowerCase()}';
+      final sourceId = "${properties['osm_type'] ?? 'osm'}:${properties['osm_id'] ?? '$name-$lat-$lng'}";
+      final dedupeKey = '${name.toLowerCase()}|${address.toLowerCase()}';
       if (!seen.add(dedupeKey)) continue;
       results.add(TenantConfiguration(
-        id: 'facility:$4sourceId',
+        id: 'facility:$sourceId',
         name: name,
         slogan: address,
         logoUrl: '',

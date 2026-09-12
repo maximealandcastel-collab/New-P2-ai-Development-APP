@@ -390,8 +390,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             subtitle: Text(
                               g.locations.isNotEmpty &&
                                       (g.locations.first['address'] as String? ?? '').isNotEmpty
-                                  ? '${g.locations.first['address']}
-Request a claim • ownership verification required'
+                                  ? "${g.locations.first['address']}\nRequest a claim • ownership verification required"
                                   : 'Request a claim • ownership verification required',
                             ),
                             trailing: Icon(
