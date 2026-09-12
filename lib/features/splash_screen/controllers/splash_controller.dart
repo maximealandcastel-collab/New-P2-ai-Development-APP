@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/nav_bar.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_access_recovery_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_session_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/presentation/screens/onboarding_main_screen.dart';
 
 class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -52,9 +57,46 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     await animationController.forward();
     await Future.delayed(const Duration(milliseconds: 1000));
 
-    // Final Navigation
-    Get.offAll(() =>  OnboardingMainScreen());
-    // Get.offAll(() =>  NavBar());
+    // Final navigation must honor an already verified account.
+    await _restoreAuthenticatedDestination();
+  }
+
+  Future<void> _restoreAuthenticatedDestination() async {
+    final cache = CacheService();
+    final token = cache.get<String>('accessToken');
+    final tenantId = cache.get<String>('tenantId');
+
+    if (token == null || token.isEmpty) {
+      Get.offAll(() => OnboardingMainScreen());
+      return;
+    }
+
+    if (tenantId == null || tenantId.isEmpty) {
+      Get.offAllNamed(AppRoute.bottonNavBar);
+      return;
+    }
+
+    Future<void> restoreTenant() async {
+      await EnterpriseService.instance.switchTenant(tenantId);
+      Get.offAll(() => const EnterpriseSessionScreen());
+    }
+
+    try {
+      await restoreTenant();
+    } catch (failure) {
+      Get.offAll(
+        () => EnterpriseAccessRecoveryScreen(
+          initialError: failure,
+          onRetry: restoreTenant,
+          onSignOut: () async {
+            if (Get.isRegistered<AuthService>()) {
+              await Get.find<AuthService>().logout();
+            }
+            Get.offAll(() => OnboardingMainScreen());
+          },
+        ),
+      );
+    }
   }
 
   @override

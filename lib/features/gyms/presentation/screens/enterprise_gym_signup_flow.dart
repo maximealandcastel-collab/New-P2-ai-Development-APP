@@ -6,9 +6,10 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/otp_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/sign_up_controller.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/profile_complete_controller.dart';
 import 'package:pler_to_pler_app/features/authentication/domain/services/auth_services.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_access_recovery_screen.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_session_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 bool enterpriseRoleCanSelfRegister(String role) => true;
@@ -187,16 +188,30 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     }
   }
 
-  void _finish() {
-    if (_otpController.isTrainer()) {
-      Get.offAllNamed(AppRoute.trainerCompleteProfileScreen);
-    } else if (_selectedRole == 'Admin' || _selectedRole == 'Gym Staff') {
-      Get.offAllNamed(AppRoute.loginScreen);
-    } else {
-      ProfileCompleteController.to.applyMemberDraft(
-        _signUpController.takeMemberDraft(),
+  Future<void> _finish() async {
+    final tenantId = widget.gym.tenantId;
+    if (tenantId == null || tenantId.isEmpty) {
+      Get.snackbar(
+        'Account created',
+        'Your account is ready, but this gym is not configured yet.',
       );
-      Get.offAllNamed(AppRoute.userCompleteProfileScreen);
+      return;
+    }
+
+
+    try {
+      await enterEnterprise(tenantId);
+    } catch (failure) {
+      Get.offAll(
+        () => EnterpriseAccessRecoveryScreen(
+          initialError: failure,
+          onRetry: () => enterEnterprise(tenantId),
+          onSignOut: () async {
+            await Get.find<AuthService>().logout();
+            Get.offAllNamed(AppRoute.loginScreen);
+          },
+        ),
+      );
     }
   }
 
