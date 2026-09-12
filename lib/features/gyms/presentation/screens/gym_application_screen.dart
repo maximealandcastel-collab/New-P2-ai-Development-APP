@@ -201,7 +201,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       final seen = <String>{};
       final items = [...partnerItems, ...facilityItems]
           .where((item) => seen.add(
-                '$4{item.name.toLowerCase()}|$4{item.locations.isEmpty ? '' : item.locations.first['address']}',
+                '${item.name.toLowerCase()}|${item.locations.isEmpty ? '' : item.locations.first['address']}',
               ))
           .toList();
       if (mounted && version == generation)
@@ -390,7 +390,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             subtitle: Text(
                               g.locations.isNotEmpty &&
                                       (g.locations.first['address'] as String? ?? '').isNotEmpty
-                                  ? '$4{g.locations.first['address']}
+                                  ? '${g.locations.first['address']}
 Request a claim • ownership verification required'
                                   : 'Request a claim • ownership verification required',
                             ),
