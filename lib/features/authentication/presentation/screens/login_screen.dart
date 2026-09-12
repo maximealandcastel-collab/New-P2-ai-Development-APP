@@ -8,7 +8,6 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -248,8 +247,15 @@ class LoginScreen extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  log("SignUp screen");
-                  Get.to(() => SignUpScreen());
+                  log("Pre-signup paywall");
+                  Get.toNamed(
+                    AppRoute.paywallScreen,
+                    arguments: {
+                      'preSignup': true,
+                      'nextRoute': AppRoute.signUpScreen,
+                      'freeRoute': AppRoute.signUpScreen,
+                    },
+                  );
                 },
                 child: CustomText(
                   text: "Sign up",

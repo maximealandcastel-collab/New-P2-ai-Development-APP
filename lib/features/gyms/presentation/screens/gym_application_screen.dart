@@ -5,6 +5,7 @@ import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class GymApplicationScreen extends StatefulWidget {
   final EnterpriseGymModel? initialGym;
@@ -255,6 +256,18 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         'reviewConsent': authorized,
         if (tenantId != null) 'tenantId': tenantId,
       });
+      final checkoutUri = Uri.parse(
+        tier == 'pro'
+            ? 'https://p2pfittechai.com/enroll/enterprise-elite'
+            : 'https://p2pfittechai.com/enroll/enterprise-core',
+      );
+      final opened = await launchUrl(
+        checkoutUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened) {
+        throw StateError('Could not open secure Clover checkout.');
+      }
       if (mounted) {
         receipt = id;
         go(4);
@@ -596,27 +609,30 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       ),
                     ],
                     if (step == 3) ...[
-                      plan('free', 'Free Partner', 'We do the work', 'Free', [
-                        'Your logo in the P2P app',
-                        'We prepare your gym information',
-                        'Full P2P AI engine included',
-                        'Members can find & join your gym',
-                        'Upgrade to Elite anytime',
-                      ]),
+                      plan(
+                        'starter',
+                        'Enterprise Starter',
+                        'Launch your gym on P2P',
+                        r'$49.99/month',
+                        [
+                          'Your logo and gym information in P2P',
+                          'Full P2P AI engine included',
+                          'Members can find and join your gym',
+                          'Gym member experience',
+                        ],
+                      ),
                       const SizedBox(height: 14),
                       plan(
-                        'elite',
-                        'Elite Partner',
-                        'You tell your story',
-                        r'$306 one-time',
+                        'pro',
+                        'Enterprise Pro',
+                        'Operate and grow your community',
+                        r'$305.99/month',
                         [
-                          'Describe your facility in detail',
-                          'Showcase your trainers & culture',
-                          'Custom branded gym theme',
-                          'Member management dashboard',
+                          'Custom branded gym experience',
+                          'Trainer and member management',
                           'AI trainer matching for your gym',
-                          'Community clubs & events',
-                          'Analytics & revenue insights',
+                          'Community clubs and events',
+                          'Analytics and revenue insights',
                         ],
                       ),
                       const SizedBox(height: 26),
@@ -637,11 +653,10 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           style: TextStyle(color: muted, fontSize: 13),
                         ),
                       ),
-                      if (tier == 'elite')
-                        const Text(
-                          'The one-time payment is arranged after review. Submitting does not charge you.',
-                          style: TextStyle(color: muted, fontSize: 12),
-                        ),
+                      const Text(
+                        'You will complete secure Clover checkout before your partnership is submitted for the 48-hour review.',
+                        style: TextStyle(color: muted, fontSize: 12),
+                      ),
                     ],
                     if (step == 4) ...[
                       preview(complete: true),
@@ -689,9 +704,9 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               ('Members', '${members.round()}'),
                               (
                                 'Tier',
-                                tier == 'free'
-                                    ? 'Free Partner'
-                                    : 'Elite Partner',
+                                tier == 'starter'
+                                    ? 'Enterprise Starter'
+                                    : 'Enterprise Pro',
                               ),
                               (
                                 'Added',
@@ -769,7 +784,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               step == 4
                                   ? 'Return to P2P Fit ➜'
                                   : step == 3
-                                  ? 'Submit Partnership ➜'
+                                  ? 'Continue to Clover Checkout ➜'
                                   : 'Continue ➜',
                               style: const TextStyle(
                                 fontSize: 17,
@@ -1070,7 +1085,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     String price,
     List<String> features,
   ) {
-    final color = id == 'elite' ? orange : muted;
+    final color = id == 'pro' ? orange : muted;
     return Semantics(
       selected: tier == id,
       button: true,

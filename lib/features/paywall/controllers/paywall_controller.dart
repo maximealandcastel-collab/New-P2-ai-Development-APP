@@ -61,12 +61,16 @@ class PaywallController extends GetxController {
   void closePaywall() => Get.back();
 
   void openTrainerSignup() {
-    Get.offNamed(
-      AppRoute.signUpScreen,
-      arguments: {
-        'trainerEntry': true,
-        'role': 'Trainer',
-      },
+    _paidDestination = AppRoute.signUpScreen;
+    _selfGuidedDestination = AppRoute.signUpScreen;
+    _destinationArguments = {
+      'trainerEntry': true,
+      'role': 'Trainer',
+    };
+    Get.snackbar(
+      'Trainer signup selected',
+      'Choose a plan or enter your website access code to continue.',
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 
