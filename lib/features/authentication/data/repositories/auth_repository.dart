@@ -42,6 +42,8 @@ class AuthRepository {
     String? dob,
     String? referredByCode,
     String? tenantId,
+    String? tenantRole,
+    String? accessCode,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -59,9 +61,11 @@ class AuthRepository {
       }
       if (tenantId != null && tenantId.isNotEmpty) {
         body['tenantId'] = tenantId;
+        body['tenantRole'] = tenantRole;
+        body['accessCode'] = accessCode;
       }
       debugPrint('🌐 [AuthRepository.register] POST ${ApiConstants.register}');
-      debugPrint('   Payload: ${body.map((k, v) => MapEntry(k, k == 'password' ? '***' : v))}');
+      debugPrint('   Payload: ${body.map((k, v) => MapEntry(k, (k == 'password' || k == 'accessCode') ? '***' : v))}');
 
       final response = await _apiService.post(
         ApiConstants.register,

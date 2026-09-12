@@ -30,6 +30,8 @@ class AuthService {
     String? dob,
     String? referredByCode,
     String? tenantId,
+    String? tenantRole,
+    String? accessCode,
   }) async {
     return await _repository.register(
       firstName: firstName,
@@ -42,6 +44,8 @@ class AuthService {
       dob: dob,
       referredByCode: referredByCode,
       tenantId: tenantId,
+      tenantRole: tenantRole,
+      accessCode: accessCode,
     );
   }
 

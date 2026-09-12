@@ -45,6 +45,8 @@ class SignUpController extends GetxController {
   bool _customerGatePassed = false;
   bool _trainerEntry = false;
   String? _tenantId;
+  String? _tenantRole;
+  String? _tenantAccessCode;
   String? gymName;
   Map<String, dynamic>? _memberDraft;
   Map<String, dynamic>? _registeredMemberDraft;
@@ -62,6 +64,16 @@ class SignUpController extends GetxController {
   }
 
   bool get hasPartnerGym => _tenantId != null;
+
+  void configureTenantAccess({
+    required String? tenantId,
+    required String tenantRole,
+    required String accessCode,
+  }) {
+    _tenantId = tenantId;
+    _tenantRole = tenantRole;
+    _tenantAccessCode = accessCode;
+  }
 
   bool get canShowRegistrationForm => _customerGatePassed || _trainerEntry;
 
@@ -243,7 +255,7 @@ class SignUpController extends GetxController {
       final referral = referralCodeController.text.trim();
       final sanitizedGender = formatGenderForBackend(rawGender);
       final sanitizedRole = _selectedRole.value.toLowerCase();
-      final resolvedTenantId = (_selectedRole.value == 'User' || _selectedRole.value == 'Admin') ? _tenantId : null;
+      final resolvedTenantId = _tenantId;
       final passwordToSend = confirmPasswordController.text.isNotEmpty
           ? confirmPasswordController.text
           : passwordController.text;
@@ -270,6 +282,8 @@ class SignUpController extends GetxController {
         dob: dobController.text.trim(),
         referredByCode: referral.isNotEmpty ? referral : null,
         tenantId: resolvedTenantId,
+        tenantRole: resolvedTenantId == null ? null : _tenantRole,
+        accessCode: resolvedTenantId == null ? null : _tenantAccessCode,
       );
 
       debugPrint('🟢 [SignUpController.register] Registration succeeded! Received token length: ${token.length}');

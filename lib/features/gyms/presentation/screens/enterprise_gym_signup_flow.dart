@@ -51,6 +51,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
 
   // Custom focus nodes
   final _otpFocusNode = FocusNode();
+  final _accessCodeController = TextEditingController();
 
   Timer? _resendTimer;
   final ValueNotifier<int> _resendSecondsNotifier = ValueNotifier(30);
@@ -115,6 +116,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     _resendSecondsNotifier.dispose();
     _canResendNotifier.dispose();
     _otpFocusNode.dispose();
+    _accessCodeController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -141,6 +143,16 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
     }
   }
 
+  String _tenantRoleKey(String role) {
+    switch (role) {
+      case 'Trainer': return 'trainer';
+      case 'Gym Staff': return 'staff';
+      case 'Admin': return 'admin';
+      case 'Gym Partner': return 'owner';
+      default: return 'member';
+    }
+  }
+
   Future<void> _submitRegistration() async {
     final String roleToSend;
     switch (_selectedRole) {
@@ -152,12 +164,18 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
         break;
       case 'Gym Staff':
       case 'Admin':
-        roleToSend = 'Admin';
+      case 'Gym Partner':
+        roleToSend = 'User';
         break;
       default:
         roleToSend = _selectedRole;
     }
     _signUpController.changeRole(roleToSend);
+    _signUpController.configureTenantAccess(
+      tenantId: widget.gym.tenantId,
+      tenantRole: _tenantRoleKey(_selectedRole),
+      accessCode: _accessCodeController.text.trim(),
+    );
     final success = await _signUpController.register(
       navigateOnSuccess: false,
     );
@@ -372,7 +390,33 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             'Full facility management',
             Icons.settings_outlined,
           ),
-          SizedBox(height: 40.h),
+          _buildRoleOption(
+            'Gym Partner',
+            'Owner and executive facility access',
+            Icons.business_outlined,
+          ),
+          SizedBox(height: 20.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: TextField(
+              controller: _accessCodeController,
+              obscureText: true,
+              textCapitalization: TextCapitalization.characters,
+              autocorrect: false,
+              enableSuggestions: false,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: 'Professional access code',
+                helperText: 'Use the code for ' + widget.gym.name +
+                    ' and your selected role.',
+                prefixIcon: const Icon(Icons.verified_user_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 24.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: SizedBox(
@@ -385,7 +429,9 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                onPressed: _nextStep,
+                onPressed: _accessCodeController.text.trim().length >= 6
+                    ? _nextStep
+                    : null,
                 child: Text(
                   'Continue',
                   style: TextStyle(fontSize: 16.sp, color: Colors.white),
@@ -401,7 +447,10 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   Widget _buildRoleOption(String role, String description, IconData icon) {
     final isSelected = _selectedRole == role;
     return GestureDetector(
-      onTap: () => setState(() => _selectedRole = role),
+      onTap: () => setState(() {
+        _selectedRole = role;
+        _accessCodeController.clear();
+      }),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
         padding: EdgeInsets.all(16.r),
