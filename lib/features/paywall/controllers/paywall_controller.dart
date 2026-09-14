@@ -103,29 +103,26 @@ class PaywallController extends GetxController {
   final selectedPlan = "monthly".obs;
   void selectPlan(String plan) => selectedPlan.value = plan;
 
-  // ─── Promo code (inside card — affiliate/discount codes) ────
-  final promoController = TextEditingController();
-  final showPromoField = false.obs;
-  final promoLoading = false.obs;
+  // ─── Promo code — applied via the access-code field below ───
   final appliedPromoCode = "".obs;
-  final promoError = "".obs;
   final promoPlanLabel = "".obs;
+  // Apple product id the backend says this promo maps to. Apple charges
+  // whatever this product is priced at in App Store Connect — the app
+  // never computes or shows a discount that Apple isn't actually charging.
+  final appliedPromoProductId = "".obs;
+  final promoProductPriceStr = "".obs;
 
   // ─── Access code (bottom bar — website purchase codes) ──────
   final accessCodeController = TextEditingController();
   final accessCodeLoading = false.obs;
   final accessCodeError = "".obs;
 
-  void togglePromoField() {
-    showPromoField.value = !showPromoField.value;
-    promoError.value = "";
-  }
-
   bool get hasPromo => appliedPromoCode.value.isNotEmpty;
 
-  /// Fallback display prices (used if App Store products haven't loaded yet)
-  double get annualPrice => hasPromo ? 25.00 : 50.00;
-  double get monthlyPrice => hasPromo ? 9.99 : 19.99;
+  /// Displayed price when a promo is applied — always the real App Store
+  /// price of the product the backend mapped the code to. Never computed
+  /// client-side, since Apple is the one that actually charges it.
+  String get promoDisplayPriceStr => promoProductPriceStr.value;
 
   // ─── Lifecycle ──────────────────────────────────────────────
   @override
@@ -190,8 +187,12 @@ class PaywallController extends GetxController {
       return;
     }
 
-    final selectedId =
-        selectedPlan.value == "annual" ? _annualId : _monthlyId;
+    // A promo maps to a specific Apple product — Apple charges whatever
+    // that product is priced at in App Store Connect, so purchasing it
+    // is the only way the discount is ever actually applied.
+    final selectedId = hasPromo && appliedPromoProductId.value.isNotEmpty
+        ? appliedPromoProductId.value
+        : (selectedPlan.value == "annual" ? _annualId : _monthlyId);
     final ProductDetails? product =
         products.firstWhereOrNull((p) => p.id == selectedId);
 
@@ -266,8 +267,13 @@ class PaywallController extends GetxController {
 
       if (response.statusCode == 200) {
         purchaseLoading.value = false;
-        // If a promo code was applied, redeem it server-side now
-        if (hasPromo) await _redeemPromo();
+        // If a promo code was applied, redeem it server-side now. The
+        // backend only honors this if purchaseId matches a verified Apple
+        // transaction for the promo's product — the code alone never
+        // unlocked anything until this point.
+        if (hasPromo) {
+          await _redeemPromo(purchaseId: body["purchaseId"] as String?);
+        }
         Get.snackbar(
           "You're subscribed!",
           "Welcome to ${TenantBrandService.to.displayName}. Full access unlocked.",
@@ -289,88 +295,58 @@ class PaywallController extends GetxController {
     }
   }
 
-  Future<void> _redeemPromo() async {
+  Future<void> _redeemPromo({String? purchaseId}) async {
     try {
-      await ApiClient.postData(
-          ApiUrls.promoRedeem, {"code": appliedPromoCode.value});
+      await ApiClient.postData(ApiUrls.promoRedeem, {
+        "code": appliedPromoCode.value,
+        if (purchaseId != null) "purchaseId": purchaseId,
+      });
     } catch (_) {
       // Non-fatal: subscription is active regardless
     }
   }
 
-  // ─── Promo code ─────────────────────────────────────────────
-  Future<void> applyPromoCode() async {
-    final code = promoController.text.trim().toUpperCase();
-    if (code.isEmpty) {
-      promoError.value = "Please enter a promo code";
-      return;
-    }
-    promoLoading.value = true;
-    promoError.value = "";
-    try {
-      // 1. Validate the code
-      final response =
-          await ApiClient.postData(ApiUrls.promoValidate, {"code": code});
-      if (response.statusCode != 200) {
-        promoError.value = (response.statusText ?? "").isNotEmpty
-            ? response.statusText!
-            : "This code is invalid or has already been used";
-        return;
-      }
+  /// Applies a validated discount code that maps to an Apple purchase.
+  /// This never grants access by itself — it only records which Apple
+  /// product to buy and, if available, its real App Store price. The
+  /// backend redeems the code (via _redeemPromo) only after that exact
+  /// product has been purchased and verified.
+  Future<void> _applyIapPromo(String code, Map codeData) async {
+    appliedPromoCode.value = code;
+    promoPlanLabel.value = (codeData["label"] ?? "").toString();
+    // The backend is being migrated from "revenueCatProductId" (legacy —
+    // this app never used RevenueCat) to "appleProductId". Read either
+    // until the backend rename ships, so this keeps working during that
+    // transition instead of silently falling back to the base product.
+    final productId = (codeData["appleProductId"] ??
+            codeData["revenueCatProductId"] ??
+            "")
+        .toString();
+    appliedPromoProductId.value = productId;
+    promoProductPriceStr.value = "";
+    if (productId.isEmpty) return;
 
-      final data = response.body;
-      final codeData = (data is Map && data["data"] is Map)
-          ? data["data"] as Map
-          : <String, dynamic>{};
-      final codeType = (codeData["type"] ?? "").toString();
-      promoPlanLabel.value = (codeData["label"] ?? "").toString();
-      appliedPromoCode.value = code;
-
-      // 2. Website codes (purchased on p2pfitechai.com) — redeem directly,
-      //    no IAP needed since the customer already paid on the website.
-      if (codeType == "website") {
-        if (_preSignup) {
-          await CacheService().box.put(_pendingAccessCodeKey, code);
-          _continueToTrainerSelection();
-          return;
+    var product = products.firstWhereOrNull((p) => p.id == productId);
+    if (product == null) {
+      try {
+        final resp = await _iap.queryProductDetails({productId});
+        if (resp.productDetails.isNotEmpty) {
+          product = resp.productDetails.first;
+          products.add(product);
         }
-        final redeemResp =
-            await ApiClient.postData(ApiUrls.promoRedeem, {"code": code});
-        if (redeemResp.statusCode == 200 || redeemResp.statusCode == 201) {
-          Get.snackbar(
-            "Access Unlocked! 🎉",
-            promoPlanLabel.value.isNotEmpty
-                ? "${promoPlanLabel.value} is now active."
-                : "Your access is now active. Welcome!",
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 4),
-          );
-          _continueToTrainerSelection();
-        } else {
-          final msg = (redeemResp.body is Map)
-              ? (redeemResp.body["message"] ?? "Could not redeem code. It may already be used.")
-              : "Could not redeem code. Please try again.";
-          promoError.value = msg.toString();
-          appliedPromoCode.value = "";
-        }
-        return;
+      } catch (_) {
+        // Price display will just be unavailable; purchase still targets
+        // the correct product id.
       }
-
-      // 3. Affiliate / other codes — apply discount to IAP price as before
-      showPromoField.value = false;
-    } catch (_) {
-      promoError.value = "Could not verify the code. Please try again.";
-      appliedPromoCode.value = "";
-    } finally {
-      promoLoading.value = false;
     }
+    if (product != null) promoProductPriceStr.value = product.price;
   }
 
   void removePromoCode() {
     appliedPromoCode.value = "";
     promoPlanLabel.value = "";
-    promoController.clear();
-    promoError.value = "";
+    appliedPromoProductId.value = "";
+    promoProductPriceStr.value = "";
   }
 
   // ─── Access code redemption (bottom bar) ────────────────────
@@ -401,7 +377,29 @@ class PaywallController extends GetxController {
       final codeData = (data is Map && data["data"] is Map)
           ? data["data"] as Map
           : <String, dynamic>{};
+      final codeType = (codeData["type"] ?? "").toString();
       final label = (codeData["label"] ?? "").toString();
+
+      // Only "website" codes (already paid via Clover on p2pfitechai.com)
+      // skip Apple checkout. Every other type is tied to an Apple purchase
+      // — entering the code here must never unlock access on its own, so
+      // hand it off to the same purchase flow the promo card uses instead
+      // of redeeming it directly.
+      if (codeType != "website") {
+        await _applyIapPromo(code, codeData);
+        accessCodeController.clear();
+        if (_preSignup) {
+          await CacheService().box.put(_pendingAccessCodeKey, code);
+        }
+        Get.snackbar(
+          "Code applied",
+          label.isNotEmpty
+              ? "$label — choose a plan below to complete your purchase."
+              : "Choose a plan below to complete your purchase.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
 
       // Step 2 — pre-signup codes are activated after OTP creates the JWT.
       if (_preSignup) {
@@ -449,7 +447,10 @@ class PaywallController extends GetxController {
       if (pendingCode != null && pendingCode.isNotEmpty) {
         final response = await ApiClient.postData(
           ApiUrls.promoRedeem,
-          {'code': pendingCode},
+          {
+            'code': pendingCode,
+            if (pendingIap != null) 'purchaseId': pendingIap['purchaseId'],
+          },
         );
         if (response.statusCode != 200 && response.statusCode != 201) {
           return false;
@@ -465,7 +466,6 @@ class PaywallController extends GetxController {
   @override
   void onClose() {
     _purchaseSub?.cancel();
-    promoController.dispose();
     accessCodeController.dispose();
     super.onClose();
   }

@@ -266,15 +266,23 @@ import 'package:flutter/material.dart';
       return Obx(() {
         final tier = selectedTier.value;
         final annual = controller.selectedPlan.value == 'annual';
-        final ptPrice = annual
-            ? '${controller.annualPriceStr.value}/yr'
-            : '${controller.monthlyPriceStr.value}/mo';
+        final hasPromo = controller.hasPromo;
+        // When a promo is applied, the price shown must be the real Apple
+        // price of the product it maps to — never the base plan's price —
+        // since that promo product is what will actually be purchased.
+        final ptPrice = hasPromo && controller.promoDisplayPriceStr.isNotEmpty
+            ? controller.promoDisplayPriceStr
+            : (annual
+                ? '${controller.annualPriceStr.value}/yr'
+                : '${controller.monthlyPriceStr.value}/mo');
         final ecPrice = annual ? '\$449.99/yr' : '\$49.99/mo';
         final String ctaText;
         if (tier == 0) {
           ctaText = 'Start 7-day free trial — \$0 today';
         } else if (tier == 1) {
-          ctaText = 'Start with Personal Trainer — $ptPrice';
+          ctaText = hasPromo
+              ? 'Redeem code — $ptPrice'
+              : 'Start with Personal Trainer — $ptPrice';
         } else {
           ctaText = 'Start Elite Coaching — $ecPrice';
         }
@@ -500,6 +508,38 @@ import 'package:flutter/material.dart';
               ],
             ),
             SizedBox(height: 14.h),
+            Obx(
+              () => controller.hasPromo
+                  ? Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.only(bottom: 10.h),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+                      decoration: BoxDecoration(
+                        color: BrandColors.of(context).soft,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: BrandColors.of(context).light),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.local_offer_rounded, color: BrandColors.of(context).dark, size: 15.sp),
+                          SizedBox(width: 7.w),
+                          Expanded(
+                            child: Text(
+                              controller.promoPlanLabel.value.isNotEmpty
+                                  ? '${controller.promoPlanLabel.value} applied — complete your purchase above.'
+                                  : 'Code applied — complete your purchase above.',
+                              style: TextStyle(color: _ink, fontSize: 11.5.sp, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: controller.removePromoCode,
+                            child: Text('Remove', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 11.sp, fontWeight: FontWeight.w900)),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             Row(
               children: [
                 Expanded(
