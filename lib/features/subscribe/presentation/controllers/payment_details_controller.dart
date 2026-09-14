@@ -12,9 +12,21 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
 
-const String kProductMonthly = 'month_1';
-const String kProductAnnual = 'year_1';
-const Set<String> _kProductIds = {kProductMonthly, kProductAnnual};
+const String kProductStandard3m = 'p2p_standard_3m';
+const String kProductStandardAnnual = 'p2p_standard_annual';
+const String kProductPro3m = 'p2p_pro_3m';
+const String kProductProAnnual = 'p2p_pro_annual';
+
+// Aliases for standard user flow
+const String kProductMonthly = kProductStandard3m;
+const String kProductAnnual = kProductStandardAnnual;
+
+const Set<String> _kProductIds = {
+  kProductStandard3m,
+  kProductStandardAnnual,
+  kProductPro3m,
+  kProductProAnnual,
+};
 
 class PaymentDetailsController extends GetxController {
   PaymentDetailsController({

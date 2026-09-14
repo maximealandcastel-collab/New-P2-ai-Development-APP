@@ -10,9 +10,21 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 
-const String _monthlyId = 'month_1';
-const String _annualId = 'year_1';
-const Set<String> _productIds = {_monthlyId, _annualId};
+const String _standard3mId = 'p2p_standard_3m';
+const String _standardAnnualId = 'p2p_standard_annual';
+const String _pro3mId = 'p2p_pro_3m';
+const String _proAnnualId = 'p2p_pro_annual';
+
+// Aliases for default monthly/annual selection
+const String _monthlyId = _standard3mId;
+const String _annualId = _standardAnnualId;
+
+const Set<String> _productIds = {
+  _standard3mId,
+  _standardAnnualId,
+  _pro3mId,
+  _proAnnualId,
+};
 
 class PaywallController extends GetxController {
   static PaywallController get to => Get.find<PaywallController>();
