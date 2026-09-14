@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_constants.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/prefs_helper.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/common/notification/presentation/screen/notification_screen.dart';
@@ -67,8 +68,25 @@ class _FeedAppBarState extends State<FeedAppBar> {
   @override
   Widget build(BuildContext context) {
     final tenant = TenantBrandService.to;
-    // Avatar: real photo if available, orange initial circle otherwise.
-    final Widget avatar = _profilePicture.isNotEmpty
+    final isAdmin = _role.toLowerCase() == 'admin';
+
+    // Admin uses the full P2P mark with no circular crop or mask. Other
+    // roles retain their profile photo or initial.
+    final Widget avatar = isAdmin
+        ? Semantics(
+            label: 'P2P FitTech AI',
+            image: true,
+            child: SizedBox(
+              width: 48.r,
+              height: 48.r,
+              child: Image.asset(
+                ImagePath.adminLogo,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
+          )
+        : _profilePicture.isNotEmpty
         ? CircleAvatar(
             radius: 22.r,
             backgroundColor: tenant.primaryColor,
