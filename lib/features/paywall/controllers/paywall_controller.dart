@@ -389,7 +389,12 @@ class PaywallController extends GetxController {
         await _applyIapPromo(code, codeData);
         accessCodeController.clear();
         if (_preSignup) {
-          await CacheService().box.put(_pendingAccessCodeKey, code);
+          // Remember the type too — activatePendingEntitlement() must not
+          // redeem this directly unless a matching purchase was actually
+          // completed, and it needs the type to know that.
+          await CacheService()
+              .box
+              .put(_pendingAccessCodeKey, {'code': code, 'type': codeType});
         }
         Get.snackbar(
           "Code applied",
@@ -403,7 +408,9 @@ class PaywallController extends GetxController {
 
       // Step 2 — pre-signup codes are activated after OTP creates the JWT.
       if (_preSignup) {
-        await CacheService().box.put(_pendingAccessCodeKey, code);
+        await CacheService()
+            .box
+            .put(_pendingAccessCodeKey, {'code': code, 'type': codeType});
         _continueToTrainerSelection();
         return;
       }
@@ -436,7 +443,7 @@ class PaywallController extends GetxController {
   Future<bool> activatePendingEntitlement() async {
     final cache = CacheService();
     final pendingIap = cache.get<Map<String, dynamic>>(_pendingIapKey);
-    final pendingCode = cache.get<String>(_pendingAccessCodeKey);
+    final pendingCode = cache.get<Map<String, dynamic>>(_pendingAccessCodeKey);
 
     try {
       if (pendingIap != null) {
@@ -444,17 +451,33 @@ class PaywallController extends GetxController {
         if (response.statusCode != 200) return false;
         await cache.delete(_pendingIapKey);
       }
-      if (pendingCode != null && pendingCode.isNotEmpty) {
-        final response = await ApiClient.postData(
-          ApiUrls.promoRedeem,
-          {
-            'code': pendingCode,
-            if (pendingIap != null) 'purchaseId': pendingIap['purchaseId'],
-          },
-        );
-        if (response.statusCode != 200 && response.statusCode != 201) {
-          return false;
+      if (pendingCode != null) {
+        final code = (pendingCode['code'] ?? '').toString();
+        final type = (pendingCode['type'] ?? '').toString();
+        final purchaseId = pendingIap?['purchaseId'] as String?;
+
+        // A "website" code was already paid for and can redeem on its own.
+        // Any other type is only safe to redeem here if an Apple purchase
+        // was actually completed in this same activation (purchaseId
+        // present) — a code applied pre-signup but never purchased must
+        // not silently unlock access just because signup finished.
+        final canRedeem = code.isNotEmpty &&
+            (type == "website" || purchaseId != null);
+
+        if (canRedeem) {
+          final response = await ApiClient.postData(
+            ApiUrls.promoRedeem,
+            {
+              'code': code,
+              if (purchaseId != null) 'purchaseId': purchaseId,
+            },
+          );
+          if (response.statusCode != 200 && response.statusCode != 201) {
+            return false;
+          }
         }
+        // Whether redeemed or dropped as unpurchased, this pending code is
+        // resolved — clear it so it isn't retried on a later login.
         await cache.delete(_pendingAccessCodeKey);
       }
       return true;
