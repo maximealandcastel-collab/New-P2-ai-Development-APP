@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:pler_to_pler_app/core/services/push_notification_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
@@ -27,6 +29,7 @@ class AuthRepository {
       _cacheService.put(AppConstants.accessToken, token),
       PrefsHelper.setString(legacy_constants.AppConstants.bearerToken, token),
     ]);
+    unawaited(PushNotificationService.instance.syncToken());
   }
 
   // ─── Register ────────────────────────────
@@ -355,6 +358,7 @@ class AuthRepository {
   // ─── Logout ──────────────────────────────
 
   Future<void> logout() async {
+    await PushNotificationService.instance.signOut();
     await Future.wait([
       _cacheService.clear(),
       PrefsHelper.remove(legacy_constants.AppConstants.bearerToken),

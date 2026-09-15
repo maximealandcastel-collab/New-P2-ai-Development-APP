@@ -90,7 +90,8 @@ class ReelPlayer extends StatelessWidget {
               ),
             ),
           ),
-        // No spinner in reel — poster thumbnail shows while video buffers (clean UX)
+        if (showLoader)
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
         if (showError) _buildError(slot.error),
       ],
     );

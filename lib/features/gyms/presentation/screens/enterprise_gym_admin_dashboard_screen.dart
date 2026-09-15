@@ -42,7 +42,7 @@ class _EnterpriseGymAdminDashboardScreenState
     extends State<EnterpriseGymAdminDashboardScreen> {
   EnterpriseGymModel get _gym {
     final active = EnterpriseService.instance.active.value?.tenant;
-    if (!isSingleMode && active != null) return active.toGym();
+    if (!isSingleMode && !widget.legacyKmf && widget.tenantId == null && active != null) return active.toGym();
     final tenantId = widget.tenantId ??
         (widget.legacyKmf ? 'kmf-fitness' : null);
     if (tenantId != null) {
@@ -65,7 +65,7 @@ class _EnterpriseGymAdminDashboardScreenState
 
   Future<EnterpriseDashboardData> _loadDashboard() async {
     final tenantId = _gym.tenantId;
-    final data = (isSingleMode || widget.tenantId != null) && tenantId != null
+    final data = (isSingleMode || widget.legacyKmf || widget.tenantId != null) && tenantId != null
         ? await EnterpriseService.instance.request(
             '/gym-admin/${Uri.encodeComponent(tenantId)}/dashboard',
           )

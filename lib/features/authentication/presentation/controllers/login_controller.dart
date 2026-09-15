@@ -102,13 +102,13 @@ class LoginController extends GetxController {
       return;
     }
 
-    await CacheService().delete('tenantId');
-    EnterpriseService.instance.clear();
     _loginState.value = LoadingState.loading;
     final submittedEmail = emailController.text.trim().toLowerCase();
     var authenticated = false;
 
     try {
+      await CacheService().delete('tenantId');
+      EnterpriseService.instance.clear();
       final loginResult = await _authService.login(
         email: submittedEmail,
         password: passwordController.text,
@@ -311,7 +311,9 @@ class LoginController extends GetxController {
   }
 
   /// Returns true if a user is currently signed in.
-  bool isLoggedIn() => _authService.getRole() != null;
+  bool isLoggedIn() =>
+      (CacheService().get<String>('accessToken')?.isNotEmpty ?? false) &&
+      _authService.getRole() != null;
 
   /// Deletes the account server-side then logs out.
   /// Deletes the account server-side, then clears the local session.
@@ -377,6 +379,11 @@ class LoginController extends GetxController {
     }
 
     EnterpriseService.instance.clear();
+    try {
+      if (Get.isRegistered<VideoPlaybackManager>()) {
+        await Get.find<VideoPlaybackManager>().exitVideoModule();
+      }
+    } catch (_) {}
     // Clear the sign-in form. This controller is permanent, so its
     // TextEditingControllers survive logout — the login screen was coming back
     // with the previous account's email filled in and their password still in

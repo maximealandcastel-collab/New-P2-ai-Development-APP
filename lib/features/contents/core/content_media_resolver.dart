@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_video_player_plus/cached_video_player_plus.dart';
@@ -43,8 +44,31 @@ class ContentMediaResolver {
     return resolved.toString();
   }
 
-  /// Phase 19 fallback logic:
-  ///   1. Mux HLS  (https://stream.mux.com/{playbackId}.m3u8) — adaptive, CDN, no buffering
+  static const initializationTimeout = Duration(seconds: 12);
+
+  static String sourceKey(ContentModel content) =>
+      '${content.id ?? ""}|${content.updatedAt ?? ""}|${resolveVideoUrl(content)}';
+
+  static List<String> videoCandidates(ContentModel content) {
+    final preferred = resolveVideoUrl(content);
+    final legacy = resolveUrl(content.videoUrl);
+    return {if (preferred.isNotEmpty) preferred, if (legacy.isNotEmpty) legacy}.toList();
+  }
+
+  /// Future.timeout doesn't cancel native initialization. Dispose late success
+  /// as well, so leaving a loading screen cannot leak a native video player.
+  static Future<void> initializePlayer(CachedVideoPlayerPlus player) async {
+    final initialization = player.initialize();
+    try {
+      await initialization.timeout(initializationTimeout);
+    } on TimeoutException {
+      unawaited(initialization.then((_) => player.dispose()).catchError((Object _) {}));
+      rethrow;
+    }
+  }
+
+  /// Playback source preference:
+  ///   1. Mux HLS  (https://stream.mux.com/{playbackId}.m3u8) — adaptive CDN stream
   ///   2. Legacy videoUrl — GCS MP4 stream with Range support
   ///   3. Empty string — slot shows error state
   static String resolveVideoUrl(ContentModel content) {
@@ -99,9 +123,10 @@ class ContentMediaResolver {
     // On Android, ExoPlayer handles both.
     return CachedVideoPlayerPlus.networkUrl(
       Uri.parse(url),
-      cacheKey: cacheKey ?? url,
-      // HLS manifests are tiny; MP4 segments are already compact.
-      // 7-day cache is safe: content IDs are stable identifiers.
+      cacheKey: '${cacheKey ?? ""}|$url',
+      // Let the native player stream. The cache package otherwise starts a
+      // second whole-file download for every preload, including HLS manifests.
+      skipCache: true,
       invalidateCacheIfOlderThan: const Duration(days: 7),
     );
   }
@@ -114,7 +139,7 @@ class ContentMediaResolver {
     }
 
     _log('ContentMediaResolver.createPlayerForContent: $url');
-    return createPlayerForUrl(url, cacheKey: content.id ?? url);
+    return createPlayerForUrl(url, cacheKey: sourceKey(content));
   }
 
   static CachedVideoPlayerPlus? createPlayerForSource(String source) {

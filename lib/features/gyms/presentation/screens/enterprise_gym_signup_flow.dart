@@ -12,7 +12,7 @@ import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_a
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_session_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
-bool enterpriseRoleCanSelfRegister(String role) => true;
+bool enterpriseRoleCanSelfRegister(String role) => role == 'Member';
 
 bool isStrongEnterprisePassword(String password) {
   return password.length >= 8 &&
@@ -154,6 +154,11 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
   }
 
   Future<void> _submitRegistration() async {
+    if (!enterpriseRoleCanSelfRegister(_selectedRole) &&
+        _accessCodeController.text.trim().length < 6) {
+      Get.snackbar('Invitation required', 'Use the gym-issued code for this role.');
+      return;
+    }
     final String roleToSend;
     switch (_selectedRole) {
       case 'Member':

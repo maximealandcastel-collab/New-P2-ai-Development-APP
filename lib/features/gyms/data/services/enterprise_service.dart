@@ -172,7 +172,7 @@ class EnterpriseService {
       rethrow;
     }
     _diagnostic('[Enterprise] $method $target: HTTP ${response.statusCode}');
-    if (generation != _generation) {
+    if (generation != _generation || (authenticated && token != _token())) {
       throw const EnterpriseException('Gym context changed. Please reload.');
     }
     if (response.statusCode == 401 || response.statusCode == 403) {

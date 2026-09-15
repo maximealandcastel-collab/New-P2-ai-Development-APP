@@ -19,6 +19,7 @@ class ReelPlayerManager {
 
   int? _activeIndex;
   int _operationId = 0;
+  bool _playbackAllowed = false;
   Future<void>? _preloadFuture;
 
   ReelVideoSlot? slotFor(int index) => _slots[index];
@@ -42,9 +43,13 @@ class ReelPlayerManager {
     bool playActive = true,
     bool prioritizeNextPreload = false,
   }) async {
-    if (contents.isEmpty) return;
+    if (contents.isEmpty) {
+      await reset();
+      return;
+    }
 
     final op = ++_operationId;
+    _playbackAllowed = playActive;
     _ensurePool();
     final center = index.clamp(0, contents.length - 1);
     _activeIndex = center;
@@ -57,6 +62,7 @@ class ReelPlayerManager {
       silenceTasks.add(slot.setVolume(0));
     }
     await Future.wait(silenceTasks);
+    if (op != _operationId) return;
 
     final keep = {
       center,
@@ -103,7 +109,8 @@ class ReelPlayerManager {
 
     if (op != _operationId) return;
 
-    for (final entry in _slots.entries) {
+    for (final entry in _slots.entries.toList()) {
+      if (op != _operationId) return;
       if (entry.key != center) {
         await Future.wait([entry.value.pause(), entry.value.setVolume(0)]);
       }
@@ -132,22 +139,6 @@ class ReelPlayerManager {
         _preloadFuture = null;
       }
     }));
-  }
-
-  Future<void> _waitForPreload() async {
-    final preload = _preloadFuture;
-    if (preload == null) return;
-    try {
-      await preload;
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('Reel preload shutdown error: $error');
-      }
-    } finally {
-      if (identical(_preloadFuture, preload)) {
-        _preloadFuture = null;
-      }
-    }
   }
 
   Future<void> _ensureCenterReady({
@@ -179,9 +170,9 @@ class ReelPlayerManager {
     final activeSlot = _slots[center];
     if (activeSlot != null &&
         activeSlot.isReady &&
-        playActive &&
+        playActive && _playbackAllowed && _activeIndex == center &&
         operationId == _operationId) {
-      await activeSlot.play();
+      await playActiveSlot();
     }
   }
 
@@ -216,16 +207,33 @@ class ReelPlayerManager {
   }
 
   Future<void> pauseActive() async {
+    _playbackAllowed = false;
     final slot = _slots[_activeIndex];
     if (slot == null) return;
-    await Future.wait([slot.pause(), slot.setVolume(0)]); // hard-mute so audio can never bleed
+    await slot.setVolume(0);
+    await slot.pause();
   }
 
   Future<void> playActive() async {
-      final slot = _slots[_activeIndex];
-      if (slot == null) return;
-      await Future.wait([slot.play(), slot.setVolume(1.0)]); // unmute when user is on Contents tab
+    _playbackAllowed = true;
+    await playActiveSlot();
+  }
+
+  Future<void> playActiveSlot() async {
+    final slot = _slots[_activeIndex];
+    final operation = _operationId;
+    if (slot == null || !_playbackAllowed || !slot.isReady) return;
+    await slot.setVolume(1);
+    if (!_playbackAllowed || operation != _operationId || _slots[_activeIndex] != slot) {
+      await slot.setVolume(0);
+      return;
     }
+    await slot.play();
+    if (!_playbackAllowed || operation != _operationId || _slots[_activeIndex] != slot) {
+      await slot.setVolume(0);
+      await slot.pause();
+    }
+  }
 
   Future<void> retryAt(int index, ContentModel content) async {
     final old = _slots.remove(index);
@@ -240,12 +248,16 @@ class ReelPlayerManager {
       autoPlay: _activeIndex == index,
       isCenter: _activeIndex == index,
     );
+    if (_playbackAllowed && _activeIndex == index) await playActiveSlot();
     _notify();
   }
 
   Future<void> reset() async {
     _operationId++;
-    await _waitForPreload();
+    _playbackAllowed = false;
+    // In-flight slots dispose their late results; never wait for network preload
+    // before silencing/discarding a feed during logout or a tenant switch.
+    _preloadFuture = null;
     for (final slot in _slots.values.toList()) {
       await slot.cancel();
       slot.detach();
@@ -258,7 +270,10 @@ class ReelPlayerManager {
 
   Future<void> releaseAll() async {
     _operationId++;
-    await _waitForPreload();
+    _playbackAllowed = false;
+    // In-flight slots dispose their late results; never wait for network preload
+    // before silencing/discarding a feed during logout or a tenant switch.
+    _preloadFuture = null;
     for (final slot in [..._slots.values, ..._free]) {
       await slot.release();
     }
@@ -301,9 +316,8 @@ class ReelPlayerManager {
 
     await slot.load(index, content, autoPlay: autoPlay);
     if (op != _operationId) {
-      if (!isCenter || index != _activeIndex) {
-        await _evictSlot(index, slot);
-      }
+// A newer sync may have adopted this same slot. Its own retention
+      // pass owns eviction; stale loads must not cancel the new active video.
       return;
     }
     _notify();

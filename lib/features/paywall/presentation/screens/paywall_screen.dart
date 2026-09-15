@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
     PaywallScreen({super.key});
 
     final controller = Get.find<PaywallController>();
-    final RxInt selectedTier = 1.obs;
+    RxInt get selectedTier => controller.selectedTier;
 
     static const _ink = Color(0xFF171310);
     static const _muted = Color(0xFF756B64);
@@ -45,9 +45,9 @@ import 'package:flutter/material.dart';
                         final annual = controller.selectedPlan.value == 'annual';
                         return Column(
                           children: [
-                            _tier(context, 0, 'Self-Guided', 'Build your own rhythm', '\$0 today', 'A flexible starting point with your AI plan and workout library.', Icons.fitness_center_rounded),
-                            _tier(context, 1, 'Personal Trainer', 'Your plan, built around you', annual ? '${controller.annualPriceStr.value}/yr' : '${controller.monthlyPriceStr.value}/mo', '1-on-1 coaching, weekly check-ins, and a plan that adapts as you do.', Icons.person_rounded, badge: 'Most chosen', benefits: const ['Live coaching', 'Weekly plan', 'Progress tracking']),
-                            _tier(context, 2, 'Elite Coaching', 'The complete transformation', annual ? '\$449.99/yr' : '\$49.99/mo', 'Everything in Personal Trainer plus dedicated nutrition coaching.', Icons.workspace_premium_rounded),
+                            _tier(context, 0, 'Self-Guided', 'Build your own rhythm', 'Free', 'A flexible starting point with your AI plan and workout library.', Icons.fitness_center_rounded),
+                            _tier(context, 1, 'Personal Trainer', 'Your plan, built around you', '${controller.priceForTier(1)} / ${annual ? 'year' : '3 months'}', '1-on-1 coaching, weekly check-ins, and a plan that adapts as you do.', Icons.person_rounded, badge: 'Most chosen', benefits: const ['Live coaching', 'Weekly plan', 'Progress tracking']),
+                            _tier(context, 2, 'Elite Coaching', 'The complete transformation', '${controller.priceForTier(2)} / ${annual ? 'year' : '3 months'}', 'Everything in Personal Trainer plus dedicated nutrition coaching.', Icons.workspace_premium_rounded),
                           ],
                         );
                       }),
@@ -59,6 +59,10 @@ import 'package:flutter/material.dart';
                       _accessCode(context),
                       SizedBox(height: 16.h),
                       _reassurance(context),
+                      Obx(() => TextButton(
+                        onPressed: controller.purchaseLoading.value ? null : controller.restorePurchases,
+                        child: const Text('Restore Purchases'),
+                      )),
                     ],
                   ),
                 ),
@@ -209,8 +213,8 @@ import 'package:flutter/material.dart';
           padding: EdgeInsets.all(5.w),
           decoration: BoxDecoration(color: BrandColors.of(context).soft, borderRadius: BorderRadius.circular(30), border: Border.all(color: BrandColors.of(context).border)),
           child: Row(children: [
-            Expanded(child: _billingChoice(context, 'Monthly', !annual, () => controller.selectPlan('monthly'))),
-            Expanded(child: _billingChoice(context, 'Annual', annual, () => controller.selectPlan('annual'), suffix: 'Save 25%')),
+            Expanded(child: _billingChoice(context, '3 Months', !annual, () => controller.selectPlan('monthly'))),
+            Expanded(child: _billingChoice(context, 'Annual', annual, () => controller.selectPlan('annual'))),
           ]),
         );
       });
@@ -274,11 +278,11 @@ import 'package:flutter/material.dart';
             ? controller.promoDisplayPriceStr
             : (annual
                 ? '${controller.annualPriceStr.value}/yr'
-                : '${controller.monthlyPriceStr.value}/mo');
-        final ecPrice = annual ? '\$449.99/yr' : '\$49.99/mo';
+                : '${controller.monthlyPriceStr.value}/3 months');
+        final ecPrice = '${controller.priceForTier(2)} / ${annual ? 'year' : '3 months'}';
         final String ctaText;
         if (tier == 0) {
-          ctaText = 'Start 7-day free trial — \$0 today';
+          ctaText = 'Continue Self-Guided';
         } else if (tier == 1) {
           ctaText = hasPromo
               ? 'Redeem code — $ptPrice'
@@ -329,19 +333,15 @@ import 'package:flutter/material.dart';
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(19),
-                    onTap: controller.purchaseLoading.value
+                    onTap: controller.purchaseLoading.value || (tier != 0 && !controller.canBuySelectedTier)
                         ? null
                         : () {
                             if (tier == 0) {
-                              controller.startFreeTrial();
+                              controller.continueSelfGuided();
                             } else if (tier == 1) {
                               controller.upgradeNow();
                             } else {
-                              Get.snackbar(
-                                'Coming Soon',
-                                'Elite Coaching is not yet available.',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
+                              controller.upgradeNow();
                             }
                           },
                     child: Center(
@@ -381,8 +381,8 @@ import 'package:flutter/material.dart';
             SizedBox(height: 10.h),
             Text(
               tier == 0
-                  ? '7 days free, then ${controller.monthlyPriceStr.value}/mo · cancel anytime'
-                  : 'Billed ${annual ? 'annually' : 'monthly'} · cancel anytime',
+                  ? 'No subscription is purchased for self-guided access.'
+                  : 'Auto-renews ${annual ? 'annually' : 'every 3 months'}. Manage or cancel in your store account.',
               style: TextStyle(
                 color: _muted,
                 fontSize: 11.sp,

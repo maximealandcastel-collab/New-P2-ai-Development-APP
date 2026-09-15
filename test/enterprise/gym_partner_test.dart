@@ -1,10 +1,21 @@
 import 'dart:convert';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_application_screen.dart';
+
+class FakeLauncher extends UrlLauncherPlatform {
+  int calls = 0;
+  @override
+  get linkDelegate => null;
+  @override
+  Future<bool> launchUrl(String url, LaunchOptions options) async => ++calls > 1;
+}
+
 
 void main() {
   Future<void> tap(
@@ -50,12 +61,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final tier in ['free', 'elite']) {
+  for (final tier in ['starter', 'pro']) {
     testWidgets(
       '$tier partnership preserves brand and retries pending submission',
       (tester) async {
         final original = EnterpriseService.instance;
         addTearDown(() => EnterpriseService.replaceForTesting(original));
+        final originalLauncher = UrlLauncherPlatform.instance;
+        UrlLauncherPlatform.instance = FakeLauncher();
+        addTearDown(() => UrlLauncherPlatform.instance = originalLauncher);
         var calls = 0;
         final service = EnterpriseService(
           baseUrl: 'https://example.test',
@@ -67,6 +81,7 @@ void main() {
             expect(body['shortCode'], 'ICF');
             expect(body['primaryColor'], '#E53E3E');
             expect(body['secondaryColor'], '#112233');
+            expect(body['logoUrl'], 'https://example.com/gym.png');
             expect(body['locationCount'], 1);
             expect(body['activeMembers'], 500);
             expect(body['tier'], tier);
@@ -96,35 +111,39 @@ void main() {
         expect(find.text('Step 2 of 5'), findsOneWidget);
         await tap(tester, find.bySemanticsLabel('Brand color #E53E3E'));
         await fill(tester, 'Secondary color hex', '#112233');
+        await fill(tester, 'logoUrl', 'https://example.com/gym.png');
         await next(tester);
         await fill(tester, 'city', 'Denver');
         await fill(tester, 'state', 'CO');
         await next(tester);
         await tap(
           tester,
-          find.text(tier == 'free' ? 'Free Partner' : 'Elite Partner'),
+          find.text(tier == 'starter' ? 'Enterprise Starter' : 'Enterprise Pro'),
         );
         await fill(tester, 'representativeName', 'Jordan Smith');
         await fill(tester, 'workEmail', 'jordan@example.com');
         await fill(tester, 'phone', '+13035551234');
         await tester.scrollUntilVisible(
-          find.text('Submit Partnership ➜'),
+          find.text('Continue to Clover Checkout ➜'),
           150,
           scrollable: find.byType(Scrollable).first,
         );
         expect(
           tester
               .widget<FilledButton>(
-                find.widgetWithText(FilledButton, 'Submit Partnership ➜'),
+                find.widgetWithText(FilledButton, 'Continue to Clover Checkout ➜'),
               )
               .onPressed,
           isNull,
         );
         await tap(tester, find.byType(CheckboxListTile));
-        await tap(tester, find.text('Submit Partnership ➜'));
+        await tap(tester, find.text('Continue to Clover Checkout ➜'));
         expect(find.textContaining('We couldn’t submit'), findsOneWidget);
         expect(find.text('PARTNERSHIP SUBMITTED'), findsNothing);
-        await tap(tester, find.text('Submit Partnership ➜'));
+        await tap(tester, find.text('Continue to Clover Checkout ➜'));
+        expect(find.textContaining('Your application was submitted.'), findsOneWidget);
+        expect(calls, 2);
+        await tap(tester, find.text('Continue to Clover Checkout ➜'));
         expect(find.text('Step 5 of 5'), findsOneWidget);
         await tester.scrollUntilVisible(
           find.text('Pending review'),

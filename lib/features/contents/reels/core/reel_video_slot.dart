@@ -9,8 +9,8 @@ class ReelVideoSlot {
   CachedVideoPlayerPlus? _player;
   VideoPlayerController? _controller;
   int _generation = 0;
+  VoidCallback? _videoListener;
   Future<void>? _activeLoad;
-  bool _autoRetried = false;
 
   VoidCallback? onUpdated;
 
@@ -30,7 +30,7 @@ class ReelVideoSlot {
     required bool autoPlay,
   }) async {
     final url = ContentMediaResolver.resolveVideoUrl(content);
-    final cacheKey = content.id ?? url;
+    final cacheKey = ContentMediaResolver.sourceKey(content);
 
     if (url.isEmpty) {
       await cancel();
@@ -40,39 +40,10 @@ class ReelVideoSlot {
       return;
     }
 
-    if (index == targetIndex &&
-        sourceKey == cacheKey &&
-        isReady &&
-        error.isEmpty) {
-      if (autoPlay) {
-        await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
-        await _controller?.play();
-      } else {
-        await _controller?.setVolume(0.0);
-        await _controller?.pause();
-      }
-      return;
-    }
-
-    if (_activeLoad != null &&
-        index == targetIndex &&
-        sourceKey == cacheKey &&
-        !isReady &&
-        error.isEmpty) {
+    if (index == targetIndex && sourceKey == cacheKey && isReady && error.isEmpty) return;
+    if (_activeLoad != null && index == targetIndex && sourceKey == cacheKey && error.isEmpty) {
       await _activeLoad;
-      if (index == targetIndex &&
-          sourceKey == cacheKey &&
-          isReady &&
-          error.isEmpty) {
-        if (autoPlay) {
-          await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
-          await _controller?.play();
-        } else {
-          await _controller?.setVolume(0.0);
-          await _controller?.pause();
-        }
-        return;
-      }
+      return;
     }
 
     if (isLoading) {
@@ -88,12 +59,11 @@ class ReelVideoSlot {
     isReady = false;
     isLoading = true;
     error = '';
-    _autoRetried = false;
     _notifyState();
 
     final loadFuture = _performLoad(
       targetIndex: targetIndex,
-      url: url,
+      urls: ContentMediaResolver.videoCandidates(content),
       cacheKey: cacheKey,
       autoPlay: autoPlay,
       generation: generation,
@@ -111,91 +81,54 @@ class ReelVideoSlot {
 
   Future<void> _performLoad({
     required int targetIndex,
-    required String url,
+    required List<String> urls,
     required String cacheKey,
     required bool autoPlay,
     required int generation,
   }) async {
     await _dispose();
     if (generation != _generation) return;
-
-    CachedVideoPlayerPlus? player;
     try {
-      player = ContentMediaResolver.createPlayerForUrl(url, cacheKey: cacheKey);
-      _player = player;
-      await player.initialize();
-      if (generation != _generation) {
-        await player.dispose();
-        return;
-      }
-
-      final videoController = player.controller;
-      await videoController.setLooping(true);
-      _controller = videoController;
-      isReady = true;
-
-      if (autoPlay) {
-        await videoController.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
-        await videoController.play();
-      } else {
-        // Do NOT seekTo(zero) on neighbors — that triggers an unnecessary
-        // network read on the native layer. Just pause; position is already
-        // at the start for a freshly initialized controller.
-        await videoController.setVolume(0.0);
-        await videoController.pause();
-      }
-    } catch (e) {
-      if (generation != _generation) return;
-
-      if (!_autoRetried) {
-        _autoRetried = true;
-        await _disposePlayer(player);
-        player = null;
-        _player = null;
-        _controller = null;
-        isReady = false;
-        isLoading = true;
-        _notifyState();
-
+      for (final url in urls) {
+        final player = ContentMediaResolver.createPlayerForUrl(url, cacheKey: cacheKey);
         try {
-          player = ContentMediaResolver.createPlayerForUrl(
-            url,
-            cacheKey: cacheKey,
-          );
-          _player = player;
-          await player.initialize();
+          await ContentMediaResolver.initializePlayer(player);
           if (generation != _generation) {
-            await player.dispose();
+            await _disposePlayer(player);
             return;
           }
-
-          final videoController = player.controller;
-          await videoController.setLooping(true);
-          _controller = videoController;
+          final controller = player.controller;
+          await controller.setLooping(true);
+          await controller.setVolume(0);
+          await controller.pause();
+          if (generation != _generation) {
+            await _disposePlayer(player);
+            return;
+          }
+          _player = player;
+          _controller = controller;
           isReady = true;
           error = '';
-
-          if (autoPlay) {
-            await videoController.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
-            await videoController.play();
-          } else {
-            await videoController.setVolume(0.0);
-            await videoController.pause();
-          }
-        } catch (retryError) {
-          if (generation != _generation) return;
-          error = 'Unable to play this video.';
-          isReady = false;
-          _controller = null;
+          _videoListener = () {
+            if (generation != _generation || !controller.value.hasError) return;
+            isReady = false;
+            error = 'Playback stopped. Please retry this video.';
+            _notifyState();
+          };
+          controller.addListener(_videoListener!);
+          return; // Only the manager may play after checking current visibility.
+        } catch (failure) {
           await _disposePlayer(player);
-          if (kDebugMode) debugPrint('ReelVideoSlot.load retry: $retryError');
+          if (generation != _generation) return;
+          if (kDebugMode) debugPrint('Reel initialization failed: ${failure.runtimeType}');
         }
-      } else {
-        error = 'Unable to play this video.';
+      }
+      error = 'Unable to load this video. Check your connection and retry.';
+      isReady = false;
+    } catch (_) {
+      if (generation == _generation) {
+        error = 'Unable to load this video. Please retry.';
         isReady = false;
-        _controller = null;
-        await _disposePlayer(player);
-        if (kDebugMode) debugPrint('ReelVideoSlot.load: $e');
       }
     } finally {
       if (generation == _generation) {
@@ -209,17 +142,14 @@ class ReelVideoSlot {
     _generation++;
     isLoading = false;
     isReady = false;
-    _controller = null;
     error = '';
     _activeLoad = null;
-    _autoRetried = false;
     await _dispose();
   }
 
   Future<void> play() async {
     if (!isReady) return;
     try {
-      await _controller?.setVolume(0.0) /* start muted — unmuted by playActive when on-screen */;
       await _controller?.play();
     } catch (_) {}
   }
@@ -251,7 +181,6 @@ class ReelVideoSlot {
     error = '';
     _controller = null;
     _activeLoad = null;
-    _autoRetried = false;
   }
 
   Future<void> release() async {
@@ -261,6 +190,8 @@ class ReelVideoSlot {
 
   Future<void> _dispose() async {
     final player = _player;
+    if (_videoListener != null) _controller?.removeListener(_videoListener!);
+    _videoListener = null;
     _player = null;
     _controller = null;
     await _disposePlayer(player);

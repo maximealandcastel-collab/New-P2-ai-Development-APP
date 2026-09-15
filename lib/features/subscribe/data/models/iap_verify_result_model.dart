@@ -17,6 +17,19 @@ class IapVerifyResultModel {
     this.productId,
   });
 
+  /// A successful HTTP request alone is never an entitlement.
+  bool isActiveAt(DateTime now) {
+    final expires = DateTime.tryParse(subscriptionEndDate ?? '');
+    return isSubscribed && expires != null && expires.isAfter(now) &&
+        !const {'expired', 'revoked', 'refunded', 'inactive'}.contains(status?.toLowerCase());
+  }
+
+  static bool responseGrantsAccess(dynamic body, {DateTime? now}) {
+    if (body is! Map || body['success'] != true || body['data'] is! Map) return false;
+    return IapVerifyResultModel.fromJson(Map<String, dynamic>.from(body['data'] as Map))
+        .isActiveAt(now ?? DateTime.now());
+  }
+
   factory IapVerifyResultModel.fromJson(Map<String, dynamic> json) {
     return IapVerifyResultModel(
       isSubscribed: json['isSubscribed'] == true,

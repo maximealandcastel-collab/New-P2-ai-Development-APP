@@ -34,6 +34,7 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
   final Rx<Duration> duration = Duration.zero.obs;
 
   bool _isClosed = false;
+  int _loadGeneration = 0;
   bool _pausedExternally = false; // set when tab switch or app background pauses the video
   VoidCallback? _videoListener;
 
@@ -41,7 +42,8 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
 
   static ContentDetailsController get to => Get.find<ContentDetailsController>();
 
-  VideoPlayerController? get videoPlayerController => _cachedPlayer?.controller;
+  VideoPlayerController? get videoPlayerController =>
+      isVideoReady ? _cachedPlayer!.controller : null;
 
   bool get isVideoReady => _cachedPlayer?.isInitialized ?? false;
 
@@ -69,39 +71,53 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
   }
 
   Future<void> _loadMedia() async {
+    if (_isClosed) return;
+    final generation = ++_loadGeneration;
     isLoadingMedia.value = true;
     mediaError.value = '';
-    _pausedExternally = false; // fresh load always auto-plays
     await _disposePlayer();
-
+    final urls = content != null
+        ? ContentMediaResolver.videoCandidates(content!)
+        : [ContentMediaResolver.resolveUrl(videoUrl)].where((url) => url.isNotEmpty).toList();
     try {
-      final player = content != null
-          ? ContentMediaResolver.createPlayerForContent(content!)
-          : ContentMediaResolver.createPlayerForSource(videoUrl!.trim());
-
-      if (player == null) {
-        mediaError.value = 'No video available for this content.';
+      if (urls.isEmpty) {
+        if (!_isClosed && generation == _loadGeneration) {
+          mediaError.value = 'No video available for this content.';
+        }
         return;
       }
-
-      _cachedPlayer = player;
-      await _cachedPlayer!.initialize();
-      await videoPlayerController!.setLooping(true);
-      _attachVideoListener();
-      await videoPlayerController!.setPlaybackSpeed(playbackSpeed.value);
-      await videoPlayerController!.play();
-      isPlaying.value = true;
-    } catch (error, stack) {
-      mediaError.value = 'Unable to play this video.';
-      if (kDebugMode) {
-        debugPrint('_loadMedia ERROR: $error');
-        debugPrint('_loadMedia STACK: $stack');
+      for (final url in urls) {
+        if (_isClosed || generation != _loadGeneration) return;
+        final player = ContentMediaResolver.createPlayerForUrl(url);
+        try {
+          await ContentMediaResolver.initializePlayer(player);
+          if (_isClosed || generation != _loadGeneration) {
+            await player.dispose();
+            return;
+          }
+          final controller = player.controller;
+          await controller.setLooping(true);
+          await controller.setPlaybackSpeed(playbackSpeed.value);
+          if (_isClosed || generation != _loadGeneration) {
+            await player.dispose();
+            return;
+          }
+          _cachedPlayer = player;
+          _attachVideoListener();
+          await _ensureAutoPlay();
+          return;
+        } catch (error) {
+          try { await player.dispose(); } catch (_) {}
+          if (_isClosed || generation != _loadGeneration) return;
+          if (identical(_cachedPlayer, player)) _cachedPlayer = null;
+          if (kDebugMode) debugPrint('Video load failed: ${error.runtimeType}');
+        }
+      }
+      if (!_isClosed && generation == _loadGeneration) {
+        mediaError.value = 'Unable to load this video. Check your connection and retry.';
       }
     } finally {
-      isLoadingMedia.value = false;
-      if (mediaError.value.isEmpty) {
-        unawaited(_ensureAutoPlay());
-      }
+      if (!_isClosed && generation == _loadGeneration) isLoadingMedia.value = false;
     }
   }
 
@@ -115,6 +131,10 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
     try {
       if (!controller.value.isPlaying) {
         await controller.play();
+        if (_isClosed || _pausedExternally || controller != videoPlayerController) {
+          await controller.pause();
+          return;
+        }
         isPlaying.value = true;
       }
     } catch (error) {
@@ -180,7 +200,12 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
     if (controller == null) return;
 
     _videoListener = () {
-      if (_isClosed || !controller.value.isInitialized) return;
+      if (_isClosed) return;
+      if (controller.value.hasError) {
+        mediaError.value = 'Playback stopped. Please retry this video.';
+        isPlaying.value = false;
+        return;
+      }
       position.value = controller.value.position;
       duration.value = controller.value.duration;
       isPlaying.value = controller.value.isPlaying;
@@ -199,10 +224,11 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
 
   Future<void> _disposePlayer() async {
     _detachVideoListener();
-    try {
-      await _cachedPlayer?.dispose();
-    } catch (_) {}
+    final player = _cachedPlayer;
     _cachedPlayer = null;
+    try {
+      await player?.dispose();
+    } catch (_) {}
   }
 
   /// Pause the video immediately. Safe to call from outside the controller
@@ -230,6 +256,7 @@ class ContentDetailsController extends GetxController with WidgetsBindingObserve
   @override
   void onClose() {
     _isClosed = true;
+    _loadGeneration++;
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_disposePlayer());
     super.onClose();

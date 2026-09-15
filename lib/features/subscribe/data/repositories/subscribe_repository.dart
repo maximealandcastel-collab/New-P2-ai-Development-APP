@@ -131,6 +131,9 @@ class SubscribeRepository {
           'verificationData': verificationData,
         },
       );
+      if (!IapVerifyResultModel.responseGrantsAccess(response.data)) {
+        throw ParsingException('The server has not confirmed an active subscription. Restore purchases or try again.');
+      }
       final data = response.data?['data'];
       if (data is! Map) throw ParsingException('Invalid IAP verify response');
       return IapVerifyResultModel.fromJson(Map<String, dynamic>.from(data));

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/subscribe/data/models/iap_verify_result_model.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -96,11 +97,23 @@ class PaywallController extends GetxController {
   final purchaseError = "".obs;
 
   // App Store price strings (populated once products load)
-  final annualPriceStr = r'$50.00'.obs;
-  final monthlyPriceStr = r'$19.99'.obs;
+  final annualPriceStr = 'Price unavailable'.obs;
+  final monthlyPriceStr = 'Price unavailable'.obs;
 
   // ─── Plan selection ─────────────────────────────────────────
   final selectedPlan = "monthly".obs;
+  final selectedTier = 1.obs;
+  String productIdForTier(int tier) => selectedPlan.value == 'annual'
+      ? (tier == 2 ? _proAnnualId : _standardAnnualId)
+      : (tier == 2 ? _pro3mId : _standard3mId);
+  String priceForTier(int tier) => products.firstWhereOrNull(
+      (product) => product.id == productIdForTier(tier))?.price ?? 'Price unavailable';
+  bool get canBuySelectedTier => iapAvailable.value && !purchaseLoading.value &&
+      products.any((product) => product.id == (hasPromo && appliedPromoProductId.value.isNotEmpty
+          ? appliedPromoProductId.value : productIdForTier(selectedTier.value)));
+  PurchaseDetails? _pendingPurchase;
+  final Set<String> _verifying = {};
+
   void selectPlan(String plan) => selectedPlan.value = plan;
 
   // ─── Promo code — applied via the access-code field below ───
@@ -179,6 +192,7 @@ class PaywallController extends GetxController {
   }
 
   Future<void> upgradeNow() async {
+    if (purchaseLoading.value) return;
     purchaseError.value = "";
 
     if (!iapAvailable.value) {
@@ -192,7 +206,7 @@ class PaywallController extends GetxController {
     // is the only way the discount is ever actually applied.
     final selectedId = hasPromo && appliedPromoProductId.value.isNotEmpty
         ? appliedPromoProductId.value
-        : (selectedPlan.value == "annual" ? _annualId : _monthlyId);
+        : productIdForTier(selectedTier.value);
     final ProductDetails? product =
         products.firstWhereOrNull((p) => p.id == selectedId);
 
@@ -227,8 +241,15 @@ class PaywallController extends GetxController {
 
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          await _verifyWithBackend(purchase);
-          if (purchase.pendingCompletePurchase) {
+          final key = '${purchase.productID}:${purchase.purchaseID}';
+          if (!_verifying.add(key)) continue;
+          bool verified;
+          try {
+            verified = await _verifyWithBackend(purchase);
+          } finally {
+            _verifying.remove(key);
+          }
+          if (verified && purchase.pendingCompletePurchase) {
             await _iap.completePurchase(purchase);
           }
           break;
@@ -246,26 +267,31 @@ class PaywallController extends GetxController {
     }
   }
 
-  Future<void> _verifyWithBackend(PurchaseDetails purchase) async {
+  Future<bool> _verifyWithBackend(PurchaseDetails purchase) async {
     try {
+      if (purchase.purchaseID == null || purchase.purchaseID!.isEmpty ||
+          purchase.verificationData.serverVerificationData.isEmpty) {
+        throw StateError('Missing purchase verification data');
+      }
       final body = <String, dynamic>{
         "platform": Platform.isIOS ? "ios" : "android",
         "productId": purchase.productID,
-        "purchaseId": purchase.purchaseID ?? purchase.productID,
+        "purchaseId": purchase.purchaseID!,
         "verificationData":
             purchase.verificationData.serverVerificationData,
       };
 
-      if (_preSignup) {
+      if (_preSignup && (CacheService().get<String>('accessToken')?.isNotEmpty != true)) {
+        _pendingPurchase = purchase;
         await CacheService().box.put(_pendingIapKey, body);
         purchaseLoading.value = false;
         _continueToTrainerSelection();
-        return;
+        return false; // Store transaction stays pending until server verification.
       }
 
       final response = await ApiClient.postData(ApiUrls.iapVerify, body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && IapVerifyResultModel.responseGrantsAccess(response.body)) {
         purchaseLoading.value = false;
         // If a promo code was applied, redeem it server-side now. The
         // backend only honors this if purchaseId matches a verified Apple
@@ -281,11 +307,12 @@ class PaywallController extends GetxController {
           duration: const Duration(seconds: 4),
         );
         _continueToTrainerSelection();
+        return true;
       } else {
         purchaseLoading.value = false;
         purchaseError.value =
-            "Purchase verified by Apple but our server could not activate your plan. "
-            "Please contact support — you will not be charged twice.";
+            "Our server has not confirmed an active subscription. "
+            "Use Restore Purchases to retry verification.";
       }
     } catch (_) {
       purchaseLoading.value = false;
@@ -293,6 +320,7 @@ class PaywallController extends GetxController {
           "Could not reach our server to activate your plan. "
           "Please contact support if you were charged.";
     }
+    return false;
   }
 
   Future<void> _redeemPromo({String? purchaseId}) async {
@@ -448,7 +476,12 @@ class PaywallController extends GetxController {
     try {
       if (pendingIap != null) {
         final response = await ApiClient.postData(ApiUrls.iapVerify, pendingIap);
-        if (response.statusCode != 200) return false;
+        if (response.statusCode != 200 || !IapVerifyResultModel.responseGrantsAccess(response.body)) return false;
+        final purchase = _pendingPurchase;
+        if (purchase != null && purchase.pendingCompletePurchase) {
+          await _iap.completePurchase(purchase);
+        }
+        _pendingPurchase = null;
         await cache.delete(_pendingIapKey);
       }
       if (pendingCode != null) {
@@ -483,6 +516,19 @@ class PaywallController extends GetxController {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<void> restorePurchases() async {
+    if (purchaseLoading.value) return;
+    purchaseError.value = '';
+    purchaseLoading.value = true;
+    try {
+      await _iap.restorePurchases();
+    } catch (_) {
+      purchaseError.value = 'Could not restore purchases. Please try again.';
+    } finally {
+      purchaseLoading.value = false;
     }
   }
 

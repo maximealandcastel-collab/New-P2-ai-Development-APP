@@ -218,7 +218,8 @@ class PaymentDetailsController extends GetxController {
       final param = PurchaseParam(productDetails: product);
 
       // Auto-renewable subscriptions use buyNonConsumable on both stores.
-      await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
+      final started = await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
+      if (!started) throw UnknownException('The store did not start the purchase.');
     } catch (e) {
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Purchase failed. Please try again.');
@@ -276,6 +277,7 @@ class PaymentDetailsController extends GetxController {
   /// stream listener, so without this the same purchase is verified repeatedly.
   /// The backend should also treat purchaseId as an idempotency key — this
   /// guard only covers the client side.
+  final Set<String> _verifyingPurchaseIds = <String>{};
   final Set<String> _verifiedPurchaseIds = <String>{};
 
   /// Asks the store to re-deliver past purchases.
@@ -316,16 +318,21 @@ class PaymentDetailsController extends GetxController {
         }
         return;
       }
-      _verifiedPurchaseIds.add(purchaseId);
+      if (!_verifyingPurchaseIds.add(purchaseId)) return;
 
       // Unlock only after backend verifies with Apple / Google.
-      await _subscribeService.verifyIap(
+      final entitlement = await _subscribeService.verifyIap(
         platform: Platform.isIOS ? 'ios' : 'android',
         productId: purchase.productID,
         purchaseId: purchaseId,
         verificationData: verificationData,
       );
 
+      if (!entitlement.isActiveAt(DateTime.now())) {
+        throw UnknownException('No active subscription was verified.');
+      }
+
+      _verifiedPurchaseIds.add(purchaseId);
       if (purchase.pendingCompletePurchase) {
         await InAppPurchase.instance.completePurchase(purchase);
       }
@@ -336,6 +343,7 @@ class PaymentDetailsController extends GetxController {
         // Navigation still proceeds; profile refresh is best-effort.
       }
 
+      _verifyingPurchaseIds.remove(purchaseId);
       _purchaseLoadingState.value = LoadingState.loaded;
       ToastMessageHelper.show('Subscription activated! Enjoy your plan 🎉');
       if (kDebugMode) {
@@ -349,11 +357,13 @@ class PaymentDetailsController extends GetxController {
     } on AppException catch (e) {
       // Drop the id so a retry (or the store's next replay) can verify again.
       _verifiedPurchaseIds.remove(purchase.purchaseID);
+      _verifyingPurchaseIds.remove(purchase.purchaseID);
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.message);
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');
     } catch (e) {
       _verifiedPurchaseIds.remove(purchase.purchaseID);
+      _verifyingPurchaseIds.remove(purchase.purchaseID);
       _purchaseLoadingState.value = LoadingState.error;
       ToastMessageHelper.show('Verification failed. Please contact support.');
       if (kDebugMode) debugPrint('_handleSuccessfulPurchase error: $e');

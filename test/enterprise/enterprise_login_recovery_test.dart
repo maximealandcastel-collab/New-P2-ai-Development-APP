@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
@@ -37,6 +40,22 @@ class FakeAuth extends Fake implements AuthService {
 class FakeProfile extends Fake implements ProfileService {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late Directory storage;
+  setUpAll(() async {
+    storage = await Directory.systemTemp.createTemp('login-test-');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel('plugins.flutter.io/path_provider'),
+            (_) async => storage.path);
+    await CacheService().init();
+  });
+  tearDownAll(() async {
+    await CacheService().box.close();
+    await storage.delete(recursive: true);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel('plugins.flutter.io/path_provider'), null);
+  });
+
   testWidgets(
     isSingleMode
         ? 'single mode login skips unavailable enterprise context and opens existing app'

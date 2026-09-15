@@ -6,6 +6,7 @@ import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/tenant_image.dart';
 
 class GymApplicationScreen extends StatefulWidget {
   final EnterpriseGymModel? initialGym;
@@ -47,6 +48,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     for (final key in [
       'gymName',
       'website',
+      'logoUrl',
       'shortCode',
       'city',
       'state',
@@ -98,6 +100,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     final gym = widget.initialGym;
     if (gym != null) {
       fields['gymName']!.text = gym.name;
+      tenantId = gym.tenantId;
+      fields['logoUrl']!.text = gym.remoteLogoUrl;
       final shortCode = gym.initials.replaceAll(
         RegExp(r'[^A-Za-z0-9]'),
         '',
@@ -242,7 +246,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       error = null;
     });
     try {
-      final id = await EnterpriseService.instance.submitGymApplication({
+      final id = receipt ?? await EnterpriseService.instance.submitGymApplication({
         'schemaVersion': 2,
         for (final entry in fields.entries) entry.key: entry.value.text.trim(),
         'shortCode': text('shortCode').toUpperCase(),
@@ -256,6 +260,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         'reviewConsent': authorized,
         if (tenantId != null) 'tenantId': tenantId,
       });
+      receipt = id;
       final checkoutUri = Uri.parse(
         tier == 'pro'
             ? 'https://p2pfittechai.com/enroll/enterprise-elite'
@@ -276,7 +281,9 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       if (mounted)
         setState(
           () => error =
-              'We couldn’t submit your partnership. Your details are still here. Please try again.',
+              receipt != null
+                  ? 'Your application was submitted. Checkout could not open. Try again to reopen checkout.'
+                  : 'We couldn’t submit your partnership. Your details are still here. Please try again.',
         );
     } finally {
       if (mounted) setState(() => sending = false);
@@ -299,12 +306,12 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     ];
     final descriptions = [
       'Search for your gym to request a claim. If it’s not listed, submit it for a new branded gym experience.',
-      'This is how your gym will look inside P2P. Pick your brand color and short code — we generate the rest.',
+      'Preview your gym inside P2P. Add your logo, brand colors, and short code.',
       'Help us understand the size and scope of your gym.',
       'No monthly fee. Choose how much of your story we tell.',
     ];
     return PopScope(
-      canPop: !sending && (step == 0 || step == 4),
+      canPop: !sending && (receipt != null || step == 0 || step == 4),
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop && !sending) go(step - 1);
       },
@@ -326,7 +333,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           onPressed: sending
                               ? null
                               : () {
-                                  if (step == 0 || step == 4) {
+                                  if (receipt != null || step == 0 || step == 4) {
                                     Navigator.pop(context);
                                   } else {
                                     go(step - 1);
@@ -415,7 +422,16 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             onTap: () {
                               fields['gymName']!.text = g.name;
                               gymNameChanged();
-                              setState(() => tenantId = g.id);
+                              setState(() {
+                                tenantId = g.id;
+                                fields['logoUrl']!.text = g.logoUrl.startsWith('https://') ? g.logoUrl : '';
+                                primary.text = hex(g.primary);
+                                secondary.text = hex(g.secondary);
+                                if (g.locations.isNotEmpty) {
+                                  fields['city']!.text = g.locations.first['city'] as String? ?? '';
+                                  fields['state']!.text = g.locations.first['state'] as String? ?? '';
+                                }
+                              });
                             },
                           ),
                         ),
@@ -575,6 +591,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             ],
                           ),
                         ),
+                      field('logoUrl', 'GYM LOGO URL', 'https://your-gym.com/logo.png', optional: true),
                       colorField(primary, 'Primary color hex'),
                       const SizedBox(height: 20),
                       caption('ACCENT / SECONDARY COLOR'),
@@ -829,12 +846,12 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         TextFormField(
           key: ValueKey(key),
           controller: fields[key],
-          enabled: !sending,
+          enabled: !sending && receipt == null,
           keyboardType: key == 'workEmail'
               ? TextInputType.emailAddress
               : key == 'phone'
               ? TextInputType.phone
-              : key == 'website'
+              : key == 'website' || key == 'logoUrl'
               ? TextInputType.url
               : TextInputType.text,
           onChanged: onChanged ?? (_) => setState(() {}),
@@ -846,6 +863,13 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
               return 'Enter a valid email';
             if (key == 'phone' && text.replaceAll(RegExp(r'\D'), '').length < 7)
               return 'Enter a valid phone number';
+            if (key == 'logoUrl') {
+              final uri = Uri.tryParse(text);
+              if (uri == null || uri.scheme != 'https' || uri.host.isEmpty ||
+                  uri.host.contains(' ') || uri.userInfo.isNotEmpty) {
+                return 'Enter an HTTPS logo URL';
+              }
+            }
             if (key == 'website') {
               final uri = Uri.tryParse(
                 text.contains('://') ? text : 'https://$text',
@@ -981,10 +1005,9 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                   children: [
                     CircleAvatar(
                       backgroundColor: brandText.withValues(alpha: .15),
-                      child: Text(
-                        text('shortCode').toUpperCase(),
-                        style: TextStyle(color: brandText, fontSize: 12),
-                      ),
+                      child: text('logoUrl').isNotEmpty
+                          ? ClipOval(child: TenantImage(text('logoUrl'), width: 40, height: 40, fit: BoxFit.contain))
+                          : Text(text('shortCode').toUpperCase(), style: TextStyle(color: brandText, fontSize: 12)),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1100,7 +1123,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
-          onTap: sending ? null : () => setState(() => tier = id),
+          onTap: sending || receipt != null ? null : () => setState(() => tier = id),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(

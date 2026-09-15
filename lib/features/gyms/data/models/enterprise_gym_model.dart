@@ -156,7 +156,8 @@ class EnterpriseGymModel {
     ).toString();
   }
 
-  String get logoAssetPath => _localLogoAssets[id] ?? '';
+  String get logoAssetPath => remoteLogoUrl.trim().isNotEmpty
+      ? '' : _localLogoAssets[id] ?? '';
 
   /// All 25 gyms — licensed tenants and visible prospects.
   static List<EnterpriseGymModel> get partners => _partners;
@@ -214,8 +215,6 @@ class EnterpriseGymModel {
       isActivated: true, // ✅ LIVE — brick & mortar
       requiresLoggedOutSession: true,
       rating: 4.9,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT', 'Strength', 'Cycling'],
       city: 'Miami',
       zipCode: '33101',
@@ -264,8 +263,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF1A1A2E),
       accentColor: const Color(0xFFD4AF37),
       rating: 4.4,
-      imageUrl:
-          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength', 'HIIT', 'Cycling'],
       city: 'Los Angeles',
       zipCode: '90001',
@@ -281,8 +278,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF1B4332),
       accentColor: const Color(0xFF52B788),
       rating: 4.7,
-      imageUrl:
-          'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Yoga'],
       city: 'Chicago',
       zipCode: '60601',
@@ -298,8 +293,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF0D0D0D),
       accentColor: const Color(0xFFE63946),
       rating: 4.6,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Cycling'],
       city: 'New York',
       zipCode: '10001',
@@ -315,8 +308,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF7B0D1E),
       accentColor: const Color(0xFFFF4D6D),
       rating: 4.5,
-      imageUrl:
-          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT', 'Pilates'],
       city: 'Nashville',
       zipCode: '37201',
@@ -332,8 +323,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFFE85D04),
       accentColor: const Color(0xFFFAA307),
       rating: 4.6,
-      imageUrl:
-          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT', 'Strength'],
       city: 'Charlotte',
       zipCode: '28201',
@@ -349,8 +338,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF7209B7),
       accentColor: const Color(0xFFFFD60A),
       rating: 4.2,
-      imageUrl:
-          'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength'],
       city: 'Hampton',
       zipCode: '03842',
@@ -366,8 +353,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF0D7377),
       accentColor: const Color(0xFF14BDAC),
       rating: 4.8,
-      imageUrl:
-          'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Pilates'],
       city: 'San Diego',
       zipCode: '92101',
@@ -383,8 +368,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFFD00000),
       accentColor: const Color(0xFFFFBA08),
       rating: 4.3,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength', 'HIIT'],
       city: 'Wyckoff',
       zipCode: '07481',
@@ -401,8 +384,6 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFFFFFFFF),
       textColor: const Color(0xFFBF0603),
       rating: 4.3,
-      imageUrl:
-          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength'],
       city: 'Chanhassen',
       zipCode: '55317',
@@ -419,8 +400,6 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFFFFFFFF),
       textColor: const Color(0xFF0A0A0A),
       rating: 4.7,
-      imageUrl:
-          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT', 'Strength'],
       city: 'Nashville',
       zipCode: '37201',
@@ -436,8 +415,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFFE87722),
       accentColor: const Color(0xFF000000),
       rating: 4.2,
-      imageUrl:
-          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength', 'HIIT'],
       city: 'New York',
       zipCode: '10001',
@@ -453,8 +430,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF0D0D0D),
       accentColor: const Color(0xFFFF6B35),
       rating: 4.6,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT'],
       city: 'Santa Monica',
       zipCode: '90401',
@@ -471,8 +446,6 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFFFFFFFF),
       textColor: const Color(0xFFFF6B35),
       rating: 4.7,
-      imageUrl:
-          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT', 'Strength'],
       city: 'Fort Lauderdale',
       zipCode: '33301',
@@ -489,8 +462,6 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFF8B5E52),
       textColor: const Color(0xFF8B5E52),
       rating: 4.8,
-      imageUrl:
-          'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Pilates'],
       city: 'Charleston',
       zipCode: '29401',
@@ -506,8 +477,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF6A0572),
       accentColor: const Color(0xFFE040FB),
       rating: 4.5,
-      imageUrl:
-          'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT'],
       city: 'Carlsbad',
       zipCode: '92008',
@@ -523,8 +492,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF4A2C6E),
       accentColor: const Color(0xFFAB84D8),
       rating: 4.4,
-      imageUrl:
-          'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength'],
       city: 'Hastings',
       zipCode: '55033',
@@ -540,8 +507,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF1A1A1A),
       accentColor: const Color(0xFFFFD700),
       rating: 4.4,
-      imageUrl:
-          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength'],
       city: 'Venice',
       zipCode: '90291',
@@ -557,8 +522,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF0A0A0A),
       accentColor: const Color(0xFFCCAA66),
       rating: 4.8,
-      imageUrl:
-          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength', 'Yoga', 'Cycling'],
       city: 'New York',
       zipCode: '10022',
@@ -575,8 +538,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF8B0000),
       accentColor: const Color(0xFFFF3333),
       rating: 4.7,
-      imageUrl:
-          'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=480&h=260&fit=crop&q=80',
       filterTags: const ['HIIT'],
       city: 'West Hollywood',
       zipCode: '90046',
@@ -592,8 +553,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF1A1A1A),
       accentColor: const Color(0xFFFFD700),
       rating: 4.6,
-      imageUrl:
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Cycling'],
       city: 'New York',
       zipCode: '10023',
@@ -610,8 +569,6 @@ class EnterpriseGymModel {
       accentColor: const Color(0xFFFFFFFF),
       textColor: Colors.white,
       rating: 4.6,
-      imageUrl:
-          'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Strength', 'Yoga', 'Cycling'],
       city: 'Multiple locations',
       zipCode: '',
@@ -626,8 +583,6 @@ class EnterpriseGymModel {
       brandColor: const Color(0xFF005F73),
       accentColor: const Color(0xFF94D2BD),
       rating: 4.7,
-      imageUrl:
-          'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=480&h=260&fit=crop&q=80',
       filterTags: const ['Yoga'],
       city: 'Denver',
       zipCode: '80202',

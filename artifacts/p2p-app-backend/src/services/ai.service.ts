@@ -14,6 +14,7 @@ interface ICallAIParams {
   jsonPrefill?: boolean;
   /** Optional hard upper bound for this provider request. */
   timeoutMs?: number;
+  signal?: AbortSignal;
 }
 
 interface IMemoryUpdateResult {
@@ -43,8 +44,8 @@ export const WORKOUT_PROVIDER_TIMEOUTS_MS = {
     openai: 15_000,
   },
   program: {
-    claude: 45_000,
-    openai: 10_000,
+    claude: 30_000,
+    openai: 20_000,
   },
 } as const;
 
@@ -60,8 +61,12 @@ const fetchTextWithTimeout = async (
   input: string,
   init: RequestInit,
   timeoutMs?: number,
+  signal?: AbortSignal,
 ): Promise<{ ok: boolean; status: number; body: string }> => {
   const controller = new AbortController();
+  const cancel = () => controller.abort();
+  if (signal?.aborted) cancel();
+  else signal?.addEventListener("abort", cancel, { once: true });
   const timeout = timeoutMs
     ? setTimeout(() => controller.abort(), timeoutMs)
     : undefined;
@@ -70,12 +75,14 @@ const fetchTextWithTimeout = async (
     const body = await response.text();
     return { ok: response.ok, status: response.status, body };
   } catch (error) {
+    if (signal?.aborted) throw new Error("AI provider request cancelled");
     if (controller.signal.aborted) {
       throw new Error(`AI provider timed out after ${timeoutMs}ms`);
     }
     throw error;
   } finally {
     if (timeout) clearTimeout(timeout);
+    signal?.removeEventListener("abort", cancel);
   }
 };
 
@@ -86,7 +93,9 @@ export const callAI = async ({
   conversationHistory = [],
   jsonPrefill = false,
   timeoutMs,
+  signal,
 }: ICallAIParams): Promise<string> => {
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
   const messages: Array<{ role: "user" | "assistant"; content: string }> = [
     ...conversationHistory,
     { role: "user", content: userMessage },
@@ -110,7 +119,7 @@ export const callAI = async ({
       system: systemPrompt,
       messages,
     }),
-  }, timeoutMs);
+  }, timeoutMs, signal);
 
   if (!response.ok) {
     throw new Error(`AI API error: ${response.status} — ${response.body}`);
@@ -144,11 +153,13 @@ export const callOpenAIWorkoutPlan = async ({
   userMessage,
   maxTokens = 8192,
   timeoutMs,
+  signal,
 }: {
   systemPrompt: string;
   userMessage: string;
   maxTokens?: number;
   timeoutMs?: number;
+  signal?: AbortSignal;
 }): Promise<string> => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -174,6 +185,7 @@ export const callOpenAIWorkoutPlan = async ({
     }),
     },
     timeoutMs,
+    signal,
   );
 
   if (!response.ok) {

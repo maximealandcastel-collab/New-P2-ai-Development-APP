@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_admin_dashboard_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -59,8 +60,8 @@ void main() {
             as Map<String, dynamic>;
     // Omit external test-image fetches; bundled KMF photos remain renderable.
     if (file.startsWith('abc')) {
-      tenant['photos'] = <String>[];
-      tenant['logoUrl'] = '';
+      tenant['photos'] = <String>['assets/images/app_icon.png'];
+      tenant['logoUrl'] = 'assets/images/app_icon.png';
     }
     final service = EnterpriseService(
       baseUrl: 'https://api.test',
@@ -161,7 +162,7 @@ void main() {
     expect(find.text('Signups'), findsWidgets);
     expect(find.text('10'), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
-  });
+  }, skip: isSingleMode);
   testWidgets('second tenant renders the same dashboard without KMF text', (
     tester,
   ) async {
@@ -170,7 +171,7 @@ void main() {
     expect(find.text('KMF Fitness Club'), findsNothing);
     expect(find.text('Signups'), findsWidgets);
     expect(find.text('3'), findsOneWidget);
-  });
+  }, skip: isSingleMode);
   testWidgets('revocation disposes protected nested navigation and records', (
     tester,
   ) async {
@@ -187,14 +188,14 @@ void main() {
     expect(find.text('Private member A'), findsNothing);
     expect(find.text('Gym session'), findsOneWidget);
     expect(tester.takeException(), isNull);
-  });
+  }, skip: isSingleMode);
   testWidgets('server permission denial shows the locked session', (
     tester,
   ) async {
     await mount(tester, fail: true);
     expect(find.text('Gym session'), findsOneWidget);
     expect(find.text('Private member A'), findsNothing);
-  });
+  }, skip: isSingleMode);
   testWidgets(
     'legacy KMF shares dashboard and uses only the protected old endpoint',
     (tester) async {

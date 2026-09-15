@@ -29,7 +29,7 @@ class PlanModel {
 
   /// Formatted price string, e.g. "$50.00"
   String get displayPrice =>
-      formattedPrice ?? '\$${price.toStringAsFixed(2)}';
+      formattedPrice ?? 'Price unavailable';
 
   static final List<PlanModel> plans = [
     PlanModel(
@@ -37,11 +37,11 @@ class PlanModel {
       billingText: 'Billed once a year',
       price: 50.00,
       isBestValue: true,
-      saveText: 'Save 50%',
+
     ),
     PlanModel(
-      title: 'Monthly Plan',
-      billingText: 'Billed every month',
+      title: '3-Month Plan',
+      billingText: 'Billed every 3 months',
       price: 19.99,
     ),
   ];

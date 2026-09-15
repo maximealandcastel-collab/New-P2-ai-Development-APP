@@ -1,3 +1,4 @@
+import { runWithProviderBackup } from "../../services/providerFallback";
 import { exerciseMatchesEquipment, resolveWorkoutEquipment } from "./workoutEquipment";
 import { exerciseMatchesSplitDay, splitDayMuscles, selectSplitDayExercises } from "./workoutSplit";
 import { Types } from "mongoose";
@@ -21,7 +22,6 @@ import {
   callOpenAIWorkoutPlan,
   parseAIJsonResponse,
   summarizeAIProviderFailure,
-  WORKOUT_PROVIDER_TIMEOUTS_MS,
 } from "../../services/ai.service";
 import { resolveWorkoutTrainer } from "./workoutTrainerResolver";
 import { EXERCISES } from "../workoutPlan/exercises";
@@ -424,6 +424,7 @@ const callStructuredWorkoutAI = async <T>({
   const attemptProvider = async (
     provider: Provider,
     timeoutMs: number,
+    signal: AbortSignal,
   ): Promise<Attempt> => {
     const providerStartedAt = Date.now();
     logWorkoutEvent("WORKOUT_PROVIDER_STARTED", workoutId, {
@@ -440,12 +441,14 @@ const callStructuredWorkoutAI = async <T>({
               userMessage,
               maxTokens,
               timeoutMs,
+              signal,
             })
           : await callOpenAIWorkoutPlan({
               systemPrompt,
               userMessage,
               maxTokens,
               timeoutMs,
+              signal,
             });
       const providerDurationMs = Date.now() - providerStartedAt;
       const validationStartedAt = Date.now();
@@ -475,30 +478,30 @@ const callStructuredWorkoutAI = async <T>({
     }
   };
 
-  const timeouts = WORKOUT_PROVIDER_TIMEOUTS_MS[stage];
-  const claude = await attemptProvider("claude", timeouts.claude);
-  if (claude.ok) {
-    return { value: claude.value, provider: claude.provider };
+  // The client has a 60-second HTTP deadline. Overlap a slow primary with
+  // its backup and leave time for database reads, validation and persistence.
+  const deadlineMs = stage === "splits" ? 32_000 : 42_000;
+  const failures: Partial<Record<Provider, string>> = {};
+  const run = async (provider: Provider, signal: AbortSignal) => {
+    const result = await attemptProvider(provider, deadlineMs, signal);
+    if (!result.ok) {
+      failures[provider] = result.reason;
+      throw new Error(result.reason);
+    }
+    return { value: result.value, provider: result.provider };
+  };
+  try {
+    return await runWithProviderBackup({
+      primary: signal => run("claude", signal),
+      backup: signal => run("openai", signal),
+      backupDelayMs: stage === "splits" ? 6_000 : 8_000,
+      deadlineMs,
+    });
+  } catch (error) {
+    logWorkoutEvent("WORKOUT_PROVIDER_FALLBACK", workoutId, {
+      stage, toProvider: "library", reason: summarizeAIProviderFailure(error),
+    });
   }
-
-  logWorkoutEvent("WORKOUT_PROVIDER_FALLBACK", workoutId, {
-    stage,
-    fromProvider: "claude",
-    toProvider: "openai",
-    fallbackReason: claude.reason,
-  });
-
-  const openai = await attemptProvider("openai", timeouts.openai);
-  if (openai.ok) {
-    return { value: openai.value, provider: openai.provider };
-  }
-
-  logWorkoutEvent("WORKOUT_PROVIDER_FALLBACK", workoutId, {
-    stage,
-    fromProvider: "openai",
-    toProvider: "library",
-    fallbackReason: openai.reason,
-  });
   const libraryStartedAt = Date.now();
   const value = fallback();
   logWorkoutEvent("WORKOUT_LIBRARY_FALLBACK_SUCCEEDED", workoutId, {
@@ -510,8 +513,7 @@ const callStructuredWorkoutAI = async <T>({
     fallbackUsed: true,
     finalFallbackUsed: true,
     fallbackReason: {
-      claude: claude.reason,
-      openai: openai.reason,
+      ...failures,
     },
   });
   return { value, provider: "library" };
@@ -601,16 +603,20 @@ const loadApprovedLibrary = async (
         blockId: block._id,
         isApproved: true,
       }).lean();
-      const withSteps = await Promise.all(
-        exercises.map(async (exercise: any) => ({
-          ...exercise,
-          steps: await ExerciseStepModel.find({ exerciseId: exercise._id })
-            .sort({ order: 1 })
-            .lean(),
-          blockId: block._id,
-          blockName: block.name,
-        })),
-      );
+      const allSteps = await ExerciseStepModel.find({
+        exerciseId: { $in: exercises.map((exercise: any) => exercise._id) },
+      }).sort({ order: 1 }).lean();
+      const stepsByExercise = new Map<string, any[]>();
+      for (const step of allSteps) {
+        const id = String(step.exerciseId);
+        stepsByExercise.set(id, [...(stepsByExercise.get(id) || []), step]);
+      }
+      const withSteps = exercises.map((exercise: any) => ({
+        ...exercise,
+        steps: stepsByExercise.get(String(exercise._id)) || [],
+        blockId: block._id,
+        blockName: block.name,
+      }));
       return { ...block, exercises: withSteps };
     }),
   );

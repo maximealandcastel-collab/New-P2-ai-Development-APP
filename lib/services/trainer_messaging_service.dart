@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 
 import 'api_urls.dart';
 
@@ -117,17 +118,8 @@ class TrainerMessagingService {
   static final instance = TrainerMessagingService._();
 
   Future<String> _token() async {
-    final prefs = await SharedPreferences.getInstance();
-    for (final key in const [
-      'accessToken',
-      'bearerToken',
-      'token',
-      'authToken',
-      'jwt',
-    ]) {
-      final value = prefs.getString(key);
-      if (value != null && value.isNotEmpty) return value;
-    }
+    final token = CacheService().get<String>(AppConstants.accessToken);
+    if (token != null && token.isNotEmpty) return token;
     throw const TrainerMessagingException(
       'Please sign in again to open trainer messages.',
     );
