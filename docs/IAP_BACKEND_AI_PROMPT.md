@@ -145,7 +145,7 @@ Optional: save to iap_transactions for audit (gateway: apple_iap | google_iap)
 
 ## OUT OF SCOPE (do not implement now)
 - Apple/Google webhooks (phase 2)
-- Promo codes
+- Promo codes — see [PROMO_APPLE_BACKEND_AI_PROMPT.md](./PROMO_APPLE_BACKEND_AI_PROMPT.md) for that spec (it depends on this endpoint's transaction records)
 - Restore purchases endpoint (phase 2)
 
 ---
