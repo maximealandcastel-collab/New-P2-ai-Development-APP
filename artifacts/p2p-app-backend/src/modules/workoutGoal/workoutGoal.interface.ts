@@ -141,6 +141,9 @@ export interface IWorkoutPreferenceSnapshot {
   equipment_availablity: string[];
   workout_intensity: string[];
   duration: number;
+  facilityId?: string;
+  facilityEquipment?: string[];
+  selectedEquipment?: string[];
   daysPerWeek?: number;
   experienceLevel?: string;
   cardioPreference?: string;

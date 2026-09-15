@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/user/workout/data/models/facility_workout_filter.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
 import 'dart:math';
@@ -6,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:pler_to_pler_app/features/trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
-import 'package:pler_to_pler_app/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/logger.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
@@ -64,7 +65,9 @@ _WorkoutGenerationFailure _responseFailure(
 
 // ─── Entry point ─────────────────────────────────────────────────────────────
 class WorkoutFinderFlow extends StatefulWidget {
-  const WorkoutFinderFlow({super.key});
+  const WorkoutFinderFlow({super.key, this.facilityFilter});
+
+  final FacilityWorkoutFilter? facilityFilter;
 
   @override
   State<WorkoutFinderFlow> createState() => _WorkoutFinderFlowState();
@@ -195,7 +198,11 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     if (_step < 5) _next();
   }
 
-  Map<String, dynamic> get _workoutPayload => {
+  Map<String, dynamic> get _workoutPayload => widget.facilityFilter?.applyToPayload(
+        _personalWorkoutPayload,
+      ) ?? _personalWorkoutPayload;
+
+  Map<String, dynamic> get _personalWorkoutPayload => {
         "goal": _selectedGoals.isEmpty
             ? ["maintain_physique"]
             : _selectedGoals.map(_goalValue).toList(),

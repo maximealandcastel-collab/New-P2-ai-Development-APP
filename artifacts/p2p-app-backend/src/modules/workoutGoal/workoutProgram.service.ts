@@ -1,3 +1,5 @@
+import { exerciseMatchesEquipment, resolveWorkoutEquipment } from "./workoutEquipment";
+import { exerciseMatchesSplitDay, splitDayMuscles, selectSplitDayExercises } from "./workoutSplit";
 import { Types } from "mongoose";
 import { createHash, randomUUID } from "crypto";
 import {
@@ -205,7 +207,12 @@ const buildPreferenceSnapshot = ({
     goal: cleanStrings(workout.goal),
     focusArea: cleanStrings(workout.focusArea),
     workout_environment: cleanStrings(workout.workout_environment),
-    equipment_availablity: cleanStrings(workout.equipment_availablity),
+    equipment_availablity: resolveWorkoutEquipment(
+      workout.equipment_availablity, stored.facilityEquipment,
+    ),
+    facilityId: stored.facilityId,
+    facilityEquipment: stored.facilityEquipment,
+    selectedEquipment: stored.selectedEquipment,
     workout_intensity: cleanStrings(workout.workout_intensity),
     duration: Math.min(90, Math.max(20, Number(workout.duration) || 30)),
     daysPerWeek: resolveDaysPerWeek(stored.daysPerWeek),
@@ -680,29 +687,16 @@ const filterLibraryForPreferences = (
   exercises: LibraryExercise[],
   preferences: IWorkoutPreferenceSnapshot,
 ): LibraryExercise[] => {
-  const selected = preferences.equipment_availablity.map(normalizedToken);
+  const selected = resolveWorkoutEquipment(
+    preferences.equipment_availablity, preferences.facilityEquipment,
+  );
   const excluded = new Set(
-    (preferences.excludedExercises || []).map((name) => normalizedToken(name)),
+    (preferences.excludedExercises || []).map(name => normalizedToken(name)),
   );
-  const noEquipment = selected.some((item) =>
-    ["no_equipment", "bodyweight_only"].includes(item),
+  const allowed = exercises.filter(exercise =>
+    !excluded.has(normalizedToken(exercise.name)) &&
+    exerciseMatchesEquipment(exercise.equipment, selected),
   );
-  const unrestricted = selected.includes("others") || selected.includes("full_gym");
-
-  const allowed = exercises.filter((exercise) => {
-    if (excluded.has(normalizedToken(exercise.name))) return false;
-    const equipment = normalizedToken(exercise.equipment);
-    if (!equipment) return true;
-    if (unrestricted) return true;
-    if (noEquipment) {
-      return ["bodyweight", "bodyweight_only", "none", "no_equipment"].some(
-        (token) => equipment.includes(token),
-      );
-    }
-    return selected.some(
-      (token) => equipment.includes(token) || token.includes(equipment),
-    );
-  });
 
   if (allowed.length < 2) {
     throw new Error(
@@ -790,6 +784,10 @@ const validateWorkoutProgram = (
       }
       if (excluded.has(source.name.toLowerCase())) {
         throw new Error(`Workout day ${dayIndex + 1} contains an excluded exercise`);
+      }
+      if (splitDayMuscles(split.weeklySchedule[dayIndex]) &&
+          !exerciseMatchesSplitDay(source.muscleGroup, split.weeklySchedule[dayIndex])) {
+        throw new Error(`Workout day ${dayIndex + 1} contains an exercise outside its split focus`);
       }
       const key = String(source._id);
       if (seen.has(key)) {
@@ -879,22 +877,11 @@ const buildFallbackProgram = (
   });
   const exercisesPerDay = preferences.duration <= 30 ? 3 : preferences.duration <= 50 ? 4 : 5;
   const workouts = split.weeklySchedule.map((title, dayIndex) => {
-    const start = (dayIndex * exercisesPerDay) % rankedLibrary.length;
-    const selected: LibraryExercise[] = [];
-    for (
-      let offset = 0;
-      offset < rankedLibrary.length && selected.length < exercisesPerDay;
-      offset++
-    ) {
-      const exercise = rankedLibrary[(start + offset) % rankedLibrary.length];
-      if (!selected.some((item) => String(item._id) === String(exercise._id))) {
-        selected.push(exercise);
-      }
-    }
+    const selected = selectSplitDayExercises(rankedLibrary, title, dayIndex, exercisesPerDay);
     return {
       day: dayIndex + 1,
       title,
-      muscleGroups: [title],
+      muscleGroups: [...new Set(selected.map(exercise => exercise.muscleGroup).filter(Boolean))] as string[],
       warmUp: defaultWarmUp(),
       exercises: selected.map((exercise, index) =>
         snapshotExercise({}, exercise, index + 1),

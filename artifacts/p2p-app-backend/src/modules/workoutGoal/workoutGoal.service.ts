@@ -1,3 +1,4 @@
+import { normalizeEquipment, resolveWorkoutEquipment, exerciseMatchesEquipment } from "./workoutEquipment";
 import { Types } from "mongoose";
 import {
   IAIGeneratedPlan,
@@ -180,27 +181,17 @@ export const createWorkoutPreferences = async (
     environmentAliases,
     new Set(["full_gym", "home", "office", "hotel_gym", "outdoor", "no_equipment"]),
   );
-  const canonicalEquipment = canonicalizeSelections(
-    data.equipment_availablity,
-    "equipment_availablity",
-    {},
-    new Set([
-      "barbell",
-      "dumbbells",
-      "machines",
-      "resistance_bands",
-      "kettlebells",
-      "pull_up_bar",
-      "bench",
-      "cable_machine",
-      "treadmill",
-      "others",
-      "bodyweight_only",
-      "no_equipment",
-      "boxing_bag",
-      "jump_rope",
-    ]),
-  );
+  const selectedEquipment = normalizeEquipment(data.equipment_availablity);
+  const facilityEquipment = data.workoutPreferences?.facilityEquipment === undefined
+    ? undefined : normalizeEquipment(data.workoutPreferences.facilityEquipment);
+  const facilityId = data.workoutPreferences?.facilityId;
+  if (facilityId !== undefined && (typeof facilityId !== "string" || !facilityId.trim())) {
+    throw new Error("facilityId must be a non-empty string");
+  }
+  if (facilityId !== undefined && facilityEquipment === undefined) {
+    throw new Error("Facility equipment must be loaded before generating a facility workout");
+  }
+  const canonicalEquipment = resolveWorkoutEquipment(selectedEquipment, facilityEquipment);
   const canonicalIntensity = canonicalizeSelections(
     data.workout_intensity,
     "workout_intensity",
@@ -219,6 +210,9 @@ export const createWorkoutPreferences = async (
     workout_intensity: canonicalIntensity,
     duration: normalizedDuration,
     workoutPreferences: {
+      facilityId: facilityId?.trim(),
+      facilityEquipment,
+      selectedEquipment,
       daysPerWeek: data.workoutPreferences?.daysPerWeek,
       experienceLevel: data.workoutPreferences?.experienceLevel,
       cardioPreference: data.workoutPreferences?.cardioPreference,
@@ -312,7 +306,9 @@ export const generateAIPlan = async (
         }).lean();
 
         const exercisesWithSteps = await Promise.all(
-          exercises.map(async (exercise) => {
+          exercises.filter(exercise => exerciseMatchesEquipment(
+            exercise.equipment, workout.equipment_availablity,
+          )).map(async (exercise) => {
             const steps = await ExerciseStepModel.find({
               exerciseId: exercise._id,
             })
@@ -1081,21 +1077,21 @@ const mapPlannedExercises = (
       }
     }
 
-    const exerciseId =
-      toObjectIdOrUndefined(e.exerciseId) ??
-      toObjectIdOrUndefined(sourceExercise?._id);
+    if (!sourceExercise || !sourceBlock) {
+      throw new Error("Generated workout contains an exercise outside the selected equipment library");
+    }
+    const exerciseId = toObjectIdOrUndefined(sourceExercise._id);
 
     const blockId =
-      toObjectIdOrUndefined(e.blockId) ??
       toObjectIdOrUndefined(sourceBlock?._id) ??
       toObjectIdOrUndefined(sourceExercise?.blockId);
 
     return {
       exerciseId,
-      exerciseName: e.exerciseName || sourceExercise?.name,
+      exerciseName: sourceExercise.name,
       blockId,
-      blockName: e.blockName || sourceBlock?.name,
-      muscleGroup: e.muscleGroup || sourceExercise?.muscleGroup,
+      blockName: sourceBlock.name,
+      muscleGroup: sourceExercise.muscleGroup,
       sets: e.sets || sourceExercise?.sets || 3,
       reps: e.reps || sourceExercise?.reps || "8-12",
       restTime: e.restTime || sourceExercise?.restTime || "60s",
