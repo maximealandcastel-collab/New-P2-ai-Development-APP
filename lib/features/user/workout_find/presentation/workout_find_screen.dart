@@ -839,7 +839,9 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
       }
     });
     _workoutId = widget.existingWorkoutId;
-    _generateSplits();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _generateSplits();
+    });
   }
 
   Future<void> _generateSplits() async {
@@ -863,7 +865,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
           ApiUrls.workoutCreate,
           widget.payload,
           traceId: traceId,
-        );
+        ).timeout(const Duration(seconds: 20));
         _logWorkoutHandoff(traceId, 'response_received', {
           'stage': 'create',
           'statusCode': createRes.statusCode,
@@ -903,7 +905,7 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
         ApiUrls.workoutSplits(_workoutId!),
         {},
         traceId: traceId,
-      );
+      ).timeout(const Duration(seconds: 45));
       _logWorkoutHandoff(traceId, 'response_received', {
         'stage': 'splits',
         'statusCode': splitRes.statusCode,
@@ -967,9 +969,12 @@ class _SplitLoadingStepState extends State<_SplitLoadingStep> {
       widget.onLoadingChanged(false);
       setState(() {
         _isLoading = false;
-        _error = error is _WorkoutGenerationFailure
-            ? error.userMessage
-            : "We couldn't complete your workout yet.\nPlease try again.";
+        final message = error is TimeoutException
+            ? 'The workout service did not respond in time. Check your connection and tap Retry.'
+            : error is _WorkoutGenerationFailure
+                ? error.userMessage
+                : "We couldn't complete your workout yet. Please try again.";
+        _error = '$message\nReference: $traceId';
       });
     } finally {
       _requestInFlight = false;
@@ -1279,7 +1284,9 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
         setState(() => _phaseIndex++);
       }
     });
-    _generateProgram();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _generateProgram();
+    });
   }
 
   Future<void> _generateProgram() async {
@@ -1304,7 +1311,7 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
         ApiUrls.workoutProgram(widget.workoutId),
         {'selectedSplitId': widget.selectedSplitId},
         traceId: traceId,
-      );
+      ).timeout(const Duration(seconds: 45));
       _logWorkoutHandoff(traceId, 'response_received', {
         'stage': 'program',
         'statusCode': response.statusCode,
@@ -1362,9 +1369,12 @@ class _ProgramLoadingStepState extends State<_ProgramLoadingStep> {
       widget.onLoadingChanged(false);
       setState(() {
         _isLoading = false;
-        _error = error is _WorkoutGenerationFailure
-            ? error.userMessage
-            : "We couldn't complete your workout yet.\nPlease try again.";
+        final message = error is TimeoutException
+            ? 'The workout service did not respond in time. Check your connection and tap Retry.'
+            : error is _WorkoutGenerationFailure
+                ? error.userMessage
+                : "We couldn't complete your workout yet. Please try again.";
+        _error = '$message\nReference: $traceId';
       });
     } finally {
       _requestInFlight = false;
