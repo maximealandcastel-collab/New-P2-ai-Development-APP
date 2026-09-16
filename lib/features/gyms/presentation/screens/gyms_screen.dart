@@ -331,13 +331,6 @@ class _GymsScreenState extends State<GymsScreen> {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  if (!isSingleMode)
-                    TextButton.icon(
-                      onPressed: () =>
-                          Get.to(() => const EnterpriseMembershipScreen()),
-                      icon: const Icon(Icons.swap_horiz),
-                      label: const Text('My gyms & invitations'),
-                    ),
                   if (_directoryLoading) const LinearProgressIndicator(),
                   if (_directoryError != null) Text(_directoryError!),
                   TextButton(

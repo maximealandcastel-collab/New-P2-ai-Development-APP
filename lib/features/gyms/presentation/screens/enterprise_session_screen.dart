@@ -67,11 +67,6 @@ class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
                 Text(
                   'Gym access: ${EnterpriseService.instance.bootstrapData.value['entitlement']?['state'] ?? 'unavailable'}. Select a gym, renew with your gym owner, or retry.',
                 ),
-                FilledButton(
-                  onPressed: () =>
-                      Get.offAll(() => const EnterpriseMembershipScreen()),
-                  child: const Text('My gyms'),
-                ),
                 TextButton(
                   onPressed: () async {
                     try {
@@ -102,12 +97,6 @@ class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
               appBar: AppBar(
                 title: Text(session.tenant.name),
                 actions: [
-                  IconButton(
-                    tooltip: 'My gyms',
-                    icon: const Icon(Icons.swap_horiz),
-                    onPressed: () =>
-                        Get.to(() => const EnterpriseMembershipScreen()),
-                  ),
                   if (session.isAdmin)
                     IconButton(
                       tooltip: 'Manage gym',
@@ -153,142 +142,6 @@ Future<void> enterEnterprise(String? id) async {
   } else {
     Get.offAll(() => const EnterpriseSessionScreen());
   }
-}
-
-class EnterpriseMembershipScreen extends StatefulWidget {
-  const EnterpriseMembershipScreen({super.key});
-  @override
-  State<EnterpriseMembershipScreen> createState() =>
-      _EnterpriseMembershipScreenState();
-}
-
-class _EnterpriseMembershipScreenState
-    extends State<EnterpriseMembershipScreen> {
-  final items = <Map<String, dynamic>>[];
-  String? cursor, error;
-  bool loading = false, busy = false;
-  @override
-  void initState() {
-    super.initState();
-    load();
-  }
-
-  Future<void> load({bool reset = false}) async {
-    if (loading) return;
-    setState(() {
-      loading = true;
-      error = null;
-      if (reset) {
-        items.clear();
-        cursor = null;
-      }
-    });
-    try {
-      final page = await EnterpriseService.instance.memberships(cursor: cursor);
-      if (mounted)
-        setState(() {
-          items.addAll(page.items);
-          cursor = page.nextCursor;
-        });
-    } catch (e) {
-      if (mounted) setState(() => error = '$e');
-    } finally {
-      if (mounted) setState(() => loading = false);
-    }
-  }
-
-  Future<void> choose(Map<String, dynamic> item) async {
-    if (busy) return;
-    setState(() {
-      busy = true;
-      error = null;
-    });
-    try {
-      if (item['status'] == 'invited') {
-        await EnterpriseService.instance.request(
-          '/enterprise/me/invitations/${Uri.encodeComponent(item['id'] as String)}/accept',
-          method: 'POST',
-          body: {},
-        );
-        await load(reset: true);
-      } else {
-        await enterEnterprise(item['tenantId'] as String);
-      }
-    } catch (e) {
-      if (mounted) setState(() => error = '$e');
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('My gyms & invitations'),
-      actions: [
-        IconButton(
-          onPressed: loading ? null : () => load(reset: true),
-          icon: const Icon(Icons.refresh),
-        ),
-      ],
-    ),
-    body: ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        if (loading || busy) const LinearProgressIndicator(),
-        if (error != null) Text(error!),
-        if (!loading && error == null && items.isEmpty)
-          const Text(
-            'No memberships yet. Your gym owner can add your verified P2P account.',
-          ),
-        const GymApplicationStatus(),
-        ...items.map(
-          (item) => Card(
-            child: ListTile(
-              title: Text('${item['tenantName']}'),
-              subtitle: Text('${item['status']}'),
-              trailing: ['active', 'invited'].contains(item['status'])
-                  ? TextButton(
-                      onPressed: busy ? null : () => choose(item),
-                      child: Text(
-                        item['status'] == 'invited'
-                            ? 'Accept invitation'
-                            : 'Open',
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-        ),
-        if (cursor != null)
-          TextButton(
-            onPressed: loading ? null : load,
-            child: const Text('Load more'),
-          ),
-        TextButton(
-          onPressed: busy
-              ? null
-              : () async {
-                  setState(() => busy = true);
-                  try {
-                    await enterEnterprise(null);
-                  } catch (e) {
-                    if (mounted)
-                      setState(() {
-                        error = '$e';
-                        busy = false;
-                      });
-                  }
-                },
-          child: const Text('Use personal P2P experience'),
-        ),
-        TextButton(
-          onPressed: () => LoginController.to.logout(),
-          child: const Text('Sign out'),
-        ),
-      ],
-    ),
-  );
 }
 
 class EnterpriseJoinScreen extends StatefulWidget {
@@ -338,10 +191,6 @@ class _EnterpriseJoinScreenState extends State<EnterpriseJoinScreen> {
                 },
           child: Text(requested ? 'Request submitted' : 'Request to join'),
         ),
-        TextButton(
-          onPressed: () => Get.to(() => const EnterpriseMembershipScreen()),
-          child: const Text('Already connected? Open my gyms'),
-        ),
       ],
     ),
   );
@@ -371,11 +220,6 @@ class EnterpriseMemberHome extends StatelessWidget {
       appBar: AppBar(
         title: Text(tenant.name),
         actions: [
-          IconButton(
-            tooltip: 'Switch gym',
-            icon: const Icon(Icons.swap_horiz),
-            onPressed: () => Get.to(() => const EnterpriseMembershipScreen()),
-          ),
           IconButton(
             tooltip: 'Sign out',
             icon: const Icon(Icons.logout),
@@ -410,11 +254,6 @@ class EnterpriseMemberHome extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () => Get.to(() => const EnterpriseMembershipScreen()),
-            child: const Text('My gyms & personal P2P fitness'),
-          ),
         ],
       ),
     );
