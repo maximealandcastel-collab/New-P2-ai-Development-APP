@@ -101,8 +101,13 @@ class _NavBarState extends State<NavBar> {
       final safeIndex = _navBarController.selectedIndex.value
           .clamp(0, screens.length - 1)
           .toInt();
-      return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      return PopScope(
+        canPop: safeIndex == 0,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _navBarController.onChange(0);
+        },
+        child: Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
         // ✅ Use extendBody so body renders behind the nav bar.
         //    The blur/transparent nav bar will show body content through it.
@@ -126,7 +131,8 @@ class _NavBarState extends State<NavBar> {
         ),
 
         // ✅ Nav bar goes in bottomNavigationBar, NOT inside body.
-        bottomNavigationBar: _buildNavBar(context),
+          bottomNavigationBar: _buildNavBar(context),
+        ),
       );
     });
   }

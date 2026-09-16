@@ -89,8 +89,13 @@ class BottomNavBarMain extends StatelessWidget {
       // plus its 6px offset, rounded up.
       final pillInset = isAdmin ? 82.h : 0.0;
 
-      return Scaffold(
-        key: ValueKey('bottomNavMainScaffold-$tenantSession'),
+      return PopScope(
+        canPop: activeIndex == 0,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) ctrl.onChange(0);
+        },
+        child: Scaffold(
+          key: ValueKey('bottomNavMainScaffold-$tenantSession'),
         backgroundColor: tenant.scaffoldBackground,
         body: Stack(
           children: [
@@ -130,6 +135,7 @@ class BottomNavBarMain extends StatelessWidget {
               child: BottomNavBar(navItems: activeItems),
             ),
           ],
+          ),
         ),
       );
     });

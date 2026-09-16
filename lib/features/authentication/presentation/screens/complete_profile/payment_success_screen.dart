@@ -18,6 +18,15 @@ class PaymentSuccessScreen extends StatefulWidget {
 
 class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   late ConfettiController _confettiController;
+  bool _isLeaving = false;
+
+  void _goHome() {
+    if (_isLeaving) return;
+    _isLeaving = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Get.offAllNamed(AppRoute.bottonNavBar);
+    });
+  }
 
   @override
   void initState() {
@@ -40,6 +49,9 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _goHome();
+      },
       child: CustomScaffold(
         body: Stack(
           children: [
@@ -66,9 +78,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                 const Spacer(),
                 CustomButton(
                   label: 'Take me to home page',
-                  onPressed: () {
-                    Get.offAllNamed(AppRoute.bottonNavBar);
-                  },
+                  onPressed: _goHome,
                 ),
                 const SizedBox(height: 20),
               ],

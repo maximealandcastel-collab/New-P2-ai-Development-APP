@@ -221,7 +221,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
       return;
     }
     if (_step == 0) {
-      Get.back();
+      Navigator.of(context).maybePop();
       return;
     }
     if (_step >= 5) {
