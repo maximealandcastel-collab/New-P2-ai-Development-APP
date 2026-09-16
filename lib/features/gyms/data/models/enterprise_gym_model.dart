@@ -172,6 +172,34 @@ class EnterpriseGymModel {
   /// All 25 gyms — licensed tenants and visible prospects.
   static List<EnterpriseGymModel> get partners => _partners;
 
+  /// Stable release ordering for the bundled directory. Keep P2P Fit Factor and
+  /// YMCA Yonkers first, preserve every other gym's catalog order, and keep KMF
+  /// Fitness Club at the end until its placement is intentionally changed.
+  static List<EnterpriseGymModel> sortForDirectory(
+    Iterable<EnterpriseGymModel> gyms,
+  ) {
+    final sorted = gyms.toList();
+    final originalOrder = <String, int>{
+      for (var index = 0; index < sorted.length; index++) sorted[index].id: index,
+    };
+    const priority = <String, int>{
+      'p2p_fit_factor': 0,
+      'ymca_yonkers': 1,
+      'kmf_fitness_club': 9999,
+    };
+    sorted.sort((a, b) {
+      final aPriority = priority[a.id];
+      final bPriority = priority[b.id];
+      if (aPriority != null || bPriority != null) {
+        return (aPriority ?? 999).compareTo(bPriority ?? 999);
+      }
+      return (originalOrder[a.id] ?? 9999).compareTo(
+        originalOrder[b.id] ?? 9999,
+      );
+    });
+    return sorted;
+  }
+
   /// Only gyms with a signed contract. Authentication must also be authorized by the backend.
   static List<EnterpriseGymModel> get activatedPartners =>
       _partners.where((g) => g.isActivated).toList();

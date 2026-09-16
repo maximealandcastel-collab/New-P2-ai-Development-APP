@@ -266,33 +266,14 @@ class _GymsScreenState extends State<GymsScreen> {
   // ── Filtering ─────────────────────────────────────────────────────────────
 
   List<EnterpriseGymModel> get _displayedGyms {
-    final originalOrder = <String, int>{
-      for (var index = 0; index < _sortedGyms.length; index++)
-        _sortedGyms[index].id: index,
-    };
     final displayed = _sortedGyms.where((g) {
       // Google already matched the entered address; do not re-filter by gym name.
       const matchSearch = true;
       final matchFilter =
           !isSingleMode || _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
-    }).toList();
-    const priority = <String, int>{
-      'ymca_yonkers': 0,
-      'p2p_fit_factor': 1,
-      'kmf_fitness_club': 2,
-    };
-    displayed.sort((a, b) {
-      final aPriority = priority[a.id];
-      final bPriority = priority[b.id];
-      if (aPriority != null || bPriority != null) {
-        return (aPriority ?? 999).compareTo(bPriority ?? 999);
-      }
-      return (originalOrder[a.id] ?? 9999).compareTo(
-        originalOrder[b.id] ?? 9999,
-      );
     });
-    return displayed;
+    return EnterpriseGymModel.sortForDirectory(displayed);
   }
 
   List<EnterpriseGymModel> get _featuredGyms {
