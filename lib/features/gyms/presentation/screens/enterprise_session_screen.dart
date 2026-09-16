@@ -120,6 +120,107 @@ class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
   );
 }
 
+class EnterpriseMembershipScreen extends StatefulWidget {
+  const EnterpriseMembershipScreen({super.key});
+
+  @override
+  State<EnterpriseMembershipScreen> createState() =>
+      _EnterpriseMembershipScreenState();
+}
+
+class _EnterpriseMembershipScreenState
+    extends State<EnterpriseMembershipScreen> {
+  late Future<EnterprisePage> _memberships;
+  String? _switchingTenantId;
+
+  @override
+  void initState() {
+    super.initState();
+    _memberships = EnterpriseService.instance.memberships();
+  }
+
+  void _retry() {
+    setState(() => _memberships = EnterpriseService.instance.memberships());
+  }
+
+  Future<void> _select(String tenantId) async {
+    if (_switchingTenantId != null) return;
+    setState(() => _switchingTenantId = tenantId);
+    try {
+      await enterEnterprise(tenantId);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _switchingTenantId = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open this gym. $error')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Select a gym')),
+    body: FutureBuilder<EnterprisePage>(
+      future: _memberships,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Your gyms could not be loaded.'),
+                const SizedBox(height: 12),
+                FilledButton(onPressed: _retry, child: const Text('Retry')),
+              ],
+            ),
+          );
+        }
+        final items = snapshot.data?.items ?? const [];
+        if (items.isEmpty) {
+          return const Center(child: Text('No active gym memberships found.'));
+        }
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: items.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final membership = items[index];
+            final rawTenant = membership['tenant'];
+            if (rawTenant is! Map) return const SizedBox.shrink();
+            final tenant = TenantConfiguration.fromJson(
+              Map<String, dynamic>.from(rawTenant),
+            );
+            final roles = (membership['roles'] as List? ?? const [])
+                .map((role) => '$role')
+                .join(' · ');
+            final busy = _switchingTenantId == tenant.id;
+            return Card(
+              child: ListTile(
+                leading: TenantImage(tenant.logoUrl, width: 44, height: 44),
+                title: Text(tenant.name),
+                subtitle: roles.isEmpty ? null : Text(roles),
+                trailing: busy
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.chevron_right),
+                onTap: _switchingTenantId == null
+                    ? () => _select(tenant.id)
+                    : null,
+              ),
+            );
+          },
+        );
+      },
+    ),
+  );
+}
+
 Future<void> enterEnterprise(String? id) async {
   if (Get.isRegistered<VideoPlaybackManager>())
     Get.find<VideoPlaybackManager>().stopAll();
