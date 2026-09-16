@@ -287,4 +287,14 @@ class WorkoutModel {
         exercises.where((exercise) => exercise.isCompleted == true).length;
     return (completedCount, exercises.length);
   }
+
+  /// True when generation never actually produced a plan (0 main exercises)
+  /// and the workout is just sitting there as a dead, stale history entry.
+  /// These are the "0/0" stubs — distinct from a normal pending workout that
+  /// has real exercises assigned and simply hasn't been started yet.
+  bool get isEmptyGenerationStub {
+    if (status != null && status != 'pending') return false;
+    final mainWork = aiPlan?.mainWork;
+    return mainWork == null || mainWork.isEmpty;
+  }
 }

@@ -72,6 +72,17 @@ class WorkoutRepository {
     }
   }
 
+  /// Removes a workout from history (used to "X out" stale/pending entries).
+  Future<void> deleteWorkout(String workoutId) async {
+    try {
+      await _apiService.delete(ApiConstants.workoutById(workoutId));
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e.toString());
+    }
+  }
+
   Future<WorkoutTodayOverviewModel?> getTodayOverview() async {
     try {
       final response = await _apiService.get(ApiConstants.workoutTodayOverview);

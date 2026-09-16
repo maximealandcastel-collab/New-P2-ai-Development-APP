@@ -105,6 +105,9 @@ class HistoryScreen extends StatelessWidget {
                         workout: workout,
                         onViewDetails: () =>
                             controller.openWorkoutDetails(workout),
+                        onDismiss: () => controller.dismissWorkout(workout),
+                        onRetryGeneration: () =>
+                            controller.retryGeneration(workout),
                       );
                     },
                   ),

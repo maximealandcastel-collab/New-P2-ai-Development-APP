@@ -134,6 +134,57 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
     Get.toNamed(AppRoute.workoutPlanDetailsScreen, arguments: workoutId);
   }
 
+  /// "X out" a stale/unwanted workout so it stops cluttering the feed.
+  /// Removes it optimistically and restores it if the backend call fails.
+  Future<void> dismissWorkout(WorkoutModel workout) async {
+    final workoutId = workout.id;
+    if (workoutId == null || workoutId.isEmpty) {
+      ToastMessageHelper.show('Workout id not found');
+      return;
+    }
+
+    final index = workoutsList.items.indexOf(workout);
+    if (index == -1) return;
+    workoutsList.items.removeAt(index);
+    _cacheCurrentTab();
+
+    try {
+      await _service.deleteWorkout(workoutId);
+    } on AppException catch (e) {
+      workoutsList.items.insert(index, workout);
+      _cacheCurrentTab();
+      ToastMessageHelper.show(e.message);
+    } catch (_) {
+      workoutsList.items.insert(index, workout);
+      _cacheCurrentTab();
+      ToastMessageHelper.show('Could not remove that workout. Try again.');
+    }
+  }
+
+  /// Re-runs AI generation for a workout stuck as an empty "0/0" stub
+  /// (created, but generation never actually produced a plan).
+  Future<void> retryGeneration(WorkoutModel workout) async {
+    final workoutId = workout.id;
+    if (workoutId == null || workoutId.isEmpty) {
+      ToastMessageHelper.show('Workout id not found');
+      return;
+    }
+
+    final index = workoutsList.items.indexOf(workout);
+    try {
+      final regenerated = await _service.retryGeneration(workoutId);
+      if (index != -1) {
+        workoutsList.items[index] = regenerated;
+        _cacheCurrentTab();
+      }
+      ToastMessageHelper.show('Workout regenerated.');
+    } on AppException catch (e) {
+      ToastMessageHelper.show(e.message);
+    } catch (_) {
+      ToastMessageHelper.show('Could not regenerate this workout. Try again.');
+    }
+  }
+
   @override
   void onClose() {
     workoutsList.dispose();

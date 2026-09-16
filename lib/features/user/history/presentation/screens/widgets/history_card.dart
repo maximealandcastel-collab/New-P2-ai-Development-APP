@@ -13,10 +13,18 @@ class HistoryCard extends StatelessWidget {
     super.key,
     required this.workout,
     required this.onViewDetails,
+    this.onDismiss,
+    this.onRetryGeneration,
   });
 
   final WorkoutModel workout;
   final VoidCallback onViewDetails;
+
+  /// "X out" this workout so it stops cluttering the feed.
+  final VoidCallback? onDismiss;
+
+  /// Re-run generation for a workout stuck as an empty "0/0" stub.
+  final VoidCallback? onRetryGeneration;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +33,7 @@ class HistoryCard extends StatelessWidget {
     final accessoryProgress = workout.exerciseProgress(plan?.accessories);
     final status = workout.status ?? '';
     final isCompleted = status == 'completed';
+    final isEmptyStub = workout.isEmptyGenerationStub;
 
     return CustomContainer(
       marginBottom: 12.h,
@@ -53,6 +62,17 @@ class HistoryCard extends StatelessWidget {
                 Icon(Icons.check_circle, color: AppColors.success, size: 20.sp)
               else
                 Assets.icons.panding.svg(height: 20.r, width: 20.r),
+              if (onDismiss != null) ...[
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  onTap: () => _confirmDismiss(context),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 18.sp,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
           CustomText(
@@ -68,13 +88,72 @@ class HistoryCard extends StatelessWidget {
             fontWeight: AppFontWeight.emphasis,
             color: AppColors.textSecondary,
             top: 4.h,
-            bottom: 12.h,
+            bottom: isEmptyStub && onRetryGeneration != null ? 4.h : 12.h,
           ),
-          CustomButton(
-            height: 36.h,
-            fontSize: 14.sp,
-            onPressed: onViewDetails,
-            label: 'View Details',
+          if (isEmptyStub && onRetryGeneration != null) ...[
+            CustomText(
+              textAlign: TextAlign.start,
+              text: "This workout didn't generate. Retry or remove it.",
+              fontSize: 12.sp,
+              color: AppColors.textSecondary,
+              bottom: 10.h,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    height: 36.h,
+                    fontSize: 14.sp,
+                    onPressed: onRetryGeneration,
+                    label: 'Retry generation',
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: CustomButton(
+                    height: 36.h,
+                    fontSize: 14.sp,
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.textSecondary,
+                    bordersColor: AppColors.textSecondary,
+                    onPressed: () => _confirmDismiss(context),
+                    label: 'Remove',
+                  ),
+                ),
+              ],
+            ),
+          ] else
+            CustomButton(
+              height: 36.h,
+              fontSize: 14.sp,
+              onPressed: onViewDetails,
+              label: 'View Details',
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDismiss(BuildContext context) {
+    if (onDismiss == null) return;
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove this workout?'),
+        content: const Text(
+          "It'll be removed from your history. This can't be undone.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              onDismiss!();
+            },
+            child: const Text('Remove'),
           ),
         ],
       ),

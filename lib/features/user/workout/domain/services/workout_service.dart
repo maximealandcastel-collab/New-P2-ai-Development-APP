@@ -56,6 +56,17 @@ class WorkoutService {
     return _repository.getWorkoutById(workoutId);
   }
 
+  /// Dismisses/removes a workout from history.
+  Future<void> deleteWorkout(String workoutId) {
+    return _repository.deleteWorkout(workoutId);
+  }
+
+  /// Re-runs AI generation for a workout that was created but never got a
+  /// plan (e.g. generation failed the first time and left an empty stub).
+  Future<WorkoutModel> retryGeneration(String workoutId) {
+    return _repository.generateWorkout(workoutId);
+  }
+
   Future<void> startWorkout(String workoutId) {
     return _repository.startWorkout(workoutId);
   }
