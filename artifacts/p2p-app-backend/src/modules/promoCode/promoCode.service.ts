@@ -96,24 +96,6 @@ const initTrainerMemory = async (userId: string, trainerId: string) => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// OWNER BYPASS CODE
-// Optional emergency/admin access. It is disabled unless explicitly
-// configured as a deployment secret; never use a hard-coded fallback.
-// ─────────────────────────────────────────────────────────────
-
-const OWNER_BYPASS_CODE = process.env.OWNER_BYPASS_CODE?.trim().toUpperCase() || null;
-
-const OWNER_BYPASS_PLAN = {
-  valid: true,
-  isOwnerBypass: true,
-  type: "website" as const,
-  priceCents: 0,
-  durationDays: 365,
-  label: "Owner Full Access — 1 Year",
-  revenueCatProductId: null,
-};
-
-// ─────────────────────────────────────────────────────────────
 // VALIDATE PROMO CODE
 // Called when the user enters a code at checkout (before purchase).
 // Returns the plan the code unlocks so the app can show the right
@@ -125,10 +107,6 @@ export const validatePromoCode = async (rawCode: string) => {
   const code = (rawCode || "").trim().toUpperCase();
   if (!code) throw new Error("Promo code is required");
 
-  // Owner bypass — always valid, no DB lookup needed
-  if (OWNER_BYPASS_CODE && code === OWNER_BYPASS_CODE) {
-    return { ...OWNER_BYPASS_PLAN, code };
-  }
 
   const promo = await PromoCodeModel.findOne({ code });
 
@@ -173,59 +151,6 @@ export const redeemPromoCode = async (
 
   const webPromo = await PromoCodeModel.findOne({ code, sourcePurchaseId: { $exists: true } });
   if (webPromo) return redeemVerifiedWebPayment(userId, code);
-
-  // ── 0. Owner bypass — skip everything, grant/extend 365-day access ─
-  if (OWNER_BYPASS_CODE && code === OWNER_BYPASS_CODE) {
-    const actor = await UserModel.findOne({ _id: userId, role: "admin", isVerified: true, isDeleted: { $ne: true } });
-    if (!actor) throw new Error("Founder access required");
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 365);
-
-    // Resolve trainer (fall back to first trainer if none marked default)
-    let trainer;
-    try {
-      trainer = await getDefaultTrainer();
-    } catch {
-      trainer = await TrainerModel.findOne({ isBuiltIn: true }).lean() ||
-                await TrainerModel.findOne().lean();
-      if (!trainer) throw new Error("No trainer found to grant access");
-    }
-
-    // Upsert: extend an existing sub or create a new one
-    const existingSub = await SubscriptionModel.findOne({ userId, status: "active" });
-    const subscription = existingSub
-      ? await SubscriptionModel.findByIdAndUpdate(
-          existingSub._id,
-          { $set: { endDate, startDate, source: "owner_bypass" } },
-          { new: true },
-        )
-      : await SubscriptionModel.create({
-          userId,
-          trainerId: trainer._id,
-          status: "active",
-          startDate,
-          endDate,
-          source: "owner_bypass",
-        });
-
-    await UserModel.findByIdAndUpdate(userId, {
-      $set: {
-        subscribedTrainer: trainer._id,
-        subscriptionTier: "paid",
-        subscriptionStartDate: startDate,
-        subscriptionEndDate: endDate,
-      },
-    });
-
-    await initTrainerMemory(userId, String(trainer._id));
-
-    return {
-      subscription,
-      plan: OWNER_BYPASS_PLAN,
-      access: { granted: true, startDate, endDate, trainerId: trainer._id },
-    };
-  }
 
   // ── 1. Try to claim a DB-stored code atomically ───────────────
   const promo = await PromoCodeModel.findOneAndUpdate(

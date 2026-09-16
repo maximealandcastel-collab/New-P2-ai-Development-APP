@@ -100,6 +100,7 @@ class ApiUrls {
   static const String updateProfile = '/auth/profile-update';
   static const String changePassword = '/auth/change-password';
   static String myFavourites( String type, int page, int limit ) => '/favorites/my-favorites?type=$type&page=$page&limit=$limit';
-  static String home( String type, int page, int limit ) => 'https://jsonplaceholder.typicode.com/posts';
+  static String home(String type, int page, int limit) =>
+      '/content/feed?type=$type&page=$page&limit=$limit';
 
 }
