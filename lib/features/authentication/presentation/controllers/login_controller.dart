@@ -250,7 +250,7 @@ class LoginController extends GetxController {
       return;
     }
     if (!isSingleMode && (tenantScope?.gymAdminTenantIds.isNotEmpty ?? false)) {
-      Get.offAll(() => const EnterpriseMembershipScreen());
+      Get.offAll(() => EnterpriseMembershipScreen());
       return;
     }
     // Owner accounts must complete the official admin activation step.

@@ -230,7 +230,7 @@ class _EnterpriseHeader extends StatelessWidget {
           IconButton(
             tooltip: 'Switch gym',
             icon: const Icon(Icons.swap_horiz),
-            onPressed: () => Get.to(() => const EnterpriseMembershipScreen()),
+            onPressed: () => Get.to(() => EnterpriseMembershipScreen()),
           ),
         IconButton(
           tooltip: 'Refresh',
