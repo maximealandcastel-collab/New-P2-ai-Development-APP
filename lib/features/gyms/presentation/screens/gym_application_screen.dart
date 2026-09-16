@@ -627,28 +627,31 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                     if (step == 3) ...[
                       plan(
                         'starter',
-                        'Enterprise Starter',
-                        'Launch your gym on P2P',
-                        'App Store pricing',
+                        'Free Partner',
+                        'We do the work',
+                        r'1 month free, then $49.99/month',
                         [
-                          'Your logo and gym information in P2P',
+                          'Your logo on our app — instant',
+                          'We add your gym information',
                           'Full P2P AI engine included',
-                          'Members can find and join your gym',
-                          'Gym member experience',
+                          'Members can find & join your gym',
+                          'Upgrade to Elite anytime',
                         ],
                       ),
                       const SizedBox(height: 14),
                       plan(
                         'pro',
-                        'Enterprise Pro',
-                        'Operate and grow your community',
-                        'App Store pricing',
+                        'Elite Partner',
+                        'You tell your story',
+                        r'$306 setup, then $120/month',
                         [
-                          'Custom branded gym experience',
-                          'Trainer and member management',
+                          'Describe your facility in detail',
+                          'Showcase your trainers & culture',
+                          'Custom branded gym theme',
+                          'Member management dashboard',
                           'AI trainer matching for your gym',
-                          'Community clubs and events',
-                          'Analytics and revenue insights',
+                          'Community clubs & events',
+                          'Analytics & revenue insights',
                         ],
                       ),
                       const SizedBox(height: 26),
@@ -721,8 +724,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               (
                                 'Tier',
                                 tier == 'starter'
-                                    ? 'Enterprise Starter'
-                                    : 'Enterprise Pro',
+                                    ? 'Free Partner'
+                                    : 'Elite Partner',
                               ),
                               (
                                 'Added',
