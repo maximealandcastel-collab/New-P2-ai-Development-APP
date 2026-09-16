@@ -51,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ConfirmationDialog(
         icon: Icons.person_off,
         title: 'You really want to delete your account',
-        description: 'This action can not be undone and all your data will be wiped. Do you wish to continue?',
+        description: 'Your account will be closed and sign-in disabled. Data is removed or retained according to our Privacy Policy. Deleting your account does not cancel Apple or Google subscriptions; cancel them in your device subscription settings.',
         confirmLabel: 'Delete account',
         isDeleteAction: true,
         showCancel: true,

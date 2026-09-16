@@ -4,6 +4,7 @@ import ApiError from "../errors/ApiError";
 import { TRole } from "../config/role";
 import { UserModel } from "../modules/user/user.model";
 import sendResponse from "../utils/sendResponse";
+import { getSessionSecret } from "../config";
 
 export interface IUserPayload extends jwt.JwtPayload {
   id: string;
@@ -25,11 +26,9 @@ export const guardRole = (roles: TRole | TRole[]) => {
     }
 
     try {
-      // Decode token — try JWT_SECRET first (used by auth.service signToken),
-      // fall back to JWT_SECRET_KEY. Supports whichever env var is set in prod.
-      const jwtSecret =
-        process.env.JWT_SECRET || process.env.JWT_SECRET_KEY || "";
-      const decoded = jwt.verify(token, jwtSecret) as IUserPayload;
+      const sessionSecret = getSessionSecret();
+      if (!sessionSecret) throw new Error("SESSION_SECRET is not configured");
+      const decoded = jwt.verify(token, sessionSecret, { algorithms: ["HS256"] }) as IUserPayload;
       // Attach the decoded payload to the request object
       (req as any).user = decoded;
       const userRole = decoded.role;
@@ -89,6 +88,24 @@ export const guardRole = (roles: TRole | TRole[]) => {
         roles === userRole
       ) {
         const user = (await UserModel.findOne({ _id: decoded.id })) as any;
+        if (!user || user.isDeleted === true) {
+          return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Account is unavailable",
+            data: null,
+          });
+        }
+        // Never trust a stale role claim: authorization is based on the
+        // currently stored role as well as a valid JWT.
+        if (user.role !== userRole) {
+          return sendResponse(res, {
+            statusCode: 403,
+            success: false,
+            message: "Your role is no longer authorized",
+            data: null,
+          });
+        }
         if (!user.isVerified) {
           return sendResponse(res, {
             statusCode: 400,

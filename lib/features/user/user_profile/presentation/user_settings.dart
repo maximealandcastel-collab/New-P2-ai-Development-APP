@@ -121,7 +121,7 @@ class UserSettingsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _SectionLabel('About'),
-                        Text('App version 1.58.7.1',
+                        Text('P2P FitTech AI',
                             style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade400)),
                       ],
                     ),

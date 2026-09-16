@@ -1,4 +1,6 @@
+import { WebPayment } from "../enterprise/enterprise.model";
 import { Types } from "mongoose";
+import { randomInt } from "crypto";
 import { PromoCodeModel, PromoRedemptionModel } from "./promoCode.model";
 import { TPromoType } from "./promoCode.interface";
 import { TrainerModel } from "../trainer/trainer.model";
@@ -95,11 +97,11 @@ const initTrainerMemory = async (userId: string, trainerId: string) => {
 
 // ─────────────────────────────────────────────────────────────
 // OWNER BYPASS CODE
-// Entering this code at the paywall skips IAP entirely and grants
-// 365-day full access.  Set OWNER_BYPASS_CODE in env to override.
+// Optional emergency/admin access. It is disabled unless explicitly
+// configured as a deployment secret; never use a hard-coded fallback.
 // ─────────────────────────────────────────────────────────────
 
-const OWNER_BYPASS_CODE = (process.env.OWNER_BYPASS_CODE || "2391$$").trim().toUpperCase();
+const OWNER_BYPASS_CODE = process.env.OWNER_BYPASS_CODE?.trim().toUpperCase() || null;
 
 const OWNER_BYPASS_PLAN = {
   valid: true,
@@ -112,33 +114,11 @@ const OWNER_BYPASS_PLAN = {
 };
 
 // ─────────────────────────────────────────────────────────────
-// UNIVERSAL DISCOUNT CONFIG
-// Any code not found in the database is treated as a universal
-// promo that grants 30 days free (50% off the monthly plan).
-// To disable universal codes, set UNIVERSAL_PROMO_ENABLED=false.
-// ─────────────────────────────────────────────────────────────
-
-const UNIVERSAL_PROMO_ENABLED =
-  process.env.UNIVERSAL_PROMO_ENABLED !== "false"; // on by default
-
-const UNIVERSAL_PROMO_DAYS = 30;
-
-const UNIVERSAL_PROMO_PLAN = {
-  valid: true,
-  isUniversal: true,
-  type: "affiliate" as const,
-  priceCents: 0,
-  durationDays: UNIVERSAL_PROMO_DAYS,
-  label: "50% Off — 30 Day Free Access",
-  revenueCatProductId: null,
-};
-
-// ─────────────────────────────────────────────────────────────
 // VALIDATE PROMO CODE
 // Called when the user enters a code at checkout (before purchase).
 // Returns the plan the code unlocks so the app can show the right
 // RevenueCat product / price. Does NOT consume the code.
-// Any code not in the database is accepted as a universal discount.
+// Only database-issued codes can unlock access.
 // ─────────────────────────────────────────────────────────────
 
 export const validatePromoCode = async (rawCode: string) => {
@@ -146,17 +126,13 @@ export const validatePromoCode = async (rawCode: string) => {
   if (!code) throw new Error("Promo code is required");
 
   // Owner bypass — always valid, no DB lookup needed
-  if (code === OWNER_BYPASS_CODE) {
+  if (OWNER_BYPASS_CODE && code === OWNER_BYPASS_CODE) {
     return { ...OWNER_BYPASS_PLAN, code };
   }
 
   const promo = await PromoCodeModel.findOne({ code });
 
-  // Universal discount: any unrecognised code is accepted
-  if (!promo) {
-    if (!UNIVERSAL_PROMO_ENABLED) throw new Error("Invalid promo code");
-    return { ...UNIVERSAL_PROMO_PLAN, code };
-  }
+  if (!promo) throw new Error("Invalid promo code");
 
   if (promo.status === "disabled") {
     throw new Error("This promo code has been disabled");
@@ -195,8 +171,13 @@ export const redeemPromoCode = async (
   const code = (rawCode || "").trim().toUpperCase();
   if (!code) throw new Error("Promo code is required");
 
+  const webPromo = await PromoCodeModel.findOne({ code, sourcePurchaseId: { $exists: true } });
+  if (webPromo) return redeemVerifiedWebPayment(userId, code);
+
   // ── 0. Owner bypass — skip everything, grant/extend 365-day access ─
-  if (code === OWNER_BYPASS_CODE) {
+  if (OWNER_BYPASS_CODE && code === OWNER_BYPASS_CODE) {
+    const actor = await UserModel.findOne({ _id: userId, role: "admin", isVerified: true, isDeleted: { $ne: true } });
+    if (!actor) throw new Error("Founder access required");
     const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 365);
@@ -257,27 +238,20 @@ export const redeemPromoCode = async (
     { new: true },
   );
 
-  // ── 2. If no DB code found, fall through to universal discount ──
-  const isUniversal = !promo;
-
-  if (isUniversal) {
-    if (!UNIVERSAL_PROMO_ENABLED) {
-      // Distinguish "doesn't exist" from "already used/disabled"
-      const exists = await PromoCodeModel.findOne({ code }).lean();
-      if (!exists) throw new Error("Invalid promo code");
-      if (exists.status === "disabled")
-        throw new Error("This promo code has been disabled");
-      throw new Error("This promo code has already been used");
+  // ── 2. Reject codes that are missing, disabled, or already used ──
+  if (!promo) {
+    const existing = await PromoCodeModel.findOne({ code }).lean();
+    if (!existing) throw new Error("Invalid promo code");
+    if (existing.status === "disabled") {
+      throw new Error("This promo code has been disabled");
     }
-    // Universal path continues below — no DB promo object needed
+    throw new Error("This promo code has already been used");
   }
 
-  const planDays = isUniversal ? UNIVERSAL_PROMO_DAYS : promo!.durationDays;
-  const planPriceCents = isUniversal ? 0 : promo!.priceCents;
-  const planLabel = isUniversal
-    ? UNIVERSAL_PROMO_PLAN.label
-    : promo!.label;
-  const planType = isUniversal ? ("affiliate" as const) : promo!.type;
+  const planDays = promo.durationDays;
+  const planPriceCents = promo.priceCents;
+  const planLabel = promo.label;
+  const planType = promo.type;
 
   // ── 3. Block stacking on an already-active subscription ────────
   const activeSub = await SubscriptionModel.findOne({
@@ -285,12 +259,10 @@ export const redeemPromoCode = async (
     status: "active",
   });
   if (activeSub) {
-    if (!isUniversal) {
-      await PromoCodeModel.updateOne(
-        { _id: promo!._id },
-        { $inc: { usedCount: -1 } },
-      );
-    }
+    await PromoCodeModel.updateOne(
+      { _id: promo._id },
+      { $inc: { usedCount: -1 } },
+    );
     throw new Error("You already have an active subscription");
   }
 
@@ -299,12 +271,10 @@ export const redeemPromoCode = async (
   try {
     trainer = await getDefaultTrainer();
   } catch (err) {
-    if (!isUniversal) {
-      await PromoCodeModel.updateOne(
-        { _id: promo!._id },
-        { $inc: { usedCount: -1 } },
-      );
-    }
+    await PromoCodeModel.updateOne(
+      { _id: promo._id },
+      { $inc: { usedCount: -1 } },
+    );
     throw err;
   }
 
@@ -320,7 +290,7 @@ export const redeemPromoCode = async (
     startDate,
     endDate,
     source: "promo",
-    ...(isUniversal ? {} : { promoCodeId: promo!._id }),
+    promoCodeId: promo._id,
     reminderSent7Days: false,
     reminderSent3Days: false,
     reminderSent1Day: false,
@@ -345,33 +315,31 @@ export const redeemPromoCode = async (
   // ── 7. Seed AI memory for the default trainer ──────────────────
   await initTrainerMemory(userId, (trainer._id as Types.ObjectId).toString());
 
-  // ── 8. Stamp DB code redeemed (skip for universal codes) ───────
-  if (!isUniversal) {
-    const fullyUsed = promo!.usedCount >= promo!.maxUses;
-    await PromoCodeModel.updateOne(
-      { _id: promo!._id },
-      {
-        $set: {
-          redeemedByUserId: userId,
-          redeemedAt: new Date(),
-          ...(fullyUsed ? { status: "redeemed" } : {}),
-        },
+  // ── 8. Stamp the database code redeemed ─────────────────────────
+  const fullyUsed = promo.usedCount >= promo.maxUses;
+  await PromoCodeModel.updateOne(
+    { _id: promo._id },
+    {
+      $set: {
+        redeemedByUserId: userId,
+        redeemedAt: new Date(),
+        ...(fullyUsed ? { status: "redeemed" } : {}),
       },
-    );
+    },
+  );
 
-    // ── 9. Log redemption for affiliate reporting ─────────────────
-    await PromoRedemptionModel.create({
-      promoCodeId: promo!._id,
-      code: promo!.code,
-      type: promo!.type,
-      userId,
-      subscriptionId: subscription._id,
-      priceCents: promo!.priceCents,
-      durationDays: promo!.durationDays,
-      revenueCatTransactionId: opts.revenueCatTransactionId,
-      revenueCatProductId: opts.revenueCatProductId,
-    });
-  }
+  // ── 9. Log redemption for affiliate reporting ───────────────────
+  await PromoRedemptionModel.create({
+    promoCodeId: promo._id,
+    code: promo.code,
+    type: promo.type,
+    userId,
+    subscriptionId: subscription._id,
+    priceCents: promo.priceCents,
+    durationDays: promo.durationDays,
+    revenueCatTransactionId: opts.revenueCatTransactionId,
+    revenueCatProductId: opts.revenueCatProductId,
+  });
 
   return {
     subscription,
@@ -380,7 +348,7 @@ export const redeemPromoCode = async (
       priceCents: planPriceCents,
       durationDays: planDays,
       label: planLabel,
-      isUniversal,
+      isUniversal: false,
     },
     access: {
       granted: true,
@@ -542,7 +510,7 @@ const TRIAL_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function genTrialCode(): string {
   const seg = (len: number) =>
     Array.from({ length: len }, () =>
-      TRIAL_CHARS[Math.floor(Math.random() * TRIAL_CHARS.length)]
+      TRIAL_CHARS[randomInt(TRIAL_CHARS.length)]
     ).join("");
   return `TRIAL-${seg(6)}-${seg(4)}`;
 }
@@ -576,6 +544,87 @@ export const issueTrialPromoCode = async (opts?: {
 };
 
 // ─────────────────────────────────────────────────────────────
+// ISSUE WEBSITE PURCHASE CODE (service)
+// Creates the exact entitlement for a verified Clover purchase.
+// sourcePurchaseId makes retries return the original code instead
+// of issuing a second entitlement.
+// ─────────────────────────────────────────────────────────────
+
+export const WEB_PURCHASE_PLANS = {
+  trial_access: { priceCents: 499, durationDays: 7, label: "7-Day App Trial", durationLabel: "7 days" },
+  three_months: { priceCents: 1999, durationDays: 90, label: "3-Month App Access", durationLabel: "3 months" },
+  annual: { priceCents: 12000, durationDays: 365, label: "Annual App Access", durationLabel: "1 year" },
+  affiliate: { priceCents: 1000, durationDays: 180, label: "Affiliate App Access", durationLabel: "6 months" },
+} as const;
+
+export type WebPurchasePlan = keyof typeof WEB_PURCHASE_PLANS;
+
+export const issueWebPurchasePromoCode = async (opts: {
+  sourcePurchaseId: string;
+  plan: WebPurchasePlan;
+  amountCents: number;
+}): Promise<{ code: string; durationDays: number; durationLabel: string; plan: WebPurchasePlan }> => {
+  const sourcePurchaseId = String(opts.sourcePurchaseId || "").trim();
+  if (!sourcePurchaseId) throw new Error("sourcePurchaseId is required");
+
+  const plan = WEB_PURCHASE_PLANS[opts.plan];
+  if (!plan) throw new Error("Unsupported website purchase plan");
+  if (Number(opts.amountCents) !== plan.priceCents) {
+    throw new Error("Purchase amount does not match the selected plan");
+  }
+
+  const existing = await PromoCodeModel.findOne({ sourcePurchaseId });
+  if (existing) {
+    return {
+      code: existing.code,
+      durationDays: existing.durationDays,
+      durationLabel: plan.durationLabel,
+      plan: opts.plan,
+    };
+  }
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const code = genTrialCode();
+    try {
+      const created = await PromoCodeModel.create({
+        code,
+        type: "website" as TPromoType,
+        priceCents: plan.priceCents,
+        durationDays: plan.durationDays,
+        label: plan.label,
+        maxUses: 1,
+        status: "active",
+        batchId: "WEBSITE_PURCHASE",
+        sourcePurchaseId,
+      });
+      return {
+        code: created.code,
+        durationDays: plan.durationDays,
+        durationLabel: plan.durationLabel,
+        plan: opts.plan,
+      };
+    } catch (err: any) {
+      // A concurrent retry may win the unique purchase reference. Return
+      // that code so the buyer sees one stable code either way.
+      if (err?.code === 11000) {
+        const concurrent = await PromoCodeModel.findOne({ sourcePurchaseId });
+        if (concurrent) {
+          return {
+            code: concurrent.code,
+            durationDays: concurrent.durationDays,
+            durationLabel: plan.durationLabel,
+            plan: opts.plan,
+          };
+        }
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error("Could not generate a unique website promo code. Please try again.");
+};
+
+// ─────────────────────────────────────────────────────────────
 // SET DEFAULT TRAINER (admin)
 // Marks one trainer as the default app trainer (unsets others).
 // ─────────────────────────────────────────────────────────────
@@ -593,3 +642,43 @@ export const setDefaultTrainer = async (trainerId: string) => {
 
   return trainer;
 };
+
+// Web payments are bound to their verified purchaser and exact paid period.
+async function redeemVerifiedWebPayment(userId: string, code: string) {
+  const trainer = await getDefaultTrainer();
+  const session = await PromoCodeModel.startSession();
+  let result: any;
+  try {
+    await session.withTransaction(async () => {
+      const promo = await PromoCodeModel.findOne({ code }).session(session);
+      const user = await UserModel.findOne({ _id: userId, isVerified: true, isDeleted: { $ne: true } }).session(session);
+      if (!promo || !user || promo.status === "disabled") throw new Error("Purchase access unavailable");
+      const payment = await WebPayment.findOne({ sourcePurchaseId: promo.sourcePurchaseId,
+        email: user.email.toLowerCase(), status: "paid", expiresAt: { $gt: new Date() } }).session(session);
+      if (!payment) throw new Error("This purchase is expired, refunded, or belongs to another account");
+      // Touch the payment document so concurrent refund and redemption conflict and retry.
+      payment.markModified("status"); await payment.save({ session });
+      const existing = await SubscriptionModel.findOne({ promoCodeId: promo._id }).session(session);
+      if (existing) {
+        if (String(existing.userId) !== userId || existing.status !== "active") throw new Error("Purchase already redeemed or revoked");
+        result = { subscription: existing, access: { granted: true, startDate: existing.startDate, endDate: existing.endDate, trainerId: existing.trainerId } };
+        return;
+      }
+      if (promo.usedCount >= promo.maxUses || promo.status !== "active") throw new Error("Purchase already redeemed");
+      const startDate = new Date(), endDate = payment.expiresAt;
+      const [subscription] = await SubscriptionModel.create([{ userId, trainerId: trainer._id, status: "active",
+        startDate, endDate, source: "promo", promoCodeId: promo._id }], { session });
+      promo.usedCount++; promo.status = "redeemed"; promo.redeemedByUserId = user._id; promo.redeemedAt = startDate;
+      await promo.save({ session });
+      // Never overwrite a longer, independent paid entitlement.
+      if (!user.subscriptionEndDate || user.subscriptionEndDate < endDate) {
+        user.subscriptionTier = "paid"; user.subscriptionStartDate = startDate; user.subscriptionEndDate = endDate;
+        user.subscribedTrainer = trainer._id as any; await user.save({ session });
+      }
+      await PromoRedemptionModel.create([{ promoCodeId: promo._id, code, type: promo.type, userId,
+        subscriptionId: subscription._id, priceCents: promo.priceCents, durationDays: promo.durationDays }], { session });
+      result = { subscription, access: { granted: true, startDate, endDate, trainerId: trainer._id } };
+    });
+    return result;
+  } finally { await session.endSession(); }
+}

@@ -21,7 +21,7 @@ class IapVerifyResultModel {
   bool isActiveAt(DateTime now) {
     final expires = DateTime.tryParse(subscriptionEndDate ?? '');
     return isSubscribed && expires != null && expires.isAfter(now) &&
-        !const {'expired', 'revoked', 'refunded', 'inactive'}.contains(status?.toLowerCase());
+        status?.toLowerCase() == 'active';
   }
 
   static bool responseGrantsAccess(dynamic body, {DateTime? now}) {

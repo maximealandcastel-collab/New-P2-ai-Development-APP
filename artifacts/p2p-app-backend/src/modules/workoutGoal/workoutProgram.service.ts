@@ -1,3 +1,4 @@
+import { facilityInventory } from "../enterprise/enterprise.service";
 import { runWithProviderBackup } from "../../services/providerFallback";
 import { exerciseMatchesEquipment, resolveWorkoutEquipment } from "./workoutEquipment";
 import { exerciseMatchesSplitDay, splitDayMuscles, selectSplitDayExercises } from "./workoutSplit";
@@ -178,6 +179,13 @@ const getGenerationContext = async (
   const workout = await WorkoutModel.findOne({ _id: workoutId, userId });
   if (!workout) throw new Error("Workout not found");
 
+  const facilityId = (workout.workoutPreferences as any)?.facilityId;
+  if (facilityId) {
+    const facility = await facilityInventory(userId, facilityId);
+    const inventory = new Set<string>([...facility.equipment, "bodyweight_only"]);
+    workout.equipment_availablity = workout.equipment_availablity.filter((item: string) => inventory.has(item));
+    if (!workout.equipment_availablity.length) throw new Error("Selected equipment is no longer available at this facility");
+  }
   const user = await UserModel.findById(userId);
   if (!user) throw new Error("User not found");
   const trainer = await resolveWorkoutTrainer(user, workout.trainerId);

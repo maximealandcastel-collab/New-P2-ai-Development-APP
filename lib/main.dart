@@ -1,3 +1,5 @@
+import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'dart:async';
 import 'dart:ui';
 
@@ -37,6 +39,7 @@ Future<void> main() async {
       return false;
     };
 
+    if (kReleaseMode) ApiConstants.validateProductionOrigins(ApiUrls.baseUrl, ApiUrls.socketUrl);
     await DependencyInjection.init();
     await AudioFocusService.instance.configure();
 

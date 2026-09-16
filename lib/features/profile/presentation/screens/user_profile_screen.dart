@@ -52,7 +52,7 @@ class UserProfileScreen extends StatelessWidget {
 
         ContainerCard(
           label: 'About',
-          sublabel: 'App version 1.58.7.1',
+          sublabel: 'P2P FitTech AI',
           children: [
             ListTileWidget(
               label: 'Privacy Policy',
@@ -89,7 +89,7 @@ class UserProfileScreen extends StatelessWidget {
                     icon: Icons.person_off,
                     title: 'Delete your account?',
                     description:
-                        'This action can not be undone and all your data will be wiped. Do you wish to continue?',
+                        'Your account will be closed and sign-in disabled. Data is removed or retained according to our Privacy Policy. Deleting your account does not cancel Apple or Google subscriptions; cancel them in your device subscription settings.',
                     confirmLabel: 'Delete account',
                     isDeleteAction: true,
                     showCancel: true,

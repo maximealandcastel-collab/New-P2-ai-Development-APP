@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/facility_workout_filter.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
@@ -80,6 +81,47 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   List<Map<String, dynamic>> _splitOptions = [];
   String? _selectedSplitId;
   bool _generationInFlight = false;
+  late FacilityWorkoutFilter? _facilityFilter = widget.facilityFilter;
+  String? _facilityName;
+  bool _loadingFacility = false;
+
+  Future<void> _chooseFacility() async {
+    setState(() => _loadingFacility = true);
+    try {
+      final data = await EnterpriseService.instance.request('/enterprise/facilities');
+      final facilities = (data['items'] as List? ?? []).whereType<Map>().toList();
+      if (!mounted) return;
+      final selected = await showDialog<Map>(context: context, builder: (context) => SimpleDialog(
+        title: const Text('Choose your facility'),
+        children: [
+          SimpleDialogOption(onPressed: () => Navigator.pop(context, <String, dynamic>{}), child: const Text('Use my own equipment')),
+          if (facilities.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('No active gym memberships are available.')),
+          for (final facility in facilities) SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, facility), child: Text(facility['name']?.toString() ?? 'Facility')),
+        ],
+      ));
+      if (selected == null || !mounted) return;
+      if (selected.isEmpty) {
+        setState(() { _facilityFilter = null; _facilityName = null; _selectedEquipment.clear(); });
+        return;
+      }
+      final id = selected['facilityId'] as String;
+      final inventory = await EnterpriseService.instance.request('/enterprise/facilities/${Uri.encodeComponent(id)}/inventory');
+      if (!mounted) return;
+      setState(() {
+        _facilityFilter = FacilityWorkoutFilter(facilityId: id, equipment: (inventory['equipment'] as List).cast<String>());
+        _facilityName = selected['name']?.toString();
+        _selectedLocations..clear()..add('Gym');
+        _selectedEquipment.clear();
+      });
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not load your gym inventory. Please retry.')));
+    } finally { if (mounted) setState(() => _loadingFacility = false); }
+  }
+
+  List<String> get _availableEquipment => _facilityFilter == null ? _equipment :
+    {..._facilityFilter!.equipment.where((e) => e != 'others' && e != 'bodyweight_only').map((e) => e.replaceAll('_', ' ')), 'No equipment'}.toList();
+
 
   // ── Step 1: Goals
   final List<String> _goals = [
@@ -198,7 +240,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     if (_step < 5) _next();
   }
 
-  Map<String, dynamic> get _workoutPayload => widget.facilityFilter?.applyToPayload(
+  Map<String, dynamic> get _workoutPayload => _facilityFilter?.applyToPayload(
         _personalWorkoutPayload,
       ) ?? _personalWorkoutPayload;
 
@@ -274,7 +316,11 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onNext: _next,
         );
       case 2:
-        return _SelectionStep(
+        return Column(children: [
+          TextButton.icon(onPressed: _loadingFacility ? null : _chooseFacility,
+            icon: const Icon(Icons.fitness_center),
+            label: Text(_loadingFacility ? 'Loading facilities…' : (_facilityName ?? 'Choose a gym inventory'))),
+          Expanded(child: _SelectionStep(
           title: 'Where are you working out today?',
           subtitle: 'What you want to achieve from the workout',
           options: _locations,
@@ -282,12 +328,13 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onToggle: (v) => setState(() =>
           _selectedLocations.contains(v) ? _selectedLocations.remove(v) : _selectedLocations.add(v)),
           onNext: _next,
-        );
+        )),
+        ]);
       case 3:
         return _SelectionStep(
           title: 'What equipment do you have available?',
           subtitle: "What workout you can do with available equipment's",
-          options: _equipment,
+          options: _availableEquipment,
           selected: _selectedEquipment,
           onToggle: (v) => setState(() =>
           _selectedEquipment.contains(v) ? _selectedEquipment.remove(v) : _selectedEquipment.add(v)),

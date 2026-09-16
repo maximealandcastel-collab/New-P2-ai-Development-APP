@@ -265,7 +265,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         tier == 'pro'
             ? 'https://p2pfittechai.com/enroll/enterprise-elite'
             : 'https://p2pfittechai.com/enroll/enterprise-core',
-      );
+      ).replace(queryParameters: {'applicationId': id});
       final opened = await launchUrl(
         checkoutUri,
         mode: LaunchMode.externalApplication,
@@ -671,7 +671,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         ),
                       ),
                       const Text(
-                        'You will complete secure Clover checkout before your partnership is submitted for the 48-hour review.',
+                        'Your application stays pending until payment and ownership are verified and the P2P team approves it.',
                         style: TextStyle(color: muted, fontSize: 12),
                       ),
                     ],

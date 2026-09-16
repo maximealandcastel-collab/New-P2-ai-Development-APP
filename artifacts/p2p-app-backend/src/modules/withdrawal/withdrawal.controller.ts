@@ -89,21 +89,21 @@ export const requestWithdrawalController = async (
       additionalNote,
     } = req.body;
 
-    if (!requestedAmountCents || requestedAmountCents <= 0) {
+    if (!Number.isSafeInteger(requestedAmountCents) || requestedAmountCents <= 0) {
       res.status(400).json({
         success: false,
         message: "requestedAmountCents is required and must be greater than 0",
       });
       return;
     }
-    if (!withdrawalMethod) {
+    if (!["paypal", "bank_transfer"].includes(withdrawalMethod)) {
       res.status(400).json({
         success: false,
-        message: "withdrawalMethod is required (paypal, stripe, bank_transfer)",
+        message: "withdrawalMethod is required (paypal, bank_transfer)",
       });
       return;
     }
-    if (!paymentEmail || paymentEmail.trim() === "") {
+    if (typeof paymentEmail !== "string" || paymentEmail.trim() === "") {
       res.status(400).json({
         success: false,
         message: "paymentEmail is required",

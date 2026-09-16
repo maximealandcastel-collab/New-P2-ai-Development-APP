@@ -1,4 +1,18 @@
 class ApiConstants {
+    static void validateProductionOrigins(String apiUrl, String socketUrl) {
+      final origin = Uri.parse(baseUrl);
+      if (origin.scheme != 'https' || origin.host.isEmpty || origin.userInfo.isNotEmpty ||
+          origin.hasQuery || origin.hasFragment || (origin.path.isNotEmpty && origin.path != '/') ||
+          origin.host == 'localhost' || origin.host.endsWith('.replit.dev') ||
+          RegExp(r'^([0-9]+\.){3}[0-9]+$').hasMatch(origin.host) || origin.host.contains(':')) {
+        throw StateError('Release API_ORIGIN must be a permanent HTTPS domain');
+      }
+      final api = Uri.parse(apiUrl), socket = Uri.parse(socketUrl);
+      if (api.origin != origin.origin || socket.origin != origin.origin || api.path != '/api/v1') {
+        throw StateError('Release API and socket endpoints must share API_ORIGIN');
+      }
+    }
+
     /// Shared backend origin. Override when launching/building, e.g.:
     /// `flutter run --dart-define=API_ORIGIN=http://127.0.0.1:4001`
     static const String baseUrl = String.fromEnvironment(

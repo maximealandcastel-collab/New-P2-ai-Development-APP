@@ -1,3 +1,4 @@
+import { facilityInventory } from "../enterprise/enterprise.service";
 import { normalizeEquipment, resolveWorkoutEquipment, exerciseMatchesEquipment } from "./workoutEquipment";
 import { Types } from "mongoose";
 import {
@@ -182,15 +183,13 @@ export const createWorkoutPreferences = async (
     new Set(["full_gym", "home", "office", "hotel_gym", "outdoor", "no_equipment"]),
   );
   const selectedEquipment = normalizeEquipment(data.equipment_availablity);
-  const facilityEquipment = data.workoutPreferences?.facilityEquipment === undefined
-    ? undefined : normalizeEquipment(data.workoutPreferences.facilityEquipment);
   const facilityId = data.workoutPreferences?.facilityId;
   if (facilityId !== undefined && (typeof facilityId !== "string" || !facilityId.trim())) {
     throw new Error("facilityId must be a non-empty string");
   }
-  if (facilityId !== undefined && facilityEquipment === undefined) {
-    throw new Error("Facility equipment must be loaded before generating a facility workout");
-  }
+  // Client inventory is never authority. A facility ID requires current membership.
+  const facilityEquipment = facilityId === undefined ? undefined
+    : normalizeEquipment((await facilityInventory(userId, facilityId.trim())).equipment);
   const canonicalEquipment = resolveWorkoutEquipment(selectedEquipment, facilityEquipment);
   const canonicalIntensity = canonicalizeSelections(
     data.workout_intensity,
