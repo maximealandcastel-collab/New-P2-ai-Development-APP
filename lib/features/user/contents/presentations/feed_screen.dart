@@ -189,6 +189,29 @@ class _FeedScreenState extends State<FeedScreen> {
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               child: Row(
                 children: [
+                  // This screen is also pushed on top of other screens (e.g.
+                  // from the AI workout result). When there's a route to pop,
+                  // show a back button so it isn't a dead end.
+                  Builder(
+                    builder: (context) => Navigator.canPop(context)
+                        ? GestureDetector(
+                            onTap: () => Navigator.maybePop(context),
+                            child: Container(
+                              width: 32.w,
+                              height: 32.h,
+                              decoration: const BoxDecoration(
+                                color: Colors.black45,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.chevron_left,
+                                color: Colors.white,
+                                size: 20.sp,
+                              ),
+                            ),
+                          )
+                        : SizedBox(width: 32.w),
+                  ),
                   const Spacer(),
                   _TopTab(
                     label: 'Community',
