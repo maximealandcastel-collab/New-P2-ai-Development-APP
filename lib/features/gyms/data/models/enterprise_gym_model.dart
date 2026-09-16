@@ -157,7 +157,17 @@ class EnterpriseGymModel {
   }
 
   String get logoAssetPath => remoteLogoUrl.trim().isNotEmpty
-      ? '' : _localLogoAssets[id] ?? '';
+      ? ''
+      : _localLogoAssets[id] ??
+          (_officialDomains.containsKey(id)
+              ? 'assets/images/gym_logos/$id.png'
+              : '');
+
+  /// Every catalog gym ships with a local stock image so the directory remains
+  /// visual when the device is offline or an image host is unavailable.
+  String get stockPhotoAssetPath => imageAssetPath.isNotEmpty
+      ? imageAssetPath
+      : 'assets/images/gym_photos/$id.jpg';
 
   /// All 25 gyms — licensed tenants and visible prospects.
   static List<EnterpriseGymModel> get partners => _partners;

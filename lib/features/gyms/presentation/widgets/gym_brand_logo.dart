@@ -46,9 +46,8 @@ class GymBrandLogo extends StatelessWidget {
 
 }
 
-/// Displays the gym's real stock-photo backdrop and keeps the brand mark
-/// visible on top of it. Every partner has an imageUrl; the fallback keeps
-/// the dashboard useful when a remote image is temporarily unavailable.
+/// Displays the gym's bundled stock-photo backdrop and keeps the brand mark
+/// visible on top of it. Remote imagery remains a secondary fallback.
 class GymStockImage extends StatelessWidget {
   final EnterpriseGymModel gym;
   final double height;
@@ -67,6 +66,7 @@ class GymStockImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localPhoto = gym.stockPhotoAssetPath;
     return SizedBox(
       height: height,
       width: width,
@@ -75,8 +75,8 @@ class GymStockImage extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (gym.imageAssetPath.isNotEmpty)
-              TenantImage(gym.imageAssetPath)
+            if (localPhoto.isNotEmpty)
+              TenantImage(localPhoto, fit: BoxFit.cover)
             else if (gym.imageUrl.isNotEmpty)
               Image.network(
                 gym.imageUrl,
