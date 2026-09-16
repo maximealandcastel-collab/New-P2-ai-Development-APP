@@ -238,6 +238,33 @@ class EnterpriseService {
     return Map<String, dynamic>.from(decoded['data'] as Map);
   }
 
+  Future<String> uploadGymLogo(String filePath) async {
+    final token = _token();
+    if (token == null || token.isEmpty) {
+      throw const EnterpriseException('Please sign in to upload a gym logo.', 401);
+    }
+    final upload = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/enterprise/gym-assets/logo'),
+    )
+      ..headers['Accept'] = 'application/json'
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(await http.MultipartFile.fromPath('logo', filePath));
+    final response = await http.Response.fromStream(
+      await _client.send(upload).timeout(const Duration(seconds: 30)),
+    );
+    final decoded = jsonDecode(response.body);
+    if (response.statusCode < 200 || response.statusCode >= 300 || decoded is! Map) {
+      throw EnterpriseException('Unable to upload the gym logo.', response.statusCode);
+    }
+    final data = decoded['data'];
+    final logoUrl = data is Map ? data['logoUrl'] : null;
+    if (logoUrl is! String || !logoUrl.startsWith('https://')) {
+      throw const EnterpriseException('The gym logo upload returned an invalid address.');
+    }
+    return logoUrl;
+  }
+
   /// Public intake only. The server must verify licensing and authority before
   /// creating a tenant, membership, or admin privileges.
   Future<String> submitGymApplication(Map<String, dynamic> application) async {

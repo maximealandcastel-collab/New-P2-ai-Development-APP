@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
@@ -66,6 +69,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   double locations = 1, members = 500;
   String? gymType, tier, tenantId, receipt, error, searchError, cursor;
   bool loading = false, sending = false, authorized = false, codeEdited = false;
+  bool uploadingLogo = false;
+  XFile? selectedLogo;
   List<TenantConfiguration> matches = [];
   String text(String key) => fields[key]!.text.trim();
   Color? parseColor(String value) =>
@@ -77,7 +82,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       ThemeData.estimateBrightnessForColor(brand) == Brightness.dark
       ? Colors.white
       : ink;
-  bool get valid => switch (step) {
+  bool get valid => !uploadingLogo && switch (step) {
     0 => text('gymName').isNotEmpty && gymType != null,
     1 =>
       RegExp(r'^[A-Za-z0-9]{2,5}$').hasMatch(text('shortCode')) &&
@@ -156,6 +161,34 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       searchError = null;
     });
     debounce = Timer(const Duration(milliseconds: 300), loadGyms);
+  }
+
+  Future<void> pickLogo() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200,
+      maxHeight: 1200,
+      imageQuality: 88,
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      selectedLogo = picked;
+      uploadingLogo = true;
+      error = null;
+    });
+    try {
+      final logoUrl = await EnterpriseService.instance.uploadGymLogo(picked.path);
+      if (!mounted) return;
+      setState(() => fields['logoUrl']!.text = logoUrl);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        selectedLogo = null;
+        error = 'We couldn’t upload that logo. Choose a JPG, PNG, or WebP image and try again.';
+      });
+    } finally {
+      if (mounted) setState(() => uploadingLogo = false);
+    }
   }
 
   Future<void> loadGyms({bool more = false}) async {
@@ -521,6 +554,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         ),
                     ],
                     if (step == 1) ...[
+                      logoPicker(),
+                      const SizedBox(height: 18),
                       preview(),
                       const SizedBox(height: 24),
                       field(
@@ -578,7 +613,6 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             ],
                           ),
                         ),
-                      field('logoUrl', 'GYM LOGO URL', 'https://your-gym.com/logo.png', optional: true),
                       colorField(primary, 'Primary color hex'),
                       const SizedBox(height: 20),
                       caption('ACCENT / SECONDARY COLOR'),
@@ -841,6 +875,17 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
               : key == 'website' || key == 'logoUrl'
               ? TextInputType.url
               : TextInputType.text,
+          inputFormatters: key == 'shortCode'
+              ? [
+                  FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+                  LengthLimitingTextInputFormatter(5),
+                  TextInputFormatter.withFunction((oldValue, newValue) =>
+                      newValue.copyWith(text: newValue.text.toUpperCase())),
+                ]
+              : null,
+          textCapitalization: key == 'shortCode'
+              ? TextCapitalization.characters
+              : TextCapitalization.none,
           onChanged: onChanged ?? (_) => setState(() {}),
           validator: (value) {
             final text = value?.trim() ?? '';
@@ -965,6 +1010,57 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       ],
     ),
   );
+  Widget logoPicker() => InkWell(
+    onTap: uploadingLogo || sending ? null : pickLogo,
+    borderRadius: BorderRadius.circular(20),
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: brand.withValues(alpha: .25)),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: 76,
+              height: 76,
+              color: brand.withValues(alpha: .08),
+              child: selectedLogo != null
+                  ? Image.file(File(selectedLogo!.path), fit: BoxFit.contain)
+                  : text('logoUrl').isNotEmpty
+                      ? TenantImage(text('logoUrl'), fit: BoxFit.contain)
+                      : Icon(Icons.add_photo_alternate_outlined, color: brand, size: 34),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  selectedLogo == null && text('logoUrl').isEmpty ? 'Add Your Logo' : 'Gym Logo',
+                  style: const TextStyle(color: ink, fontSize: 17, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  uploadingLogo ? 'Uploading…' : 'JPG, PNG, or WebP. Tap to choose or replace.',
+                  style: const TextStyle(color: muted, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          if (uploadingLogo)
+            const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
+          else
+            const Icon(Icons.chevron_right, color: muted),
+        ],
+      ),
+    ),
+  );
+
   Widget preview({bool complete = false}) => Container(
     key: const ValueKey('brandPreview'),
     padding: const EdgeInsets.all(16),
@@ -991,15 +1087,30 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                 child: Row(
                   children: [
                     CircleAvatar(
+                      radius: 24,
                       backgroundColor: brandText.withValues(alpha: .15),
-                      child: text('logoUrl').isNotEmpty
-                          ? ClipOval(child: TenantImage(text('logoUrl'), width: 40, height: 40, fit: BoxFit.contain))
-                          : Text(text('shortCode').toUpperCase(), style: TextStyle(color: brandText, fontSize: 12)),
+                      child: ClipOval(
+                        child: selectedLogo != null
+                            ? Image.file(File(selectedLogo!.path), width: 48, height: 48, fit: BoxFit.contain)
+                            : text('logoUrl').isNotEmpty
+                                ? TenantImage(text('logoUrl'), width: 48, height: 48, fit: BoxFit.contain)
+                                : Padding(
+                                    padding: const EdgeInsets.all(6),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        text('shortCode').toUpperCase(),
+                                        maxLines: 1,
+                                        style: TextStyle(color: brandText, fontSize: 11, fontWeight: FontWeight.w800),
+                                      ),
+                                    ),
+                                  ),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        text('gymName'),
+                        text('gymName').isEmpty ? 'Your Gym' : text('gymName'),
                         style: TextStyle(
                           color: brandText,
                           fontWeight: FontWeight.w800,
