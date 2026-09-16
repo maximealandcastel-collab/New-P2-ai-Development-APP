@@ -117,7 +117,10 @@ void main() {
           key: boundary,
           child: legacy
               ? const EnterpriseGymAdminDashboardScreen(legacyKmf: true)
-              : const EnterpriseSessionScreen(),
+              : EnterpriseSessionScreen(
+                  flagshipBuilder: (_) =>
+                      const EnterpriseGymAdminDashboardScreen(),
+                ),
         ),
       ),
     );
@@ -154,41 +157,47 @@ void main() {
     }
   }
 
-  testWidgets('KMF dashboard renders the shared template and distinct counts', (
-    tester,
-  ) async {
-    await mount(tester, capture: true);
-    expect(find.text('KMF Fitness Club'), findsWidgets);
-    expect(find.text('Signups'), findsWidgets);
-    expect(find.text('10'), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
-  }, skip: isSingleMode);
-  testWidgets('second tenant renders the same dashboard without KMF text', (
-    tester,
-  ) async {
-    await mount(tester, file: 'abc.example.tenant.json', capture: true);
-    expect(find.text('ABC Fitness'), findsWidgets);
-    expect(find.text('KMF Fitness Club'), findsNothing);
-    expect(find.text('Signups'), findsWidgets);
-    expect(find.text('3'), findsOneWidget);
-  }, skip: isSingleMode);
-  testWidgets('revocation disposes protected nested navigation and records', (
-    tester,
-  ) async {
-    await mount(tester);
-    await tester.scrollUntilVisible(
-      find.widgetWithText(ActionChip, 'Members'),
-      200,
-    );
-    await tester.tap(find.widgetWithText(ActionChip, 'Members'));
-    await tester.pumpAndSettle();
-    expect(find.text('Private member A'), findsOneWidget);
-    EnterpriseService.instance.clear();
-    await tester.pumpAndSettle();
-    expect(find.text('Private member A'), findsNothing);
-    expect(find.text('Gym session'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  }, skip: isSingleMode);
+  testWidgets(
+    'KMF dashboard renders the shared template and distinct counts',
+    (tester) async {
+      await mount(tester, capture: true);
+      expect(find.text('KMF Fitness Club'), findsWidgets);
+      expect(find.text('Signups'), findsWidgets);
+      expect(find.text('10'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+    },
+    skip: isSingleMode,
+  );
+  testWidgets(
+    'second tenant renders the same dashboard without KMF text',
+    (tester) async {
+      await mount(tester, file: 'abc.example.tenant.json', capture: true);
+      expect(find.text('ABC Fitness'), findsWidgets);
+      expect(find.text('KMF Fitness Club'), findsNothing);
+      expect(find.text('Signups'), findsWidgets);
+      expect(find.text('3'), findsOneWidget);
+    },
+    skip: isSingleMode,
+  );
+  testWidgets(
+    'revocation disposes protected nested navigation and records',
+    (tester) async {
+      await mount(tester);
+      await tester.scrollUntilVisible(
+        find.widgetWithText(ActionChip, 'Members'),
+        200,
+      );
+      await tester.tap(find.widgetWithText(ActionChip, 'Members'));
+      await tester.pumpAndSettle();
+      expect(find.text('Private member A'), findsOneWidget);
+      EnterpriseService.instance.clear();
+      await tester.pumpAndSettle();
+      expect(find.text('Private member A'), findsNothing);
+      expect(find.text('Gym session'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+    skip: isSingleMode,
+  );
   testWidgets('server permission denial shows the locked session', (
     tester,
   ) async {

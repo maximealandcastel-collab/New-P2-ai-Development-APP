@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../data/models/tenant_configuration.dart';
 
-ThemeData enterpriseTheme(BuildContext context, TenantConfiguration t) {
-  final dark =
-      ThemeData.estimateBrightnessForColor(t.primary) == Brightness.dark;
-  return ThemeData(
-    brightness: dark ? Brightness.dark : Brightness.light,
-    fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
-    scaffoldBackgroundColor: t.primary,
-    colorScheme:
-        ColorScheme.fromSeed(
-          seedColor: t.accent,
-          brightness: dark ? Brightness.dark : Brightness.light,
-        ).copyWith(
-          primary: t.accent,
-          secondary: t.secondary,
-          onPrimary:
-              ThemeData.estimateBrightnessForColor(t.accent) == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-          onSecondary:
-              ThemeData.estimateBrightnessForColor(t.secondary) ==
-                  Brightness.dark
-              ? Colors.white
-              : Colors.black,
-        ),
+/// Keep flagship layout, typography, surfaces and security UI unchanged.
+/// Tenant configuration supplies validated color tokens, never arbitrary styles.
+ThemeData enterpriseTheme(BuildContext context, TenantConfiguration tenant) {
+  Color foreground(Color color) => color.computeLuminance() > 0.179
+      ? Colors.black
+      : Colors.white;
+  final base = Theme.of(context);
+  final scheme = base.colorScheme.copyWith(
+    primary: tenant.primary,
+    onPrimary: foreground(tenant.primary),
+    secondary: tenant.accent,
+    onSecondary: foreground(tenant.accent),
+  );
+  return base.copyWith(
+    colorScheme: scheme,
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: tenant.primary),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: tenant.primary,
+        foregroundColor: scheme.onPrimary,
+      ),
+    ),
   );
 }

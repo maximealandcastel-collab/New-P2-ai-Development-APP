@@ -51,16 +51,9 @@ void main() {
     },
   );
   test('dashboard accepts an omitted optional members metric', () {
-    final data = EnterpriseDashboardData.fromJson(
-      {
-        'counts': {
-          'signups': 10,
-          'activeSubscriptions': 2,
-          'trainers': 1,
-        },
-      },
-      requireMembers: false,
-    );
+    final data = EnterpriseDashboardData.fromJson({
+      'counts': {'signups': 10, 'activeSubscriptions': 2, 'trainers': 1},
+    }, requireMembers: false);
     expect(data.members, isNull);
     expect(data.signups, 10);
   });
@@ -75,19 +68,23 @@ void main() {
       expect(tenant.toGym().isActivated, true);
     }
   });
-  test('configuration rejects unsupported versions and invalid colors', () {
-    expect(
-      () => TenantConfiguration.fromJson({...config('a'), 'schemaVersion': 9}),
-      throwsFormatException,
-    );
-    expect(
-      () => TenantConfiguration.fromJson({
-        ...config('a'),
-        'accentColor': 'green',
-      }),
-      throwsFormatException,
-    );
-  });
+  test(
+    'configuration rejects unsupported versions and falls back for invalid colors',
+    () {
+      expect(
+        () =>
+            TenantConfiguration.fromJson({...config('a'), 'schemaVersion': 9}),
+        throwsFormatException,
+      );
+      expect(
+        TenantConfiguration.fromJson({
+          ...config('a'),
+          'accentColor': 'green',
+        }).accent.toARGB32(),
+        0xFFB83B12,
+      );
+    },
+  );
   test(
     'directory is public, encoded and paginated without activating a gym',
     () async {

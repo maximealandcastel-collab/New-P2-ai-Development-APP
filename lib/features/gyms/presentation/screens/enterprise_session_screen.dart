@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
+import 'tenant_management_screen.dart';
 import '../widgets/enterprise_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,67 +14,121 @@ import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/services/enterprise_service.dart';
 import '../widgets/tenant_image.dart';
-import 'enterprise_gym_admin_dashboard_screen.dart';
 import 'enterprise_module_screen.dart';
 
 /// Owns a nested navigator: revocation or switching disposes every protected
 /// route, including open editors. No old route remains above this boundary.
-class EnterpriseSessionScreen extends StatelessWidget {
-  const EnterpriseSessionScreen({super.key});
+class EnterpriseSessionScreen extends StatefulWidget {
+  final WidgetBuilder? flagshipBuilder;
+  const EnterpriseSessionScreen({super.key, this.flagshipBuilder});
   @override
-  Widget build(BuildContext context) =>
-      ValueListenableBuilder<EnterpriseContext?>(
-        valueListenable: EnterpriseService.instance.active,
-        builder: (context, session, _) {
-          if (session == null)
-            return Scaffold(
-              appBar: AppBar(title: const Text('Gym session')),
-              body: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Select a gym or restore your session to continue.',
-                    ),
-                    FilledButton(
-                      onPressed: () =>
-                          Get.offAll(() => const EnterpriseMembershipScreen()),
-                      child: const Text('My gyms'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        try {
-                          await EnterpriseService.instance.restore();
-                        } catch (e) {
-                          if (context.mounted)
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text('$e')));
-                        }
-                      },
-                      child: const Text('Retry session'),
-                    ),
-                    TextButton(
-                      onPressed: () => LoginController.to.logout(),
-                      child: const Text('Sign out'),
-                    ),
-                  ],
+  State<EnterpriseSessionScreen> createState() => _EnterpriseSessionState();
+}
+
+class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
+    with WidgetsBindingObserver {
+  Timer? timer;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    timer = Timer.periodic(const Duration(minutes: 1), (_) => refresh());
+  }
+
+  void refresh() {
+    EnterpriseService.instance.refreshAccess().catchError((_) {});
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) refresh();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) => ValueListenableBuilder<EnterpriseContext?>(
+    valueListenable: EnterpriseService.instance.active,
+    builder: (context, session, _) {
+      if (session == null)
+        return Scaffold(
+          appBar: AppBar(title: const Text('Gym session')),
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Gym access: ${EnterpriseService.instance.bootstrapData.value['entitlement']?['state'] ?? 'unavailable'}. Select a gym, renew with your gym owner, or retry.',
                 ),
-              ),
-            );
-          return Theme(
-            data: enterpriseTheme(context, session.tenant),
-            child: Navigator(
-              key: ValueKey(session),
-              onGenerateRoute: (_) => MaterialPageRoute(
-                builder: (_) => session.isAdmin
-                    ? const EnterpriseGymAdminDashboardScreen()
-                    : const EnterpriseMemberHome(),
-              ),
+                FilledButton(
+                  onPressed: () =>
+                      Get.offAll(() => const EnterpriseMembershipScreen()),
+                  child: const Text('My gyms'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await EnterpriseService.instance.restore();
+                    } catch (e) {
+                      if (context.mounted)
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('$e')));
+                    }
+                  },
+                  child: const Text('Retry session'),
+                ),
+                TextButton(
+                  onPressed: () => LoginController.to.logout(),
+                  child: const Text('Sign out'),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        );
+      return Theme(
+        data: enterpriseTheme(context, session.tenant),
+        child: Navigator(
+          key: ValueKey(session),
+          onGenerateRoute: (_) => MaterialPageRoute(
+            builder: (pageContext) => Scaffold(
+              appBar: AppBar(
+                title: Text(session.tenant.name),
+                actions: [
+                  IconButton(
+                    tooltip: 'My gyms',
+                    icon: const Icon(Icons.swap_horiz),
+                    onPressed: () =>
+                        Get.to(() => const EnterpriseMembershipScreen()),
+                  ),
+                  if (session.isAdmin)
+                    IconButton(
+                      tooltip: 'Manage gym',
+                      icon: const Icon(Icons.settings),
+                      onPressed: () => Navigator.of(pageContext).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TenantManagementScreen(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              body:
+                  widget.flagshipBuilder?.call(pageContext) ??
+                  const BottomNavBarMain(),
+            ),
+          ),
+        ),
       );
+    },
+  );
 }
 
 Future<void> enterEnterprise(String? id) async {
@@ -81,6 +139,11 @@ Future<void> enterEnterprise(String? id) async {
     await StreamChatService.instance.disconnect();
   } catch (_) {}
   await EnterpriseService.instance.switchTenant(id);
+  if (Get.isRegistered<BottomNavBarController>())
+    await Get.delete<BottomNavBarController>(force: true);
+  Get.lazyPut(() => BottomNavBarController(), fenix: true);
+  PaintingBinding.instance.imageCache.clear();
+  PaintingBinding.instance.imageCache.clearLiveImages();
   if (id == null) {
     Get.changeTheme(AppThemeData.themeData);
     Get.offAllNamed(
@@ -175,7 +238,10 @@ class _EnterpriseMembershipScreenState
         if (loading || busy) const LinearProgressIndicator(),
         if (error != null) Text(error!),
         if (!loading && error == null && items.isEmpty)
-          const Text('No memberships yet. Browse gyms to request access.'),
+          const Text(
+            'No memberships yet. Your gym owner can add your verified P2P account.',
+          ),
+        const GymApplicationStatus(),
         ...items.map(
           (item) => Card(
             child: ListTile(

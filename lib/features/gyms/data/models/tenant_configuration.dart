@@ -36,9 +36,9 @@ class TenantConfiguration {
     }
 
     Color color(String key) {
-      final value = requiredString(key);
-      if (!RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)) {
-        throw FormatException('Invalid $key');
+      final value = json[key];
+      if (value is! String || !RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)) {
+        return const Color(0xFFB83B12);
       }
       return Color(0xff000000 | int.parse(value.substring(1), radix: 16));
     }

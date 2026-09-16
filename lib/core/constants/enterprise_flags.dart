@@ -4,5 +4,5 @@
 /// This selects the experience; backend roles still control account access.
 const bool isSingleMode = bool.fromEnvironment(
   'IS_SINGLE_MODE',
-  defaultValue: true,
+  defaultValue: false,
 );

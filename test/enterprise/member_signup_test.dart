@@ -1,3 +1,5 @@
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
+import 'directory_fixture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -14,6 +16,14 @@ class FakeAuth extends Fake implements AuthService {}
 class FakeProfile extends Fake implements ProfileService {}
 
 void main() {
+  late EnterpriseService directoryOriginal;
+  setUp(() {
+    directoryOriginal = EnterpriseService.instance;
+    EnterpriseService.replaceForTesting(directoryFixtureService());
+  });
+  tearDown(() {
+    EnterpriseService.replaceForTesting(directoryOriginal);
+  });
   Future<void> tap(WidgetTester tester, Finder finder) async {
     tester.testTextInput.hide();
     await tester.pumpAndSettle();

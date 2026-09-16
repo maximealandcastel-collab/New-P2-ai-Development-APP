@@ -1,3 +1,4 @@
+import 'directory_fixture.dart';
 import 'dart:convert';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
@@ -13,11 +14,19 @@ class FakeLauncher extends UrlLauncherPlatform {
   @override
   get linkDelegate => null;
   @override
-  Future<bool> launchUrl(String url, LaunchOptions options) async => ++calls > 1;
+  Future<bool> launchUrl(String url, LaunchOptions options) async =>
+      ++calls > 1;
 }
 
-
 void main() {
+  late EnterpriseService directoryOriginal;
+  setUp(() {
+    directoryOriginal = EnterpriseService.instance;
+    EnterpriseService.replaceForTesting(directoryFixtureService());
+  });
+  tearDown(() {
+    EnterpriseService.replaceForTesting(directoryOriginal);
+  });
   Future<void> tap(
     WidgetTester tester,
     Finder target, {
@@ -74,6 +83,7 @@ void main() {
         final service = EnterpriseService(
           baseUrl: 'https://example.test',
           client: MockClient((request) async {
+            if (request.method == 'GET') return directoryFixtureResponse();
             calls++;
             final body = jsonDecode(request.body);
             expect(body['gymName'], 'Iron City Fitness');
@@ -118,7 +128,9 @@ void main() {
         await next(tester);
         await tap(
           tester,
-          find.text(tier == 'starter' ? 'Enterprise Starter' : 'Enterprise Pro'),
+          find.text(
+            tier == 'starter' ? 'Enterprise Starter' : 'Enterprise Pro',
+          ),
         );
         await fill(tester, 'representativeName', 'Jordan Smith');
         await fill(tester, 'workEmail', 'jordan@example.com');
@@ -131,7 +143,10 @@ void main() {
         expect(
           tester
               .widget<FilledButton>(
-                find.widgetWithText(FilledButton, 'Continue to Clover Checkout ➜'),
+                find.widgetWithText(
+                  FilledButton,
+                  'Continue to Clover Checkout ➜',
+                ),
               )
               .onPressed,
           isNull,
@@ -141,7 +156,10 @@ void main() {
         expect(find.textContaining('We couldn’t submit'), findsOneWidget);
         expect(find.text('PARTNERSHIP SUBMITTED'), findsNothing);
         await tap(tester, find.text('Continue to Clover Checkout ➜'));
-        expect(find.textContaining('Your application was submitted.'), findsOneWidget);
+        expect(
+          find.textContaining('Your application was submitted.'),
+          findsOneWidget,
+        );
         expect(calls, 2);
         await tap(tester, find.text('Continue to Clover Checkout ➜'));
         expect(find.text('Step 5 of 5'), findsOneWidget);

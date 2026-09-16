@@ -1,3 +1,4 @@
+import 'directory_fixture.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,14 @@ import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/staff_signup_screen.dart';
 
 void main() {
+  late EnterpriseService directoryOriginal;
+  setUp(() {
+    directoryOriginal = EnterpriseService.instance;
+    EnterpriseService.replaceForTesting(directoryFixtureService());
+  });
+  tearDown(() {
+    EnterpriseService.replaceForTesting(directoryOriginal);
+  });
   Future<void> tap(
     WidgetTester tester,
     Finder target, {
@@ -95,6 +104,7 @@ void main() {
           baseUrl: 'https://example.test',
           token: () => 'must-not-send',
           client: MockClient((request) async {
+            if (request.method == 'GET') return directoryFixtureResponse();
             calls++;
             expect(request.url.path, '/enterprise/staff-access-requests');
             expect(request.method, 'POST');

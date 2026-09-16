@@ -107,7 +107,7 @@ class SplashController extends GetxController
     if (!isSingleMode) {
       try {
         await EnterpriseService.instance.restore();
-        if (EnterpriseService.instance.active.value != null) {
+        if (EnterpriseService.instance.active.value != null || ['expired','revoked'].contains(EnterpriseService.instance.bootstrapData.value['entitlement']?['state'])) {
           Get.offAll(() => const EnterpriseSessionScreen());
           return;
         }

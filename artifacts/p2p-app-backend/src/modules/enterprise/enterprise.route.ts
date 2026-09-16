@@ -1,3 +1,5 @@
+import {TenantMembership,TenantBranding,TenantSelection,TenantAudit} from './tenant.model';
+import {authorizeTenant,bootstrap,validateBranding} from './tenant.service';
 import { Router, Request, Response, NextFunction } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { guardRole } from '../../middlewares/roleGuard';
@@ -9,7 +11,7 @@ import { Facility, GymClaim, WebPayment } from './enterprise.model';
 import { approveClaim, deactivateClaim, facilityInventory, setInventory } from './enterprise.service';
 
 export const EnterpriseRoutes = Router();
-const route = (fn: (req: Request, res: Response) => Promise<any>) => (req: Request, res: Response, next: NextFunction) => fn(req, res).catch(next);
+const route = (fn: (req: Request, res: Response) => Promise<any>) => (req: Request, res: Response, next: NextFunction) => fn(req, res).catch(error => { if (error?.message === 'Tenant access denied') { res.status(403).json({success:false,message:'Tenant access denied'}); return; } next(error); });
 const send = (res: Response, data: any, status = 200) => res.status(status).json({ success: true, data });
 const text = (value: unknown, limit = 200) => typeof value === 'string' && value.trim().length <= limit ? value.trim() : '';
 const catalogs: Record<string,{amount:number;days:number;tier?:string}> = {
@@ -30,6 +32,7 @@ EnterpriseRoutes.post('/gym-applications', route(async(req,res) => {
   if (!text(b.gymName) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !['starter','pro'].includes(b.tier) || b.authorizedRepresentative !== true || b.reviewConsent !== true) {
     return res.status(400).json({ success:false,message:'Gym, representative email, tier and authorization are required' });
   }
+  validateBranding(b);
   if (b.logoUrl && !/^https:\/\//.test(text(b.logoUrl,2048))) return res.status(400).json({success:false,message:'Logo must use HTTPS'});
   const existing = await GymClaim.findOne({ gymName:text(b.gymName),workEmail:email,status:'pending_review' });
   const claim = existing || await GymClaim.create({ gymName:text(b.gymName),workEmail:email,
@@ -52,11 +55,14 @@ EnterpriseRoutes.post('/admin/gym-applications/:id/verify-ownership',guardRole('
 }));
 EnterpriseRoutes.post('/admin/gym-applications/:id/approve',guardRole('admin'),route(async(req,res) => send(res,await approveClaim(String(req.params.id),(req.user as any).id))));
 for (const action of ['reject','revoke'] as const) EnterpriseRoutes.post(`/admin/gym-applications/:id/${action}`,guardRole('admin'),route(async(req,res) => {
-  await deactivateClaim(String(req.params.id),action==='reject'?'rejected':'revoked',req.body.reason);return send(res,{status:action==='reject'?'rejected':'revoked'});
+  await deactivateClaim(String(req.params.id),action==='reject'?'rejected':'revoked',req.body.reason,(req.user as any).id);return send(res,{status:action==='reject'?'rejected':'revoked'});
 }));
 EnterpriseRoutes.get('/facilities',guardRole(['user','trainer']),route(async(req,res) => {
   const user:any=await UserModel.findById((req.user as any).id).lean();
-  const tenantIds=[user.tenantId,...(user.gymAdminTenantIds||[])].filter(Boolean);
+  const memberships:any[]=await TenantMembership.find({userId:user._id,status:'active'}).lean();
+  const managed:any[]=await GymClaim.find({tenantId:{$exists:true}}).select('tenantId').lean();
+  const managedIds=new Set(managed.map(c=>c.tenantId));
+  const tenantIds=[...[user.tenantId,...(user.gymAdminTenantIds||[])].filter(id=>id&&!managedIds.has(id)),...memberships.map(m=>m.tenantId)];
   const tenants=await TenantAccessModel.find({tenantId:{$in:tenantIds},isLive:true,$or:[{accessExpiresAt:{$exists:false}},{accessExpiresAt:{$gt:new Date()}}]}).lean();
   return send(res,{items:await Facility.find({tenantId:{$in:tenants.map(t=>t.tenantId)},active:true}).lean()});
 }));
@@ -64,7 +70,7 @@ EnterpriseRoutes.get('/facilities/:id/inventory',guardRole(['user','trainer']),r
 EnterpriseRoutes.put('/facilities/:id/inventory',guardRole(['user','trainer']),route(async(req,res) => send(res,await setInventory((req.user as any).id,String(req.params.id),req.body.equipment))));
 EnterpriseRoutes.post('/internal/validate-payment',internal,route(async(req,res) => {
   const plan=Object.prototype.hasOwnProperty.call(catalogs,req.body.plan) ? catalogs[req.body.plan] : undefined;
-  const claim=await GymClaim.findOne({_id:req.body.applicationId,workEmail:text(req.body.email,254).toLowerCase(),tier:plan?.tier,status:{$in:['pending_review','approved']}});
+  const claim=await GymClaim.findOne({_id:req.body.applicationId,workEmail:text(req.body.email,254).toLowerCase(),tier:plan?.tier,status:{$in:['pending_review','approved','revoked']}});
   if (!plan?.tier || !claim) return res.status(409).json({success:false,message:'Payment does not match an eligible gym application'});
   return send(res,{valid:true});
 }));
@@ -116,4 +122,70 @@ EnterpriseRoutes.post('/internal/payment',internal,route(async(req,res) => {
     });
   } finally { await session.endSession(); }
   return send(res,{promoCode:promoCode||null});
+}));
+
+const signedIn=guardRole(['user','trainer','admin']);
+EnterpriseRoutes.get('/me/bootstrap',signedIn,route(async(req,res)=>send(res,await bootstrap((req.user as any).id))));
+EnterpriseRoutes.get('/me/context',signedIn,route(async(req,res)=>send(res,await bootstrap((req.user as any).id))));
+EnterpriseRoutes.put('/me/context',signedIn,route(async(req,res)=>{
+  const id=(req.user as any).id,tenantId=req.body.tenantId;
+  if(tenantId!==null) {
+    if(typeof tenantId!=='string')return res.status(400).json({success:false,message:'Invalid tenant'});
+    await authorizeTenant(id,tenantId);
+  }
+  await TenantSelection.updateOne({userId:id},{$set:{tenantId}},{upsert:true});
+  return send(res,await bootstrap(id));
+}));
+EnterpriseRoutes.get('/me/memberships',signedIn,route(async(req,res)=>send(res,{items:(await bootstrap((req.user as any).id)).choices,nextCursor:null})));
+EnterpriseRoutes.get('/me/applications',signedIn,route(async(req,res)=>send(res,{items:(await bootstrap((req.user as any).id)).applications})));
+EnterpriseRoutes.get('/tenants/:tenantId/branding',signedIn,route(async(req,res)=>{
+  await authorizeTenant((req.user as any).id,String(req.params.tenantId),false,true);
+  return send(res,await TenantBranding.findOne({tenantId:req.params.tenantId}).lean());
+}));
+EnterpriseRoutes.put('/tenants/:tenantId/branding',signedIn,route(async(req,res)=>{
+  const id=(req.user as any).id,tenantId=String(req.params.tenantId);
+  await authorizeTenant(id,tenantId,true,true);
+  const values=validateBranding(req.body);
+  const session=await TenantBranding.startSession();let brand;
+  try {await session.withTransaction(async()=>{
+    brand=await TenantBranding.findOneAndUpdate({tenantId},{$set:{...values,updatedBy:id,brandingStatus:'configured'}},{new:true,session});
+    if(!brand)throw new Error('Provision tenant branding first');
+    await TenantAudit.create([{tenantId,actorId:id,action:'branding_updated'}],{session});
+  });}finally{await session.endSession();}
+  return send(res,brand);
+}));
+EnterpriseRoutes.get('/tenants/:tenantId/memberships',signedIn,route(async(req,res)=>{
+  await authorizeTenant((req.user as any).id,String(req.params.tenantId),true,true);
+  return send(res,{items:await TenantMembership.find({tenantId:req.params.tenantId}).lean()});
+}));
+EnterpriseRoutes.put('/tenants/:tenantId/memberships/:userId',signedIn,route(async(req,res)=>{
+  const actor=(req.user as any).id,tenantId=String(req.params.tenantId);
+  const authority=await authorizeTenant(actor,tenantId,true,true);
+  const {role,status}=req.body;
+  if(!['admin','staff','trainer','member'].includes(role)||!['active','revoked'].includes(status))throw new Error('Invalid membership');
+  if(authority.role==='admin'&&role==='admin')throw new Error('Only owners may appoint administrators');
+  const target:any=await UserModel.findOne({_id:req.params.userId,isDeleted:{$ne:true},isVerified:true}).lean();
+  if(!target||target.role==='admin'||(role==='trainer'&&target.role!=='trainer'))throw new Error('Verified eligible account required');
+  const session=await TenantMembership.startSession();let member;
+  try {await session.withTransaction(async()=>{
+    const existing:any=await TenantMembership.findOne({tenantId,userId:target._id}).session(session);
+    if(existing?.role==='owner'||(authority.role==='admin'&&existing?.role==='admin'))throw new Error('Owner approval required');
+    member=await TenantMembership.findOneAndUpdate({tenantId,userId:target._id},{$set:{role,status,updatedBy:actor}},{upsert:true,new:true,session});
+    await TenantAudit.create([{tenantId,actorId:actor,action:'membership_updated',reason:role+':'+status}],{session});
+  });}finally{await session.endSession();}
+  return send(res,member);
+}));
+EnterpriseRoutes.post('/admin/gym-applications/:id/reactivate',guardRole('admin'),route(async(req,res)=>send(res,await approveClaim(String(req.params.id),(req.user as any).id,true))));
+
+// Discovery exposes only the public gym name and neutral P2P presentation.
+// Membership, equipment, entitlement and configured branding stay protected.
+EnterpriseRoutes.get('/tenants',route(async(req,res)=>{
+  const query=text(req.query.q,100).toLowerCase();
+  const tenants=await TenantAccessModel.find({isLive:true,accessExpiresAt:{$gt:new Date()}}).select('tenantId displayName').sort({tenantId:1}).limit(500).lean();
+  return send(res,{items:tenants.filter(t=>!query||t.displayName.toLowerCase().includes(query)).map(t=>({schemaVersion:1,id:t.tenantId,name:t.displayName,logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12'})),nextCursor:null});
+}));
+EnterpriseRoutes.get('/tenants/:id',route(async(req,res)=>{
+ const tenant=await TenantAccessModel.findOne({tenantId:req.params.id,isLive:true,accessExpiresAt:{$gt:new Date()}}).select('tenantId displayName').lean();
+ if(!tenant)return res.status(404).json({success:false,message:'Gym unavailable'});
+ return send(res,{schemaVersion:1,id:tenant.tenantId,name:tenant.displayName,logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12'});
 }));

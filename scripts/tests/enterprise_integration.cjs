@@ -125,3 +125,41 @@ test('account deletion transaction queues both uploaded assets and unfinished up
  assert.ok(jobs.every(j=>j.contentId===String(contentId)));
  await deletePersonalAccount(String(userId));assert.equal(await MediaCleanup.countDocuments({userId}),2);
 });
+
+test('tenant branding/bootstrap: cross-tenant denial, membership revocation, expiry, and approved-claim reconciliation',async()=>{
+ const {TenantMembership,TenantBranding,TenantSelection}=require(path.join(root,'dist/modules/enterprise/tenant.model.js'));
+ const {approveClaim}=require(path.join(root,'dist/modules/enterprise/enterprise.service.js'));
+ await Promise.all([TenantMembership.init(),TenantBranding.init(),TenantSelection.init()]);
+ const user=await UserModel.create({firstName:'Gym',lastName:'Owner',email:'newowner@example.test',password:'test-only',gender:'not_prefer_to_say',role:'user',isVerified:true});
+ const claim=await GymClaim.create({gymName:'Branded Gym',workEmail:user.email,tier:'starter',ownerUserId:user._id,ownershipVerifiedAt:new Date(),paymentStatus:'paid',paymentExpiresAt:new Date(Date.now()+86400000),primaryColor:'#112233',logoUrl:'https://cdn.example.com/logo.png'});
+ const approved=await approveClaim(String(claim._id),String(admin._id));const tenantId=approved.tenantId;
+ await approveClaim(String(claim._id),String(admin._id));
+ assert.equal(await TenantMembership.countDocuments({tenantId}),1);assert.equal(await TenantBranding.countDocuments({tenantId}),1);
+ await TenantBranding.deleteOne({tenantId});
+ await approveClaim(String(claim._id),String(admin._id));
+ assert.equal(await TenantBranding.countDocuments({tenantId}),1);assert.equal(await TenantMembership.countDocuments({tenantId}),1);
+ assert.equal((await UserModel.findById(user._id)).role,'user');
+ let b=await request('/me/bootstrap',null,bearer(user),'GET');assert.equal(b.status,200);assert.equal(b.body.data.context.tenant.name,'Branded Gym');assert.equal(b.body.data.entitlement.state,'active');
+ const brandingPath=`/tenants/${tenantId}/branding`;
+ await TenantAccessModel.create({tenantId:'other-gym',displayName:'Other Gym',isLive:true,accessExpiresAt:new Date(Date.now()+86400000)});
+ await TenantMembership.create({tenantId:'other-gym',userId:stranger._id,role:'owner'});
+ assert.notEqual((await request(brandingPath,{primaryColor:'#445566'},bearer(stranger),'PUT')).status,200);
+ assert.notEqual((await request('/me/context',{tenantId},bearer(stranger),'PUT')).status,200);
+ assert.equal((await request(brandingPath,{primaryColor:'#445566'},bearer(user),'PUT')).status,200);
+ for(const body of [{logoUrl:'http://example.com/a.png'},{logoUrl:'https://user:password@example.com/a.png'},{primaryColor:'red;display:none'}])assert.notEqual((await request(brandingPath,body,bearer(user),'PUT')).status,200);
+ assert.equal((await request(brandingPath,null,bearer(admin),'GET')).status,200);
+ assert.notEqual((await request(`/facilities/${approved.facilityId}/inventory`,null,bearer(stranger),'GET')).status,200);
+ await TenantMembership.create({tenantId,userId:stranger._id,role:'member',status:'active'});
+ assert.equal((await request(`/facilities/${approved.facilityId}/inventory`,null,bearer(stranger),'GET')).status,200);
+ await TenantMembership.updateOne({tenantId,userId:stranger._id},{$set:{status:'revoked'}});
+ assert.notEqual((await request(`/facilities/${approved.facilityId}/inventory`,null,bearer(stranger),'GET')).status,200);
+ await TenantAccessModel.updateOne({tenantId},{$set:{accessExpiresAt:new Date(0)}});
+ b=await request('/me/bootstrap',null,bearer(user),'GET');assert.equal(b.body.data.context,null);assert.equal(b.body.data.entitlement.state,'expired');
+ assert.notEqual((await request(brandingPath,null,bearer(user),'GET')).status,200);
+ // Rollback after tenant/facility writes: invalid historical branding must leave no partial provisioning.
+ const broken=await GymClaim.create({gymName:'Broken',workEmail:user.email,tier:'starter',ownerUserId:user._id,ownershipVerifiedAt:new Date(),paymentStatus:'paid',paymentExpiresAt:new Date(Date.now()+86400000),primaryColor:'bad-css'});
+ await assert.rejects(approveClaim(String(broken._id),String(admin._id)));
+ assert.equal(await Facility.countDocuments({tenantId:`gym-${broken._id}`}),0);
+ assert.equal(await TenantAccessModel.countDocuments({tenantId:`gym-${broken._id}`}),0);
+ assert.equal((await GymClaim.findById(broken._id)).provisioningState,'failed');
+});

@@ -19,6 +19,8 @@ import { applyFeedContentPolicy } from "./modules/content/contentEligibility";
 
 import { startMediaCleanupWorker, MediaCleanup } from "./modules/privacy/mediaCleanup.service";
 
+import { TenantMembership, TenantBranding, TenantSelection, TenantAudit } from "./modules/enterprise/tenant.model";
+
 let server: HttpServer;
 import dns from "dns";
 // Cloudflare DNS
@@ -48,6 +50,7 @@ async function connectAndSeed() {
     // the schema's expire-at-date semantics. syncIndexes is idempotent.
     await OTPModel.syncIndexes();
     await MediaCleanup.init();
+    await Promise.all([TenantMembership.init(),TenantBranding.init(),TenantSelection.init(),TenantAudit.init()]);
     clearInterval(loader);
     console.log(
       `\r✅ Mongodb connected successfully in ${Date.now() - dbStartTime}ms`,

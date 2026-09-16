@@ -231,7 +231,7 @@ class LoginController extends GetxController {
         await CacheService().put('tenantId', authorizedTenantId);
       }
     }
-    if (EnterpriseService.instance.active.value != null) {
+    if (EnterpriseService.instance.active.value != null || ['expired','revoked'].contains(EnterpriseService.instance.bootstrapData.value['entitlement']?['state'])) {
       Get.offAll(() => const EnterpriseSessionScreen());
       return;
     }
@@ -349,7 +349,7 @@ class LoginController extends GetxController {
     return typed.isEmpty ? null : typed;
   }
 
-  bool isTrainer() => _authService.getRole() == 'trainer';
+  bool isTrainer() => EnterpriseService.instance.active.value?.roles.contains('trainer') ?? (_authService.getRole() == 'trainer');
 
   Future<void> logout() async {
     final isAdminOriginatedPreview =

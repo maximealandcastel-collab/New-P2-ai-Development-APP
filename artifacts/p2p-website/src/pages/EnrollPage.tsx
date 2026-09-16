@@ -315,7 +315,8 @@ export default function EnrollPage({ defaultPlan }: { defaultPlan?: Plan }) {
       }
 
       const applicationId = new URLSearchParams(window.location.search).get("applicationId");
-      const attemptStorageKey = `p2p-checkout:${plan}:${form.email.trim().toLowerCase()}:${applicationId || ""}`;
+      const renewalCycle = new URLSearchParams(window.location.search).get("renewal") || "";
+      const attemptStorageKey = `p2p-checkout:${plan}:${form.email.trim().toLowerCase()}:${applicationId || ""}${renewalCycle ? `:${renewalCycle}` : ""}`;
       let idempotencyKey = sessionStorage.getItem(attemptStorageKey);
       if (!idempotencyKey) {
         idempotencyKey = crypto.randomUUID();

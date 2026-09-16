@@ -31,15 +31,20 @@ class EnterpriseService {
         'lang': 'en',
       },
     );
-    final response = await _client.get(
-      uri,
-      headers: const {
-        'Accept': 'application/json',
-        'User-Agent': 'P2P-FitTech-AI/1.0 facility-search',
-      },
-    ).timeout(const Duration(seconds: 10));
+    final response = await _client
+        .get(
+          uri,
+          headers: const {
+            'Accept': 'application/json',
+            'User-Agent': 'P2P-FitTech-AI/1.0 facility-search',
+          },
+        )
+        .timeout(const Duration(seconds: 10));
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw EnterpriseException('Facility search is temporarily unavailable.', response.statusCode);
+      throw EnterpriseException(
+        'Facility search is temporarily unavailable.',
+        response.statusCode,
+      );
     }
     final decoded = jsonDecode(response.body);
     final features = decoded is Map ? decoded['features'] : null;
@@ -60,48 +65,81 @@ class EnterpriseService {
         properties['city'],
         properties['state'],
       ].whereType<String>().join(' ').toLowerCase();
-      final looksFitnessRelated = const {
-        'fitness_centre', 'sports_centre', 'gym', 'fitness_station',
-        'swimming_pool', 'stadium', 'recreation_ground', 'sports_hall',
-      }.contains(osmValue) || RegExp(r'gym|fitness|ymca|wellness|training|athletic|recreation|sports|pilates|yoga|crossfit', caseSensitive: false).hasMatch(searchable);
+      final looksFitnessRelated =
+          const {
+            'fitness_centre',
+            'sports_centre',
+            'gym',
+            'fitness_station',
+            'swimming_pool',
+            'stadium',
+            'recreation_ground',
+            'sports_hall',
+          }.contains(osmValue) ||
+          RegExp(
+            r'gym|fitness|ymca|wellness|training|athletic|recreation|sports|pilates|yoga|crossfit',
+            caseSensitive: false,
+          ).hasMatch(searchable);
       if (!looksFitnessRelated) continue;
-      final city = (properties['city'] as String? ?? properties['county'] as String? ?? '').trim();
+      final city =
+          (properties['city'] as String? ??
+                  properties['county'] as String? ??
+                  '')
+              .trim();
       final state = (properties['state'] as String? ?? '').trim();
-      final street = [properties['housenumber'], properties['street']]
-          .whereType<String>().where((value) => value.trim().isNotEmpty).join(' ');
-      final address = [street, city, state]
-          .where((value) => value.trim().isNotEmpty).join(', ');
+      final street = [
+        properties['housenumber'],
+        properties['street'],
+      ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' ');
+      final address = [
+        street,
+        city,
+        state,
+      ].where((value) => value.trim().isNotEmpty).join(', ');
       final coordinates = geometry['coordinates'];
-      final lng = coordinates is List && coordinates.length >= 2 && coordinates[0] is num
-          ? (coordinates[0] as num).toDouble() : 0.0;
-      final lat = coordinates is List && coordinates.length >= 2 && coordinates[1] is num
-          ? (coordinates[1] as num).toDouble() : 0.0;
-      final sourceId = "${properties['osm_type'] ?? 'osm'}:${properties['osm_id'] ?? '$name-$lat-$lng'}";
+      final lng =
+          coordinates is List &&
+              coordinates.length >= 2 &&
+              coordinates[0] is num
+          ? (coordinates[0] as num).toDouble()
+          : 0.0;
+      final lat =
+          coordinates is List &&
+              coordinates.length >= 2 &&
+              coordinates[1] is num
+          ? (coordinates[1] as num).toDouble()
+          : 0.0;
+      final sourceId =
+          "${properties['osm_type'] ?? 'osm'}:${properties['osm_id'] ?? '$name-$lat-$lng'}";
       final dedupeKey = '${name.toLowerCase()}|${address.toLowerCase()}';
       if (!seen.add(dedupeKey)) continue;
-      results.add(TenantConfiguration(
-        id: 'facility:$sourceId',
-        name: name,
-        slogan: address,
-        logoUrl: '',
-        timezone: 'America/New_York',
-        primary: const Color(0xFFFF6833),
-        secondary: const Color(0xFF1A1A1A),
-        accent: const Color(0xFFFF6833),
-        photos: const [],
-        locations: [{
-          'address': address,
-          'city': city,
-          'state': state,
-          'lat': lat,
-          'lng': lng,
-          'source': 'openstreetmap',
-          'sourceId': sourceId,
-        }],
-        contact: const {},
-        category: 'Fitness Facility',
-        tags: const ['directory_candidate'],
-      ));
+      results.add(
+        TenantConfiguration(
+          id: 'facility:$sourceId',
+          name: name,
+          slogan: address,
+          logoUrl: '',
+          timezone: 'America/New_York',
+          primary: const Color(0xFFFF6833),
+          secondary: const Color(0xFF1A1A1A),
+          accent: const Color(0xFFFF6833),
+          photos: const [],
+          locations: [
+            {
+              'address': address,
+              'city': city,
+              'state': state,
+              'lat': lat,
+              'lng': lng,
+              'source': 'openstreetmap',
+              'sourceId': sourceId,
+            },
+          ],
+          contact: const {},
+          category: 'Fitness Facility',
+          tags: const ['directory_candidate'],
+        ),
+      );
     }
     return results;
   }
@@ -118,6 +156,7 @@ class EnterpriseService {
   final String baseUrl;
   final String? Function() _token;
   final active = ValueNotifier<EnterpriseContext?>(null);
+  final bootstrapData = ValueNotifier<Map<String, dynamic>>({});
   int _generation = 0;
   bool _switching = false;
   EnterpriseService({
@@ -137,6 +176,7 @@ class EnterpriseService {
   void clear() {
     _generation++;
     active.value = null;
+    bootstrapData.value = {};
   }
 
   Future<Map<String, dynamic>> request(
@@ -225,7 +265,9 @@ class EnterpriseService {
       body: application,
     );
     final id = data['requestId'];
-    if (id is! String || id.trim().isEmpty || data['status'] != 'pending_review') {
+    if (id is! String ||
+        id.trim().isEmpty ||
+        data['status'] != 'pending_review') {
       throw const EnterpriseException('Invalid staff access receipt.');
     }
     return id;
@@ -257,12 +299,32 @@ class EnterpriseService {
     ),
   );
 
+  Future<void> refreshAccess() async {
+    try {
+      final data = await request('/enterprise/me/bootstrap');
+      final unchanged =
+          jsonEncode(data['context']) ==
+          jsonEncode(bootstrapData.value['context']);
+      bootstrapData.value = data;
+      if (!unchanged)
+        active.value = data['context'] == null
+            ? null
+            : EnterpriseContext.fromJson(
+                Map<String, dynamic>.from(data['context'] as Map),
+              );
+    } catch (_) {
+      clear();
+      rethrow;
+    }
+  }
+
   Future<void> restore() async {
     clear();
     final generation = _generation;
-    final data = await request('/enterprise/me/context');
+    final data = await request('/enterprise/me/bootstrap');
     if (generation != _generation)
       throw const EnterpriseException('Session changed.');
+    bootstrapData.value = data;
     active.value = data['context'] == null
         ? null
         : EnterpriseContext.fromJson(
@@ -291,6 +353,7 @@ class EnterpriseService {
             );
       if (context?.tenant.id != tenantId)
         throw const EnterpriseException('Invalid gym context.');
+      bootstrapData.value = data;
       active.value = context;
     } finally {
       _switching = false;

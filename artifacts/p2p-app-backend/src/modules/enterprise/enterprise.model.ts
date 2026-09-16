@@ -9,6 +9,7 @@ const claim = new Schema({
   paymentStatus: String, paymentExpiresAt: Date,
   sourcePurchaseId: { type: String, unique: true, sparse: true },
   tenantId: { type: String, unique: true, sparse: true }, facilityId: String,
+  provisioningState: {type:String,enum:['pending','provisioning','active','failed'],default:'pending'}, provisioningFailure:String,
   approvedBy: Schema.Types.ObjectId, approvedAt: Date, reason: String,
 }, { timestamps: true });
 claim.index({ workEmail: 1, gymName: 1, status: 1 });
