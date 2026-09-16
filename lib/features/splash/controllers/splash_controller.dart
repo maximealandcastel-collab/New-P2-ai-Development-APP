@@ -15,6 +15,14 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
+String? resumedGymAdminTenantId(Object? cachedTenantIds) {
+  if (cachedTenantIds is! List) return null;
+  for (final value in cachedTenantIds) {
+    if (value is String && value.trim().isNotEmpty) return value.trim();
+  }
+  return null;
+}
+
 class SplashController extends GetxController
     with GetSingleTickerProviderStateMixin {
   static SplashController get to => Get.find();
@@ -118,11 +126,13 @@ class SplashController extends GetxController
     } else {
       EnterpriseService.instance.clear();
       // Cached scope selects a screen only; the dashboard API rechecks access.
-      final adminIds =
-          CacheService().get<List>('gymAdminTenantIds') ?? const [];
-      if (adminIds.contains('kmf-fitness')) {
+      // Resume every authorized gym-admin tenant, not only the legacy KMF tenant.
+      final tenantId = resumedGymAdminTenantId(
+        CacheService().get<List>('gymAdminTenantIds'),
+      );
+      if (tenantId != null) {
         Get.offAll(
-          () => const EnterpriseGymAdminDashboardScreen(legacyKmf: true),
+          () => EnterpriseGymAdminDashboardScreen(tenantId: tenantId),
         );
         return;
       }
