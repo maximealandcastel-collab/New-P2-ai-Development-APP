@@ -1,9 +1,7 @@
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
-import 'package:pler_to_pler_app/features/gyms/data/models/legacy_kmf_configuration.dart';
 import 'dart:async';
 import '../widgets/tenant_image.dart';
 import '../../data/services/enterprise_service.dart';
-import '../../data/models/tenant_configuration.dart';
 import 'enterprise_session_screen.dart';
 import 'gym_application_screen.dart';
 import 'gym_login_preview_screen.dart';
@@ -47,6 +45,7 @@ class _GymsScreenState extends State<GymsScreen> {
   String _activeFilter = 'All Types';
   String _searchQuery = '';
   bool _locationLoading = false;
+  double? _searchLat,_searchLng;
   List<EnterpriseGymModel> _sortedGyms = [];
   Timer? _searchDebounce;
   int _requestVersion = 0;
@@ -69,15 +68,9 @@ class _GymsScreenState extends State<GymsScreen> {
       if (isSingleMode) {
         gyms = EnterpriseGymModel.partners;
       } else {
-        final page = await EnterpriseService.instance.directory(
-          cursor: _cursor,
-          query: _searchQuery,
-          tag: _activeFilter == 'All Types' ? null : _activeFilter,
-        );
-        gyms = page.items
-            .map((e) => TenantConfiguration.fromJson(e).toGym())
-            .toList();
-        nextCursor = page.nextCursor;
+        final items = await EnterpriseService.instance.searchFacilities(_searchQuery,latitude:_searchLat,longitude:_searchLng,kind:_activeFilter);
+        gyms=items.map((item)=>item.toGym()).toList();
+        nextCursor=null;
       }
       if (mounted && version == _requestVersion)
         setState(() {
@@ -112,17 +105,13 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Future<void> _detectLocationSilently() async {
     final position = await _locationService.getCurrentPosition();
-    if (position != null && mounted) {
-      setState(() {
-        _sortedGyms = _locationService.sortByDistance(
-          List.from(_sortedGyms),
-          position,
-        );
-      });
-    }
+    if(position==null||!mounted||_searchQuery.isNotEmpty)return;
+    _searchLat=position.latitude;_searchLng=position.longitude;
+    await _loadDirectory(refresh:true);
   }
 
   Future<void> _onNearMeTapped() async {
+    if(_locationLoading)return;
     setState(() => _locationLoading = true);
     final position = await _locationService.getCurrentPosition();
     if (position != null) {
@@ -139,8 +128,11 @@ class _GymsScreenState extends State<GymsScreen> {
       setState(() => _locationLoading = false);
     }
 
-    // Near Me should always take the customer to a real nearby-gyms search.
-    await _openNearGymMap(position: position);
+    if(!mounted)return;
+    if(position==null){ToastMessageHelper.showError('Location unavailable. Enter a US address or ZIP.');return;}
+    _searchLat=position.latitude;_searchLng=position.longitude;
+    _searchQuery='';_searchController.clear();
+    await _loadDirectory(refresh:true);
   }
 
   Future<void> _openNearGymMap({
@@ -151,7 +143,7 @@ class _GymsScreenState extends State<GymsScreen> {
     // the customer's coordinates for a precise nearby-gyms search.
     String query;
     if (addressQuery != null && addressQuery.isNotEmpty) {
-      query = 'gyms near $addressQuery';
+      query = 'gyms near $addressQuery, United States';
     } else if (_activeFilter != 'All Types') {
       query = '$_activeFilter gym near me';
     } else if (position != null) {
@@ -279,16 +271,10 @@ class _GymsScreenState extends State<GymsScreen> {
         _sortedGyms[index].id: index,
     };
     final displayed = _sortedGyms.where((g) {
-      final q = _searchQuery.toLowerCase();
-      final matchSearch =
-          q.isEmpty ||
-          g.name.toLowerCase().contains(q) ||
-          g.category.toLowerCase().contains(q) ||
-          g.city.toLowerCase().contains(q) ||
-          g.zipCode.contains(q) ||
-          g.address.toLowerCase().contains(q);
+      // Google already matched the entered address; do not re-filter by gym name.
+      const matchSearch = true;
       final matchFilter =
-          _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
+          !isSingleMode || _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
     }).toList();
     const priority = <String, int>{
@@ -365,6 +351,7 @@ class _GymsScreenState extends State<GymsScreen> {
                   _buildHeader(),
                   // ── Search bar ────────────────────────────────────────
                   _buildSearchBar(),
+            if(!isSingleMode && _sortedGyms.isNotEmpty) const Text('Google Maps'),
                   // ── Filter row ────────────────────────────────────────
                   _buildFilterRow(),
                   // ── Featured Gyms Near You ─────────────────────────────
@@ -490,7 +477,7 @@ class _GymsScreenState extends State<GymsScreen> {
               child: TextField(
                 controller: _searchController,
                 onChanged: (v) {
-                  setState(() => _searchQuery = v.trim());
+                  setState(() { _requestVersion++; _searchQuery = v.trim(); _searchLat=null;_searchLng=null; });
                   _searchDebounce?.cancel();
                   _searchDebounce = Timer(
                     const Duration(milliseconds: 300),
@@ -498,12 +485,11 @@ class _GymsScreenState extends State<GymsScreen> {
                   );
                 },
                 onSubmitted: (v) {
-                  if (v.trim().isNotEmpty)
-                    _openNearGymMap(addressQuery: v.trim());
+                  if (v.trim().length>=3) { _searchDebounce?.cancel(); _loadDirectory(refresh:true); }
                 },
                 style: TextStyle(fontSize: 13.sp, color: Colors.black87),
                 decoration: InputDecoration(
-                  hintText: 'City, zip, or gym name…',
+                  hintText: 'US address, city/state or ZIP…',
                   hintStyle: TextStyle(color: Colors.black38, fontSize: 13.sp),
                   prefixIcon: Icon(
                     Icons.search_rounded,

@@ -1,3 +1,4 @@
+import '../../services/gym_location_service.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
@@ -6,8 +7,6 @@ import 'package:flutter/material.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
-import '../../data/models/legacy_kmf_configuration.dart';
-import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import '../widgets/tenant_image.dart';
 
 class GymApplicationScreen extends StatefulWidget {
@@ -62,6 +61,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   };
   final primary = TextEditingController(text: '#FF6B35'),
       secondary = TextEditingController(text: '#1A1A1A');
+  final addressSearch = TextEditingController();
+  double? searchLat,searchLng;
   final form = GlobalKey<FormState>();
   final scroll = ScrollController();
   Timer? debounce;
@@ -127,7 +128,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   void dispose() {
     debounce?.cancel();
     generation++;
-    for (final controller in [...fields.values, primary, secondary]) {
+    for (final controller in [...fields.values, primary, secondary, addressSearch]) {
       controller.dispose();
     }
     scroll.dispose();
@@ -153,6 +154,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
               (code.length == 1 ? 2 : code.length).clamp(0, 5),
             );
     }
+    setState(() {});
+  }
+
+  void addressChanged() {
+    searchLat=null;searchLng=null;
     debounce?.cancel();
     generation++;
     setState(() {
@@ -160,7 +166,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       loading = true;
       searchError = null;
     });
-    debounce = Timer(const Duration(milliseconds: 300), loadGyms);
+    debounce = Timer(const Duration(milliseconds: 500), loadGyms);
   }
 
   Future<void> pickLogo() async {
@@ -202,49 +208,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       }
     });
     try {
-      final query = text('gymName');
-      var page = const EnterprisePage([], null);
-      Object? partnerFailure;
-      try {
-        page = isSingleMode
-            ? const EnterprisePage([legacyKmfConfiguration], null)
-            : await EnterpriseService.instance.directory(
-                query: query,
-                cursor: more ? cursor : null,
-              );
-      } catch (failure) {
-        partnerFailure = failure;
-      }
-      final partnerItems = page.items
-          .map(TenantConfiguration.fromJson)
-          .where(
-            (g) =>
-                !isSingleMode ||
-                g.name.toLowerCase().contains(query.toLowerCase()),
-          )
-          .toList();
-      var facilityItems = const <TenantConfiguration>[];
-      Object? facilityFailure;
-      if (!isSingleMode && !more && query.length >= 2) {
-        try {
-          facilityItems = await EnterpriseService.instance.searchFacilities(query);
-        } catch (failure) {
-          facilityFailure = failure;
-        }
-      }
-      if (partnerFailure != null && facilityFailure != null) {
-        throw const EnterpriseException('Both gym search sources are unavailable.');
-      }
-      final seen = <String>{};
-      final items = [...partnerItems, ...facilityItems]
-          .where((item) => seen.add(
-                '${item.name.toLowerCase()}|${item.locations.isEmpty ? '' : item.locations.first['address']}',
-              ))
-          .toList();
+      final items = await EnterpriseService.instance.searchFacilities(addressSearch.text,latitude:searchLat,longitude:searchLng);
       if (mounted && version == generation)
         setState(() {
           matches = more ? [...matches, ...items] : items;
-          cursor = page.nextCursor;
+          cursor = null;
         });
     } catch (_) {
       if (mounted && version == generation)
@@ -409,10 +377,20 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       const SizedBox(height: 30),
                     ],
                     if (step == 0) ...[
+                      TextField(controller:addressSearch,decoration:const InputDecoration(labelText:'Find gyms by US address or ZIP',hintText:'123 Main St, Austin, TX or 78701'),onChanged:(_)=>addressChanged()),
+                      TextButton.icon(icon:const Icon(Icons.my_location),label:const Text('Use my location'),onPressed:loading?null:() async {
+                        debounce?.cancel();setState(()=>loading=true);
+                        final position=await GymLocationService().getCurrentPosition();
+                        if(!mounted)return;
+                        if(position==null){setState((){loading=false;searchError='Location unavailable. Enter a US address or ZIP.';});return;}
+                        searchLat=position.latitude;searchLng=position.longitude;addressSearch.clear();await loadGyms();
+                      }),
+                      if(matches.isNotEmpty)const Text('Google Maps'),
+
                       field(
                         'gymName',
-                        'SEARCH EXISTING GYMS',
-                        'e.g. Equinox, Iron City Fitness...',
+                        'GYM NAME',
+                        'Your gym name',
                         onChanged: (_) => gymNameChanged(),
                       ),
                       if (loading) const LinearProgressIndicator(),
@@ -430,7 +408,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             subtitle: Text(
                               g.locations.isNotEmpty &&
                                       (g.locations.first['address'] as String? ?? '').isNotEmpty
-                                  ? "${g.locations.first['address']}\nRequest a claim • ownership verification required"
+                                  ? "${g.locations.first['address']}\n${(g.locations.first['attributions'] as List? ?? []).join(', ')}\nRequest a claim • ownership verification required"
                                   : 'Request a claim • ownership verification required',
                             ),
                             trailing: Icon(

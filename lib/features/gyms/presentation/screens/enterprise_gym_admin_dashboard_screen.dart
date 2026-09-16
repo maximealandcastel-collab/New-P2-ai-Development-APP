@@ -86,10 +86,14 @@ class _EnterpriseGymAdminDashboardScreenState
     await next;
   }
 
-  void _openModule(String resource) {
+  bool _openingModule=false;
+  Future<void> _openModule(String resource) async {
+    if(_openingModule)return;
+    _openingModule=true;
+    try {
     final dashboard = _latestDashboard;
     if (resource == 'analytics' && dashboard != null) {
-      Navigator.of(context).push(
+      await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => _EnterpriseAnalyticsOverviewScreen(
             gym: _gym,
@@ -99,14 +103,18 @@ class _EnterpriseGymAdminDashboardScreenState
       );
       return;
     }
-    final module = enterpriseModules.firstWhere(
-      (candidate) => candidate.resource == resource,
-    );
-    Navigator.of(context).push(
+    final candidates=enterpriseModules.where((candidate)=>candidate.resource==resource);
+    if(candidates.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('This section is not available yet. Refresh and try again.')));
+      return;
+    }
+    final module=candidates.first;
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => EnterpriseModuleScreen(module: module),
       ),
     );
+    } finally { _openingModule=false; }
   }
 
   @override
