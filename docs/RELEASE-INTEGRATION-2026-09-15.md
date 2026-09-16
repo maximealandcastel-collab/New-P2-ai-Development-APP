@@ -14,14 +14,15 @@ These changes follow local commit `1e71a9b` and have not been pushed or deployed
 - Gym applications stay pending until a verified owner account, recorded ownership review, current verified license payment, and global-admin approval exist. Approval creates a tenant and facility transactionally and adds only tenant-scoped authority. Refund/revoke disables access.
 - Facility endpoints authorize current membership. Inventory updates require scoped admin access. Workout creation and split/program context load current inventory server-side; the mobile flow can select an authorized facility.
 - Withdrawal creation serializes balance checks per trainer in a transaction. Amounts must be positive integer cents. Administrative state changes are conditional updates; recording payment requires approval and a payout reference. Financial-provider transfers are not performed by this code.
-- Account deletion replaces the personal user document, deletes configured personal-data collections, disables the trainer profile, removes OTPs, and prevents future authentication. Financial records remain. External media is recorded in `AccountDeletionCleanup` for storage cleanup; **a remote-storage cleanup worker is still required**. The UI no longer promises all remote data is immediately erased.
+- Account deletion replaces the personal user document, deletes configured personal-data collections, disables the trainer profile, removes OTPs, and prevents future authentication. Financial records remain. External media is recorded in `AccountDeletionCleanup` for storage cleanup; a durable Mux worker now removes server-recorded assets and cancels unfinished uploads after checking provider ownership. Non-Mux URLs and legacy untyped entries still need storage-specific cleanup. The UI no longer promises all remote data is immediately erased.
+- Mux cleanup jobs are created in the account-deletion transaction, leased atomically across workers, retried with backoff, and recovered after expired leases. Provider 404 responses count as already removed; ownership mismatches remain pending. The worker starts when Mux credentials exist. No arbitrary profile URL is fetched or deleted. The account-level external-cleanup record remains conservatively pending for operator review; individual Mux jobs record completion.
 - Release configuration rejects divergent client origins and development hosts; Codemagic pins Flutter 3.41.4 and emits a commit/origin/build manifest.
 
 ## Required deployment configuration
 
 API-server: `CLOVER_API_KEY`, `CLOVER_MERCHANT_ID`, `CLOVER_PUBLISHABLE_KEY`, `CLOVER_APP_ID`, `CLOVER_WEBHOOK_AUTH`, `CLOVER_ENV`, `APP_BACKEND_URL`, `APP_BACKEND_SHARED_SECRET`, `DATABASE_URL`.
 
-P2P backend: `SESSION_SECRET`, `APP_BACKEND_SHARED_SECRET`, and a replica-set Mongo connection (`MONGO_URI`/`MONGO_URL`). Existing native-store and Firebase configuration is still required.
+P2P backend: `SESSION_SECRET`, `APP_BACKEND_SHARED_SECRET`, and a replica-set Mongo connection (`MONGO_URI`/`MONGO_URL`). Existing native-store and Firebase configuration is still required. Mux cleanup requires `MUX_TOKEN_ID` and `MUX_TOKEN_SECRET` with deletion permission; without them jobs remain pending. Startup initializes MediaCleanup indexes before starting the worker.
 
 Use different databases, keys, and backend URLs for sandbox and production. Production rejects sandbox payment deliveries. Clover environment is determined by the configured provider endpoint; a contradictory `livemode:false` response is rejected. Clover charge creation timestamps are milliseconds, as documented by Clover.
 
@@ -45,7 +46,7 @@ Use P2P JWTs for these endpoints, not the SQL API-server Founder Console token. 
 - Full P2P backend TypeScript compilation passed against the downloaded complete source with local overlays.
 - Clover module and database adapter type-check passed; a complete API-server monorepo build is still required because workspace packages were not included in the source snapshot.
 - 27 Node policy/helper tests passed.
-- 3 real ephemeral Mongo replica-set integration tests passed: provisioning/refund/replay/tenant access, purchaser binding/idempotency/environment rejection, and personal-data deletion/session revocation.
+- 5 real ephemeral Mongo replica-set integration tests passed (latest run): provisioning/refund/replay/tenant access, purchaser binding/idempotency/environment rejection, personal-data deletion/session revocation, and Mux cleanup leasing/retry/ownership/idempotency plus transactionally queued assets/uploads. Mux transport is simulated; no real media was deleted.
 - 2 embedded PostgreSQL integration tests with simulated Clover/backend transport passed: duplicate payment/refund and backend-delivery recovery. These do not prove a real Clover charge or production concurrency behavior.
 - 90 existing Flutter tests passed, 4 skipped; 2 additional release-origin/entitlement tests passed separately.
 - Flutter analysis found no errors (548 warnings/info).
@@ -58,7 +59,7 @@ No real charges, production account deletions, real notifications, or deployment
 1. Real Clover setup and end-to-end test payments/refunds; webhook permission/subscription configuration; verified production migration and backups; concurrent withdrawal tests against production-equivalent databases; chargeback handling and affiliate settlement reconciliation.
 2. Complete Founder Console UI integration and broader tenant/staff/member onboarding/module coverage; verify real owner/member roles across both services. Expired tenants deny new facility access; production renewal/reapproval policy still needs end-to-end validation.
 3. Apple/Google renewal/refund server-notification lifecycle, account/device restoration tests, and a safe TestFlight sandbox arrangement. Current native verification edits alone do not complete this lifecycle.
-4. Storage deletion worker, published retention-policy alignment, external processors, backups, and database collection-coverage review. Retained financial/audit records may contain personal information; this is not proof of complete privacy compliance.
+4. Non-Mux storage deletion adapters, legacy cleanup queue review, published retention-policy alignment, external processors, backups, and database collection-coverage review. Retained financial/audit records may contain personal information; this is not proof of complete privacy compliance.
 5. Physical-device FCM/APNs configuration, token/logout races and notification destinations; trainer/customer messaging and plan delivery verification.
 6. Production media durability, range requests, Mux inventory and migration verification.
 7. Permanent deployment routing, secrets availability, restarts/autoscaling, and the exact signed TestFlight build/reviewer journeys.
@@ -70,3 +71,5 @@ No real charges, production account deletions, real notifications, or deployment
 - Charge verification endpoint: https://docs.clover.com/dev/reference/getchargescharge
 - Millisecond charge timestamps: https://docs.clover.com/dev/docs/get-charges
 - Hosted Checkout signatures (different webhook protocol): https://docs.clover.com/dev/docs/ecomm-hosted-checkout-webhook
+
+- Mux direct uploads/cancellation: https://www.mux.com/docs/api-reference/video/direct-uploads
