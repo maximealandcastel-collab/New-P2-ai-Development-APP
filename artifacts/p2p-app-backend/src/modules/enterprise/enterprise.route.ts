@@ -1,3 +1,4 @@
+import {prepareGymApplePurchase,verifyGymApplePurchase} from './gym-apple.service';
 import {TenantMembership,TenantBranding,TenantSelection,TenantAudit} from './tenant.model';
 import {authorizeTenant,bootstrap,validateBranding} from './tenant.service';
 import { Router, Request, Response, NextFunction } from 'express';
@@ -125,6 +126,8 @@ EnterpriseRoutes.post('/internal/payment',internal,route(async(req,res) => {
 }));
 
 const signedIn=guardRole(['user','trainer','admin']);
+EnterpriseRoutes.post('/gym-applications/:id/apple/prepare',signedIn,route(async(req,res)=>send(res,await prepareGymApplePurchase((req.user as any).id,String(req.params.id)))));
+EnterpriseRoutes.post('/gym-applications/:id/apple/verify',signedIn,route(async(req,res)=>send(res,await verifyGymApplePurchase((req.user as any).id,String(req.params.id),req.body))));
 EnterpriseRoutes.get('/me/bootstrap',signedIn,route(async(req,res)=>send(res,await bootstrap((req.user as any).id))));
 EnterpriseRoutes.get('/me/context',signedIn,route(async(req,res)=>send(res,await bootstrap((req.user as any).id))));
 EnterpriseRoutes.put('/me/context',signedIn,route(async(req,res)=>{

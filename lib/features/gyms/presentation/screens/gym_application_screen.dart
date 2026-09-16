@@ -5,7 +5,6 @@ import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../widgets/tenant_image.dart';
 
 class GymApplicationScreen extends StatefulWidget {
@@ -261,18 +260,6 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         if (tenantId != null) 'tenantId': tenantId,
       });
       receipt = id;
-      final checkoutUri = Uri.parse(
-        tier == 'pro'
-            ? 'https://p2pfittechai.com/enroll/enterprise-elite'
-            : 'https://p2pfittechai.com/enroll/enterprise-core',
-      ).replace(queryParameters: {'applicationId': id});
-      final opened = await launchUrl(
-        checkoutUri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!opened) {
-        throw StateError('Could not open secure Clover checkout.');
-      }
       if (mounted) {
         receipt = id;
         go(4);
@@ -282,7 +269,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         setState(
           () => error =
               receipt != null
-                  ? 'Your application was submitted. Checkout could not open. Try again to reopen checkout.'
+                  ? 'Your application was submitted. Open My Applications to check its status.'
                   : 'We couldn’t submit your partnership. Your details are still here. Please try again.',
         );
     } finally {
@@ -630,7 +617,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         'starter',
                         'Enterprise Starter',
                         'Launch your gym on P2P',
-                        r'$49.99/month',
+                        'App Store pricing',
                         [
                           'Your logo and gym information in P2P',
                           'Full P2P AI engine included',
@@ -643,7 +630,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         'pro',
                         'Enterprise Pro',
                         'Operate and grow your community',
-                        r'$305.99/month',
+                        'App Store pricing',
                         [
                           'Custom branded gym experience',
                           'Trainer and member management',
@@ -671,7 +658,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         ),
                       ),
                       const Text(
-                        'Your application stays pending until payment and ownership are verified and the P2P team approves it.',
+                        'Submit your application first. After ownership verification, subscribe with Apple from My Applications. No payment is taken on submission.',
                         style: TextStyle(color: muted, fontSize: 12),
                       ),
                     ],
@@ -801,7 +788,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               step == 4
                                   ? 'Return to P2P Fit ➜'
                                   : step == 3
-                                  ? 'Continue to Clover Checkout ➜'
+                                  ? 'Submit gym application ➜'
                                   : 'Continue ➜',
                               style: const TextStyle(
                                 fontSize: 17,

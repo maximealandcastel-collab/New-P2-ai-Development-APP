@@ -1,4 +1,4 @@
-import 'package:url_launcher/url_launcher.dart';
+import 'gym_apple_subscription_screen.dart';
 import 'package:flutter/material.dart';
 import '../../data/services/enterprise_service.dart';
 
@@ -238,12 +238,11 @@ class _GymApplicationStatusState extends State<GymApplicationStatus> {
           for (final c in items)
             ListTile(
               title: Text('${c['gymName']}'),
-              trailing: c['status'] == 'rejected' || (c['paymentStatus']=='paid' && (DateTime.tryParse('${c['paymentExpiresAt']}')?.isAfter(DateTime.now()) ?? false)) ? null : TextButton(
-                onPressed: () async {
-                  final uri = Uri.https('p2pfittechai.com', '/enroll/${c['tier']=='pro'?'enterprise-elite':'enterprise-core'}', {'applicationId':'${c['_id']}', if(c['paymentExpiresAt']!=null) 'renewal':'${c['paymentExpiresAt']}'});
-                  final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  if(!opened && context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Checkout could not open. Please retry.')));
-                }, child: const Text('License / renew'),
+              trailing: c['status'] == 'rejected' || c['status'] == 'revoked' ? null : TextButton(
+                onPressed: c['ownershipVerifiedAt'] == null ? null : () async {
+                  await Navigator.of(context).push(MaterialPageRoute(builder:(_)=>GymAppleSubscriptionScreen(applicationId:'${c['_id']}')));
+                  if(mounted)setState(()=>data=EnterpriseService.instance.request('/enterprise/me/applications'));
+                }, child: Text(c['ownershipVerifiedAt'] == null ? 'Ownership review pending' : 'Apple subscription'),
               ),
               subtitle: Text(
                 '${c['status']} · ownership ${c['ownershipVerifiedAt'] == null ? 'review required' : 'verified'} · payment ${c['paymentStatus'] ?? 'required'} · provisioning ${c['provisioningState'] ?? 'pending'}${c['reason'] == null ? '' : '\n${c['reason']}'}${c['provisioningFailure'] == null ? '' : '\n${c['provisioningFailure']}'}',

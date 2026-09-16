@@ -1,3 +1,4 @@
+import {assertGymAppleEntitlement} from './gym-apple.service';
 import {UserModel} from '../user/user.model';
 import {TenantAccessModel} from '../tenantAccess/tenantAccess.model';
 import {Facility,GymClaim} from './enterprise.model';
@@ -30,6 +31,7 @@ export async function authorizeTenant(userId:string,tenantId:string,manage=false
   const membership:any=await TenantMembership.findOne({userId,tenantId,status:'active'}).lean();
   const tenant:any=await TenantAccessModel.findOne({tenantId}).lean();
   if(!membership||!tenant?.isLive||!tenant.accessExpiresAt||tenant.accessExpiresAt<=new Date()||(manage&&!['owner','admin'].includes(membership.role)))throw new Error('Tenant access denied');
+  await assertGymAppleEntitlement(tenantId);
   return {...membership,user};
 }
 export function entitlement(tenant:any) {
@@ -43,6 +45,7 @@ export async function bootstrap(userId:string) {
   const memberships:any[]=await TenantMembership.find({userId}).lean();
   const tenants:any[]=await TenantAccessModel.find({tenantId:{$in:memberships.map(m=>m.tenantId)}}).lean();
   const choices=memberships.map(m=>{const t=tenants.find(t=>t.tenantId===m.tenantId);return {tenantId:m.tenantId,tenantName:t?.displayName||'Gym',role:m.role,status:m.status==='active'?entitlement(t):'revoked'};});
+  await Promise.all(choices.filter(c=>c.status==='active').map(async c=>{try{await assertGymAppleEntitlement(c.tenantId);}catch{c.status='revoked';}}));
   const selection:any=await TenantSelection.findOne({userId}).lean();
   const current=selection?choices.find(c=>c.tenantId===selection.tenantId):(choices.find(c=>c.status==='active')||choices[0]);
   const state=current?.status||'no_tenant';

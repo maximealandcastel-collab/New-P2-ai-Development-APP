@@ -230,6 +230,7 @@ class PaymentDetailsController extends GetxController {
   // ─── IAP: Purchase Stream Handler ─────────────────────────────────────────
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
+      if ({'p2p_gym_starter_monthly', 'p2p_gym_pro_monthly'}.contains(purchase.productID)) continue;
       switch (purchase.status) {
         case PurchaseStatus.pending:
           if (kDebugMode) debugPrint('Purchase pending: ${purchase.productID}');

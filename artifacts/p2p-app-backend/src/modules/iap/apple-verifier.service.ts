@@ -6,6 +6,7 @@ const APPLE_PRODUCTION_API = "https://api.storekit.itunes.apple.com";
 const APPLE_SANDBOX_API = "https://api.storekit-sandbox.itunes.apple.com";
 
 export interface VerifiedAppleTransaction {
+  appAccountToken?: string;
   transactionId: string;
   originalTransactionId: string;
   productId: string;
@@ -32,6 +33,12 @@ export const verifyAppleTransaction = async (
     throw new Error("Apple verification data is not a JWS");
   }
 
+  return verifyAppleTransactionById(purchaseId, expectedProductId);
+};
+
+export const verifyAppleTransactionById = async (
+  purchaseId: string, expectedProductId: string,
+): Promise<VerifiedAppleTransaction> => {
   const issuerId = process.env.APPLE_IAP_ISSUER_ID;
   const keyId = process.env.APPLE_IAP_KEY_ID;
   const privateKey = process.env.APPLE_IAP_PRIVATE_KEY?.replace(/\\n/g, "\n");
@@ -108,6 +115,7 @@ export const verifyAppleTransaction = async (
   }
 
   return {
+    appAccountToken: typeof transaction.appAccountToken === "string" ? transaction.appAccountToken : undefined,
     transactionId,
     originalTransactionId,
     productId,
