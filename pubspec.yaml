@@ -109,6 +109,7 @@ flutter:
     - assets/images/
     - assets/images/gym_logos/
     - assets/images/gym_photos/
+    - assets/images/training_styles/
     - assets/images/rate_my_peel_banner.png
     - assets/images/clinical/
     - assets/icons/
