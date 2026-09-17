@@ -65,11 +65,13 @@ class WorkoutController extends GetxController {
   final RxList<String> selectedEnvironments = <String>[].obs;
   final RxList<String> selectedEquipment = <String>[].obs;
   final RxList<String> selectedIntensities = <String>[].obs;
+  final RxList<String> selectedTrainingStyles = <String>[].obs;
+  final RxBool trainingPickSkipped = false.obs;
   final RxInt selectedDuration = 10.obs;
 
   final DateTime workoutDate = DateTime.now().toUtc();
 
-  static const int pageCount = 5;
+  static const int pageCount = 6;
 
   WorkoutAiPlanModel? get plan => workoutDetails.value?.aiPlan;
 
@@ -247,12 +249,14 @@ class WorkoutController extends GetxController {
       case 0:
         return selectedGoals.isNotEmpty;
       case 1:
-        return selectedFocusAreas.isNotEmpty;
+        return selectedTrainingStyles.isNotEmpty || trainingPickSkipped.value;
       case 2:
-        return selectedEnvironments.isNotEmpty;
+        return selectedFocusAreas.isNotEmpty;
       case 3:
-        return selectedEquipment.isNotEmpty;
+        return selectedEnvironments.isNotEmpty;
       case 4:
+        return selectedEquipment.isNotEmpty;
+      case 5:
         return selectedIntensities.isNotEmpty;
       default:
         return true;
@@ -264,12 +268,14 @@ class WorkoutController extends GetxController {
       case 0:
         ToastMessageHelper.show('Please select at least one goal');
       case 1:
-        ToastMessageHelper.show('Please select at least one focus area');
+        ToastMessageHelper.show('Please select at least one training style');
       case 2:
-        ToastMessageHelper.show('Please select at least one workout environment');
+        ToastMessageHelper.show('Please select at least one focus area');
       case 3:
-        ToastMessageHelper.show('Please select at least one equipment option');
+        ToastMessageHelper.show('Please select at least one workout environment');
       case 4:
+        ToastMessageHelper.show('Please select at least one equipment option');
+      case 5:
         ToastMessageHelper.show('Please select workout intensity');
     }
   }
@@ -283,6 +289,9 @@ class WorkoutController extends GetxController {
       'goal': selectedGoals.isEmpty
           ? ['general_fitness']
           : List<String>.from(selectedGoals),
+      'workoutPreferences': {
+        'trainingStyles': List<String>.from(selectedTrainingStyles),
+      },
       'focusArea': selectedFocusAreas.isEmpty
           ? ['full_body']
           : List<String>.from(selectedFocusAreas),

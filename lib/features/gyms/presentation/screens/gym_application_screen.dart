@@ -625,26 +625,76 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       ),
                     ],
                     if (step == 3) ...[
+                      const Center(
+                        child: Text(
+                          'P2P FitTech AI',
+                          style: TextStyle(
+                            color: orange,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: const TextSpan(
+                            style: TextStyle(
+                              color: ink,
+                              fontSize: 36,
+                              height: 1.1,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1,
+                            ),
+                            children: [
+                              TextSpan(text: 'Partner. Grow.\n'),
+                              TextSpan(
+                                text: 'Get More Members.',
+                                style: TextStyle(color: orange),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Center(
+                        child: Text(
+                          'Everything you need to manage, promote, and grow your gym — powered by AI.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: 15,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
                       plan(
                         'starter',
                         'Free Partner',
-                        'We do the work',
-                        r'1 month free, then $49.99/month',
+                        'GET STARTED',
+                        'Get your gym on the map.',
+                        '1 month free,',
+                        'then \$49.99/month',
                         [
-                          'Your logo on our app — instant',
+                          'Your logo on our app — instant exposure',
                           'We add your gym information',
                           'Full P2P AI engine included',
                           'Members can find & join your gym',
                           'Upgrade to Elite anytime',
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
                       plan(
                         'pro',
                         'Elite Partner',
-                        'You tell your story',
-                        r'$306 setup, then $120/month',
+                        'MOST POPULAR',
+                        'Take your gym to the next level.',
+                        '\$306 setup',
+                        'then \$120/month',
                         [
+                          'Everything in Free Partner',
                           'Describe your facility in detail',
                           'Showcase your trainers & culture',
                           'Custom branded gym theme',
@@ -1184,97 +1234,117 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     String id,
     String title,
     String badge,
-    String price,
+    String subtitle,
+    String price1,
+    String price2,
     List<String> features,
   ) {
-    final color = id == 'pro' ? orange : muted;
+    final isPro = id == 'pro';
+    final bgColor = isPro ? const Color(0xFF111827) : Colors.white;
+    final textColor = isPro ? Colors.white : ink;
+    final mutedColor = isPro ? const Color(0xFF9CA3AF) : muted;
+    final borderColor = isPro ? Colors.transparent : const Color(0xFFE5E7EB);
+    
     return Semantics(
       selected: tier == id,
       button: true,
       child: Material(
-        color: tier == id ? color.withValues(alpha: .07) : Colors.white,
+        color: bgColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(24),
           side: BorderSide(
-            color: tier == id ? color : const Color(0xFFE5E7EB),
-            width: 2,
+            color: tier == id ? orange : borderColor,
+            width: tier == id ? 2 : 1,
           ),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(24),
           onTap: sending || receipt != null ? null : () => setState(() => tier = id),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: ink,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
+                if (badge.isNotEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isPro ? orange : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      badge.toUpperCase(),
+                      style: TextStyle(
+                        color: isPro ? Colors.white : ink,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    Icon(
-                      tier == id
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
-                      color: tier == id ? color : const Color(0xFFD2D6DF),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
+                    if (tier == id)
+                      const Icon(Icons.check_circle, color: orange)
+                    else
+                      Icon(Icons.radio_button_unchecked, color: isPro ? Colors.white30 : const Color(0xFFD2D6DF)),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    badge,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
                 Text(
-                  price,
+                  subtitle,
+                  style: TextStyle(color: mutedColor, fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  price1,
                   style: TextStyle(
-                    color: color,
-                    fontSize: 23,
-                    fontWeight: FontWeight.w800,
+                    color: isPro ? orange : textColor,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 16),
+                Text(
+                  price2,
+                  style: TextStyle(
+                    color: mutedColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 24),
                 ...features.map(
                   (feature) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 12),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.check_circle_outline,
-                          size: 16,
-                          color: color,
+                          size: 20,
+                          color: orange,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             feature,
-                            style: const TextStyle(
-                              color: muted,
-                              fontSize: 13,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 14,
                               height: 1.4,
                             ),
                           ),

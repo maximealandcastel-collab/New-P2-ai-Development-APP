@@ -8,12 +8,14 @@ import 'package:pler_to_pler_app/features/user/workout/presentation/screens/chil
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/children/workout_focus_area_page.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/children/workout_goal_page.dart';
 import 'package:pler_to_pler_app/features/user/workout/presentation/screens/children/workout_intensity_duration_page.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/children/workout_training_pick_page.dart';
 
 class WorkoutScreen extends StatelessWidget {
   const WorkoutScreen({super.key});
 
   static const _pages = [
     WorkoutGoalPage(),
+    WorkoutTrainingPickPage(),
     WorkoutFocusAreaPage(),
     WorkoutEnvironmentPage(),
     WorkoutEquipmentPage(),
@@ -31,6 +33,18 @@ class WorkoutScreen extends StatelessWidget {
         isSubmitting: controller.submitLoadingState.isLoading,
         uploadProgress: 0,
         submitLabel: 'Create workout',
+        canSkipStep: (index) => index == 1,
+        onSkipPressed: (index, navigateToPage) {
+          if (index == 1) {
+            controller.selectedTrainingStyles.clear();
+            controller.trainingPickSkipped.value = true;
+            if (index < _pages.length - 1) {
+              navigateToPage(index + 1);
+            } else {
+              controller.submit();
+            }
+          }
+        },
         onNextPressed: (currentIndex, navigateToPage, validateAfterNav) async {
           if (!controller.validateStep(currentIndex)) {
             controller.showStepValidationMessage(currentIndex);

@@ -19,6 +19,9 @@ class CreateContentFlowScreen extends StatefulWidget {
     required this.isSubmitting,
     required this.uploadProgress,
     required this.submitLabel,
+    this.onBackToStart,
+    this.canSkipStep,
+    this.onSkipPressed,
   });
 
   final List<Widget> pages;
@@ -27,6 +30,9 @@ class CreateContentFlowScreen extends StatefulWidget {
   final bool isSubmitting;
   final double uploadProgress;
   final String submitLabel;
+  final VoidCallback? onBackToStart;
+  final bool Function(int index)? canSkipStep;
+  final void Function(int index, void Function(int) navigateToPage)? onSkipPressed;
 
   @override
   State<CreateContentFlowScreen> createState() => _CreateContentFlowScreenState();
@@ -76,6 +82,8 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                 onPressed: () {
                   if (_currentIndex > 0) {
                     _navigateToPage(_currentIndex - 1);
+                  } else if (widget.onBackToStart != null) {
+                    widget.onBackToStart!();
                   } else if (canPopRoute) {
                     Navigator.pop(context);
                   }
@@ -143,6 +151,22 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                     : 'Next',
                 width: double.infinity,
               ),
+              if (widget.canSkipStep?.call(_currentIndex) == true) ...[
+                SizedBox(height: 16.h),
+                TextButton(
+                  onPressed: widget.isSubmitting
+                      ? null
+                      : () => widget.onSkipPressed?.call(_currentIndex, _navigateToPage),
+                  child: Text(
+                    'Skip for now',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
