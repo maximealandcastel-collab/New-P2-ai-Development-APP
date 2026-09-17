@@ -31,6 +31,8 @@ class ApiUrls {
   // ============= workout goals / AI plan ===========>>>
   static const String workoutCreate  = '/workout';
   static String workoutGenerate(String workoutId) => '/workout/$workoutId/generate';
+  static String workoutDelete(String workoutId) => '/workout/$workoutId';
+  static const String workoutList = '/workout?limit=100';
   static const String workoutToday   = '/workout/today';
 
   // ============= device / watch sync ===========>>>
