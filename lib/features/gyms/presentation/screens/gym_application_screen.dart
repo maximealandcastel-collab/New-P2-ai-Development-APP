@@ -670,40 +670,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      plan(
-                        'starter',
-                        'Free Partner',
-                        'GET STARTED',
-                        'Get your gym on the map.',
-                        '1 month free,',
-                        'then \$49.99/month',
-                        [
-                          'Your logo on our app — instant exposure',
-                          'We add your gym information',
-                          'Full P2P AI engine included',
-                          'Members can find & join your gym',
-                          'Upgrade to Elite anytime',
-                        ],
-                      ),
+                      _buildFreePartnerCard(),
                       const SizedBox(height: 16),
-                      plan(
-                        'pro',
-                        'Elite Partner',
-                        'MOST POPULAR',
-                        'Take your gym to the next level.',
-                        '\$306 setup',
-                        'then \$120/month',
-                        [
-                          'Everything in Free Partner',
-                          'Describe your facility in detail',
-                          'Showcase your trainers & culture',
-                          'Custom branded gym theme',
-                          'Member management dashboard',
-                          'AI trainer matching for your gym',
-                          'Community clubs & events',
-                          'Analytics & revenue insights',
-                        ],
-                      ),
+                      _buildElitePartnerCard(),
+                      const SizedBox(height: 24),
+                      _buildTrustSignals(),
                       const SizedBox(height: 26),
                       caption('OWNER / CONTACT INFO'),
                       const SizedBox(height: 16),
@@ -1230,133 +1201,499 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       ],
     ),
   );
-  Widget plan(
-    String id,
-    String title,
-    String badge,
-    String subtitle,
-    String price1,
-    String price2,
-    List<String> features,
-  ) {
-    final isPro = id == 'pro';
-    final bgColor = isPro ? const Color(0xFF111827) : Colors.white;
-    final textColor = isPro ? Colors.white : ink;
-    final mutedColor = isPro ? const Color(0xFF9CA3AF) : muted;
-    final borderColor = isPro ? Colors.transparent : const Color(0xFFE5E7EB);
-    
+  Widget _buildFreePartnerCard() {
+    final isSelected = tier == 'starter';
     return Semantics(
-      selected: tier == id,
+      selected: isSelected,
       button: true,
-      child: Material(
-        color: bgColor,
-        shape: RoundedRectangleBorder(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: tier == id ? orange : borderColor,
-            width: tier == id ? 2 : 1,
+          border: Border.all(
+            color: isSelected ? orange : const Color(0xFFE5E7EB),
+            width: isSelected ? 2 : 1,
           ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: orange.withValues(alpha: 0.2),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              )
+            else
+              const BoxShadow(
+                color: Color(0x0A000000),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+          ],
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: sending || receipt != null ? null : () => setState(() => tier = id),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: sending || receipt != null ? null : () => setState(() => tier = 'starter'),
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
               children: [
-                if (badge.isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isPro ? orange : const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      badge.toUpperCase(),
-                      style: TextStyle(
-                        color: isPro ? Colors.white : ink,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 200,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [Colors.transparent, Colors.white],
+                        stops: [0.0, 1.0],
+                      ).createShader(rect);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: Opacity(
+                      opacity: 0.15,
+                      child: Image.asset(
+                        'assets/images/gym_photos/equinox.jpg',
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    if (tier == id)
-                      const Icon(Icons.check_circle, color: orange)
-                    else
-                      Icon(Icons.radio_button_unchecked, color: isPro ? Colors.white30 : const Color(0xFFD2D6DF)),
-                  ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: mutedColor, fontSize: 14),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  price1,
-                  style: TextStyle(
-                    color: isPro ? orange : textColor,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                Text(
-                  price2,
-                  style: TextStyle(
-                    color: mutedColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ...features.map(
-                  (feature) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.check_circle_outline,
-                          size: 20,
-                          color: orange,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            feature,
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: 14,
-                              height: 1.4,
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'GET STARTED',
+                              style: TextStyle(
+                                color: ink,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.fitness_center, color: orange, size: 20),
+                                  SizedBox(width: 6),
+                                  Text('P2P FitTech AI', style: TextStyle(color: ink, fontWeight: FontWeight.w800, fontSize: 12)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              const Text('MORE PEOPLE.\nSTRONGER GYMS.', textAlign: TextAlign.right, style: TextStyle(color: muted, fontSize: 8, fontWeight: FontWeight.w800)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Free Partner',
+                        style: TextStyle(
+                          color: ink,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Get your gym on the map.',
+                        style: TextStyle(color: muted, fontSize: 16),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        '1 month free,',
+                        style: TextStyle(
+                          color: ink,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Text(
+                        'then \$49.99/month',
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ...[
+                        'Your logo on our app — instant exposure',
+                        'We add your gym information',
+                        'Full P2P AI engine included',
+                        'Members can find & join your gym',
+                        'Upgrade to Elite anytime',
+                      ].map((feature) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 2),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: orange,
+                              ),
+                              padding: const EdgeInsets.all(2),
+                              child: const Icon(Icons.check, color: Colors.white, size: 12),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                feature,
+                                style: const TextStyle(
+                                  color: ink,
+                                  fontSize: 14,
+                                  height: 1.3,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: isSelected ? orange : ink, width: 1.5),
+                              color: isSelected ? orange : Colors.transparent,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  isSelected ? 'Selected' : 'Start Free',
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : ink,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                if (!isSelected) ...[
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward, color: ink, size: 18),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Text(
+                              'No setup fees.\nCancel anytime.',
+                              style: TextStyle(color: muted, fontSize: 12, height: 1.3),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildElitePartnerCard() {
+    final isSelected = tier == 'pro';
+    return Semantics(
+      selected: isSelected,
+      button: true,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: const Color(0xFF111827),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? orange : Colors.transparent,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: orange.withValues(alpha: 0.3),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              )
+            else
+              const BoxShadow(
+                color: Color(0x2A000000),
+                blurRadius: 16,
+                offset: Offset(0, 8),
+              ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: sending || receipt != null ? null : () => setState(() => tier = 'pro'),
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 250,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [Colors.transparent, Colors.white],
+                        stops: [0.0, 1.0],
+                      ).createShader(rect);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: Opacity(
+                      opacity: 0.2,
+                      child: Image.asset(
+                        'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: orange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'MOST POPULAR',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.fitness_center, color: orange, size: 20),
+                                  SizedBox(width: 6),
+                                  Text('P2P FitTech AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              const Text('FITNESS\nPEOPLE\nCOMMUNITY\nGROWTH', textAlign: TextAlign.right, style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.w800, height: 1.1)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Elite Partner',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Take your gym to the next level.',
+                        style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 16),
+                      ),
+                      const SizedBox(height: 24),
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '\$306 ',
+                              style: TextStyle(color: orange, fontSize: 36, fontWeight: FontWeight.w900),
+                            ),
+                            TextSpan(
+                              text: 'setup',
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'then \$120/month',
+                        style: TextStyle(
+                          color: Color(0xFF9CA3AF),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 24),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1F2937).withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFF374151)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.bar_chart, color: orange, size: 28),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'More Members\nMore Revenue\nA Stronger Community',
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, height: 1.4),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(height: 2, width: 32, color: orange),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'BUILT FOR GYMS\nPOWERED BY AI',
+                              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ...[
+                        'Everything in Free Partner',
+                        'Describe your facility in detail',
+                        'Showcase your trainers & culture',
+                        'Custom branded gym theme',
+                        'Member management dashboard',
+                        'AI trainer matching for your gym',
+                        'Community clubs & events',
+                        'Analytics & revenue insights',
+                      ].map((feature) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 2),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: orange,
+                              ),
+                              padding: const EdgeInsets.all(2),
+                              child: const Icon(Icons.check, color: Colors.white, size: 12),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                feature,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  height: 1.3,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                      const SizedBox(height: 24),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        decoration: BoxDecoration(
+                          color: orange,
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              isSelected ? 'Selected' : 'Go Elite',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            if (!isSelected) ...[
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrustSignals() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _trustItem(Icons.security, 'Trusted by\nGyms Nationwide'),
+        const SizedBox(width: 8),
+        _trustItem(Icons.group, 'Built for Gym Owners\nand Trainers'),
+        const SizedBox(width: 8),
+        _trustItem(Icons.bolt, 'Grow Faster\nwith AI'),
+      ],
+    );
+  }
+
+  Widget _trustItem(IconData icon, String text) {
+    return Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: ink, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(color: ink, fontSize: 11, fontWeight: FontWeight.w700, height: 1.2),
+            ),
+          ),
+        ],
       ),
     );
   }
