@@ -19,8 +19,8 @@ class WorkoutFinderFlow extends StatefulWidget {
 }
 
 class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
-  int _step = 0; // 0-based (0..5)
-  final int _totalSteps = 6;
+  int _step = 0; // 0-based (0..6)
+  final int _totalSteps = 7;
 
   // ── Step 1: Goals
   final List<String> _goals = [
@@ -51,6 +51,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   // ── Step 5: Intensity & Duration
   String _intensity = 'Medium';
   double _duration = 10;
+  final Set<String> _trainingStyles = {};
 
   String _slug(String v) => v
       .toLowerCase()
@@ -66,7 +67,10 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
     if (_step > 0) setState(() => _step--);
   }
 
-  void _skip() => _next();
+  void _skip() {
+    if (_step == 0) _trainingStyles.clear();
+    _next();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +90,17 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
   Widget _buildStep() {
     switch (_step) {
       case 0:
+        return _TrainingStylesStep(
+          selectedStyles: _trainingStyles,
+          onToggle: (value) => setState(() {
+            _trainingStyles.contains(value)
+                ? _trainingStyles.remove(value)
+                : _trainingStyles.add(value);
+          }),
+          onNext: _next,
+          onSkip: _skip,
+        );
+      case 1:
         return _SelectionStep(
           title: 'Choose Your Goals',
           subtitle: 'What you want to achieve from the workout',
@@ -95,7 +110,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           _selectedGoals.contains(v) ? _selectedGoals.remove(v) : _selectedGoals.add(v)),
           onNext: _next,
         );
-      case 1:
+      case 2:
         return _SelectionStep(
           title: 'Which areas do you want to focus on?',
           subtitle: 'Which area of your body you want to improve from the exercise.',
@@ -105,7 +120,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           _selectedAreas.contains(v) ? _selectedAreas.remove(v) : _selectedAreas.add(v)),
           onNext: _next,
         );
-      case 2:
+      case 3:
         return _SelectionStep(
           title: 'Where are you working out today?',
           subtitle: 'What you want to achieve from the workout',
@@ -115,7 +130,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           _selectedLocations.contains(v) ? _selectedLocations.remove(v) : _selectedLocations.add(v)),
           onNext: _next,
         );
-      case 3:
+      case 4:
         return _SelectionStep(
           title: 'What equipment do you have available?',
           subtitle: "What workout you can do with available equipment's",
@@ -125,7 +140,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           _selectedEquipment.contains(v) ? _selectedEquipment.remove(v) : _selectedEquipment.add(v)),
           onNext: _next,
         );
-      case 4:
+      case 5:
         return _IntensityDurationStep(
           intensity: _intensity,
           duration: _duration,
@@ -133,7 +148,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onDurationChanged: (v) => setState(() => _duration = v),
           onNext: _next,
         );
-      case 5:
+      case 6:
         return _LoadingStep(
           payload: {
             "goal": _selectedGoals.isEmpty
@@ -151,6 +166,9 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
             "workout_intensity": [_intensity.toLowerCase()],
             "duration": _duration.toInt(),
             "date": DateTime.now().toIso8601String().split('T').first,
+            "workoutPreferences": {
+              "trainingStyles": _trainingStyles.toList(),
+            },
           },
         );
       default:
@@ -228,6 +246,259 @@ class _TopBar extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Figma Step 1: Training-style filter ──────────────────────────────────────
+class _TrainingStylesStep extends StatefulWidget {
+  final Set<String> selectedStyles;
+  final ValueChanged<String> onToggle;
+  final VoidCallback onNext;
+  final VoidCallback onSkip;
+
+  const _TrainingStylesStep({
+    required this.selectedStyles,
+    required this.onToggle,
+    required this.onNext,
+    required this.onSkip,
+  });
+
+  @override
+  State<_TrainingStylesStep> createState() => _TrainingStylesStepState();
+}
+
+class _TrainingStylesStepState extends State<_TrainingStylesStep> {
+  String _query = '';
+  String _category = 'All';
+
+  static const _categories = ['All', 'Combat', 'Strength', 'Cardio', 'Flexibility'];
+  static const List<Map<String, dynamic>> _styles = [
+    {'id':'boxing','title':'Boxing / Combat','subtitle':'Boxing, MMA, Kickboxing','icon':Icons.sports_mma,'category':'Combat'},
+    {'id':'calisthenics','title':'Calisthenics','subtitle':'Bodyweight, Street Workout','icon':Icons.accessibility_new,'category':'Strength'},
+    {'id':'weight_lifting','title':'Weight Lifting','subtitle':'Strength, Hypertrophy','icon':Icons.fitness_center,'category':'Strength'},
+    {'id':'wrestling','title':'Wrestling','subtitle':'Technique, Conditioning','icon':Icons.sports_kabaddi,'category':'Combat'},
+    {'id':'hiit','title':'HIIT','subtitle':'High Intensity Intervals','icon':Icons.flash_on,'category':'Cardio'},
+    {'id':'yoga','title':'Yoga','subtitle':'Mind-Body, Recovery','icon':Icons.self_improvement,'category':'Flexibility'},
+    {'id':'pilates','title':'Pilates','subtitle':'Core Strength, Stability','icon':Icons.sports_gymnastics,'category':'Flexibility'},
+    {'id':'mobility','title':'Mobility','subtitle':'Movement, Flexibility','icon':Icons.accessibility,'category':'Flexibility'},
+    {'id':'functional_training','title':'Functional Training','subtitle':'Real-World Movement','icon':Icons.widgets,'category':'Strength'},
+    {'id':'cardio','title':'Cardio','subtitle':'Endurance, Conditioning','icon':Icons.monitor_heart,'category':'Cardio'},
+    {'id':'sports_performance','title':'Sports Performance','subtitle':'Speed, Agility, Power','icon':Icons.emoji_events,'category':'Cardio'},
+    {'id':'rehabilitation','title':'Rehabilitation','subtitle':'Pain Relief, Recovery','icon':Icons.medical_services,'category':'Flexibility'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = _styles.where((style) {
+      final text = '${style['title']} ${style['subtitle']}'.toLowerCase();
+      return text.contains(_query.toLowerCase()) &&
+          (_category == 'All' || style['category'] == _category);
+    }).toList();
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            children: [
+              SizedBox(height: 8.h),
+              Text(
+                'What type of training\ndo you want to do?',
+                style: TextStyle(
+                  fontSize: 26.sp,
+                  fontWeight: AppFontWeight.section,
+                  height: 1.12,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 10.h),
+              Text(
+                'Choose one or more styles. We’ll customize your workouts, trainers, and content.',
+                style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600, height: 1.4),
+              ),
+              SizedBox(height: 18.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 44.h,
+                      padding: EdgeInsets.symmetric(horizontal: 14.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22.r),
+                        border: Border.all(color: Colors.black12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, size: 18.sp, color: Colors.black38),
+                          SizedBox(width: 7.w),
+                          Expanded(
+                            child: TextField(
+                              onChanged: (value) => setState(() => _query = value),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Search training styles...',
+                                hintStyle: TextStyle(fontSize: 12.sp, color: Colors.black38),
+                                isDense: true,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    height: 44.h,
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22.r),
+                      border: Border.all(color: Colors.black12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _category,
+                        style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                        items: _categories.map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
+                        onChanged: (value) {
+                          if (value != null) setState(() => _category = value);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 18.h),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: visible.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 10.h,
+                  crossAxisSpacing: 10.w,
+                  childAspectRatio: .76,
+                ),
+                itemBuilder: (_, index) {
+                  final style = visible[index];
+                  final id = style['id'] as String;
+                  return _TrainingStyleCard(
+                    title: style['title'] as String,
+                    subtitle: style['subtitle'] as String,
+                    icon: style['icon'] as IconData,
+                    imagePath: 'assets/images/training_styles/$id.png',
+                    selected: widget.selectedStyles.contains(id),
+                    onTap: () => widget.onToggle(id),
+                  );
+                },
+              ),
+              SizedBox(height: 20.h),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 14.h),
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: widget.onNext,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: const Color(0xFFFF6B2C),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13.r)),
+                  ),
+                  child: Text('Next', style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: AppFontWeight.label)),
+                ),
+              ),
+              TextButton(
+                onPressed: widget.onSkip,
+                child: const Text('Skip for now', style: TextStyle(color: Color(0xFFFF6B2C))),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TrainingStyleCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String imagePath;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _TrainingStyleCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.imagePath,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: title,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(13.r),
+            border: Border.all(color: selected ? const Color(0xFFFF6B2C) : Colors.transparent, width: 2),
+            image: DecorationImage(
+              image: AssetImage(imagePath),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(Colors.black.withOpacity(.52), BlendMode.darken),
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: 7.w,
+                top: 7.h,
+                child: Container(
+                  width: 19.w,
+                  height: 19.w,
+                  decoration: BoxDecoration(
+                    color: selected ? const Color(0xFFFF6B2C) : Colors.black26,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.3),
+                  ),
+                  child: selected ? Icon(Icons.check, color: Colors.white, size: 12.sp) : null,
+                ),
+              ),
+              Positioned(
+                left: 7.w,
+                right: 7.w,
+                bottom: 7.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: Colors.white, size: 17.sp),
+                    SizedBox(height: 3.h),
+                    Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 10.5.sp, height: 1.05, fontWeight: AppFontWeight.label)),
+                    SizedBox(height: 2.h),
+                    Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 7.5.sp, height: 1.05)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
