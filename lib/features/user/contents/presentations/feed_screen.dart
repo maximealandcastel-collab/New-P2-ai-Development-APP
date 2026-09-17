@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
-import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
@@ -49,8 +49,17 @@ class _FeedScreenState extends State<FeedScreen> {
   VideoPlaybackManager get _vpm => Get.find<VideoPlaybackManager>();
   Worker? _navWorker;
 
-  // Contents tab is index 2 in the user nav bar.
-  static const _contentsTabIndex = 2;
+  /// Resolved by identity, never by an integer literal.
+  ///
+  /// This was `static const _contentsTabIndex = 2` with a comment claiming
+  /// "Contents tab is index 2 in the user nav bar". It is 3 — index 2 is Gyms.
+  /// That is the same off-by-one that caused the original audio bleed (§22):
+  /// every suspend/resume gate fired on exactly the wrong tab, so audio
+  /// started on Gyms and stopped on Contents. Four other copies of this
+  /// constant were replaced with an id lookup; this one was missed because the
+  /// screen is unreachable, so nothing exercised it.
+  int get _contentsTabIndex =>
+      BottomNavBarController.to.contentsTabIndex;
 
   @override
   void initState() {
@@ -59,11 +68,15 @@ class _FeedScreenState extends State<FeedScreen> {
     // Enter immediately — we are visible right now.
     _vpm.enterVideoModule();
 
-    // Watch nav-bar index in real time.
-    // IndexedStack keeps this widget alive when tabs switch, so dispose()
-    // is never called on tab change — this worker is the only reliable hook.
-    final navController = Get.find<NavBarController>();
-    _navWorker = ever(navController.selectedIndex, (int index) {
+    // Watch the nav index, because dispose() is not a reliable teardown hook
+    // for anything living under the bottom nav — IndexedStack keeps every tab
+    // mounted (handoff rule 4).
+    //
+    // This watched `NavBarController` from features/nav_bar/, which is a stub:
+    // an RxInt and a setter that **nothing in the app ever calls**. So the
+    // worker could never fire and the gate below was dead even on its own
+    // terms. The live controller is BottomNavBarController.
+    _navWorker = ever(BottomNavBarController.to.selectedIndexRx, (int index) {
       if (index == _contentsTabIndex) {
         _vpm.enterVideoModule();
       } else {
@@ -273,8 +286,16 @@ class _VideoPageState extends State<_VideoPage> {
   void dispose() {
     // Hard-stop this controller before releasing it so the OS audio session
     // closes cleanly — prevents bleed onto the next screen.
-    if (_controller != null) {
-      _vpm.pause(_controller!);
+    //
+    // unregisterPlayer is the part that was missing. Without it the manager
+    // keeps a reference to every controller this screen has ever built, long
+    // after they are disposed — so the tracking set grows without bound and
+    // every later stopAll() iterates dead controllers, each throwing into
+    // _hardStop's catch. Pause alone does not drop the reference.
+    final controller = _controller;
+    if (controller != null) {
+      _vpm.pause(controller);
+      _vpm.unregisterPlayer(controller);
     }
     _controller?.dispose();
     super.dispose();

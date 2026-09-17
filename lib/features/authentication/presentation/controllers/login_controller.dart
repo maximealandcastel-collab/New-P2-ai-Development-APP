@@ -129,7 +129,11 @@ class LoginController extends GetxController {
       ToastMessageHelper.show('No internet connection');
     } on UnAuthorizedException catch (e) {
       _loginState.value = LoadingState.error;
-      ToastMessageHelper.show(e.details ?? e.message);
+      // `message` only. `details` is the transport error — for a 401 that is
+      // Dio's paragraph about validateStatus and the HTTP spec, which is what
+      // was being shown to users. The server's own text ("Wrong password!
+      // 3 attempts remaining before a temporary lock.") arrives as `message`.
+      ToastMessageHelper.show(e.message);
     } catch (e) {
       _loginState.value = LoadingState.error;
       ToastMessageHelper.show(e.toString().replaceFirst('Exception: ', ''));
