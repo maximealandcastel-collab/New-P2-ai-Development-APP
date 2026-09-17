@@ -27,7 +27,7 @@ const router = Router();
 // GET    /workouts/today/overview → get today's workout overview with completion percentage (before /:id)
 // GET    /workouts/progression/monthly → get 30 days progression report (before /:id)
 // GET    /workouts/:id          → get single workout
-// DELETE /workouts/:id          → delete pending workout
+// DELETE /workouts/:id          → permanently delete the user's workout
 
 // Trainers can also use the workout generator (e.g. owner testing the feature)
 router.post("/", guardRole(["user", "trainer"]), createWorkout);

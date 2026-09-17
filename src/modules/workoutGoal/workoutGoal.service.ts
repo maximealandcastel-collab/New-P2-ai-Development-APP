@@ -536,21 +536,27 @@ export const getTodaysWorkoutService = async (
 };
 
 // ─────────────────────────────────────────────────────────────
-// DELETE WORKOUT (pending only)
+// DELETE WORKOUT
 // ─────────────────────────────────────────────────────────────
 
 export const deleteWorkoutService = async (
   userId: string,
   workoutId: string,
 ): Promise<void> => {
-  const workout = await WorkoutModel.findOne({ _id: workoutId, userId });
-  if (!workout) throw new Error("Workout not found");
-  if (workout.status !== "pending") {
-    throw new Error(
-      "Cannot delete a workout that has been started or completed",
-    );
+  if (!Types.ObjectId.isValid(workoutId)) {
+    throw new Error("Workout not found");
   }
-  await WorkoutModel.deleteOne({ _id: workoutId });
+
+  const workout = await WorkoutModel.findOneAndDelete({
+    _id: workoutId,
+    userId,
+  });
+  if (!workout) throw new Error("Workout not found");
+
+  await WorkoutStatsModel.deleteMany({
+    workoutId: workout._id,
+    userId: workout.userId,
+  });
 };
 
 // ─────────────────────────────────────────────────────────────
