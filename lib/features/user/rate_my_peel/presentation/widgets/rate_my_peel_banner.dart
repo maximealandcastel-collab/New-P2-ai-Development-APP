@@ -40,8 +40,8 @@ class RateMyPeelBanner extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.r),
-            child: SizedBox(
-              height: 132.h,
+            child: AspectRatio(
+              aspectRatio: 1.22,
               child: whiteLabeled
                   ? _WhiteLabelCheckInBanner(
                       name: tenant.displayName,
