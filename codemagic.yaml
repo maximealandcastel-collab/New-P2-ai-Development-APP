@@ -16,7 +16,7 @@ workflows:
       events:
         - push
       branch_patterns:
-        - pattern: stabilization
+        - pattern: elijah-stabilization
           include: true
           source: true
       cancel_previous_builds: true
@@ -202,9 +202,9 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          # Build 3077 is the last manually assigned release. Adding the
-          # workflow counter guarantees a unique, increasing TestFlight build.
-          IOS_BUILD_NUMBER=3480
+          # Keep every TestFlight upload unique. PROJECT_BUILD_NUMBER is
+          # Codemagic's monotonically increasing project build counter.
+          IOS_BUILD_NUMBER=$((3480 + ${PROJECT_BUILD_NUMBER:-1}))
           echo "Building release 4.11.0 ($IOS_BUILD_NUMBER)"
           python3 scripts/verify_release_config.py --origin "$API_ORIGIN" --build "$IOS_BUILD_NUMBER"
           flutter build ipa --release \
