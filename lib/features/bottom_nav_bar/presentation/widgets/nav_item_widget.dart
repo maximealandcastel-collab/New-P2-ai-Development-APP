@@ -84,8 +84,17 @@ class _BottomNavItemState extends State<BottomNavItem>
 
       return ScaleTransition(
         scale: _scale,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 3.h),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? selectedColor.withOpacity(0.10)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(16.r),
+          ),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -127,7 +136,7 @@ class _BottomNavItemState extends State<BottomNavItem>
                 ),
               ],
             ),
-          ),
+        ),
       );
     });
   }
