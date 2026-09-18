@@ -538,7 +538,7 @@ class _LoginFieldShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      minHeight: 58.h,
+      constraints: BoxConstraints(minHeight: 58.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: .88),
         borderRadius: BorderRadius.circular(14.r),
