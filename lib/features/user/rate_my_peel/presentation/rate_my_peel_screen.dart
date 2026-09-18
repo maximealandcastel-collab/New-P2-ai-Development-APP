@@ -1,7 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';\nimport 'package:pler_to_pler_app/core/helpers/photo_picker_helper.dart';
+import 'package:get/get.dart';
 
 class RateMyPeelScreen extends StatelessWidget {
   const RateMyPeelScreen({super.key});
@@ -80,34 +80,6 @@ class RateMyPeelScreen extends StatelessWidget {
                   height: 1.45,
                   fontWeight: FontWeight.w400,
                   color: _muted,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              SizedBox(
-                width: double.infinity,
-                height: 52.h,
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: BrandColors.of(context).primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                  ),
-                  onPressed: () => PhotoPickerHelper.showPicker(
-                    context: context,
-                    onImagePicked: (file) {
-                      Get.snackbar(
-                        'Photo selected',
-                        'Your photo is ready for the body-analysis flow.',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                    },
-                  ),
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  label: const Text(
-                    'POST A PHOTO',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
                 ),
               ),
               SizedBox(height: 30.h),
