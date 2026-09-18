@@ -104,8 +104,7 @@ class _MealPlanAssetFallback extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        'Personalized nutrition
-for your goals.',
+                        'Personalized nutrition\nfor your goals.',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 10.sp,
