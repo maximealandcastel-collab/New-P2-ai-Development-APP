@@ -11,8 +11,10 @@ class ReelPlayerManager {
 
   VoidCallback? onUpdated;
 
-  // 5-slot pool: current + 2 forward + 1 backward + 1 reserve for fast swipes
-  static const _slotCount = 5;
+  // Lean 3-slot pool: current + next + previous.
+  // Keeping more live native players increases memory and network pressure,
+  // especially when legacy MP4s are served through the API origin.
+  static const _slotCount = 3;
 
   final Map<int, ReelVideoSlot> _slots = {};
   final List<ReelVideoSlot> _free = [];
@@ -68,7 +70,6 @@ class ReelPlayerManager {
       center,
       if (center > 0) center - 1,
       if (center + 1 < contents.length) center + 1,
-      if (center + 2 < contents.length) center + 2, // 2-ahead look-ahead slot
     };
 
     for (final key in _slots.keys.where((i) => !keep.contains(i)).toList()) {
@@ -194,15 +195,17 @@ class ReelPlayerManager {
       await _load(idx, contents[idx], operationId: operationId, isCenter: false);
     }
 
-    if (prioritizeNext) {
-      // Swipe-forward hint: next → next+1 → prev
-      await preloadAt(center + 1);
-      await Future.wait([preloadAt(center + 2), preloadAt(center - 1)]);
-    } else {
-      // Default: next and prev concurrently, then next+1 look-ahead
-      await Future.wait([preloadAt(center + 1), preloadAt(center - 1)]);
-      if (operationId != _operationId) return;
-      await preloadAt(center + 2);
+    // Always prepare the next video first. Avoid parallel neighbor downloads:
+    // on slower API/media origins, two speculative initializations can compete
+    // with the active stream and make the visible reel buffer.
+    await preloadAt(center + 1);
+    if (operationId != _operationId) return;
+
+    // On mobile data, stop after next-video preload to keep bandwidth focused
+    // on the active + upcoming reel. Wi-Fi/Ethernet may also warm the previous
+    // reel for a quick reverse swipe.
+    if (!prioritizeNext) {
+      await preloadAt(center - 1);
     }
   }
 
