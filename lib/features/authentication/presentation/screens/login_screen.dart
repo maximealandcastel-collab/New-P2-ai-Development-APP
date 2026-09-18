@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
           children: [
             const Positioned.fill(child: _LoginBackdrop()),
             Positioned(
-              top: 112.h,
+              top: 100.h,
               right: -56.w,
               child: IgnorePointer(
                 child: Opacity(
@@ -34,7 +34,7 @@ class LoginScreen extends StatelessWidget {
                   child: Image.asset(
                     'assets/images/training_styles/weight_lifting.png',
                     width: 310.w,
-                    height: 520.h,
+                    height: 490.h,
                     fit: BoxFit.cover,
                     alignment: Alignment.center,
                     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
               top: 80.h,
               left: 0,
               right: 0,
-              height: 570.h,
+              height: 540.h,
               child: IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -66,7 +66,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 30.h),
+              padding: EdgeInsets.fromLTRB(24.w, 14.h, 24.w, 20.h),
               physics: const BouncingScrollPhysics(),
               child: Form(
                 key: controller.loginFormKey,
@@ -74,17 +74,17 @@ class LoginScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _BrandHeader(primary: primary),
-                    SizedBox(height: 40.h),
+                    SizedBox(height: 16.h),
                     Container(
                       width: 30.w,
                       height: 2.h,
                       color: primary,
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 10.h),
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          fontSize: 40.sp,
+                          fontSize: 37.sp,
                           height: 1.02,
                           fontWeight: FontWeight.w500,
                           letterSpacing: -1.3,
@@ -99,11 +99,11 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 8.h),
                     Text(
                       'Sign in to your P2P Fit account.',
                       style: TextStyle(
-                        fontSize: 17.sp,
+                        fontSize: 16.sp,
                         height: 1.25,
                         fontWeight: FontWeight.w400,
                         color: const Color(0xFF71717D),
@@ -119,12 +119,12 @@ class LoginScreen extends StatelessWidget {
                         color: const Color(0xFF74747E),
                       ),
                     ),
-                    SizedBox(height: 36.h),
+                    SizedBox(height: 20.h),
                     _RoleSelector(
                       controller: controller,
                       primary: primary,
                     ),
-                    SizedBox(height: 28.h),
+                    SizedBox(height: 18.h),
                     const _FieldTitle('EMAIL'),
                     SizedBox(height: 9.h),
                     _LoginFieldShell(
@@ -134,11 +134,11 @@ class LoginScreen extends StatelessWidget {
                         prefixIcon: Icon(
                           Icons.mail_outline_rounded,
                           color: const Color(0xFF666975),
-                          size: 23.sp,
+                          size: 21.sp,
                         ),
                       ),
                     ),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 18.h),
                     const _FieldTitle('PASSWORD'),
                     SizedBox(height: 9.h),
                     _LoginFieldShell(
@@ -148,7 +148,7 @@ class LoginScreen extends StatelessWidget {
                         prefixIcon: Icon(
                           Icons.lock_outline_rounded,
                           color: const Color(0xFF666975),
-                          size: 23.sp,
+                          size: 21.sp,
                         ),
                         isPassword: true,
                       ),
@@ -162,8 +162,8 @@ class LoginScreen extends StatelessWidget {
                             onTap: controller.toggleSaveLogin,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
-                              width: 26.w,
-                              height: 26.w,
+                              width: 24.w,
+                              height: 24.w,
                               decoration: BoxDecoration(
                                 color: controller.saveLogin.value
                                     ? primary
@@ -188,7 +188,7 @@ class LoginScreen extends StatelessWidget {
                                   ? Icon(
                                       Icons.check_rounded,
                                       color: Colors.white,
-                                      size: 18.sp,
+                                      size: 16.sp,
                                     )
                                   : null,
                             ),
@@ -231,7 +231,7 @@ class LoginScreen extends StatelessWidget {
                           duration: const Duration(milliseconds: 180),
                           child: Container(
                             width: double.infinity,
-                            height: 58.h,
+                            height: 52.h,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 begin: Alignment.centerLeft,
@@ -242,7 +242,7 @@ class LoginScreen extends StatelessWidget {
                                   Color(0xFFFF4C12),
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(18.r),
+                              borderRadius: BorderRadius.circular(16.r),
                               boxShadow: [
                                 BoxShadow(
                                   color: primary.withValues(alpha: .24),
@@ -270,7 +270,7 @@ class LoginScreen extends StatelessWidget {
                                         Text(
                                           'Sign in',
                                           style: TextStyle(
-                                            fontSize: 18.sp,
+                                            fontSize: 16.5.sp,
                                             fontWeight: FontWeight.w700,
                                             color: Colors.white,
                                           ),
@@ -323,7 +323,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                           onTap: () => _socialUnavailable('Apple'),
                         ),
-                        SizedBox(width: 24.w),
+                        SizedBox(width: 20.w),
                         _SocialCircleButton(
                           icon: SvgPicture.asset(
                             'assets/icons/google_g.svg',
@@ -343,7 +343,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 34.h),
+                    SizedBox(height: 24.h),
                     Center(
                       child: Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
@@ -438,8 +438,8 @@ class _BrandHeader extends StatelessWidget {
           children: [
             Image.asset(
               Assets.images.logo.path,
-              width: 70.w,
-              height: 70.w,
+              width: 62.w,
+              height: 62.w,
               fit: BoxFit.contain,
             ),
             SizedBox(width: 10.w),
@@ -449,7 +449,7 @@ class _BrandHeader extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 29.sp,
+                      fontSize: 27.sp,
                       height: 1,
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF080A12),
@@ -490,13 +490,13 @@ class _BrandHeader extends StatelessWidget {
                     color: const Color(0xFF343640),
                   ),
                 ),
-                SizedBox(height: 7.h),
+                SizedBox(height: 5.h),
                 Container(width: 28.w, height: 2.h, color: primary),
               ],
             ),
           ],
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 9.h),
         Text(
           'F I T N E S S   ·   P E O P L E   ·   P R O G R E S S',
           style: TextStyle(
@@ -538,7 +538,7 @@ class _LoginFieldShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minHeight: 58.h),
+      constraints: BoxConstraints(minHeight: 54.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: .88),
         borderRadius: BorderRadius.circular(14.r),
@@ -568,7 +568,7 @@ class _RoleSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 82.h,
+      height: 72.h,
       child: Row(
         children: [
           Expanded(
@@ -581,7 +581,7 @@ class _RoleSelector extends StatelessWidget {
           ),
           Container(
             width: 1,
-            height: 38.h,
+            height: 34.h,
             color: const Color(0xFFE3E4E8),
           ),
           Expanded(
@@ -618,7 +618,7 @@ class _RoleSelector extends StatelessWidget {
                       color: const Color(0xFF686A75),
                     ),
                   ),
-                  SizedBox(height: 11.h),
+                  SizedBox(height: 8.h),
                   Container(
                     height: 2.h,
                     color: Colors.transparent,
@@ -710,8 +710,8 @@ class _SocialCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56.w,
-        height: 56.w,
+        width: 52.w,
+        height: 52.w,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: .96),
           shape: BoxShape.circle,
@@ -719,8 +719,8 @@ class _SocialCircleButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: .07),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
