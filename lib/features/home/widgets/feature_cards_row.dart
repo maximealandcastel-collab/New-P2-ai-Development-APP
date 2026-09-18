@@ -7,8 +7,8 @@ import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my
 /// The two primary feature cards shown on the subscriber home screen.
 ///
 /// This is the Flutter implementation of the supplied FeatureCards JSX. The
-/// cards use an explicit height so the Row always receives a bounded vertical
-/// constraint and cannot collapse or become visually insignificant.
+/// cards use a compact explicit height so the Row cannot collapse. Images are
+/// contained rather than cropped, keeping all labels and calls to action visible.
 class FeatureCardsRow extends StatelessWidget {
   const FeatureCardsRow({super.key});
 
@@ -20,7 +20,7 @@ class FeatureCardsRow extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: SizedBox(
-        height: 220.h,
+        height: 154.h,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -31,7 +31,7 @@ class FeatureCardsRow extends StatelessWidget {
                 onTap: () => Get.to(() => const MealPlanScreen()),
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 10.w),
             Expanded(
               child: _FeatureCard(
                 assetPath: _rateMyPeelAsset,
@@ -63,7 +63,7 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(16.r);
+    final radius = BorderRadius.circular(14.r);
 
     return Semantics(
       button: true,
@@ -78,7 +78,7 @@ class _FeatureCard extends StatelessWidget {
           borderRadius: radius,
           child: Ink.image(
             image: AssetImage(assetPath),
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             alignment: Alignment.center,
             child: const SizedBox.expand(),
           ),
