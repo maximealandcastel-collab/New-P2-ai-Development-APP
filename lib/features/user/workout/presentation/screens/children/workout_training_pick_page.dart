@@ -15,17 +15,28 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
   final TextEditingController _searchController = TextEditingController();
 
   static const _allOptions = [
-    {'id': 'boxing_combat', 'title': 'Boxing &\nCombat', 'subtitle': 'Boxing, MMA, Kickboxing, Muay Thai'},
+    {'id': 'boxing_combat', 'title': 'Boxing &\\nCombat', 'subtitle': 'Boxing, MMA, Kickboxing, Muay Thai'},
     {'id': 'calisthenics', 'title': 'Calisthenics', 'subtitle': 'Bodyweight, Street Workout'},
-    {'id': 'weight_lifting', 'title': 'Weight\nLifting', 'subtitle': 'Strength, Hypertrophy, Powerlifting'},
+    {'id': 'weight_lifting', 'title': 'Weight\\nLifting', 'subtitle': 'Strength, Hypertrophy, Powerlifting'},
     {'id': 'wrestling', 'title': 'Wrestling', 'subtitle': 'Technique, Conditioning, Takedowns'},
     {'id': 'hiit', 'title': 'HIIT', 'subtitle': 'High Intensity Interval Training'},
     {'id': 'yoga', 'title': 'Yoga', 'subtitle': 'Mind-Body, Balance, Recovery'},
     {'id': 'pilates', 'title': 'Pilates', 'subtitle': 'Core Strength, Stability'},
     {'id': 'mobility', 'title': 'Mobility', 'subtitle': 'Movement, Flexibility, Injury Prevention'},
-    {'id': 'functional_training', 'title': 'Functional\nTraining', 'subtitle': 'Real-World Movement, Athletic Performance'},
+    {'id': 'functional_training', 'title': 'Functional\\nTraining', 'subtitle': 'Real-World Movement, Athletic Performance'},
+    {'id': 'cardio', 'title': 'Cardio', 'subtitle': 'Endurance, Conditioning, Stamina'},
+    {'id': 'sports_performance', 'title': 'Sports\\nPerformance', 'subtitle': 'Speed, Agility, Explosiveness'},
     {'id': 'rehabilitation', 'title': 'Rehabilitation', 'subtitle': 'Injury Recovery, Physical Therapy'},
   ];
+
+  // The bundled asset file names under assets/images/training_styles/ don't
+  // all match the option ids above 1:1 (e.g. 'boxing_combat' -> 'boxing.png').
+  static const _assetFileById = {
+    'boxing_combat': 'boxing',
+  };
+
+  String _assetPathFor(String id) =>
+      'assets/images/training_styles/${_assetFileById[id] ?? id}.png';
 
   @override
   void dispose() {
@@ -40,7 +51,7 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          text: 'What type of training\ndo you want to do?',
+          text: 'What type of training\\ndo you want to do?',
           fontSize: 24.sp,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
@@ -48,7 +59,7 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
         ),
         SizedBox(height: 8.h),
         CustomText(
-          text: 'Choose one or more styles. We\'ll customize your workouts, trainers, and content.',
+          text: 'Choose one or more styles. We\\'ll customize your workouts, trainers, and content.',
           fontSize: 14.sp,
           color: AppColors.textSecondary,
           maxline: 3,
@@ -117,6 +128,15 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
                         color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                         width: isSelected ? 2 : 1,
                       ),
+                      image: DecorationImage(
+                        image: AssetImage(_assetPathFor(item['id']!)),
+                        fit: BoxFit.cover,
+                        onError: (_, __) {},
+                        colorFilter: ColorFilter.mode(
+                          Colors.black.withOpacity(0.35),
+                          BlendMode.darken,
+                        ),
+                      ),
                     ),
                     padding: EdgeInsets.all(12.w),
                     child: Stack(
@@ -154,7 +174,7 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
                                 color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white30,
                               ),
                             ),
-                            child: isSelected 
+                            child: isSelected
                                 ? Icon(Icons.check, color: Colors.white, size: 16.sp)
                                 : null,
                           ),
