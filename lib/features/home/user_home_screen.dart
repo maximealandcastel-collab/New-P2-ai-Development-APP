@@ -15,8 +15,7 @@ import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_lo
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
-import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/widgets/rate_my_peel_banner.dart';
-import 'widgets/meal_plan_banner.dart';
+import 'widgets/feature_cards_row.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
@@ -94,21 +93,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 SizedBox(height: 16.h),
                 _GenerateWorkoutBanner(onWorkoutChanged: _refreshHome),
                 SizedBox(height: 16.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Expanded(
-                        child: MealPlanBanner(margin: EdgeInsets.zero),
-                      ),
-                      SizedBox(width: 10.w),
-                      const Expanded(
-                        child: RateMyPeelBanner(margin: EdgeInsets.zero),
-                      ),
-                    ],
-                  ),
-                ),
+                const FeatureCardsRow(),
                 SizedBox(height: 16.h),
                 _SectionTitle("Today's overview"),
                 const _TodaysOverviewCard(),
