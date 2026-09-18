@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';\nimport 'package:pler_to_pler_app/features/user/meal_plan/presentation/meal_plan_screen.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/features/user/meal_plan/presentation/meal_plan_screen.dart';
 
 /// Compact Meal Plan companion card for the existing user Home screen.
 /// This widget intentionally changes only the Meal Plan surface.
@@ -15,15 +16,11 @@ class MealPlanBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Meal Plan. Coming soon.',
+      label: 'Meal Plan.',
       hint: 'Personalized nutrition for your goals',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => Get.snackbar(
-          'Coming Soon',
-          'Personalized meal plans are on the way.',
-          snackPosition: SnackPosition.BOTTOM,
-        ),
+        onTap: () => Get.to(() => const MealPlanScreen()),
         child: Container(
           margin: margin ?? EdgeInsets.symmetric(horizontal: 16.w),
           decoration: BoxDecoration(
@@ -107,7 +104,8 @@ class _MealPlanAssetFallback extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Text(
-                        'Personalized nutrition\nfor your goals.',
+                        'Personalized nutrition
+for your goals.',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 10.sp,
