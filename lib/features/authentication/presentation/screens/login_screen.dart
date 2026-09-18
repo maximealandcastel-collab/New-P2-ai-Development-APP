@@ -84,10 +84,10 @@ class LoginScreen extends StatelessWidget {
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          fontSize: 43.sp,
+                          fontSize: 40.sp,
                           height: 1.02,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: -1.8,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -1.3,
                           color: const Color(0xFF090B14),
                         ),
                         children: [
@@ -103,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                     Text(
                       'Sign in to your P2P Fit account.',
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: 17.sp,
                         height: 1.25,
                         fontWeight: FontWeight.w400,
                         color: const Color(0xFF71717D),
@@ -119,12 +119,12 @@ class LoginScreen extends StatelessWidget {
                         color: const Color(0xFF74747E),
                       ),
                     ),
-                    SizedBox(height: 42.h),
+                    SizedBox(height: 36.h),
                     _RoleSelector(
                       controller: controller,
                       primary: primary,
                     ),
-                    SizedBox(height: 32.h),
+                    SizedBox(height: 28.h),
                     const _FieldTitle('EMAIL'),
                     SizedBox(height: 9.h),
                     _LoginFieldShell(
@@ -200,7 +200,7 @@ class LoginScreen extends StatelessWidget {
                           child: Text(
                             'Remember me',
                             style: TextStyle(
-                              fontSize: 13.5.sp,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF74747F),
                             ),
@@ -449,9 +449,9 @@ class _BrandHeader extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 31.sp,
+                      fontSize: 29.sp,
                       height: 1,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       color: const Color(0xFF080A12),
                     ),
                     children: [
@@ -467,8 +467,8 @@ class _BrandHeader extends StatelessWidget {
                 Text(
                   'T E C H    A I',
                   style: TextStyle(
-                    fontSize: 9.5.sp,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 3.5,
                     color: const Color(0xFF181A22),
                   ),
@@ -540,9 +540,9 @@ class _LoginFieldShell extends StatelessWidget {
     return Container(
       minHeight: 58.h,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .80),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFDFE1E6)),
+        color: Colors.white.withValues(alpha: .88),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE4E5E9)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: .018),
@@ -613,8 +613,8 @@ class _RoleSelector extends StatelessWidget {
                   Text(
                     'Gym',
                     style: TextStyle(
-                      fontSize: 12.5.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
                       color: const Color(0xFF686A75),
                     ),
                   ),
@@ -674,8 +674,8 @@ class _RoleTab extends StatelessWidget {
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
                 style: TextStyle(
-                  fontSize: 12.5.sp,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
                   color: selected ? primary : const Color(0xFF686A75),
                 ),
                 child: Text(label),
@@ -684,8 +684,8 @@ class _RoleTab extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
-                height: 2.h,
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                height: 1.5.h,
+                margin: EdgeInsets.symmetric(horizontal: 14.w),
                 color: selected ? primary : Colors.transparent,
               ),
             ],
@@ -710,8 +710,8 @@ class _SocialCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 58.w,
-        height: 58.w,
+        width: 56.w,
+        height: 56.w,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: .96),
           shape: BoxShape.circle,
@@ -719,8 +719,8 @@ class _SocialCircleButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: .07),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
