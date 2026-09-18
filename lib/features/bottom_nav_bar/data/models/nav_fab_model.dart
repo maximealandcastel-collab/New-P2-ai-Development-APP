@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';\nimport 'package:pler_to_pler_app/features/community/presentation/screens/post_photo_video_screen.dart';
 
 class NavFabModel {
   final String icon;
@@ -48,7 +48,7 @@ class NavFabModel {
         NavFabModel(
           label: 'Post Photo/Video',
           icon: Assets.icons.post.path,
-          onTap: () => Get.toNamed(AppRoute.createContentScreen),
+          onTap: () => Get.to(() => const PostPhotoVideoScreen()),
         ),
       ];
 }
