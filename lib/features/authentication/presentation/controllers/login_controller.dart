@@ -42,7 +42,7 @@ class LoginController extends GetxController {
   // ─── State ───────────────────────────────
 
   final _loginState = LoadingState.initial.obs;
-  final RxString _selectedRole = 'Trainer'.obs;
+  final RxString _selectedRole = 'User'.obs;
 
   /// Whether the user has ticked "Save Login" on the sign-in screen.
   final saveLogin = false.obs;
