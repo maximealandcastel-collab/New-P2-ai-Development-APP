@@ -15,7 +15,7 @@ import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_lo
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
-import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/widgets/rate_my_peel_banner.dart';
+import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/widgets/rate_my_peel_banner.dart';\nimport 'widgets/meal_plan_banner.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
