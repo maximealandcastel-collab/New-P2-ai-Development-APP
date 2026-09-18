@@ -94,9 +94,21 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 SizedBox(height: 16.h),
                 _GenerateWorkoutBanner(onWorkoutChanged: _refreshHome),
                 SizedBox(height: 16.h),
-                const RateMyPeelBanner(),
-                SizedBox(height: 16.h),
-                const MealPlanBanner(),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Expanded(
+                        child: MealPlanBanner(margin: EdgeInsets.zero),
+                      ),
+                      SizedBox(width: 10.w),
+                      const Expanded(
+                        child: RateMyPeelBanner(margin: EdgeInsets.zero),
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: 16.h),
                 _SectionTitle("Today's overview"),
                 const _TodaysOverviewCard(),
