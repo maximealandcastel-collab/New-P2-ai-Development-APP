@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
-import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
+import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';\nimport 'package:pler_to_pler_app/features/user/meal_plan/presentation/meal_plan_screen.dart';
 
 /// Compact Meal Plan companion card for the existing user Home screen.
 /// This widget intentionally changes only the Meal Plan surface.
