@@ -17,7 +17,7 @@ class ImagePath {
   static const String generateWorkoutSplit =
       '$_basePath/generate_workout_split.png';
   static const String rateMyPeelBanner =
-      '$_basePath/rate_my_peel_banner.png';
+      '$_basePath/rate_my_peel_banner.jpg';
   static const String mealPlanBanner =
       '$_basePath/meal_plan_banner.jpg';
 
