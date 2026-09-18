@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
-import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
@@ -25,187 +24,131 @@ class LoginScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFFFFFFF),
-                      Color(0xFFFFFCF9),
-                      Color(0xFFFFFFFF),
-                      Color(0xFFFFF1E8),
-                    ],
-                    stops: [0, .32, .72, 1],
+            const Positioned.fill(child: _LoginBackdrop()),
+            Positioned(
+              top: 112.h,
+              right: -56.w,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: .19,
+                  child: Image.asset(
+                    'assets/images/training_styles/weight_lifting.png',
+                    width: 310.w,
+                    height: 520.h,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: -12.h,
-              right: -72.w,
-              child: Opacity(
-                opacity: .17,
-                child: Image.asset(
-                  'assets/images/training_styles/weight_lifting.png',
-                  width: 285.w,
-                  height: 360.h,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              top: 80.h,
+              left: 0,
+              right: 0,
+              height: 570.h,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Colors.white,
+                        Colors.white.withValues(alpha: .98),
+                        Colors.white.withValues(alpha: .80),
+                        Colors.white.withValues(alpha: .28),
+                      ],
+                      stops: const [0, .48, .72, 1],
+                    ),
+                  ),
                 ),
               ),
             ),
             SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(22.w, 16.h, 22.w, 28.h),
+              padding: EdgeInsets.fromLTRB(24.w, 20.h, 24.w, 30.h),
+              physics: const BouncingScrollPhysics(),
               child: Form(
                 key: controller.loginFormKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          Assets.images.logo.path,
-                          width: 68.w,
-                          height: 68.w,
-                          fit: BoxFit.contain,
-                        ),
-                        SizedBox(width: 10.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  fontSize: 29.sp,
-                                  height: 1,
-                                  fontWeight: FontWeight.w900,
-                                  color: const Color(0xFF050816),
-                                ),
-                                children: [
-                                  const TextSpan(text: 'P2P '),
-                                  TextSpan(
-                                    text: 'FIT',
-                                    style: TextStyle(color: primary),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 6.h),
-                            Text(
-                              'T E C H   A I',
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 4,
-                                color: const Color(0xFF18181B),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'A\nS T R O N G E R\nY O U\nT O G E T H E R',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                fontSize: 7.5.sp,
-                                height: 1.45,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
-                                color: const Color(0xFF27272A),
-                              ),
-                            ),
-                            SizedBox(height: 6.h),
-                            Container(
-                              width: 28.w,
-                              height: 2.h,
-                              color: primary,
-                            ),
-                          ],
-                        ),
-                      ],
+                    _BrandHeader(primary: primary),
+                    SizedBox(height: 40.h),
+                    Container(
+                      width: 30.w,
+                      height: 2.h,
+                      color: primary,
                     ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'F I T N E S S   •   P E O P L E   •   P R O G R E S S',
-                      style: TextStyle(
-                        fontSize: 7.6.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2.1,
-                        color: const Color(0xFF8A8A93),
-                      ),
-                    ),
-                    SizedBox(height: 30.h),
+                    SizedBox(height: 20.h),
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          fontSize: 36.sp,
-                          height: 1,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.4,
-                          color: const Color(0xFF050816),
+                          fontSize: 43.sp,
+                          height: 1.02,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -1.8,
+                          color: const Color(0xFF090B14),
                         ),
                         children: [
                           const TextSpan(text: 'Welcome '),
                           TextSpan(
-                            text: 'Back',
+                            text: 'back',
                             style: TextStyle(color: primary),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 9.h),
+                    SizedBox(height: 10.h),
                     Text(
-                      'Sign in to your P2P Fit account',
+                      'Sign in to your P2P Fit account.',
                       style: TextStyle(
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF5B5B62),
+                        height: 1.25,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFF71717D),
                       ),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 14.h),
                     Text(
-                      'Train. Connect. Achieve.',
+                      'T R A I N .   C O N N E C T .   A C H I E V E .',
                       style: TextStyle(
-                        fontSize: 14.sp,
-                        color: const Color(0xFFA1A1AA),
+                        fontSize: 8.7.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2,
+                        color: const Color(0xFF74747E),
                       ),
                     ),
-                    SizedBox(height: 26.h),
+                    SizedBox(height: 42.h),
                     _RoleSelector(
                       controller: controller,
                       primary: primary,
                     ),
-                    SizedBox(height: 28.h),
-                    const _FieldTitle('Email'),
-                    SizedBox(height: 8.h),
-                    _GlossyField(
+                    SizedBox(height: 32.h),
+                    const _FieldTitle('EMAIL'),
+                    SizedBox(height: 9.h),
+                    _LoginFieldShell(
                       child: CustomTextField(
                         controller: controller.emailController,
                         hintText: 'Enter your email address',
                         prefixIcon: Icon(
                           Icons.mail_outline_rounded,
-                          color: const Color(0xFF626269),
-                          size: 22.sp,
+                          color: const Color(0xFF666975),
+                          size: 23.sp,
                         ),
                       ),
                     ),
-                    SizedBox(height: 22.h),
-                    const _FieldTitle('Password'),
-                    SizedBox(height: 8.h),
-                    _GlossyField(
+                    SizedBox(height: 24.h),
+                    const _FieldTitle('PASSWORD'),
+                    SizedBox(height: 9.h),
+                    _LoginFieldShell(
                       child: CustomTextField(
                         controller: controller.passwordController,
                         hintText: 'Enter your password',
                         prefixIcon: Icon(
                           Icons.lock_outline_rounded,
-                          color: const Color(0xFF626269),
-                          size: 22.sp,
+                          color: const Color(0xFF666975),
+                          size: 23.sp,
                         ),
                         isPassword: true,
                       ),
@@ -215,25 +158,26 @@ class LoginScreen extends StatelessWidget {
                       children: [
                         Obx(
                           () => GestureDetector(
+                            behavior: HitTestBehavior.opaque,
                             onTap: controller.toggleSaveLogin,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
-                              width: 24.w,
-                              height: 24.w,
+                              width: 26.w,
+                              height: 26.w,
                               decoration: BoxDecoration(
                                 color: controller.saveLogin.value
                                     ? primary
                                     : Colors.white,
-                                borderRadius: BorderRadius.circular(6.r),
+                                borderRadius: BorderRadius.circular(7.r),
                                 border: Border.all(
                                   color: controller.saveLogin.value
                                       ? primary
-                                      : const Color(0xFFD4D4D8),
+                                      : const Color(0xFFD7D9DE),
                                 ),
                                 boxShadow: controller.saveLogin.value
                                     ? [
                                         BoxShadow(
-                                          color: primary.withValues(alpha: .22),
+                                          color: primary.withValues(alpha: .24),
                                           blurRadius: 10,
                                           offset: const Offset(0, 4),
                                         ),
@@ -244,21 +188,21 @@ class LoginScreen extends StatelessWidget {
                                   ? Icon(
                                       Icons.check_rounded,
                                       color: Colors.white,
-                                      size: 17.sp,
+                                      size: 18.sp,
                                     )
                                   : null,
                             ),
                           ),
                         ),
-                        SizedBox(width: 9.w),
+                        SizedBox(width: 10.w),
                         GestureDetector(
                           onTap: controller.toggleSaveLogin,
                           child: Text(
                             'Remember me',
                             style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF18181B),
+                              fontSize: 13.5.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF74747F),
                             ),
                           ),
                         ),
@@ -282,155 +226,134 @@ class LoginScreen extends StatelessWidget {
                           controller.loginState == LoadingState.loading;
                       return GestureDetector(
                         onTap: loading ? null : controller.login,
-                        child: Container(
-                          width: double.infinity,
-                          height: 58.h,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                const Color(0xFFFF9A32),
-                                primary,
-                                const Color(0xFFFF4A16),
+                        child: AnimatedOpacity(
+                          opacity: loading ? .72 : 1,
+                          duration: const Duration(milliseconds: 180),
+                          child: Container(
+                            width: double.infinity,
+                            height: 58.h,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Color(0xFFFF9A2F),
+                                  Color(0xFFFF6A16),
+                                  Color(0xFFFF4C12),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(18.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primary.withValues(alpha: .24),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 9),
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(18.r),
-                            border: Border.all(
-                              color: const Color(0xFFFFB06D),
-                              width: 1.1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primary.withValues(alpha: .32),
-                                blurRadius: 20,
-                                offset: const Offset(0, 9),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: loading
-                                ? SizedBox(
-                                    width: 22.w,
-                                    height: 22.w,
-                                    child: const CircularProgressIndicator(
-                                      strokeWidth: 2.2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Sign in',
-                                        style: TextStyle(
-                                          fontSize: 18.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
+                            child: Center(
+                              child: loading
+                                  ? SizedBox(
+                                      width: 22.w,
+                                      height: 22.w,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2.2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
                                         ),
                                       ),
-                                      SizedBox(width: 10.w),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: Colors.white,
-                                        size: 22.sp,
-                                      ),
-                                    ],
-                                  ),
+                                    )
+                                  : Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Sign in',
+                                          style: TextStyle(
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(width: 12.w),
+                                        Icon(
+                                          Icons.arrow_forward_rounded,
+                                          color: Colors.white,
+                                          size: 23.sp,
+                                        ),
+                                      ],
+                                    ),
+                            ),
                           ),
                         ),
                       );
                     }),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: 28.h),
                     Row(
                       children: [
                         const Expanded(
-                          child: Divider(color: Color(0xFFD8D8DC)),
+                          child: Divider(color: Color(0xFFDADCE1)),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 14.w),
                           child: Text(
-                            'Or continue with',
+                            'O R   C O N T I N U E   W I T H',
                             style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF71717A),
+                              fontSize: 7.7.sp,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.8,
+                              color: const Color(0xFF777985),
                             ),
                           ),
                         ),
                         const Expanded(
-                          child: Divider(color: Color(0xFFD8D8DC)),
+                          child: Divider(color: Color(0xFFDADCE1)),
                         ),
                       ],
                     ),
-                    SizedBox(height: 18.h),
+                    SizedBox(height: 22.h),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: _SocialButton(
-                            label: 'Google',
-                            icon: SvgPicture.asset(
-                              'assets/icons/google_g.svg',
-                              width: 21.r,
-                              height: 21.r,
-                            ),
-                            onTap: () => _socialUnavailable('Google'),
+                        _SocialCircleButton(
+                          icon: Icon(
+                            Icons.apple,
+                            color: Colors.black,
+                            size: 29.sp,
                           ),
+                          onTap: () => _socialUnavailable('Apple'),
                         ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: _SocialButton(
-                            label: 'Apple',
-                            icon: Icon(
-                              Icons.apple,
-                              color: Colors.black,
-                              size: 24.sp,
-                            ),
-                            onTap: () => _socialUnavailable('Apple'),
+                        SizedBox(width: 24.w),
+                        _SocialCircleButton(
+                          icon: SvgPicture.asset(
+                            'assets/icons/google_g.svg',
+                            width: 26.r,
+                            height: 26.r,
                           ),
+                          onTap: () => _socialUnavailable('Google'),
                         ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: _SocialButton(
-                            label: 'Microsoft',
-                            icon: Icon(
-                              Icons.window_rounded,
-                              color: primary,
-                              size: 22.sp,
-                            ),
-                            onTap: () => _socialUnavailable('Microsoft'),
+                        SizedBox(width: 24.w),
+                        _SocialCircleButton(
+                          icon: Icon(
+                            Icons.facebook_rounded,
+                            color: const Color(0xFF0866FF),
+                            size: 28.sp,
                           ),
+                          onTap: () => _socialUnavailable('Meta'),
                         ),
                       ],
                     ),
-                    SizedBox(height: 18.h),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 18.h,
-                        horizontal: 14.w,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: .9),
-                        borderRadius: BorderRadius.circular(18.r),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: .035),
-                            blurRadius: 18,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    SizedBox(height: 34.h),
+                    Center(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
                             "Don't have an account? ",
                             style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF18181B),
+                              fontSize: 13.5.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF8A8B94),
                             ),
                           ),
                           GestureDetector(
@@ -448,8 +371,8 @@ class LoginScreen extends StatelessWidget {
                             child: Text(
                               'Sign up',
                               style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w800,
+                                fontSize: 13.5.sp,
+                                fontWeight: FontWeight.w500,
                                 color: primary,
                               ),
                             ),
@@ -458,39 +381,6 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 28.h),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: _FooterBenefit(
-                            icon: Icons.bar_chart_rounded,
-                            title: 'TRAIN\nSMARTER',
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 28.h,
-                          color: const Color(0xFFFFA367),
-                        ),
-                        const Expanded(
-                          child: _FooterBenefit(
-                            icon: Icons.groups_rounded,
-                            title: 'CONNECT\nFASTER',
-                          ),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 28.h,
-                          color: const Color(0xFFFFA367),
-                        ),
-                        const Expanded(
-                          child: _FooterBenefit(
-                            icon: Icons.emoji_events_outlined,
-                            title: 'ACHIEVE\nMORE',
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 18.h),
                   ],
                 ),
               ),
@@ -510,41 +400,160 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class _FieldTitle extends StatelessWidget {
-  const _FieldTitle(this.text);
-  final String text;
+class _LoginBackdrop extends StatelessWidget {
+  const _LoginBackdrop();
 
   @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: TextStyle(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w800,
-          color: const Color(0xFF111118),
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFFFFFFF),
+            Color(0xFFFFFCFA),
+            Color(0xFFFFF8F3),
+          ],
+          stops: [0, .46, .78, 1],
         ),
-      );
+      ),
+    );
+  }
 }
 
-class _GlossyField extends StatelessWidget {
-  const _GlossyField({required this.child});
-  final Widget child;
+class _BrandHeader extends StatelessWidget {
+  const _BrandHeader({required this.primary});
+
+  final Color primary;
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .94),
-          borderRadius: BorderRadius.circular(18.r),
-          border: Border.all(color: const Color(0xFFE1E3E8)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .035),
-              blurRadius: 16,
-              offset: const Offset(0, 7),
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              Assets.images.logo.path,
+              width: 70.w,
+              height: 70.w,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 10.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 31.sp,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF080A12),
+                    ),
+                    children: [
+                      const TextSpan(text: 'P2P '),
+                      TextSpan(
+                        text: 'FIT',
+                        style: TextStyle(color: primary),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'T E C H    A I',
+                  style: TextStyle(
+                    fontSize: 9.5.sp,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 3.5,
+                    color: const Color(0xFF181A22),
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'A\nS T R O N G E R\nY O U\nT O G E T H E R',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 7.sp,
+                    height: 1.42,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.25,
+                    color: const Color(0xFF343640),
+                  ),
+                ),
+                SizedBox(height: 7.h),
+                Container(width: 28.w, height: 2.h, color: primary),
+              ],
             ),
           ],
         ),
-        child: child,
-      );
+        SizedBox(height: 12.h),
+        Text(
+          'F I T N E S S   ·   P E O P L E   ·   P R O G R E S S',
+          style: TextStyle(
+            fontSize: 7.2.sp,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 2.15,
+            color: const Color(0xFF898B96),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FieldTitle extends StatelessWidget {
+  const _FieldTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 9.5.sp,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 2.4,
+        color: const Color(0xFF777985),
+      ),
+    );
+  }
+}
+
+class _LoginFieldShell extends StatelessWidget {
+  const _LoginFieldShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      minHeight: 58.h,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .80),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFDFE1E6)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .018),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
 }
 
 class _RoleSelector extends StatelessWidget {
@@ -557,68 +566,71 @@ class _RoleSelector extends StatelessWidget {
   final Color primary;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.all(4.r),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .92),
-          borderRadius: BorderRadius.circular(22.r),
-          border: Border.all(color: const Color(0xFFE7E7EA)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .05),
-              blurRadius: 22,
-              offset: const Offset(0, 10),
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 82.h,
+      child: Row(
+        children: [
+          Expanded(
+            child: _RoleTab(
+              label: 'Trainer',
+              icon: Icons.fitness_center_rounded,
+              controller: controller,
+              primary: primary,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _RoleTab(
-                label: 'Trainer',
-                icon: Icons.fitness_center_rounded,
-                controller: controller,
-                primary: primary,
-              ),
+          ),
+          Container(
+            width: 1,
+            height: 38.h,
+            color: const Color(0xFFE3E4E8),
+          ),
+          Expanded(
+            child: _RoleTab(
+              label: 'User',
+              icon: Icons.person_rounded,
+              controller: controller,
+              primary: primary,
             ),
-            Expanded(
-              child: _RoleTab(
-                label: 'User',
-                icon: Icons.person_rounded,
-                controller: controller,
-                primary: primary,
-              ),
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => Get.toNamed(AppRoute.gymGatewayScreen),
-                child: SizedBox(
-                  height: 70.h,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.business_rounded,
-                        size: 24.sp,
-                        color: const Color(0xFF4B4B50),
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        'Gym',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF3F3F46),
-                        ),
-                      ),
-                    ],
+          ),
+          Container(
+            width: 1,
+            height: 38.h,
+            color: const Color(0xFFE3E4E8),
+          ),
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Get.toNamed(AppRoute.gymGatewayScreen),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.apartment_rounded,
+                    size: 23.sp,
+                    color: const Color(0xFF686A75),
                   ),
-                ),
+                  SizedBox(height: 7.h),
+                  Text(
+                    'Gym',
+                    style: TextStyle(
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF686A75),
+                    ),
+                  ),
+                  SizedBox(height: 11.h),
+                  Container(
+                    height: 2.h,
+                    color: Colors.transparent,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _RoleTab extends StatelessWidget {
@@ -635,138 +647,85 @@ class _RoleTab extends StatelessWidget {
   final Color primary;
 
   @override
-  Widget build(BuildContext context) => Obx(() {
-        final selected = controller.selectedRole == label;
-        return GestureDetector(
-          onTap: () => controller.setRole(label),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            height: 70.h,
-            decoration: BoxDecoration(
-              gradient: selected
-                  ? LinearGradient(
-                      colors: [
-                        const Color(0xFFFF9A32),
-                        primary,
-                        const Color(0xFFFF4A16),
-                      ],
-                    )
-                  : null,
-              color: selected ? null : Colors.transparent,
-              borderRadius: BorderRadius.circular(18.r),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: primary.withValues(alpha: .26),
-                        blurRadius: 16,
-                        offset: const Offset(0, 7),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icon,
-                  size: 24.sp,
-                  color: selected ? Colors.white : const Color(0xFF4B4B50),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                    color: selected ? Colors.white : const Color(0xFF3F3F46),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      });
-}
-
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final Widget icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 54.h,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .92),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFFE1E3E8)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: .035),
-                blurRadius: 14,
-                offset: const Offset(0, 7),
-              ),
-            ],
-          ),
-          child: Row(
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final selected = controller.selectedRole == label;
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => controller.setRole(label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              icon,
-              SizedBox(width: 8.w),
-              Flexible(
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF18181B),
-                  ),
+              AnimatedScale(
+                scale: selected ? 1.04 : 1,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  icon,
+                  size: 23.sp,
+                  color: selected ? primary : const Color(0xFF686A75),
                 ),
+              ),
+              SizedBox(height: 7.h),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                style: TextStyle(
+                  fontSize: 12.5.sp,
+                  fontWeight: FontWeight.w600,
+                  color: selected ? primary : const Color(0xFF686A75),
+                ),
+                child: Text(label),
+              ),
+              SizedBox(height: 11.h),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                height: 2.h,
+                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                color: selected ? primary : Colors.transparent,
               ),
             ],
           ),
         ),
       );
+    });
+  }
 }
 
-class _FooterBenefit extends StatelessWidget {
-  const _FooterBenefit({
+class _SocialCircleButton extends StatelessWidget {
+  const _SocialCircleButton({
     required this.icon,
-    required this.title,
+    required this.onTap,
   });
 
-  final IconData icon;
-  final String title;
+  final Widget icon;
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 20.sp,
-            color: const Color(0xFF3F3F46),
-          ),
-          SizedBox(width: 7.w),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 7.6.sp,
-              height: 1.35,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.1,
-              color: const Color(0xFF27272A),
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 58.w,
+        height: 58.w,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .96),
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFF0F0F2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .07),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-          ),
-        ],
-      );
+          ],
+        ),
+        child: Center(child: icon),
+      ),
+    );
+  }
 }
