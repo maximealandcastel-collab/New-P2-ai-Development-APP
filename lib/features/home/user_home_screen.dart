@@ -96,6 +96,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 SizedBox(height: 16.h),
                 const RateMyPeelBanner(),
                 SizedBox(height: 16.h),
+                const MealPlanBanner(),
+                SizedBox(height: 16.h),
                 _SectionTitle("Today's overview"),
                 const _TodaysOverviewCard(),
                 SizedBox(height: 24.h),
