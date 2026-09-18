@@ -202,9 +202,9 @@ workflows:
       - name: Build iOS release IPA
         script: |
           set -e
-          # Keep every TestFlight upload unique. PROJECT_BUILD_NUMBER is
+          # Apple already contains build 3551. Start above that range and add
           # Codemagic's monotonically increasing project build counter.
-          IOS_BUILD_NUMBER=$((3480 + ${PROJECT_BUILD_NUMBER:-1}))
+          IOS_BUILD_NUMBER=$((4000 + ${PROJECT_BUILD_NUMBER:-1}))
           echo "Building release 4.11.0 ($IOS_BUILD_NUMBER)"
           python3 scripts/verify_release_config.py --origin "$API_ORIGIN" --build "$IOS_BUILD_NUMBER"
           flutter build ipa --release \
