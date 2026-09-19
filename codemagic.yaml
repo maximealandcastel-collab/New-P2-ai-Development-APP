@@ -181,6 +181,78 @@ workflows:
             echo "Push Notifications and HealthKit are already enabled"
           fi
 
+          STALE_PROFILE_NAME="p2p Fit tech platform app ios_app_store 1789532923"
+          echo "Checking for the stale provisioning profile named in the Xcode error"
+          app-store-connect bundle-ids profiles \
+            --bundle-ids "$BUNDLE_RESOURCE_ID" \
+            --type IOS_APP_STORE \
+            --json \
+            --silent \
+            "${ASC_AUTH_ARGS[@]}" > /tmp/p2p_app_store_profiles.json
+
+          STALE_PROFILE_ID="$(python3 - "$STALE_PROFILE_NAME" <<'PYEOF'
+          import json
+          import sys
+
+          wanted_name = ' '.join(sys.argv[1].split())
+          with open('/tmp/p2p_app_store_profiles.json') as source:
+              payload = json.load(source)
+
+          matches = {}
+
+          def visit(value):
+              if isinstance(value, list):
+                  for item in value:
+                      visit(item)
+                  return
+              if not isinstance(value, dict):
+                  return
+
+              attributes = value.get('attributes')
+              merged = dict(attributes) if isinstance(attributes, dict) else {}
+              merged.update(value)
+              profile_type = (
+                  merged.get('profileType')
+                  or merged.get('profile_type')
+              )
+              profile_name = merged.get('name')
+              resource_id = (
+                  merged.get('id')
+                  or merged.get('resourceId')
+                  or merged.get('resource_id')
+              )
+              if (
+                  profile_type == 'IOS_APP_STORE'
+                  and isinstance(profile_name, str)
+                  and ' '.join(profile_name.split()) == wanted_name
+                  and resource_id
+              ):
+                  matches[str(resource_id)] = profile_name
+
+              for child in value.values():
+                  visit(child)
+
+          visit(payload)
+          if len(matches) > 1:
+              sys.exit(
+                  f'ERROR: Refusing to delete {len(matches)} profiles named '
+                  f'{wanted_name!r}; expected at most one'
+              )
+          if matches:
+              print(next(iter(matches)))
+          PYEOF
+          )"
+
+          if [ -n "$STALE_PROFILE_ID" ]; then
+            echo "Deleting only stale profile $STALE_PROFILE_ID"
+            app-store-connect profiles delete "$STALE_PROFILE_ID" \
+              "${ASC_AUTH_ARGS[@]}"
+            echo "Waiting for Apple profile changes to propagate"
+            sleep 10
+          else
+            echo "The named stale profile is already gone"
+          fi
+
           fetch_signing_files() {
             app-store-connect fetch-signing-files \
               "$BUNDLE_ID" \
@@ -294,6 +366,35 @@ workflows:
             echo "One stale distribution certificate replaced; waiting for Apple to update"
             sleep 15
             fetch_signing_files
+          fi
+
+          PROFILE_VALID=0
+          while IFS= read -r profile_path; do
+            if ! security cms -D -i "$profile_path" > /tmp/p2p_profile.plist 2>/dev/null; then
+              continue
+            fi
+            PROFILE_APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /tmp/p2p_profile.plist 2>/dev/null || true)"
+            case "$PROFILE_APP_ID" in
+              *."$BUNDLE_ID") ;;
+              *) continue ;;
+            esac
+            if /usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' /tmp/p2p_profile.plist >/dev/null 2>&1 \
+              && [ "$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.healthkit' /tmp/p2p_profile.plist 2>/dev/null || true)" = "true" ] \
+              && /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.healthkit.access' /tmp/p2p_profile.plist >/dev/null 2>&1; then
+              PROFILE_VALID=1
+              echo "Verified provisioning profile includes Push Notifications and HealthKit"
+              break
+            fi
+          done < <(
+            find \
+              "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles" \
+              "$HOME/Library/MobileDevice/Provisioning Profiles" \
+              -type f -name '*.mobileprovision' -print 2>/dev/null || true
+          )
+
+          if [ "$PROFILE_VALID" -ne 1 ]; then
+            echo "ERROR: Generated provisioning profile is missing required Push Notifications or HealthKit entitlements"
+            exit 1
           fi
 
       - name: Add certificates to keychain
