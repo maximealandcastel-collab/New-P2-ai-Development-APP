@@ -3,6 +3,8 @@ import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +16,11 @@ import 'package:pler_to_pler_app/core/services/push_notification_service.dart';
 import 'app.dart';
 
 const _buildNumber = String.fromEnvironment('BUILD_NUMBER', defaultValue: 'dev');
+
+@pragma('vm:entry-point')
+Future<void> p2pFirebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+}
 
 void _recordUnhandled(String source, Object error, StackTrace stack) {
   debugPrint('[UNHANDLED][$source][build=$_buildNumber] $error');
@@ -40,6 +47,9 @@ Future<void> main() async {
     };
 
     if (kReleaseMode) ApiConstants.validateProductionOrigins(ApiUrls.baseUrl, ApiUrls.socketUrl);
+    FirebaseMessaging.onBackgroundMessage(
+      p2pFirebaseMessagingBackgroundHandler,
+    );
     await DependencyInjection.init();
     await AudioFocusService.instance.configure();
 

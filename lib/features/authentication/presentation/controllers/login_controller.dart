@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/services/push_notification_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_admin_dashboard_screen.dart';
 import 'package:pler_to_pler_app/features/authentication/data/models/login_result_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_access_recovery_screen.dart';
@@ -114,6 +117,7 @@ class LoginController extends GetxController {
         password: passwordController.text,
       );
       authenticated = true;
+      unawaited(PushNotificationService.instance.syncToken());
 
       final prefs = await SharedPreferences.getInstance();
       if (saveLogin.value) {
@@ -393,6 +397,9 @@ class LoginController extends GetxController {
     passwordController.clear();
     try {
       await StreamChatService.instance.disconnect();
+    } catch (_) {}
+    try {
+      await PushNotificationService.instance.signOut();
     } catch (_) {}
     try {
       await _authService.logout();
