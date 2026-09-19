@@ -237,6 +237,26 @@ class WorkoutModel {
         .toList();
   }
 
+  /// Keeps the first occurrence of each server workout ID.
+  /// Records without an ID remain visible because they cannot be compared
+  /// safely; valid API records are deduplicated across pages.
+  static List<WorkoutModel> dedupeById(
+    Iterable<WorkoutModel> workouts, {
+    Set<String> excludingIds = const <String>{},
+  }) {
+    final seen = <String>{...excludingIds};
+    final unique = <WorkoutModel>[];
+    for (final workout in workouts) {
+      final workoutId = workout.id;
+      if (workoutId == null || workoutId.isEmpty) {
+        unique.add(workout);
+      } else if (seen.add(workoutId)) {
+        unique.add(workout);
+      }
+    }
+    return unique;
+  }
+
   factory WorkoutModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] is Map
         ? Map<String, dynamic>.from(json['data'] as Map)

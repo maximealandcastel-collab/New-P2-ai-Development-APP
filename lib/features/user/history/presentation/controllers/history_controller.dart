@@ -58,11 +58,24 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
     _loadData();
   }
 
-  Future<List<WorkoutModel>> _fetchWorkoutsPage(int page, int limit) {
-    return _service.getWorkouts(
+  Future<List<WorkoutModel>> _fetchWorkoutsPage(int page, int limit) async {
+    final fetched = await _service.getWorkouts(
       status: currentStatus,
       page: page,
       limit: limit,
+    );
+
+    // Protect the UI from repeated records if an older backend ignores page.
+    // Returning an empty page also stops PaginatedList from requesting forever.
+    final existingIds = page == 1
+        ? <String>{}
+        : workoutsList.items
+            .map((workout) => workout.id)
+            .whereType<String>()
+            .toSet();
+    return WorkoutModel.dedupeById(
+      fetched,
+      excludingIds: existingIds,
     );
   }
 
@@ -76,7 +89,9 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
       List<WorkoutModel>.from(_tabCache[tabIndex] ?? const []);
 
   void _cacheCurrentTab() {
-    _tabCache[selectedTab] = List<WorkoutModel>.from(workoutsList.items);
+    final unique = WorkoutModel.dedupeById(workoutsList.items);
+    workoutsList.items.value = unique;
+    _tabCache[selectedTab] = List<WorkoutModel>.from(unique);
   }
 
   Future<void> _loadData({bool showFullLoader = true}) async {
@@ -134,30 +149,43 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
     Get.toNamed(AppRoute.workoutPlanDetailsScreen, arguments: workoutId);
   }
 
-  /// "X out" a stale/unwanted workout so it stops cluttering the feed.
-  /// Removes it optimistically and restores it if the backend call fails.
+  final Set<String> _deletingWorkoutIds = <String>{};
+
+  /// Removes every visible copy immediately, then asks the backend to delete
+  /// the user-owned workout. Repeated taps are ignored and failures restore a
+  /// single deduplicated snapshot.
   Future<void> dismissWorkout(WorkoutModel workout) async {
     final workoutId = workout.id;
     if (workoutId == null || workoutId.isEmpty) {
       ToastMessageHelper.show('Workout id not found');
       return;
     }
+    if (!_deletingWorkoutIds.add(workoutId)) return;
 
-    final index = workoutsList.items.indexOf(workout);
-    if (index == -1) return;
-    workoutsList.items.removeAt(index);
+    final snapshot = WorkoutModel.dedupeById(workoutsList.items);
+    workoutsList.items.removeWhere((item) => item.id == workoutId);
+    for (final entry in _tabCache.entries) {
+      entry.value.removeWhere((item) => item.id == workoutId);
+    }
     _cacheCurrentTab();
 
     try {
       await _service.deleteWorkout(workoutId);
+      ToastMessageHelper.show('Workout removed.');
     } on AppException catch (e) {
-      workoutsList.items.insert(index, workout);
-      _cacheCurrentTab();
-      ToastMessageHelper.show(e.message);
+      // DELETE is idempotent from the user's perspective: if it is already
+      // absent on the server, the desired result has still been reached.
+      if (!e.message.toLowerCase().contains('not found')) {
+        workoutsList.items.value = snapshot;
+        _cacheCurrentTab();
+        ToastMessageHelper.show(e.message);
+      }
     } catch (_) {
-      workoutsList.items.insert(index, workout);
+      workoutsList.items.value = snapshot;
       _cacheCurrentTab();
       ToastMessageHelper.show('Could not remove that workout. Try again.');
+    } finally {
+      _deletingWorkoutIds.remove(workoutId);
     }
   }
 

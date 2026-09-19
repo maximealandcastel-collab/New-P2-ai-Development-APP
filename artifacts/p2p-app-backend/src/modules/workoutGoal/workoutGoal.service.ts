@@ -737,15 +737,19 @@ export const skipSessionService = async (
 
 export const getUserWorkoutsService = async (
   userId: string,
-  filters: { status?: string; limit?: number } = {},
+  filters: { status?: string; page?: number; limit?: number } = {},
 ): Promise<IWorkout[]> => {
   const query: any = { userId };
   if (filters.status) query.status = filters.status;
 
+  const page = Math.max(1, Number(filters.page) || 1);
+  const limit = Math.min(50, Math.max(1, Number(filters.limit) || 20));
+
   return (await WorkoutModel.find(query)
     .populate("trainerId", "name specialty profileImage")
-    .sort({ date: -1 })
-    .limit(filters.limit || 20)
+    .sort({ date: -1, createdAt: -1, _id: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
     .lean()) as unknown as IWorkout[];
 };
 
@@ -790,14 +794,9 @@ export const deleteWorkoutService = async (
   userId: string,
   workoutId: string,
 ): Promise<void> => {
-  const workout = await WorkoutModel.findOne({ _id: workoutId, userId });
-  if (!workout) throw new Error("Workout not found");
-  if (workout.status !== "pending") {
-    throw new Error(
-      "Cannot delete a workout that has been started or completed",
-    );
-  }
-  await WorkoutModel.deleteOne({ _id: workoutId });
+  // User-scoped and idempotent: repeated delete requests succeed without
+  // exposing whether a workout existed, and any history status can be removed.
+  await WorkoutModel.deleteOne({ _id: workoutId, userId });
 };
 
 // ─────────────────────────────────────────────────────────────

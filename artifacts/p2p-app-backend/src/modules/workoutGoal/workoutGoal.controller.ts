@@ -380,11 +380,12 @@ export const getUserWorkouts = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { status, limit } = req.query;
+    const { status, page, limit } = req.query;
     const userId = (req.user as JwtPayloadWithUser).id;
     const workouts = await getUserWorkoutsService(userId, {
       status: status as string | undefined,
-      limit: limit ? parseInt(limit as string) : 20,
+      page: page ? parseInt(page as string, 10) : 1,
+      limit: limit ? parseInt(limit as string, 10) : 20,
     });
 
     res.status(200).json({ success: true, data: workouts });
