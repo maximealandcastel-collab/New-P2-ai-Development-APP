@@ -20,8 +20,16 @@ import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/w
 import 'package:pler_to_pler_app/features/trainer/clients/presentation/screens/widgets/client_shimmer.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
-class TrainerHomeScreen extends StatelessWidget {
+class TrainerHomeScreen extends StatefulWidget {
   const TrainerHomeScreen({super.key});
+
+  @override
+  State<TrainerHomeScreen> createState() => _TrainerHomeScreenState();
+}
+
+class _TrainerHomeScreenState extends State<TrainerHomeScreen> {
+  // Session-scoped on purpose: hiding the notice never persists across sign-in.
+  bool _showTrainerNotice = true;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +63,12 @@ class TrainerHomeScreen extends StatelessWidget {
                   margin: EdgeInsets.zero,
                   compact: true,
                 ),
+                if (_showTrainerNotice) ...[
+                  SizedBox(height: 10.h),
+                  TrainerPerformanceNotice(
+                    onHide: () => setState(() => _showTrainerNotice = false),
+                  ),
+                ],
                 SizedBox(height: 14.h),
                 const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
@@ -291,6 +305,149 @@ class TrainerHomeScreen extends StatelessWidget {
             text: point,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TrainerPerformanceNotice extends StatelessWidget {
+  const TrainerPerformanceNotice({
+    super.key,
+    required this.onHide,
+  });
+
+  final VoidCallback onHide;
+
+  static const _red = Color(0xFFD93420);
+  static const _deepRed = Color(0xFF9F1B17);
+  static const _softRed = Color(0xFFFFF2F0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      label:
+          'Attention trainers. Keep your physique in optimal shape and track your training.',
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(13.w, 12.h, 12.w, 12.h),
+        decoration: BoxDecoration(
+          color: _softRed,
+          borderRadius: BorderRadius.circular(17.r),
+          border: Border.all(color: _red.withOpacity(0.42)),
+          boxShadow: [
+            BoxShadow(
+              color: _red.withOpacity(0.09),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 42.r,
+              height: 42.r,
+              decoration: BoxDecoration(
+                color: _red,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.88),
+                  width: 3,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _red.withOpacity(0.22),
+                    blurRadius: 9,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.priority_high_rounded,
+                size: 25.r,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 11.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Attention Trainers',
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            height: 1.05,
+                            fontWeight: AppFontWeight.section,
+                            color: _deepRed,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _red.withOpacity(0.10),
+                          borderRadius: BorderRadius.circular(999.r),
+                        ),
+                        child: Text(
+                          'STAY PREPARED',
+                          style: TextStyle(
+                            fontSize: 8.5.sp,
+                            height: 1,
+                            fontWeight: AppFontWeight.label,
+                            letterSpacing: 0.25,
+                            color: _deepRed,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    'Your physique should remain in optimal shape. Track your '
+                    'training, monitor body fat, and stay performance-ready. '
+                    'Body fat above 15% can reduce definition, conditioning, '
+                    'and overall presentation.',
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      height: 1.35,
+                      fontWeight: AppFontWeight.body,
+                      color: const Color(0xFF3B2B2A),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: onHide,
+                      style: TextButton.styleFrom(
+                        minimumSize: Size.zero,
+                        padding: EdgeInsets.fromLTRB(8.w, 5.h, 2.w, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        foregroundColor: _deepRed,
+                      ),
+                      icon: Icon(Icons.visibility_off_outlined, size: 14.sp),
+                      label: Text(
+                        'Hide for now',
+                        style: TextStyle(
+                          fontSize: 10.5.sp,
+                          fontWeight: AppFontWeight.label,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
