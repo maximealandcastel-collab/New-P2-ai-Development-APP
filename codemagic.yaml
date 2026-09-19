@@ -63,6 +63,124 @@ workflows:
           fi
           chmod 600 "$CERTIFICATE_KEY"
 
+          ASC_AUTH_ARGS=(
+            --private-key @file:/tmp/api_key.pem
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID"
+          )
+
+          echo "Checking Apple App ID capabilities for $BUNDLE_ID"
+          app-store-connect bundle-ids list \
+            --bundle-id-identifier "$BUNDLE_ID" \
+            --strict-match-identifier \
+            --json \
+            --silent \
+            "${ASC_AUTH_ARGS[@]}" > /tmp/p2p_bundle_ids.json
+
+          BUNDLE_RESOURCE_ID="$(python3 - "$BUNDLE_ID" <<'PYEOF'
+          import json
+          import sys
+
+          wanted_identifier = sys.argv[1]
+          with open('/tmp/p2p_bundle_ids.json') as source:
+              payload = json.load(source)
+
+          matches = {}
+
+          def visit(value):
+              if isinstance(value, list):
+                  for item in value:
+                      visit(item)
+                  return
+              if not isinstance(value, dict):
+                  return
+
+              attributes = value.get('attributes')
+              merged = dict(attributes) if isinstance(attributes, dict) else {}
+              merged.update(value)
+
+              identifier = merged.get('identifier')
+              resource_id = (
+                  merged.get('id')
+                  or merged.get('resourceId')
+                  or merged.get('resource_id')
+              )
+              if identifier == wanted_identifier and resource_id:
+                  matches[str(resource_id)] = identifier
+
+              for child in value.values():
+                  visit(child)
+
+          visit(payload)
+          if len(matches) != 1:
+              sys.exit(
+                  f'ERROR: Expected one Apple Bundle ID for {wanted_identifier}, '
+                  f'found {len(matches)}'
+              )
+          print(next(iter(matches)))
+          PYEOF
+          )"
+
+          app-store-connect bundle-ids capabilities "$BUNDLE_RESOURCE_ID" \
+            --json \
+            --silent \
+            "${ASC_AUTH_ARGS[@]}" > /tmp/p2p_capabilities.json
+
+          MISSING_CAPABILITIES="$(python3 - <<'PYEOF'
+          import json
+
+          with open('/tmp/p2p_capabilities.json') as source:
+              payload = json.load(source)
+
+          enabled = set()
+
+          def visit(value):
+              if isinstance(value, list):
+                  for item in value:
+                      visit(item)
+                  return
+              if not isinstance(value, dict):
+                  return
+
+              attributes = value.get('attributes')
+              merged = dict(attributes) if isinstance(attributes, dict) else {}
+              merged.update(value)
+              capability = (
+                  merged.get('capabilityType')
+                  or merged.get('capability_type')
+              )
+              if isinstance(capability, str):
+                  enabled.add(capability.upper().replace(' ', '_'))
+
+              for child in value.values():
+                  visit(child)
+
+          visit(payload)
+          required = {
+              'Push Notifications': 'PUSH_NOTIFICATIONS',
+              'HealthKit': 'HEALTHKIT',
+          }
+          for display_name, api_name in required.items():
+              if api_name not in enabled:
+                  print(display_name)
+          PYEOF
+          )"
+
+          if [ -n "$MISSING_CAPABILITIES" ]; then
+            while IFS= read -r capability; do
+              [ -z "$capability" ] && continue
+              echo "Enabling Apple capability: $capability"
+              app-store-connect bundle-ids enable-capabilities \
+                "$BUNDLE_RESOURCE_ID" \
+                --capability "$capability" \
+                "${ASC_AUTH_ARGS[@]}"
+            done <<< "$MISSING_CAPABILITIES"
+            echo "Waiting for Apple to invalidate stale profiles"
+            sleep 10
+          else
+            echo "Push Notifications and HealthKit are already enabled"
+          fi
+
           fetch_signing_files() {
             app-store-connect fetch-signing-files \
               "$BUNDLE_ID" \
