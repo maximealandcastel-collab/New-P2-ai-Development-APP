@@ -4,10 +4,17 @@ import 'package:pler_to_pler_app/features/user/rate_my_peel/presentation/rate_my
 
 class RateMyPeelBanner extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
+  final bool compact;
 
-  const RateMyPeelBanner({super.key, this.margin});
+  const RateMyPeelBanner({
+    super.key,
+    this.margin,
+    this.compact = false,
+  });
 
   static const String _assetPath = 'assets/images/rate_my_peel_banner.jpg';
+  static const String _compactAssetPath =
+      'assets/images/rate_my_peel_trainer_banner.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +31,7 @@ class RateMyPeelBanner extends StatelessWidget {
           margin: margin ?? EdgeInsets.symmetric(horizontal: 16.w),
           decoration: BoxDecoration(
             color: const Color(0xFF090909),
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(compact ? 14.r : 16.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
@@ -34,12 +41,12 @@ class RateMyPeelBanner extends StatelessWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(compact ? 14.r : 16.r),
             child: AspectRatio(
-              aspectRatio: 1.22,
+              aspectRatio: compact ? 1536 / 539 : 1.22,
               child: Image.asset(
-                _assetPath,
-                fit: BoxFit.cover,
+                compact ? _compactAssetPath : _assetPath,
+                fit: compact ? BoxFit.contain : BoxFit.cover,
                 alignment: Alignment.center,
                 filterQuality: FilterQuality.high,
                 gaplessPlayback: true,

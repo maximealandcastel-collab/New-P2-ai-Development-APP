@@ -51,7 +51,10 @@ class TrainerHomeScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _buildClientOverviewSection(context, homeController, clientsController),
                 SizedBox(height: 14.h),
-                const RateMyPeelBanner(margin: EdgeInsets.zero),
+                const RateMyPeelBanner(
+                  margin: EdgeInsets.zero,
+                  compact: true,
+                ),
                 SizedBox(height: 14.h),
                 const TrainerClientPlansSection(),
                 SizedBox(height: 8.h),
