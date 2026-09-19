@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:pler_to_pler_app/features/user/achievements/data/achievement_service.dart';
+import 'package:pler_to_pler_app/features/user/achievements/data/achievement_unlock.dart';
+import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -17,11 +20,44 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   int _filterIndex = 0;
   bool _communityLiked = false;
   bool _communitySaved = false;
+  AchievementOverview? _achievementOverview;
+  Object? _achievementError;
+  bool _loadingAchievements = true;
 
   static const _tabs = ['Community', 'My Progress', 'Challenges', 'Activity'];
   static const _filters = ['All Posts', 'Workouts', 'Meals', 'Progress', 'Motivation'];
 
   Color get _orange => Theme.of(context).colorScheme.primary;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAchievements();
+  }
+
+  Future<void> _loadAchievements() async {
+    if (mounted) {
+      setState(() {
+        _loadingAchievements = true;
+        _achievementError = null;
+      });
+    }
+    try {
+      final overview = await AchievementService.getOverview();
+      if (!mounted) return;
+      setState(() {
+        _achievementOverview = overview;
+        _achievementError = null;
+        _loadingAchievements = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _achievementError = error;
+        _loadingAchievements = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +75,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
         return RefreshIndicator(
           color: _orange,
-          onRefresh: controller.refresh,
+          onRefresh: () async {
+            await Future.wait([
+              controller.refresh(),
+              _loadAchievements(),
+            ]);
+          },
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -102,7 +143,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         onLike: () => setState(() => _communityLiked = !_communityLiked),
                         onSave: () => setState(() => _communitySaved = !_communitySaved),
                       ),
-                    ] else
+                    ] else if (_tabIndex == 2)
+                      _ChallengesPanel(
+                        role: user?.role,
+                        overview: _achievementOverview,
+                        fallbackSplitCount: workoutCount,
+                        loading: _loadingAchievements,
+                        hasError: _achievementError != null,
+                        orange: _orange,
+                        onRetry: _loadAchievements,
+                      )
+                    else
                       _TabEmptyState(
                         title: _tabs[_tabIndex],
                         orange: _orange,
@@ -485,6 +536,254 @@ class _PostAction extends StatelessWidget {
   final Color? color;
   @override
   Widget build(BuildContext context) => InkWell(onTap: onTap, borderRadius: BorderRadius.circular(10.r), child: Padding(padding: EdgeInsets.symmetric(vertical: 5.h), child: Row(children: [Icon(icon, size: 18.sp, color: color ?? const Color(0xFF55555B)), SizedBox(width: 5.w), Text(label, style: TextStyle(fontSize: 9.5.sp, color: color ?? const Color(0xFF55555B), fontWeight: FontWeight.w500))])));
+}
+
+class _ChallengesPanel extends StatelessWidget {
+  const _ChallengesPanel({
+    required this.role,
+    required this.overview,
+    required this.fallbackSplitCount,
+    required this.loading,
+    required this.hasError,
+    required this.orange,
+    required this.onRetry,
+  });
+
+  final String? role;
+  final AchievementOverview? overview;
+  final int fallbackSplitCount;
+  final bool loading;
+  final bool hasError;
+  final Color orange;
+  final Future<void> Function() onRetry;
+
+  bool get _isTrainer {
+    final normalizedRole = role?.trim().toLowerCase();
+    return normalizedRole == 'trainer' || normalizedRole == 'admin';
+  }
+
+  AchievementUnlock? get _highestUnlock {
+    final unlocks = List<AchievementUnlock>.from(overview?.unlocks ?? const []);
+    if (unlocks.isEmpty) return null;
+    unlocks.sort((a, b) => a.milestoneValue.compareTo(b.milestoneValue));
+    return unlocks.last;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading && overview == null) {
+      return Container(
+        height: 180.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: const Color(0xFFE8E8EB)),
+        ),
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(color: orange, strokeWidth: 2.5),
+      );
+    }
+
+    final splitCount = overview?.workoutCount ?? fallbackSplitCount;
+    final badgeCount = overview?.badgeCount ?? 0;
+    final streak = overview?.currentStreak ?? 0;
+    final topUnlock = _highestUnlock;
+    final rankName = topUnlock?.name ?? (splitCount > 0 ? 'Rising Member' : 'Rookie');
+    final nextMilestone = overview?.nextMilestone;
+    final progress = nextMilestone != null && nextMilestone > 0
+        ? (splitCount / nextMilestone).clamp(0, 1).toDouble()
+        : (topUnlock == null ? 0.0 : 1.0);
+    final remaining = nextMilestone == null ? null : (nextMilestone - splitCount).clamp(0, nextMilestone);
+
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(18.r),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [const Color(0xFF171717), const Color(0xFF332315), orange],
+            ),
+            borderRadius: BorderRadius.circular(22.r),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 56.r,
+                    height: 56.r,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE7A7),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: .5), width: 2),
+                    ),
+                    child: Icon(Icons.emoji_events_rounded, color: const Color(0xFFB87900), size: 31.sp),
+                  ),
+                  SizedBox(width: 13.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isTrainer ? 'TRAINER RANKING' : 'MEMBER RANKING',
+                          style: TextStyle(color: Colors.white60, fontSize: 8.5.sp, fontWeight: FontWeight.w600, letterSpacing: 1.2),
+                        ),
+                        SizedBox(height: 3.h),
+                        Text(rankName, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w700)),
+                        if (topUnlock?.headline.isNotEmpty == true)
+                          Text(topUnlock!.headline, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 10.sp)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 17.h),
+              Row(
+                children: [
+                  Expanded(child: _ChallengeMetric(icon: Icons.auto_awesome_rounded, value: '$splitCount', label: 'Generated splits')),
+                  SizedBox(width: 8.w),
+                  Expanded(child: _ChallengeMetric(icon: Icons.military_tech_rounded, value: '$badgeCount', label: 'Badges earned')),
+                  SizedBox(width: 8.w),
+                  Expanded(child: _ChallengeMetric(icon: Icons.local_fire_department_rounded, value: '$streak', label: 'Day streak')),
+                ],
+              ),
+              SizedBox(height: 16.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      remaining == null ? 'Top rank progress' : '$remaining more split${remaining == 1 ? '' : 's'} to the next trophy',
+                      style: TextStyle(color: Colors.white70, fontSize: 9.5.sp, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Text('${(progress * 100).round()}%', style: TextStyle(color: Colors.white, fontSize: 10.sp, fontWeight: FontWeight.w700)),
+                ],
+              ),
+              SizedBox(height: 7.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: LinearProgressIndicator(
+                  minHeight: 7.h,
+                  value: progress,
+                  backgroundColor: Colors.white.withValues(alpha: .15),
+                  valueColor: const AlwaysStoppedAnimation(Color(0xFFFFD56A)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (hasError) ...[
+          SizedBox(height: 10.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 10.h),
+            decoration: BoxDecoration(color: const Color(0xFFFFF4EA), borderRadius: BorderRadius.circular(14.r)),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off_rounded, color: orange, size: 17.sp),
+                SizedBox(width: 8.w),
+                Expanded(child: Text('Showing saved activity. Refresh to sync trophies.', style: TextStyle(fontSize: 9.5.sp, color: const Color(0xFF6A4A35)))),
+                TextButton(onPressed: () => onRetry(), child: Text('Retry', style: TextStyle(color: orange, fontSize: 10.sp, fontWeight: FontWeight.w600))),
+              ],
+            ),
+          ),
+        ],
+        SizedBox(height: 12.h),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16.r),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20.r), border: Border.all(color: const Color(0xFFE8E8EB))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Trophies & badges', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF171717))),
+                  const Spacer(),
+                  Text('$badgeCount unlocked', style: TextStyle(fontSize: 9.5.sp, color: orange, fontWeight: FontWeight.w600)),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              if (overview?.unlocks.isNotEmpty == true)
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: overview!.unlocks.map((unlock) => _BadgeChip(unlock: unlock, orange: orange)).toList(),
+                )
+              else
+                Row(
+                  children: [
+                    Container(width: 38.r, height: 38.r, decoration: const BoxDecoration(color: Color(0xFFF4F4F5), shape: BoxShape.circle), child: Icon(Icons.lock_outline_rounded, color: const Color(0xFF9A9AA0), size: 18.sp)),
+                    SizedBox(width: 10.w),
+                    Expanded(child: Text('Generate your first split to begin earning P2P trophies.', style: TextStyle(fontSize: 10.5.sp, height: 1.35, color: const Color(0xFF66666C)))),
+                  ],
+                ),
+              SizedBox(height: 14.h),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AchievementsScreen())),
+                  icon: Icon(Icons.emoji_events_outlined, size: 17.sp),
+                  label: const Text('View all achievements'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: orange,
+                    side: BorderSide(color: orange.withValues(alpha: .35)),
+                    padding: EdgeInsets.symmetric(vertical: 11.h),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                    textStyle: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChallengeMetric extends StatelessWidget {
+  const _ChallengeMetric({required this.icon, required this.value, required this.label});
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .1), borderRadius: BorderRadius.circular(14.r)),
+        child: Column(
+          children: [
+            Icon(icon, color: const Color(0xFFFFD56A), size: 18.sp),
+            SizedBox(height: 4.h),
+            Text(value, style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: FontWeight.w700)),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white60, fontSize: 7.5.sp, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      );
+}
+
+class _BadgeChip extends StatelessWidget {
+  const _BadgeChip({required this.unlock, required this.orange});
+  final AchievementUnlock unlock;
+  final Color orange;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        constraints: BoxConstraints(maxWidth: 150.w),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+        decoration: BoxDecoration(color: orange.withValues(alpha: .08), borderRadius: BorderRadius.circular(14.r)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.workspace_premium_rounded, color: orange, size: 17.sp),
+            SizedBox(width: 6.w),
+            Flexible(child: Text(unlock.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 9.5.sp, fontWeight: FontWeight.w600, color: const Color(0xFF3E2B20)))),
+          ],
+        ),
+      );
 }
 
 class _TabEmptyState extends StatelessWidget {
