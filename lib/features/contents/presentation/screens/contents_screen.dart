@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/app_constants.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:video_player/video_player.dart';
 import 'package:pler_to_pler_app/core/widgets/video_playback_visibility.dart';
@@ -27,14 +29,6 @@ class _FeedVideo {
   final String? videoUrl;
   final String? thumbnailUrl;
   const _FeedVideo({required this.title, this.videoUrl, this.thumbnailUrl});
-}
-
-/// Server origin without the /api/v1 suffix — used for relative media URLs.
-String _origin() => ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
-
-String? _absolute(String? u) {
-  if (u == null || u.isEmpty) return null;
-  return u.startsWith('http') ? u : '${_origin()}$u';
 }
 
 /// GET helper. The session token lives in Hive via CacheService — this used to
@@ -98,11 +92,19 @@ class _ContentsScreenState extends State<ContentsScreen> {
         if (data is Map) {
           List<_FeedVideo> parse(dynamic list) {
             if (list is! List) return const [];
-            return list.whereType<Map>().map((v) => _FeedVideo(
-              title: v['title']?.toString() ?? 'Workout',
-              videoUrl: _absolute(v['videoUrl']?.toString()),
-              thumbnailUrl: _absolute(v['thumbnailUrl']?.toString()),
-            )).toList();
+            return list.whereType<Map>().map((raw) {
+              final content = ContentModel.fromJson(
+                Map<String, dynamic>.from(raw),
+              );
+              final videoUrl = ContentMediaResolver.resolveVideoUrl(content);
+              final thumbnailUrl =
+                  ContentMediaResolver.resolveThumbnailUrl(content);
+              return _FeedVideo(
+                title: content.title ?? 'Workout',
+                videoUrl: videoUrl.isEmpty ? null : videoUrl,
+                thumbnailUrl: thumbnailUrl.isEmpty ? null : thumbnailUrl,
+              );
+            }).toList();
           }
           if (!mounted) return;
           setState(() {
@@ -382,10 +384,19 @@ class _VideoPageState extends State<_VideoPage> {
     });
   }
 
+  void _retry() {
+    if (!_failed) return;
+    setState(() {
+      _failed = false;
+      _ready = false;
+    });
+    _init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _togglePlay,
+      onTap: _failed ? _retry : _togglePlay,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -428,7 +439,7 @@ class _VideoPageState extends State<_VideoPage> {
                         color: Colors.white54, size: 42),
                     SizedBox(height: 12),
                     Text(
-                      'Video unavailable — swipe for the next workout.',
+                      'Video unavailable — tap to retry or swipe for the next workout.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
