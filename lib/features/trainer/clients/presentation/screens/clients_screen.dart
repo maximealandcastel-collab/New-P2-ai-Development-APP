@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../../core/themes/app_typography.dart';
-import '../../../../../core/utils/constants/app_colors.dart';
 import '../../../../../custom_assets/assets.gen.dart';
 import '../../../../../features/bottom_nav_bar/data/models/nav_item_model.dart';
 import '../../../../../features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -147,7 +146,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      backgroundColor: const Color(0xFFFAFAFB),
+      paddingSide: 0,
       appBar: CustomAppBar(
         titleWidget: Padding(
           padding: EdgeInsets.only(left: 8.w),
@@ -620,7 +619,9 @@ class _EmptyClientsView extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(18.w, 42.h, 18.w, 90.h),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: (constraints.maxHeight - 132.h).clamp(0, double.infinity),
+              minHeight: (constraints.maxHeight - 132.h)
+                  .clamp(0.0, double.infinity)
+                  .toDouble(),
             ),
             child: Center(
               child: Column(
@@ -649,7 +650,7 @@ class _EmptyClientsView extends StatelessWidget {
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: _ink,
+                      color: const Color(0xFF17181B),
                       fontSize: 19.sp,
                       height: 1.1,
                       fontWeight: AppFontWeight.display,
@@ -663,7 +664,7 @@ class _EmptyClientsView extends StatelessWidget {
                       description,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _muted,
+                        color: const Color(0xFF737780),
                         fontSize: 12.5.sp,
                         height: 1.35,
                         fontWeight: AppFontWeight.body,
