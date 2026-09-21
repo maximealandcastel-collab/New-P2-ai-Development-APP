@@ -65,12 +65,23 @@ class RateMyPeelBanner extends StatelessWidget {
                             width:
                                 constraints.maxWidth * (compact ? 0.47 : 0.50),
                             height: bannerHeight,
-                            child: Image.asset(
-                              _artworkPath,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.centerRight,
-                              filterQuality: FilterQuality.high,
-                              excludeFromSemantics: true,
+                            child: ClipRect(
+                              child: OverflowBox(
+                                alignment: Alignment.centerRight,
+                                minWidth: constraints.maxWidth,
+                                maxWidth: constraints.maxWidth,
+                                minHeight: bannerHeight,
+                                maxHeight: bannerHeight,
+                                child: Image.asset(
+                                  _artworkPath,
+                                  width: constraints.maxWidth,
+                                  height: bannerHeight,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.centerRight,
+                                  filterQuality: FilterQuality.high,
+                                  excludeFromSemantics: true,
+                                ),
+                              ),
                             ),
                           ),
                         ),
