@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
+import 'package:pler_to_pler_app/features/contents/core/content_media_resolver.dart';
+import 'package:pler_to_pler_app/features/contents/data/models/content_model.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/video_details_screens.dart';
-import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 import 'package:video_player/video_player.dart';
 
@@ -25,11 +26,6 @@ class ExerciseVideo {
 
   const ExerciseVideo({required this.title, this.videoUrl, this.thumbnailUrl});
 }
-
-/// Server origin without the /api/v1 suffix — backend videoUrl values
-/// already start with /api/v1/... so they must not be double-prefixed.
-String _serverOrigin() =>
-    ApiUrls.baseUrl.replaceFirst(RegExp(r'/api/v1/?$'), '');
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -97,19 +93,17 @@ class _FeedScreenState extends State<FeedScreen> {
         if (data is Map) {
           List<ExerciseVideo> parse(dynamic list) {
             if (list is! List) return const [];
-            final origin = _serverOrigin();
-            return list.whereType<Map>().map((v) {
-              final rawUrl = v['videoUrl']?.toString();
-              final rawThumb = v['thumbnailUrl']?.toString();
-              String? absolute(String? u) {
-                if (u == null || u.isEmpty) return null;
-                return u.startsWith('http') ? u : '$origin$u';
-              }
-
+            return list.whereType<Map>().map((raw) {
+              final content = ContentModel.fromJson(
+                Map<String, dynamic>.from(raw),
+              );
+              final videoUrl = ContentMediaResolver.resolveVideoUrl(content);
+              final thumbnailUrl =
+                  ContentMediaResolver.resolveThumbnailUrl(content);
               return ExerciseVideo(
-                title: v['title']?.toString() ?? 'Workout',
-                videoUrl: absolute(rawUrl),
-                thumbnailUrl: absolute(rawThumb),
+                title: content.title ?? 'Workout',
+                videoUrl: videoUrl.isEmpty ? null : videoUrl,
+                thumbnailUrl: thumbnailUrl.isEmpty ? null : thumbnailUrl,
               );
             }).toList();
           }
@@ -331,6 +325,8 @@ class _VideoPageState extends State<_VideoPage> {
     if (!_ready || controller == null) return;
     if (widget.isActive) {
       _vpm.play(controller);
+    } else {
+      _vpm.pause(controller);
     }
   }
 
