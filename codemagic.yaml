@@ -316,25 +316,33 @@ workflows:
           PYEOF
           )"
 
+          # Build numbers restart for a new marketing version. Query only
+          # version 5.1 so its first upload is build 1, then increment safely.
+          set +e
           LATEST_BUILD_NUMBER="$(app-store-connect get-latest-testflight-build-number \
             "$APP_STORE_APP_ID" \
-            --all-versions \
+            --pre-release-version 5.1 \
             --platform IOS \
             --silent \
             --private-key @file:/tmp/api_key.pem \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID")"
+          BUILD_LOOKUP_STATUS=$?
+          set -e
 
-          if ! [[ "$LATEST_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: Apple returned an invalid latest build number: $LATEST_BUILD_NUMBER"
+          if [ "$BUILD_LOOKUP_STATUS" -ne 0 ] || [ -z "$LATEST_BUILD_NUMBER" ]; then
+            echo "No TestFlight build exists for version 5.1; starting at build 1"
+            LATEST_BUILD_NUMBER=0
+          elif ! [[ "$LATEST_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: Apple returned an invalid 5.1 build number: $LATEST_BUILD_NUMBER"
             exit 1
           fi
 
           IOS_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
-          echo "Apple latest build is $LATEST_BUILD_NUMBER; building release 4.11.0 ($IOS_BUILD_NUMBER)"
+          echo "Apple latest 5.1 build is $LATEST_BUILD_NUMBER; building release 5.1 ($IOS_BUILD_NUMBER)"
           python3 scripts/verify_release_config.py --origin "$API_ORIGIN" --build "$IOS_BUILD_NUMBER"
           flutter build ipa --release \
-            --build-name=4.11.0 \
+            --build-name=5.1 \
             --build-number="$IOS_BUILD_NUMBER" \
             --dart-define=BUILD_NUMBER="$IOS_BUILD_NUMBER" \
             --dart-define=API_ORIGIN="$API_ORIGIN" \
