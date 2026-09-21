@@ -188,6 +188,7 @@ class WorkoutAiPlanModel {
 class WorkoutModel {
   String? id;
   String? userId;
+  List<WorkoutAssignedClient> assignedClients;
   List<String>? goal;
   List<String>? focusArea;
   List<String>? workoutEnvironment;
@@ -206,6 +207,7 @@ class WorkoutModel {
   WorkoutModel({
     this.id,
     this.userId,
+    this.assignedClients = const [],
     this.goal,
     this.focusArea,
     this.workoutEnvironment,
@@ -263,10 +265,14 @@ class WorkoutModel {
         : json;
 
     final trainer = data['trainerId'];
+    final rawUser = data['userId'];
 
     return WorkoutModel(
       id: data['_id']?.toString(),
-      userId: data['userId']?.toString(),
+      userId: rawUser is Map
+          ? (rawUser['_id'] ?? rawUser['id'])?.toString()
+          : rawUser?.toString(),
+      assignedClients: WorkoutAssignedClient.listFromWorkout(data),
       goal: data['goal'] is List ? List<String>.from(data['goal'] as List) : null,
       focusArea: data['focusArea'] is List
           ? List<String>.from(data['focusArea'] as List)
@@ -316,5 +322,89 @@ class WorkoutModel {
     if (status != null && status != 'pending') return false;
     final mainWork = aiPlan?.mainWork;
     return mainWork == null || mainWork.isEmpty;
+  }
+}
+
+/// A real client attached to a workout response. The API has returned this
+/// relationship in more than one shape over time, so parsing stays tolerant
+/// while still refusing to manufacture placeholder people for the UI.
+class WorkoutAssignedClient {
+  const WorkoutAssignedClient({
+    required this.id,
+    required this.name,
+    this.profilePicture,
+  });
+
+  final String id;
+  final String name;
+  final String? profilePicture;
+
+  String get initials {
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .toList();
+    if (parts.isEmpty) return '?';
+    return parts.map((part) => part[0].toUpperCase()).join();
+  }
+
+  static List<WorkoutAssignedClient> listFromWorkout(
+    Map<String, dynamic> data,
+  ) {
+    final clients = <WorkoutAssignedClient>[];
+    final candidates = <dynamic>[
+      data['assignedClients'],
+      data['clients'],
+      data['clientIds'],
+      data['assignedTo'],
+    ];
+
+    for (final candidate in candidates) {
+      if (candidate is! List) continue;
+      for (final item in candidate.whereType<Map>()) {
+        final client = _fromMap(Map<String, dynamic>.from(item));
+        if (client != null) clients.add(client);
+      }
+    }
+
+    // Some workout endpoints populate the single assigned user directly.
+    // Only use it when it is an object with real profile data; a bare ID is
+    // intentionally not rendered as a fake avatar.
+    if (clients.isEmpty && data['userId'] is Map) {
+      final client = _fromMap(
+        Map<String, dynamic>.from(data['userId'] as Map),
+      );
+      if (client != null) clients.add(client);
+    }
+
+    final seen = <String>{};
+    return clients.where((client) => seen.add(client.id)).toList();
+  }
+
+  static WorkoutAssignedClient? _fromMap(Map<String, dynamic> value) {
+    final nestedUser = value['userId'];
+    final data = nestedUser is Map
+        ? Map<String, dynamic>.from(nestedUser)
+        : value;
+    final id = (data['_id'] ?? data['id'])?.toString().trim() ?? '';
+    if (id.isEmpty) return null;
+
+    final firstName = data['firstName']?.toString().trim() ?? '';
+    final lastName = data['lastName']?.toString().trim() ?? '';
+    final composedName = '$firstName $lastName'.trim();
+    final name = (data['fullName'] ?? data['name'])?.toString().trim();
+
+    return WorkoutAssignedClient(
+      id: id,
+      name: name?.isNotEmpty == true
+          ? name!
+          : composedName.isNotEmpty
+              ? composedName
+              : 'Client',
+      profilePicture:
+          (data['profilePicture'] ?? data['profileImage'])?.toString(),
+    );
   }
 }

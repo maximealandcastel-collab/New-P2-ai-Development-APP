@@ -26,14 +26,25 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
   static const _tabStatuses = <String?>[null, 'pending', 'completed'];
 
   final RxInt _selectedTab = 0.obs;
+  final RxBool _latestFirst = true.obs;
   final Rx<LoadingState> _loadingState = LoadingState.initial.obs;
   final Map<int, List<WorkoutModel>> _tabCache = {};
 
   late final PaginatedList<WorkoutModel> workoutsList;
 
   int get selectedTab => _selectedTab.value;
+  bool get latestFirst => _latestFirst.value;
   LoadingState get loadingState => _loadingState.value;
   List<WorkoutModel> get workouts => workoutsList.items;
+  List<WorkoutModel> get displayedWorkouts {
+    final sorted = List<WorkoutModel>.from(workoutsList.items);
+    sorted.sort((a, b) {
+      final aDate = _workoutDate(a);
+      final bDate = _workoutDate(b);
+      return latestFirst ? bDate.compareTo(aDate) : aDate.compareTo(bDate);
+    });
+    return sorted;
+  }
   ScrollController? get scrollController => workoutsList.scrollController;
 
   String? get currentStatus => _tabStatuses[selectedTab];
@@ -83,6 +94,13 @@ class HistoryController extends GetxController with PaginatedLoaderUi {
     if (_selectedTab.value == index) return;
     _selectedTab.value = index;
     _loadData();
+  }
+
+  void setLatestFirst(bool value) => _latestFirst.value = value;
+
+  DateTime _workoutDate(WorkoutModel workout) {
+    return DateTime.tryParse(workout.date ?? workout.createdAt ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   List<WorkoutModel> _getCachedWorkouts(int tabIndex) =>
