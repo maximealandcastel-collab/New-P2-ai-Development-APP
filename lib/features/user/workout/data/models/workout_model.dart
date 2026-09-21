@@ -384,7 +384,7 @@ class WorkoutAssignedClient {
   }
 
   static WorkoutAssignedClient? _fromMap(Map<String, dynamic> value) {
-    final nestedUser = value['userId'];
+    final nestedUser = value['userId'] ?? value['client'] ?? value['member'];
     final data = nestedUser is Map
         ? Map<String, dynamic>.from(nestedUser)
         : value;
@@ -395,16 +395,35 @@ class WorkoutAssignedClient {
     final lastName = data['lastName']?.toString().trim() ?? '';
     final composedName = '$firstName $lastName'.trim();
     final name = (data['fullName'] ?? data['name'])?.toString().trim();
+    final profilePicture = _safeProfilePicture(
+      (data['profilePicture'] ?? data['profileImage'])?.toString(),
+    );
+    final resolvedName = name?.isNotEmpty == true ? name! : composedName;
+
+    // An ID by itself cannot be represented honestly in the UI. Wait for a
+    // populated client record instead of displaying an invented person.
+    if (resolvedName.isEmpty && profilePicture == null) return null;
 
     return WorkoutAssignedClient(
       id: id,
-      name: name?.isNotEmpty == true
-          ? name!
-          : composedName.isNotEmpty
-              ? composedName
-              : 'Client',
-      profilePicture:
-          (data['profilePicture'] ?? data['profileImage'])?.toString(),
+      name: resolvedName.isEmpty ? 'Client' : resolvedName,
+      profilePicture: profilePicture,
     );
+  }
+
+  static String? _safeProfilePicture(String? value) {
+    final image = value?.trim() ?? '';
+    if (image.isEmpty) return null;
+
+    final normalized = image.toLowerCase();
+    const stockHosts = <String>[
+      'picsum.photos',
+      'images.unsplash.com',
+      'unsplash.com',
+      'pexels.com',
+      'pixabay.com',
+    ];
+    if (stockHosts.any(normalized.contains)) return null;
+    return image;
   }
 }

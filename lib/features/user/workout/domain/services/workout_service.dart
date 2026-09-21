@@ -15,8 +15,9 @@ class WorkoutService {
     return _repository.createWorkout(body);
   }
 
-  Future<WorkoutModel> generateWorkout(String workoutId) {
-    return _repository.generateWorkout(workoutId);
+  Future<WorkoutModel> generateWorkout(String workoutId) async {
+    final generated = await _repository.generateWorkout(workoutId);
+    return _requireGeneratedPlan(generated);
   }
 
   Future<WorkoutModel> createAndGenerateWorkout(Map<String, dynamic> body) async {
@@ -25,7 +26,8 @@ class WorkoutService {
     if (workoutId == null || workoutId.isEmpty) {
       throw UnknownException('Workout id missing from response');
     }
-    return _repository.generateWorkout(workoutId);
+    final generated = await _repository.generateWorkout(workoutId);
+    return _requireGeneratedPlan(generated);
   }
 
   Future<WorkoutModel?> getTodayWorkout() {
@@ -64,7 +66,17 @@ class WorkoutService {
   /// Re-runs AI generation for a workout that was created but never got a
   /// plan (e.g. generation failed the first time and left an empty stub).
   Future<WorkoutModel> retryGeneration(String workoutId) {
-    return _repository.generateWorkout(workoutId);
+    return generateWorkout(workoutId);
+  }
+
+  WorkoutModel _requireGeneratedPlan(WorkoutModel workout) {
+    final exercises = workout.aiPlan?.mainWork;
+    if (exercises == null || exercises.isEmpty) {
+      throw UnknownException(
+        'Workout generation returned no exercises. Please try again.',
+      );
+    }
+    return workout;
   }
 
   Future<void> startWorkout(String workoutId) {
