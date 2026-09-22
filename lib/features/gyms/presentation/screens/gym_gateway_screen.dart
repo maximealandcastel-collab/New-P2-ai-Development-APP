@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 // import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
@@ -100,31 +101,156 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20.w, 28.h, 20.w, 24.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              SizedBox(height: 20.h),
-              _buildClaimGymCard(),
-              SizedBox(height: 20.h),
-              _buildRoleToggle(),
-              SizedBox(height: 20.h),
-              _buildMembershipToggle(),
-              SizedBox(height: 16.h),
-              _buildCredentialLogin(),
-              SizedBox(height: 16.h),
-              _buildSearchBar(),
-              SizedBox(height: 20.h),
-              _buildPopularGyms(),
-              SizedBox(height: 16.h),
-              _buildAdminActions(),
-              SizedBox(height: 24.h),
-            ],
-          ),
+        child: Stack(
+          children: [
+            const Positioned.fill(child: _EnterpriseBackdrop()),
+            Positioned(
+              top: 112.h,
+              right: -102.w,
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: .075,
+                  child: Image.asset(
+                    'assets/images/gym_photos/kmf_fitness_club_floor.jpg',
+                    width: 300.w,
+                    height: 420.h,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 92.h,
+              left: 0,
+              right: 0,
+              height: 480.h,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Colors.white,
+                        Colors.white.withValues(alpha: .98),
+                        Colors.white.withValues(alpha: .94),
+                        Colors.white.withValues(alpha: .68),
+                      ],
+                      stops: const [0, .50, .78, 1],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(28.w, 16.h, 28.w, 24.h),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildBrandHeader(),
+                  SizedBox(height: 20.h),
+                  _buildHeader(),
+                  SizedBox(height: 16.h),
+                  _buildClaimGymCard(),
+                  SizedBox(height: 18.h),
+                  _buildRoleToggle(),
+                  SizedBox(height: 22.h),
+                  _buildMembershipToggle(),
+                  SizedBox(height: 18.h),
+                  _buildCredentialLogin(),
+                  SizedBox(height: 24.h),
+                  _buildSearchBar(),
+                  SizedBox(height: 18.h),
+                  _buildPopularGyms(),
+                  SizedBox(height: 14.h),
+                  _buildAdminActions(),
+                  SizedBox(height: 24.h),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBrandHeader() {
+    final primary = BrandColors.of(context).primary;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Image.asset(
+              Assets.images.logo.path,
+              width: 54.w,
+              height: 54.w,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 10.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(
+                      fontSize: 23.sp,
+                      height: 1,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF080A12),
+                    ),
+                    children: [
+                      const TextSpan(text: 'P2P '),
+                      TextSpan(text: 'FIT', style: TextStyle(color: primary)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 7.h),
+                Text(
+                  'T E C H    A I',
+                  style: TextStyle(
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 3.5,
+                    color: const Color(0xFF181A22),
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'A\nS T R O N G E R\nY O U\nT O G E T H E R',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 6.5.sp,
+                    height: 1.42,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.25,
+                    color: const Color(0xFF343640),
+                  ),
+                ),
+                SizedBox(height: 5.h),
+                Container(width: 28.w, height: 2.h, color: primary),
+              ],
+            ),
+          ],
+        ),
+        SizedBox(height: 9.h),
+        Text(
+          'F I T N E S S   ·   P E O P L E   ·   P R O G R E S S',
+          style: TextStyle(
+            fontSize: 7.2.sp,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 2.15,
+            color: const Color(0xFF898B96),
+          ),
+        ),
+      ],
     );
   }
 
@@ -135,42 +261,53 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
         Text(
           'Welcome to P2P Fitness',
           style: TextStyle(
-            fontSize: 26.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-            letterSpacing: -0.5,
-            height: 1.15,
+            fontSize: 28.sp,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF090B14),
+            letterSpacing: -.8,
+            height: 1.08,
           ),
         ),
-        SizedBox(height: 4.h),
+        SizedBox(height: 7.h),
         Text(
           'Connect your gym to personalize your experience.',
-          style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+          style: TextStyle(
+            fontSize: 13.sp,
+            height: 1.3,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF71717D),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildClaimGymCard() {
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF7F2),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFFFE0D0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final primary = BrandColors.of(context).primary;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14.r),
+        onTap: () => Get.to(() => const GymApplicationScreen()),
+        child: Ink(
+          padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFAF7).withValues(alpha: .94),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: const Color(0xFFFFE2D2)),
+          ),
+          child: Row(
             children: [
-              Icon(
-                Icons.domain,
-                color: BrandColors.of(context).primary,
-                size: 36.sp,
+              Container(
+                width: 36.r,
+                height: 36.r,
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: .10),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Icon(Icons.domain_outlined, color: primary, size: 20.sp),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 11.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,116 +315,87 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                     Text(
                       'Claim Your Gym',
                       style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
+                        fontSize: 13.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF171820),
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 3.h),
                     Text(
-                      'Bring your gym to P2P. Get your entire ecosystem online with a direct partnership.',
+                      'Bring your gym to P2P with a direct partnership.',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.black87,
+                        fontSize: 10.5.sp,
                         height: 1.3,
+                        color: const Color(0xFF737580),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Opacity(
-                opacity: 0.82,
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  width: 78.r,
-                  height: 78.r,
-                  fit: BoxFit.contain,
-                  semanticLabel: 'P2P FitTech AI logo',
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Get.to(() => const GymApplicationScreen()),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(
-                            color: BrandColors.of(context).primary.withOpacity(0.5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.workspace_premium,
-                              color: BrandColors.of(context).primary,
-                              size: 14.sp,
-                            ),
-                            SizedBox(width: 6.w),
-                            Flexible(
-                              child: Text(
-                                'CLAIM YOUR GYM →',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: BrandColors.of(context).primary,
-                                ),
-                              ),
-                            ),
-                          ],
+              SizedBox(width: 8.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Claim gym',
+                        style: TextStyle(
+                          fontSize: 10.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: primary,
                         ),
                       ),
+                      SizedBox(width: 3.w),
+                      Icon(Icons.arrow_forward_rounded, size: 14.sp, color: primary),
+                    ],
+                  ),
+                  SizedBox(height: 5.h),
+                  Text(
+                    'TARGETED PARTNERSHIP',
+                    style: TextStyle(
+                      fontSize: 6.5.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: .7,
+                      color: const Color(0xFF777984),
                     ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      'TARGETED PARTNERSHIP',
-                      style: TextStyle(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildRoleToggle() {
-    return Container(
-      height: 48.h,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(24.r),
-      ),
-      padding: EdgeInsets.all(4.r),
+    final primary = BrandColors.of(context).primary;
+    const icons = <String, IconData>{
+      'Trainer': Icons.fitness_center_rounded,
+      'User': Icons.person_rounded,
+      'Gym': Icons.apartment_rounded,
+    };
+    const roles = ['Trainer', 'User', 'Gym'];
+    return SizedBox(
+      height: 64.h,
       child: Row(
-        children: ['Trainer', 'User', 'Gym'].map((role) {
+        children: List.generate(5, (index) {
+          if (index.isOdd) {
+            return Container(
+              width: 1,
+              height: 30.h,
+              color: const Color(0xFFE3E4E8),
+            );
+          }
+          final role = roles[index ~/ 2];
           final isSelected = _selectedRole == role;
           return Expanded(
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 if (role != 'Gym') {
                   _loginController.setRole(role);
@@ -299,24 +407,35 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                   _isMember = true;
                 });
               },
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.black : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  role,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : Colors.black54,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icons[role],
+                    size: 20.sp,
+                    color: isSelected ? primary : const Color(0xFF686A75),
                   ),
-                ),
+                  SizedBox(height: 5.h),
+                  Text(
+                    role,
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? primary : const Color(0xFF686A75),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 1.5.h,
+                    margin: EdgeInsets.symmetric(horizontal: 14.w),
+                    color: isSelected ? primary : Colors.transparent,
+                  ),
+                ],
               ),
             ),
           );
-        }).toList(),
+        }),
       ),
     );
   }
@@ -328,17 +447,21 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
         Text(
           'Are you a gym member?',
           style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF171820),
           ),
         ),
         SizedBox(height: 4.h),
         Text(
           'Find and connect your gym to unlock a personalized experience.',
-          style: TextStyle(fontSize: 13.sp, color: Colors.black54),
+          style: TextStyle(
+            fontSize: 11.5.sp,
+            height: 1.3,
+            color: const Color(0xFF777985),
+          ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 12.h),
         Row(
           children: [
             Expanded(
@@ -350,7 +473,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                 onTap: () => setState(() => _isMember = true),
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 10.w),
             Expanded(
               child: _buildMemberCard(
                 title: "No gym",
@@ -374,18 +497,21 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
     required VoidCallback onTap,
   }) {
     final activeColor = BrandColors.of(context).primary;
-    final bgColor = isSelected ? activeColor.withOpacity(0.08) : Colors.white;
+    final bgColor = isSelected
+        ? activeColor.withValues(alpha: .055)
+        : Colors.white.withValues(alpha: .88);
     final borderColor = isSelected ? activeColor : const Color(0xFFEAEAEA);
     final iconColor = isSelected ? activeColor : Colors.black45;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(12.r),
+        constraints: BoxConstraints(minHeight: 82.h),
+        padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1),
+          borderRadius: BorderRadius.circular(13.r),
+          border: Border.all(color: borderColor, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,29 +519,32 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: iconColor, size: 28.sp),
+                Icon(icon, color: iconColor, size: 20.sp),
                 Icon(
                   isSelected
                       ? Icons.check_circle
                       : Icons.radio_button_unchecked,
                   color: isSelected ? activeColor : Colors.black26,
-                  size: 20.sp,
+                  size: 17.sp,
                 ),
               ],
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             Text(
               title,
               style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF20212A),
               ),
             ),
             SizedBox(height: 2.h),
             Text(
               subtitle,
-              style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+              style: TextStyle(
+                fontSize: 10.5.sp,
+                color: const Color(0xFF777985),
+              ),
             ),
           ],
         ),
@@ -436,6 +565,39 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
   }
 
   Widget _buildCredentialLogin() {
+    final primary = BrandColors.of(context).primary;
+    InputDecoration fieldDecoration({
+      required String hint,
+      required IconData icon,
+      Widget? suffix,
+    }) {
+      OutlineInputBorder border(Color color) => OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14.r),
+            borderSide: BorderSide(color: color),
+          );
+      return InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          fontSize: 12.5.sp,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFFB5B6BE),
+        ),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: .90),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 15.h),
+        prefixIcon: Icon(icon, size: 19.sp, color: const Color(0xFF696B76)),
+        prefixIconConstraints: BoxConstraints(minWidth: 48.w),
+        suffixIcon: suffix,
+        border: border(const Color(0xFFE4E5E9)),
+        enabledBorder: border(const Color(0xFFE4E5E9)),
+        focusedBorder: border(primary.withValues(alpha: .72)),
+        errorBorder: border(const Color(0xFFE95454)),
+        focusedErrorBorder: border(const Color(0xFFE95454)),
+        errorStyle: TextStyle(fontSize: 10.sp, height: 1.1),
+      );
+    }
+
     return Form(
       key: _formKey,
       child: Column(
@@ -444,124 +606,179 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
           TextFormField(
             controller: _loginController.emailController,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.username, AutofillHints.email],
-            decoration: InputDecoration(
-              hintText: 'Username (email)',
-              prefixIcon: const Icon(Icons.person_outline_rounded),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: const BorderSide(color: Color(0xFFDADADA)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: const BorderSide(color: Color(0xFFDADADA)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: BorderSide(
-                  color: BrandColors.of(context).primary,
-                  width: 1.5,
-                ),
-              ),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            cursorColor: primary,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF22242D),
+            ),
+            decoration: fieldDecoration(
+              hint: 'Username (email)',
+              icon: Icons.person_outline_rounded,
             ),
             validator: (value) {
               final email = value?.trim() ?? '';
               if (email.isEmpty) return 'Enter your email address';
-              if (!GetUtils.isEmail(email))
-                return 'Enter a valid email address';
+              if (!GetUtils.isEmail(email)) return 'Enter a valid email address';
               return null;
             },
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 12.h),
           TextFormField(
             controller: _loginController.passwordController,
             obscureText: _obscurePassword,
             autofillHints: const [AutofillHints.password],
+            textInputAction: TextInputAction.done,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             onFieldSubmitted: (_) => _loginWithGymCredentials(),
-            decoration: InputDecoration(
-              hintText: 'Password',
-              prefixIcon: const Icon(Icons.lock_outline_rounded),
-              suffixIcon: IconButton(
+            cursorColor: primary,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF22242D),
+            ),
+            decoration: fieldDecoration(
+              hint: 'Password',
+              icon: Icons.lock_outline_rounded,
+              suffix: IconButton(
+                tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                splashRadius: 18.r,
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                ),
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: const BorderSide(color: Color(0xFFDADADA)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: const BorderSide(color: Color(0xFFDADADA)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14.r),
-                borderSide: BorderSide(
-                  color: BrandColors.of(context).primary,
-                  width: 1.5,
+                  size: 19.sp,
+                  color: const Color(0xFF696B76),
                 ),
               ),
             ),
             validator: (value) =>
                 (value?.isEmpty ?? true) ? 'Enter your password' : null,
           ),
-          SizedBox(height: 12.h),
-          Obx(() {
-            final loading = _loginController.loginState == LoadingState.loading;
-            return SizedBox(
-              height: 50.h,
-              child: ElevatedButton(
-                onPressed: loading ? null : _loginWithGymCredentials,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: BrandColors.of(context).primary,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: BrandColors.of(
-                    context,
-                  ).primary.withOpacity(0.5),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+          SizedBox(height: 14.h),
+          Row(
+            children: [
+              Obx(
+                () => GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _loginController.toggleSaveLogin,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 20.w,
+                    height: 20.w,
+                    decoration: BoxDecoration(
+                      color: _loginController.saveLogin.value
+                          ? primary
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(6.r),
+                      border: Border.all(
+                        color: _loginController.saveLogin.value
+                            ? primary
+                            : const Color(0xFFD7D9DE),
+                      ),
+                    ),
+                    child: _loginController.saveLogin.value
+                        ? Icon(Icons.check_rounded, color: Colors.white, size: 14.sp)
+                        : null,
                   ),
                 ),
-                child: loading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        'Log In',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
+              ),
+              SizedBox(width: 8.w),
+              GestureDetector(
+                onTap: _loginController.toggleSaveLogin,
+                child: Text(
+                  'Remember me',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF74747F),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Get.toNamed(AppRoute.forgotScreen),
+                child: Text(
+                  'Forgot password?',
+                  style: TextStyle(
+                    color: primary,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Obx(() {
+            final loading = _loginController.loginState == LoadingState.loading;
+            return Center(
+              child: GestureDetector(
+                onTap: loading ? null : _loginWithGymCredentials,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 180),
+                  opacity: loading ? .72 : 1,
+                  child: Container(
+                    width: 168.w,
+                    height: 44.h,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFFF9A2F),
+                          Color(0xFFFF6A16),
+                          Color(0xFFFF4C12),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(999.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primary.withValues(alpha: .24),
+                          blurRadius: 16,
+                          offset: const Offset(0, 7),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: loading
+                          ? SizedBox(
+                              width: 19.w,
+                              height: 19.w,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Log in',
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 9.w),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 18.sp,
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
               ),
             );
           }),
-          TextButton(
-            onPressed: () => Get.toNamed(AppRoute.forgotScreen),
-            child: Text(
-              'Forgot Username or Password?',
-              style: TextStyle(
-                color: BrandColors.of(context).primary,
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
+          SizedBox(height: 18.h),
           Center(
             child: GestureDetector(
               onTap: () => Get.toNamed(
@@ -574,14 +791,18 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               ),
               child: Text.rich(
                 TextSpan(
-                  text: "Don't have an account yet? ",
-                  style: TextStyle(fontSize: 12.sp, color: Colors.black54),
+                  text: 'New to P2P Fit? ',
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF8A8B94),
+                  ),
                   children: [
                     TextSpan(
                       text: 'Create account',
                       style: TextStyle(
-                        color: BrandColors.of(context).primary,
-                        fontWeight: FontWeight.w700,
+                        color: primary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -589,29 +810,88 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               ),
             ),
           ),
+          SizedBox(height: 22.h),
+          Row(
+            children: [
+              const Expanded(child: Divider(color: Color(0xFFDADCE1))),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Text(
+                  'O R   C O N T I N U E   W I T H',
+                  style: TextStyle(
+                    fontSize: 7.2.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.55,
+                    color: const Color(0xFF777985),
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: Color(0xFFDADCE1))),
+            ],
+          ),
+          SizedBox(height: 17.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _EnterpriseSocialButton(
+                icon: Icon(Icons.apple, color: Colors.black, size: 25.sp),
+                onTap: () => _socialUnavailable('Apple'),
+              ),
+              SizedBox(width: 18.w),
+              _EnterpriseSocialButton(
+                icon: SvgPicture.asset(
+                  'assets/icons/google_g.svg',
+                  width: 23.r,
+                  height: 23.r,
+                ),
+                onTap: () => _socialUnavailable('Google'),
+              ),
+              SizedBox(width: 18.w),
+              _EnterpriseSocialButton(
+                icon: Icon(
+                  Icons.facebook_rounded,
+                  color: const Color(0xFF0866FF),
+                  size: 24.sp,
+                ),
+                onTap: () => _socialUnavailable('Meta'),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
+  void _socialUnavailable(String provider) {
+    Get.snackbar(
+      '$provider sign-in',
+      '$provider sign-in is not available yet. Please use email and password.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
   Widget _buildSearchBar() {
     return Container(
-      height: 48.h,
+      height: 44.h,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFEAEAEA)),
+        color: Colors.white.withValues(alpha: .90),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFE4E5E9)),
       ),
       child: TextField(
         controller: _searchController,
         onChanged: (val) => setState(() => _searchQuery = val),
-        style: TextStyle(fontSize: 14.sp),
+        style: TextStyle(fontSize: 12.5.sp, color: const Color(0xFF22242D)),
         decoration: InputDecoration(
-          hintText: 'Search gyms (e.g. Equinox, LA Fitness, Crunch...)',
-          hintStyle: TextStyle(color: Colors.black38, fontSize: 13.sp),
-          prefixIcon: Icon(Icons.search, color: Colors.black54, size: 20.sp),
+          hintText: 'Search gyms (e.g. Equinox, LA Fitness, YMCA...)',
+          hintStyle: TextStyle(color: const Color(0xFFB5B6BE), fontSize: 11.5.sp),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: const Color(0xFF696B76),
+            size: 18.sp,
+          ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+          contentPadding: EdgeInsets.symmetric(vertical: 12.h),
         ),
       ),
     );
@@ -628,9 +908,9 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
             Text(
               'Targeted partnerships',
               style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF20212A),
               ),
             ),
             GestureDetector(
@@ -640,27 +920,31 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                   Text(
                     'See all',
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black54,
+                      fontSize: 10.5.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF777985),
                     ),
                   ),
-                  Icon(Icons.chevron_right, size: 16.sp, color: Colors.black54),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 15.sp,
+                    color: const Color(0xFF777985),
+                  ),
                 ],
               ),
             ),
           ],
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 10.h),
         if (gyms.isEmpty)
           Text('No gyms found.', style: TextStyle(color: Colors.black54))
         else
           SizedBox(
-            height: 138.h,
+            height: 112.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: gyms.length,
-              separatorBuilder: (_, __) => SizedBox(width: 12.w),
+              separatorBuilder: (_, __) => SizedBox(width: 10.w),
               itemBuilder: (context, index) {
                 final gym = gyms[index];
                 final isSelected = _selectedGym?.id == gym.id;
@@ -674,24 +958,24 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                     }
                   },
                   child: Container(
-                    width: 108.w,
-                    padding: EdgeInsets.all(8.r),
+                    width: 98.w,
+                    padding: EdgeInsets.all(7.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: BorderRadius.circular(11.r),
                       border: Border.all(
                         color: isSelected
                             ? BrandColors.of(context).primary
                             : const Color(0xFFEAEAEA),
-                        width: isSelected ? 2 : 1,
+                        width: 1,
                       ),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
                                 color: BrandColors.of(
                                   context,
-                                ).primary.withOpacity(0.2),
-                                blurRadius: 8,
+                                ).primary.withValues(alpha: .12),
+                                blurRadius: 6,
                               ),
                             ]
                           : [],
@@ -702,18 +986,18 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                         Expanded(
                           child: GymBrandLogo(
                             gym: gym,
-                            size: 56.r,
+                            size: 44.r,
                             borderRadius: 8.r,
                           ),
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: 6.h),
                         Text(
                           gym.name,
                           maxLines: 2,
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 9.5.sp,
                             fontWeight: FontWeight.w500,
                             color: Colors.black87,
                             height: 1.15,
@@ -734,14 +1018,14 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildAdminButton(
+        child: _buildAdminButton(
             icon: Icons.shield_outlined,
             title: 'Admin Demo Login',
             subtitle: 'Use approved demo credentials',
             onTap: _loginWithGymCredentials,
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: 10.w),
         Expanded(
           child: _buildAdminButton(
             icon: Icons.login_outlined,
@@ -763,23 +1047,23 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFFEAEAEA)),
+          borderRadius: BorderRadius.circular(11.r),
+          border: Border.all(color: const Color(0xFFE7E8EC)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 4,
+              color: Colors.black.withValues(alpha: .018),
+              blurRadius: 5,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20.sp, color: Colors.black87),
-            SizedBox(width: 8.w),
+            Icon(icon, size: 18.sp, color: const Color(0xFF454750)),
+            SizedBox(width: 7.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -787,15 +1071,18 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF20212A),
                     ),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 9.sp, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 8.5.sp,
+                      color: const Color(0xFF777985),
+                    ),
                   ),
                 ],
               ),
@@ -924,4 +1211,65 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
   //     ],
   //   );
   // }
+}
+
+class _EnterpriseBackdrop extends StatelessWidget {
+  const _EnterpriseBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFFFFF),
+            Color(0xFFFFFFFF),
+            Color(0xFFFFFCFA),
+            Color(0xFFFFF8F3),
+          ],
+          stops: [0, .46, .78, 1],
+        ),
+      ),
+    );
+  }
+}
+
+class _EnterpriseSocialButton extends StatelessWidget {
+  const _EnterpriseSocialButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final Widget icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Ink(
+          width: 46.w,
+          height: 46.w,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .96),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFF0F0F2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .045),
+                blurRadius: 9,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(child: icon),
+        ),
+      ),
+    );
+  }
 }
