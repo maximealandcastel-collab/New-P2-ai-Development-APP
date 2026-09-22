@@ -8,7 +8,6 @@ import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
-import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -26,15 +25,15 @@ class LoginScreen extends StatelessWidget {
           children: [
             const Positioned.fill(child: _LoginBackdrop()),
             Positioned(
-              top: 100.h,
-              right: -56.w,
+              top: 150.h,
+              right: -104.w,
               child: IgnorePointer(
                 child: Opacity(
-                  opacity: .19,
+                  opacity: .10,
                   child: Image.asset(
                     'assets/images/training_styles/weight_lifting.png',
-                    width: 310.w,
-                    height: 490.h,
+                    width: 284.w,
+                    height: 440.h,
                     fit: BoxFit.cover,
                     alignment: Alignment.center,
                     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -43,10 +42,10 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             Positioned(
-              top: 80.h,
+              top: 100.h,
               left: 0,
               right: 0,
-              height: 540.h,
+              height: 560.h,
               child: IgnorePointer(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -56,17 +55,17 @@ class LoginScreen extends StatelessWidget {
                       colors: [
                         Colors.white,
                         Colors.white.withValues(alpha: .98),
-                        Colors.white.withValues(alpha: .80),
-                        Colors.white.withValues(alpha: .28),
+                        Colors.white.withValues(alpha: .92),
+                        Colors.white.withValues(alpha: .62),
                       ],
-                      stops: const [0, .48, .72, 1],
+                      stops: const [0, .52, .78, 1],
                     ),
                   ),
                 ),
               ),
             ),
             SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(24.w, 14.h, 24.w, 20.h),
+              padding: EdgeInsets.fromLTRB(28.w, 16.h, 28.w, 24.h),
               physics: const BouncingScrollPhysics(),
               child: Form(
                 key: controller.loginFormKey,
@@ -74,20 +73,20 @@ class LoginScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _BrandHeader(primary: primary),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 20.h),
                     Container(
                       width: 30.w,
                       height: 2.h,
                       color: primary,
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 14.h),
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          fontSize: 37.sp,
-                          height: 1.02,
+                          fontSize: 32.sp,
+                          height: 1.05,
                           fontWeight: FontWeight.w500,
-                          letterSpacing: -1.3,
+                          letterSpacing: -1,
                           color: const Color(0xFF090B14),
                         ),
                         children: [
@@ -99,61 +98,53 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 9.h),
                     Text(
                       'Sign in to your P2P Fit account.',
                       style: TextStyle(
-                        fontSize: 16.sp,
+                        fontSize: 14.sp,
                         height: 1.25,
                         fontWeight: FontWeight.w400,
                         color: const Color(0xFF71717D),
                       ),
                     ),
-                    SizedBox(height: 14.h),
+                    SizedBox(height: 13.h),
                     Text(
                       'T R A I N .   C O N N E C T .   A C H I E V E .',
                       style: TextStyle(
-                        fontSize: 8.7.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2,
+                        fontSize: 7.8.sp,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.8,
                         color: const Color(0xFF74747E),
                       ),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 24.h),
                     _RoleSelector(
                       controller: controller,
                       primary: primary,
                     ),
-                    SizedBox(height: 18.h),
+                    SizedBox(height: 22.h),
                     const _FieldTitle('EMAIL'),
-                    SizedBox(height: 9.h),
-                    _LoginFieldShell(
-                      child: CustomTextField(
-                        controller: controller.emailController,
-                        hintText: 'Enter your email address',
-                        prefixIcon: Icon(
-                          Icons.mail_outline_rounded,
-                          color: const Color(0xFF666975),
-                          size: 21.sp,
-                        ),
-                      ),
+                    SizedBox(height: 8.h),
+                    _CompactLoginField(
+                      controller: controller.emailController,
+                      hintText: 'Enter your email address',
+                      icon: Icons.mail_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                     ),
-                    SizedBox(height: 18.h),
+                    SizedBox(height: 20.h),
                     const _FieldTitle('PASSWORD'),
-                    SizedBox(height: 9.h),
-                    _LoginFieldShell(
-                      child: CustomTextField(
-                        controller: controller.passwordController,
-                        hintText: 'Enter your password',
-                        prefixIcon: Icon(
-                          Icons.lock_outline_rounded,
-                          color: const Color(0xFF666975),
-                          size: 21.sp,
-                        ),
-                        isPassword: true,
-                      ),
+                    SizedBox(height: 8.h),
+                    _CompactLoginField(
+                      controller: controller.passwordController,
+                      hintText: 'Enter your password',
+                      icon: Icons.lock_outline_rounded,
+                      isPassword: true,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => controller.login(),
                     ),
-                    SizedBox(height: 18.h),
+                    SizedBox(height: 16.h),
                     Row(
                       children: [
                         Obx(
@@ -162,13 +153,13 @@ class LoginScreen extends StatelessWidget {
                             onTap: controller.toggleSaveLogin,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
-                              width: 24.w,
-                              height: 24.w,
+                              width: 20.w,
+                              height: 20.w,
                               decoration: BoxDecoration(
                                 color: controller.saveLogin.value
                                     ? primary
                                     : Colors.white,
-                                borderRadius: BorderRadius.circular(7.r),
+                                borderRadius: BorderRadius.circular(6.r),
                                 border: Border.all(
                                   color: controller.saveLogin.value
                                       ? primary
@@ -188,19 +179,19 @@ class LoginScreen extends StatelessWidget {
                                   ? Icon(
                                       Icons.check_rounded,
                                       color: Colors.white,
-                                      size: 16.sp,
+                                      size: 14.sp,
                                     )
                                   : null,
                             ),
                           ),
                         ),
-                        SizedBox(width: 10.w),
+                        SizedBox(width: 8.w),
                         GestureDetector(
                           onTap: controller.toggleSaveLogin,
                           child: Text(
                             'Remember me',
                             style: TextStyle(
-                              fontSize: 13.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF74747F),
                             ),
@@ -212,7 +203,7 @@ class LoginScreen extends StatelessWidget {
                           child: Text(
                             'Forgot password?',
                             style: TextStyle(
-                              fontSize: 13.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                               color: primary,
                             ),
@@ -220,75 +211,77 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 26.h),
                     Obx(() {
                       final loading =
                           controller.loginState == LoadingState.loading;
-                      return GestureDetector(
-                        onTap: loading ? null : controller.login,
-                        child: AnimatedOpacity(
-                          opacity: loading ? .72 : 1,
-                          duration: const Duration(milliseconds: 180),
-                          child: Container(
-                            width: double.infinity,
-                            height: 52.h,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Color(0xFFFF9A2F),
-                                  Color(0xFFFF6A16),
-                                  Color(0xFFFF4C12),
+                      return Center(
+                        child: GestureDetector(
+                          onTap: loading ? null : controller.login,
+                          child: AnimatedOpacity(
+                            opacity: loading ? .72 : 1,
+                            duration: const Duration(milliseconds: 180),
+                            child: Container(
+                              width: 168.w,
+                              height: 44.h,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Color(0xFFFF9A2F),
+                                    Color(0xFFFF6A16),
+                                    Color(0xFFFF4C12),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(999.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primary.withValues(alpha: .24),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 7),
+                                  ),
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(16.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: primary.withValues(alpha: .24),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 9),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: loading
-                                  ? SizedBox(
-                                      width: 22.w,
-                                      height: 22.w,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2.2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  : Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Sign in',
-                                          style: TextStyle(
-                                            fontSize: 16.5.sp,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                              child: Center(
+                                child: loading
+                                    ? SizedBox(
+                                        width: 19.w,
+                                        height: 19.w,
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2.2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
                                           ),
                                         ),
-                                        SizedBox(width: 12.w),
-                                        Icon(
-                                          Icons.arrow_forward_rounded,
-                                          color: Colors.white,
-                                          size: 23.sp,
-                                        ),
-                                      ],
-                                    ),
+                                      )
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Sign in',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(width: 9.w),
+                                          Icon(
+                                            Icons.arrow_forward_rounded,
+                                            color: Colors.white,
+                                            size: 18.sp,
+                                          ),
+                                        ],
+                                      ),
+                              ),
                             ),
                           ),
                         ),
                       );
                     }),
-                    SizedBox(height: 28.h),
+                    SizedBox(height: 30.h),
                     Row(
                       children: [
                         const Expanded(
@@ -311,7 +304,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: 20.h),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -319,39 +312,39 @@ class LoginScreen extends StatelessWidget {
                           icon: Icon(
                             Icons.apple,
                             color: Colors.black,
-                            size: 29.sp,
+                            size: 25.sp,
                           ),
                           onTap: () => _socialUnavailable('Apple'),
                         ),
-                        SizedBox(width: 20.w),
+                        SizedBox(width: 18.w),
                         _SocialCircleButton(
                           icon: SvgPicture.asset(
                             'assets/icons/google_g.svg',
-                            width: 26.r,
-                            height: 26.r,
+                            width: 23.r,
+                            height: 23.r,
                           ),
                           onTap: () => _socialUnavailable('Google'),
                         ),
-                        SizedBox(width: 24.w),
+                        SizedBox(width: 18.w),
                         _SocialCircleButton(
                           icon: Icon(
                             Icons.facebook_rounded,
                             color: const Color(0xFF0866FF),
-                            size: 28.sp,
+                            size: 24.sp,
                           ),
                           onTap: () => _socialUnavailable('Meta'),
                         ),
                       ],
                     ),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 25.h),
                     Center(
                       child: Wrap(
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account? ",
+                            'New to P2P Fit? ',
                             style: TextStyle(
-                              fontSize: 13.5.sp,
+                              fontSize: 12.5.sp,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF8A8B94),
                             ),
@@ -369,9 +362,9 @@ class LoginScreen extends StatelessWidget {
                               );
                             },
                             child: Text(
-                              'Sign up',
+                              'Create account',
                               style: TextStyle(
-                                fontSize: 13.5.sp,
+                                fontSize: 12.5.sp,
                                 fontWeight: FontWeight.w500,
                                 color: primary,
                               ),
@@ -438,8 +431,8 @@ class _BrandHeader extends StatelessWidget {
           children: [
             Image.asset(
               Assets.images.logo.path,
-              width: 62.w,
-              height: 62.w,
+              width: 54.w,
+              height: 54.w,
               fit: BoxFit.contain,
             ),
             SizedBox(width: 10.w),
@@ -449,9 +442,9 @@ class _BrandHeader extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 27.sp,
+                      fontSize: 23.sp,
                       height: 1,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: const Color(0xFF080A12),
                     ),
                     children: [
@@ -463,11 +456,11 @@ class _BrandHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 7.h),
                 Text(
                   'T E C H    A I',
                   style: TextStyle(
-                    fontSize: 9.sp,
+                    fontSize: 8.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 3.5,
                     color: const Color(0xFF181A22),
@@ -483,7 +476,7 @@ class _BrandHeader extends StatelessWidget {
                   'A\nS T R O N G E R\nY O U\nT O G E T H E R',
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    fontSize: 7.sp,
+                    fontSize: 6.5.sp,
                     height: 1.42,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.25,
@@ -530,28 +523,115 @@ class _FieldTitle extends StatelessWidget {
   }
 }
 
-class _LoginFieldShell extends StatelessWidget {
-  const _LoginFieldShell({required this.child});
+class _CompactLoginField extends StatefulWidget {
+  const _CompactLoginField({
+    required this.controller,
+    required this.hintText,
+    required this.icon,
+    this.isPassword = false,
+    this.keyboardType,
+    this.textInputAction,
+    this.onSubmitted,
+  });
 
-  final Widget child;
+  final TextEditingController controller;
+  final String hintText;
+  final IconData icon;
+  final bool isPassword;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
+
+  @override
+  State<_CompactLoginField> createState() => _CompactLoginFieldState();
+}
+
+class _CompactLoginFieldState extends State<_CompactLoginField> {
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(minHeight: 54.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .88),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE4E5E9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .018),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: widget.isPassword && _obscureText,
+      keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
+      onFieldSubmitted: widget.onSubmitted,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autofillHints: widget.isPassword
+          ? const [AutofillHints.password]
+          : const [AutofillHints.email],
+      style: TextStyle(
+        fontSize: 13.sp,
+        height: 1.2,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFF22242D),
       ),
-      child: child,
+      cursorColor: primary,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return widget.isPassword
+              ? 'Please enter your password'
+              : 'Please enter your email address';
+        }
+        if (widget.isPassword && value.length < 8) {
+          return 'Password: 8 characters min!';
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        hintStyle: TextStyle(
+          fontSize: 12.5.sp,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFFB5B6BE),
+        ),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: .90),
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 15.h),
+        prefixIcon: Icon(
+          widget.icon,
+          size: 19.sp,
+          color: const Color(0xFF696B76),
+        ),
+        prefixIconConstraints: BoxConstraints(minWidth: 48.w),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                tooltip: _obscureText ? 'Show password' : 'Hide password',
+                splashRadius: 18.r,
+                onPressed: () => setState(() {
+                  _obscureText = !_obscureText;
+                }),
+                icon: Icon(
+                  _obscureText
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  size: 19.sp,
+                  color: const Color(0xFF696B76),
+                ),
+              )
+            : null,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: const BorderSide(color: Color(0xFFE4E5E9)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: BorderSide(color: primary.withValues(alpha: .72)),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: const BorderSide(color: Color(0xFFE95454)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14.r),
+          borderSide: const BorderSide(color: Color(0xFFE95454)),
+        ),
+        errorStyle: TextStyle(fontSize: 10.sp, height: 1.1),
+      ),
     );
   }
 }
@@ -568,7 +648,7 @@ class _RoleSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 72.h,
+      height: 64.h,
       child: Row(
         children: [
           Expanded(
@@ -581,7 +661,7 @@ class _RoleSelector extends StatelessWidget {
           ),
           Container(
             width: 1,
-            height: 34.h,
+            height: 30.h,
             color: const Color(0xFFE3E4E8),
           ),
           Expanded(
@@ -594,7 +674,7 @@ class _RoleSelector extends StatelessWidget {
           ),
           Container(
             width: 1,
-            height: 38.h,
+            height: 30.h,
             color: const Color(0xFFE3E4E8),
           ),
           Expanded(
@@ -606,19 +686,19 @@ class _RoleSelector extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.apartment_rounded,
-                    size: 23.sp,
+                    size: 20.sp,
                     color: const Color(0xFF686A75),
                   ),
-                  SizedBox(height: 7.h),
+                  SizedBox(height: 5.h),
                   Text(
                     'Gym',
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 11.5.sp,
                       fontWeight: FontWeight.w500,
                       color: const Color(0xFF686A75),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 7.h),
                   Container(
                     height: 2.h,
                     color: Colors.transparent,
@@ -665,22 +745,22 @@ class _RoleTab extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 child: Icon(
                   icon,
-                  size: 23.sp,
+                  size: 20.sp,
                   color: selected ? primary : const Color(0xFF686A75),
                 ),
               ),
-              SizedBox(height: 7.h),
+              SizedBox(height: 5.h),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 11.5.sp,
                   fontWeight: FontWeight.w500,
                   color: selected ? primary : const Color(0xFF686A75),
                 ),
                 child: Text(label),
               ),
-              SizedBox(height: 11.h),
+              SizedBox(height: 8.h),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
@@ -710,17 +790,17 @@ class _SocialCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 52.w,
-        height: 52.w,
+        width: 46.w,
+        height: 46.w,
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: .96),
           shape: BoxShape.circle,
           border: Border.all(color: const Color(0xFFF0F0F2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: .07),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: .045),
+              blurRadius: 9,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
