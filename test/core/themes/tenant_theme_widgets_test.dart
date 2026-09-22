@@ -94,21 +94,11 @@ void main() {
           )
           .color;
 
-      Color? gymButtonColor() =>
-          (tester
-                      .widget<Container>(
-                        find
-                            .ancestor(
-                              of: find.text('Log in / sign up'),
-                              matching: find.byType(Container),
-                            )
-                            .first,
-                      )
-                      .decoration
-                  as BoxDecoration)
-              .color;
+      Color? gymActionColor() => tester
+          .widget<Icon>(find.byKey(const ValueKey('featured-gym-open-icon')))
+          .color;
 
-      expect(gymButtonColor(), green);
+      expect(gymActionColor(), green);
       expect(buttonColor('Continue'), green);
       expect(buttonColor('Override')?.toARGB32(), Colors.blue.toARGB32());
       expect(notificationColor(), green.withValues(alpha: 0.06));
@@ -123,7 +113,7 @@ void main() {
 
       branded.value = false;
       await tester.pumpAndSettle();
-      expect(gymButtonColor(), AppColors.primary);
+      expect(gymActionColor(), AppColors.primary);
       expect(buttonColor('Continue'), AppColors.primary);
       expect(buttonColor('Override')?.toARGB32(), Colors.blue.toARGB32());
       expect(notificationColor(), AppColors.primary.withValues(alpha: 0.06));

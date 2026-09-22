@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
@@ -557,7 +558,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   '${_progressFor(_selectedDate).total}',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: _ink,
                   ),
                 ),
@@ -699,7 +700,7 @@ class _CalendarDayCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 23.sp,
                   height: 1,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   letterSpacing: -0.7,
                   color: selectedColor,
                 ),

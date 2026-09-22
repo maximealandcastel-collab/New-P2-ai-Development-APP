@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -198,7 +199,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                     style: TextStyle(
                       fontSize: 23.sp,
                       height: 1,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                       color: const Color(0xFF080A12),
                     ),
                     children: [
@@ -881,6 +882,12 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
       child: TextField(
         controller: _searchController,
         onChanged: (val) => setState(() => _searchQuery = val),
+        onSubmitted: (_) => Get.to(
+          () => GymsScreen(
+            onboardingMode: true,
+            initialQuery: _searchController.text.trim(),
+          ),
+        ),
         style: TextStyle(fontSize: 12.5.sp, color: const Color(0xFF22242D)),
         decoration: InputDecoration(
           hintText: 'Search gyms (e.g. Equinox, LA Fitness, YMCA...)',
@@ -914,7 +921,12 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () => Get.to(() => const GymsScreen()),
+              onTap: () => Get.to(
+                () => GymsScreen(
+                  onboardingMode: true,
+                  initialQuery: _searchController.text.trim(),
+                ),
+              ),
               child: Row(
                 children: [
                   Text(

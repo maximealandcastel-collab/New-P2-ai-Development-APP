@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
@@ -44,7 +45,7 @@ class ServicesCardWidget extends StatelessWidget {
               RichText(text: TextSpan(
                 style: TextStyle(
                     color: AppColors.info,
-                  fontWeight:FontWeight.w700,
+                  fontWeight:AppFontWeight.section,
                   fontSize: 14.sp
                 ),
                 text: '\$24 – \$48',

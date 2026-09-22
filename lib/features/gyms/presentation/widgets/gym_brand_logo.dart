@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'tenant_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -121,7 +122,7 @@ class GymStockImage extends StatelessWidget {
           style: TextStyle(
             color: gym.brandColor,
             fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
       ),

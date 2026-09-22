@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,7 +56,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         title: CustomText(
           text: 'Services',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
         ),
       ),
       // Switch between empty state and list view based on data
@@ -155,7 +156,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               CustomText(
                 text: service['title']!,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
               Icon(Icons.more_vert, size: 20.r, color: Colors.black), // Menu icon
             ],
@@ -214,7 +215,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   CustomText(
                     text: 'Add a service',
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                   GestureDetector(
                     onTap: () => Get.back(),

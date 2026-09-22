@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -32,7 +33,7 @@ class CertificatesScreen extends StatelessWidget {
         title: CustomText(
           text: 'Certificates',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppFontWeight.section,
         ),
       ),
       body: Center(
@@ -94,7 +95,7 @@ class CertificatesScreen extends StatelessWidget {
                   CustomText(
                     text: 'Add a certificate',
                     fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                   GestureDetector(
                     onTap: () => Get.back(),

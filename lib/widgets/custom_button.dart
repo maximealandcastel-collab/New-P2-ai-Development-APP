@@ -1,6 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import '../widgets/widgets.dart';
 
 
@@ -59,9 +60,9 @@ class CustomButton extends StatelessWidget {
       elevation: elevation,
       onTap: (isLoading || isDisabled) ? null : onPressed,
       color: (backgroundColor ?? Theme.of(context).colorScheme.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
-      height: height ?? 52.h,
+      height: height ?? 48.h,
       width: width ?? double.infinity,
-      radiusAll: radius ?? 16.r,
+      radiusAll: radius ?? P2PRadius.control.r,
       bordersColor: bordersColor,
       child: child ?? Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -91,7 +92,7 @@ class CustomButton extends StatelessWidget {
                   text: label ?? '',
                   color: foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
                   fontName: fontName, // null = SF Pro on iOS
-                   fontWeight: fontWeight ?? FontWeight.w500,
+                   fontWeight: fontWeight ?? AppFontWeight.label,
                    fontSize: fontSize ?? 14.sp,
                 ),
               ),

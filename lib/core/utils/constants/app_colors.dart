@@ -15,22 +15,22 @@ class AppColors {
   );
 
   // Text Colors
-  static const Color textPrimary = Color(0xFF000000);
-  static const Color textSecondary = Color(0xFF7f7f7f);
+  static const Color textPrimary = Color(0xFF171820);
+  static const Color textSecondary = Color(0xFF727580);
   static const Color textYellow = Color(0xffFFAB4C);
   static const Color textGrey = Color(0xffA59F92);
   static const Color textWhite = Color(0xFFFFFFFF);
-  static const Color hintText = Color(0xFF93969C);
+  static const Color hintText = Color(0xFF9A9CA5);
 
   static const Color containerBg = Color(0xFFe0e0e0);
 
   // Background Colors
-  static const Color backgroundLight = Color(0xFFF0F0F0);
+  static const Color backgroundLight = Color(0xFFF7F7F8);
   static const Color backgroundDark = Color(0xFF121212);
   static const Color primaryBackground = Color(0xFFFFFFFF);
 
   // Surface Colors
-  static const Color surfaceLight = Color(0xFFE0E0E0);
+  static const Color surfaceLight = Color(0xFFFAFAFB);
   static const Color surfaceDark = Color(0xFF2C2C2C);
 
   // Container Colors

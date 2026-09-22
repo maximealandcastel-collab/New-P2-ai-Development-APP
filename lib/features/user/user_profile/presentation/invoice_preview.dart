@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -95,7 +96,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(TenantBrandService.to.displayName,
-                                              style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700)),
+                                              style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section)),
                                           Text('Center for wellness',
                                               style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade500)),
                                         ],
@@ -234,7 +235,7 @@ class UsersInvoicePreviewScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text('Pay now',
-                                style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w700)),
+                                style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: AppFontWeight.section)),
                             SizedBox(width: 8.w),
                             Icon(Icons.arrow_forward, color: Colors.white, size: 18.sp),
                           ],

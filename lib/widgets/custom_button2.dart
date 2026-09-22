@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 
 class CustomButton2 extends StatelessWidget {
   const CustomButton2({
@@ -31,7 +33,11 @@ class CustomButton2 extends StatelessWidget {
     return ElevatedButton(
       onPressed: loading ? null : onTap,
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius??4.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            borderRadius ?? P2PRadius.control.r,
+          ),
+        ),
         backgroundColor: color ?? AppColors.secondary,
         minimumSize: Size(width ?? Get.width, height ?? 48.h),
           maximumSize: Size(width ?? Get.width, height ?? 48.h),
@@ -51,8 +57,8 @@ class CustomButton2 extends StatelessWidget {
         style: textStyle ??
             const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 18,
+              fontWeight: AppFontWeight.label,
+              fontSize: 14,
             ),
       ),
     );

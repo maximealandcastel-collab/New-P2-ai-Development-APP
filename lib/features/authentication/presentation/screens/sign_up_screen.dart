@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_onboarding_screen.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: TextStyle(
                     fontSize: 25.sp,
                     height: 1.1,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: const Color(0xFF171717),
                     letterSpacing: -0.4,
                   ),
@@ -239,7 +240,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             color: const Color(0xFF202020),
             letterSpacing: 0.2,
           ),

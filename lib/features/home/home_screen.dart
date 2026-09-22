@@ -3,6 +3,8 @@ import 'widgets/home_gym_brand.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/features/home/data/trainer_dashboard_stats.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/trainer/assignedPlan/presentation/screen/assigned_plan_screen.dart';
@@ -129,8 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildClientOverview() {
     return CustomContainer(
       width: double.infinity,
-      paddingAll: 18.r,
-      radiusAll: 24.r,
+      paddingAll: 16.r,
+      radiusAll: P2PRadius.card.r,
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,9 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
           CustomText(
             text: 'Client Overview',
             textAlign: TextAlign.start,
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
-            bottom: 16.h,
+            fontSize: 18.sp,
+            fontWeight: AppFontWeight.title,
+            bottom: 14.h,
           ),
           Row(
             children: [
@@ -209,25 +211,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return _DashboardCard(
       onTap: onTap,
-      height: 128.h,
-      padding: EdgeInsets.all(16.r),
+      height: 112.h,
+      padding: EdgeInsets.all(14.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, size: 30.r, color: Colors.black),
+          Icon(icon, size: 24.r, color: P2PColors.charcoal),
           CustomText(
             text: label,
             textAlign: TextAlign.start,
             fontSize: 13.sp,
-            fontWeight: FontWeight.w500,
+            fontWeight: AppFontWeight.body,
             color: AppColors.textSecondary,
           ),
           CustomText(
             text: value,
             textAlign: TextAlign.start,
-            fontSize: 30.sp,
-            fontWeight: FontWeight.w600,
+            fontSize: 24.sp,
+            fontWeight: AppFontWeight.stat,
           ),
         ],
       ),
@@ -243,29 +245,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return _DashboardCard(
       onTap: onTap,
-      height: 148.h,
-      padding: EdgeInsets.fromLTRB(12.w, 14.h, 12.w, 12.h),
+      height: 122.h,
+      padding: EdgeInsets.fromLTRB(11.w, 12.h, 11.w, 10.h),
       child: Stack(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 27.r, color: Colors.black),
+              Icon(icon, size: 23.r, color: P2PColors.charcoal),
               CustomText(
                 text: label,
                 textAlign: TextAlign.start,
                 maxline: 2,
                 textOverflow: TextOverflow.ellipsis,
                 fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppFontWeight.body,
                 color: AppColors.textSecondary,
               ),
               CustomText(
                 text: value,
                 textAlign: TextAlign.start,
-                fontSize: 28.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: 23.sp,
+                fontWeight: AppFontWeight.stat,
               ),
             ],
           ),
@@ -277,15 +279,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 behavior: HitTestBehavior.opaque,
                 onTap: onTap,
                 child: Container(
-                  width: 30.r,
-                  height: 30.r,
+                  width: 28.r,
+                  height: 28.r,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: .10),
                   ),
                   child: Icon(
                     Icons.add,
-                    size: 21.r,
+                    size: 19.r,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -301,14 +306,15 @@ class _HomeScreenState extends State<HomeScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: _openClients,
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(P2PRadius.card.r),
         child: Ink(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24.r),
+            borderRadius: BorderRadius.circular(P2PRadius.card.r),
+            border: Border.all(color: P2PColors.border),
           ),
           child: Padding(
-            padding: EdgeInsets.all(18.r),
+            padding: EdgeInsets.all(16.r),
             child: Column(
               children: [
                 Row(
@@ -317,8 +323,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     CustomText(
                       text: 'Paid Clients',
                       textAlign: TextAlign.start,
-                      fontSize: 19.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 17.sp,
+                      fontWeight: AppFontWeight.title,
                     ),
                     Semantics(
                       button: true,
@@ -356,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 CustomText(
                   text: 'Not enough data to view',
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppFontWeight.label,
                   color: AppColors.textSecondary,
                 ),
                 SizedBox(height: 42.h),
@@ -388,13 +394,14 @@ class _DashboardCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(P2PRadius.card.r),
         child: Ink(
           height: height,
           padding: padding,
           decoration: BoxDecoration(
-            color: const Color(0xFFF9F9F9),
-            borderRadius: BorderRadius.circular(18.r),
+            color: P2PColors.softSurface,
+            borderRadius: BorderRadius.circular(P2PRadius.card.r),
+            border: Border.all(color: P2PColors.border),
           ),
           child: child,
         ),

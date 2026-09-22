@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import '../widgets/enterprise_theme.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import '../../data/models/legacy_kmf_configuration.dart';
@@ -224,7 +225,7 @@ class _EnterpriseHeader extends StatelessWidget {
       pinned: true,
       backgroundColor: _dashboardBackground(gym),
       foregroundColor: _dashboardText(gym),
-      title: Text(gym.name, style: TextStyle(fontWeight: FontWeight.w700)),
+      title: Text(gym.name, style: TextStyle(fontWeight: AppFontWeight.section)),
       actions: [
         if (!legacyKmf)
           IconButton(
@@ -302,7 +303,7 @@ class _EnterpriseHeader extends StatelessWidget {
                       style: TextStyle(
                         color: _dashboardText(gym),
                         fontSize: 25,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -313,7 +314,7 @@ class _EnterpriseHeader extends StatelessWidget {
                       style: TextStyle(
                         color: _dashboardAccent(gym),
                         fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         letterSpacing: .4,
                       ),
                     ),
@@ -354,7 +355,7 @@ class _DashboardBody extends StatelessWidget {
             style: TextStyle(
               color: _dashboardText(gym),
               fontSize: 20,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
             ),
           ),
           const SizedBox(height: 12),
@@ -496,7 +497,7 @@ class _LocationCard extends StatelessWidget {
                   gym.name,
                   style: TextStyle(
                     color: _dashboardText(gym),
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -522,7 +523,7 @@ class _LocationCard extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 10,
-                fontWeight: FontWeight.w900,
+                fontWeight: AppFontWeight.display,
               ),
             ),
           ),
@@ -560,7 +561,7 @@ class _EnterpriseAnalyticsOverviewScreen extends StatelessWidget {
               style: TextStyle(
                 color: _dashboardText(gym),
                 fontSize: 25,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.title,
               ),
             ),
             const SizedBox(height: 4),
@@ -682,7 +683,7 @@ class _MetricCard extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSecondary,
                   fontSize: 27,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppFontWeight.title,
                 ),
               ),
               const SizedBox(height: 3),
@@ -720,7 +721,7 @@ class _GymGallery extends StatelessWidget {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSecondary,
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
         const SizedBox(height: 11),
@@ -771,7 +772,7 @@ class _ActivitySection extends StatelessWidget {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSecondary,
               fontSize: 17,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
             ),
           ),
           const SizedBox(height: 10),

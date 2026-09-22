@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'staff_signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -80,7 +81,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                             fontSize: 12,
                             letterSpacing: 1.2,
                             color: Color(0xFF99A1B1),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.title,
                           ),
                         ),
                         SizedBox(height: 5),
@@ -89,7 +90,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             color: _ink,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.title,
                           ),
                         ),
                       ],
@@ -101,11 +102,11 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
               const Text(
                 'Get Started.',
                 style: TextStyle(
-                  fontSize: 38,
+                  fontSize: 31,
                   height: 1.1,
                   letterSpacing: -1,
                   color: _ink,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: AppFontWeight.display,
                 ),
               ),
               const SizedBox(height: 16),
@@ -148,7 +149,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               color: _ink,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: AppFontWeight.title,
                             ),
                           ),
                           SizedBox(height: 4),
@@ -176,7 +177,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                         'CLAIM ➜',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppFontWeight.title,
                         ),
                       ),
                     ),
@@ -216,7 +217,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                 onPressed: _path == null ? null : _continue,
                 child: const Text(
                   'Continue ➜',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  style: TextStyle(fontSize: 18, fontWeight: AppFontWeight.title),
                 ),
               ),
               const SizedBox(height: 20),
@@ -232,7 +233,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                           text: 'Sign In',
                           style: TextStyle(
                             color: _orange,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                           ),
                         ),
                       ],
@@ -279,7 +280,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           color: _ink,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppFontWeight.title,
                         ),
                       ),
                       const SizedBox(height: 6),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/app_colors.dart';
@@ -21,7 +22,7 @@ class AppBarThemeData {
       titleTextStyle: TextStyle(
         color: titleColor,
         fontSize: 20.0,
-        fontWeight: FontWeight.bold,
+        fontWeight: AppFontWeight.section,
       ),
       actionsIconTheme: IconThemeData(color: iconColor),
       centerTitle: true,

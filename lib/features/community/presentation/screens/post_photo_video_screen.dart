@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -68,7 +69,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                 'Add a photo',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
               SizedBox(height: 18.h),
@@ -170,7 +171,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
         ),
         title: const Text(
           'New Post',
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(fontWeight: AppFontWeight.section),
         ),
         centerTitle: true,
         actions: [
@@ -180,7 +181,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
               _posting ? 'Posting...' : 'Post',
               style: TextStyle(
                 color: _photo == null ? Colors.black26 : orange,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
             ),
           ),
@@ -348,7 +349,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                             'Add a photo',
                             style: TextStyle(
                               fontSize: 17.sp,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppFontWeight.section,
                             ),
                           ),
                           SizedBox(height: 5.h),
@@ -418,7 +419,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                   _posting ? 'Posting...' : 'Post Photo',
                   style: TextStyle(
                     color: _photo == null ? Colors.black38 : Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     fontSize: 15.sp,
                   ),
                 ),
@@ -463,7 +464,7 @@ class _SourceButton extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
             ),
           ],

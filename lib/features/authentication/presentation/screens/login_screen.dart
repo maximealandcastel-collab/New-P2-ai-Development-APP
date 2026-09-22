@@ -20,20 +20,21 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(
           children: [
             const Positioned.fill(child: _LoginBackdrop()),
             Positioned(
-              top: 150.h,
-              right: -104.w,
+              top: 118.h,
+              right: -92.w,
               child: IgnorePointer(
                 child: Opacity(
-                  opacity: .10,
+                  opacity: .085,
                   child: Image.asset(
                     'assets/images/training_styles/weight_lifting.png',
-                    width: 284.w,
-                    height: 440.h,
+                    width: 276.w,
+                    height: 456.h,
                     fit: BoxFit.cover,
                     alignment: Alignment.center,
                     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -42,7 +43,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             Positioned(
-              top: 100.h,
+              top: 86.h,
               left: 0,
               right: 0,
               height: 560.h,
@@ -55,8 +56,8 @@ class LoginScreen extends StatelessWidget {
                       colors: [
                         Colors.white,
                         Colors.white.withValues(alpha: .98),
-                        Colors.white.withValues(alpha: .92),
-                        Colors.white.withValues(alpha: .62),
+                        Colors.white.withValues(alpha: .94),
+                        Colors.white.withValues(alpha: .66),
                       ],
                       stops: const [0, .52, .78, 1],
                     ),
@@ -67,63 +68,27 @@ class LoginScreen extends StatelessWidget {
             SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(28.w, 16.h, 28.w, 24.h),
               physics: const BouncingScrollPhysics(),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: Form(
                 key: controller.loginFormKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _BrandHeader(primary: primary),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 18.h),
                     Container(
                       width: 30.w,
                       height: 2.h,
                       color: primary,
                     ),
                     SizedBox(height: 14.h),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 32.sp,
-                          height: 1.05,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -1,
-                          color: const Color(0xFF090B14),
-                        ),
-                        children: [
-                          const TextSpan(text: 'Welcome '),
-                          TextSpan(
-                            text: 'back',
-                            style: TextStyle(color: primary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 9.h),
-                    Text(
-                      'Sign in to your P2P Fit account.',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        height: 1.25,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFF71717D),
-                      ),
-                    ),
-                    SizedBox(height: 13.h),
-                    Text(
-                      'T R A I N .   C O N N E C T .   A C H I E V E .',
-                      style: TextStyle(
-                        fontSize: 7.8.sp,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.8,
-                        color: const Color(0xFF74747E),
-                      ),
-                    ),
-                    SizedBox(height: 24.h),
+                    _WelcomeHero(primary: primary),
+                    SizedBox(height: 22.h),
                     _RoleSelector(
                       controller: controller,
                       primary: primary,
                     ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: 20.h),
                     const _FieldTitle('EMAIL'),
                     SizedBox(height: 8.h),
                     _CompactLoginField(
@@ -147,65 +112,26 @@ class LoginScreen extends StatelessWidget {
                     SizedBox(height: 16.h),
                     Row(
                       children: [
-                        Obx(
-                          () => GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: controller.toggleSaveLogin,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 180),
-                              width: 20.w,
-                              height: 20.w,
-                              decoration: BoxDecoration(
-                                color: controller.saveLogin.value
-                                    ? primary
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(6.r),
-                                border: Border.all(
-                                  color: controller.saveLogin.value
-                                      ? primary
-                                      : const Color(0xFFD7D9DE),
-                                ),
-                                boxShadow: controller.saveLogin.value
-                                    ? [
-                                        BoxShadow(
-                                          color: primary.withValues(alpha: .24),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: controller.saveLogin.value
-                                  ? Icon(
-                                      Icons.check_rounded,
-                                      color: Colors.white,
-                                      size: 14.sp,
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        GestureDetector(
-                          onTap: controller.toggleSaveLogin,
-                          child: Text(
-                            'Remember me',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF74747F),
-                            ),
-                          ),
+                        _RememberToggle(
+                          controller: controller,
+                          primary: primary,
                         ),
                         const Spacer(),
-                        GestureDetector(
+                        InkWell(
+                          borderRadius: BorderRadius.circular(10.r),
                           onTap: () => Get.toNamed(AppRoute.forgotScreen),
-                          child: Text(
-                            'Forgot password?',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                              color: primary,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minHeight: 44.h),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Forgot password?',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: primary,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -215,70 +141,10 @@ class LoginScreen extends StatelessWidget {
                     Obx(() {
                       final loading =
                           controller.loginState == LoadingState.loading;
-                      return Center(
-                        child: GestureDetector(
-                          onTap: loading ? null : controller.login,
-                          child: AnimatedOpacity(
-                            opacity: loading ? .72 : 1,
-                            duration: const Duration(milliseconds: 180),
-                            child: Container(
-                              width: 168.w,
-                              height: 44.h,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFFFF9A2F),
-                                    Color(0xFFFF6A16),
-                                    Color(0xFFFF4C12),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(999.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: primary.withValues(alpha: .24),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 7),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: loading
-                                    ? SizedBox(
-                                        width: 19.w,
-                                        height: 19.w,
-                                        child: const CircularProgressIndicator(
-                                          strokeWidth: 2.2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
-                                        ),
-                                      )
-                                    : Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            'Sign in',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          SizedBox(width: 9.w),
-                                          Icon(
-                                            Icons.arrow_forward_rounded,
-                                            color: Colors.white,
-                                            size: 18.sp,
-                                          ),
-                                        ],
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      return _SignInButton(
+                        loading: loading,
+                        primary: primary,
+                        onPressed: controller.login,
                       );
                     }),
                     SizedBox(height: 30.h),
@@ -337,41 +203,19 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 25.h),
-                    Center(
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            'New to P2P Fit? ',
-                            style: TextStyle(
-                              fontSize: 12.5.sp,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF8A8B94),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              log('Pre-signup paywall');
-                              Get.toNamed(
-                                AppRoute.paywallScreen,
-                                arguments: {
-                                  'preSignup': true,
-                                  'nextRoute': AppRoute.signUpScreen,
-                                  'freeRoute': AppRoute.signUpScreen,
-                                },
-                              );
-                            },
-                            child: Text(
-                              'Create account',
-                              style: TextStyle(
-                                fontSize: 12.5.sp,
-                                fontWeight: FontWeight.w500,
-                                color: primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    _CreateAccountCard(
+                      primary: primary,
+                      onTap: () {
+                        log('Pre-signup paywall');
+                        Get.toNamed(
+                          AppRoute.paywallScreen,
+                          arguments: {
+                            'preSignup': true,
+                            'nextRoute': AppRoute.signUpScreen,
+                            'freeRoute': AppRoute.signUpScreen,
+                          },
+                        );
+                      },
                     ),
                     SizedBox(height: 28.h),
                   ],
@@ -497,6 +341,105 @@ class _BrandHeader extends StatelessWidget {
             fontWeight: FontWeight.w500,
             letterSpacing: 2.15,
             color: const Color(0xFF898B96),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WelcomeHero extends StatelessWidget {
+  const _WelcomeHero({required this.primary});
+
+  final Color primary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 32.sp,
+                      height: 1.05,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -1,
+                      color: const Color(0xFF090B14),
+                    ),
+                    children: [
+                      const TextSpan(text: 'Welcome '),
+                      TextSpan(
+                        text: 'back',
+                        style: TextStyle(color: primary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 9.h),
+              Text(
+                'Sign in to your P2P Fit account.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  height: 1.25,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF71717D),
+                ),
+              ),
+              SizedBox(height: 13.h),
+              Text(
+                'T R A I N .   C O N N E C T .   A C H I E V E .',
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 7.4.sp,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.55,
+                  color: const Color(0xFF74747E),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 8.w),
+        Padding(
+          padding: EdgeInsets.only(top: 2.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Transform.rotate(
+                angle: -.08,
+                child: Text(
+                  'Better\nTogether',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    height: .88,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -.45,
+                    color: primary.withValues(alpha: .88),
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                'F I T N E S S\nB U I L D S\nC O M M U N I T Y',
+                style: TextStyle(
+                  fontSize: 5.8.sp,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.15,
+                  color: const Color(0xFF8A8C95),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -647,8 +590,21 @@ class _RoleSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 64.h,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .88),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFF0ECE9)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFB98A63).withValues(alpha: .065),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
           Expanded(
@@ -736,6 +692,9 @@ class _RoleTab extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
+          color: selected
+              ? primary.withValues(alpha: .052)
+              : Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -773,6 +732,240 @@ class _RoleTab extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class _RememberToggle extends StatelessWidget {
+  const _RememberToggle({
+    required this.controller,
+    required this.primary,
+  });
+
+  final LoginController controller;
+  final Color primary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Semantics(
+        checked: controller.saveLogin.value,
+        label: 'Remember me',
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10.r),
+          onTap: controller.toggleSaveLogin,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 44.h),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 20.w,
+                  height: 20.w,
+                  decoration: BoxDecoration(
+                    color: controller.saveLogin.value ? primary : Colors.white,
+                    borderRadius: BorderRadius.circular(6.r),
+                    border: Border.all(
+                      color: controller.saveLogin.value
+                          ? primary
+                          : const Color(0xFFD7D9DE),
+                    ),
+                    boxShadow: controller.saveLogin.value
+                        ? [
+                            BoxShadow(
+                              color: primary.withValues(alpha: .20),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: controller.saveLogin.value
+                      ? Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 14.sp,
+                        )
+                      : null,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'Remember me',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF74747F),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SignInButton extends StatefulWidget {
+  const _SignInButton({
+    required this.loading,
+    required this.primary,
+    required this.onPressed,
+  });
+
+  final bool loading;
+  final Color primary;
+  final VoidCallback onPressed;
+
+  @override
+  State<_SignInButton> createState() => _SignInButtonState();
+}
+
+class _SignInButtonState extends State<_SignInButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Semantics(
+        button: true,
+        enabled: !widget.loading,
+        label: widget.loading ? 'Signing in' : 'Sign in',
+        child: AnimatedScale(
+          scale: _pressed ? .975 : 1,
+          duration: const Duration(milliseconds: 110),
+          curve: Curves.easeOut,
+          child: AnimatedOpacity(
+            opacity: widget.loading ? .72 : 1,
+            duration: const Duration(milliseconds: 180),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999.r),
+                onHighlightChanged: widget.loading
+                    ? null
+                    : (pressed) => setState(() => _pressed = pressed),
+                onTap: widget.loading ? null : widget.onPressed,
+                child: Ink(
+                  width: 168.w,
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0xFFFFA13A),
+                        Color(0xFFFF711C),
+                        Color(0xFFFF4E16),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(999.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.primary.withValues(alpha: .20),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: widget.loading
+                        ? SizedBox(
+                            width: 19.w,
+                            height: 19.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Sign in',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 9.w),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                color: Colors.white,
+                                size: 18.sp,
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CreateAccountCard extends StatelessWidget {
+  const _CreateAccountCard({
+    required this.primary,
+    required this.onTap,
+  });
+
+  final Color primary;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Material(
+        color: Colors.white.withValues(alpha: .84),
+        borderRadius: BorderRadius.circular(14.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14.r),
+          onTap: onTap,
+          child: Container(
+            constraints: BoxConstraints(minHeight: 48.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(color: const Color(0xFFF0ECE9)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'New to P2P Fit? ',
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF8A8B94),
+                  ),
+                ),
+                Text(
+                  'Create account',
+                  style: TextStyle(
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w500,
+                    color: primary,
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 15.sp,
+                  color: primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -117,7 +118,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
               color: Colors.black,
               fontSize: 27.sp,
               height: 1.08,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               letterSpacing: -0.5,
             ),
           ),
@@ -187,7 +188,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 34.sp,
                         height: 1,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                       ),
                     ),
                     SizedBox(width: 7.w),
@@ -231,7 +232,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
           style: TextStyle(
             color: Colors.black,
             fontSize: 15.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
         SizedBox(height: 3.h),
@@ -298,7 +299,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
           Text(
             provider.name,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.section),
           ),
           SizedBox(height: 5.h),
           Expanded(
@@ -371,15 +372,15 @@ class _EarningsScreenState extends State<EarningsScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(plan.name, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700)),
+                Text(plan.name, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.section)),
                 SizedBox(height: 5.h),
                 Text(
                   plan.tokens,
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 18.sp, fontWeight: AppFontWeight.section),
                 ),
                 Text('Tokens', style: TextStyle(color: _muted, fontSize: 9.sp)),
                 const Spacer(),
-                Text(plan.price, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700)),
+                Text(plan.price, style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section)),
                 SizedBox(height: 2.h),
                 Text(plan.unitPrice, style: TextStyle(color: _muted, fontSize: 8.5.sp)),
               ],
@@ -401,7 +402,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   ),
                   child: Text(
                     'BEST VALUE',
-                    style: TextStyle(color: Colors.white, fontSize: 6.5.sp, fontWeight: FontWeight.w700),
+                    style: TextStyle(color: Colors.white, fontSize: 6.5.sp, fontWeight: AppFontWeight.section),
                   ),
                 ),
               ),
@@ -450,7 +451,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 6.5.sp,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.section,
                         ),
                       ),
                     ),
@@ -462,7 +463,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                         child: Text(
                           plan.name,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w700),
+                          style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.section),
                         ),
                       ),
                     ],
@@ -470,7 +471,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   const Spacer(),
                   Text(plan.tokens, style: TextStyle(color: _muted, fontSize: 8.5.sp)),
                   SizedBox(height: 5.h),
-                  Text(plan.price, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700)),
+                  Text(plan.price, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.section)),
                 ],
               ),
             ),
@@ -533,7 +534,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
         borderRadius: BorderRadius.circular(5.r),
         border: Border.all(color: const Color(0xFFE1E2E5)),
       ),
-      child: Text(label, style: TextStyle(fontSize: 8.sp, fontWeight: FontWeight.w700)),
+      child: Text(label, style: TextStyle(fontSize: 8.sp, fontWeight: AppFontWeight.section)),
     );
   }
 
@@ -573,7 +574,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   label: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Refill Now', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700)),
+                      Text('Refill Now', style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section)),
                       Text('Instant delivery to your account', style: TextStyle(fontSize: 8.sp)),
                     ],
                   ),
@@ -593,7 +594,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => _showPurchaseNotice(context),
                 icon: const Icon(Icons.apple, color: Colors.white, size: 21),
-                label: Text('Pay', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700)),
+                label: Text('Pay', style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,

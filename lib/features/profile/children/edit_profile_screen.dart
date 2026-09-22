@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -126,7 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 24.h),
-                  CustomText(text: 'Professional details', fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  CustomText(text: 'Professional details', fontSize: 18.sp, fontWeight: AppFontWeight.section),
 
                   SizedBox(height: 16.h),
                   // Using your CustomTextField for all inputs
@@ -181,7 +182,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
 
                   SizedBox(height: 24.h),
-                  CustomText(text: 'Services', fontSize: 18.sp, fontWeight: FontWeight.w700),
+                  CustomText(text: 'Services', fontSize: 18.sp, fontWeight: AppFontWeight.section),
 
                   SizedBox(height: 16.h),
 
@@ -368,7 +369,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             CustomText(
               text: 'Years of experience',
               fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               bottom: 20.h,
             ),
 
@@ -408,7 +409,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           child: CustomText(
                             text: index < 10 ? '0 $index' : '$index', // Matches "0 8" format
                             fontSize: 32.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                             color: Colors.black,
                           ),
                         );
@@ -454,7 +455,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Opacity(opacity: 0, child: Icon(Icons.close)),
-                CustomText(text: 'Availability', fontSize: 18.sp, fontWeight: FontWeight.bold),
+                CustomText(text: 'Availability', fontSize: 18.sp, fontWeight: AppFontWeight.section),
                 GestureDetector(
                   onTap: () => Get.back(),
                   child: CustomContainer(

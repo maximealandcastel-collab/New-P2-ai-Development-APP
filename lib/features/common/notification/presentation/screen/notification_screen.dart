@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -101,7 +102,7 @@ class NotificationsScreen extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${data['title']} ',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: AppFontWeight.section),
                       ),
                       TextSpan(
                         text: '${data['action']} ',
@@ -110,7 +111,7 @@ class NotificationsScreen extends StatelessWidget {
                       if (data['target'].isNotEmpty)
                         TextSpan(
                           text: '${data['target']} ',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontWeight: AppFontWeight.section),
                         ),
                       TextSpan(
                         text: '• ${data['date']}',

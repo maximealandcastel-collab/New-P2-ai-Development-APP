@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
                       text: '5',
                       color: Colors.white,
                       fontSize: 9.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                     ),
                   ),
                 ),
@@ -135,7 +136,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
             CustomText(
               text: "All Contents",
               fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: AppFontWeight.section,
             ),
             SizedBox(height: 12.h),
             _buildContentList(),
@@ -178,7 +179,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
               CustomText(
                 text: "1.2k",
                 fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
               ),
               Padding(
                 padding: EdgeInsets.only(bottom: 6.h, left: 8.w),
@@ -270,7 +271,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
               const Icon(Icons.auto_awesome, size: 18, color: Colors.black),
               CustomText(
                 text: ' AI Insight',
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
                 fontSize: 15.sp,
               ),
             ],
@@ -343,7 +344,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
                   children: [
                     CustomText(
                       text: item['title'],
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 14.sp,
                       textAlign: TextAlign.start,
                     ),
@@ -442,7 +443,7 @@ class _ContentsScreenState extends State<ContentsScreen> {
                 text: '5',
                 color: Colors.white,
                 fontSize: 8.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
               ),
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,23 +67,18 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: P2PShadows.floating,
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30.r),
+          borderRadius: BorderRadius.circular(24.r),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.94),
-                borderRadius: BorderRadius.circular(30.r),
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: P2PColors.border, width: .8),
               ),
               padding: EdgeInsets.symmetric(vertical: 6.h),
               // Built from navItems.length rather than fixed indices. The old

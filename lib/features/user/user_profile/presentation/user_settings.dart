@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -44,7 +45,7 @@ class UserSettingsScreen extends StatelessWidget {
                   Expanded(
                     child: Text('Settings',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                        style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
                   ),
                   SizedBox(width: 34.w),
                 ],
@@ -180,7 +181,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
+    style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
   );
 }
 

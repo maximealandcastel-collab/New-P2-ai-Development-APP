@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -228,7 +229,7 @@ class _ProfileHero extends StatelessWidget {
                   const Spacer(),
                   Column(
                     children: [
-                      Text('P2P', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w800, letterSpacing: -.6)),
+                      Text('P2P', style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: AppFontWeight.title, letterSpacing: -.6)),
                       Text('FIT TECH AI', style: TextStyle(color: Colors.white70, fontSize: 8.sp, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
                     ],
                   ),
@@ -272,7 +273,7 @@ class _ProfileHero extends StatelessWidget {
                     children: [
                       Text('Good to see you,', style: TextStyle(fontSize: 12.sp, color: Colors.white70, fontWeight: FontWeight.w500)),
                       SizedBox(height: 2.h),
-                      Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 24.sp, height: 1, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: -.5)),
+                      Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 24.sp, height: 1, color: Colors.white, fontWeight: AppFontWeight.section, letterSpacing: -.5)),
                       SizedBox(height: 7.h),
                       Text('Stronger every day', style: TextStyle(fontSize: 11.sp, color: Colors.white70, fontWeight: FontWeight.w500)),
                     ],
@@ -353,7 +354,7 @@ class _StatsRow extends StatelessWidget {
               child: Column(children: [
                 Icon(stats[i].$1, color: orange, size: 18.sp),
                 SizedBox(height: 5.h),
-                Text(stats[i].$2, style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: const Color(0xFF171717))),
+                Text(stats[i].$2, style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: const Color(0xFF171717))),
                 SizedBox(height: 2.h),
                 Text(stats[i].$3, maxLines: 1, style: TextStyle(fontSize: 8.5.sp, color: const Color(0xFF88888E), fontWeight: FontWeight.w500)),
               ]),
@@ -502,7 +503,7 @@ class _CommunityFoundationCard extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.people_alt_outlined, color: Colors.white, size: 28.sp),
                 SizedBox(height: 8.h),
-                Text('Your community feed lives here', style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: FontWeight.w700)),
+                Text('Your community feed lives here', style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: AppFontWeight.section)),
                 SizedBox(height: 3.h),
                 Text('Real member progress. No stock content.', style: TextStyle(color: Colors.white70, fontSize: 10.5.sp)),
               ]),
@@ -511,7 +512,7 @@ class _CommunityFoundationCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(14.r),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(name, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700)),
+              Text(name, style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.section)),
               SizedBox(height: 4.h),
               Text('Share a workout, meal, milestone, or transformation to start the conversation.', style: TextStyle(fontSize: 11.sp, height: 1.35, color: const Color(0xFF5D5D63))),
               SizedBox(height: 13.h),
@@ -632,7 +633,7 @@ class _ChallengesPanel extends StatelessWidget {
                           style: TextStyle(color: Colors.white60, fontSize: 8.5.sp, fontWeight: FontWeight.w600, letterSpacing: 1.2),
                         ),
                         SizedBox(height: 3.h),
-                        Text(rankName, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.w700)),
+                        Text(rankName, style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: AppFontWeight.section)),
                         if (topUnlock?.headline.isNotEmpty == true)
                           Text(topUnlock!.headline, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white70, fontSize: 10.sp)),
                       ],
@@ -659,7 +660,7 @@ class _ChallengesPanel extends StatelessWidget {
                       style: TextStyle(color: Colors.white70, fontSize: 9.5.sp, fontWeight: FontWeight.w500),
                     ),
                   ),
-                  Text('${(progress * 100).round()}%', style: TextStyle(color: Colors.white, fontSize: 10.sp, fontWeight: FontWeight.w700)),
+                  Text('${(progress * 100).round()}%', style: TextStyle(color: Colors.white, fontSize: 10.sp, fontWeight: AppFontWeight.section)),
                 ],
               ),
               SizedBox(height: 7.h),
@@ -700,7 +701,7 @@ class _ChallengesPanel extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('Trophies & badges', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF171717))),
+                  Text('Trophies & badges', style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: const Color(0xFF171717))),
                   const Spacer(),
                   Text('$badgeCount unlocked', style: TextStyle(fontSize: 9.5.sp, color: orange, fontWeight: FontWeight.w600)),
                 ],
@@ -758,7 +759,7 @@ class _ChallengeMetric extends StatelessWidget {
           children: [
             Icon(icon, color: const Color(0xFFFFD56A), size: 18.sp),
             SizedBox(height: 4.h),
-            Text(value, style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: FontWeight.w700)),
+            Text(value, style: TextStyle(color: Colors.white, fontSize: 17.sp, fontWeight: AppFontWeight.section)),
             Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white60, fontSize: 7.5.sp, fontWeight: FontWeight.w500)),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -47,7 +48,7 @@ class ClientCardWidget extends StatelessWidget {
                     CustomText(
                       text: client['name'] ?? '',
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                     ),
                     CustomText(
                       text: isPending
@@ -133,7 +134,7 @@ class ClientCardWidget extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.message, size: 14.r, color: Colors.black54),
-              CustomText(text: 'Message', fontSize: 13.sp, left: 6.w, fontWeight: FontWeight.w700),
+              CustomText(text: 'Message', fontSize: 13.sp, left: 6.w, fontWeight: AppFontWeight.section),
             ],
           ),
           SizedBox(height: 4.h),

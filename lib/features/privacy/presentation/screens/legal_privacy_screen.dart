@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -130,7 +131,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
             style: TextStyle(
               color: const Color(0xFF15161A),
               fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
               letterSpacing: -0.35,
             ),
           ),
@@ -184,9 +185,9 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
                             style: TextStyle(color: const Color(0xFF3C3D42), fontSize: 13.sp, height: 1.35),
                             children: const [
                               TextSpan(text: "I've read and agree to the "),
-                              TextSpan(text: 'Privacy Policy', style: TextStyle(fontWeight: FontWeight.w700)),
+                              TextSpan(text: 'Privacy Policy', style: TextStyle(fontWeight: AppFontWeight.section)),
                               TextSpan(text: ' and '),
-                              TextSpan(text: 'Terms of Service', style: TextStyle(fontWeight: FontWeight.w700)),
+                              TextSpan(text: 'Terms of Service', style: TextStyle(fontWeight: AppFontWeight.section)),
                               TextSpan(text: ' above.'),
                             ],
                           ),
@@ -326,7 +327,7 @@ class _LegalPrivacyScreenState extends State<LegalPrivacyScreen> {
           style: TextStyle(
             color: const Color(0xFF12131A),
             fontSize: 28.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             height: 1.1,
             letterSpacing: -0.45,
           ),

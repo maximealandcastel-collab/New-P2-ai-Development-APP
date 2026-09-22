@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/user/achievements/data/achievement_service.dart';
@@ -60,7 +61,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           style: TextStyle(
             color: _ink,
             fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
         centerTitle: true,
@@ -178,7 +179,7 @@ class _StreakInfoCard extends StatelessWidget {
                   style: TextStyle(
                     color: const Color(0xFF171717),
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                 ),
                 SizedBox(height: 3.h),
@@ -256,7 +257,7 @@ class _ProgressHero extends StatelessWidget {
                       style: TextStyle(
                         color: _ink,
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -324,7 +325,7 @@ class _Metric extends StatelessWidget {
           style: TextStyle(
             color: _ink,
             fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
         SizedBox(height: 3.h),
@@ -371,7 +372,7 @@ class _SectionHeading extends StatelessWidget {
           style: TextStyle(
             color: _ink,
             fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
           ),
         ),
         SizedBox(height: 3.h),
@@ -430,7 +431,7 @@ class _EarnedAchievementCard extends StatelessWidget {
                   style: TextStyle(
                     color: const Color(0xFF171717),
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                 ),
                 SizedBox(height: 3.h),
@@ -449,7 +450,7 @@ class _EarnedAchievementCard extends StatelessWidget {
             style: TextStyle(
               color: _gold,
               fontSize: 11.sp,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppFontWeight.section,
             ),
           ),
         ],
@@ -516,7 +517,7 @@ class _RoadmapCard extends StatelessWidget {
                         style: TextStyle(
                           color: _ink,
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.section,
                         ),
                       ),
                     ),
@@ -549,7 +550,7 @@ class _RoadmapCard extends StatelessWidget {
                       style: TextStyle(
                         color: _gold,
                         fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                       ),
                     ),
                     if (!isEarned && remaining > 0) ...[

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
@@ -51,7 +52,7 @@ class HomeGymBrand extends StatelessWidget {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: (trailing == null ? 18 : 14).sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                   ),
                 ),
               ),

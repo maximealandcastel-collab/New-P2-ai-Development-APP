@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -277,7 +278,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             title,
             style: TextStyle(
               fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: AppFontWeight.section,
               color: Colors.black87,
             ),
           ),
@@ -314,7 +315,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
             'P2P Fit Tech AI',
             style: TextStyle(
               fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: AppFontWeight.section,
               color: Colors.black87,
             ),
           ),
@@ -484,7 +485,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                   Text(
                     role,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 16.sp,
                       color: isSelected ? Colors.white : Colors.black87,
                     ),
@@ -595,7 +596,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
                   Text(
                     name,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 16.sp,
                       color: Colors.black87,
                     ),
@@ -1267,7 +1268,7 @@ class _EnterpriseGymSignupFlowState extends State<EnterpriseGymSignupFlow> {
           SizedBox(height: 40.h),
           Text(
             'Account created!',
-            style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.section),
           ),
           SizedBox(height: 8.h),
           Text(

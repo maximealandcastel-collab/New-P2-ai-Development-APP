@@ -1,9 +1,9 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'dart:async';
-import '../widgets/tenant_image.dart';
 import '../../data/services/enterprise_service.dart';
-import 'enterprise_session_screen.dart';
 import 'gym_application_screen.dart';
+import 'gym_detail_screen.dart';
 import 'gym_login_preview_screen.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -11,16 +11,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/featured_gym_card.dart';
-import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_list_tile.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
+import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GymsScreen extends StatefulWidget {
-  const GymsScreen({super.key});
+  const GymsScreen({
+    super.key,
+    this.onboardingMode = false,
+    this.initialQuery = '',
+  });
+
+  final bool onboardingMode;
+  final String initialQuery;
 
   @override
   State<GymsScreen> createState() => _GymsScreenState();
@@ -30,13 +40,14 @@ class _GymsScreenState extends State<GymsScreen> {
 
   static const _filters = [
     'All Types',
+    'Gym',
     'HIIT',
     'Yoga',
     'Pilates',
     'Boxing',
-    'Cycling',
-    'Strength',
   ];
+  static const _moreFilters = ['Cycling', 'Strength'];
+  static const _favoriteGymCacheKey = 'favorite_gym_ids';
 
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
@@ -51,6 +62,7 @@ class _GymsScreenState extends State<GymsScreen> {
   int _requestVersion = 0;
   String? _cursor, _directoryError;
   bool _directoryLoading = false;
+  Set<String> _favoriteGymIds = <String>{};
   Future<void> _loadDirectory({bool refresh = false}) async {
     if (_directoryLoading && !refresh) return;
     final version = ++_requestVersion;
@@ -68,7 +80,12 @@ class _GymsScreenState extends State<GymsScreen> {
       if (isSingleMode) {
         gyms = EnterpriseGymModel.partners;
       } else {
-        final items = await EnterpriseService.instance.searchFacilities(_searchQuery,latitude:_searchLat,longitude:_searchLng,kind:_activeFilter);
+        final items = await EnterpriseService.instance.searchFacilities(
+          _searchQuery,
+          latitude: _searchLat,
+          longitude: _searchLng,
+          kind: _activeFilter == 'All Types' ? null : _activeFilter,
+        );
         gyms=items.map((item)=>item.toGym()).toList();
         nextCursor=null;
       }
@@ -89,6 +106,11 @@ class _GymsScreenState extends State<GymsScreen> {
   @override
   void initState() {
     super.initState();
+    _searchQuery = widget.initialQuery.trim();
+    _searchController.text = _searchQuery;
+    _favoriteGymIds = (CacheService().get<List>(_favoriteGymCacheKey) ?? const [])
+        .map((id) => id.toString())
+        .toSet();
     _loadDirectory();
     _detectLocationSilently();
   }
@@ -185,32 +207,46 @@ class _GymsScreenState extends State<GymsScreen> {
     }
   }
 
-  // ── Show gym detail sheet (with status label for non-activated gyms) ────────
-  void _showGymSheet(EnterpriseGymModel gym) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => _GymDetailSheet(
+  void _openGymDetail(EnterpriseGymModel gym) {
+    Get.to(
+      () => GymDetailScreen(
         gym: gym,
-        onOpenMaps: () {
-          Navigator.pop(context);
-          _openNearGymMap(
-            addressQuery: gym.address.isNotEmpty
-                ? gym.address
-                : '${gym.name} ${gym.city}',
-          );
-        },
-        onClaim: () {
-          Navigator.pop(context);
-          Get.to(() => GymApplicationScreen(initialGym: gym));
-        },
-        onEnter: () {
-          Navigator.pop(context);
-          GymLoginPreviewScreen.open(context, gym: gym);
-        },
+        onOpenMaps: () => _openNearGymMap(
+          addressQuery: gym.address.isNotEmpty
+              ? gym.address
+              : '${gym.name} ${gym.city}',
+        ),
+        onClaim: () => Get.to(() => GymApplicationScreen(initialGym: gym)),
+        onEnter: () => GymLoginPreviewScreen.open(context, gym: gym),
       ),
     );
+  }
+
+  Future<void> _toggleFavorite(EnterpriseGymModel gym) async {
+    setState(() {
+      if (!_favoriteGymIds.add(gym.id)) {
+        _favoriteGymIds.remove(gym.id);
+      }
+    });
+    try {
+      await CacheService().put(
+        _favoriteGymCacheKey,
+        _favoriteGymIds.toList(growable: false),
+      );
+    } catch (_) {
+      // The selection remains usable for this session if local storage is
+      // temporarily unavailable.
+    }
+  }
+
+  void _goHome() {
+    if (Get.isRegistered<BottomNavBarController>()) {
+      final controller = BottomNavBarController.to;
+      final homeIndex = controller.indexOfTab(NavItemId.home);
+      if (homeIndex >= 0) controller.onChange(homeIndex);
+      return;
+    }
+    Get.back();
   }
 
   void _showFilterSheet() {
@@ -236,7 +272,7 @@ class _GymsScreenState extends State<GymsScreen> {
                 ),
               ),
               SizedBox(height: 12.h),
-              ..._filters.map(
+              ...[..._filters, ..._moreFilters].map(
                 (filter) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
@@ -267,10 +303,19 @@ class _GymsScreenState extends State<GymsScreen> {
 
   List<EnterpriseGymModel> get _displayedGyms {
     final displayed = _sortedGyms.where((g) {
-      // Google already matched the entered address; do not re-filter by gym name.
-      const matchSearch = true;
-      final matchFilter =
-          !isSingleMode || _activeFilter == 'All Types' || g.filterTags.contains(_activeFilter);
+      final query = _searchQuery.toLowerCase();
+      final matchSearch = !isSingleMode ||
+          query.isEmpty ||
+          g.name.toLowerCase().contains(query) ||
+          g.category.toLowerCase().contains(query) ||
+          g.city.toLowerCase().contains(query) ||
+          g.zipCode.toLowerCase().contains(query) ||
+          g.address.toLowerCase().contains(query) ||
+          g.filterTags.any((tag) => tag.toLowerCase().contains(query));
+      final matchFilter = !isSingleMode ||
+          _activeFilter == 'All Types' ||
+          (_activeFilter == 'Gym' && g.category.isNotEmpty) ||
+          g.filterTags.contains(_activeFilter);
       return matchSearch && matchFilter;
     });
     return EnterpriseGymModel.sortForDirectory(displayed);
@@ -290,77 +335,190 @@ class _GymsScreenState extends State<GymsScreen> {
     final total = _sortedGyms.length;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFFF8F8F9),
       body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  if (_directoryLoading) const LinearProgressIndicator(),
-                  if (_directoryError != null) Text(_directoryError!),
-                  TextButton(
-                    onPressed: _directoryLoading
-                        ? null
-                        : () => _loadDirectory(refresh: true),
-                    child: const Text('Refresh gyms'),
-                  ),
-                  if (_cursor != null)
-                    TextButton(
-                      onPressed: _directoryLoading
-                          ? null
-                          : () => _loadDirectory(),
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () => _loadDirectory(refresh: true),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.onboardingMode) _buildDirectoryBrandHeader(),
+                    _NavPills(
+                      onHomeTap: _goHome,
+                      onGymsTap: () => _scrollController.animateTo(
+                        0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      ),
+                    ),
+                    if (_directoryLoading)
+                      LinearProgressIndicator(
+                        minHeight: 1.5.h,
+                        color: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Colors.transparent,
+                      ),
+                    if (_directoryError != null) _buildDirectoryError(),
+                    _buildHeader(),
+                    _buildSearchBar(),
+                    _buildFilterRow(),
+                    _buildFeaturedSection(),
+                    _buildAllGymsHeader(displayed.length, total),
+                  ],
+                ),
+              ),
+              displayed.isEmpty
+                  ? SliverToBoxAdapter(child: _buildEmptyState())
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, i) => Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => _openGymDetail(displayed[i]),
+                            child: GymListTile(gym: displayed[i]),
+                          ),
+                        ),
+                        childCount: displayed.length,
+                      ),
+                    ),
+              if (_cursor != null)
+                SliverToBoxAdapter(
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _directoryLoading ? null : _loadDirectory,
                       child: const Text('Load more gyms'),
                     ),
-                ],
+                  ),
+                ),
+              SliverToBoxAdapter(
+                child: SizedBox(height: widget.onboardingMode ? 32.h : 18.h),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Column(
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDirectoryBrandHeader() {
+    final primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(28.w, 16.h, 28.w, 10.h),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Image.asset(
+                Assets.images.logo.path,
+                width: 48.w,
+                height: 48.w,
+                fit: BoxFit.contain,
+              ),
+              SizedBox(width: 9.w),
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Top nav pills ──────────────────────────────────────
-                  _NavPills(
-                    onGymsTap: () => _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        fontSize: 21.sp,
+                        height: 1,
+                        fontWeight: AppFontWeight.section,
+                        color: const Color(0xFF080A12),
+                      ),
+                      children: [
+                        const TextSpan(text: 'P2P '),
+                        TextSpan(text: 'FIT', style: TextStyle(color: primary)),
+                      ],
                     ),
                   ),
-                  // ── Header: Find a Gym + Near Me ──────────────────────
-                  _buildHeader(),
-                  // ── Search bar ────────────────────────────────────────
-                  _buildSearchBar(),
-            if(!isSingleMode && _sortedGyms.isNotEmpty) const Text('Google Maps'),
-                  // ── Filter row ────────────────────────────────────────
-                  _buildFilterRow(),
-                  // ── Featured Gyms Near You ─────────────────────────────
-                  _buildFeaturedSection(),
-                  // ── All Gyms header ───────────────────────────────────
-                  _buildAllGymsHeader(displayed.length, total),
+                  SizedBox(height: 6.h),
+                  Text(
+                    'T E C H    A I',
+                    style: TextStyle(
+                      fontSize: 7.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 3,
+                      color: const Color(0xFF252731),
+                    ),
+                  ),
                 ],
               ),
+              const Spacer(),
+              Icon(Icons.location_on_rounded, color: primary, size: 18.sp),
+              SizedBox(width: 4.w),
+              Flexible(
+                child: Text(
+                  _searchLat != null ? 'Nearby' : 'United States',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF5F616C),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'F I T N E S S   ·   P E O P L E   ·   P R O G R E S S',
+              style: TextStyle(
+                fontSize: 6.8.sp,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 1.9,
+                color: const Color(0xFF898B96),
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // ── All Gyms list ────────────────────────────────────────────
-            displayed.isEmpty
-                ? SliverToBoxAdapter(child: _buildEmptyState())
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, i) => Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: GestureDetector(
-                          onTap: () => _showGymSheet(displayed[i]),
-                          child: GymListTile(gym: displayed[i]),
-                        ),
-                      ),
-                      childCount: displayed.length,
+  Widget _buildDirectoryError() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 0),
+      child: Material(
+        color: const Color(0xFFFFF5F2),
+        borderRadius: BorderRadius.circular(12.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12.r),
+          onTap: () => _loadDirectory(refresh: true),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+                  size: 17.sp,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    'Gym results could not load. Tap to retry.',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: const Color(0xFF6F5560),
                     ),
                   ),
-
-            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
-          ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -370,32 +528,49 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 13.h),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Find a gym',
-            style: TextStyle(
-              fontSize: 23.sp,
-              fontWeight: FontWeight.w400,
-              color: Colors.black87,
-              letterSpacing: -0.2,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Find a gym',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF14151C),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'Discover gyms near you and join your fitness community.',
+                  style: TextStyle(
+                    fontSize: 10.5.sp,
+                    height: 1.35,
+                    color: const Color(0xFF777984),
+                  ),
+                ),
+              ],
             ),
           ),
-          const Spacer(),
+          SizedBox(width: 12.w),
           GestureDetector(
             onTap: _onNearMeTapped,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
+              padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
+                border: Border.all(color: const Color(0xFFEDEEF1)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -414,13 +589,13 @@ class _GymsScreenState extends State<GymsScreen> {
                       : Icon(
                           Icons.location_on_rounded,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 16.sp,
+                          size: 15.sp,
                         ),
                   SizedBox(width: 5.w),
                   Text(
                     'Near Me',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 10.5.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
@@ -438,19 +613,20 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              height: 48.h,
+              height: 44.h,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(14.r),
+                borderRadius: BorderRadius.circular(13.r),
+                border: Border.all(color: const Color(0xFFE7E8EB)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 10,
+                    color: Colors.black.withOpacity(0.025),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -468,14 +644,14 @@ class _GymsScreenState extends State<GymsScreen> {
                 onSubmitted: (v) {
                   if (v.trim().length>=3) { _searchDebounce?.cancel(); _loadDirectory(refresh:true); }
                 },
-                style: TextStyle(fontSize: 13.sp, color: Colors.black87),
+                style: TextStyle(fontSize: 11.5.sp, color: Colors.black87),
                 decoration: InputDecoration(
-                  hintText: 'US address, city/state or ZIP…',
-                  hintStyle: TextStyle(color: Colors.black38, fontSize: 13.sp),
+                  hintText: 'Search gyms, city, state or ZIP code…',
+                  hintStyle: TextStyle(color: Colors.black38, fontSize: 10.8.sp),
                   prefixIcon: Icon(
                     Icons.search_rounded,
                     color: Colors.black38,
-                    size: 18.sp,
+                    size: 17.sp,
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? GestureDetector(
@@ -492,7 +668,7 @@ class _GymsScreenState extends State<GymsScreen> {
                         )
                       : null,
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 14.h),
+                  contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                 ),
               ),
             ),
@@ -502,15 +678,15 @@ class _GymsScreenState extends State<GymsScreen> {
           GestureDetector(
             onTap: () => _openNearGymMap(addressQuery: _searchQuery),
             child: Container(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 14.w),
+              height: 44.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(14.r),
+                borderRadius: BorderRadius.circular(13.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.35),
-                    blurRadius: 8,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.18),
+                    blurRadius: 7,
                     offset: const Offset(0, 3),
                   ),
                 ],
@@ -522,7 +698,7 @@ class _GymsScreenState extends State<GymsScreen> {
                   Text(
                     'Map',
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 10.5.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.white,
                     ),
@@ -540,32 +716,50 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildFilterRow() {
     return SizedBox(
-      height: 50.h,
+      height: 48.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
         itemCount: _filters.length + 1,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, i) {
           if (i == _filters.length) {
+            final active = _moreFilters.contains(_activeFilter);
             return GestureDetector(
               onTap: _showFilterSheet,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: active
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(30.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: active
+                          ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+                          : Colors.black.withOpacity(0.025),
                       blurRadius: 6,
                     ),
                   ],
                 ),
-                child: Icon(
-                  Icons.tune_rounded,
-                  size: 16.sp,
-                  color: Colors.black54,
+                child: Row(
+                  children: [
+                    Text(
+                      'More',
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+                        color: active ? Colors.white : Colors.black54,
+                      ),
+                    ),
+                    SizedBox(width: 3.w),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 14.sp,
+                      color: active ? Colors.white : Colors.black54,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -578,13 +772,15 @@ class _GymsScreenState extends State<GymsScreen> {
               _loadDirectory(refresh: true);
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 5.h),
               decoration: BoxDecoration(
                 color: active ? Theme.of(context).colorScheme.primary : Colors.white,
                 borderRadius: BorderRadius.circular(30.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: active
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+                        : Colors.black.withOpacity(0.025),
                     blurRadius: 6,
                   ),
                 ],
@@ -592,8 +788,8 @@ class _GymsScreenState extends State<GymsScreen> {
               child: Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 10.5.sp,
+                  fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                   color: active ? Colors.white : Colors.black54,
                 ),
               ),
@@ -612,14 +808,14 @@ class _GymsScreenState extends State<GymsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+          padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 9.h),
           child: Row(
             children: [
               Text(
                 'Featured gyms near you',
                 style: TextStyle(
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w400,
+                  fontSize: 15.5.sp,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
@@ -640,9 +836,9 @@ class _GymsScreenState extends State<GymsScreen> {
                 child: Text(
                   'See all',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 10.5.sp,
                     color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -650,13 +846,21 @@ class _GymsScreenState extends State<GymsScreen> {
           ),
         ),
         SizedBox(
-          height: 340.h,
+          height: 218.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             itemCount: featured.length,
             separatorBuilder: (_, __) => SizedBox(width: 12.w),
-            itemBuilder: (_, i) => FeaturedGymCard(gym: featured[i]),
+            itemBuilder: (_, i) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _openGymDetail(featured[i]),
+              child: FeaturedGymCard(
+                gym: featured[i],
+                isFavorite: _favoriteGymIds.contains(featured[i].id),
+                onFavoriteToggle: () => _toggleFavorite(featured[i]),
+              ),
+            ),
           ),
         ),
       ],
@@ -667,31 +871,43 @@ class _GymsScreenState extends State<GymsScreen> {
 
   Widget _buildAllGymsHeader(int shown, int total) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
+      padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 9.h),
       child: Row(
         children: [
           Text(
             'All gyms',
             style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w400,
+              fontSize: 15.5.sp,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
           ),
-          const Spacer(),
+          SizedBox(width: 8.w),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F3F5),
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Text(
-              '$shown / $total gyms',
+              '$shown of $total',
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: 10.sp,
                 color: Colors.black45,
                 fontWeight: FontWeight.w400,
               ),
+            ),
+          ),
+          const Spacer(),
+          Icon(Icons.swap_vert_rounded,
+              size: 15.sp, color: const Color(0xFF777984)),
+          SizedBox(width: 3.w),
+          Text(
+            'Directory',
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: const Color(0xFF777984),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -727,230 +943,14 @@ class _GymsScreenState extends State<GymsScreen> {
   }
 }
 
-// ── Gym detail bottom sheet ─────────────────────────────────────────────────
-class _GymDetailSheet extends StatelessWidget {
-  final EnterpriseGymModel gym;
-  final VoidCallback onOpenMaps;
-  final VoidCallback onClaim;
-  final VoidCallback onEnter;
-
-  const _GymDetailSheet({
-    required this.gym,
-    required this.onOpenMaps,
-    required this.onClaim,
-    required this.onEnter,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isLocked = !gym.isActivated;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 32.h),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 36.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0E0E0),
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-          ),
-          SizedBox(height: 18.h),
-
-          // Gym brand row
-          Row(
-            children: [
-              GymBrandLogo(gym: gym, size: 44.r, borderRadius: 10.r),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      gym.name,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      gym.category,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                    if (gym.address.isNotEmpty)
-                      Text(
-                        gym.address,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: Colors.grey.shade500,
-                          height: 1.25,
-                        ),
-                      ),
-                    if (gym.tagline.isNotEmpty)
-                      Text(
-                        gym.tagline,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w500,
-                          color: gym.accentColor,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (gym.address.isEmpty && gym.city.isNotEmpty)
-                Text(
-                  gym.city,
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: Colors.grey.shade400,
-                  ),
-                ),
-            ],
-          ),
-
-          SizedBox(height: 16.h),
-
-          if (gym.galleryAssetPaths.isNotEmpty) ...[
-            Text(
-              'Facility photos',
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            SizedBox(
-              height: 112.h,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: gym.galleryAssetPaths.length,
-                separatorBuilder: (_, __) => SizedBox(width: 8.w),
-                itemBuilder: (_, index) => ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: TenantImage(
-                    gym.galleryAssetPaths[index],
-                    width: 156.w,
-                    height: 112.h,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 16.h),
-          ],
-
-          // Status / partnership label
-          if (isLocked) ...[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25), width: 1),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 15.sp,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      gym.statusLabel,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).colorScheme.primary,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 16.h),
-          ],
-
-          // Locked prospects can apply; activated gyms enter branded auth.
-          GestureDetector(
-            onTap: isLocked ? onClaim : onEnter,
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              decoration: BoxDecoration(
-                color: isLocked ? Colors.black87 : gym.brandColor,
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isLocked ? Icons.lock_outline_rounded : Icons.lock_open_rounded,
-                    color: Colors.white,
-                    size: 17.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    isLocked ? 'Claim your gym' : 'Enter ${gym.name}',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (gym.address.isNotEmpty || gym.city.isNotEmpty) ...[
-            SizedBox(height: 10.h),
-            TextButton.icon(
-              onPressed: onOpenMaps,
-              icon: const Icon(Icons.map_outlined),
-              label: const Text('View on Google Maps'),
-              style: TextButton.styleFrom(
-                foregroundColor: gym.brandColor,
-                minimumSize: const Size.fromHeight(44),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
 // ── Top navigation pills ────────────────────────────────────────────────────
 
 class _NavPills extends StatelessWidget {
 
+  final VoidCallback onHomeTap;
   final VoidCallback onGymsTap;
 
-  const _NavPills({required this.onGymsTap});
+  const _NavPills({required this.onHomeTap, required this.onGymsTap});
 
   @override
   Widget build(BuildContext context) {
@@ -959,7 +959,7 @@ class _NavPills extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
-          _pill(context, 'Home', Icons.home_outlined, false, () => Get.back()),
+          _pill(context, 'Home', Icons.home_outlined, false, onHomeTap),
           SizedBox(width: 8.w),
           _pill(
             context,
@@ -987,7 +987,7 @@ class _NavPills extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: active
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.16)
                     : Colors.black.withOpacity(0.06),
                 blurRadius: active ? 10 : 6,
                 offset: const Offset(0, 3),

@@ -71,7 +71,7 @@ class SmarterCareScreen extends StatelessWidget {
                     text: TextSpan(
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 42.sp,
+                        fontSize: 34.sp,
                         fontWeight: AppFontWeight.display,
                         height: 1.05,
                         letterSpacing: -0.5,

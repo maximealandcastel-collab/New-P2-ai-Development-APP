@@ -164,9 +164,9 @@ class _EarningsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.14),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
           ),
         ],
       ),

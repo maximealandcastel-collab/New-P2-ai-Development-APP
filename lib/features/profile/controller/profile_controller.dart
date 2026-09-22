@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -238,7 +239,7 @@ class ProfileController extends GetxController {
               'Choose Profile Picture',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: AppFontWeight.section,
               ),
             ),
             const SizedBox(height: 20),
@@ -336,7 +337,7 @@ class ProfileController extends GetxController {
             const SizedBox(height: 20),
             const Text(
               'Edit Availability',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 18, fontWeight: AppFontWeight.section),
             ),
             const SizedBox(height: 20),
             Obx(() => Row(

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -102,7 +103,7 @@ class InvoiceWidget extends StatelessWidget {
                                       'P2P fitTech',
                                       style: TextStyle(
                                         fontSize: 24,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: AppFontWeight.section,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -126,7 +127,7 @@ class InvoiceWidget extends StatelessWidget {
                                   'INV-2456-524',
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: AppFontWeight.section,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -170,7 +171,7 @@ class InvoiceWidget extends StatelessWidget {
                                           'Billing to',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: AppFontWeight.section,
                                             color: Colors.black87,
                                           ),
                                         ),
@@ -193,7 +194,7 @@ class InvoiceWidget extends StatelessWidget {
                                           'Patient ID',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: AppFontWeight.section,
                                             color: Colors.black87,
                                           ),
                                         ),
@@ -221,7 +222,7 @@ class InvoiceWidget extends StatelessWidget {
                                           'Service Period',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: AppFontWeight.section,
                                             color: Colors.black87,
                                           ),
                                         ),
@@ -244,7 +245,7 @@ class InvoiceWidget extends StatelessWidget {
                                           'Care type',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: AppFontWeight.section,
                                             color: Colors.black87,
                                           ),
                                         ),
@@ -365,7 +366,7 @@ class InvoiceWidget extends StatelessWidget {
                               'Total billed',
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: AppFontWeight.section,
                                 color: Colors.black87,
                               ),
                             ),
@@ -373,7 +374,7 @@ class InvoiceWidget extends StatelessWidget {
                               '\$184.00',
                               style: TextStyle(
                                 fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: AppFontWeight.section,
                                 color: Color(0xFF2196F3),
                               ),
                             ),
@@ -500,7 +501,7 @@ class LogoPainter extends CustomPainter {
         text: 'P2P',
         style: TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.bold,
+          fontWeight: AppFontWeight.section,
           color: color,
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -288,7 +289,7 @@ class _AppBar extends StatelessWidget {
             child: Text(
               'Find trainer',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black),
+              style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black),
             ),
           ),
           SizedBox(width: 34.w),
@@ -498,7 +499,7 @@ class _HighlightedText extends StatelessWidget {
           ),
           TextSpan(
             text: text.substring(matchStart, matchStart + query.length),
-            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.section, color: Colors.black),
           ),
           TextSpan(
             text: text.substring(matchStart + query.length),
@@ -670,7 +671,7 @@ class _TrainerCard extends StatelessWidget {
               children: [
                 Text(
                   trainer.name,
-                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
                 ),
                 SizedBox(height: 3.h),
                 Text(
@@ -786,7 +787,7 @@ class _TrainerProfileSheet extends StatelessWidget {
             SizedBox(height: 12.h),
             Text(
               trainer.name,
-              style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section),
             ),
             SizedBox(height: 4.h),
             Text(
@@ -921,7 +922,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Trainer request',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                    style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
                 SizedBox(height: 16.h),
 
                 // Service type

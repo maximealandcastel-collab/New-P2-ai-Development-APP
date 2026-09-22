@@ -4,20 +4,17 @@ import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
-import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 class GymListTile extends StatelessWidget {
-  final EnterpriseGymModel gym;
   const GymListTile({super.key, required this.gym});
 
-  bool _isCurrentGym(EnterpriseGymModel gym) {
-    final cachedTenantId = CacheService().get<String>('tenantId');
-    final activeTenantId = EnterpriseService.instance.active.value?.tenant.id;
-    final activeBrandTenantId = TenantBrandService.to.activeBrand?.tenantId;
-    final currentTenantId =
-        activeTenantId ?? cachedTenantId ?? activeBrandTenantId;
+  final EnterpriseGymModel gym;
 
+  bool get _isCurrentGym {
+    final currentTenantId = EnterpriseService.instance.active.value?.tenant.id ??
+        CacheService().get<String>('tenantId') ??
+        TenantBrandService.to.activeBrand?.tenantId;
     if (currentTenantId != null && currentTenantId.isNotEmpty) {
       return gym.tenantId == currentTenantId || gym.id == currentTenantId;
     }
@@ -26,231 +23,151 @@ class GymListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCurrent = _isCurrentGym(gym);
+    final isCurrent = _isCurrentGym;
+    final status = isCurrent
+        ? 'Current gym'
+        : gym.isActivated
+            ? 'P2P partner'
+            : 'Targeted integration';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 10.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: const Color(0xFFEDEEF1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(14.r),
-        child: Row(
-          children: [
-            GymBrandLogo(
-              gym: gym,
-              size: 52.r,
-              borderRadius: 13.r,
-            ),
-
-            SizedBox(width: 12.w),
-
-            // CENTER — info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          gym.name,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+      child: Row(
+        children: [
+          GymBrandLogo(gym: gym, size: 46.r, borderRadius: 11.r),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  gym.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF171820),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  gym.category,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 9.5.sp,
+                    color: const Color(0xFF747680),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Row(
+                  children: [
+                    if (gym.rating > 0) ...[
+                      Icon(Icons.star_rounded,
+                          size: 11.sp, color: const Color(0xFFFFB000)),
+                      SizedBox(width: 2.w),
+                      Text(
+                        gym.rating.toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: 9.5.sp,
+                          color: const Color(0xFF5E606A),
                         ),
                       ),
-                      if (gym.isOwnGym || isCurrent)
-                        Container(
-                          margin: EdgeInsets.only(left: 6.w),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 7.w, vertical: 3.h),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(4.r),
-                          ),
-                          child: Text('Your Gym',
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.primary,
-                                  fontSize: 8.sp,
-                                  fontWeight: FontWeight.w500)),
-                        ),
                     ],
-                  ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    gym.category,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.black45,
-                    ),
-                  ),
-                  SizedBox(height: 5.h),
-                  Row(
-                    children: [
-                      if (gym.rating > 0) ...[
-                        Icon(Icons.star_rounded,
-                            size: 11.sp,
-                            color: const Color(0xFFFFAB00)),
-                        SizedBox(width: 2.w),
-                        Text(gym.rating.toStringAsFixed(1),
-                            style: TextStyle(
-                                fontSize: 11.sp,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w400)),
-                      ] else
-                        Flexible(
-                          child: Text(
-                            'New partner',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: gym.accentColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      SizedBox(width: 4.w),
+                    if (gym.rating > 0 && gym.memberCount.isNotEmpty)
+                      Text('  ·  ',
+                          style: TextStyle(
+                              fontSize: 8.sp, color: Colors.black26)),
+                    if (gym.memberCount.isNotEmpty)
                       Flexible(
                         child: Text(
-                          '· ${gym.memberCount}',
+                          gym.memberCount,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontSize: 10.sp, color: Colors.black38),
+                            fontSize: 9.sp,
+                            color: const Color(0xFF8B8D96),
+                          ),
+                        ),
+                      ),
+                    if (gym.distanceMi != null) ...[
+                      Text('  ·  ',
+                          style: TextStyle(
+                              fontSize: 8.sp, color: Colors.black26)),
+                      Icon(Icons.location_on_outlined,
+                          size: 10.sp, color: const Color(0xFF8B8D96)),
+                      Text(
+                        gym.distanceLabel,
+                        style: TextStyle(
+                          fontSize: 9.sp,
+                          color: const Color(0xFF8B8D96),
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(width: 10.w),
-
-            // RIGHT — distance + button
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (gym.distanceMi != null) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.location_on_outlined,
-                          size: 11.sp, color: Colors.black38),
-                      SizedBox(width: 2.w),
-                      Text(gym.distanceLabel,
-                          style: TextStyle(
-                              fontSize: 11.sp,
-                              color: Colors.black45,
-                              fontWeight: FontWeight.w400)),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                ],
-                isCurrent
-                    ? Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 8.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(
-                              color: const Color(0xFFE5E7EB)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.check_circle_rounded,
-                                size: 13.sp,
-                                color: const Color(0xFF10B981)),
-                            SizedBox(width: 4.w),
-                            Text(
-                              'Current Gym',
-                              style: TextStyle(
-                                color: const Color(0xFF374151),
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : gym.isActivated
-                        ? GestureDetector(
-                            onTap: () => GymLoginPreviewScreen.open(
-                              context,
-                              gym: gym,
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12.w, vertical: 8.h),
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: Text(
-                                'Login / Signup',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11.sp,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(
-                            constraints: BoxConstraints(maxWidth: 116.w),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.w, vertical: 7.h),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8E8E8),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.lock_outline_rounded,
-                                    size: 10.sp, color: Colors.black38),
-                                SizedBox(width: 4.w),
-                                Flexible(
-                                  child: Text(
-                                    gym.statusLabel,
-                                    style: TextStyle(
-                                      color: Colors.black38,
-                                      fontSize: 9.sp,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.25,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+          SizedBox(width: 7.w),
+          Container(
+            constraints: BoxConstraints(maxWidth: 82.w),
+            padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 6.h),
+            decoration: BoxDecoration(
+              color: (isCurrent || gym.isActivated)
+                  ? const Color(0xFFEAF8EF)
+                  : const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(9.r),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isCurrent || gym.isActivated
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.lock_outline_rounded,
+                  size: 10.sp,
+                  color: isCurrent || gym.isActivated
+                      ? const Color(0xFF287A46)
+                      : const Color(0xFF858791),
+                ),
+                SizedBox(width: 3.w),
+                Flexible(
+                  child: Text(
+                    status,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 7.8.sp,
+                      height: 1.16,
+                      fontWeight: FontWeight.w500,
+                      color: isCurrent || gym.isActivated
+                          ? const Color(0xFF287A46)
+                          : const Color(0xFF777983),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 4.w),
+          Icon(Icons.chevron_right_rounded,
+              size: 18.sp, color: const Color(0xFF9698A0)),
+        ],
       ),
     );
   }

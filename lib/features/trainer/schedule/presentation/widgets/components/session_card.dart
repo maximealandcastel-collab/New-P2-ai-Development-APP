@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/domain/entities/session_entity.dart';
@@ -123,7 +124,7 @@ class SessionDateColumn extends StatelessWidget {
           shortDate,
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppFontWeight.section,
             color: Colors.black,
           ),
         ),

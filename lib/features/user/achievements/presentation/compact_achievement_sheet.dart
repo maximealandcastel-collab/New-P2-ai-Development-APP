@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -101,7 +102,7 @@ class _CompactAchievementSheet extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.56),
                     fontSize: 10.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     letterSpacing: 1.6,
                   ),
                 ),
@@ -153,7 +154,7 @@ class _CompactAchievementSheet extends StatelessWidget {
                   style: TextStyle(
                     color: _accent,
                     fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.title,
                     letterSpacing: 1.1,
                   ),
                 ),
@@ -164,7 +165,7 @@ class _CompactAchievementSheet extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     height: 1.08,
                   ),
                 ),

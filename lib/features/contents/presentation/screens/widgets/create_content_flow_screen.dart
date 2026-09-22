@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
@@ -161,7 +162,7 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                     'Skip for now',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: AppFontWeight.section,
                       fontSize: 16.sp,
                     ),
                   ),

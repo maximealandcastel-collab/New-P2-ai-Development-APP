@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +142,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       'Ultimate Cardio Blast: Feel the Burn!',
                       style: TextStyle(
                         fontSize: 17.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         color: Colors.black,
                       ),
                     ),
@@ -202,7 +203,7 @@ class _VideoDetailScreenState extends State<VideoDetailScreen> {
                       children: [
                         Text(
                           'Comments',
-                          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+                          style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section),
                         ),
                         SizedBox(width: 6.w),
                         Text(

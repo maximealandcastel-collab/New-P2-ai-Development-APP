@@ -1086,7 +1086,7 @@ class _P2PFooter extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 7.sp,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
             ),

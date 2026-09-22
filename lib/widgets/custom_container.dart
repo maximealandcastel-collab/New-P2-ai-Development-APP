@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 
 class CustomContainer extends StatelessWidget {
   const CustomContainer({
@@ -127,13 +128,15 @@ class CustomContainer extends StatelessWidget {
           image: image,
           boxShadow: boxShadow ??
               (elevation
-                  ? [
-                      BoxShadow(
-                        color: elevationColor ?? Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 20,
-                        spreadRadius: 6,
-                      ),
-                    ]
+                  ? elevationColor == null
+                      ? P2PShadows.card
+                      : [
+                          BoxShadow(
+                            color: elevationColor!,
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
                   : null),
           shape: shape,
           border: border ??

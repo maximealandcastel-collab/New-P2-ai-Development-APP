@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 
 
@@ -40,7 +41,7 @@ class ClientDetailsScreen extends StatelessWidget {
                     CustomText(
                       text: client['name'] ?? 'Ethan Carter',
                       fontSize: 22.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                     ),
                     CustomText(
                       text: client['subtitle'] ?? 'Last Session 1 days ago',
@@ -121,7 +122,7 @@ class ClientDetailsScreen extends StatelessWidget {
           SizedBox(height: 12.h),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: CustomText(text: "Rehab", fontWeight: FontWeight.bold, textAlign: TextAlign.start),
+            title: CustomText(text: "Rehab", fontWeight: AppFontWeight.section, textAlign: TextAlign.start),
             subtitle: CustomText(text: "Rehab session  •  10:00 AM", color: Colors.grey, fontSize: 12.sp, textAlign: TextAlign.start),
             trailing: CustomContainer(
               paddingAll: 8.r,
@@ -158,7 +159,7 @@ class ClientDetailsScreen extends StatelessWidget {
           Row(
             children: [
               const Icon(Icons.auto_awesome, size: 18, color: Colors.black),
-              CustomText(text: ' AI Insight', fontWeight: FontWeight.w700, fontSize: 15.sp),
+              CustomText(text: ' AI Insight', fontWeight: AppFontWeight.section, fontSize: 15.sp),
             ],
           ),
           SizedBox(height: 12.h),
@@ -327,7 +328,7 @@ class ClientDetailsScreen extends StatelessWidget {
                 ),
                 title: CustomText(
                     text: "20 upper body exercise",
-                    fontWeight: FontWeight.bold,
+                    fontWeight: AppFontWeight.section,
                     fontSize: 14.sp,
                     textAlign: TextAlign.start
                 ),
@@ -362,7 +363,7 @@ class ClientDetailsScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   SizedBox(width: 80.r, height: 80.r, child: CircularProgressIndicator(value: 0.8, strokeWidth: 8, color: Colors.blue, backgroundColor: Colors.blue.withOpacity(0.1))),
-                  CustomText(text: "80%", fontWeight: FontWeight.bold, fontSize: 18.sp),
+                  CustomText(text: "80%", fontWeight: AppFontWeight.section, fontSize: 18.sp),
                 ],
               )
             ],
@@ -370,10 +371,10 @@ class ClientDetailsScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(text: "1850 ml", fontWeight: FontWeight.bold),
+              CustomText(text: "1850 ml", fontWeight: AppFontWeight.section),
               CustomText(text: "Consumed", fontSize: 12.sp, color: Colors.grey),
               SizedBox(height: 12.h),
-              CustomText(text: "2500 ml", fontWeight: FontWeight.bold),
+              CustomText(text: "2500 ml", fontWeight: AppFontWeight.section),
               CustomText(text: "Targeted calories", fontSize: 12.sp, color: Colors.grey),
             ],
           )
@@ -407,7 +408,7 @@ class ClientDetailsScreen extends StatelessWidget {
   Widget _buildHistoryItem(String title, String date, String status, Color color) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: CustomText(text: title, fontWeight: FontWeight.bold, textAlign: TextAlign.start),
+      title: CustomText(text: title, fontWeight: AppFontWeight.section, textAlign: TextAlign.start),
       subtitle: CustomText(text: date, color: Colors.grey, fontSize: 12.sp, textAlign: TextAlign.start),
       trailing: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),

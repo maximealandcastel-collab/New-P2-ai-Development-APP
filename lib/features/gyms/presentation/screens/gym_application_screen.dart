@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import '../../services/gym_location_service.dart';
 import 'dart:async';
 import 'dart:io';
@@ -359,9 +360,9 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         titles[step],
                         style: const TextStyle(
                           color: ink,
-                          fontSize: 34,
+                          fontSize: 30,
                           height: 1.2,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppFontWeight.title,
                           letterSpacing: -.7,
                         ),
                       ),
@@ -459,7 +460,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                 '＋ Add “${text('gymName')}” to P2P',
                                 style: const TextStyle(
                                   color: ink,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: AppFontWeight.title,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -520,7 +521,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: AppFontWeight.section,
                                         ),
                                       ),
                                     ),
@@ -630,7 +631,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           'P2P FitTech AI',
                           style: TextStyle(
                             color: orange,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.title,
                             fontSize: 13,
                           ),
                         ),
@@ -642,9 +643,9 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           text: const TextSpan(
                             style: TextStyle(
                               color: ink,
-                              fontSize: 36,
+                              fontSize: 31,
                               height: 1.1,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: AppFontWeight.display,
                               letterSpacing: -1,
                             ),
                             children: [
@@ -707,8 +708,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         'You’re on your way!',
                         style: TextStyle(
                           color: ink,
-                          fontSize: 30,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 27,
+                          fontWeight: AppFontWeight.title,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -775,7 +776,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                         textAlign: TextAlign.right,
                                         style: const TextStyle(
                                           color: ink,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: AppFontWeight.section,
                                         ),
                                       ),
                                     ),
@@ -828,7 +829,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                   : 'Continue ➜',
                               style: const TextStyle(
                                 fontSize: 17,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: AppFontWeight.title,
                               ),
                             ),
                     ),
@@ -848,7 +849,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     label,
     style: TextStyle(
       color: color,
-      fontWeight: FontWeight.w800,
+      fontWeight: AppFontWeight.title,
       fontSize: 12,
       letterSpacing: .7,
     ),
@@ -980,7 +981,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                 label,
                 style: const TextStyle(
                   color: muted,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
             ),
@@ -988,7 +989,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
               '${value.round()}',
               style: const TextStyle(
                 color: ink,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.title,
                 fontSize: 22,
               ),
             ),
@@ -1044,7 +1045,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
               children: [
                 Text(
                   selectedLogo == null && text('logoUrl').isEmpty ? 'Add Your Logo' : 'Gym Logo',
-                  style: const TextStyle(color: ink, fontSize: 17, fontWeight: FontWeight.w800),
+                  style: const TextStyle(color: ink, fontSize: 17, fontWeight: AppFontWeight.title),
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -1103,7 +1104,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                       child: Text(
                                         text('shortCode').toUpperCase(),
                                         maxLines: 1,
-                                        style: TextStyle(color: brandText, fontSize: 11, fontWeight: FontWeight.w800),
+                                        style: TextStyle(color: brandText, fontSize: 11, fontWeight: AppFontWeight.title),
                                       ),
                                     ),
                                   ),
@@ -1115,7 +1116,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         text('gymName').isEmpty ? 'Your Gym' : text('gymName'),
                         style: TextStyle(
                           color: brandText,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppFontWeight.title,
                         ),
                       ),
                     ),
@@ -1161,7 +1162,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: brandText,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppFontWeight.section,
                           fontSize: 12,
                         ),
                       ),
@@ -1282,7 +1283,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               style: TextStyle(
                                 color: ink,
                                 fontSize: 10,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: AppFontWeight.title,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -1295,11 +1296,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                 children: const [
                                   Icon(Icons.fitness_center, color: orange, size: 20),
                                   SizedBox(width: 6),
-                                  Text('P2P FitTech AI', style: TextStyle(color: ink, fontWeight: FontWeight.w800, fontSize: 12)),
+                                  Text('P2P FitTech AI', style: TextStyle(color: ink, fontWeight: AppFontWeight.title, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              const Text('MORE PEOPLE.\nSTRONGER GYMS.', textAlign: TextAlign.right, style: TextStyle(color: muted, fontSize: 8, fontWeight: FontWeight.w800)),
+                              const Text('MORE PEOPLE.\nSTRONGER GYMS.', textAlign: TextAlign.right, style: TextStyle(color: muted, fontSize: 8, fontWeight: AppFontWeight.title)),
                             ],
                           ),
                         ],
@@ -1310,7 +1311,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         style: TextStyle(
                           color: ink,
                           fontSize: 28,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: AppFontWeight.display,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -1325,7 +1326,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         style: TextStyle(
                           color: ink,
                           fontSize: 26,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: AppFontWeight.display,
                         ),
                       ),
                       const Text(
@@ -1390,7 +1391,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                   style: TextStyle(
                                     color: isSelected ? Colors.white : ink,
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: AppFontWeight.title,
                                   ),
                                 ),
                                 if (!isSelected) ...[
@@ -1437,15 +1438,15 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: orange.withValues(alpha: 0.3),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
+                color: orange.withValues(alpha: 0.14),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               )
             else
               const BoxShadow(
-                color: Color(0x2A000000),
-                blurRadius: 16,
-                offset: Offset(0, 8),
+                color: Color(0x0A000000),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
           ],
         ),
@@ -1501,7 +1502,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: AppFontWeight.display,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -1514,11 +1515,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                 children: const [
                                   Icon(Icons.fitness_center, color: orange, size: 20),
                                   SizedBox(width: 6),
-                                  Text('P2P FitTech AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12)),
+                                  Text('P2P FitTech AI', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.title, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              const Text('FITNESS\nPEOPLE\nCOMMUNITY\nGROWTH', textAlign: TextAlign.right, style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.w800, height: 1.1)),
+                              const Text('FITNESS\nPEOPLE\nCOMMUNITY\nGROWTH', textAlign: TextAlign.right, style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: AppFontWeight.title, height: 1.1)),
                             ],
                           ),
                         ],
@@ -1529,7 +1530,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: AppFontWeight.display,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -1544,11 +1545,11 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           children: [
                             TextSpan(
                               text: '\$306 ',
-                              style: TextStyle(color: orange, fontSize: 36, fontWeight: FontWeight.w900),
+                              style: TextStyle(color: orange, fontSize: 36, fontWeight: AppFontWeight.display),
                             ),
                             TextSpan(
                               text: 'setup',
-                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: AppFontWeight.section),
                             ),
                           ],
                         ),
@@ -1578,14 +1579,14 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             const SizedBox(height: 12),
                             const Text(
                               'More Members\nMore Revenue\nA Stronger Community',
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, height: 1.4),
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: AppFontWeight.section, height: 1.4),
                             ),
                             const SizedBox(height: 12),
                             Container(height: 2, width: 32, color: orange),
                             const SizedBox(height: 12),
                             const Text(
                               'BUILT FOR GYMS\nPOWERED BY AI',
-                              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1),
+                              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: AppFontWeight.title, letterSpacing: 1),
                             ),
                           ],
                         ),
@@ -1645,7 +1646,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: AppFontWeight.display,
                               ),
                             ),
                             if (!isSelected) ...[
@@ -1690,7 +1691,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: ink, fontSize: 11, fontWeight: FontWeight.w700, height: 1.2),
+              style: const TextStyle(color: ink, fontSize: 11, fontWeight: AppFontWeight.section, height: 1.2),
             ),
           ),
         ],

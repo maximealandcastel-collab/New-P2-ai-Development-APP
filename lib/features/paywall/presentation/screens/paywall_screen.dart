@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 import 'package:flutter/material.dart';
@@ -120,16 +121,16 @@ import 'package:flutter/material.dart';
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(tenant.displayName, style: TextStyle(color: tenant.isWhiteLabeled ? tenant.primaryColor : _ink, fontSize: 14.sp, fontWeight: FontWeight.w900, letterSpacing: .5, height: 1)),
+                    Text(tenant.displayName, style: TextStyle(color: tenant.isWhiteLabeled ? tenant.primaryColor : _ink, fontSize: 14.sp, fontWeight: AppFontWeight.display, letterSpacing: .5, height: 1)),
                     if (!tenant.isWhiteLabeled)
-                      Text('TECH AI', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 8.sp, fontWeight: FontWeight.w800, letterSpacing: 1.2, height: 1.1)),
+                      Text('TECH AI', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 8.sp, fontWeight: AppFontWeight.title, letterSpacing: 1.2, height: 1.1)),
                   ],
                 ),
               ],
             ),
             GestureDetector(
               onTap: controller.isPreSignup ? controller.openTrainerSignup : null,
-              child: Text(controller.isPreSignup ? 'Trainer sign up' : 'Admin', style: TextStyle(color: controller.isPreSignup ? BrandColors.of(context).dark : _muted, fontSize: 12.sp, fontWeight: FontWeight.w700)),
+              child: Text(controller.isPreSignup ? 'Trainer sign up' : 'Admin', style: TextStyle(color: controller.isPreSignup ? BrandColors.of(context).dark : _muted, fontSize: 12.sp, fontWeight: AppFontWeight.section)),
             ),
           ],
         ),
@@ -144,7 +145,7 @@ import 'package:flutter/material.dart';
           borderRadius: BorderRadius.circular(28),
           gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.white, BrandColors.of(context).soft]),
           border: Border.all(color: BrandColors.of(context).border),
-          boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.14), blurRadius: 24, offset: const Offset(0, 10))],
+          boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.08), blurRadius: 16, offset: const Offset(0, 5))],
         ),
         child: Stack(
           clipBehavior: Clip.none,
@@ -157,10 +158,10 @@ import 'package:flutter/material.dart';
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
                   decoration: BoxDecoration(color: Colors.white.withOpacity(.84), borderRadius: BorderRadius.circular(20), border: Border.all(color: BrandColors.of(context).primary.withOpacity(.18))),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.auto_awesome_rounded, color: BrandColors.of(context).dark, size: 14.sp), SizedBox(width: 5.w), Text('TRAIN SMARTER. GET RESULTS.', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 9.sp, fontWeight: FontWeight.w900, letterSpacing: 1.1))]),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.auto_awesome_rounded, color: BrandColors.of(context).dark, size: 14.sp), SizedBox(width: 5.w), Text('TRAIN SMARTER. GET RESULTS.', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 9.sp, fontWeight: AppFontWeight.display, letterSpacing: 1.1))]),
                 ),
                 SizedBox(height: 14.h),
-                Text.rich(TextSpan(children: [const TextSpan(text: 'Your coach.\nYour plan.\n'), TextSpan(text: 'Your growth.', style: TextStyle(color: BrandColors.of(context).dark))]), style: TextStyle(color: _ink, fontSize: 29.sp, fontWeight: FontWeight.w900, height: 1.05, letterSpacing: -.65)),
+                Text.rich(TextSpan(children: [const TextSpan(text: 'Your coach.\nYour plan.\n'), TextSpan(text: 'Your growth.', style: TextStyle(color: BrandColors.of(context).dark))]), style: TextStyle(color: _ink, fontSize: 29.sp, fontWeight: AppFontWeight.display, height: 1.05, letterSpacing: -.65)),
                 SizedBox(height: 12.h),
                 Text('Get matched with a certified trainer and an AI that adjusts your plan around how you actually perform.', style: TextStyle(color: _muted, fontSize: 13.5.sp, height: 1.4, fontWeight: FontWeight.w500)),
                 SizedBox(height: 17.h),
@@ -170,7 +171,7 @@ import 'package:flutter/material.dart';
                     Transform.translate(offset: Offset(-8.w, 0), child: _avatar(context, Icons.face_rounded, BrandColors.of(context).light)),
                     Transform.translate(offset: Offset(-16.w, 0), child: _avatar(context, Icons.sports_rounded, BrandColors.of(context).primary)),
                     SizedBox(width: 1.w),
-                    Expanded(child: Text.rich(TextSpan(children: [TextSpan(text: '3 trainers', style: TextStyle(color: BrandColors.of(context).dark, fontWeight: FontWeight.w900)), const TextSpan(text: ' near your goals are\nready to match this week')]), style: TextStyle(color: _ink, fontSize: 12.sp, height: 1.25))),
+                    Expanded(child: Text.rich(TextSpan(children: [TextSpan(text: '3 trainers', style: TextStyle(color: BrandColors.of(context).dark, fontWeight: AppFontWeight.display)), const TextSpan(text: ' near your goals are\nready to match this week')]), style: TextStyle(color: _ink, fontSize: 12.sp, height: 1.25))),
                     Container(width: 34.w, height: 34.w, decoration: BoxDecoration(color: _ink, shape: BoxShape.circle, boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.22), blurRadius: 10)]), child: Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 17.sp)),
                   ],
                 ),
@@ -201,7 +202,7 @@ import 'package:flutter/material.dart';
       return Container(
         padding: EdgeInsets.fromLTRB(5.w, 11.h, 5.w, 12.h),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(17), border: Border.all(color: BrandColors.of(context).border), boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.07), blurRadius: 14, offset: const Offset(0, 5))]),
-        child: Column(children: [Icon(icon, color: BrandColors.of(context).dark, size: 19.sp), SizedBox(height: 5.h), Text(value, style: TextStyle(color: _ink, fontSize: 18.sp, fontWeight: FontWeight.w900, height: 1)), SizedBox(height: 5.h), Text(label, textAlign: TextAlign.center, style: TextStyle(color: _muted, fontSize: 9.5.sp, height: 1.15, fontWeight: FontWeight.w600))]),
+        child: Column(children: [Icon(icon, color: BrandColors.of(context).dark, size: 19.sp), SizedBox(height: 5.h), Text(value, style: TextStyle(color: _ink, fontSize: 18.sp, fontWeight: AppFontWeight.display, height: 1)), SizedBox(height: 5.h), Text(label, textAlign: TextAlign.center, style: TextStyle(color: _muted, fontSize: 9.5.sp, height: 1.15, fontWeight: FontWeight.w600))]),
       );
     }
 
@@ -226,8 +227,8 @@ import 'package:flutter/material.dart';
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: selected ? BrandColors.of(context).primary : Colors.transparent, borderRadius: BorderRadius.circular(24), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.22), blurRadius: 10, offset: const Offset(0, 4))] : const []),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(label, style: TextStyle(color: selected ? Colors.white : _muted, fontSize: 14.sp, fontWeight: FontWeight.w900)), if (suffix != null) ...[SizedBox(width: 5.w), Icon(Icons.local_offer_rounded, color: selected ? Colors.white : BrandColors.of(context).dark, size: 13.sp), SizedBox(width: 3.w), Text(suffix, style: TextStyle(color: selected ? Colors.white : BrandColors.of(context).dark, fontSize: 10.sp, fontWeight: FontWeight.w900))]]),
+          decoration: BoxDecoration(color: selected ? BrandColors.of(context).primary : Colors.transparent, borderRadius: BorderRadius.circular(24), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.12), blurRadius: 8, offset: const Offset(0, 3))] : const []),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(label, style: TextStyle(color: selected ? Colors.white : _muted, fontSize: 14.sp, fontWeight: AppFontWeight.display)), if (suffix != null) ...[SizedBox(width: 5.w), Icon(Icons.local_offer_rounded, color: selected ? Colors.white : BrandColors.of(context).dark, size: 13.sp), SizedBox(width: 3.w), Text(suffix, style: TextStyle(color: selected ? Colors.white : BrandColors.of(context).dark, fontSize: 10.sp, fontWeight: AppFontWeight.display))]]),
         ),
       );
     }
@@ -241,21 +242,21 @@ import 'package:flutter/material.dart';
             duration: const Duration(milliseconds: 180),
             margin: EdgeInsets.only(bottom: 13.h),
             padding: EdgeInsets.all(15.w),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22), border: Border.all(color: selected ? BrandColors.of(context).primary : BrandColors.of(context).border, width: selected ? 2 : 1), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.18), blurRadius: 18, offset: const Offset(0, 8)), BoxShadow(color: BrandColors.of(context).light.withOpacity(.16), blurRadius: 3)] : [BoxShadow(color: Colors.black.withOpacity(.025), blurRadius: 8, offset: const Offset(0, 3))]),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: selected ? BrandColors.of(context).primary : BrandColors.of(context).border, width: selected ? 1.25 : 1), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.10), blurRadius: 12, offset: const Offset(0, 4))] : [BoxShadow(color: Colors.black.withOpacity(.02), blurRadius: 8, offset: const Offset(0, 3))]),
             child: Stack(clipBehavior: Clip.none, children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _tierIcon(context, icon, selected),
                   SizedBox(width: 11.w),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(eyebrow.toUpperCase(), style: TextStyle(color: selected ? BrandColors.of(context).dark : _muted, fontSize: 9.sp, fontWeight: FontWeight.w900, letterSpacing: .85)), SizedBox(height: 3.h), Text(title, style: TextStyle(color: _ink, fontSize: 17.sp, fontWeight: FontWeight.w900))])),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(eyebrow.toUpperCase(), style: TextStyle(color: selected ? BrandColors.of(context).dark : _muted, fontSize: 9.sp, fontWeight: AppFontWeight.display, letterSpacing: .85)), SizedBox(height: 3.h), Text(title, style: TextStyle(color: _ink, fontSize: 17.sp, fontWeight: AppFontWeight.display))])),
                   SizedBox(width: 8.w),
-                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text(price, style: TextStyle(color: selected ? BrandColors.of(context).dark : _ink, fontSize: 16.sp, fontWeight: FontWeight.w900)), SizedBox(height: 3.h), Icon(selected ? Icons.check_circle_rounded : Icons.arrow_forward_ios_rounded, color: selected ? BrandColors.of(context).primary : const Color(0xFFB9AAA0), size: selected ? 18.sp : 13.sp)]),
+                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text(price, style: TextStyle(color: selected ? BrandColors.of(context).dark : _ink, fontSize: 16.sp, fontWeight: AppFontWeight.display)), SizedBox(height: 3.h), Icon(selected ? Icons.check_circle_rounded : Icons.arrow_forward_ios_rounded, color: selected ? BrandColors.of(context).primary : const Color(0xFFB9AAA0), size: selected ? 18.sp : 13.sp)]),
                 ]),
                 SizedBox(height: 10.h),
                 Padding(padding: EdgeInsets.only(left: 51.w), child: Text(description, style: TextStyle(color: _muted, fontSize: 12.5.sp, height: 1.35, fontWeight: FontWeight.w500))),
                 if (benefits.isNotEmpty) ...[SizedBox(height: 12.h), Padding(padding: EdgeInsets.only(left: 51.w), child: Wrap(spacing: 6.w, runSpacing: 6.h, children: benefits.map((item) => _benefit(context, item)).toList()))],
               ]),
-              if (badge != null) Positioned(top: -27.h, left: 4.w, child: Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h), decoration: BoxDecoration(color: BrandColors.of(context).primary, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.25), blurRadius: 8, offset: const Offset(0, 3))]), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 14.sp), SizedBox(width: 4.w), Text(badge.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: FontWeight.w900, letterSpacing: .5))]))),
+              if (badge != null) Positioned(top: -27.h, left: 4.w, child: Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h), decoration: BoxDecoration(color: BrandColors.of(context).primary, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.25), blurRadius: 8, offset: const Offset(0, 3))]), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 14.sp), SizedBox(width: 4.w), Text(badge.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: AppFontWeight.display, letterSpacing: .5))]))),
             ]),
           ),
         );
@@ -264,7 +265,7 @@ import 'package:flutter/material.dart';
 
     Widget _tierIcon(BuildContext context, IconData icon, bool selected) => Container(width: 40.w, height: 40.w, decoration: BoxDecoration(shape: BoxShape.circle, color: selected ? BrandColors.of(context).soft : BrandColors.of(context).soft, border: Border.all(color: selected ? BrandColors.of(context).light : BrandColors.of(context).border)), child: Icon(icon, color: selected ? BrandColors.of(context).dark : BrandColors.of(context).primary, size: 21.sp));
 
-    Widget _benefit(BuildContext context, String label) => Container(padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h), decoration: BoxDecoration(color: BrandColors.of(context).soft, borderRadius: BorderRadius.circular(12), border: Border.all(color: BrandColors.of(context).border)), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check_rounded, color: BrandColors.of(context).dark, size: 12.sp), SizedBox(width: 3.w), Text(label, style: TextStyle(color: _ink, fontSize: 10.sp, fontWeight: FontWeight.w800))]));
+    Widget _benefit(BuildContext context, String label) => Container(padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h), decoration: BoxDecoration(color: BrandColors.of(context).soft, borderRadius: BorderRadius.circular(12), border: Border.all(color: BrandColors.of(context).border)), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check_rounded, color: BrandColors.of(context).dark, size: 12.sp), SizedBox(width: 3.w), Text(label, style: TextStyle(color: _ink, fontSize: 10.sp, fontWeight: AppFontWeight.title))]));
 
     Widget _cta(BuildContext context) {
       return Obx(() {
@@ -323,9 +324,9 @@ import 'package:flutter/material.dart';
                   borderRadius: BorderRadius.circular(19),
                   boxShadow: [
                     BoxShadow(
-                      color: BrandColors.of(context).primary.withOpacity(.28),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
+                      color: BrandColors.of(context).primary.withOpacity(.14),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -362,7 +363,7 @@ import 'package:flutter/material.dart';
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14.sp,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: AppFontWeight.display,
                                   ),
                                 ),
                                 SizedBox(width: 8.w),
@@ -416,7 +417,7 @@ import 'package:flutter/material.dart';
                     style: TextStyle(
                       color: BrandColors.of(context).dark,
                       fontSize: 10.5.sp,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: AppFontWeight.display,
                     ),
                   ),
                 ),
@@ -433,9 +434,9 @@ import 'package:flutter/material.dart';
         padding: EdgeInsets.fromLTRB(17.w, 16.h, 17.w, 15.h),
         decoration: BoxDecoration(color: BrandColors.of(context).soft, borderRadius: BorderRadius.circular(24), border: Border.all(color: BrandColors.of(context).border)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [_smallAvatar(context, Icons.person_rounded, BrandColors.of(context).primary), Transform.translate(offset: Offset(-8.w, 0), child: _smallAvatar(context, Icons.face_rounded, BrandColors.of(context).primary)), Transform.translate(offset: Offset(-16.w, 0), child: _smallAvatar(context, Icons.sports_rounded, BrandColors.of(context).primary)), SizedBox(width: 1.w), Expanded(child: Text.rich(TextSpan(children: [TextSpan(text: '3 trainers', style: TextStyle(color: BrandColors.of(context).dark, fontWeight: FontWeight.w900)), const TextSpan(text: ' near your goals are available to match this week')]), style: TextStyle(color: _ink, fontSize: 12.sp, height: 1.25)))]),
+          Row(children: [_smallAvatar(context, Icons.person_rounded, BrandColors.of(context).primary), Transform.translate(offset: Offset(-8.w, 0), child: _smallAvatar(context, Icons.face_rounded, BrandColors.of(context).primary)), Transform.translate(offset: Offset(-16.w, 0), child: _smallAvatar(context, Icons.sports_rounded, BrandColors.of(context).primary)), SizedBox(width: 1.w), Expanded(child: Text.rich(TextSpan(children: [TextSpan(text: '3 trainers', style: TextStyle(color: BrandColors.of(context).dark, fontWeight: AppFontWeight.display)), const TextSpan(text: ' near your goals are available to match this week')]), style: TextStyle(color: _ink, fontSize: 12.sp, height: 1.25)))]),
           SizedBox(height: 14.h),
-          Text('“Most clients see their first real strength jump inside three weeks — that is when the plan starts fitting them instead of the other way around.”', style: TextStyle(color: _ink, fontSize: 15.sp, height: 1.32, fontWeight: FontWeight.w700)),
+          Text('“Most clients see their first real strength jump inside three weeks — that is when the plan starts fitting them instead of the other way around.”', style: TextStyle(color: _ink, fontSize: 15.sp, height: 1.32, fontWeight: AppFontWeight.section)),
           SizedBox(height: 15.h),
           Row(children: [_metric(context, '6 yrs', 'avg.\nexperience'), _divider(context), _metric(context, 'NASM / ACE', 'certified'), _divider(context), _metric(context, '500+', 'clients\ncoached')]),
         ]),
@@ -443,7 +444,7 @@ import 'package:flutter/material.dart';
     }
 
     Widget _smallAvatar(BuildContext context, IconData icon, Color color) => Container(width: 38.w, height: 38.w, decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: const Color(0xFFFFF6F0), width: 2)), child: Icon(icon, color: Colors.white, size: 20.sp));
-    Widget _metric(BuildContext context, String value, String label) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: TextStyle(color: BrandColors.of(context).dark, fontSize: 14.sp, fontWeight: FontWeight.w900)), SizedBox(height: 2.h), Text(label, style: TextStyle(color: _muted, fontSize: 10.sp, height: 1.15, fontWeight: FontWeight.w600))]));
+    Widget _metric(BuildContext context, String value, String label) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: TextStyle(color: BrandColors.of(context).dark, fontSize: 14.sp, fontWeight: AppFontWeight.display)), SizedBox(height: 2.h), Text(label, style: TextStyle(color: _muted, fontSize: 10.sp, height: 1.15, fontWeight: FontWeight.w600))]));
     Widget _divider(BuildContext context) => Container(width: 1, height: 31.h, color: BrandColors.of(context).border, margin: EdgeInsets.symmetric(horizontal: 8.w));
 
     Widget _accessCode(BuildContext context) {
@@ -490,7 +491,7 @@ import 'package:flutter/material.dart';
                         style: TextStyle(
                           color: _ink,
                           fontSize: 15.sp,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: AppFontWeight.display,
                         ),
                       ),
                       SizedBox(height: 2.h),
@@ -528,12 +529,12 @@ import 'package:flutter/material.dart';
                               controller.promoPlanLabel.value.isNotEmpty
                                   ? '${controller.promoPlanLabel.value} applied — complete your purchase above.'
                                   : 'Code applied — complete your purchase above.',
-                              style: TextStyle(color: _ink, fontSize: 11.5.sp, fontWeight: FontWeight.w700),
+                              style: TextStyle(color: _ink, fontSize: 11.5.sp, fontWeight: AppFontWeight.section),
                             ),
                           ),
                           GestureDetector(
                             onTap: controller.removePromoCode,
-                            child: Text('Remove', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 11.sp, fontWeight: FontWeight.w900)),
+                            child: Text('Remove', style: TextStyle(color: BrandColors.of(context).dark, fontSize: 11.sp, fontWeight: AppFontWeight.display)),
                           ),
                         ],
                       ),
@@ -551,7 +552,7 @@ import 'package:flutter/material.dart';
                       style: TextStyle(
                         color: _ink,
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                         letterSpacing: .5,
                       ),
                       decoration: InputDecoration(
@@ -614,7 +615,7 @@ import 'package:flutter/material.dart';
                               'Unlock',
                               style: TextStyle(
                                 fontSize: 12.sp,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: AppFontWeight.display,
                               ),
                             ),
                     ),
@@ -646,6 +647,5 @@ import 'package:flutter/material.dart';
       return Row(mainAxisAlignment: MainAxisAlignment.center, children: [_footerItem(context, Icons.lock_outline_rounded, 'Secure payment'), SizedBox(width: 13.w), _footerItem(context, Icons.autorenew_rounded, 'Cancel anytime'), SizedBox(width: 13.w), _footerItem(context, Icons.people_outline_rounded, 'Trusted by members')]);
     }
 
-    Widget _footerItem(BuildContext context, IconData icon, String label) => Flexible(child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, color: const Color(0xFF9C8D84), size: 13.sp), SizedBox(width: 4.w), Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: const Color(0xFF9C8D84), fontSize: 9.5.sp, fontWeight: FontWeight.w700)))]));
+    Widget _footerItem(BuildContext context, IconData icon, String label) => Flexible(child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, color: const Color(0xFF9C8D84), size: 13.sp), SizedBox(width: 4.w), Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: TextStyle(color: const Color(0xFF9C8D84), fontSize: 9.5.sp, fontWeight: AppFontWeight.section)))]));
     }
-

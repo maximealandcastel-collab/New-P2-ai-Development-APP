@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,7 @@ class ContentDetailsScreen extends StatelessWidget {
                         ? content['title'] as String
                         : 'Untitled',
                     fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: AppFontWeight.section,
                     textAlign: TextAlign.start,
                   ),
                   SizedBox(height: 4.h),
@@ -124,7 +125,7 @@ class ContentDetailsScreen extends StatelessWidget {
                   // Comments Section
                   Row(
                     children: [
-                      CustomText(text: "Comments", fontWeight: FontWeight.bold, fontSize: 16.sp),
+                      CustomText(text: "Comments", fontWeight: AppFontWeight.section, fontSize: 16.sp),
                       SizedBox(width: 8.w),
                       CustomText(text: "40", color: Colors.grey, fontSize: 14.sp),
                     ],
@@ -238,7 +239,7 @@ class ContentDetailsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    CustomText(text: name, fontWeight: FontWeight.bold, fontSize: 14.sp),
+                    CustomText(text: name, fontWeight: AppFontWeight.section, fontSize: 14.sp),
                     SizedBox(width: 8.w),
                     CustomText(text: "• $time", color: Colors.grey, fontSize: 11.sp),
                   ],

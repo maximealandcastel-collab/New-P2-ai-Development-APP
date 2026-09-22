@@ -54,10 +54,12 @@ class CustomText extends StatelessWidget {
           style: TextStyle(
             decoration: decoration,
             decorationColor: decorationColor,
-              fontSize: fontSize ?? 13.sp,
-              fontFamily: fontName, // null → SF Pro on iOS, Roboto on Android
-              fontWeight: fontWeight,
-              color: color ?? AppColors.textPrimary),
+            fontSize: fontSize ?? 13.sp,
+            height: textHeight,
+            fontFamily: fontName, // null → SF Pro on iOS, Roboto on Android
+            fontWeight: fontWeight,
+            color: color ?? AppColors.textPrimary,
+          ),
         ),
       ),
     );

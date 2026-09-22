@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -85,15 +86,15 @@ class _BottomNavItemState extends State<BottomNavItem>
       return ScaleTransition(
         scale: _scale,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
+          duration: P2PMotion.standard,
+          curve: P2PMotion.curve,
           margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.h),
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
           decoration: BoxDecoration(
             color: isSelected
                 ? selectedColor.withOpacity(0.10)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(P2PRadius.control.r),
           ),
           child: Column(
               mainAxisSize: MainAxisSize.min,

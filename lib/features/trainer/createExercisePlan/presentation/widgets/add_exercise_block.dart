@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -170,7 +171,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
             SizedBox(height: 24.h),
 
             // --- Steps List ---
-            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: FontWeight.bold, bottom: 12.h),
+            CustomText(text: "Steps", fontSize: 18.sp, fontWeight: AppFontWeight.section, bottom: 12.h),
 
             ListView.separated(
               shrinkWrap: true,
@@ -253,7 +254,7 @@ class _AddExerciseBlockScreenState extends State<AddExerciseBlockScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(text: step["name"]!, fontWeight: FontWeight.bold, fontSize: 14.sp),
+              CustomText(text: step["name"]!, fontWeight: AppFontWeight.section, fontSize: 14.sp),
               CustomText(text: step["duration"]!, color: Colors.grey, fontSize: 12.sp),
             ],
           ),

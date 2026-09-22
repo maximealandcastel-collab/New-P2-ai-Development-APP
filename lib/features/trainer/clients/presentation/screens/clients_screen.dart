@@ -13,6 +13,7 @@ import '../../../../../services/api_urls.dart';
 import '../../../../../services/network/api_client.dart';
 import '../../../../common/notification/presentation/screen/notification_screen.dart';
 import '../../../../profile/profile_screen.dart';
+import '../../../../profile/presentation/controllers/profile_controller.dart';
 import '../widgets/client_card_widget.dart';
 import 'chat_screen.dart';
 import 'clients_details_screen.dart';
@@ -153,16 +154,19 @@ class _ClientsScreenState extends State<ClientsScreen> {
           child: GestureDetector(
             onTap: () => Get.to(() => const ProfileScreen()),
             behavior: HitTestBehavior.opaque,
-            child: Row(
-              children: [
-                CustomImageAvatar(
-                  image: 'https://picsum.photos/300',
-                  radius: 21.r,
-                  showBorder: true,
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: Column(
+            child: Obx(() {
+              final profile = ProfileController.to.userData;
+              final firstName = (profile?.firstName ?? '').trim();
+              return Row(
+                children: [
+                  CustomImageAvatar(
+                    image: profile?.profilePicture,
+                    radius: 21.r,
+                    showBorder: true,
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -170,7 +174,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              'Hi Maxime! 👋',
+                              firstName.isEmpty ? 'Welcome back' : 'Hi $firstName! 👋',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -199,10 +203,11 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         ),
                       ),
                     ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
           ),
         ),
         actions: [

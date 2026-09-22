@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -184,7 +185,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
                     '${_dayNumber(i)}',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppFontWeight.section,
                       color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.black87,
                     ),
                   ),
@@ -236,7 +237,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
         children: [
           Text(
             "Today's Progress",
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: Colors.black),
           ),
           SizedBox(height: 14.h),
           ..._tasks.map((t) => _TaskRow(task: t)),
@@ -267,7 +268,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(
         text,
-        style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black87),
+        style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black87),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -100,7 +101,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
             ),
           );
@@ -127,7 +128,7 @@ class _FeedAppBarState extends State<FeedAppBar> {
                   'Hi $_firstName!',
                   style: TextStyle(
                     fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppFontWeight.section,
                     color: Colors.black,
                   ),
                 ),

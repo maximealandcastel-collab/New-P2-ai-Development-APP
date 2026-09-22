@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
 
@@ -198,7 +199,7 @@ class _AppBar extends StatelessWidget {
             child: Text(
               'Connect device',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w700, color: Colors.black),
+              style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: Colors.black),
             ),
           ),
           SizedBox(width: 34.w),
@@ -246,7 +247,7 @@ class _MainContent extends StatelessWidget {
               Text(
                 'Connect to your fitness device',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: Colors.black),
               ),
               SizedBox(height: 8.h),
               Text(
@@ -363,7 +364,7 @@ class _DeviceListSection extends StatelessWidget {
         children: [
           Text(
             'Available devices',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.black),
+            style: TextStyle(fontSize: 15.sp, fontWeight: AppFontWeight.section, color: Colors.black),
           ),
           SizedBox(height: 12.h),
 
@@ -534,7 +535,7 @@ class _PermissionOverlay extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppFontWeight.section,
                             color: Colors.black,
                             height: 1.3,
                           ),

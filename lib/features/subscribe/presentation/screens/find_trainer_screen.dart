@@ -252,7 +252,7 @@ class FindTrainerScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(22.r),
                           boxShadow: [
                             BoxShadow(
-                                color: BrandColors.of(context).primary.withOpacity(0.32),
+                                color: BrandColors.of(context).primary.withOpacity(0.16),
                                 blurRadius: 10,
                                 offset: const Offset(0, 3))
                           ],

@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -142,18 +143,13 @@ class _NavBarState extends State<NavBar> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 44.h,
+          height: 42.h,
           padding: EdgeInsets.all(4.r),
           decoration: BoxDecoration(
-            color: const Color(0xFF171717),
-            borderRadius: BorderRadius.circular(24.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.18),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            color: P2PColors.surface.withValues(alpha: .96),
+            borderRadius: BorderRadius.circular(P2PRadius.pill.r),
+            border: Border.all(color: P2PColors.border),
+            boxShadow: P2PShadows.card,
           ),
           child: Row(
             children: [
@@ -174,7 +170,7 @@ class _NavBarState extends State<NavBar> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 5.h),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.62),
+            color: P2PColors.charcoal.withValues(alpha: .78),
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: Row(
@@ -237,15 +233,15 @@ class _NavBarState extends State<NavBar> {
               Icon(
                 icon,
                 size: 16.sp,
-                color: selected ? Colors.white : Colors.white70,
+                color: selected ? Colors.white : P2PColors.secondaryText,
               ),
               SizedBox(width: 5.w),
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? Colors.white : Colors.white70,
+                  color: selected ? Colors.white : P2PColors.secondaryText,
                   fontSize: 13.sp,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
                 ),
               ),
             ],
@@ -260,21 +256,15 @@ class _NavBarState extends State<NavBar> {
       child: Padding(
         padding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 6.h),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(18.r),
+          borderRadius: BorderRadius.circular(24.r),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.96),
-                borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(color: const Color(0xFFE9E9E9), width: 0.8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    offset: const Offset(0, 2),
-                    blurRadius: 10,
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: P2PColors.border, width: 0.8),
+                boxShadow: P2PShadows.card,
               ),
               padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
               child: Row(

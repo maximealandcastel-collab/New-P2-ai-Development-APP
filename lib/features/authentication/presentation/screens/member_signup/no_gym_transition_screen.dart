@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 
@@ -31,7 +32,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back, size: 18),
                   label: const Text(
                     'Back to gym selection',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontWeight: AppFontWeight.section),
                   ),
                 ),
               ),
@@ -93,7 +94,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                   color: soft,
                   fontSize: 12,
                   letterSpacing: .8,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppFontWeight.title,
                 ),
               ),
               const SizedBox(height: 16),
@@ -101,10 +102,10 @@ class NoGymTransitionScreen extends StatelessWidget {
                 "You're heading to\nP2P Fit Tech AI",
                 style: TextStyle(
                   color: ink,
-                  fontSize: 32,
+                  fontSize: 29,
                   height: 1.2,
                   letterSpacing: -.6,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppFontWeight.title,
                 ),
               ),
               const SizedBox(height: 18),
@@ -136,7 +137,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                         color: soft,
                         fontSize: 12,
                         letterSpacing: .7,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -163,7 +164,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                                 '${index + 1}',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: AppFontWeight.section,
                                 ),
                               ),
                             ),
@@ -197,7 +198,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                     text: 'Your info carries over. ',
                     style: TextStyle(
                       color: ink,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppFontWeight.title,
                       fontSize: 14,
                       height: 1.7,
                     ),
@@ -228,7 +229,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                 child: const Text(
                   'Go to P2P Fit Tech AI ➜',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: TextStyle(fontSize: 17, fontWeight: AppFontWeight.title),
                 ),
               ),
               const SizedBox(height: 14),
@@ -262,7 +263,7 @@ class NoGymTransitionScreen extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Pick a gym instead',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 16, fontWeight: AppFontWeight.section),
                 ),
               ),
             ],

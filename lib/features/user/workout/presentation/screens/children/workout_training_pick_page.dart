@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -53,7 +54,7 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
         CustomText(
           text: 'What type of training\ndo you want to do?',
           fontSize: 24.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight: AppFontWeight.section,
           color: AppColors.textPrimary,
           maxline: 2,
         ),
@@ -148,7 +149,7 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
                             CustomText(
                               text: item['title']!,
                               fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: AppFontWeight.section,
                               color: Colors.white,
                               maxline: 2,
                             ),

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
@@ -222,10 +223,10 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                     Text(
                       titles[step],
                       style: const TextStyle(
-                        fontSize: 34,
+                        fontSize: 30,
                         height: 1.2,
                         color: ink,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                         letterSpacing: -.7,
                       ),
                     ),
@@ -295,7 +296,7 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                                             style: const TextStyle(
                                               color: ink,
                                               fontSize: 18,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: AppFontWeight.title,
                                             ),
                                           ),
                                           const SizedBox(height: 6),
@@ -350,9 +351,9 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: ink,
-                        fontSize: 34,
+                        fontSize: 30,
                         height: 1.2,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -436,7 +437,7 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                                 : 'Continue ➜',
                             style: const TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: AppFontWeight.title,
                             ),
                           ),
                   ),
@@ -453,7 +454,7 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
     text,
     style: const TextStyle(
       color: soft,
-      fontWeight: FontWeight.w800,
+      fontWeight: AppFontWeight.title,
       fontSize: 12,
       letterSpacing: .7,
     ),
@@ -647,7 +648,7 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 26,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppFontWeight.title,
                           ),
                         ),
                       ),
@@ -659,7 +660,7 @@ class _StaffSignupScreenState extends State<StaffSignupScreen> {
                 style: const TextStyle(
                   color: muted,
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                 ),
               ),
               if (gym?.id == item.id)

@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/onboarding_gym_suggestions.dart';
 import 'no_gym_transition_screen.dart';
 import 'package:flutter/material.dart';
@@ -276,7 +277,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                       labels[step],
                       style: TextStyle(
                         color: accent,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                         fontSize: 13,
                         letterSpacing: 1,
                       ),
@@ -286,9 +287,9 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                       titles[step],
                       style: const TextStyle(
                         color: ink,
-                        fontSize: 34,
+                        fontSize: 30,
                         height: 1.2,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                         letterSpacing: -.8,
                       ),
                     ),
@@ -377,7 +378,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: AppFontWeight.section,
                                     ),
                                   ),
                                 ),
@@ -449,7 +450,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppFontWeight.title,
                       ),
                     ),
                   ),
@@ -466,7 +467,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                               text: 'Sign In',
                               style: TextStyle(
                                 color: orange,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: AppFontWeight.section,
                               ),
                             ),
                           ],
@@ -488,7 +489,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
     style: const TextStyle(
       color: muted,
       fontSize: 12,
-      fontWeight: FontWeight.w800,
+      fontWeight: AppFontWeight.title,
       letterSpacing: .8,
     ),
   );
@@ -560,7 +561,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
           children: [
             Text(
               title,
-              style: const TextStyle(color: muted, fontWeight: FontWeight.w700),
+              style: const TextStyle(color: muted, fontWeight: AppFontWeight.section),
             ),
             const Spacer(),
             Text(
@@ -568,7 +569,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
               style: const TextStyle(
                 color: ink,
                 fontSize: 21,
-                fontWeight: FontWeight.w800,
+                fontWeight: AppFontWeight.title,
               ),
             ),
           ],
@@ -624,7 +625,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                   style: const TextStyle(
                     color: ink,
                     fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppFontWeight.title,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -790,7 +791,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 26,
-              fontWeight: FontWeight.w800,
+              fontWeight: AppFontWeight.title,
             ),
           ),
         );
@@ -823,7 +824,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppFontWeight.section,
                   color: muted,
                 ),
               ),
@@ -856,7 +857,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
       textAlign: TextAlign.center,
       style: TextStyle(
         color: accent,
-        fontWeight: FontWeight.w800,
+        fontWeight: AppFontWeight.title,
         letterSpacing: 1,
       ),
     ),
@@ -866,8 +867,8 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
       textAlign: TextAlign.center,
       style: const TextStyle(
         color: ink,
-        fontSize: 34,
-        fontWeight: FontWeight.w800,
+        fontSize: 30,
+        fontWeight: AppFontWeight.title,
       ),
     ),
     const SizedBox(height: 18),
@@ -917,7 +918,7 @@ class _MemberSignupScreenState extends State<MemberSignupScreen> {
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         color: ink,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                       ),
                     ),
                   ),

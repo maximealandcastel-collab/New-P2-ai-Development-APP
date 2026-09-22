@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -190,7 +191,7 @@ class SessionDetailsScreen extends StatelessWidget {
                       'Client',
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppFontWeight.section,
                         color: Colors.black,
                       ),
                     ),
@@ -300,7 +301,7 @@ class SessionDetailsScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppFontWeight.section,
               ),
             ),
           ),
