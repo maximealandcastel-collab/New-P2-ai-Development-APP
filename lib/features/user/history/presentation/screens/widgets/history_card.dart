@@ -311,11 +311,12 @@ class _DateBlock extends StatelessWidget {
     final date = DateTime.tryParse(raw)?.toLocal();
 
     return Container(
-      width: 66.w,
-      padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 5.w),
+      width: 56.w,
+      padding: EdgeInsets.symmetric(vertical: 7.h, horizontal: 4.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8FA),
-        borderRadius: BorderRadius.circular(14.r),
+        color: const Color(0xFFFAF8F7),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFFF4EFEC)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -323,40 +324,40 @@ class _DateBlock extends StatelessWidget {
           Text(
             date == null ? 'DATE' : DateFormat('MMM').format(date).toUpperCase(),
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 9.sp,
               height: 1,
               fontWeight: AppFontWeight.label,
               color: AppColors.primary,
             ),
           ),
-          SizedBox(height: 3.h),
+          SizedBox(height: 2.h),
           Text(
             date == null ? '--' : DateFormat('d').format(date),
             style: TextStyle(
-              fontSize: 25.sp,
+              fontSize: 20.sp,
               height: 1,
-              fontWeight: AppFontWeight.stat,
+              fontWeight: AppFontWeight.section,
               color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 3.h),
+          Text(
+            date == null ? '' : DateFormat('EEE').format(date),
+            style: TextStyle(
+              fontSize: 8.5.sp,
+              height: 1,
+              fontWeight: AppFontWeight.body,
+              color: const Color(0xFF777982),
             ),
           ),
           SizedBox(height: 3.h),
           Text(
             date == null ? '' : DateFormat('yyyy').format(date),
             style: TextStyle(
-              fontSize: 10.sp,
-              height: 1,
-              fontWeight: AppFontWeight.label,
-              color: const Color(0xFF555862),
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            date == null ? '' : DateFormat('EEE').format(date),
-            style: TextStyle(
-              fontSize: 9.sp,
+              fontSize: 8.sp,
               height: 1,
               fontWeight: AppFontWeight.body,
-              color: const Color(0xFF9698A0),
+              color: const Color(0xFF9A9CA4),
             ),
           ),
         ],
