@@ -228,8 +228,9 @@ class GymDetailScreen extends StatelessWidget {
                           child: FilledButton(
                             onPressed: active ? onEnter : onClaim,
                             style: FilledButton.styleFrom(
-                              backgroundColor: primary,
-                              foregroundColor: Colors.white,
+                              backgroundColor: active ? gym.entryColor : primary,
+                              foregroundColor:
+                                  active ? gym.entryTextColor : Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24.r),
