@@ -10,6 +10,71 @@ const _muted = Color(0xFF717985);
 const _surface = Color(0xFFF8F9FA);
 const _meals = ['Breakfast', 'Lunch', 'Dinner'];
 
+// Bundled photography is presentation-only. A saved catalog food gets the
+// same photo after deserialization; custom foods never inherit a misleading
+// photo just because their name happens to match a catalog item.
+const _catalogPhotos = <String, String>{
+  'Oatmeal (cooked)': 'oatmeal',
+  'Egg Whites': 'egg_whites',
+  'Whole Egg': 'whole_egg',
+  'Protein Powder (Whey)': 'whey_protein',
+  'Almond Milk (Unsweetened)': 'almond_milk',
+  'Blueberries': 'blueberries',
+  'Chicken Breast': 'chicken_breast',
+  'Banana': 'banana',
+  'Greek Yogurt (Plain)': 'greek_yogurt',
+  'Brown Rice (cooked)': 'brown_rice',
+  'Quinoa (cooked)': 'quinoa',
+  'Ground Turkey (93%)': 'ground_turkey',
+  'Broccoli (steamed)': 'broccoli',
+  'Avocado': 'avocado',
+  'Sweet Potato (baked)': 'sweet_potato',
+  'Salmon (Atlantic)': 'salmon',
+  'Lean Steak (sirloin)': 'steak',
+  'Whole Grain Pasta': 'whole_grain_pasta',
+  'Asparagus': 'asparagus',
+  'Olive Oil': 'olive_oil',
+};
+
+String? _photoFor(MealFood food) {
+  final catalog = exampleFoods.where((item) => item.name == food.name);
+  if (catalog.isEmpty) return null;
+  final entry = catalog.first;
+  if (entry.serving != food.serving || entry.calories != food.calories ||
+      entry.protein != food.protein || entry.carbs != food.carbs ||
+      entry.fats != food.fats) return null;
+  final key = _catalogPhotos[food.name];
+  return key == null ? null : 'assets/images/meal_food/$key.jpg';
+}
+
+String _mealPhoto(String meal) {
+  final key = meal == 'Breakfast' ? 'oatmeal'
+      : meal == 'Lunch' ? 'chicken_breast' : 'salmon';
+  return 'assets/images/meal_food/$key.jpg';
+}
+
+class _FoodThumbnail extends StatelessWidget {
+  const _FoodThumbnail({this.food, this.asset, this.size = 38});
+  final MealFood? food;
+  final String? asset;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = asset ?? (food == null ? null : _photoFor(food!));
+    final placeholder = Container(
+      width: size, height: size, alignment: Alignment.center,
+      decoration: BoxDecoration(color: const Color(0xFFFFF0E7),
+        borderRadius: BorderRadius.circular(10)),
+      child: const Icon(Icons.restaurant_outlined, color: _orange, size: 18),
+    );
+    if (path == null) return placeholder;
+    return ClipRRect(borderRadius: BorderRadius.circular(10),
+      child: Image.asset(path, width: size, height: size, fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder));
+  }
+}
+
 class _MealSuggestion {
   const _MealSuggestion(this.name, this.entries);
   final String name;
@@ -187,9 +252,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
         for (final meal in _meals)
           Padding(padding: const EdgeInsets.only(bottom: 7), child: _Card(child: ListTile(
             onTap: () => _open(meal),
-            leading: CircleAvatar(radius: 19, backgroundColor: const Color(0xFFFFF0E7),
-              child: Icon(meal == 'Breakfast' ? Icons.free_breakfast_outlined
-                  : meal == 'Lunch' ? Icons.lunch_dining_outlined : Icons.dinner_dining_outlined, color: _orange, size: 19)),
+            leading: _FoodThumbnail(asset: _mealPhoto(meal), size: 40),
             title: Text(meal, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             subtitle: Text(data.readMeal(date, meal).isEmpty
                 ? 'Add your ${meal.toLowerCase()} prep'
@@ -299,8 +362,7 @@ class _MealBuilderState extends State<_MealBuilder> {
           )),
         if (tab == 1 && savedMeal.isNotEmpty) Padding(
           padding: const EdgeInsets.only(top: 7), child: _Card(child: ListTile(
-            leading: const CircleAvatar(backgroundColor: Color(0xFFFFF0E7),
-              child: Icon(Icons.bookmark_outline, color: _orange)),
+            leading: _FoodThumbnail(food: savedMeal.first.food, size: 40),
             title: Text('Saved ${widget.meal}', style: const TextStyle(fontSize: 13,
               fontWeight: FontWeight.w600)),
             subtitle: Text('${savedMeal.length} foods · ${MealMacros.total(savedMeal).calories.round()} kcal',
@@ -386,8 +448,7 @@ class _MealReviewState extends State<_MealReview> {
             for (var i = 0; i < widget.entries.length; i++) ...[
               if (i > 0) const Divider(height: 1),
               Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(children: [
-                const CircleAvatar(radius: 18, backgroundColor: Color(0xFFFFF0E7),
-                  child: Icon(Icons.restaurant_outlined, color: _orange, size: 17)),
+                _FoodThumbnail(food: widget.entries[i].food, size: 38),
                 const SizedBox(width: 9),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(widget.entries[i].food.name, maxLines: 2, overflow: TextOverflow.ellipsis,
@@ -675,10 +736,7 @@ class _MealHero extends StatelessWidget {
               height: 1.27, fontWeight: FontWeight.w500)),
         ])),
         const SizedBox(width: 10),
-        CircleAvatar(radius: 30, backgroundColor: Colors.white,
-          child: Icon(isBreakfast ? Icons.free_breakfast_outlined
-            : isLunch ? Icons.lunch_dining_outlined : Icons.dinner_dining_outlined,
-            color: _orange, size: 27)),
+        _FoodThumbnail(asset: _mealPhoto(meal), size: 72),
       ]),
     );
   }
@@ -694,8 +752,8 @@ class _SuggestedMealRow extends StatelessWidget {
     final total = MealMacros.total(suggestion.entries);
     return _Card(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       child: Row(children: [
-        const CircleAvatar(radius: 19, backgroundColor: Color(0xFFFFF0E7),
-          child: Icon(Icons.restaurant_menu_outlined, size: 18, color: _orange)),
+        _FoodThumbnail(food: suggestion.entries.isEmpty ? null : suggestion.entries.first.food,
+          size: 42),
         const SizedBox(width: 9),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(suggestion.name, maxLines: 1, overflow: TextOverflow.ellipsis,
@@ -722,8 +780,7 @@ class _FoodRow extends StatelessWidget {
   Widget build(BuildContext context) => _Card(child: Padding(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
     child: Row(children: [
-      const CircleAvatar(radius: 17, backgroundColor: Color(0xFFFFF0E7),
-        child: Icon(Icons.restaurant_outlined, color: _orange, size: 18)),
+      _FoodThumbnail(food: food, size: 38),
       const SizedBox(width: 9),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(food.name, maxLines: 2, overflow: TextOverflow.ellipsis,
