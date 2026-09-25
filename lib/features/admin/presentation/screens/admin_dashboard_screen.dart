@@ -8,19 +8,20 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/admin/presentation/controllers/admin_dashboard_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/notification/presentation/controllers/notification_controller.dart';
 
 // ─── App theme (matches AppColors exactly) ────────────────────────────────────
 
 const _card       = Colors.white;
-const _border     = Color(0xFFE5E7EB);
+const _border     = Color(0xFFEAECF0);
 
 const _green      = Color(0xFF22C55E);
 const _blue       = Color(0xFF3B82F6);
 const _purple     = Color(0xFFA855F7);
 const _pink       = Color(0xFFEC4899);
 const _yellow     = Color(0xFFEAB308);
-const _tPrim      = Color(0xFF000000);   // AppColors.textPrimary
-const _tSec       = Color(0xFF7F7F7F);   // AppColors.textSecondary
+const _tPrim      = Color(0xFF20232B);
+const _tSec       = Color(0xFF747985);
 
 /// Lets the "Review Withdrawal Requests" quick action scroll down to the
 /// withdrawals section, which lives further down this same screen.
@@ -80,12 +81,13 @@ class AdminDashboardScreen extends StatelessWidget {
             // Each section now owns its own Obx around a method that is CALLED
             // inside the closure, so the reads land where GetX can see them.
             slivers: [
-              const SliverToBoxAdapter(child: SizedBox(height: 56)),
+              // The parent shell reserves the Admin/User switch above SafeArea.
+              const SliverToBoxAdapter(child: SizedBox(height: 4)),
               SliverToBoxAdapter(child: _DashHeader(c: c)),
               SliverToBoxAdapter(child: _OnboardedGymsPill(c: c)),
               SliverToBoxAdapter(child: _KpiGrid(c: c)),
-              SliverToBoxAdapter(child: _ActivityFeed(c: c)),
               SliverToBoxAdapter(child: _QuickActions(c: c)),
+              SliverToBoxAdapter(child: _ActivityFeed(c: c)),
               SliverToBoxAdapter(child: _RevenueOverview(c: c)),
               SliverToBoxAdapter(child: _TrainerManagement(c: c)),
               SliverToBoxAdapter(child: _Withdrawals(key: _withdrawalsKey, c: c)),
@@ -107,16 +109,16 @@ class _DashHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+      padding: EdgeInsets.fromLTRB(18.w, 10.h, 18.w, 16.h),
       child: Row(
         children: [
           Container(
-            width: 42.w, height: 42.w,
+            width: 40.w, height: 40.w,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(13.r),
             ),
-            child: Icon(Icons.shield_rounded, color: Theme.of(context).colorScheme.primary, size: 22.sp),
+            child: Icon(Icons.shield_outlined, color: Theme.of(context).colorScheme.primary, size: 21.sp),
           ),
           SizedBox(width: 12.w),
           // Expanded, not a bare Column + Spacer: the title is unbounded text
@@ -131,28 +133,44 @@ class _DashHeader extends StatelessWidget {
               children: [
                 Text('Admin Dashboard',
                     maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 20.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+                    style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
                 Text('P2P FitTech AI · Live',
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 11.sp, color: _tSec)),
               ],
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 6.w),
+          if (Get.isRegistered<NotificationController>())
+            Obx(() {
+              final unread = NotificationController.to.unreadCount;
+              return Stack(clipBehavior: Clip.none, children: [
+                IconButton(
+                  tooltip: 'Notifications',
+                  onPressed: () => Get.toNamed(AppRoute.notificationsScreen),
+                  icon: Icon(Icons.notifications_none_rounded, color: _tSec, size: 20.sp),
+                ),
+                if (unread > 0)
+                  Positioned(
+                    right: 2.w, top: 2.h,
+                    child: Container(
+                      constraints: BoxConstraints(minWidth: 16.r, minHeight: 16.r),
+                      padding: EdgeInsets.symmetric(horizontal: 3.w),
+                      decoration: const BoxDecoration(color: Color(0xFFEB5757), shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: Text(unread > 9 ? '9+' : '$unread', style: TextStyle(color: Colors.white, fontSize: 8.sp, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+              ]);
+            }),
           Obx(() => c.metricsLoading
               ? SizedBox(width: 18.w, height: 18.w,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary))
-              : GestureDetector(
-                  onTap: c.loadAll,
-                  child: Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: _card,
-                      borderRadius: BorderRadius.circular(10.r),
-                      border: Border.all(color: _border),
-                    ),
-                    child: Icon(Icons.refresh_rounded, color: _tSec, size: 18.sp),
-                  ))),
+              : IconButton(
+                  tooltip: 'Refresh dashboard',
+                  onPressed: c.loadAll,
+                  icon: Icon(Icons.refresh_rounded, color: _tSec, size: 19.sp),
+                )),
         ],
       ),
     );
@@ -176,11 +194,11 @@ class _OnboardedGymsPill extends StatelessWidget {
         ? 'Loading live gym data…'
         : c.onboardedGymsError
             ? 'Live gym data unavailable'
-            : '${gyms.length} active partner gyms · Live';
+        : '${gyms.length} active partner gyms';
     return Padding(
-      padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 14.h),
+      padding: EdgeInsets.fromLTRB(18.w, 0, 18.w, 14.h),
       child: Material(color: Colors.transparent, child: InkWell(
-        borderRadius: BorderRadius.circular(30.r),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: () => showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
@@ -188,16 +206,18 @@ class _OnboardedGymsPill extends StatelessWidget {
           builder: (_) => _OnboardedGymsSheet(c: c),
         ),
         child: Ink(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30.r), border: Border.all(color: _border), boxShadow: const [BoxShadow(color: Color(0x12000000), blurRadius: 10, offset: Offset(0, 3))]),
+          padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 10.h),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r), border: Border.all(color: _border), boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))]),
           child: Row(children: [
-            Icon(Icons.apartment_rounded, color: Theme.of(context).colorScheme.primary, size: 20.sp),
+            _SoftIcon(Icons.apartment_outlined, Theme.of(context).colorScheme.primary),
             SizedBox(width: 10.w),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Gyms Onboarded', style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
-              Text(status, style: TextStyle(fontSize: 10.sp, color: c.onboardedGymsError ? Colors.red.shade700 : _tSec)),
+              Text('Gyms Onboarded', style: TextStyle(fontSize: 12.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
+              Text(status, maxLines: 2, style: TextStyle(fontSize: 10.sp, color: c.onboardedGymsError ? Colors.red.shade700 : _tSec)),
             ])),
-            if (c.onboardedGymsLoading) SizedBox(width: 16.w, height: 16.w, child: const CircularProgressIndicator(strokeWidth: 2)) else Icon(Icons.keyboard_arrow_up_rounded, color: _tSec, size: 22.sp),
+            if (!c.onboardedGymsLoading && !c.onboardedGymsError) _LivePill(color: Theme.of(context).colorScheme.primary),
+            SizedBox(width: 4.w),
+            if (c.onboardedGymsLoading) SizedBox(width: 16.w, height: 16.w, child: const CircularProgressIndicator(strokeWidth: 2)) else Icon(Icons.chevron_right_rounded, color: _tSec, size: 20.sp),
           ]),
         ),
       )),
@@ -306,37 +326,37 @@ class _KpiGrid extends StatelessWidget {
 
     final cards = [
       _KpiData(
-        '👥', 'TOTAL TRAINERS', '$trainerCount', '+$weekNew this week',
+        Icons.groups_outlined, 'Total Trainers', '$trainerCount', '+$weekNew this week',
         _blue, const Color(0xFFEFF6FF),
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'trainer', 'title': 'Trainers'}),
       ),
       _KpiData(
-        '🏃', 'ACTIVE USERS', '$userCount', '+$todayNew today',
+        Icons.directions_run_rounded, 'Active Users', '$userCount', '+$todayNew today',
         _green, const Color(0xFFF0FDF4),
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'user', 'title': 'Active Users'}),
       ),
       _KpiData(
-        '💰', 'ACTIVE SUBS', '$activeSubs', 'Paying members',
+        Icons.workspace_premium_outlined, 'Active Subs', '$activeSubs', 'Paying members',
         Theme.of(context).colorScheme.primary, BrandColors.of(context).soft,
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'active_subs', 'title': 'Active Subscribers'}),
       ),
       _KpiData(
-        '✅', 'VERIFIED', '$verified', 'Email confirmed',
+        Icons.verified_outlined, 'Verified', '$verified', 'Email confirmed',
         _purple, const Color(0xFFFAF5FF),
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'verified', 'title': 'Verified Accounts'}),
       ),
       _KpiData(
-        '📊', 'NEW THIS WEEK', '$weekNew', 'Signups this week',
+        Icons.bar_chart_rounded, 'New This Week', '$weekNew', 'Signups this week',
         _pink, const Color(0xFFFFF1F5),
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'week', 'title': 'New This Week'}),
       ),
       _KpiData(
-        '📱', 'NEW TODAY', '$todayNew', 'Signups today',
+        Icons.today_outlined, 'New Today', '$todayNew', 'Signups today',
         _yellow, const Color(0xFFFFFBEB),
         () => Get.toNamed(AppRoute.adminUserListScreen,
             arguments: {'filter': 'today', 'title': 'New Today'}),
@@ -344,13 +364,13 @@ class _KpiGrid extends StatelessWidget {
     ];
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 18.w),
       child: Column(children: [
-        Row(children: [Expanded(child: _KpiCard(d: cards[0])), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[1]))]),
+        Row(children: [Expanded(child: _KpiCard(d: cards[0], live: m != null)), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[1], live: m != null))]),
         SizedBox(height: 10.h),
-        Row(children: [Expanded(child: _KpiCard(d: cards[2])), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[3]))]),
+        Row(children: [Expanded(child: _KpiCard(d: cards[2], live: m != null)), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[3], live: m != null))]),
         SizedBox(height: 10.h),
-        Row(children: [Expanded(child: _KpiCard(d: cards[4])), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[5]))]),
+        Row(children: [Expanded(child: _KpiCard(d: cards[4], live: m != null)), SizedBox(width: 10.w), Expanded(child: _KpiCard(d: cards[5], live: m != null))]),
         SizedBox(height: 16.h),
       ]),
     );
@@ -358,11 +378,12 @@ class _KpiGrid extends StatelessWidget {
 }
 
 class _KpiData {
-  final String emoji, label, value, sub;
+  final IconData icon;
+  final String label, value, sub;
   final Color accent, bg;
   final VoidCallback onTap;
   const _KpiData(
-    this.emoji,
+    this.icon,
     this.label,
     this.value,
     this.sub,
@@ -374,7 +395,8 @@ class _KpiData {
 
 class _KpiCard extends StatelessWidget {
   final _KpiData d;
-  const _KpiCard({required this.d});
+  final bool live;
+  const _KpiCard({required this.d, required this.live});
 
   @override
   Widget build(BuildContext context) {
@@ -382,40 +404,66 @@ class _KpiCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: d.onTap,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         child: Ink(
-          padding: EdgeInsets.all(14.w),
+          padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
             color: d.bg,
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: d.accent.withValues(alpha: 0.2)),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: d.accent.withValues(alpha: 0.12)),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(d.emoji, style: TextStyle(fontSize: 20.sp)),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  color: d.accent.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                // Stays at w700, unlike the rest of this screen: 9sp uppercase in a
-                // tinted pill is micro-type, and the lighter scale stops it reading
-                // as a badge. Same exception as the P2P and YOUR GYM badges.
-                child: Text('LIVE', style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w600, color: d.accent)),
-              ),
+            Row(children: [
+              _SoftIcon(d.icon, d.accent),
+              const Spacer(),
+              if (live) _LivePill(color: d.accent),
             ]),
-            SizedBox(height: 10.h),
-            Text(d.value, style: TextStyle(fontSize: 24.sp, fontWeight: AppFontWeight.stat, color: d.accent)),
+            SizedBox(height: 9.h),
+            Text(d.value, maxLines: 1, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 21.sp, fontWeight: AppFontWeight.section, color: _tPrim)),
+            Text(d.label, maxLines: 2, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: _tSec)),
             SizedBox(height: 2.h),
-            Text(d.label, style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: _tSec, letterSpacing: 0.5)),
-            SizedBox(height: 2.h),
-            Text(d.sub, style: TextStyle(fontSize: 10.sp, color: _tSec)),
+            Text(d.sub, maxLines: 2, style: TextStyle(fontSize: 10.sp, color: _tSec)),
           ]),
         ),
       ),
     );
   }
+}
+
+class _SoftIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  const _SoftIcon(this.icon, this.color);
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 29.r, height: 29.r,
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.09),
+      borderRadius: BorderRadius.circular(9.r),
+    ),
+    child: Icon(icon, size: 17.sp, color: color),
+  );
+}
+
+class _LivePill extends StatelessWidget {
+  final Color color;
+  const _LivePill({required this.color});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 4.h),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(20.r),
+    ),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [
+      Container(width: 5.r, height: 5.r, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+      SizedBox(width: 4.w),
+      Text('LIVE', style: TextStyle(fontSize: 8.sp, fontWeight: AppFontWeight.label, color: color)),
+    ]),
+  );
 }
 
 // ─── Live Activity Feed ────────────────────────────────────────────────────────
@@ -496,23 +544,23 @@ class _QuickActions extends StatelessWidget {
   Widget _content(BuildContext context) {
     final pending = c.withdrawals.where((w) => w.status == 'pending').length;
     final actions = [
-      _QaData('Approve Pending Trainers', pending > 0 ? '$pending pending' : null, _blue,
+      _QaData('Approve Pending Trainers', 'Review new trainer applications', Icons.group_add_outlined, null, _blue,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'trainer', 'title': 'Trainers'})),
       // Was an empty handler. The withdrawals list, with its approve/reject
       // buttons, is already on this screen — it just sits below the fold — so
       // this scrolls to it rather than needing a route of its own.
-      _QaData('Review Withdrawal Requests', pending > 0 ? '$pending requests' : null,
+      _QaData('Review Withdrawal Requests', 'Check and approve payouts', Icons.payments_outlined, pending > 0 ? '$pending requests' : null,
           const Color(0xFFDC2626), _scrollToWithdrawals),
-      _QaData('User Management', null, _purple,
+      _QaData('User Management', 'Manage users, roles and permissions', Icons.manage_accounts_outlined, null, _purple,
           () => Get.toNamed(AppRoute.adminUserListScreen, arguments: {'filter': 'all', 'title': 'All Users'})),
       // These two have no backing feature anywhere in the app — no route, no
       // controller, no endpoint. They were empty handlers, so tapping them did
       // nothing at all and gave no feedback, which reads as the app being
       // broken. Saying so is the honest minimum until the feature exists;
       // building announcements or report export is not in this scope.
-      _QaData('Send Platform Announcement', null, _green,
+      _QaData('Send Platform Announcement', 'Notify users with an update', Icons.campaign_outlined, null, _green,
           () => _notBuiltYet('Platform announcements')),
-      _QaData('Export Revenue Report', 'This month', Theme.of(context).colorScheme.primary,
+      _QaData('Export Revenue Report', 'Generate financial report', Icons.bar_chart_outlined, 'This month', Theme.of(context).colorScheme.primary,
           () => _notBuiltYet('Revenue export')),
     ];
 
@@ -526,11 +574,12 @@ class _QuickActions extends StatelessWidget {
 }
 
 class _QaData {
-  final String label;
+  final String label, subtitle;
+  final IconData icon;
   final String? badge;
   final Color color;
   final VoidCallback onTap;
-  const _QaData(this.label, this.badge, this.color, this.onTap);
+  const _QaData(this.label, this.subtitle, this.icon, this.badge, this.color, this.onTap);
 }
 
 class _QaButton extends StatelessWidget {
@@ -539,29 +588,38 @@ class _QaButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: data.onTap,
-      child: Container(
-        margin: EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 7.h),
+      child: Material(color: Colors.transparent, child: InkWell(
+        onTap: data.onTap,
+        borderRadius: BorderRadius.circular(12.r),
+        child: Ink(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: data.color.withValues(alpha: 0.07),
-          borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: data.color.withValues(alpha: 0.2)),
+          color: const Color(0xFFF8F9FB),
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: Row(children: [
-          Expanded(child: Text(data.label,
-              style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: data.color))),
+          _SoftIcon(data.icon, data.color),
+          SizedBox(width: 10.w),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(data.label, maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 11.5.sp, fontWeight: AppFontWeight.label, color: _tPrim)),
+            Text(data.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10.sp, color: _tSec)),
+          ])),
           if (data.badge != null)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-              decoration: BoxDecoration(color: data.color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20.r)),
-              child: Text(data.badge!, style: TextStyle(fontSize: 11.sp, fontWeight: AppFontWeight.label, color: data.color)),
-            )
-          else
-            Icon(Icons.arrow_forward_ios_rounded, size: 13.sp, color: data.color),
+              margin: EdgeInsets.only(left: 4.w),
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+              decoration: BoxDecoration(color: data.color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20.r)),
+              child: Text(data.badge!, maxLines: 1, style: TextStyle(fontSize: 8.sp, color: data.color)),
+            ),
+          SizedBox(width: 3.w),
+          Icon(Icons.chevron_right_rounded, size: 17.sp, color: _tSec),
         ]),
       ),
+      )),
     );
   }
 }
@@ -955,22 +1013,22 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-      padding: EdgeInsets.all(18.w),
+      margin: EdgeInsets.fromLTRB(18.w, 0, 18.w, 14.h),
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _border),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.015), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(icon, color: iconColor, size: 18.sp),
+          Icon(icon, color: iconColor, size: 17.sp),
           SizedBox(width: 8.w),
-          Expanded(child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.display, color: _tPrim))),
+          Expanded(child: Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section, color: _tPrim))),
           if (trailing != null) trailing!,
         ]),
-        SizedBox(height: 16.h),
+        SizedBox(height: 12.h),
         child,
       ]),
     );

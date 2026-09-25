@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
+import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 
@@ -13,9 +14,23 @@ class AccountDetailsScreen extends StatefulWidget {
 }
 
 class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
-  final TextEditingController _emailController = TextEditingController(text: 'Ethancarter77@gmail.com');
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = ProfileController.to.userData?.email ?? '';
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +68,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
                     color: Colors.black.withValues(alpha: 0.08),
                     paddingAll: 8.r,
                     radiusAll: 8.r,
-                    child: CustomText(text: '15 Feb 1996'),
+                    child: CustomText(text: ProfileController.to.userData?.dateOfBirth ?? 'Not set'),
                   ),
                 ],
               ),

@@ -41,6 +41,35 @@ class EnterpriseGymModel {
     'ymca_yonkers': 'ymca.org',
   };
 
+  /// Human-readable descriptions for bundled facility photography. These are
+  /// used for accessibility and detail-screen captions; they never replace
+  /// facility data returned by the backend.
+  static const Map<String, String> _photoDescriptions = {
+    'ymca_yonkers': 'YMCA Yonkers gymnasium in Yonkers, New York',
+    'p2p_fit_factor': 'P2P Fit Factor training floor',
+    'kmf_fitness_club': 'KMF Fitness Club training floor',
+    'anytime_fitness': 'Anytime Fitness 24/7 training facility',
+    'golds_gym': "Gold's Gym Venice facility exterior",
+    'equinox': 'Equinox premium club interior',
+    'barrys': "Barry's Red Room studio interior",
+    'soulcycle': 'SoulCycle Upper East Side facility exterior',
+    'lifetime_fitness': 'Life Time fitness floor',
+    'corepower': 'CorePower Yoga studio interior',
+    'planet_fitness': 'Planet Fitness club floor',
+    'club_pilates': 'Club Pilates reformer studio',
+    'retro_fitness': 'Retro Fitness Clark facility',
+    'snap_fitness': 'Snap Fitness 24/7 facility interior',
+    'd1_training': 'D1 athletic training facility',
+    'crunch_fitness': 'Crunch Fitness training floor',
+    'f45_training': 'F45 functional training studio',
+    'orangetheory': 'Orangetheory Fitness facility exterior',
+    'la_fitness': 'LA Fitness club interior',
+    'yogasix': 'YogaSix studio class environment',
+    'cyclebar': 'CycleBar indoor cycling studio',
+    'hotworx': 'HOTWORX studio and sauna environment',
+    'burn_boot_camp': 'Burn Boot Camp training facility',
+  };
+
   final String remoteLogoUrl;
   final String id;
   final String name;
@@ -142,6 +171,23 @@ class EnterpriseGymModel {
     return '${distanceMi!.toStringAsFixed(1)} mi';
   }
 
+  /// YMCA Yonkers keeps its blue entry action even if a generic P2P tenant
+  /// theme is returned by the directory API.
+  Color get entryColor {
+    final gymId = id.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    final gymName = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    if (gymId == 'ymcayonkers' || gymName == 'ymcayonkers') {
+      return const Color(0xFF0072E3);
+    }
+    return brandColor;
+  }
+
+  /// Keep directory entry controls legible on both dark and light gym colors.
+  Color get entryTextColor =>
+      ThemeData.estimateBrightnessForColor(entryColor) == Brightness.light
+          ? const Color(0xFF18212B)
+          : Colors.white;
+
   String get logoUrl {
     if (remoteLogoUrl.isNotEmpty) return remoteLogoUrl;
     final domain = _officialDomains[id];
@@ -163,11 +209,42 @@ class EnterpriseGymModel {
               ? 'assets/images/gym_logos/$id.png'
               : '');
 
-  /// Every catalog gym ships with a local stock image so the directory remains
-  /// visual when the device is offline or an image host is unavailable.
+  /// Bundled imagery is a fallback for known directory entries. Live facility
+  /// photos, when provided by the backend, always take precedence.
+  String get bundledPhotoAssetPath {
+    final normalizedId = id.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    final normalizedName =
+        name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    for (final entry in _partners) {
+      final entryId =
+          entry.id.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+      final entryName =
+          entry.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+      if (normalizedId == entryId || normalizedName == entryName) {
+        return entry.imageAssetPath.isNotEmpty
+            ? entry.imageAssetPath
+            : 'assets/images/gym_photos/${entry.id}.jpg';
+      }
+    }
+    return '';
+  }
+
   String get stockPhotoAssetPath => imageAssetPath.isNotEmpty
       ? imageAssetPath
-      : 'assets/images/gym_photos/$id.jpg';
+      : imageUrl.isNotEmpty
+          ? imageUrl
+          : bundledPhotoAssetPath;
+
+  String get facilityPhotoDescription =>
+      _photoDescriptions[id] ?? '$name facility image';
+
+  /// Prospects also expose their verified bundled image in the detail sheet.
+  /// A live backend gallery still wins whenever one is available.
+  List<String> get displayGalleryAssetPaths {
+    if (galleryAssetPaths.isNotEmpty) return galleryAssetPaths;
+    final source = stockPhotoAssetPath;
+    return source.isEmpty ? const [] : <String>[source];
+  }
 
   /// All 25 gyms — licensed tenants and visible prospects.
   static List<EnterpriseGymModel> get partners => _partners;

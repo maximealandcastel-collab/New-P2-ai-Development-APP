@@ -167,7 +167,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
         child: Container(
           height: 48.h,
           decoration: BoxDecoration(
-            color: active ? BrandColors.of(context).primary : Colors.transparent,
+            color: active ? widget.gym.entryColor : Colors.transparent,
             borderRadius: BorderRadius.circular(30.r),
           ),
           alignment: Alignment.center,
@@ -176,7 +176,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: AppFontWeight.label,
-              color: active ? Colors.white : Colors.black45,
+              color: active ? widget.gym.entryTextColor : Colors.black45,
             ),
           ),
         ),
@@ -276,14 +276,14 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
 
             SizedBox(height: 20.h),
 
-            // Primary CTA — always P2P orange
+            // The facility's identity carries through the entry action.
             SizedBox(
               width: double.infinity,
               height: 52.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: BrandColors.of(context).primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: gym.entryColor,
+                  foregroundColor: gym.entryTextColor,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),

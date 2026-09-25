@@ -47,8 +47,8 @@ class GymBrandLogo extends StatelessWidget {
 
 }
 
-/// Displays the gym's bundled stock-photo backdrop and keeps the brand mark
-/// visible on top of it. Remote imagery remains a secondary fallback.
+/// Displays a facility-provided photo when available, then a bundled catalog
+/// photo. Never labels a generic catalog image as a specific location photo.
 class GymStockImage extends StatelessWidget {
   final EnterpriseGymModel gym;
   final double height;
@@ -67,50 +67,71 @@ class GymStockImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localPhoto = gym.stockPhotoAssetPath;
-    return SizedBox(
-      height: height,
-      width: width,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (localPhoto.isNotEmpty)
-              TenantImage(localPhoto, fit: BoxFit.cover)
-            else if (gym.imageUrl.isNotEmpty)
-              Image.network(
-                gym.imageUrl,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.medium,
-                errorBuilder: (_, __, ___) => _fallback(),
-                loadingBuilder: (context, child, loadingProgress) =>
-                    loadingProgress == null ? child : _fallback(),
-              )
-            else
-              _fallback(),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.04),
-                    Colors.black.withOpacity(0.24),
-                  ],
+    return Semantics(
+      image: true,
+      label: gym.facilityPhotoDescription,
+      child: SizedBox(
+        height: height,
+        width: width,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _photo(gym.stockPhotoAssetPath, allowBundledFallback: true),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.04),
+                      Colors.black.withOpacity(0.24),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (showLogo)
-              Positioned(
-                right: 12.w,
-                bottom: 12.h,
-                child: GymBrandLogo(gym: gym, size: 54.r, borderRadius: 14.r),
-              ),
-          ],
+              if (showLogo)
+                Positioned(
+                  right: 12.w,
+                  bottom: 12.h,
+                  child: GymBrandLogo(
+                    gym: gym,
+                    size: 54.r,
+                    borderRadius: 14.r,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _photo(String source, {required bool allowBundledFallback}) {
+    final bundled = gym.bundledPhotoAssetPath;
+    Widget fallback() => allowBundledFallback && bundled.isNotEmpty && source != bundled
+        ? _photo(bundled, allowBundledFallback: false)
+        : _fallback();
+
+    if (source.startsWith('https://') || source.startsWith('http://')) {
+      return Image.network(
+        source,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (_, __, ___) => fallback(),
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : fallback(),
+      );
+    }
+    if (source.startsWith('assets/')) {
+      return Image.asset(
+        source,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallback(),
+      );
+    }
+    return fallback();
   }
 
   Widget _fallback() {

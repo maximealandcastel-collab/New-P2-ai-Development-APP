@@ -32,40 +32,71 @@ class ClientCardWidget extends StatelessWidget {
         profilePicture ?? invoice?.userId?.profilePicture ?? '';
 
     return CustomContainer(
-      marginTop: 8.h,
-      radiusAll: 12.r,
+      marginTop: 10.h,
+      radiusAll: 18.r,
       color: Colors.white,
-      paddingHorizontal: 12.w,
-      paddingVertical: 6.h,
+      bordersColor: const Color(0xFFECECEF),
+      borderWidth: 0.8,
+      paddingHorizontal: 14.w,
+      paddingVertical: 12.h,
       onTap: onTap,
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: CustomNetworkImage(
-          height: 40.r,
-          width: 40.r,
-          boxShape: BoxShape.circle,
-          border: Border.all(color: Colors.black.withValues(alpha: 0.48)),
-          imageUrl: profilePictureUrl,
-        ),
-        title: CustomText(
-          textAlign: TextAlign.start,
-          fontSize: 16.sp,
-          fontWeight: AppFontWeight.label,
-          text: clientName,
-          maxline: 1,
-          textOverflow: TextOverflow.ellipsis,
-        ),
-        subtitle: CustomText(
-          textAlign: TextAlign.start,
-          fontSize: 12.sp,
-          color: AppColors.textSecondary,
-          text: 'Subscription period\n$subscriptionPeriod',
-        ),
-        trailing: onChatTap == null ? null : GestureDetector(
-          onTap: onChatTap,
-          behavior: HitTestBehavior.opaque,
-          child: Assets.icons.message.svg(),
-        ),
+      child: Row(
+        children: [
+          CustomNetworkImage(
+            height: 42.r,
+            width: 42.r,
+            boxShape: BoxShape.circle,
+            backgroundColor: const Color(0xFFF3F3F5),
+            imageUrl: profilePictureUrl,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  textAlign: TextAlign.start,
+                  fontSize: 15.sp,
+                  fontWeight: AppFontWeight.label,
+                  text: clientName,
+                  maxline: 1,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 3.h),
+                CustomText(
+                  textAlign: TextAlign.start,
+                  fontSize: 11.sp,
+                  fontWeight: AppFontWeight.body,
+                  color: AppColors.textSecondary,
+                  text: 'Subscription period',
+                ),
+                SizedBox(height: 2.h),
+                CustomText(
+                  textAlign: TextAlign.start,
+                  fontSize: 11.sp,
+                  fontWeight: AppFontWeight.body,
+                  color: AppColors.textSecondary,
+                  text: subscriptionPeriod,
+                  maxline: 2,
+                  textOverflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (onChatTap != null) ...[
+            SizedBox(width: 6.w),
+            IconButton(
+              onPressed: onChatTap,
+              tooltip: 'Message $clientName',
+              constraints: BoxConstraints(minWidth: 44.r, minHeight: 44.r),
+              style: IconButton.styleFrom(
+                backgroundColor: const Color(0xFFF8F8FA),
+                side: const BorderSide(color: Color(0xFFECECEF)),
+              ),
+              icon: Assets.icons.message.svg(height: 18.r, width: 18.r),
+            ),
+          ],
+        ],
       ),
     );
   }
