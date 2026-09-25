@@ -18,6 +18,8 @@ void main() {
 
     expect(await alice.saveMeal(day, 'Breakfast', [MealEntry(food, 1.5)]), isTrue);
     expect(alice.readMeal(day, 'Breakfast').single.quantity, 1.5);
+    expect(alice.readSavedMeal('Breakfast').single.food.name, 'Labelled snack');
+    expect(bob.readSavedMeal('Breakfast'), isEmpty);
     expect(alice.readMeal(day, 'Lunch'), isEmpty);
     expect(alice.readMeal(day.add(const Duration(days: 1)), 'Breakfast'), isEmpty);
     expect(bob.readMeal(day, 'Breakfast'), isEmpty);

@@ -153,11 +153,25 @@ class MealPlanStore {
     }
   }
 
-  Future<bool> saveMeal(DateTime date, String meal, List<MealEntry> entries) =>
-      _prefs.setString(
-        _mealKey(date, meal),
-        jsonEncode(entries.map((entry) => entry.toJson()).toList()),
-      );
+  Future<bool> saveMeal(DateTime date, String meal, List<MealEntry> entries) async {
+    final encoded = jsonEncode(entries.map((entry) => entry.toJson()).toList());
+    final savedDate = await _prefs.setString(_mealKey(date, meal), encoded);
+    if (!savedDate || entries.isEmpty) return savedDate;
+    return _prefs.setString('$_prefix$meal:last_saved', encoded);
+  }
+
+  List<MealEntry> readSavedMeal(String meal) {
+    try {
+      final raw = _prefs.getString('$_prefix$meal:last_saved');
+      if (raw == null) return [];
+      return (jsonDecode(raw) as List)
+          .map((item) => MealEntry.fromJson(Map<String, dynamic>.from(item as Map)))
+          .where((entry) => entry.food.name.isNotEmpty && entry.quantity > 0)
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
 
   MealMacros readTarget(String meal) {
     const defaults = {
@@ -239,6 +253,9 @@ const exampleFoods = <MealFood>[
   MealFood(name: 'Oatmeal (cooked)', serving: '1 cup', calories: 154, protein: 6, carbs: 27, fats: 3, category: 'Carbs'),
   MealFood(name: 'Egg Whites', serving: '3 large', calories: 51, protein: 11, carbs: 1, fats: 0, category: 'Protein'),
   MealFood(name: 'Whole Egg', serving: '1 large', calories: 72, protein: 6, carbs: 0, fats: 5, category: 'Protein'),
+  MealFood(name: 'Protein Powder (Whey)', serving: '1 scoop', calories: 120, protein: 24, carbs: 3, fats: 2, category: 'Protein'),
+  MealFood(name: 'Almond Milk (Unsweetened)', serving: '1 cup', calories: 30, protein: 1, carbs: 1, fats: 2.5, category: 'Fats'),
+  MealFood(name: 'Blueberries', serving: '1/2 cup', calories: 42, protein: 1, carbs: 11, fats: 0, category: 'Carbs'),
   MealFood(name: 'Chicken Breast', serving: '4 oz', calories: 187, protein: 35, carbs: 0, fats: 4, category: 'Protein'),
   MealFood(name: 'Banana', serving: '1 medium', calories: 105, protein: 1, carbs: 27, fats: 0, category: 'Carbs'),
   MealFood(name: 'Greek Yogurt (Plain)', serving: '1 cup', calories: 130, protein: 23, carbs: 9, fats: 0, category: 'Protein'),
@@ -251,6 +268,7 @@ const exampleFoods = <MealFood>[
   MealFood(name: 'Salmon (Atlantic)', serving: '4 oz', calories: 233, protein: 25, carbs: 0, fats: 14, category: 'Protein'),
   MealFood(name: 'Lean Steak (sirloin)', serving: '4 oz', calories: 240, protein: 34, carbs: 0, fats: 10, category: 'Protein'),
   MealFood(name: 'Whole Grain Pasta', serving: '1 cup', calories: 174, protein: 7, carbs: 37, fats: 1, category: 'Carbs'),
+  MealFood(name: 'Whole Wheat Tortilla', serving: '1 medium', calories: 130, protein: 4, carbs: 22, fats: 3, category: 'Carbs'),
   MealFood(name: 'Asparagus', serving: '1 cup', calories: 27, protein: 3, carbs: 5, fats: 0, category: 'Vegetables'),
   MealFood(name: 'Olive Oil', serving: '1 tbsp', calories: 119, protein: 0, carbs: 0, fats: 14, category: 'Fats'),
 ];
