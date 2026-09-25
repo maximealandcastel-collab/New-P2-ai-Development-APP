@@ -51,6 +51,7 @@ class GymBrandLogo extends StatelessWidget {
 /// photo. Never labels a generic catalog image as a specific location photo.
 class GymStockImage extends StatelessWidget {
   final EnterpriseGymModel gym;
+  final String? source;
   final double height;
   final double width;
   final double borderRadius;
@@ -59,6 +60,7 @@ class GymStockImage extends StatelessWidget {
   const GymStockImage({
     super.key,
     required this.gym,
+    this.source,
     required this.height,
     required this.width,
     this.borderRadius = 0,
@@ -78,7 +80,7 @@ class GymStockImage extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              _photo(gym.stockPhotoAssetPath, allowBundledFallback: true),
+              _photo(source ?? gym.stockPhotoAssetPath, allowBundledFallback: true),
               DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

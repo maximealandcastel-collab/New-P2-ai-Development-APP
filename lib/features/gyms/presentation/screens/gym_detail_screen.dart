@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 
 class GymDetailScreen extends StatelessWidget {
   const GymDetailScreen({
@@ -19,8 +18,7 @@ class GymDetailScreen extends StatelessWidget {
   final VoidCallback onEnter;
 
   bool get _hasLocation => gym.address.isNotEmpty || gym.city.isNotEmpty;
-  bool get _hasHero =>
-      gym.imageAssetPath.isNotEmpty || gym.imageUrl.isNotEmpty;
+  bool get _hasHero => gym.stockPhotoAssetPath.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -58,13 +56,11 @@ class GymDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_hasHero)
-                    TenantImage(
-                      gym.imageAssetPath.isNotEmpty
-                          ? gym.imageAssetPath
-                          : gym.imageUrl,
+                    GymStockImage(
+                      gym: gym,
                       height: 205.h,
                       width: double.infinity,
-                      fit: BoxFit.cover,
+                      showLogo: false,
                     ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 30.h),
@@ -164,7 +160,7 @@ class GymDetailScreen extends StatelessWidget {
                                 .toList(),
                           ),
                         ],
-                        if (gym.galleryAssetPaths.isNotEmpty) ...[
+                        if (gym.displayGalleryAssetPaths.isNotEmpty) ...[
                           SizedBox(height: 22.h),
                           _SectionTitle('Photos'),
                           SizedBox(height: 10.h),
@@ -172,15 +168,16 @@ class GymDetailScreen extends StatelessWidget {
                             height: 108.h,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              itemCount: gym.galleryAssetPaths.length,
+                              itemCount: gym.displayGalleryAssetPaths.length,
                               separatorBuilder: (_, __) => SizedBox(width: 8.w),
                               itemBuilder: (_, index) => ClipRRect(
                                 borderRadius: BorderRadius.circular(12.r),
-                                child: TenantImage(
-                                  gym.galleryAssetPaths[index],
+                                child: GymStockImage(
+                                  gym: gym,
+                                  source: gym.displayGalleryAssetPaths[index],
                                   width: 152.w,
                                   height: 108.h,
-                                  fit: BoxFit.cover,
+                                  showLogo: false,
                                 ),
                               ),
                             ),

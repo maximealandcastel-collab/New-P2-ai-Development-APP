@@ -5,7 +5,6 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
-import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 
 class FeaturedGymCard extends StatelessWidget {
   const FeaturedGymCard({
@@ -195,10 +194,7 @@ class _FeaturedPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final source = gym.imageAssetPath.isNotEmpty
-        ? gym.imageAssetPath
-        : gym.imageUrl;
-    if (source.isEmpty) {
+    if (gym.stockPhotoAssetPath.isEmpty) {
       return Container(
         height: 96.h,
         width: double.infinity,
@@ -211,11 +207,11 @@ class _FeaturedPhoto extends StatelessWidget {
         ),
       );
     }
-    return TenantImage(
-      source,
+    return GymStockImage(
+      gym: gym,
       height: 96.h,
       width: double.infinity,
-      fit: BoxFit.cover,
+      showLogo: false,
     );
   }
 }
