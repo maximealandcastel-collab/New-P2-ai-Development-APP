@@ -16,6 +16,12 @@ import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_lo
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/user/achievements/presentation/achievements_screen.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/presentation/controllers/device_pairing_controller.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/device_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/services/apple_watch_service.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/domain/constants/supported_watch_type.dart';
+import 'package:pler_to_pler_app/features/user/connect_device/data/models/device_metrics_model.dart';
 import 'widgets/feature_cards_row.dart';
 import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
@@ -37,6 +43,7 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   final _calendarKey = GlobalKey<_DailyWorkoutCalendarState>();
+  final _watchKey = GlobalKey<_HomeWatchDataState>();
   Worker? _tabActivationWorker;
 
   @override
@@ -65,7 +72,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   }
 
   Future<void> _refreshHome() async {
-    await _calendarKey.currentState?.refresh();
+    await Future.wait([
+      _calendarKey.currentState?.refresh() ?? Future<void>.value(),
+      _watchKey.currentState?.refresh() ?? Future<void>.value(),
+    ]);
     if (mounted) setState(() {});
   }
 
@@ -86,9 +96,18 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FeedAppBar(),
-                const HomeGymBrand(trailing: _AchievementsPill()),
+                const HomeGymBrand(),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                  child: Row(children: [
+                    const Expanded(child: _AchievementsPill()),
+                    SizedBox(width: 8.w),
+                    Expanded(child: _ConnectWatchPill(onReturn: _refreshHome)),
+                  ]),
+                ),
                 SizedBox(height: 8.h),
                 _DailyWorkoutCalendar(key: _calendarKey),
+                _HomeWatchData(key: _watchKey),
                 SizedBox(height: 16.h),
                 const _GymsCard(),
                 SizedBox(height: 16.h),
@@ -153,14 +172,16 @@ class _AchievementsPill extends StatelessWidget {
                         size: 16.sp,
                       ),
                       SizedBox(width: 6.w),
-                      Text(
+                      Flexible(child: Text(
                         'Achievements',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: _ink,
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
                         ),
-                      ),
+                      )),
                       SizedBox(width: 8.w),
                       Container(
                         width: 21.w,
@@ -183,6 +204,185 @@ class _AchievementsPill extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Shortcuts into the same device flow exposed in Settings. Connection state
+/// comes from the paired-device controller, never from a decorative mockup.
+class _ConnectWatchPill extends StatelessWidget {
+  const _ConnectWatchPill({required this.onReturn});
+
+  final Future<void> Function() onReturn;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = DevicePairingController.to;
+    final accent = Theme.of(context).colorScheme.primary;
+    return Obx(() {
+      final connected = controller.pairedDevices.any((device) => device.isConnected);
+      return Semantics(
+        button: true,
+        label: connected ? 'Manage connected watch' : 'Connect a watch and sync data',
+        child: Material(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.r),
+            side: BorderSide(color: accent.withOpacity(0.28)),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18.r),
+            onTap: () async {
+              await Get.toNamed(connected
+                  ? AppRoute.manageDevicesScreen
+                  : AppRoute.addDeviceScreen);
+              await onReturn();
+            },
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              child: Row(children: [
+                Container(
+                  width: 32.r,
+                  height: 32.r,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.09),
+                    borderRadius: BorderRadius.circular(11.r),
+                  ),
+                  child: Icon(Icons.watch_outlined, color: accent, size: 19.r),
+                ),
+                SizedBox(width: 7.w),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(connected ? 'Watch connected' : 'Connect Watch',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600,
+                        color: const Color(0xFF171717))),
+                    Text(connected ? 'View data' : 'Sync data',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF777777))),
+                  ],
+                )),
+                Icon(Icons.chevron_right_rounded, color: accent, size: 18.r),
+              ]),
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
+/// Displays only metrics that were returned for an actual connected device.
+/// Workout progress remains sourced from the workout endpoint independently.
+class _HomeWatchData extends StatefulWidget {
+  const _HomeWatchData({super.key});
+
+  @override
+  State<_HomeWatchData> createState() => _HomeWatchDataState();
+}
+
+class _HomeWatchDataState extends State<_HomeWatchData> {
+  DeviceMetricsModel? _metrics;
+  String? _deviceId;
+  bool _loading = false;
+  bool _reloadRequested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => refresh());
+  }
+
+  Future<void> refresh() async {
+    if (!mounted) return;
+    if (_loading) {
+      _reloadRequested = true;
+      return;
+    }
+    _loading = true;
+    try {
+      do {
+        _reloadRequested = false;
+        await _fetchWatchData();
+      } while (_reloadRequested && mounted);
+    } finally {
+      _loading = false;
+    }
+  }
+
+  Future<void> _fetchWatchData() async {
+    try {
+      final controller = DevicePairingController.to;
+      await controller.fetchPairedDevices();
+      final connected = controller.pairedDevices.where((device) => device.isConnected);
+      if (connected.isEmpty) {
+        if (mounted) setState(() { _deviceId = null; _metrics = null; });
+        return;
+      }
+      final device = connected.first;
+      if (mounted && _deviceId != device.id) {
+        setState(() { _deviceId = device.id; _metrics = null; });
+      }
+      final service = Get.find<DeviceService>();
+      if (SupportedWatchType.isAppleWatchType(device.deviceType)) {
+        try {
+          final health = Get.find<AppleWatchService>();
+          // Refresh previously authorized Apple Health readings without asking
+          // for a new permission while the user is just visiting Home.
+          if (health.isAvailable && await health.hasPermissions()) {
+            final today = await health.fetchTodayMetrics();
+            await service.postDeviceMetrics(device.id, today.toJson());
+          }
+        } catch (_) {
+          // Saved backend readings can still be shown if Health is unavailable.
+        }
+      }
+      final raw = await service.syncDeviceMetrics(device.id);
+      if (mounted) setState(() => _metrics = DeviceMetricsModel.fromResponse(raw));
+    } catch (_) {
+      // Do not present stale data as current if the connection or read fails.
+      if (mounted) setState(() => _metrics = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final metrics = _metrics;
+    if (_deviceId == null || metrics == null || metrics.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final accent = Theme.of(context).colorScheme.primary;
+    final readings = <String>[
+      if (metrics.steps > 0) '${metrics.steps} steps',
+      if (metrics.heartRate != null) '${metrics.heartRate!.round()} bpm',
+      if (metrics.activeMinutes != null) '${metrics.activeMinutes} active min',
+      if (metrics.calories != null) '${metrics.calories} active cal',
+    ];
+    if (readings.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: const Color(0xFFE9E9E9)),
+        ),
+        child: Row(children: [
+          Icon(Icons.watch_outlined, color: accent, size: 19.r),
+          SizedBox(width: 9.w),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Watch activity', style: TextStyle(fontSize: 11.sp,
+              fontWeight: FontWeight.w600, color: const Color(0xFF171717))),
+            Text(readings.join('  ·  '), maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 10.sp, color: const Color(0xFF777777))),
+          ])),
+        ]),
       ),
     );
   }

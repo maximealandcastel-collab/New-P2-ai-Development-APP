@@ -167,6 +167,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => Get.to(() => const EarningsScreen()),
                 ),
                 _SettingsRow(
+                  title: 'Connect Watch',
+                  subtitle: 'Pair a watch and manage synced activity',
+                  icon: Icons.watch_outlined,
+                  color: orange,
+                  onTap: () => Get.toNamed(AppRoute.manageDevicesScreen),
+                ),
+                _SettingsRow(
                   title: 'Invoice',
                   subtitle: 'View and manage your invoices',
                   icon: Icons.receipt_long_outlined,
