@@ -176,7 +176,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
     }
     final progress = goal.calories <= 0 ? 0.0 : total.calories / goal.calories;
     return Scaffold(
-      backgroundColor: _surface,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
@@ -194,71 +194,69 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
           },
         )],
       ),
-      body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(18, 12, 18, 30), children: [
+      body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 32), children: [
         const Text('FUEL A BETTER YOU', style: TextStyle(fontSize: 10, letterSpacing: 1.8, color: _muted)),
         const SizedBox(height: 12),
         _SectionTabs(labels: const ['Macros', 'Meals', 'Insights'], selected: dashboardTab,
           onChanged: (value) => setState(() => dashboardTab = value)),
         if (dashboardTab != 1) ...[
-        const SizedBox(height: 20),
-        Center(child: SizedBox(width: 154, height: 154, child: Stack(fit: StackFit.expand, children: [
+        const SizedBox(height: 22),
+        Center(child: SizedBox(width: 150, height: 150, child: Stack(fit: StackFit.expand, children: [
           CircularProgressIndicator(value: progress.clamp(0, 1).toDouble(),
-            strokeWidth: 10, backgroundColor: const Color(0xFFECEEF1), color: _orange),
+            strokeWidth: 9, strokeCap: StrokeCap.round,
+            backgroundColor: const Color(0xFFEEF1F7), color: _orange),
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text('${(progress * 100).round()}%', style: const TextStyle(fontSize: 26,
+            Text('${(progress * 100).round()}%', style: const TextStyle(fontSize: 28,
               color: _ink, fontWeight: FontWeight.w600)),
-            const Text('Daily Goal', style: TextStyle(fontSize: 11, color: _muted)),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
+            const Text('Daily Goal', style: TextStyle(fontSize: 12, color: _muted)),
+            const SizedBox(height: 5),
             Text('${total.calories.round()} / ${goal.calories.round()} kcal',
-              style: const TextStyle(fontSize: 11, color: _ink, fontWeight: FontWeight.w500)),
+              style: const TextStyle(fontSize: 11, color: _ink, fontWeight: FontWeight.w600)),
           ]),
         ]))),
-        const SizedBox(height: 17),
-        _Card(child: Padding(padding: const EdgeInsets.fromLTRB(10, 13, 10, 13),
-          child: _MacroRow(total, goal: goal, showIcons: true))),
-        const SizedBox(height: 9),
+        const SizedBox(height: 20),
+        _Card(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          child: _DailyMacroSummary(total: total, goal: goal))),
+        const SizedBox(height: 12),
         Text('Remaining: ${(goal.calories - total.calories).clamp(0, double.infinity).round()} kcal · '
             '${(goal.protein - total.protein).clamp(0, double.infinity).round()}g protein · '
             '${(goal.carbs - total.carbs).clamp(0, double.infinity).round()}g carbs · '
             '${(goal.fats - total.fats).clamp(0, double.infinity).round()}g fats',
-            style: const TextStyle(color: _muted, fontSize: 11, height: 1.4)),
-        const SizedBox(height: 12),
+            style: const TextStyle(color: _muted, fontSize: 11, height: 1.5)),
+        const SizedBox(height: 8),
         Align(alignment: Alignment.centerRight, child: TextButton.icon(
           icon: const Icon(Icons.tune_outlined, size: 16),
+          style: TextButton.styleFrom(foregroundColor: _orange,
+            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           label: const Text('Edit daily targets'),
           onPressed: () async {
             final updated = await _editMacros(context, goal, 'Daily targets');
             if (updated != null && await data.saveDailyTarget(updated) && mounted) setState(() {});
           },
         )),
-        const SizedBox(height: 9),
-        Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-          decoration: BoxDecoration(color: _ink, borderRadius: BorderRadius.circular(16)),
-          child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('CONSISTENCY BUILDS RESULTS', style: TextStyle(fontSize: 14,
-              color: Colors.white, fontWeight: FontWeight.w600, letterSpacing: .4)),
-            SizedBox(height: 3),
-            Text('Track. Fuel. Perform.', style: TextStyle(fontSize: 11, color: Colors.white70)),
-          ])),
+        const SizedBox(height: 8),
+        const _ConsistencyBanner(),
         ],
-        const SizedBox(height: 18),
+        const SizedBox(height: 24),
         if (dashboardTab == 2) const Text('Your totals update as you save meals for this day.',
           style: TextStyle(color: _muted, fontSize: 12)),
         const SizedBox(height: 8),
         const Text('Meal prep', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600, color: _ink)),
         const SizedBox(height: 3),
         const Text('Plan your meals, hit your macros.', style: TextStyle(color: _muted, fontSize: 12)),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         for (final meal in _meals)
-          Padding(padding: const EdgeInsets.only(bottom: 7), child: _Card(child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: 10), child: _Card(child: ListTile(
             onTap: () => _open(meal),
-            leading: _FoodThumbnail(asset: _mealPhoto(meal), size: 40),
-            title: Text(meal, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            leading: _FoodThumbnail(asset: _mealPhoto(meal), size: 52),
+            title: Text(meal, style: const TextStyle(fontSize: 14, color: _ink, fontWeight: FontWeight.w600)),
             subtitle: Text(data.readMeal(date, meal).isEmpty
                 ? 'Add your ${meal.toLowerCase()} prep'
                 : '${data.readMeal(date, meal).length} foods · '
                   '${MealMacros.total(data.readMeal(date, meal)).calories.round()} kcal',
-                style: const TextStyle(fontSize: 11, color: _muted)),
+                style: const TextStyle(fontSize: 11, color: _muted, height: 1.35)),
             trailing: const Icon(Icons.chevron_right, color: _muted, size: 20),
           ))),
         _Card(child: SwitchListTile.adaptive(
@@ -682,6 +680,63 @@ class _MacroRow extends StatelessWidget {
   ]);
 }
 
+class _DailyMacroSummary extends StatelessWidget {
+  const _DailyMacroSummary({required this.total, required this.goal});
+  final MealMacros total;
+  final MealMacros goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final metrics = [
+      ('Calories', total.calories, goal.calories, 'kcal', Icons.local_fire_department_outlined, _orange),
+      ('Protein', total.protein, goal.protein, 'g', Icons.fitness_center_outlined, const Color(0xFFE55642)),
+      ('Carbs', total.carbs, goal.carbs, 'g', Icons.grain_outlined, const Color(0xFFE9A31B)),
+      ('Fats', total.fats, goal.fats, 'g', Icons.water_drop_outlined, const Color(0xFF489FCD)),
+    ];
+    return Row(children: [
+      for (var i = 0; i < metrics.length; i++) ...[
+        if (i > 0) Container(width: 1, height: 72, color: const Color(0xFFF0F1F4)),
+        Expanded(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 34, height: 34,
+            decoration: BoxDecoration(color: metrics[i].$6.withOpacity(.09), shape: BoxShape.circle),
+            child: Icon(metrics[i].$5, size: 19, color: metrics[i].$6)),
+          const SizedBox(height: 9),
+          FittedBox(fit: BoxFit.scaleDown, child: Text(
+            '${metrics[i].$2.round()}/${metrics[i].$3.round()}',
+            style: const TextStyle(color: _ink, fontSize: 13, fontWeight: FontWeight.w600))),
+          Text(metrics[i].$4, style: const TextStyle(fontSize: 10, color: _muted)),
+          const SizedBox(height: 3),
+          Text(metrics[i].$1, style: const TextStyle(fontSize: 10, color: _muted)),
+        ])),
+      ],
+    ]);
+  }
+}
+
+class _ConsistencyBanner extends StatelessWidget {
+  const _ConsistencyBanner();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(colors: [Color(0xFF1D222B), Color(0xFF343743)]),
+      borderRadius: BorderRadius.circular(15)),
+    child: Row(children: [
+      const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('CONSISTENCY BUILDS RESULTS', maxLines: 2,
+          style: TextStyle(fontSize: 12, color: Colors.white,
+            fontWeight: FontWeight.w600, letterSpacing: 1)),
+        SizedBox(height: 5),
+        Text('Track. Fuel. Perform.', style: TextStyle(fontSize: 11, color: Color(0xFFB5BAC5))),
+      ])),
+      const SizedBox(width: 8),
+      Icon(Icons.bar_chart_rounded, color: _orange.withOpacity(.9), size: 23),
+    ]),
+  );
+}
+
 class _SectionTabs extends StatelessWidget {
   const _SectionTabs({required this.labels, required this.selected, required this.onChanged});
   final List<String> labels;
@@ -691,20 +746,21 @@ class _SectionTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(3),
-    decoration: BoxDecoration(color: const Color(0xFFF0F2F5),
-      borderRadius: BorderRadius.circular(14)),
+    decoration: BoxDecoration(color: const Color(0xFFF6F7FA),
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: const Color(0xFFEBEDF1))),
     child: Row(children: [
       for (var i = 0; i < labels.length; i++) Expanded(child: Semantics(
         button: true, selected: selected == i,
-        child: InkWell(onTap: () => onChanged(i), borderRadius: BorderRadius.circular(11),
+        child: InkWell(onTap: () => onChanged(i), borderRadius: BorderRadius.circular(14),
           child: AnimatedContainer(duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut, height: 44, alignment: Alignment.center,
             decoration: BoxDecoration(color: selected == i ? _orange : Colors.transparent,
-              borderRadius: BorderRadius.circular(11)),
+              borderRadius: BorderRadius.circular(14)),
             child: Text(labels[i], maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, fontWeight: selected == i
+              style: TextStyle(fontSize: 12, fontWeight: selected == i
                 ? FontWeight.w600 : FontWeight.w500,
-                color: selected == i ? Colors.white : _ink)))))),
+                color: selected == i ? Colors.white : _muted)))))),
     ]),
   );
 }
@@ -799,8 +855,10 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(color: Colors.white,
-      borderRadius: BorderRadius.circular(15),
-      border: Border.all(color: const Color(0xFFE9EBEE))),
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: const Color(0xFFEDEEF2)),
+      boxShadow: const [BoxShadow(color: Color(0x080F172A), blurRadius: 14,
+        offset: Offset(0, 4))]),
     child: child,
   );
 }
