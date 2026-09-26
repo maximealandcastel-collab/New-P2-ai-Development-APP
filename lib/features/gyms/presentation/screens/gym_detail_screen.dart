@@ -460,8 +460,11 @@ class _FranchiseLocationsSheetState
     super.dispose();
   }
 
-  String _cityFor(EnterpriseGymModel item) =>
-      item.city.trim().isEmpty ? 'Other locations' : item.city.trim();
+  String _cityFor(EnterpriseGymModel item) {
+    final market = [item.city, item.state]
+        .where((part) => part.trim().isNotEmpty).join(', ');
+    return market.isEmpty ? 'Other locations' : market;
+  }
 
   String _label(EnterpriseGymModel item) {
     if (item.address.isNotEmpty) return item.address;
@@ -493,6 +496,7 @@ class _FranchiseLocationsSheetState
             if (query.isEmpty) return true;
             return item.name.toLowerCase().contains(query) ||
                 item.city.toLowerCase().contains(query) ||
+                item.state.toLowerCase().contains(query) ||
                 item.zipCode.toLowerCase().contains(query) ||
                 item.address.toLowerCase().contains(query);
           }).toList(growable: false);
@@ -617,6 +621,7 @@ class _FranchiseLocationsSheetState
                       label: 'All',
                       selected: _city == null,
                       selectedColor: widget.selectedGym.entryColor,
+                      selectedTextColor: widget.selectedGym.entryTextColor,
                       onTap: () => setState(() => _city = null),
                     ),
                     ...groups.take(8).map(
@@ -624,6 +629,7 @@ class _FranchiseLocationsSheetState
                         label: '${entry.key} ${entry.value.length}',
                         selected: _city == entry.key,
                         selectedColor: widget.selectedGym.entryColor,
+                        selectedTextColor: widget.selectedGym.entryTextColor,
                         onTap: () => setState(() => _city = entry.key),
                       ),
                     ),
@@ -682,11 +688,13 @@ class _CityChip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.selectedColor,
+    required this.selectedTextColor,
     required this.onTap,
   });
   final String label;
   final bool selected;
   final Color selectedColor;
+  final Color selectedTextColor;
   final VoidCallback onTap;
 
   @override
@@ -703,7 +711,7 @@ class _CityChip extends StatelessWidget {
           labelStyle: TextStyle(
             fontSize: 10.5.sp,
             fontWeight: FontWeight.w500,
-            color: selected ? Colors.white : const Color(0xFF5F616B),
+            color: selected ? selectedTextColor : const Color(0xFF5F616B),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),

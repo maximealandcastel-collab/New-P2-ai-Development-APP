@@ -94,6 +94,7 @@ class EnterpriseGymModel {
   final List<String> galleryAssetPaths;
   final List<String> filterTags;
   final String city;
+  final String state;
   final String zipCode;
   final String address;
   final String tagline;
@@ -128,6 +129,7 @@ class EnterpriseGymModel {
     this.galleryAssetPaths = const [],
     this.filterTags = const [],
     this.city = '',
+    this.state = '',
     this.zipCode = '',
     this.address = '',
     this.tagline = '',
@@ -162,11 +164,11 @@ class EnterpriseGymModel {
       franchiseName.trim().isEmpty ? name : franchiseName;
 
   String get franchiseKey {
+    if (franchiseId.trim().isNotEmpty) return franchiseId.trim().toLowerCase();
     final normalizedName = displayFranchiseName
         .toLowerCase()
         .replaceAll(RegExp(r'[^a-z0-9]'), '');
     if (normalizedName.isNotEmpty) return normalizedName;
-    if (franchiseId.trim().isNotEmpty) return franchiseId.trim().toLowerCase();
     return tenantId?.trim().toLowerCase() ?? id.toLowerCase();
   }
 

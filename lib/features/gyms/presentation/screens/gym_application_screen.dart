@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
+import 'franchise_directory_screen.dart';
 import '../widgets/tenant_image.dart';
 
 class GymApplicationScreen extends StatefulWidget {
@@ -73,6 +74,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   bool loading = false, sending = false, authorized = false, codeEdited = false;
   bool uploadingLogo = false;
   XFile? selectedLogo;
+  EnterpriseGymModel? selectedBranch;
   List<TenantConfiguration> matches = [];
   String text(String key) => fields[key]!.text.trim();
   Color? parseColor(String value) =>
@@ -105,6 +107,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     super.initState();
     final gym = widget.initialGym;
     if (gym != null) {
+      selectedBranch = gym;
       fields['gymName']!.text = gym.name;
       tenantId = gym.tenantId;
       fields['logoUrl']!.text = gym.remoteLogoUrl;
@@ -138,6 +141,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
 
   void gymNameChanged() {
     tenantId = null;
+    selectedBranch = null;
     if (!codeEdited) {
       final words = text('gymName')
           .toUpperCase()
@@ -156,6 +160,36 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
             );
     }
     setState(() {});
+  }
+
+  void _chooseBranch(EnterpriseGymModel gym) {
+    setState(() {
+      selectedBranch = gym;
+      tenantId = gym.tenantId;
+      fields['gymName']!.text = gym.name;
+      fields['city']!.text = gym.city;
+      fields['state']!.text = gym.state;
+      fields['logoUrl']!.text = gym.remoteLogoUrl;
+      primary.text = hex(gym.brandColor);
+      secondary.text = hex(gym.accentColor);
+      gymType = types.contains(gym.category) ? gym.category : 'Other';
+      final code = gym.initials.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+      fields['shortCode']!.text = code.length >= 2
+          ? code.substring(0, code.length.clamp(2, 5)) : '${code}G';
+      locations = 1;
+    });
+  }
+
+  Future<void> _browseFranchises() async {
+    final selected = await Navigator.of(context).push<EnterpriseGymModel>(
+      MaterialPageRoute(
+        builder: (_) => FranchiseDirectoryScreen(
+          ownerMode: true,
+          initialGyms: EnterpriseGymModel.partners,
+        ),
+      ),
+    );
+    if (selected != null && mounted) _chooseBranch(selected);
   }
 
   void addressChanged() {
@@ -260,6 +294,13 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
         'authorizedRepresentative': authorized,
         'reviewConsent': authorized,
         if (tenantId != null) 'tenantId': tenantId,
+        if (selectedBranch != null) ...{
+          'franchiseId': selectedBranch!.franchiseId.isNotEmpty
+              ? selectedBranch!.franchiseId : selectedBranch!.franchiseKey,
+          'franchiseName': selectedBranch!.displayFranchiseName,
+          'locationId': selectedBranch!.id,
+          'locationAddress': selectedBranch!.address,
+        },
       });
       receipt = id;
       if (mounted) {
@@ -378,6 +419,19 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       const SizedBox(height: 30),
                     ],
                     if (step == 0) ...[
+                      OutlinedButton.icon(
+                        onPressed: _browseFranchises,
+                        icon: const Icon(Icons.business_outlined),
+                        label: const Text('Browse franchise cities and branches'),
+                      ),
+                      if (selectedBranch != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Selected branch: ${selectedBranch!.name} · ${selectedBranch!.address.isNotEmpty ? selectedBranch!.address : selectedBranch!.city}',
+                            style: const TextStyle(color: muted, fontSize: 13),
+                          ),
+                        ),
                       TextField(controller:addressSearch,decoration:const InputDecoration(labelText:'Find gyms by US address or ZIP',hintText:'123 Main St, Austin, TX or 78701'),onChanged:(_)=>addressChanged()),
                       TextButton.icon(icon:const Icon(Icons.my_location),label:const Text('Use my location'),onPressed:loading?null:() async {
                         debounce?.cancel();setState(()=>loading=true);
@@ -400,38 +454,22 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           onPressed: loadGyms,
                           child: Text(searchError!),
                         ),
-                      ...matches.map(
-                        (g) => Card(
+                      ...matches.expand((g) => g.toGyms(isActivated: false)).map(
+                        (gym) => Card(
                           elevation: 0,
                           color: Colors.white,
                           child: ListTile(
-                            title: Text(g.name),
+                            title: Text(gym.name),
                             subtitle: Text(
-                              g.locations.isNotEmpty &&
-                                      (g.locations.first['address'] as String? ?? '').isNotEmpty
-                                  ? "${g.locations.first['address']}\n${(g.locations.first['attributions'] as List? ?? []).join(', ')}\nRequest a claim • ownership verification required"
-                                  : 'Request a claim • ownership verification required',
+                              '${gym.address.isNotEmpty ? gym.address + '\n' : ''}Request a claim • ownership verification required',
                             ),
                             trailing: Icon(
-                              tenantId == g.id
+                              selectedBranch?.id == gym.id
                                   ? Icons.check_circle
                                   : Icons.radio_button_unchecked,
                               color: orange,
                             ),
-                            onTap: () {
-                              fields['gymName']!.text = g.name;
-                              gymNameChanged();
-                              setState(() {
-                                tenantId = g.id;
-                                fields['logoUrl']!.text = g.logoUrl.startsWith('https://') ? g.logoUrl : '';
-                                primary.text = hex(g.primary);
-                                secondary.text = hex(g.secondary);
-                                if (g.locations.isNotEmpty) {
-                                  fields['city']!.text = g.locations.first['city'] as String? ?? '';
-                                  fields['state']!.text = g.locations.first['state'] as String? ?? '';
-                                }
-                              });
-                            },
+                            onTap: () => _chooseBranch(gym),
                           ),
                         ),
                       ),
@@ -609,13 +647,20 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                           ),
                         ],
                       ),
-                      slider(
-                        'Number of Locations',
-                        locations,
-                        1,
-                        50,
-                        (value) => setState(() => locations = value),
-                      ),
+                      if (selectedBranch == null)
+                        slider(
+                          'Number of Locations',
+                          locations,
+                          1,
+                          50,
+                          (value) => setState(() => locations = value),
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Text('This claim is for the selected branch. Other locations can be reviewed separately.',
+                            style: TextStyle(color: muted, fontSize: 13)),
+                        ),
                       const SizedBox(height: 16),
                       slider(
                         'Active Members',

@@ -1,0 +1,9 @@
+# Franchise location rollout
+
+The Flutter flow now distinguishes a brand, a city/state market, and an exact branch. Member discovery opens branch details, then a confirmation before the existing gym authentication flow. Owner discovery carries `franchiseId`, `franchiseName`, `locationId`, and `locationAddress` into the pending application. Selection alone never activates a tenant or membership.
+
+The public `/enterprise/tenants` endpoint paginates live approved tenant records and exposes only public branch location fields. New approved locations appear in discovery without a bundled app update. The optional `/enterprise/gym-search` source supplies prospective US facilities when configured; the app never invents locations, counts, opening hours, or membership entitlements from the reference image. City order uses the number of available branches, not an asserted popularity ranking.
+
+Before deploying the backend schema change to a database with existing claims, inspect and run `scripts/migrate-gym-claims-branch-index.cjs` from the backend project with `DATABASE_URL` set. It is a dry run by default; `--apply` replaces the old pending gym-name uniqueness constraint with branch-aware indexes. Back up the collection and verify the printed index names in the target environment first. Do not enable new branch claims until that migration has completed. Ownership verification, approval, payment, and server-authorized access remain the existing protected workflow.
+
+The directory is intentionally not a catalog of every worldwide franchise branch. Coverage depends on the facilities returned by the configured search provider and approved P2P tenant records. A full nationwide/global feed needs a licensed, maintained location data source and backend import/synchronization; do not populate the screen with mock cities or inferred branch addresses.

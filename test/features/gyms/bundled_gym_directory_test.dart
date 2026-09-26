@@ -74,5 +74,34 @@ void main() {
     expect(locations.map((gym) => gym.city), ['Yonkers', 'Meriden']);
     expect(locations.map((gym) => gym.franchiseKey).toSet(), {'yogasix'});
     expect(locations.map((gym) => gym.id).toSet(), hasLength(2));
+    expect(locations.map((gym) => gym.state), ['NY', 'CT']);
+    final prospects = tenant.toGyms(isActivated: false);
+    expect(prospects.every((gym) => !gym.isActivated), isTrue);
+  });
+
+  test('independent tenants can share a franchise identity without sharing a branch', () {
+    TenantConfiguration tenant(String id, String city) => TenantConfiguration.fromJson({
+      'schemaVersion': 1,
+      'id': id,
+      'name': 'LA Fitness $city',
+      'franchiseId': 'la_fitness',
+      'franchiseName': 'LA Fitness',
+      'timezone': 'UTC',
+      'logoUrl': '',
+      'primaryColor': '#1A1A2E',
+      'secondaryColor': '#FFFFFF',
+      'accentColor': '#D4AF37',
+      'photos': <String>[],
+      'locations': [
+        {'id': 'main', 'name': 'LA Fitness $city', 'city': city, 'state': 'NY'},
+      ],
+      'contact': <String, dynamic>{},
+    });
+    final yonkers = tenant('gym-yonkers', 'Yonkers').toGym();
+    final bronx = tenant('gym-bronx', 'Bronx').toGym();
+    expect(yonkers.franchiseKey, bronx.franchiseKey);
+    expect(yonkers.id, isNot(bronx.id));
+    expect(yonkers.city, 'Yonkers');
+    expect(bronx.city, 'Bronx');
   });
 }

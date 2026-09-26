@@ -35,9 +35,15 @@ EnterpriseRoutes.post('/gym-applications', route(async(req,res) => {
   }
   validateBranding(b);
   if (b.logoUrl && !/^https:\/\//.test(text(b.logoUrl,2048))) return res.status(400).json({success:false,message:'Logo must use HTTPS'});
-  const existing = await GymClaim.findOne({ gymName:text(b.gymName),workEmail:email,status:'pending_review' });
+  const franchiseId = text(b.franchiseId,120), locationId = text(b.locationId,120);
+  if (!!franchiseId !== !!locationId) return res.status(400).json({success:false,message:'Franchise and exact location are required together'});
+  const identity = locationId
+    ? { franchiseId, locationId, workEmail:email, status:'pending_review' }
+    : { gymName:text(b.gymName), workEmail:email, status:'pending_review', locationId:{$exists:false} };
+  const existing = await GymClaim.findOne(identity);
   const claim = existing || await GymClaim.create({ gymName:text(b.gymName),workEmail:email,
     representativeName:text(b.representativeName),tier:b.tier,city:text(b.city),state:text(b.state),logoUrl:text(b.logoUrl,2048),
+    ...(locationId ? {franchiseId,franchiseName:text(b.franchiseName,200),locationId,locationAddress:text(b.locationAddress,300)} : {}),
     primaryColor:/^#[0-9a-f]{6}$/i.test(b.primaryColor || '')?b.primaryColor:undefined,
     secondaryColor:/^#[0-9a-f]{6}$/i.test(b.secondaryColor || '')?b.secondaryColor:undefined,
   });
@@ -184,8 +190,33 @@ EnterpriseRoutes.post('/admin/gym-applications/:id/reactivate',guardRole('admin'
 // Membership, equipment, entitlement and configured branding stay protected.
 EnterpriseRoutes.get('/tenants',route(async(req,res)=>{
   const query=text(req.query.q,100).toLowerCase();
-  const tenants=await TenantAccessModel.find({isLive:true,accessExpiresAt:{$gt:new Date()}}).select('tenantId displayName').sort({tenantId:1}).limit(500).lean();
-  return send(res,{items:tenants.filter(t=>!query||t.displayName.toLowerCase().includes(query)).map(t=>({schemaVersion:1,id:t.tenantId,name:t.displayName,logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12'})),nextCursor:null});
+  const cursor=text(req.query.cursor,120);
+  const limit=Math.min(50,Math.max(1,Number(req.query.limit)||30));
+  const search=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const matchingClaims=query ? await GymClaim.find({status:'approved',$or:[
+    {franchiseName:{$regex:search,$options:'i'}},
+    {city:{$regex:search,$options:'i'}},
+    {state:{$regex:search,$options:'i'}},
+    {locationAddress:{$regex:search,$options:'i'}},
+  ]}).select('tenantId').lean() : [];
+  const tenants=await TenantAccessModel.find({isLive:true,accessExpiresAt:{$gt:new Date()},
+    ...(cursor?{tenantId:{$gt:cursor}}:{}),
+    ...(query?{$or:[{displayName:{$regex:search,$options:'i'}},
+      {tenantId:{$in:matchingClaims.map(c=>c.tenantId)}}]}:{}),
+  }).select('tenantId displayName').sort({tenantId:1}).limit(limit+1).lean();
+  const page=tenants.slice(0,limit);
+  const claims:any[]=await GymClaim.find({tenantId:{$in:page.map(t=>t.tenantId)},status:'approved'})
+    .select('tenantId franchiseId franchiseName locationId locationAddress gymName city state facilityId').lean();
+  const byTenant=new Map(claims.map(c=>[c.tenantId,c]));
+  return send(res,{items:page.map(t=>{
+    const claim=byTenant.get(t.tenantId);
+    return {schemaVersion:1,id:t.tenantId,name:t.displayName,
+      franchiseId:claim?.franchiseId || t.tenantId,
+      franchiseName:claim?.franchiseName || t.displayName,
+      logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12',
+      locations:claim ? [{id:claim.locationId || claim.facilityId || t.tenantId,
+        name:claim.gymName,city:claim.city || '',state:claim.state || '',address:claim.locationAddress || ''}] : []};
+  }),nextCursor:tenants.length>limit?page[page.length-1].tenantId:null});
 }));
 EnterpriseRoutes.get('/tenants/:id',route(async(req,res)=>{
  const tenant=await TenantAccessModel.findOne({tenantId:req.params.id,isLive:true,accessExpiresAt:{$gt:new Date()}}).select('tenantId displayName').lean();

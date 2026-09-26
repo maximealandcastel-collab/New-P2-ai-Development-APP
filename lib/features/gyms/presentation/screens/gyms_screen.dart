@@ -5,6 +5,8 @@ import '../../data/services/enterprise_service.dart';
 import 'gym_application_screen.dart';
 import 'gym_detail_screen.dart';
 import 'gym_login_preview_screen.dart';
+import 'gym_join_confirmation_screen.dart';
+import 'franchise_directory_screen.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -89,7 +91,7 @@ class _GymsScreenState extends State<GymsScreen> {
           longitude: _searchLng,
           kind: _activeFilter == 'All Types' ? null : _activeFilter,
         );
-        for (final gym in items.expand((item) => item.toGyms())) {
+        for (final gym in items.expand((item) => item.toGyms(isActivated: false))) {
           merged[gym.id] = gym;
         }
       }
@@ -99,6 +101,7 @@ class _GymsScreenState extends State<GymsScreen> {
       // existing gym experience remains intact.
       try {
         final livePage = await EnterpriseService.instance.directory(
+          cursor: refresh ? null : _cursor,
           query: _searchQuery,
         );
         for (final item in livePage.items) {
@@ -114,7 +117,10 @@ class _GymsScreenState extends State<GymsScreen> {
       final gyms = merged.values.toList(growable: false);
       if (mounted && version == _requestVersion)
         setState(() {
-          _sortedGyms.addAll(gyms);
+          _sortedGyms = {
+            for (final existing in _sortedGyms) existing.id: existing,
+            for (final item in gyms) item.id: item,
+          }.values.toList(growable: false);
           _cursor = nextCursor;
         });
     } catch (e) {
@@ -230,8 +236,10 @@ class _GymsScreenState extends State<GymsScreen> {
     }
   }
 
-  void _openGymDetail(EnterpriseGymModel gym) {
-    final franchiseLocations = _sortedGyms
+  void _openGymDetail(EnterpriseGymModel gym, {
+    List<EnterpriseGymModel>? relatedLocations,
+  }) {
+    final franchiseLocations = relatedLocations ?? _sortedGyms
         .where((item) => item.franchiseKey == gym.franchiseKey)
         .toList(growable: false);
     Get.to(
@@ -245,11 +253,24 @@ class _GymsScreenState extends State<GymsScreen> {
         ),
         onClaim: (selectedGym) =>
             Get.to(() => GymApplicationScreen(initialGym: selectedGym)),
-        onEnter: (selectedGym) =>
-            GymLoginPreviewScreen.open(context, gym: selectedGym),
+        onEnter: (selectedGym) => Get.to(
+          () => GymJoinConfirmationScreen(
+            gym: selectedGym,
+            onContinue: () =>
+                GymLoginPreviewScreen.open(context, gym: selectedGym),
+          ),
+        ),
       ),
     );
   }
+
+  void _openFranchises() => Get.to(
+        () => FranchiseDirectoryScreen(
+          initialGyms: _sortedGyms,
+          onSelect: (gym, locations) =>
+              _openGymDetail(gym, relatedLocations: locations),
+        ),
+      );
 
   Future<void> _toggleFavorite(EnterpriseGymModel gym) async {
     setState(() {
@@ -749,9 +770,20 @@ class _GymsScreenState extends State<GymsScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-        itemCount: _filters.length + 1,
+        itemCount: _filters.length + 2,
         separatorBuilder: (_, __) => SizedBox(width: 8.w),
         itemBuilder: (context, i) {
+          if (i == _filters.length + 1) {
+            return ActionChip(
+              avatar: const Icon(Icons.business_outlined, size: 15),
+              label: const Text('Franchises'),
+              onPressed: _openFranchises,
+              backgroundColor: Colors.white,
+              side: const BorderSide(color: Color(0xFFE6E7EA)),
+              labelStyle: TextStyle(fontSize: 10.5.sp, color: const Color(0xFF363842)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.r)),
+            );
+          }
           if (i == _filters.length) {
             final active = _moreFilters.contains(_activeFilter);
             return GestureDetector(

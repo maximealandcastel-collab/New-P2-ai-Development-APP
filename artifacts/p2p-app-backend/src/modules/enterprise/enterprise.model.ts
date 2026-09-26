@@ -3,6 +3,7 @@ const claim = new Schema({
   gymName: { type: String, required: true }, workEmail: { type: String, required: true, lowercase: true },
   representativeName: String, tier: { type: String, enum: ['starter','pro'], required: true },
   city: String, state: String, logoUrl: String, primaryColor: String, secondaryColor: String,
+  franchiseId: String, franchiseName: String, locationId: String, locationAddress: String,
   status: { type: String, enum: ['pending_review','approved','rejected','revoked'], default: 'pending_review', index: true },
   ownershipVerifiedAt: Date, ownershipEvidence: String, ownershipVerifiedBy: Schema.Types.ObjectId,
   ownerUserId: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -16,7 +17,11 @@ const claim = new Schema({
   approvedBy: Schema.Types.ObjectId, approvedAt: Date, reason: String,
 }, { timestamps: true });
 claim.index({ workEmail: 1, gymName: 1, status: 1 });
-claim.index({ workEmail: 1, gymName: 1 }, { unique: true, partialFilterExpression: { status: "pending_review" } });
+// Independent applications for branches of the same chain must not collide.
+claim.index({ workEmail: 1, franchiseId: 1, locationId: 1 },
+  { unique: true, partialFilterExpression: { status: 'pending_review', locationId: { $type: 'string' } } });
+claim.index({ workEmail: 1, gymName: 1, locationId: 1 },
+  { unique: true, partialFilterExpression: { status: 'pending_review' } });
 const facility = new Schema({
   facilityId: { type: String, required: true, unique: true }, tenantId: { type: String, required: true, index: true },
   name: String, active: { type: Boolean, default: false }, equipment: { type: [String], default: [] },

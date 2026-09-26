@@ -4,6 +4,7 @@ import 'enterprise_gym_model.dart';
 /// Versioned public branding; layout and modules are deliberately not configurable.
 class TenantConfiguration {
   final String id, name, slogan, logoUrl, timezone;
+  final String franchiseId, franchiseName;
   final Color primary, secondary, accent;
   final List<String> photos;
   final String category;
@@ -14,6 +15,8 @@ class TenantConfiguration {
     this.category = 'Enterprise Gym',
     this.tags = const [],
     required this.id,
+    this.franchiseId = '',
+    this.franchiseName = '',
     required this.name,
     required this.slogan,
     required this.logoUrl,
@@ -49,6 +52,8 @@ class TenantConfiguration {
       category: json['category'] as String? ?? 'Enterprise Gym',
       tags: List<String>.from(json['tags'] as List? ?? []),
       id: requiredString('id'),
+      franchiseId: json['franchiseId'] as String? ?? '',
+      franchiseName: json['franchiseName'] as String? ?? '',
       name: requiredString('name'),
       slogan: json['slogan'] as String? ?? '',
       logoUrl: json['logoUrl'] as String? ?? '',
@@ -68,7 +73,7 @@ class TenantConfiguration {
 
   /// Expands every facility supplied by the enterprise API into a selectable
   /// directory record. New locations therefore appear without an app update.
-  List<EnterpriseGymModel> toGyms() {
+  List<EnterpriseGymModel> toGyms({bool isActivated = true}) {
     final sourceLocations = locations.isEmpty
         ? const <Map<String, dynamic>>[<String, dynamic>{}]
         : locations;
@@ -92,12 +97,17 @@ class TenantConfiguration {
                 .where((part) => part.isNotEmpty)
                 .join(', ');
 
+      final hasCompleteBranding = logoUrl.isNotEmpty &&
+          displayPhotos.isNotEmpty && resolvedAddress.isNotEmpty &&
+          slogan.isNotEmpty;
       return EnterpriseGymModel(
         id: sourceLocations.length == 1 ? id : '${id}_$locationId',
         tenantId: id,
-        franchiseId: id,
+        franchiseId: franchiseId.isEmpty
+            ? name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '')
+            : franchiseId,
         name: locationName.isEmpty ? name : locationName,
-        franchiseName: name,
+        franchiseName: franchiseName.isEmpty ? name : franchiseName,
         initials: name
             .trim()
             .split(RegExp(r'\s+'))
@@ -115,12 +125,15 @@ class TenantConfiguration {
             ThemeData.estimateBrightnessForColor(primary) == Brightness.dark
             ? Colors.white
             : Colors.black,
-        isActivated: true,
-        loginExperience: GymLoginExperience.whiteLabel,
+        isActivated: isActivated,
+        loginExperience: isActivated && hasCompleteBranding
+            ? GymLoginExperience.whiteLabel
+            : GymLoginExperience.standard,
         imageAssetPath: displayPhotos.isEmpty ? '' : displayPhotos.first,
         galleryAssetPaths: displayPhotos,
         address: resolvedAddress,
         city: locationCity,
+        state: locationState,
         zipCode: location['zipCode'] as String? ?? '',
         lat: (location['lat'] as num?)?.toDouble() ?? 0,
         lng: (location['lng'] as num?)?.toDouble() ?? 0,
