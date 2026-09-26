@@ -14,7 +14,7 @@ class FindTrainerShimmer extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18.r),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: const SizedBox.expand(),
       ),

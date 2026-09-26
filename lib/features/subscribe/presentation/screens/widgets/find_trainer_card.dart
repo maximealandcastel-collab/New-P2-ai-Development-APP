@@ -21,10 +21,15 @@ class FindTrainerCard extends StatelessWidget {
     final certs     = trainer?.certifications ?? [];
     final name      = trainer?.name ?? trainer?.userId?.fullName ?? 'Trainer';
 
+    void openProfile() => Get.toNamed(
+          AppRoute.trainerProfileScreen,
+          arguments: trainer?.sId ?? '',
+        );
+
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoute.trainerProfileScreen, arguments: trainer?.sId ?? ''),
+      onTap: openProfile,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(16.r),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -49,12 +54,12 @@ class FindTrainerCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    stops: const [0.0, 0.45, 0.75, 1.0],
+                    stops: const [0.0, 0.52, 0.76, 1.0],
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.55),
-                      Colors.black.withOpacity(0.90),
+                      Colors.black.withOpacity(0.42),
+                      Colors.black.withOpacity(0.84),
                     ],
                   ),
                 ),
@@ -63,9 +68,9 @@ class FindTrainerCard extends StatelessWidget {
 
             // ── Text + button ─────────────────────────────────────────
             Positioned(
-              left: 10.w,
-              right: 10.w,
-              bottom: 10.h,
+              left: 9.w,
+              right: 9.w,
+              bottom: 9.h,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -77,8 +82,8 @@ class FindTrainerCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: AppFontWeight.title,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: -0.2,
                       shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
                     ),
@@ -89,46 +94,54 @@ class FindTrainerCard extends StatelessWidget {
                     specLabel,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
-                      fontSize: 10.sp,
-                      fontWeight: AppFontWeight.stat,
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  // Certifications (up to 2)
+                  // Credentials remain supporting metadata.
                   if (certs.isNotEmpty) ...[
-                    SizedBox(height: 2.h),
-                    ...certs.take(2).map((c) => Text(
-                      c.length > 22 ? '${c.substring(0, 22)}…' : c,
+                    SizedBox(height: 3.h),
+                    Text(
+                      certs.take(2).join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 9.sp,
-                        fontWeight: AppFontWeight.emphasis,
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w400,
                       ),
-                    )),
+                    ),
                   ],
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 7.h),
                   // Book button
                   SizedBox(
                     width: double.infinity,
-                    height: 30.h,
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          Get.toNamed(AppRoute.trainerProfileScreen, arguments: trainer?.sId ?? ''),
-                      style: ElevatedButton.styleFrom(
+                    height: 29.h,
+                    child: FilledButton(
+                      onPressed: openProfile,
+                      style: FilledButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         elevation: 0,
-                        padding: EdgeInsets.zero,
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
+                          borderRadius: BorderRadius.circular(16.r),
                         ),
                       ),
-                      child: Text(
-                        'Book Trainer',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10.sp,
-                          fontWeight: AppFontWeight.stat,
-                          letterSpacing: 0.2,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Book Trainer',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9.5.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 5.w),
+                          Icon(Icons.arrow_forward_rounded,
+                              color: Colors.white, size: 13.sp),
+                        ],
                       ),
                     ),
                   ),
