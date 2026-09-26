@@ -31,6 +31,6 @@ if __name__ == '__main__':
     output = pathlib.Path('build/release-manifest.json')
     output.parent.mkdir(exist_ok=True)
     output.write_text(json.dumps({'commit': commit, 'apiOrigin': origin, 'buildNumber': args.build,
-        'bundleId': 'com.p2pfittech.ai', 'version': '4.11.0', 'flutter': '3.41.4',
+        'bundleId': 'com.p2pfittech.ai', 'version': '5.1.0', 'flutter': '3.41.4',
         'createdAt': datetime.datetime.now(datetime.timezone.utc).isoformat()}, indent=2)+'\n')
     print('Release configuration recorded:', output)

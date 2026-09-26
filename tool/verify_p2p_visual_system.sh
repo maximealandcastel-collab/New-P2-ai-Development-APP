@@ -19,8 +19,8 @@ if [[ "$generate_banner_hash" != "c250ae1ed1a875a7dacfcc7639cb725910493611e61ea2
 fi
 
 mapfile -t screens < <(find lib/features -type f -path '*/presentation/screens/*.dart' | sort)
-if [[ "${#screens[@]}" -ne 197 ]]; then
-  echo "Expected 197 presentation screen files, found ${#screens[@]}." >&2
+if [[ "${#screens[@]}" -ne 199 ]]; then
+  echo "Expected 199 presentation screen files, found ${#screens[@]}." >&2
   exit 1
 fi
 
@@ -46,5 +46,5 @@ if [[ "$violations" -ne 0 ]]; then
   exit 1
 fi
 
-echo "P2P visual-system source audit passed: 197/197 screens inventoried."
+echo "P2P visual-system source audit passed: 199/199 screens inventoried."
 echo "Protected modules excluded: Generate My Split, Meal Plan, Rate My Peel."

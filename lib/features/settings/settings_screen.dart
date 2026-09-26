@@ -23,6 +23,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const _releaseBuildNumber =
+      String.fromEnvironment('BUILD_NUMBER', defaultValue: '1');
 
   void _showLogoutDialog() {
     Get.dialog(
@@ -120,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         bottom: 4.h,
                       ),
                       CustomText(
-                        text: 'Ethancarter77@gmail.com',
+                        text: 'Manage your sign-in email in Account Details',
                         fontWeight: FontWeight.w500,
                       ),
                     ],
@@ -190,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // --- About Section ---
             _buildContainerCard(
               label: 'About',
-                sublabel: 'App version 4.11 (3028)',
+              sublabel: 'App version 5.1 ($_releaseBuildNumber)',
               children: [
                 _buildCardListWidget(
                   label: 'Privacy Policy',

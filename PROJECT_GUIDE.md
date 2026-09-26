@@ -40,7 +40,7 @@ The central product journey is: create an account, complete a fitness profile, g
 |---|---|
 | Product name used by the current branding service | P2P FitTech AI |
 | Dart package name | `pler_to_pler_app` |
-| App version | `4.11.0+3088` |
+| App version | `5.1.0` with a CI-generated TestFlight build number |
 | Flutter version pinned by FVM | `3.41.4` |
 | Dart SDK constraint | `^3.10.4` |
 | Main targets present | iOS and Android |
@@ -628,13 +628,13 @@ The Flutter app has no declared root web target in this checkout, and native int
 
 ### 16.1 Active Codemagic workflow
 
-`codemagic.yaml` defines an iOS Release → TestFlight workflow triggered by pushes to `stabilization`. It uses a macOS M2 worker, Flutter `stable`, the latest Xcode selection, CocoaPods, and an `appstore` environment group.
+`codemagic.yaml` defines an iOS Release → TestFlight workflow triggered by pushes to `elijah-stabilization`. It uses a macOS M2 worker, Flutter `3.41.4`, the latest Xcode selection, CocoaPods, and an `appstore` environment group.
 
-The workflow prepares App Store Connect signing credentials, retrieves signing files, installs dependencies and Pods, builds a release IPA, and submits it to TestFlight. The build name is explicitly `4.11.0`; the build number is calculated as `3087 + BUILD_NUMBER` from CI and passed as a diagnostic Dart define.
+The workflow prepares App Store Connect signing credentials, retrieves signing files, installs dependencies and Pods, builds a release IPA, and submits it to TestFlight. The build name is explicitly `5.1`; the next build number is resolved from App Store Connect for the 5.1 train and passed as a diagnostic Dart define.
 
-The workflow currently uses Flutter `stable`, whereas `.fvmrc` pins `3.41.4`. This is a reproducibility difference to resolve when comparing local and CI behavior.
+The workflow and `.fvmrc` both pin Flutter `3.41.4` for reproducible local and CI builds.
 
-The signing script has a fallback that deletes one selected distribution certificate when Apple’s certificate-limit error occurs. This is a consequential existing release operation, not something needed for a local app walkthrough.
+The signing script reuses a stable cached distribution private key and does not delete Apple certificates when signing-file retrieval fails.
 
 ### 16.2 Manual build commands
 
