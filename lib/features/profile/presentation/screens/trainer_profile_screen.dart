@@ -61,15 +61,15 @@ class ProfileScreen extends StatelessWidget {
     const accessCode = 'MAXP210';
 
     return [
-      SizedBox(height: 16.h).asSliver,
+      SizedBox(height: 14.h).asSliver,
 
       // ── Access Code Card ───────────────────────────────────────────────
-      _AccessCodeCard(code: accessCode).asSliverWithPadding(horizontal: 16.w),
-      SizedBox(height: 24.h).asSliver,
+      _AccessCodeCard(code: accessCode).asSliverWithPadding(horizontal: 18.w),
+      SizedBox(height: 22.h).asSliver,
 
       // ── Business & Clients ─────────────────────────────────────────────
       _SectionHeader(title: 'Business & Clients').asSliver,
-      SizedBox(height: 10.h).asSliver,
+      SizedBox(height: 9.h).asSliver,
       _MenuSection(items: [
         _MenuItem(
           icon: Icons.attach_money_rounded,
@@ -141,12 +141,12 @@ class ProfileScreen extends StatelessWidget {
           subtitle: 'View and download invoices',
           onTap: () => Get.toNamed(AppRoute.invoicesScreen),
         ),
-      ]).asSliverWithPadding(horizontal: 16.w),
-      SizedBox(height: 24.h).asSliver,
+      ]).asSliverWithPadding(horizontal: 18.w),
+      SizedBox(height: 22.h).asSliver,
 
       // ── Account & Support ──────────────────────────────────────────────
       _SectionHeader(title: 'Account & Support').asSliver,
-      SizedBox(height: 10.h).asSliver,
+      SizedBox(height: 9.h).asSliver,
       _MenuSection(items: [
         _MenuItem(
           icon: Icons.person_rounded,
@@ -174,12 +174,12 @@ class ProfileScreen extends StatelessWidget {
           badge: 'Contact',
           onTap: () => Get.toNamed(AppRoute.adminSupportScreen),
         ),
-      ]).asSliverWithPadding(horizontal: 16.w),
-      SizedBox(height: 24.h).asSliver,
+      ]).asSliverWithPadding(horizontal: 18.w),
+      SizedBox(height: 22.h).asSliver,
 
       // ── Quick Actions ──────────────────────────────────────────────────
       _SectionHeader(title: 'Quick Actions').asSliver,
-      SizedBox(height: 10.h).asSliver,
+      SizedBox(height: 9.h).asSliver,
       _MenuSection(items: [
         _MenuItem(
           icon: Icons.edit_rounded,
@@ -205,7 +205,7 @@ class ProfileScreen extends StatelessWidget {
           subtitle: 'Sign out of your account',
           onTap: () => LoginController.to.logout(),
         ),
-      ]).asSliverWithPadding(horizontal: 16.w),
+      ]).asSliverWithPadding(horizontal: 18.w),
       SizedBox(height: 48.h).asSliver,
     ];
   }
@@ -220,12 +220,11 @@ class _AccessCodeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFEDEEF1)),
       ),
       child: Row(
         children: [
@@ -234,28 +233,33 @@ class _AccessCodeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('YOUR ACCESS CODE',
-                    style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label,
+                    style: TextStyle(fontSize: 9.sp, fontWeight: AppFontWeight.label,
                         color: BrandColors.of(context).primary, letterSpacing: 0.8)),
                 SizedBox(height: 5.h),
                 Row(
                   children: [
                     Text(code,
-                        style: TextStyle(fontSize: 22.sp, fontWeight: AppFontWeight.stat,
-                            color: Colors.black, letterSpacing: 1.5)),
+                        style: TextStyle(fontSize: 17.sp, fontWeight: AppFontWeight.stat,
+                            color: const Color(0xFF20232B), letterSpacing: 1.1)),
                     SizedBox(width: 10.w),
                     GestureDetector(
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: code));
                         ToastMessageHelper.show('Code copied!');
                       },
-                      child: Icon(Icons.copy_rounded, size: 18.sp, color: BrandColors.of(context).primary),
+                      child: SizedBox(
+                        width: 44.w,
+                        height: 44.h,
+                        child: Icon(Icons.copy_outlined, size: 16.sp,
+                            color: BrandColors.of(context).primary),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          Icon(Icons.arrow_forward_ios_rounded, size: 15.sp, color: const Color(0xFFD1D5DB)),
+          Icon(Icons.chevron_right_rounded, size: 18.sp, color: const Color(0xFFB7BBC4)),
         ],
       ),
     );
@@ -271,9 +275,10 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 18.w),
       child: Text(title,
-          style: TextStyle(fontSize: 16.sp, fontWeight: AppFontWeight.section, color: Colors.black)),
+          style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.section,
+              color: const Color(0xFF20232B))),
     );
   }
 }
@@ -289,10 +294,10 @@ class _MenuSection extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(17.r),
+        border: Border.all(color: const Color(0xFFEDEEF1)),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: items.asMap().entries.map((e) {
           final isLast = e.key == items.length - 1;
@@ -310,60 +315,92 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: item.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
-            child: Row(
-              children: [
-                Container(
-                  width: 42.w, height: 42.w,
-                  decoration: BoxDecoration(color: item.iconBg, borderRadius: BorderRadius.circular(11.r)),
-                  child: Icon(item.icon, color: item.iconColor, size: 21.sp),
-                ),
-                SizedBox(width: 13.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.title,
-                          style: TextStyle(fontSize: 14.sp, fontWeight: AppFontWeight.label, color: const Color(0xFF202020))),
-                      SizedBox(height: 2.h),
-                      Text(
-                        item.subtitle,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: AppFontWeight.body,
-                          color: const Color(0xFF9CA3AF),
-                          height: 1.25,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: item.onTap,
+        child: Column(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: 56.h),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34.r,
+                      height: 34.r,
+                      decoration: BoxDecoration(
+                        color: item.iconBg,
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(item.icon, color: item.iconColor, size: 18.sp),
+                    ),
+                    SizedBox(width: 11.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: AppFontWeight.label,
+                              color: const Color(0xFF20232B),
+                              height: 1.2,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            item.subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontWeight: AppFontWeight.body,
+                              color: const Color(0xFF777D89),
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (item.badge != null) ...[
+                      SizedBox(width: 5.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 7.w,
+                          vertical: 3.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: BrandColors.of(context).soft,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Text(
+                          item.badge!,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 9.sp,
+                            fontWeight: AppFontWeight.label,
+                            color: BrandColors.of(context).primary,
+                          ),
                         ),
                       ),
                     ],
-                  ),
+                    SizedBox(width: 4.w),
+                    Icon(Icons.chevron_right_rounded, size: 18.sp,
+                        color: const Color(0xFFB7BBC4)),
+                  ],
                 ),
-                if (item.badge != null) ...[
-                  SizedBox(width: 6.w),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: BrandColors.of(context).soft,
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Text(item.badge!,
-                        style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: BrandColors.of(context).primary)),
-                  ),
-                ],
-                SizedBox(width: 6.w),
-                Icon(Icons.arrow_forward_ios_rounded, size: 12.5.sp, color: const Color(0xFFD1D5DB)),
-              ],
+              ),
             ),
-          ),
-          if (!isLast)
-            Divider(height: 1, thickness: 1, indent: 69.w, color: const Color(0xFFF3F4F6)),
-        ],
+            if (!isLast)
+              Divider(height: 1, thickness: 1, indent: 57.w,
+                  color: const Color(0xFFF0F1F4)),
+          ],
+        ),
       ),
     );
   }
