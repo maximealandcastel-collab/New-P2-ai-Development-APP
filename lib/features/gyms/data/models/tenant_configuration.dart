@@ -64,40 +64,69 @@ class TenantConfiguration {
     );
   }
 
-  EnterpriseGymModel toGym() {
-    final location = locations.isEmpty ? <String, dynamic>{} : locations.first;
-    return EnterpriseGymModel(
-      id: id,
-      tenantId: id,
-      name: name,
-      initials: name
+  EnterpriseGymModel toGym() => toGyms().first;
+
+  /// Expands every facility supplied by the enterprise API into a selectable
+  /// directory record. New locations therefore appear without an app update.
+  List<EnterpriseGymModel> toGyms() {
+    final sourceLocations = locations.isEmpty
+        ? const <Map<String, dynamic>>[<String, dynamic>{}]
+        : locations;
+    return sourceLocations.asMap().entries.map((entry) {
+      final location = entry.value;
+      final locationId = (location['id'] ?? location['_id'] ?? entry.key)
+          .toString()
           .trim()
-          .split(RegExp(r'\s+'))
-          .take(3)
-          .map((s) => s[0])
-          .join(),
-      category: category,
-      filterTags: tags,
-      rating: 0,
-      memberCount: '',
-      brandColor: primary,
-      accentColor: accent,
-      remoteLogoUrl: logoUrl,
-      textColor:
-          ThemeData.estimateBrightnessForColor(primary) == Brightness.dark
-          ? Colors.white
-          : Colors.black,
-      isActivated: true,
-      loginExperience: GymLoginExperience.whiteLabel,
-      imageAssetPath: photos.isEmpty ? '' : photos.first,
-      galleryAssetPaths: photos,
-      address: location['address'] as String? ?? '',
-      city: location['city'] as String? ?? '',
-      zipCode: location['zipCode'] as String? ?? '',
-      lat: (location['lat'] as num?)?.toDouble() ?? 0,
-      lng: (location['lng'] as num?)?.toDouble() ?? 0,
-      tagline: slogan,
-    );
+          .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+      final locationPhotos = List<String>.from(
+        location['photos'] as List? ?? const <String>[],
+      );
+      final displayPhotos = locationPhotos.isEmpty ? photos : locationPhotos;
+      final locationName = (location['name'] as String?)?.trim() ?? '';
+      final locationCity = location['city'] as String? ?? '';
+      final locationState = location['state'] as String? ?? '';
+      final locationAddress = location['address'] as String? ?? '';
+      final resolvedAddress = locationAddress.isNotEmpty
+          ? locationAddress
+          : [locationCity, locationState]
+                .where((part) => part.isNotEmpty)
+                .join(', ');
+
+      return EnterpriseGymModel(
+        id: sourceLocations.length == 1 ? id : '${id}_$locationId',
+        tenantId: id,
+        franchiseId: id,
+        name: locationName.isEmpty ? name : locationName,
+        franchiseName: name,
+        initials: name
+            .trim()
+            .split(RegExp(r'\s+'))
+            .take(3)
+            .map((s) => s[0])
+            .join(),
+        category: category,
+        filterTags: tags,
+        rating: 0,
+        memberCount: '',
+        brandColor: primary,
+        accentColor: accent,
+        remoteLogoUrl: logoUrl,
+        textColor:
+            ThemeData.estimateBrightnessForColor(primary) == Brightness.dark
+            ? Colors.white
+            : Colors.black,
+        isActivated: true,
+        loginExperience: GymLoginExperience.whiteLabel,
+        imageAssetPath: displayPhotos.isEmpty ? '' : displayPhotos.first,
+        galleryAssetPaths: displayPhotos,
+        address: resolvedAddress,
+        city: locationCity,
+        zipCode: location['zipCode'] as String? ?? '',
+        lat: (location['lat'] as num?)?.toDouble() ?? 0,
+        lng: (location['lng'] as num?)?.toDouble() ?? 0,
+        tagline: slogan,
+      );
+    }).toList(growable: false);
   }
 }
 

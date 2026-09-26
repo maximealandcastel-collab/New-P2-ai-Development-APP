@@ -15,6 +15,7 @@ import 'package:pler_to_pler_app/core/services/cache_service.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/featured_gym_card.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_list_tile.dart';
 import 'package:pler_to_pler_app/features/gyms/services/gym_location_service.dart';
@@ -75,10 +76,12 @@ class _GymsScreenState extends State<GymsScreen> {
       }
     });
     try {
-      late final List<EnterpriseGymModel> gyms;
+      final merged = <String, EnterpriseGymModel>{};
       String? nextCursor;
       if (isSingleMode) {
-        gyms = EnterpriseGymModel.partners;
+        for (final gym in EnterpriseGymModel.partners) {
+          merged[gym.id] = gym;
+        }
       } else {
         final items = await EnterpriseService.instance.searchFacilities(
           _searchQuery,
@@ -86,9 +89,29 @@ class _GymsScreenState extends State<GymsScreen> {
           longitude: _searchLng,
           kind: _activeFilter == 'All Types' ? null : _activeFilter,
         );
-        gyms=items.map((item)=>item.toGym()).toList();
-        nextCursor=null;
+        for (final gym in items.expand((item) => item.toGyms())) {
+          merged[gym.id] = gym;
+        }
       }
+
+      // Signed enterprise tenants are layered over the bundled/public
+      // directory. If the live endpoint is temporarily unavailable, the
+      // existing gym experience remains intact.
+      try {
+        final livePage = await EnterpriseService.instance.directory(
+          query: _searchQuery,
+        );
+        for (final item in livePage.items) {
+          final tenant = TenantConfiguration.fromJson(item);
+          for (final gym in tenant.toGyms()) {
+            merged[gym.id] = gym;
+          }
+        }
+        nextCursor = livePage.nextCursor;
+      } catch (_) {
+        if (merged.isEmpty) rethrow;
+      }
+      final gyms = merged.values.toList(growable: false);
       if (mounted && version == _requestVersion)
         setState(() {
           _sortedGyms.addAll(gyms);
@@ -208,16 +231,22 @@ class _GymsScreenState extends State<GymsScreen> {
   }
 
   void _openGymDetail(EnterpriseGymModel gym) {
+    final franchiseLocations = _sortedGyms
+        .where((item) => item.franchiseKey == gym.franchiseKey)
+        .toList(growable: false);
     Get.to(
       () => GymDetailScreen(
         gym: gym,
-        onOpenMaps: () => _openNearGymMap(
-          addressQuery: gym.address.isNotEmpty
-              ? gym.address
-              : '${gym.name} ${gym.city}',
+        locations: franchiseLocations,
+        onOpenMaps: (selectedGym) => _openNearGymMap(
+          addressQuery: selectedGym.address.isNotEmpty
+              ? selectedGym.address
+              : '${selectedGym.name} ${selectedGym.city}',
         ),
-        onClaim: () => Get.to(() => GymApplicationScreen(initialGym: gym)),
-        onEnter: () => GymLoginPreviewScreen.open(context, gym: gym),
+        onClaim: (selectedGym) =>
+            Get.to(() => GymApplicationScreen(initialGym: selectedGym)),
+        onEnter: (selectedGym) =>
+            GymLoginPreviewScreen.open(context, gym: selectedGym),
       ),
     );
   }

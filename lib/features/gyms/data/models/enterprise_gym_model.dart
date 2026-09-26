@@ -72,6 +72,8 @@ class EnterpriseGymModel {
 
   final String remoteLogoUrl;
   final String id;
+  final String franchiseId;
+  final String franchiseName;
   final String name;
   final String initials;
   final String category;
@@ -104,6 +106,8 @@ class EnterpriseGymModel {
   EnterpriseGymModel({
     this.remoteLogoUrl = '',
     required this.id,
+    this.franchiseId = '',
+    this.franchiseName = '',
     required this.name,
     required this.initials,
     required this.category,
@@ -153,6 +157,18 @@ class EnterpriseGymModel {
               (address.isNotEmpty && tagline.isNotEmpty),
           'White-label gyms require an address and tagline.',
         );
+
+  String get displayFranchiseName =>
+      franchiseName.trim().isEmpty ? name : franchiseName;
+
+  String get franchiseKey {
+    final normalizedName = displayFranchiseName
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]'), '');
+    if (normalizedName.isNotEmpty) return normalizedName;
+    if (franchiseId.trim().isNotEmpty) return franchiseId.trim().toLowerCase();
+    return tenantId?.trim().toLowerCase() ?? id.toLowerCase();
+  }
 
   bool get hasCompleteTenantFoundation =>
       isActivated &&
