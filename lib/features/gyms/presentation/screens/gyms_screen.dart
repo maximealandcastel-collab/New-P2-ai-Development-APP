@@ -256,8 +256,9 @@ class _GymsScreenState extends State<GymsScreen> {
         onEnter: (selectedGym) => Get.to(
           () => GymJoinConfirmationScreen(
             gym: selectedGym,
-            onContinue: () =>
-                GymLoginPreviewScreen.open(context, gym: selectedGym),
+            locations: franchiseLocations,
+            onContinue: (confirmedGym) =>
+                GymLoginPreviewScreen.open(context, gym: confirmedGym),
           ),
         ),
       ),

@@ -3,6 +3,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
+/// Opens the shared member-facing franchise location picker.
+///
+/// Keeping this entry point public lets the detail and join-confirmation
+/// screens use the same city -> branch workflow and the same real directory
+/// records.
+Future<EnterpriseGymModel?> showFranchiseLocationPicker(
+  BuildContext context, {
+  required EnterpriseGymModel selectedGym,
+  required List<EnterpriseGymModel> locations,
+}) =>
+    showModalBottomSheet<EnterpriseGymModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _FranchiseLocationsSheet(
+        franchiseName: selectedGym.displayFranchiseName,
+        selectedGym: selectedGym,
+        locations: locations,
+      ),
+    );
+
 class GymDetailScreen extends StatefulWidget {
   const GymDetailScreen({
     super.key,
@@ -346,15 +367,10 @@ class _LocationSelector extends StatelessWidget {
 
   Future<void> _openLocations(BuildContext context) async {
     if (locations.length <= 1) return;
-    final selected = await showModalBottomSheet<EnterpriseGymModel>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _FranchiseLocationsSheet(
-        franchiseName: gym.displayFranchiseName,
-        selectedGym: gym,
-        locations: locations,
-      ),
+    final selected = await showFranchiseLocationPicker(
+      context,
+      selectedGym: gym,
+      locations: locations,
     );
     if (selected != null) onSelected(selected);
   }
