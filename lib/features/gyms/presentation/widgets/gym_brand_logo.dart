@@ -56,6 +56,8 @@ class GymStockImage extends StatelessWidget {
   final double width;
   final double borderRadius;
   final bool showLogo;
+  final double logoSize;
+  final double logoInset;
 
   const GymStockImage({
     super.key,
@@ -65,6 +67,8 @@ class GymStockImage extends StatelessWidget {
     required this.width,
     this.borderRadius = 0,
     this.showLogo = true,
+    this.logoSize = 54,
+    this.logoInset = 12,
   });
 
   @override
@@ -95,12 +99,12 @@ class GymStockImage extends StatelessWidget {
               ),
               if (showLogo)
                 Positioned(
-                  right: 12.w,
-                  bottom: 12.h,
+                  right: logoInset.w,
+                  bottom: logoInset.h,
                   child: GymBrandLogo(
                     gym: gym,
-                    size: 54.r,
-                    borderRadius: 14.r,
+                    size: logoSize.r,
+                    borderRadius: (logoSize * 0.26).r,
                   ),
                 ),
             ],
