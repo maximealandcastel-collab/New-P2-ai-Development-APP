@@ -37,6 +37,21 @@ class P2PSpacing {
   static const double section = 24;
 }
 
+/// Caps visual growth on large phones while preserving the same layout tree.
+/// This applies only to .sp presentation sizes; the platform accessibility
+/// text scale remains a separate MediaQuery concern.
+class P2PResponsive {
+  P2PResponsive._();
+
+  static const double maxContentWidth = 440;
+
+  static double textScale(double deviceScale) =>
+      deviceScale.clamp(0.84, 1.05).toDouble();
+
+  static double phoneFont(BuildContext context, double baseSize) =>
+      baseSize * textScale(MediaQuery.sizeOf(context).width / 375);
+}
+
 class P2PRadius {
   P2PRadius._();
 

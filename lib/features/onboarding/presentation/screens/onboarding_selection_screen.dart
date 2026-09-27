@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/constants/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/utils/constants/image_path.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/screens/login_screen.dart';
 import 'package:pler_to_pler_app/features/onboarding/controller/onboarding_controller.dart';
@@ -15,8 +15,6 @@ class OnboardingSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-
     return Scaffold(
       body: Stack(
         children: [
@@ -26,58 +24,71 @@ class OnboardingSelectionScreen extends StatelessWidget {
             width: double.infinity,
             fit: BoxFit.cover,
           ),
-          Positioned(
-            left: 16.w,
-            right: 16.w,
-            bottom: bottomInset + 24.h,
-            child: Column(
-              children: [
-                Text(
-                  "Smarter Care.\nEffortless Workflow.",
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: OnboardingTypography.headline(context),
-                ),
-                SizedBox(height: 14.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  child: Text(
-                    "Get AI-guided plans, track progress, and stay connected to experts all in one platform.",
-                    textAlign: TextAlign.center,
-                    style: OnboardingTypography.description(context),
+          Positioned.fill(
+            child: SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: SingleChildScrollView(
+                  reverse: true,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: P2PResponsive.maxContentWidth),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Smarter Care.\nEffortless Workflow.",
+                            textAlign: TextAlign.center,
+                            style: OnboardingTypography.headline(context),
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              "Get AI-guided plans, track progress, and stay connected to experts all in one platform.",
+                              textAlign: TextAlign.center,
+                              style: OnboardingTypography.description(context),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _helperSelection(
+                                  context: context,
+                                  onTap: () {
+                                    log("Go to fitness login");
+                                    Get.offAll(() => LoginScreen());
+                                  },
+                                  imagePath: ImagePath.splash3,
+                                  title: 'Fitness',
+                                  subTitle:
+                                      'Personal workouts, trainer sessions,  plans and\nmore',
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _helperSelection(
+                                  context: context,
+                                  onTap: () {
+                                    log("Go to facility login");
+                                    Get.offAll(() => LoginScreen());
+                                  },
+                                  imagePath: ImagePath.facilityAppLogo,
+                                  title: 'Facility',
+                                  subTitle:
+                                      'Patient intake, scanning, AI rehab plans, clinician tools',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(height: 32.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _helperSelection(
-                        onTap: () {
-                          log("Go to fitness login");
-                          Get.offAll(() => LoginScreen());
-                        },
-                        imagePath: ImagePath.splash3,
-                        title: 'Fitness',
-                        subTitle:
-                            'Personal workouts, trainer sessions,  plans and\nmore',
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: _helperSelection(
-                        onTap: () {
-                          log("Go to facility login");
-                          Get.offAll(() => LoginScreen());
-                        },
-                        imagePath: ImagePath.facilityAppLogo,
-                        title: 'Facility',
-                        subTitle:
-                            'Patient intake, scanning, AI rehab plans, clinician tools',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -87,6 +98,7 @@ class OnboardingSelectionScreen extends StatelessWidget {
 }
 
 Widget _helperSelection({
+  required BuildContext context,
   required VoidCallback onTap,
   required String imagePath,
   required String title,
@@ -95,7 +107,7 @@ Widget _helperSelection({
   return GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: EdgeInsets.all(16.r),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.containerBg,
         borderRadius: BorderRadius.circular(16),
@@ -105,16 +117,16 @@ Widget _helperSelection({
         children: [
           Image.asset(
             imagePath,
-            width: 64.w,
-            height: 64.h,
+            width: 50,
+            height: 50,
             fit: BoxFit.cover,
           ),
-          SizedBox(height: 8.h),
-          Text(title, style: OnboardingTypography.cardTitle),
-          SizedBox(height: 8.h),
+          const SizedBox(height: 8),
+          Text(title, style: OnboardingTypography.cardTitle(context)),
+          const SizedBox(height: 5),
           Text(
             subTitle,
-            style: OnboardingTypography.cardDescription,
+            style: OnboardingTypography.cardDescription(context),
           ),
         ],
       ),

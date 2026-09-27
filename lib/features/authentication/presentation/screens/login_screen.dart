@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 
@@ -368,7 +369,7 @@ class _WelcomeHero extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: 32.sp,
+                      fontSize: P2PResponsive.phoneFont(context, 32),
                       height: 1.05,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -1,
@@ -388,7 +389,7 @@ class _WelcomeHero extends StatelessWidget {
               Text(
                 'Sign in to your P2P Fit account.',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: P2PResponsive.phoneFont(context, 14),
                   height: 1.25,
                   fontWeight: FontWeight.w400,
                   color: const Color(0xFF71717D),

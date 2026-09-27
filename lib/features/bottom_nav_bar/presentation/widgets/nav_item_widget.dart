@@ -106,8 +106,8 @@ class _BottomNavItemState extends State<BottomNavItem>
                   builder: (context, color, child) {
                     return SvgPicture.asset(
                       widget.navItem.icon,
-                      width: 20.w,
-                      height: 20.h,
+                      width: 20,
+                      height: 20,
                       colorFilter: ColorFilter.mode(
                         color ?? iconColor,
                         BlendMode.srcIn,
@@ -120,7 +120,7 @@ class _BottomNavItemState extends State<BottomNavItem>
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
                   style: TextStyle(
-                    fontSize: 9.sp,
+                    fontSize: P2PResponsive.phoneFont(context, 9),
                     fontWeight:
                         isSelected ? AppFontWeight.label : AppFontWeight.body,
                     color: isSelected

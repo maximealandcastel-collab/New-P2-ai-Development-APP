@@ -5,6 +5,13 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 
 void main() {
+  test('phone text scale stays compact without shrinking small screens further', () {
+    expect(P2PResponsive.textScale(0.85), 0.85);
+    expect(P2PResponsive.textScale(1), 1);
+    expect(P2PResponsive.textScale(1.15), 1.05);
+    expect(P2PResponsive.maxContentWidth, 440);
+  });
+
   test('global theme uses the restrained P2P presentation tokens', () {
     final theme = AppThemeData.themeData;
 
