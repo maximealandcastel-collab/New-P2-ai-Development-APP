@@ -70,7 +70,7 @@ class BottomNavBarMain extends StatelessWidget {
       // bottom padding is what extendBody used to contribute, so scrollable
       // screens still clear the bar.
       final media = MediaQuery.of(context);
-      final navBarHeight = 58.h + media.padding.bottom;
+      final navBarHeight = 66.h + media.padding.bottom;
 
       // The Admin/User pill is an OverlayEntry pinned at top + 6 in the ROOT
       // overlay (see AdminModeService._buildPill), so it paints over whatever

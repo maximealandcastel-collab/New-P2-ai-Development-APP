@@ -1,5 +1,4 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
-import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/legacy_kmf_configuration.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
@@ -93,43 +92,33 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: P2PLayout.maxPhoneContentWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FeedAppBar(),
+                const HomeGymBrand(),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                  child: Row(children: [
+                    const Expanded(child: _AchievementsPill()),
+                    SizedBox(width: 8.w),
+                    Expanded(child: _ConnectWatchPill(onReturn: _refreshHome)),
+                  ]),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FeedAppBar(),
-                    const HomeGymBrand(),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
-                      child: Row(children: [
-                        const Expanded(child: _AchievementsPill()),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: _ConnectWatchPill(onReturn: _refreshHome),
-                        ),
-                      ]),
-                    ),
-                    SizedBox(height: 8.h),
-                    _DailyWorkoutCalendar(key: _calendarKey),
-                    _HomeWatchData(key: _watchKey),
-                    SizedBox(height: 16.h),
-                    const _GymsCard(),
-                    SizedBox(height: 16.h),
-                    _GenerateWorkoutBanner(onWorkoutChanged: _refreshHome),
-                    SizedBox(height: 16.h),
-                    const FeatureCardsRow(),
-                    SizedBox(height: 16.h),
-                    _SectionTitle("Today's overview"),
-                    const _TodaysOverviewCard(),
-                    SizedBox(height: 24.h),
-                  ],
-                ),
-              ),
+                SizedBox(height: 8.h),
+                _DailyWorkoutCalendar(key: _calendarKey),
+                _HomeWatchData(key: _watchKey),
+                SizedBox(height: 16.h),
+                const _GymsCard(),
+                SizedBox(height: 16.h),
+                _GenerateWorkoutBanner(onWorkoutChanged: _refreshHome),
+                SizedBox(height: 16.h),
+                const FeatureCardsRow(),
+                SizedBox(height: 16.h),
+                _SectionTitle("Today's overview"),
+                const _TodaysOverviewCard(),
+                SizedBox(height: 24.h),
+              ],
             ),
           ),
         ),
@@ -149,8 +138,8 @@ class _AchievementsPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.zero,
-      child: SizedBox(
-        height: 48,
+      child: Align(
+        alignment: Alignment.centerLeft,
         child: Semantics(
           button: true,
           label: 'Open your achievements',
@@ -159,11 +148,11 @@ class _AchievementsPill extends StatelessWidget {
             child: Ink(
               decoration: BoxDecoration(
                 color: _goldSoft,
-                borderRadius: BorderRadius.circular(16.r),
+                borderRadius: BorderRadius.circular(18.r),
                 border: Border.all(color: _gold.withOpacity(0.18)),
               ),
               child: InkWell(
-                borderRadius: BorderRadius.circular(16.r),
+                borderRadius: BorderRadius.circular(18.r),
                 splashColor: _gold.withOpacity(0.12),
                 highlightColor: _gold.withOpacity(0.06),
                 onTap: () => Navigator.of(context).push(
@@ -172,7 +161,8 @@ class _AchievementsPill extends StatelessWidget {
                   ),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 11.w),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -182,23 +172,30 @@ class _AchievementsPill extends StatelessWidget {
                         size: 16.sp,
                       ),
                       SizedBox(width: 6.w),
-                      Flexible(
-                        child: Text(
-                          'Achievements',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: _ink,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Flexible(child: Text(
+                        'Achievements',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: _ink,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: _gold,
-                        size: 18.sp,
+                      )),
+                      SizedBox(width: 8.w),
+                      Container(
+                        width: 21.w,
+                        height: 21.w,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.85),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.workspace_premium_rounded,
+                          color: _gold,
+                          size: 14.sp,
+                        ),
                       ),
                     ],
                   ),
@@ -224,75 +221,53 @@ class _ConnectWatchPill extends StatelessWidget {
     final controller = DevicePairingController.to;
     final accent = Theme.of(context).colorScheme.primary;
     return Obx(() {
-      final connected =
-          controller.pairedDevices.any((device) => device.isConnected);
+      final connected = controller.pairedDevices.any((device) => device.isConnected);
       return Semantics(
         button: true,
-        label: connected
-            ? 'Manage connected watch'
-            : 'Connect a watch and sync data',
-        child: SizedBox(
-          height: 48,
-          child: Material(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              side: BorderSide(color: const Color(0xFFE9E9E9)),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16.r),
-              onTap: () async {
-                await Get.toNamed(connected
-                    ? AppRoute.manageDevicesScreen
-                    : AppRoute.addDeviceScreen);
-                await onReturn();
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Row(children: [
-                  Container(
-                    width: 30.r,
-                    height: 30.r,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: accent.withOpacity(0.09),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child:
-                        Icon(Icons.watch_outlined, color: accent, size: 17.r),
+        label: connected ? 'Manage connected watch' : 'Connect a watch and sync data',
+        child: Material(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.r),
+            side: BorderSide(color: accent.withOpacity(0.28)),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18.r),
+            onTap: () async {
+              await Get.toNamed(connected
+                  ? AppRoute.manageDevicesScreen
+                  : AppRoute.addDeviceScreen);
+              await onReturn();
+            },
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              child: Row(children: [
+                Container(
+                  width: 32.r,
+                  height: 32.r,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.09),
+                    borderRadius: BorderRadius.circular(11.r),
                   ),
-                  SizedBox(width: 7.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          connected ? 'Watch connected' : 'Connect Watch',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF171717),
-                          ),
-                        ),
-                        Text(
-                          connected ? 'View data' : 'Sync data',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: const Color(0xFF777777),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.chevron_right_rounded,
-                      color: accent, size: 17.r),
-                ]),
-              ),
+                  child: Icon(Icons.watch_outlined, color: accent, size: 19.r),
+                ),
+                SizedBox(width: 7.w),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(connected ? 'Watch connected' : 'Connect Watch',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600,
+                        color: const Color(0xFF171717))),
+                    Text(connected ? 'View data' : 'Sync data',
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF777777))),
+                  ],
+                )),
+                Icon(Icons.chevron_right_rounded, color: accent, size: 18.r),
+              ]),
             ),
           ),
         ),
@@ -603,16 +578,16 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
 
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 0),
-      padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 13.h),
+      padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(21.r),
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: _line),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.028),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.045),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -629,18 +604,18 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     Text(
                       'Daily workout progress',
                       style: TextStyle(
-                        fontSize: 16.5.sp,
+                        fontSize: 18.sp,
                         height: 1.15,
                         fontWeight: FontWeight.w600,
                         color: _ink,
                         letterSpacing: -0.25,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 5.h),
                     Text(
                       'Track your workouts and progress',
                       style: TextStyle(
-                        fontSize: 10.5.sp,
+                        fontSize: 11.5.sp,
                         height: 1.25,
                         fontWeight: FontWeight.w400,
                         color: _muted,
@@ -649,7 +624,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   ],
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 12.w),
               _CalendarIconButton(
                 icon: Icons.chevron_left_rounded,
                 label: 'Previous week',
@@ -663,13 +638,13 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
               ),
             ],
           ),
-          SizedBox(height: 13.h),
+          SizedBox(height: 16.h),
           Row(
             children: [
               Text(
                 _weekLabel(),
                 style: TextStyle(
-                  fontSize: 10.5.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                   color: _muted,
                 ),
@@ -683,8 +658,8 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   borderRadius: BorderRadius.circular(10.r),
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 6.h,
+                      horizontal: 12.w,
+                      vertical: 8.h,
                     ),
                     decoration: BoxDecoration(
                       color: _isSameDate(_selectedDate, today)
@@ -700,7 +675,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     child: Text(
                       'Today',
                       style: TextStyle(
-                        fontSize: 10.5.sp,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
                         color: _isSameDate(_selectedDate, today)
                             ? _orange
@@ -712,7 +687,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
               ),
             ],
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 12.h),
           LayoutBuilder(
             builder: (context, constraints) {
               final compactCardWidth = ((constraints.maxWidth - (6 * 6.w)) / 7)
@@ -742,26 +717,26 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
               );
             },
           ),
-          SizedBox(height: 11.h),
+          SizedBox(height: 14.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 9.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: const Color(0xFFFAFAFA),
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(13.r),
               border: Border.all(color: const Color(0xFFF0F0F0)),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 26.w,
-                  height: 26.w,
+                  width: 28.w,
+                  height: 28.w,
                   decoration: BoxDecoration(
                     color: _orange.withOpacity(0.11),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.insights_rounded,
-                    size: 14.sp,
+                    size: 15.sp,
                     color: _orange,
                   ),
                 ),
@@ -772,7 +747,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                         ? 'Today’s workout progress'
                         : '${_selectedDate.day} ${_monthName(_selectedDate)} progress',
                     style: TextStyle(
-                    fontSize: 10.5.sp,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w500,
                       color: _ink,
                     ),
@@ -782,7 +757,7 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                   '${_progressFor(_selectedDate).completed}/'
                   '${_progressFor(_selectedDate).total}',
                   style: TextStyle(
-                    fontSize: 12.5.sp,
+                    fontSize: 13.sp,
                     fontWeight: AppFontWeight.section,
                     color: _ink,
                   ),
@@ -814,18 +789,18 @@ class _CalendarIconButton extends StatelessWidget {
       label: label,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(11.r),
         child: Container(
-          width: 32.w,
-          height: 32.w,
+          width: 34.w,
+          height: 34.w,
           decoration: BoxDecoration(
             color: const Color(0xFFFAFAFA),
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(11.r),
             border: Border.all(color: const Color(0xFFE9E9E9)),
           ),
           child: Icon(
             icon,
-            size: 18.sp,
+            size: 19.sp,
             color: const Color(0xFF202020),
           ),
         ),
@@ -879,15 +854,15 @@ class _CalendarDayCard extends StatelessWidget {
           '${progress.completed} of ${progress.total} exercises complete',
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           width: width,
-          constraints: BoxConstraints(minHeight: 116.h),
-          padding: EdgeInsets.fromLTRB(5.w, 9.h, 5.w, 7.h),
+          constraints: BoxConstraints(minHeight: 132.h),
+          padding: EdgeInsets.fromLTRB(5.w, 11.h, 5.w, 8.h),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSelected
                   ? _orange.withOpacity(0.62)
@@ -898,8 +873,8 @@ class _CalendarDayCard extends StatelessWidget {
                 ? [
                     BoxShadow(
                       color: _orange.withOpacity(0.10),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
@@ -912,7 +887,7 @@ class _CalendarDayCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.clip,
                 style: TextStyle(
-                  fontSize: 8.7.sp,
+                  fontSize: 9.2.sp,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.25,
                   color: isSelected || isToday
@@ -923,7 +898,7 @@ class _CalendarDayCard extends StatelessWidget {
               Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontSize: 20.5.sp,
+                  fontSize: 23.sp,
                   height: 1,
                   fontWeight: AppFontWeight.section,
                   letterSpacing: -0.7,
@@ -933,7 +908,7 @@ class _CalendarDayCard extends StatelessWidget {
               Text(
                 monthName.substring(0, 3).toUpperCase(),
                 style: TextStyle(
-                  fontSize: 8.7.sp,
+                  fontSize: 9.2.sp,
                   fontWeight: FontWeight.w400,
                   color: const Color(0xFF888888),
                 ),
@@ -963,7 +938,7 @@ class _ProgressPill extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: statusColor.withOpacity(isSelected ? 0.14 : 0.09),
         borderRadius: BorderRadius.circular(8.r),
@@ -1023,47 +998,39 @@ class _GymsCardState extends State<_GymsCard> {
   String? error;
   bool loading = true;
   @override
-  void initState() {
-    super.initState();
-    load();
-  }
-
+  void initState() { super.initState(); load(); }
   Future<void> load() async {
-    setState(() {
-      loading = true;
-      error = null;
-    });
+    setState(() { loading = true; error = null; });
     try {
       final activatedGyms = EnterpriseGymModel.activatedPartners.take(3).toList();
       if (mounted) setState(() => gyms = activatedGyms);
-    } catch (_) {
-      if (mounted) {
-        setState(() => error = 'Gyms are temporarily unavailable.');
-      }
-    } finally {
-      if (mounted) setState(() => loading = false);
-    }
+    } catch (_) { if (mounted) setState(() => error = 'Gyms are temporarily unavailable.'); }
+    finally { if (mounted) setState(() => loading = false); }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (loading) const LinearProgressIndicator(),
-          if (error != null)
-            TextButton(onPressed: load, child: Text('$error Retry')),
-          if (!loading && error == null && gyms.isEmpty)
-            const Text('No enterprise gyms available yet.'),
+          if (error != null) TextButton(onPressed: load, child: Text('$error Retry')),
+          if (!loading && error == null && gyms.isEmpty) const Text('No enterprise gyms available yet.'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Gyms',
                   style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
+                       fontSize: 14.sp,
+                       fontWeight: FontWeight.w400,
                       color: Colors.black)),
               Semantics(
                 button: true,
@@ -1079,112 +1046,79 @@ class _GymsCardState extends State<_GymsCard> {
                   },
                   child: Padding(
                     padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-                    child: Row(
-                      children: [
-                        Text('Near Gym',
-                            style: TextStyle(
-                                fontSize: 11.5.sp,
-                                fontWeight: FontWeight.w600,
-                                color: TenantBrandService.to.primaryColor)),
-                        SizedBox(width: 2.w),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: 17.sp,
-                          color: TenantBrandService.to.primaryColor,
-                        ),
-                      ],
-                    ),
+                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    child: Text('Near Gym',
+                        style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w400,
+                            color: TenantBrandService.to.primaryColor)),
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           SizedBox(
-            height: 156.h,
+            height: 155.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: gyms.length,
-              separatorBuilder: (_, __) => SizedBox(width: 10.w),
+               itemCount: gyms.length,
+              separatorBuilder: (_, __) => SizedBox(width: 12.w),
               itemBuilder: (context, i) {
-                final gym = gyms[i];
-                return Container(
-                  width: 146.w,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15.r),
-                    border: Border.all(color: const Color(0xFFEDEDEF)),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x0711131A),
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
+                 final gym = gyms[i];
+                return SizedBox(
+                  width: 142.w,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GymStockImage(
-                        gym: gym,
-                        height: 76.h,
-                        width: double.infinity,
-                        logoSize: 40,
-                        logoInset: 7,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(9.w, 7.h, 9.w, 7.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(gym.name,
+                       GymStockImage(
+                         gym: gym,
+                         height: 75.h,
+                         width: double.infinity,
+                         borderRadius: 12.r,
+                       ),
+                      SizedBox(height: 5.h),
+                       Text(gym.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                               fontSize: 11.5.sp,
+                               fontWeight: FontWeight.w400,
+                               letterSpacing: 0.05,
+                              color: Colors.black)),
+                      SizedBox(height: 2.h),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on_outlined,
+                              size: 12.sp, color: Colors.black54),
+                          SizedBox(width: 2.w),
+                          Expanded(
+                            child: Text(
+                                gym.address.isNotEmpty
+                                    ? gym.address
+                                    : (gym.distanceLabel.isEmpty
+                                        ? gym.city
+                                        : gym.distanceLabel),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                    fontSize: 10.8.sp,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.02,
-                                    color: const Color(0xFF171717))),
-                            SizedBox(height: 3.h),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on_outlined,
-                                    size: 11.sp, color: const Color(0xFF858791)),
-                                SizedBox(width: 2.w),
-                                Expanded(
-                                  child: Text(
-                                      gym.address.isNotEmpty
-                                          ? gym.address
-                                          : (gym.distanceLabel.isEmpty
-                                              ? gym.city
-                                              : gym.distanceLabel),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 8.8.sp,
-                                          fontWeight: FontWeight.w400,
-                                          color: const Color(0xFF777A84))),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 3.h),
-                            Text(
-                              gym.isActivated ? 'Active gym' : 'Coming soon',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w400,
-                                color: gym.isActivated
-                                    ? const Color(0xFF2E7D32)
-                                    : const Color(0xFF858791),
-                              ),
-                            ),
-                          ],
-                        ),
+                                     fontSize: 9.sp,
+                                     fontWeight: FontWeight.w400,
+                                     color: Colors.black45)),
+                          ),
+                        ],
                       ),
+                      SizedBox(height: 4.h),
+                       Text(
+                         gym.isActivated ? 'Active gym' : 'Coming soon',
+                         style: TextStyle(
+                           fontSize: 9.5.sp,
+                           fontWeight: FontWeight.w400,
+                           color: gym.isActivated
+                               ? const Color(0xFF2E7D32)
+                               : Colors.black38,
+                         ),
+                       ),
                     ],
                   ),
                 );

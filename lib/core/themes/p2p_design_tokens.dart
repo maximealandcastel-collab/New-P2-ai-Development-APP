@@ -37,14 +37,6 @@ class P2PSpacing {
   static const double section = 24;
 }
 
-/// Shared layout limits keep larger iPhones spacious without enlarging the UI.
-class P2PLayout {
-  P2PLayout._();
-
-  static const double referencePhoneWidth = 375;
-  static const double maxPhoneContentWidth = 414;
-}
-
 class P2PRadius {
   P2PRadius._();
 

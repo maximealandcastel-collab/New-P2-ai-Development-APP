@@ -45,7 +45,7 @@ class BottomNavBar extends StatelessWidget {
             }
           },
           child: SizedBox(
-            height: 44.h,
+            height: 46.h,
             child: BottomNavItem(index: index, navItem: navItem),
           ),
         ),
@@ -60,27 +60,27 @@ class BottomNavBar extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        10.w,
+        12.w,
         0,
-        10.w,
-        MediaQuery.of(context).padding.bottom + 5.h,
+        12.w,
+        MediaQuery.of(context).padding.bottom + 8.h,
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          boxShadow: P2PShadows.card,
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: P2PShadows.floating,
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(24.r),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.97),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: P2PColors.border, width: .7),
+                color: Colors.white.withOpacity(0.94),
+                borderRadius: BorderRadius.circular(24.r),
+                border: Border.all(color: P2PColors.border, width: .8),
               ),
-              padding: EdgeInsets.symmetric(vertical: 4.h),
+              padding: EdgeInsets.symmetric(vertical: 6.h),
               // Built from navItems.length rather than fixed indices. The old
               // version hardcoded 0-4, which left the 6th tab with no tap target
               // at all — that is trainers' Messages tab and affiliates' Earnings
@@ -100,8 +100,8 @@ class BottomNavBar extends StatelessWidget {
                   // Equal-width left and right groups keep this geometrically
                   // centered for both five-tab and six-tab role sets.
                   SizedBox(
-                    width: 48.w,
-                    height: 44.h,
+                    width: 52.w,
+                    height: 46.h,
                     child: Semantics(
                       button: true,
                       label: 'Create',
@@ -112,8 +112,8 @@ class BottomNavBar extends StatelessWidget {
                         child: Center(
                           child: tenant.isWhiteLabeled
                                   ? Container(
-                                      height: 38.h,
-                                      width: 38.w,
+                                      height: 42.h,
+                                      width: 42.w,
                                       decoration: BoxDecoration(
                                         color: tenant.primaryColor,
                                         shape: BoxShape.circle,
@@ -121,13 +121,13 @@ class BottomNavBar extends StatelessWidget {
                                       child: Icon(
                                         Icons.add,
                                         color: Colors.white,
-                                        size: 24.sp,
+                                        size: 26.sp,
                                       ),
                                     )
                                   : Assets.icons.addButton.svg(
                                       colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary),
-                                      height: 38.h,
-                                      width: 38.w,
+                                      height: 42.h,
+                                      width: 42.w,
                                     ),
                         ),
                       ),

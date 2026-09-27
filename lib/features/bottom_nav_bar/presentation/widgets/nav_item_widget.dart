@@ -88,11 +88,17 @@ class _BottomNavItemState extends State<BottomNavItem>
         child: AnimatedContainer(
           duration: P2PMotion.standard,
           curve: P2PMotion.curve,
-          margin: EdgeInsets.symmetric(horizontal: 1.w),
-          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.h),
+          margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? selectedColor.withOpacity(0.10)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(P2PRadius.control.r),
+          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 TweenAnimationBuilder<Color?>(
                   tween: ColorTween(end: iconColor),
                   duration: const Duration(milliseconds: 200),
@@ -100,8 +106,8 @@ class _BottomNavItemState extends State<BottomNavItem>
                   builder: (context, color, child) {
                     return SvgPicture.asset(
                       widget.navItem.icon,
-                      width: 20.w,
-                      height: 20.h,
+                      width: 22.w,
+                      height: 22.h,
                       colorFilter: ColorFilter.mode(
                         color ?? iconColor,
                         BlendMode.srcIn,
@@ -109,12 +115,12 @@ class _BottomNavItemState extends State<BottomNavItem>
                     );
                   },
                 ),
-                SizedBox(height: 1.h),
+                SizedBox(height: 2.h),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
                   style: TextStyle(
-                    fontSize: 9.2.sp,
+                    fontSize: 10.sp,
                     fontWeight:
                         isSelected ? AppFontWeight.label : AppFontWeight.body,
                     color: isSelected
@@ -129,18 +135,8 @@ class _BottomNavItemState extends State<BottomNavItem>
                     ),
                   ),
                 ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: EdgeInsets.only(top: 2.h),
-                  width: isSelected ? 4.r : 0,
-                  height: isSelected ? 4.r : 0,
-                  decoration: BoxDecoration(
-                    color: selectedColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
-          ),
+              ],
+            ),
         ),
       );
     });
