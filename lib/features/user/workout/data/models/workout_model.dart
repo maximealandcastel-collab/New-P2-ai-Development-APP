@@ -59,6 +59,9 @@ class WorkoutExerciseModel {
   Map<String, String>? substitutions;
   int? order;
   bool? isCompleted;
+  int? completedSets;
+  String? actualWeight;
+  int? actualRpe;
 
   WorkoutExerciseModel({
     this.id,
@@ -75,6 +78,9 @@ class WorkoutExerciseModel {
     this.substitutions,
     this.order,
     this.isCompleted,
+    this.completedSets,
+    this.actualWeight,
+    this.actualRpe,
   });
 
   factory WorkoutExerciseModel.fromJson(Map<String, dynamic> json) {
@@ -103,6 +109,13 @@ class WorkoutExerciseModel {
           : null,
       order: json['order'] is int ? json['order'] as int : int.tryParse('${json['order']}'),
       isCompleted: json['isCompleted'] as bool?,
+      completedSets: json['completedSets'] is int
+          ? json['completedSets'] as int
+          : int.tryParse('${json['completedSets']}'),
+      actualWeight: json['actualWeight']?.toString(),
+      actualRpe: json['actualRpe'] is int
+          ? json['actualRpe'] as int
+          : int.tryParse('${json['actualRpe']}'),
     );
   }
 }
@@ -203,6 +216,8 @@ class WorkoutModel {
   String? createdAt;
   String? updatedAt;
   String? startedAt;
+  String? completedAt;
+  int? actualDurationMinutes;
 
   WorkoutModel({
     this.id,
@@ -222,6 +237,8 @@ class WorkoutModel {
     this.createdAt,
     this.updatedAt,
     this.startedAt,
+    this.completedAt,
+    this.actualDurationMinutes,
   });
 
   static List<WorkoutModel> listFromResponse(dynamic responseData) {
@@ -303,6 +320,10 @@ class WorkoutModel {
       createdAt: data['createdAt']?.toString(),
       updatedAt: data['updatedAt']?.toString(),
       startedAt: data['startedAt']?.toString(),
+      completedAt: data['completedAt']?.toString(),
+      actualDurationMinutes: data['actualDurationMinutes'] is int
+          ? data['actualDurationMinutes'] as int
+          : int.tryParse('${data['actualDurationMinutes']}'),
     );
   }
 

@@ -135,15 +135,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         onChanged: (value) => setState(() => _filterIndex = value),
                       ),
                       SizedBox(height: 16.h),
-                      _CommunityFoundationCard(
-                        name: name,
-                        category: _filters[_filterIndex],
-                        orange: _orange,
-                        liked: _communityLiked,
-                        saved: _communitySaved,
-                        onLike: () => setState(() => _communityLiked = !_communityLiked),
-                        onSave: () => setState(() => _communitySaved = !_communitySaved),
-                      ),
+                      if (_filterIndex == 1 &&
+                          (user?.workoutHistory?.isNotEmpty ?? false))
+                        ...user!.workoutHistory!
+                            .reversed
+                            .take(5)
+                            .map(
+                              (workout) => Padding(
+                                padding: EdgeInsets.only(bottom: 12.h),
+                                child: _WorkoutResultCard(
+                                  workout: workout,
+                                  orange: _orange,
+                                ),
+                              ),
+                            )
+                      else
+                        _CommunityFoundationCard(
+                          name: name,
+                          category: _filters[_filterIndex],
+                          orange: _orange,
+                          liked: _communityLiked,
+                          saved: _communitySaved,
+                          onLike: () => setState(() => _communityLiked = !_communityLiked),
+                          onSave: () => setState(() => _communitySaved = !_communitySaved),
+                        ),
                     ] else if (_tabIndex == 2)
                       _ChallengesPanel(
                         role: user?.role,
@@ -474,6 +489,126 @@ class _FilterBar extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
             padding: EdgeInsets.symmetric(horizontal: 9.w),
           ),
+        ),
+      );
+}
+
+class _WorkoutResultCard extends StatelessWidget {
+  const _WorkoutResultCard({required this.workout, required this.orange});
+
+  final dynamic workout;
+  final Color orange;
+
+  Map<String, dynamic> get _data => workout is Map
+      ? Map<String, dynamic>.from(workout as Map)
+      : const <String, dynamic>{};
+
+  @override
+  Widget build(BuildContext context) {
+    final data = _data;
+    final focus = data['focus']?.toString().trim();
+    final duration = _number(data['durationMinutes']);
+    final exercises = data['exercisesPerformed'] is List
+        ? (data['exercisesPerformed'] as List).whereType<Map>().toList()
+        : const <Map>[];
+    final completed = exercises.where((exercise) => exercise['completed'] != false).toList();
+    final sets = completed.fold<int>(0, (sum, exercise) => sum + _number(exercise['sets']));
+    final volume = completed.fold<double>(0, (sum, exercise) {
+      final weight = _decimal(exercise['weight']);
+      final repsText = exercise['reps']?.toString().trim() ?? '';
+      final reps = RegExp(r'^\d+$').hasMatch(repsText) ? int.parse(repsText) : 0;
+      return sum + (weight * reps * _number(exercise['sets']));
+    });
+    final date = DateTime.tryParse(data['date']?.toString() ?? '');
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: const Color(0xFFE8E8EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(18.r),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [const Color(0xFF19191D), const Color(0xFF30231D), orange],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: orange, size: 20.sp),
+                    SizedBox(width: 7.w),
+                    Text('WORKOUT COMPLETE', style: TextStyle(color: Colors.white70, fontSize: 8.5.sp, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                    const Spacer(),
+                    if (date != null)
+                      Text('${date.month}/${date.day}/${date.year}', style: TextStyle(color: Colors.white60, fontSize: 9.sp)),
+                  ],
+                ),
+                SizedBox(height: 13.h),
+                Text(
+                  focus == null || focus.isEmpty ? 'Completed workout' : focus,
+                  style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: AppFontWeight.section),
+                ),
+                SizedBox(height: 15.h),
+                Row(
+                  children: [
+                    _ResultMetric(value: '$duration min', label: 'Time'),
+                    _ResultMetric(value: '$sets', label: 'Sets'),
+                    _ResultMetric(value: '${completed.length}', label: 'Exercises'),
+                    if (volume > 0) _ResultMetric(value: '${volume.round()} lb', label: 'Volume'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 12.h),
+            child: Row(
+              children: [
+                Icon(Icons.lock_outline_rounded, size: 15.sp, color: const Color(0xFF77777E)),
+                SizedBox(width: 6.w),
+                Expanded(child: Text('Saved to your workout profile', style: TextStyle(fontSize: 10.sp, color: const Color(0xFF66666D)))),
+                Text('Results', style: TextStyle(fontSize: 10.sp, color: orange, fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static int _number(dynamic value) => value is num ? value.round() : int.tryParse('$value') ?? 0;
+
+  static double _decimal(dynamic value) {
+    final match = RegExp(r'\d+(?:\.\d+)?').firstMatch(value?.toString() ?? '');
+    return match == null ? 0 : double.tryParse(match.group(0)!) ?? 0;
+  }
+}
+
+class _ResultMetric extends StatelessWidget {
+  const _ResultMetric({required this.value, required this.label});
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FittedBox(child: Text(value, style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w600))),
+            SizedBox(height: 2.h),
+            Text(label, style: TextStyle(color: Colors.white54, fontSize: 8.sp)),
+          ],
         ),
       );
 }

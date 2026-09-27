@@ -83,7 +83,7 @@ class WorkoutService {
     return _repository.startWorkout(workoutId);
   }
 
-  Future<void> completeWorkout(
+  Future<WorkoutModel> completeWorkout(
     String workoutId, {
     required String checkInResponse,
     required int actualDurationMinutes,

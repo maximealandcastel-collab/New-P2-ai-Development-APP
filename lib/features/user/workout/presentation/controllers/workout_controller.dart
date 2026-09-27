@@ -16,6 +16,7 @@ import 'package:pler_to_pler_app/features/home/data/models/trainer_workout_plan_
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_today_overview_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_progression_model.dart';
 import 'package:pler_to_pler_app/features/user/workout/domain/services/workout_service.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_completion_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class WorkoutController extends GetxController {
@@ -484,7 +485,7 @@ class WorkoutController extends GetxController {
     _completeSessionLoadingState.value = LoadingState.loading;
 
     try {
-      await _service.completeWorkout(
+      final completedWorkout = await _service.completeWorkout(
         workoutId,
         checkInResponse: checkInResponse,
         actualDurationMinutes: actualDurationMinutes,
@@ -494,8 +495,14 @@ class WorkoutController extends GetxController {
       _completeSessionLoadingState.value = LoadingState.loaded;
       if (Get.isDialogOpen ?? false) Get.back();
       await refreshTodayOverviewSilently();
-      ToastMessageHelper.show('Session completed');
-      goHome();
+      Get.off(
+        () => WorkoutCompletionScreen(
+          summary: WorkoutCompletionSummary.fromWorkout(
+            completedWorkout,
+            fallbackDurationMinutes: actualDurationMinutes,
+          ),
+        ),
+      );
     } catch (e) {
       _completeSessionLoadingState.value = LoadingState.error;
       ToastMessageHelper.show(e.errorMessage);

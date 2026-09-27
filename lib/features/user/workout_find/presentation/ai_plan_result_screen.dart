@@ -6,6 +6,8 @@ import 'package:pler_to_pler_app/features/user/achievements/data/achievement_ser
 import 'package:pler_to_pler_app/features/user/achievements/data/achievement_unlock.dart';
 import 'package:pler_to_pler_app/features/user/achievements/presentation/compact_achievement_sheet.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
+import 'package:pler_to_pler_app/features/user/workout/presentation/screens/workout_completion_screen.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/logger.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
@@ -376,15 +378,39 @@ class _AiPlanResultScreenState extends State<AiPlanResultScreen> {
 
       if (newlyUnlocked.isNotEmpty) {
         await CompactAchievementPresenter.showQueue(context, newlyUnlocked);
-      } else {
-        Get.snackbar(
-          'Workout complete',
-          'Great work. Your progress has been saved.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
       }
-      if (mounted) Get.back(result: const {'workoutCompleted': true});
+      if (!mounted) return;
+      final completedMap = data is Map && data['workout'] is Map
+          ? Map<String, dynamic>.from(data['workout'] as Map)
+          : <String, dynamic>{
+              '_id': workoutId,
+              'actualDurationMinutes': duration,
+              'status': 'completed',
+              'focusArea': response?['focusArea'] is List
+                  ? response!['focusArea']
+                  : const <String>[],
+              'aiPlan': {
+                'mainWork': exercises
+                    .map((exercise) => {
+                          'exerciseId': exercise.id,
+                          'exerciseName': exercise.name,
+                          'sets': exercise.setCount,
+                          'reps': exercise.reps,
+                          'isCompleted': true,
+                          'completedSets': exercise.setCount,
+                        })
+                    .toList(),
+              },
+            };
+      final completedWorkout = WorkoutModel.fromJson(completedMap);
+      Get.off(
+        () => WorkoutCompletionScreen(
+          summary: WorkoutCompletionSummary.fromWorkout(
+            completedWorkout,
+            fallbackDurationMinutes: duration,
+          ),
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
       Get.snackbar(

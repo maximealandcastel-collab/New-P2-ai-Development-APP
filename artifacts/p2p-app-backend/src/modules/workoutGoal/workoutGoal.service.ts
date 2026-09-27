@@ -630,6 +630,38 @@ export const completeSessionService = async (
     .map((e: any) => e.exerciseName)
     .join(", ");
 
+  // A completed workout is a user achievement first. Persist it to the
+  // profile even when the session has no assigned trainer or AI memory record.
+  // Trainer memory enrichment below is optional and must never block the
+  // workout count/history used by the mobile profile.
+  const user = await UserModel.findById(userId);
+  if (user) {
+    user.workoutHistory.push({
+      trainerId: workout.trainerId,
+      date: new Date(),
+      focus: workout.focusArea.join(", "),
+      exercisesPerformed: [
+        ...(workout.aiPlan.mainWork || []),
+        ...(workout.aiPlan.accessories || []),
+        ...(workout.aiPlan.finisher || []),
+      ].map((e: any) => ({
+        exerciseId: e.exerciseId,
+        exerciseName: e.exerciseName,
+        blockName: e.blockName,
+        sets: e.completedSets || e.sets,
+        reps: e.reps,
+        weight: e.actualWeight,
+        rpe: e.actualRpe,
+        completed: e.isCompleted,
+      })),
+      sessionRpe: null,
+      durationMinutes: actualDurationMinutes,
+      aiPlanUsed: true,
+      notes: checkInResponse,
+    } as any);
+    await user.save();
+  }
+
   const lastExchange = `
 Trainer asked: "${workout.aiPlan.checkInQuestion}"
 User responded: "${checkInResponse}"
@@ -644,7 +676,6 @@ Exercises completed: ${exerciseNames || "none logged"}
   if (!memoryUpdate) return { workout, memoryUpdated: false };
   console.log(memoryUpdate);
   // 4. Update user memory
-  const user = await UserModel.findById(userId);
   if (!user || !workout.trainerId) return { workout, memoryUpdated: false };
 
   const memoryIndex = user.memory.findIndex(
@@ -686,30 +717,6 @@ Exercises completed: ${exerciseNames || "none logged"}
   mem.rollingMemory.flags = memoryUpdate.flags || [];
   mem.rollingMemory.updatedAt = new Date();
   mem.lastUpdatedAt = new Date();
-
-  // 5. Push to user workout history
-  user.workoutHistory.push({
-    trainerId: workout.trainerId,
-    date: new Date(),
-    focus: workout.focusArea.join(", "),
-    exercisesPerformed: [
-      ...(workout.aiPlan.mainWork || []),
-      ...(workout.aiPlan.accessories || []),
-    ].map((e: any) => ({
-      exerciseId: e.exerciseId,
-      exerciseName: e.exerciseName,
-      blockName: e.blockName,
-      sets: e.completedSets || e.sets,
-      reps: e.reps,
-      weight: e.actualWeight,
-      rpe: e.actualRpe,
-      completed: e.isCompleted,
-    })),
-    sessionRpe: toNumberOrNull(memoryUpdate.session_summary?.rpe),
-    durationMinutes: actualDurationMinutes,
-    aiPlanUsed: true,
-    notes: checkInResponse,
-  } as any);
 
   await user.save();
 
@@ -1354,4 +1361,3 @@ export const getMonthlyProgressionService = async (userId: string) => {
     };
   });
 };
-

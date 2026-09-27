@@ -145,19 +145,25 @@ class WorkoutRepository {
     }
   }
 
-  Future<void> completeWorkout(
+  Future<WorkoutModel> completeWorkout(
     String workoutId, {
     required String checkInResponse,
     required int actualDurationMinutes,
   }) async {
     try {
-      await _apiService.post(
+      final response = await _apiService.post(
         ApiConstants.workoutExerciseComplete(workoutId),
         data: {
           'checkInResponse': checkInResponse,
           'actualDurationMinutes': actualDurationMinutes,
         },
       );
+      final payload = _workoutPayload(response.data);
+      final workout = payload['workout'];
+      if (workout is! Map) {
+        throw const FormatException('Completed workout missing from response');
+      }
+      return WorkoutModel.fromJson(Map<String, dynamic>.from(workout));
     } on AppException {
       rethrow;
     } catch (e) {
