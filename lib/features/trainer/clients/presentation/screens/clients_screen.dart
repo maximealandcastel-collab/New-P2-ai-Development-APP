@@ -179,9 +179,9 @@ class _ClientsScreenState extends State<ClientsScreen> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: _ink,
-                                fontSize: 18.sp,
+                                fontSize: 17.sp,
                                 height: 1.05,
-                                fontWeight: AppFontWeight.display,
+                                fontWeight: FontWeight.w600,
                                 letterSpacing: -0.35,
                               ),
                             ),
@@ -289,7 +289,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
   Widget _buildSearchField() {
     return Container(
-      height: 50.h,
+      height: 48.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(17.r),
@@ -346,16 +346,16 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
   Widget _buildTabs() {
     return Container(
-      height: 50.h,
-      padding: EdgeInsets.all(4.r),
+      height: 46.h,
+      padding: EdgeInsets.all(3.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFF0F0F2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.035),
-            blurRadius: 16,
+            blurRadius: 10,
             offset: const Offset(0, 5),
           ),
         ],
@@ -515,19 +515,19 @@ class _ClientsScreenState extends State<ClientsScreen> {
         label: label,
         child: InkWell(
           onTap: () => setState(() => selectedTab = index),
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(13.r),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOutCubic,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isSelected ? _orange : Colors.transparent,
-              borderRadius: BorderRadius.circular(14.r),
+              borderRadius: BorderRadius.circular(13.r),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
                         color: _orange.withOpacity(0.18),
-                        blurRadius: 10,
+                        blurRadius: 7,
                         offset: const Offset(0, 3),
                       ),
                     ]
@@ -538,7 +538,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
               children: [
                 Icon(
                   icon,
-                  size: 17.r,
+                  size: 16.r,
                   color: isSelected ? Colors.white : _muted,
                 ),
                 SizedBox(width: 7.w),
@@ -549,7 +549,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: isSelected ? Colors.white : _muted,
-                      fontSize: 12.5.sp,
+                      fontSize: 11.5.sp,
                       height: 1,
                       fontWeight: AppFontWeight.label,
                     ),
@@ -633,8 +633,8 @@ class _EmptyClientsView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 86.r,
-                    height: 86.r,
+                    width: 74.r,
+                    height: 74.r,
                     decoration: BoxDecoration(
                       color: accent.withOpacity(0.075),
                       shape: BoxShape.circle,
@@ -646,19 +646,19 @@ class _EmptyClientsView extends StatelessWidget {
                           : isPending
                               ? Icons.schedule_rounded
                               : Icons.person_add_alt_1_rounded,
-                      size: 38.r,
+                      size: 32.r,
                       color: accent,
                     ),
                   ),
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 16.h),
                   Text(
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFF17181B),
-                      fontSize: 19.sp,
+                      fontSize: 17.sp,
                       height: 1.1,
-                      fontWeight: AppFontWeight.display,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: -0.25,
                     ),
                   ),
@@ -670,17 +670,17 @@ class _EmptyClientsView extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: const Color(0xFF737780),
-                        fontSize: 12.5.sp,
+                        fontSize: 11.5.sp,
                         height: 1.35,
                         fontWeight: AppFontWeight.body,
                       ),
                     ),
                   ),
                   if (!hasSearch) ...[
-                    SizedBox(height: 22.h),
+                    SizedBox(height: 18.h),
                     SizedBox(
                       width: 220.w,
-                      height: 46.h,
+                      height: 44.h,
                       child: ElevatedButton.icon(
                         onPressed: onAddClient,
                         style: ElevatedButton.styleFrom(
@@ -688,14 +688,14 @@ class _EmptyClientsView extends StatelessWidget {
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
+                            borderRadius: BorderRadius.circular(22.r),
                           ),
                         ),
-                        icon: Icon(Icons.add_rounded, size: 21.r),
+                        icon: Icon(Icons.add_rounded, size: 18.r),
                         label: Text(
                           isPending ? 'Open Requests' : 'Add New Client',
                           style: TextStyle(
-                            fontSize: 13.sp,
+                            fontSize: 12.sp,
                             fontWeight: AppFontWeight.label,
                           ),
                         ),

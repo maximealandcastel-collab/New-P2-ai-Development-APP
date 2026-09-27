@@ -88,11 +88,11 @@ class _BottomNavItemState extends State<BottomNavItem>
         child: AnimatedContainer(
           duration: P2PMotion.standard,
           curve: P2PMotion.curve,
-          margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.h),
-          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+          margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
           decoration: BoxDecoration(
             color: isSelected
-                ? selectedColor.withOpacity(0.10)
+                ? selectedColor.withOpacity(0.08)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(P2PRadius.control.r),
           ),
@@ -106,8 +106,8 @@ class _BottomNavItemState extends State<BottomNavItem>
                   builder: (context, color, child) {
                     return SvgPicture.asset(
                       widget.navItem.icon,
-                      width: 22.w,
-                      height: 22.h,
+                      width: 20.w,
+                      height: 20.h,
                       colorFilter: ColorFilter.mode(
                         color ?? iconColor,
                         BlendMode.srcIn,
@@ -115,12 +115,12 @@ class _BottomNavItemState extends State<BottomNavItem>
                     );
                   },
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 1.h),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: 9.sp,
                     fontWeight:
                         isSelected ? AppFontWeight.label : AppFontWeight.body,
                     color: isSelected

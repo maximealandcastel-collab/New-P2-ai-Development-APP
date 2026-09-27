@@ -430,8 +430,56 @@ class _TabBar extends StatelessWidget {
   final ValueChanged<int> onChanged;
   @override
   Widget build(BuildContext context) => Container(
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFE4E4E7)))),
-        child: Row(children: [for (var i = 0; i < tabs.length; i++) Expanded(child: InkWell(onTap: () => onChanged(i), child: Container(padding: EdgeInsets.only(bottom: 10.h), decoration: BoxDecoration(border: Border(bottom: BorderSide(color: i == selected ? orange : Colors.transparent, width: 2.5))), child: Text(tabs[i], textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5.sp, color: i == selected ? const Color(0xFF171717) : const Color(0xFF9A9AA0), fontWeight: i == selected ? FontWeight.w600 : FontWeight.w500)))))]),
+        height: 44.h,
+        padding: EdgeInsets.all(3.r),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEEEEF0),
+          borderRadius: BorderRadius.circular(15.r),
+          border: Border.all(color: const Color(0xFFE4E4E7)),
+        ),
+        child: Row(children: [
+          for (var i = 0; i < tabs.length; i++)
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: i == selected,
+                child: InkWell(
+                  onTap: () => onChanged(i),
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: i == selected
+                          ? const LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0xFF38383B), Color(0xFF171719)],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: i == selected
+                          ? Border.all(color: const Color(0xFF555559), width: .5)
+                          : null,
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 3.w),
+                        child: Text(tabs[i],
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              color: i == selected ? Colors.white : const Color(0xFF66666E),
+                              fontWeight: i == selected ? FontWeight.w600 : FontWeight.w400,
+                            )),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ]),
       );
 }
 
@@ -472,7 +520,7 @@ class _FilterBar extends StatelessWidget {
   final ValueChanged<int> onChanged;
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 36.h,
+        height: 38.h,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: filters.length,
@@ -482,10 +530,10 @@ class _FilterBar extends StatelessWidget {
             selected: selected == i,
             onSelected: (_) => onChanged(i),
             showCheckmark: false,
-            labelStyle: TextStyle(fontSize: 10.sp, color: selected == i ? Colors.white : const Color(0xFF45454A), fontWeight: FontWeight.w600),
-            selectedColor: orange,
+            labelStyle: TextStyle(fontSize: 10.sp, color: selected == i ? Colors.white : const Color(0xFF45454A), fontWeight: selected == i ? FontWeight.w600 : FontWeight.w400),
+            selectedColor: const Color(0xFF232326),
             backgroundColor: Colors.white,
-            side: BorderSide(color: selected == i ? orange : const Color(0xFFE6E6E9)),
+            side: BorderSide(color: selected == i ? const Color(0xFF232326) : const Color(0xFFE6E6E9)),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.r)),
             padding: EdgeInsets.symmetric(horizontal: 9.w),
           ),

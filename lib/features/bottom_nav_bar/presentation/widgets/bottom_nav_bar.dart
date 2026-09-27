@@ -60,27 +60,27 @@ class BottomNavBar extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        12.w,
+        10.w,
         0,
-        12.w,
-        MediaQuery.of(context).padding.bottom + 8.h,
+        10.w,
+        MediaQuery.of(context).padding.bottom + 5.h,
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24.r),
-          boxShadow: P2PShadows.floating,
+          borderRadius: BorderRadius.circular(22.r),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(.035), blurRadius: 12, offset: const Offset(0, 3))],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24.r),
+          borderRadius: BorderRadius.circular(22.r),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.94),
-                borderRadius: BorderRadius.circular(24.r),
+                color: Colors.white.withOpacity(0.96),
+                borderRadius: BorderRadius.circular(22.r),
                 border: Border.all(color: P2PColors.border, width: .8),
               ),
-              padding: EdgeInsets.symmetric(vertical: 6.h),
+              padding: EdgeInsets.symmetric(vertical: 4.h),
               // Built from navItems.length rather than fixed indices. The old
               // version hardcoded 0-4, which left the 6th tab with no tap target
               // at all — that is trainers' Messages tab and affiliates' Earnings

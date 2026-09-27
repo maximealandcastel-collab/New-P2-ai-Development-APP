@@ -851,20 +851,20 @@ class _FilterTab extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
           color: active ? Theme.of(context).colorScheme.primary : Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: active ? Theme.of(context).colorScheme.primary : _border),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Text(label, style: TextStyle(fontSize: 13.sp, fontWeight: AppFontWeight.label,
+          Text(label, style: TextStyle(fontSize: 11.5.sp, fontWeight: AppFontWeight.label,
               color: active ? Colors.white : _tSec)),
           if (badge && count > 0) ...[
             SizedBox(width: 5.w),
-            Container(width: 18.w, height: 18.w,
+            Container(width: 16.w, height: 16.w,
                 decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: Center(child: Text('$count', style: TextStyle(fontSize: 10.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
+                child: Center(child: Text('$count', style: TextStyle(fontSize: 9.sp, fontWeight: AppFontWeight.label, color: Colors.white)))),
           ] else if (!active && count > 0) ...[
             SizedBox(width: 5.w),
             Text('$count', style: TextStyle(fontSize: 11.sp, color: _tSec)),
