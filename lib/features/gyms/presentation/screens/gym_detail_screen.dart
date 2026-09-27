@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
+import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.dart';
+import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 
 /// Opens the shared member-facing franchise location picker.
@@ -361,12 +363,15 @@ class _LocationSelector extends StatelessWidget {
 
   String _label(EnterpriseGymModel item) {
     if (item.address.isNotEmpty) return item.address;
-    if (item.city.isNotEmpty) return item.city;
+    if (item.city.isNotEmpty) {
+      return [item.city, item.state]
+          .where((part) => part.isNotEmpty)
+          .join(', ');
+    }
     return item.name;
   }
 
   Future<void> _openLocations(BuildContext context) async {
-    if (locations.length <= 1) return;
     final selected = await showFranchiseLocationPicker(
       context,
       selectedGym: gym,
@@ -376,13 +381,15 @@ class _LocationSelector extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Semantics(
-        button: locations.length > 1,
-        label: locations.length > 1
+  Widget build(BuildContext context) {
+    final canBrowse = gym.isFranchiseBrand || locations.length > 1;
+    return Semantics(
+        button: canBrowse,
+        label: canBrowse
             ? 'Choose ${gym.displayFranchiseName} franchise location'
             : 'Only one franchise location is available',
         child: InkWell(
-          onTap: locations.length > 1 ? () => _openLocations(context) : null,
+          onTap: canBrowse ? () => _openLocations(context) : null,
           borderRadius: BorderRadius.circular(13.r),
           child: Container(
             width: double.infinity,
@@ -413,7 +420,7 @@ class _LocationSelector extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        locations.length > 1
+                        canBrowse
                             ? 'Choose city, town or location'
                             : 'Location',
                         style: TextStyle(
@@ -435,7 +442,7 @@ class _LocationSelector extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (locations.length > 1)
+                if (canBrowse)
                   Icon(
                     Icons.keyboard_arrow_down_rounded,
                     size: 20.sp,
@@ -446,6 +453,7 @@ class _LocationSelector extends StatelessWidget {
           ),
         ),
       );
+  }
 }
 
 class _FranchiseLocationsSheet extends StatefulWidget {
@@ -467,13 +475,128 @@ class _FranchiseLocationsSheet extends StatefulWidget {
 class _FranchiseLocationsSheetState
     extends State<_FranchiseLocationsSheet> {
   final _searchController = TextEditingController();
+  final _discovered = <String, EnterpriseGymModel>{};
+  final _marketResultIds = <String>{};
   String _query = '';
   String? _city;
+  bool _loadingDirectory = true;
+  bool _loadingMarket = false;
+  int _searchVersion = 0;
+
+  // These are market search shortcuts, not fabricated branch records. A
+  // branch is selectable only when the directory or place search returns it.
+  static const _popularMarkets = <String>[
+    'New York, NY',
+    'Los Angeles, CA',
+    'Miami, FL',
+    'Chicago, IL',
+    'Houston, TX',
+    'Atlanta, GA',
+    'Dallas, TX',
+    'Phoenix, AZ',
+    'Philadelphia, PA',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    for (final location in [widget.selectedGym, ...widget.locations]) {
+      _discovered[location.id] = location;
+    }
+    _loadDirectory();
+  }
 
   @override
   void dispose() {
+    _searchVersion++;
     _searchController.dispose();
     super.dispose();
+  }
+
+  String _normalized(String value) =>
+      value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+
+  bool _belongsToFranchise(EnterpriseGymModel item) {
+    final brand = _normalized(widget.franchiseName);
+    return _normalized(item.franchiseKey) ==
+            _normalized(widget.selectedGym.franchiseKey) ||
+        _normalized(item.displayFranchiseName) == brand ||
+        (brand.isNotEmpty && _normalized(item.name).startsWith(brand));
+  }
+
+  void _addRecords(Iterable<EnterpriseGymModel> records) {
+    if (!mounted) return;
+    setState(() {
+      for (final item in records.where(_belongsToFranchise)) {
+        if (!(_discovered[item.id]?.isActivated ?? false) || item.isActivated) {
+          _discovered[item.id] = item;
+        }
+      }
+    });
+  }
+
+  Future<void> _loadDirectory() async {
+    try {
+      String? cursor;
+      final seenCursors = <String>{};
+      do {
+        final page = await EnterpriseService.instance.directory(
+          cursor: cursor,
+          query: widget.franchiseName,
+        );
+        final records = <EnterpriseGymModel>[];
+        for (final raw in page.items) {
+          try {
+            records.addAll(TenantConfiguration.fromJson(raw).toGyms());
+          } catch (_) {
+            // An incomplete tenant cannot hide the other franchise branches.
+          }
+        }
+        _addRecords(records);
+        cursor = page.nextCursor;
+      } while (mounted && cursor != null && seenCursors.add(cursor));
+    } catch (_) {
+      // Keep bundled and previously loaded branches available offline.
+    } finally {
+      if (mounted) setState(() => _loadingDirectory = false);
+    }
+  }
+
+  Future<void> _searchFacilities(String market) async {
+    final request = ++_searchVersion;
+    setState(() => _loadingMarket = true);
+    try {
+      final results = await EnterpriseService.instance.searchFacilities(
+        '${widget.franchiseName} $market',
+      );
+      if (!mounted || request != _searchVersion) return;
+      final matching = results
+          .expand((item) => item.toGyms(isActivated: false))
+          .where(_belongsToFranchise)
+          .toList(growable: false);
+      _addRecords(matching);
+      setState(() {
+        _marketResultIds
+          ..clear()
+          ..addAll(matching.map((item) => item.id));
+      });
+    } catch (_) {
+      // Keep the current market visible with an honest empty state.
+    } finally {
+      if (mounted && request == _searchVersion) {
+        setState(() => _loadingMarket = false);
+      }
+    }
+  }
+
+  void _selectMarket(String market) {
+    _searchController.clear();
+    setState(() {
+      _query = '';
+      _city = market;
+      _marketResultIds.clear();
+    });
+    _searchFacilities(market);
   }
 
   String _cityFor(EnterpriseGymModel item) {
@@ -490,7 +613,7 @@ class _FranchiseLocationsSheetState
 
   List<MapEntry<String, List<EnterpriseGymModel>>> get _cityGroups {
     final grouped = <String, List<EnterpriseGymModel>>{};
-    for (final location in widget.locations) {
+    for (final location in _discovered.values) {
       grouped.putIfAbsent(_cityFor(location), () => []).add(location);
     }
     final groups = grouped.entries.toList();
@@ -506,7 +629,17 @@ class _FranchiseLocationsSheetState
   List<MapEntry<String, List<EnterpriseGymModel>>> get _visibleGroups {
     final query = _query.trim().toLowerCase();
     return _cityGroups
-        .where((entry) => _city == null || entry.key == _city)
+        .where((entry) => _city == null || entry.key == _city ||
+            entry.value.any((item) {
+              final chosenCity = _city!.split(',').first.trim().toLowerCase();
+              final chosenState = _city!.contains(',')
+                  ? _city!.split(',').last.trim().toLowerCase()
+                  : '';
+              return _marketResultIds.contains(item.id) ||
+                  item.city.toLowerCase() == chosenCity &&
+                  (chosenState.isEmpty || item.state.isEmpty ||
+                      item.state.toLowerCase() == chosenState);
+            }))
         .map((entry) {
           final locations = entry.value.where((item) {
             if (query.isEmpty) return true;
@@ -563,7 +696,7 @@ class _FranchiseLocationsSheetState
                           ),
                           SizedBox(height: 3.h),
                           Text(
-                            '${groups.length} cities and towns · ${widget.locations.length} locations',
+                            '${groups.length} cities and towns · ${_discovered.length} available locations',
                             style: TextStyle(
                               fontSize: 10.5.sp,
                               color: const Color(0xFF747680),
@@ -583,7 +716,15 @@ class _FranchiseLocationsSheetState
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: TextField(
                   controller: _searchController,
-                  onChanged: (value) => setState(() => _query = value),
+                  onChanged: (value) {
+                    setState(() {
+                      _query = value;
+                      _city = null;
+                    });
+                  },
+                  onSubmitted: (value) {
+                    if (value.trim().length >= 3) _searchFacilities(value.trim());
+                  },
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     hintText: 'Search city, town, ZIP or address',
@@ -640,7 +781,18 @@ class _FranchiseLocationsSheetState
                       selectedTextColor: widget.selectedGym.entryTextColor,
                       onTap: () => setState(() => _city = null),
                     ),
-                    ...groups.take(8).map(
+                    if (widget.selectedGym.isFranchiseBrand)
+                      ..._popularMarkets.map(
+                        (market) => _CityChip(
+                          label: market,
+                          selected: _city == market,
+                          selectedColor: widget.selectedGym.entryColor,
+                          selectedTextColor: widget.selectedGym.entryTextColor,
+                          onTap: () => _selectMarket(market),
+                        ),
+                      ),
+                    ...groups.where((entry) =>
+                        !_popularMarkets.contains(entry.key)).map(
                       (entry) => _CityChip(
                         label: '${entry.key} ${entry.value.length}',
                         selected: _city == entry.key,
@@ -653,9 +805,19 @@ class _FranchiseLocationsSheetState
                 ),
               ),
               SizedBox(height: 10.h),
+              if (_loadingDirectory || _loadingMarket)
+                const LinearProgressIndicator(minHeight: 2),
               Expanded(
                 child: visible.isEmpty
-                    ? const Center(child: Text('No locations found.'))
+                    ? Center(child: Padding(
+                        padding: EdgeInsets.all(20.w),
+                        child: Text(
+                          _loadingDirectory || _loadingMarket
+                              ? 'Finding ${widget.franchiseName} locations…'
+                              : 'No listed ${widget.franchiseName} branch in this area yet. Search another city or ZIP.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ))
                     : ListView.builder(
                         padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
                         itemCount: visible.length,

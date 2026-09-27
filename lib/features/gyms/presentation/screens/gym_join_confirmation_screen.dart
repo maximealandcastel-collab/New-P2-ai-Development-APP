@@ -48,7 +48,6 @@ class _GymJoinConfirmationScreenState
   }
 
   Future<void> _chooseLocation() async {
-    if (_locations.length <= 1) return;
     final selected = await showFranchiseLocationPicker(
       context,
       selectedGym: _selectedGym,
@@ -88,7 +87,7 @@ class _GymJoinConfirmationScreenState
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 11.sp, color: const Color(0xFF747680))),
                 ],
-                if (_locations.length > 1) ...[
+                if (gym.isFranchiseBrand || _locations.length > 1) ...[
                   SizedBox(height: 16.h),
                   Material(
                     color: Colors.white,
@@ -174,10 +173,10 @@ class _GymJoinConfirmationScreenState
                   ),
                 ),
                 TextButton(
-                  onPressed: _locations.length > 1
+                  onPressed: gym.isFranchiseBrand || _locations.length > 1
                       ? _chooseLocation
                       : () => Navigator.pop(context),
-                  child: Text(_locations.length > 1
+                  child: Text(gym.isFranchiseBrand || _locations.length > 1
                       ? 'Choose another location'
                       : 'Change location'),
                 ),
