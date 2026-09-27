@@ -1,9 +1,10 @@
-import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:io';
-import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/features/community/presentation/controllers/before_after_controller.dart';
 
 class BeforeAfterScreen extends StatelessWidget {
@@ -12,45 +13,53 @@ class BeforeAfterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(BeforeAfterController());
+    final accent = BrandColors.of(context).primary;
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: P2PColors.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: P2PColors.surface,
+        surfaceTintColor: P2PColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              size: 19, color: P2PColors.charcoal),
           onPressed: Get.back,
         ),
         title: Text(
           'Post Progress',
           style: TextStyle(
-            color: Colors.black,
+            color: P2PColors.charcoal,
             fontWeight: AppFontWeight.section,
-            fontSize: 18.sp,
+            fontSize: 16,
           ),
         ),
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-          child: Column(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Share your transformation',
                 style: TextStyle(
-                  fontSize: 22.sp,
-                  fontWeight: AppFontWeight.section,
-                  color: Colors.black,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: P2PColors.charcoal,
                 ),
               ),
-              SizedBox(height: 4.h),
-              Text(
+              const SizedBox(height: 5),
+              const Text(
                 'Inspire the community with your before & after.',
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 13, height: 1.4,
+                    color: P2PColors.secondaryText),
               ),
-              SizedBox(height: 28.h),
+              const SizedBox(height: 24),
 
               // Photo pickers
               Row(
@@ -60,70 +69,74 @@ class BeforeAfterScreen extends StatelessWidget {
                           label: 'Before',
                           file: controller.beforeFile.value,
                           onTap: controller.pickBefore,
-                          accentColor: BrandColors.of(context).primary,
+                          accentColor: accent,
                         )),
                   ),
-                  SizedBox(width: 12.w),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Obx(() => _PhotoPicker(
                           label: 'After',
                           file: controller.afterFile.value,
                           onTap: controller.pickAfter,
-                          accentColor: Theme.of(context).colorScheme.primary,
+                          accentColor: accent,
                         )),
                   ),
                 ],
               ),
-              SizedBox(height: 24.h),
+              const SizedBox(height: 26),
 
               // Caption
-              Text(
+              const Text(
                 'Caption (optional)',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 13,
                   fontWeight: AppFontWeight.label,
-                  color: Colors.black87,
+                  color: P2PColors.charcoal,
                 ),
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 9),
               TextFormField(
                 maxLines: 3,
                 maxLength: 280,
+                style: const TextStyle(fontSize: 14, height: 1.4,
+                    color: P2PColors.charcoal),
                 decoration: InputDecoration(
                   hintText: 'Describe your journey...',
-                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  hintStyle: const TextStyle(color: P2PColors.tertiaryText,
+                      fontSize: 14),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: P2PColors.surface,
+                  contentPadding: const EdgeInsets.all(16),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderRadius: BorderRadius.circular(P2PRadius.card),
+                    borderSide: const BorderSide(color: P2PColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderRadius: BorderRadius.circular(P2PRadius.card),
+                    borderSide: const BorderSide(color: P2PColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                    borderRadius: BorderRadius.circular(P2PRadius.card),
+                    borderSide: BorderSide(color: accent, width: 1.1),
                   ),
                 ),
                 onChanged: (v) => controller.caption.value = v,
               ),
-              SizedBox(height: 24.h),
+              const SizedBox(height: 23),
 
               // Result message
               Obx(() {
                 final msg = controller.submitMessage.value;
                 if (msg == null) return const SizedBox.shrink();
                 return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: EdgeInsets.only(bottom: 16.h),
-                  padding: EdgeInsets.all(14.w),
+                  duration: P2PMotion.standard,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(13),
                   decoration: BoxDecoration(
                     color: controller.isSuccess.value
                         ? Colors.green[50]
                         : Colors.red[50],
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(P2PRadius.control),
                     border: Border.all(
                       color: controller.isSuccess.value
                           ? Colors.green[300]!
@@ -139,9 +152,9 @@ class BeforeAfterScreen extends StatelessWidget {
                         color: controller.isSuccess.value
                             ? Colors.green[700]
                             : Colors.red[700],
-                        size: 20.sp,
+                        size: 19,
                       ),
-                      SizedBox(width: 10.w),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           msg,
@@ -149,7 +162,7 @@ class BeforeAfterScreen extends StatelessWidget {
                             color: controller.isSuccess.value
                                 ? Colors.green[800]
                                 : Colors.red[800],
-                            fontSize: 13.sp,
+                            fontSize: 12.5,
                           ),
                         ),
                       ),
@@ -161,39 +174,44 @@ class BeforeAfterScreen extends StatelessWidget {
               // Submit button
               Obx(() => SizedBox(
                     width: double.infinity,
-                    height: 52.h,
-                    child: ElevatedButton(
+                    height: 52,
+                    child: OutlinedButton(
                       onPressed:
                           controller.isSubmitting.value ? null : controller.submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        disabledBackgroundColor:
-                            Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: P2PColors.charcoal,
+                        backgroundColor: P2PColors.surface,
+                        side: BorderSide(color: accent, width: 1.2),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14.r),
+                          borderRadius: BorderRadius.circular(P2PRadius.pill),
                         ),
                       ),
                       child: controller.isSubmitting.value
                           ? SizedBox(
-                              width: 22.w,
-                              height: 22.w,
-                              child: const CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: accent,
+                                strokeWidth: 2,
                               ),
                             )
-                          : Text(
-                              'Post to Community',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: AppFontWeight.section,
-                                fontSize: 16.sp,
-                              ),
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Post to Community',
+                                    style: TextStyle(fontWeight: FontWeight.w600,
+                                        fontSize: 14)),
+                                const SizedBox(width: 10),
+                                Icon(Icons.arrow_forward_rounded,
+                                    color: accent, size: 19),
+                              ],
                             ),
                     ),
                   )),
-              SizedBox(height: 32.h),
+              const SizedBox(height: 24),
             ],
+              ),
+            ),
           ),
         ),
       ),
@@ -216,61 +234,62 @@ class _PhotoPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 170.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: file != null ? accentColor : Colors.grey[200]!,
-            width: file != null ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return Semantics(
+      button: true,
+      label: '$label photo, tap to select',
+      child: Material(
+        color: P2PColors.surface,
+        borderRadius: BorderRadius.circular(P2PRadius.card),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(P2PRadius.card),
+          child: Container(
+            height: 166,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(P2PRadius.card),
+              border: Border.all(
+                color: file != null ? accentColor : P2PColors.border,
+                width: file != null ? 1.2 : 1,
+              ),
+              boxShadow: P2PShadows.card,
             ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: file != null
+            clipBehavior: Clip.antiAlias,
+            child: file != null
             ? Stack(
                 fit: StackFit.expand,
                 children: [
                   Image.file(file!, fit: BoxFit.cover),
                   Positioned(
-                    top: 6.h,
-                    left: 6.w,
+                    top: 8,
+                    left: 8,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 8.w, vertical: 4.h),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 9, vertical: 5),
                       decoration: BoxDecoration(
                         color: accentColor,
-                        borderRadius: BorderRadius.circular(6.r),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         label,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontWeight: AppFontWeight.section,
-                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 11,
                         ),
                       ),
                     ),
                   ),
                   Positioned(
-                    bottom: 6.h,
-                    right: 6.w,
+                    bottom: 8,
+                    right: 8,
                     child: Container(
-                      padding: EdgeInsets.all(4.w),
+                      padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: BorderRadius.circular(6.r),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(Icons.edit, color: Colors.white, size: 14.sp),
+                      child: const Icon(Icons.edit_outlined,
+                          color: Colors.white, size: 15),
                     ),
                   ),
                 ],
@@ -279,34 +298,37 @@ class _PhotoPicker extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 44.w,
-                    height: 44.w,
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.1),
+                      color: accentColor.withValues(alpha: .09),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.add_photo_alternate_outlined,
                       color: accentColor,
-                      size: 24.sp,
+                      size: 23,
                     ),
                   ),
-                  SizedBox(height: 10.h),
+                  const SizedBox(height: 10),
                   Text(
                     label,
-                    style: TextStyle(
-                      fontWeight: AppFontWeight.section,
-                      fontSize: 13.sp,
-                      color: Colors.black87,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: P2PColors.charcoal,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
+                  const SizedBox(height: 4),
+                  const Text(
                     'Tap to select',
-                    style: TextStyle(fontSize: 11.sp, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 11,
+                        color: P2PColors.secondaryText),
                   ),
                 ],
               ),
+          ),
+        ),
       ),
     );
   }
