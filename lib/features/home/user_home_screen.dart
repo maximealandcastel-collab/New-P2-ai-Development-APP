@@ -1047,7 +1047,6 @@ class _GymsCardState extends State<_GymsCard> {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
@@ -1103,7 +1102,7 @@ class _GymsCardState extends State<_GymsCard> {
           ),
           SizedBox(height: 8.h),
           SizedBox(
-            height: 154.h,
+            height: 156.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: gyms.length,
@@ -1130,7 +1129,7 @@ class _GymsCardState extends State<_GymsCard> {
                     children: [
                       GymStockImage(
                         gym: gym,
-                        height: 82.h,
+                        height: 76.h,
                         width: double.infinity,
                         logoSize: 40,
                         logoInset: 7,
@@ -1156,9 +1155,11 @@ class _GymsCardState extends State<_GymsCard> {
                                 SizedBox(width: 2.w),
                                 Expanded(
                                   child: Text(
-                                      gym.distanceLabel.isNotEmpty
-                                          ? '${gym.distanceLabel} · ${gym.city}'
-                                          : gym.city,
+                                      gym.address.isNotEmpty
+                                          ? gym.address
+                                          : (gym.distanceLabel.isEmpty
+                                              ? gym.city
+                                              : gym.distanceLabel),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -1167,6 +1168,19 @@ class _GymsCardState extends State<_GymsCard> {
                                           color: const Color(0xFF777A84))),
                                 ),
                               ],
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(
+                              gym.isActivated ? 'Active gym' : 'Coming soon',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.w400,
+                                color: gym.isActivated
+                                    ? const Color(0xFF2E7D32)
+                                    : const Color(0xFF858791),
+                              ),
                             ),
                           ],
                         ),
