@@ -297,7 +297,6 @@ class _SourceButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    required this.onRemove,
   });
 
   final IconData icon;
@@ -342,6 +341,7 @@ class _PhotoTile extends StatelessWidget {
     required this.file,
     required this.accent,
     required this.onTap,
+    required this.onRemove,
   });
 
   final String label;
