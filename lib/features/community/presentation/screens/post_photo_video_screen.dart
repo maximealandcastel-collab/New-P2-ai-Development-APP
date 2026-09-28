@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
@@ -196,8 +197,10 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F8F8),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: P2PColors.border),
+                boxShadow: P2PShadows.card,
               ),
               child: Row(
                 children: [
@@ -249,21 +252,50 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
               ),
             ),
             SizedBox(height: 14.h),
-            TextField(
-              controller: _captionController,
-              maxLines: 4,
-              minLines: 3,
-              maxLength: 280,
-              decoration: InputDecoration(
-                hintText: 'Write a caption...',
-                counterText: '',
-                border: InputBorder.none,
-                hintStyle: TextStyle(
-                  color: Colors.black38,
-                  fontSize: 17.sp,
+            Text(
+              'Caption (optional)',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: AppFontWeight.label,
+                color: P2PColors.charcoal,
+              ),
+            ),
+            SizedBox(height: 9.h),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(color: P2PColors.border),
+                boxShadow: P2PShadows.card,
+              ),
+              child: TextField(
+                controller: _captionController,
+                maxLines: 4,
+                minLines: 3,
+                maxLength: 280,
+                decoration: InputDecoration(
+                  hintText: 'Write a caption...',
+                  counterText: '',
+                  contentPadding: EdgeInsets.all(16.r),
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    color: Colors.black38,
+                    fontSize: 17.sp,
+                  ),
+                ),
+                style: TextStyle(fontSize: 17.sp),
+              ),
+            ),
+            SizedBox(height: 6.h),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _captionController,
+              builder: (context, value, _) => Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${value.text.length}/280',
+                  style: TextStyle(color: P2PColors.secondaryText, fontSize: 12.sp),
                 ),
               ),
-              style: TextStyle(fontSize: 17.sp),
             ),
             SizedBox(height: 10.h),
             GestureDetector(
@@ -273,13 +305,14 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                 width: double.infinity,
                 height: 330.h,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F7F7),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(22.r),
                   border: Border.all(
                     color: _photo == null
-                        ? const Color(0xFFE7E7E7)
+                        ? P2PColors.border
                         : orange.withOpacity(.45),
                   ),
+                  boxShadow: P2PShadows.card,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: _photo != null
@@ -406,22 +439,35 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
             SizedBox(height: 20.h),
             SizedBox(
               height: 54.h,
-              child: FilledButton(
+              child: OutlinedButton(
                 onPressed: _photo == null || _posting ? null : _postPhoto,
-                style: FilledButton.styleFrom(
-                  backgroundColor: orange,
-                  disabledBackgroundColor: const Color(0xFFE6E6E6),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: P2PColors.charcoal,
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: _photo == null ? P2PColors.border : orange,
+                    width: 1.2,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.r),
+                    borderRadius: BorderRadius.circular(999.r),
                   ),
                 ),
-                child: Text(
-                  _posting ? 'Posting...' : 'Post Photo',
-                  style: TextStyle(
-                    color: _photo == null ? Colors.black38 : Colors.white,
-                    fontWeight: AppFontWeight.section,
-                    fontSize: 15.sp,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _posting ? 'Posting...' : 'Post Photo',
+                      style: TextStyle(
+                        color: _photo == null ? Colors.black38 : P2PColors.charcoal,
+                        fontWeight: AppFontWeight.section,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Icon(Icons.arrow_forward_rounded,
+                        color: _photo == null ? Colors.black38 : orange, size: 19.sp),
+                  ],
                 ),
               ),
             ),

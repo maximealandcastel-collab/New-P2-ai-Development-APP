@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -198,15 +199,18 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
             SizedBox(
               width: double.infinity,
               height: 52.h,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedTab == 0
-                      ? (selectedVideo != null
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey.shade300)
-                      : Theme.of(context).colorScheme.primary,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: P2PColors.charcoal,
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: selectedTab == 0 && selectedVideo == null
+                        ? P2PColors.border
+                        : Theme.of(context).colorScheme.primary,
+                    width: 1.2,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+                    borderRadius: BorderRadius.circular(999.r),
                   ),
                 ),
                 onPressed: (selectedTab == 0 ? videoLoading : updateLoading)
@@ -217,14 +221,23 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
                         height: 22,
                         width: 22,
                         child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2.5),
+                            color: Theme.of(context).colorScheme.primary,
+                            strokeWidth: 2.5),
                       )
-                    : CustomText(
-                        text:
-                            selectedTab == 0 ? 'Post Video' : 'Send to All Clients',
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CustomText(
+                            text: selectedTab == 0 ? 'Post Video' : 'Send to All Clients',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: P2PColors.charcoal,
+                          ),
+                          SizedBox(width: 10.w),
+                          Icon(Icons.arrow_forward_rounded,
+                              color: Theme.of(context).colorScheme.primary, size: 19.sp),
+                        ],
                       ),
               ),
             ),
@@ -327,13 +340,14 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
         child: CustomContainer(
           radiusAll: 12.r,
           paddingVertical: 10.h,
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+          color: isSelected ? BrandColors.of(context).soft : Colors.transparent,
+          bordersColor: isSelected ? BrandColors.of(context).border : null,
           alignment: Alignment.center,
           child: CustomText(
             text: label,
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey,
           ),
         ),
       ),
@@ -347,16 +361,15 @@ class _ContentPostScreenState extends State<ContentPostScreen> {
         width: double.infinity,
         height: 200.h,
         decoration: BoxDecoration(
-          color: selectedVideo != null
-              ? const Color(0xFFFFF8F1)
-              : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: selectedVideo != null
                 ? Theme.of(context).colorScheme.primary
                 : Colors.black12,
-            width: selectedVideo != null ? 2 : 1,
+            width: 1,
           ),
+          boxShadow: P2PShadows.card,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
