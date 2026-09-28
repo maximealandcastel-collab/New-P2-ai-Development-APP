@@ -16,6 +16,19 @@ class GymBrandMesh {
     stops: const [0, .62, 1],
   );
 
+  /// Barely visible surface shade: the gym's existing background remains
+  /// the source color, with no replacement of its logo or brand palette.
+  static LinearGradient surface(Color background, Color accent) => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color.lerp(background, charcoal, .035)!,
+      background,
+      Color.lerp(background, accent, .025)!,
+    ],
+    stops: const [0, .56, 1],
+  );
+
   static BoxShadow shadow(Color accent) => BoxShadow(
     color: accent.withValues(alpha: .08),
     blurRadius: 7,
