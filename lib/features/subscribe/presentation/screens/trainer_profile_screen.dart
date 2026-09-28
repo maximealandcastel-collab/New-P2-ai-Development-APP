@@ -1,6 +1,8 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -257,7 +259,9 @@ class _TierBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r)),
+      decoration: TenantBrandService.to.isWhiteLabeled
+          ? BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r))
+          : P2PAccentPill.decoration(radius: 20.r),
       child: Text(tier, style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
     );
   }
@@ -346,7 +350,9 @@ class _BookBanner extends StatelessWidget {
             onTap: () => _openBookingPaywall(trainerID),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r)),
+              decoration: TenantBrandService.to.isWhiteLabeled
+                  ? BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r))
+                  : P2PAccentPill.decoration(radius: 20.r),
               child: Text('Book', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
             ),
           ),
