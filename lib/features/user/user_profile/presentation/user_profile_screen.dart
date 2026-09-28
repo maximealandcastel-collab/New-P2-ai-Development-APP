@@ -452,7 +452,7 @@ class _TabBar extends StatelessWidget {
                     duration: const Duration(milliseconds: 180),
                     alignment: Alignment.center,
                     decoration: i == selected &&
-                            !TenantBrandService.to.isWhiteLabeled
+                            P2PAccentPill.appliesToCurrentBrand
                         ? P2PAccentPill.decoration(radius: 12.r)
                         : BoxDecoration(
                             gradient: i == selected
@@ -513,7 +513,7 @@ class _Composer extends StatelessWidget {
               Container(
                 width: 34.r,
                 height: 34.r,
-                decoration: TenantBrandService.to.isWhiteLabeled
+                decoration: !P2PAccentPill.appliesToCurrentBrand
                     ? BoxDecoration(color: orange, shape: BoxShape.circle)
                     : P2PAccentPill.decoration(radius: 17.r, circular: true),
                 child: Icon(Icons.add_rounded, color: Colors.white, size: 22.sp),
