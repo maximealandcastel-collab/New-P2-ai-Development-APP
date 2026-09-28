@@ -261,7 +261,7 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: active && !TenantBrandService.to.isWhiteLabeled
+              decoration: active && P2PAccentPill.appliesToCurrentBrand
                   ? P2PAccentPill.decoration(radius: 20.r)
                   : BoxDecoration(
                       color: active
