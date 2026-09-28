@@ -52,17 +52,20 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          text: 'What type of training\ndo you want to do?',
-          fontSize: 24.sp,
+          text: 'What type of training do you want to do?',
+          fontSize: 21.sp,
           fontWeight: AppFontWeight.section,
           color: AppColors.textPrimary,
-          maxline: 2,
+          textAlign: TextAlign.start,
+          textHeight: 1.18,
+          maxline: 3,
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
         CustomText(
           text: 'Choose one or more styles. We\'ll customize your workouts, trainers, and content.',
-          fontSize: 14.sp,
+          fontSize: 13.sp,
           color: AppColors.textSecondary,
+          textAlign: TextAlign.start,
           maxline: 3,
         ),
         SizedBox(height: 24.h),
@@ -163,20 +166,20 @@ class _WorkoutTrainingPickPageState extends State<WorkoutTrainingPickPage> {
                           ],
                         ),
                         Positioned(
-                          top: 0,
-                          right: 0,
+                          top: 2.h,
+                          right: 2.w,
                           child: Container(
-                            width: 24.w,
-                            height: 24.w,
+                            width: 18.w,
+                            height: 18.w,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
                               border: Border.all(
-                                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white30,
+                                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white54,
                               ),
                             ),
                             child: isSelected
-                                ? Icon(Icons.check, color: Colors.white, size: 16.sp)
+                                ? Icon(Icons.check, color: Colors.white, size: 12.sp)
                                 : null,
                           ),
                         ),
