@@ -1,5 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -221,12 +222,14 @@ class _NavBarState extends State<NavBar> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           height: double.infinity,
-          decoration: BoxDecoration(
-            color: selected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
+          decoration: selected && !TenantBrandService.to.isWhiteLabeled
+              ? P2PAccentPill.decoration(radius: 20.r)
+              : BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
