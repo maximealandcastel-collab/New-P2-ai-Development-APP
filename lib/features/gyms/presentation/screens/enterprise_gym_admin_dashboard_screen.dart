@@ -12,6 +12,7 @@ import '../../data/services/enterprise_service.dart';
 import 'enterprise_module_screen.dart';
 import 'enterprise_session_screen.dart';
 import '../widgets/tenant_image.dart';
+import '../widgets/gym_brand_mesh.dart';
 
 const _kmfGreen = Color(0xFF22C55E);
 const _kmfBlack = Color(0xFF090A09);
@@ -256,7 +257,7 @@ class _EnterpriseHeader extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Color(0x33000000),
-                    Color(0xAA000000),
+                    Color.lerp(GymBrandMesh.charcoal, gym.brandColor, .32)!.withValues(alpha: .82),
                     _dashboardBackground(gym),
                   ],
                 ),
@@ -406,16 +407,24 @@ class _DashboardBody extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: GymBrandMesh.forColors(gym.brandColor, gym.accentColor),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [GymBrandMesh.shadow(gym.accentColor)],
+                ),
+                child: FilledButton.icon(
                 key: const ValueKey('enterprise-analytics-button'),
                 onPressed: () => onOpenModule('analytics'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: gym.accentColor,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
+                  shadowColor: Colors.transparent,
                 ),
                 icon: const Icon(Icons.analytics_rounded),
                 label: const Text('Open Analytics'),
+                ),
               ),
             ),
           const SizedBox(height: 14),

@@ -10,6 +10,7 @@ import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_signup_flow.dart';
 
 /// Gym-branded login screen that stays inside the P2P Fit Tech AI design system.
@@ -167,8 +168,13 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
         child: Container(
           height: 48.h,
           decoration: BoxDecoration(
-            color: active ? widget.gym.entryColor : Colors.transparent,
+            gradient: active
+                ? GymBrandMesh.forColors(widget.gym.brandColor, widget.gym.accentColor)
+                : null,
             borderRadius: BorderRadius.circular(30.r),
+            boxShadow: active
+                ? [GymBrandMesh.shadow(widget.gym.accentColor)]
+                : null,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -176,7 +182,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: AppFontWeight.label,
-              color: active ? widget.gym.entryTextColor : Colors.black45,
+              color: active ? Colors.white : Colors.black45,
             ),
           ),
         ),
@@ -280,11 +286,18 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             SizedBox(
               width: double.infinity,
               height: 52.h,
-              child: ElevatedButton(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: GymBrandMesh.forColors(gym.brandColor, gym.accentColor),
+                  borderRadius: BorderRadius.circular(14.r),
+                  boxShadow: [GymBrandMesh.shadow(gym.accentColor)],
+                ),
+                child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: gym.entryColor,
-                  foregroundColor: gym.entryTextColor,
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
                   elevation: 0,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14.r),
                   ),
@@ -298,6 +311,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                     fontSize: 15.sp,
                     fontWeight: AppFontWeight.label,
                   ),
+                ),
                 ),
               ),
             ),
@@ -472,7 +486,13 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _pageBackground,
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: _isKmf
+              ? null
+              : GymBrandMesh.forColors(widget.gym.brandColor, widget.gym.accentColor),
+        ),
+        child: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(22.w, 12.h, 22.w, 30.h),
@@ -650,7 +670,14 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                             _controller.loginState == LoadingState.loading;
                         return SizedBox(
                           height: 52.h,
-                          child: ElevatedButton(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: GymBrandMesh.forColors(
+                                  widget.gym.brandColor, widget.gym.accentColor),
+                              borderRadius: BorderRadius.circular(14.r),
+                              boxShadow: [GymBrandMesh.shadow(widget.gym.accentColor)],
+                            ),
+                            child: ElevatedButton(
                             onPressed: loading
                                 ? null
                                 : () => _controller.login(
@@ -658,10 +685,11 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     formKey: _formKey,
                                   ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _green,
-                              foregroundColor: _black,
-                              disabledBackgroundColor: _green.withOpacity(0.45),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: Colors.transparent,
                               elevation: 0,
+                              shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14.r),
                               ),
@@ -672,7 +700,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     height: 22.r,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
-                                      color: _black,
+                                      color: Colors.white,
                                     ),
                                   )
                                 : Text(
@@ -682,6 +710,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                            ),
                           ),
                         );
                       }),
@@ -725,6 +754,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
