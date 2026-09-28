@@ -159,7 +159,7 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
               duration: const Duration(milliseconds: 180),
               width: 44.w,
               height: 64.h,
-              decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+              decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
                   ? P2PAccentPill.decoration(radius: 10.r)
                   : BoxDecoration(
                       color: isSelected
