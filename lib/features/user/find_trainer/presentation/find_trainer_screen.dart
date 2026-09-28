@@ -1080,10 +1080,12 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
                   child: Container(
                     width: double.infinity,
                     height: 52.h,
-                    decoration: BoxDecoration(
-                      color: BrandColors.of(context).primary,
-                      borderRadius: BorderRadius.circular(14.r),
-                    ),
+                    decoration: TenantBrandService.to.isWhiteLabeled
+                        ? BoxDecoration(
+                            color: BrandColors.of(context).primary,
+                            borderRadius: BorderRadius.circular(14.r),
+                          )
+                        : P2PAccentPill.decoration(radius: 14.r),
                     alignment: Alignment.center,
                     child: Text(
                       'Request trainer',
