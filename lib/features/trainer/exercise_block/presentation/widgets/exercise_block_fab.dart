@@ -19,7 +19,7 @@ class ExerciseBlockFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final useAccent = !TenantBrandService.to.isWhiteLabeled;
+    final useAccent = P2PAccentPill.appliesToCurrentBrand;
     return CustomContainer(
       onTap: onPressed,
       color: useAccent ? null : Theme.of(context).colorScheme.primary,
