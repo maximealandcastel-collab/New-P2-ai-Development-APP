@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.
 import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 
 /// Opens the shared member-facing franchise location picker.
 ///
@@ -279,15 +280,25 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                         SizedBox(
                           width: double.infinity,
                           height: 46.h,
-                          child: FilledButton(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: active
+                                  ? GymBrandMesh.forColors(gym.brandColor, gym.accentColor)
+                                  : null,
+                              borderRadius: BorderRadius.circular(24.r),
+                              boxShadow: active
+                                  ? [GymBrandMesh.shadow(gym.accentColor)]
+                                  : null,
+                            ),
+                            child: FilledButton(
                             onPressed: () => active
                                 ? widget.onEnter(gym)
                                 : widget.onClaim(gym),
                             style: FilledButton.styleFrom(
                               backgroundColor:
-                                  active ? gym.entryColor : Colors.white,
+                                  active ? Colors.transparent : Colors.white,
                               foregroundColor: active
-                                  ? gym.entryTextColor
+                                  ? Colors.white
                                   : gym.brandColor,
                               elevation: 0,
                               side: active
@@ -299,6 +310,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24.r),
                               ),
+                              shadowColor: Colors.transparent,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -334,6 +346,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   ),
                                 ],
                               ],
+                            ),
                             ),
                           ),
                         ),
