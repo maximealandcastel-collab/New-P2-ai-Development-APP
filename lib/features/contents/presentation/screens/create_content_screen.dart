@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/create_content_controller.dart';
@@ -103,14 +104,31 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
               SizedBox(height: 48.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: CustomButton(
-                  label: '+ New Post',
+                child: SizedBox(
                   width: double.infinity,
-                  onPressed: () {
-                    setState(() {
-                      _showIntro = false;
-                    });
-                  },
+                  height: 48.h,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _showIntro = false;
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: P2PColors.charcoal,
+                      backgroundColor: Colors.white,
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1.2,
+                      ),
+                      shape: const StadiumBorder(),
+                    ),
+                    child: CustomText(
+                      text: '+ New Post',
+                      fontWeight: AppFontWeight.label,
+                      fontSize: 14.sp,
+                      color: P2PColors.charcoal,
+                    ),
+                  ),
                 ),
               ),
             ],
