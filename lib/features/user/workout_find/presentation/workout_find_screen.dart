@@ -1512,6 +1512,15 @@ class _SplitSelectionStep extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.r),
                 ),
+              ).copyWith(
+                backgroundBuilder: TenantBrandService.to.isWhiteLabeled
+                    ? null
+                    : (context, states, child) => states.contains(WidgetState.disabled)
+                        ? child ?? const SizedBox.shrink()
+                        : DecoratedBox(
+                            decoration: P2PAccentPill.decoration(radius: 14.r),
+                            child: child ?? const SizedBox.shrink(),
+                          ),
               ),
               child: Text(
                 'Build This Program',
@@ -2101,10 +2110,12 @@ class _NextButton extends StatelessWidget {
         child: Container(
           width: double.infinity,
           height: 52.h,
-          decoration: BoxDecoration(
-            color: BrandColors.of(context).primary,
-            borderRadius: BorderRadius.circular(14.r),
-          ),
+          decoration: TenantBrandService.to.isWhiteLabeled
+              ? BoxDecoration(
+                  color: BrandColors.of(context).primary,
+                  borderRadius: BorderRadius.circular(14.r),
+                )
+              : P2PAccentPill.decoration(radius: 14.r),
           alignment: Alignment.center,
           child: Text(
             'Next',
