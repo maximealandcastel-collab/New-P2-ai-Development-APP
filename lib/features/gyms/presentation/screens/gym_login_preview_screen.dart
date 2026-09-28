@@ -182,7 +182,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: AppFontWeight.label,
-              color: active ? Colors.white : Colors.black45,
+              color: active ? widget.gym.entryTextColor : Colors.black45,
             ),
           ),
         ),
@@ -295,7 +295,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
                 child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.white,
+                  foregroundColor: gym.entryTextColor,
                   elevation: 0,
                   shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
@@ -486,13 +486,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _pageBackground,
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: _isKmf
-              ? null
-              : GymBrandMesh.forColors(widget.gym.brandColor, widget.gym.accentColor),
-        ),
-        child: SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(22.w, 12.h, 22.w, 30.h),
@@ -686,7 +680,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
-                              foregroundColor: Colors.white,
+                              foregroundColor: _black,
                               disabledBackgroundColor: Colors.transparent,
                               elevation: 0,
                               shadowColor: Colors.transparent,
@@ -700,7 +694,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     height: 22.r,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
-                                      color: Colors.white,
+                                      color: _black,
                                     ),
                                   )
                                 : Text(
@@ -754,7 +748,6 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
               ],
             ),
           ),
-        ),
         ),
       ),
     );
