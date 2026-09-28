@@ -257,7 +257,7 @@ class AdminModeService extends GetxController {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
-        decoration: active && !TenantBrandService.to.isWhiteLabeled
+        decoration: active && P2PAccentPill.appliesToCurrentBrand
             ? P2PAccentPill.decoration(radius: 20)
             : BoxDecoration(
                 color: active

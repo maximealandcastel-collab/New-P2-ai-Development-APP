@@ -733,7 +733,7 @@ class _GymsScreenState extends State<GymsScreen> {
             child: Container(
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: TenantBrandService.to.isWhiteLabeled
+              decoration: !P2PAccentPill.appliesToCurrentBrand
                   ? BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(13.r),
@@ -788,7 +788,7 @@ class _GymsScreenState extends State<GymsScreen> {
               onTap: _showFilterSheet,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-                decoration: active && !TenantBrandService.to.isWhiteLabeled
+                decoration: active && P2PAccentPill.appliesToCurrentBrand
                     ? P2PAccentPill.decoration(radius: 30.r)
                     : BoxDecoration(
                         color: active
@@ -832,7 +832,7 @@ class _GymsScreenState extends State<GymsScreen> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 5.h),
-              decoration: active && !TenantBrandService.to.isWhiteLabeled
+              decoration: active && P2PAccentPill.appliesToCurrentBrand
                   ? P2PAccentPill.decoration(radius: 30.r)
                   : BoxDecoration(
                       color: active
@@ -1042,7 +1042,7 @@ class _NavPills extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h),
-          decoration: active && !TenantBrandService.to.isWhiteLabeled
+          decoration: active && P2PAccentPill.appliesToCurrentBrand
               ? P2PAccentPill.decoration(radius: 30.r)
               : BoxDecoration(
                   color: active

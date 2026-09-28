@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 
 /// Presentation-only constants for the P2P visual system.
 ///
@@ -102,6 +103,17 @@ class P2PGradients {
 /// Restrained flagship treatment for selected orange controls.
 class P2PAccentPill {
   P2PAccentPill._();
+
+  /// Keep distinct tenant palettes while refining any orange action surface.
+  static bool get appliesToCurrentBrand {
+    final brand = TenantBrandService.to.activeBrand;
+    if (brand == null) return true;
+    final hsv = HSVColor.fromColor(brand.primaryColor);
+    return hsv.hue >= 8 &&
+        hsv.hue <= 48 &&
+        hsv.saturation >= 0.55 &&
+        hsv.value >= 0.55;
+  }
 
   static const colors = <Color>[
     Color(0xFF201D1D),

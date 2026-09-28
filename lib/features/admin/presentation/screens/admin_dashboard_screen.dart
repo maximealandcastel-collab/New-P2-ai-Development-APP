@@ -854,7 +854,7 @@ class _FilterTab extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
-        decoration: active && !TenantBrandService.to.isWhiteLabeled
+        decoration: active && P2PAccentPill.appliesToCurrentBrand
             ? P2PAccentPill.decoration(radius: 16.r)
             : BoxDecoration(
                 color: active

@@ -256,7 +256,7 @@ class HistoryScreen extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           alignment: Alignment.center,
-          decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+          decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
               ? P2PAccentPill.decoration(radius: 14.r)
               : BoxDecoration(
                   color: isSelected

@@ -108,7 +108,7 @@ class BottomNavBar extends StatelessWidget {
                         onTap: () =>
                             NavFabWidget.show(context, controller.fabItems),
                         child: Center(
-                          child: tenant.isWhiteLabeled
+                          child: !P2PAccentPill.appliesToCurrentBrand
                                   ? Container(
                                       height: 42.h,
                                       width: 42.w,

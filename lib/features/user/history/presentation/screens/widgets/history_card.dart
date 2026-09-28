@@ -619,7 +619,7 @@ class _ActionButton extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(999.r),
         child: Ink(
-          decoration: filled && !TenantBrandService.to.isWhiteLabeled
+          decoration: filled && P2PAccentPill.appliesToCurrentBrand
               ? P2PAccentPill.decoration(radius: 999.r)
               : BoxDecoration(
                   color: filled ? AppColors.primary : const Color(0xFFF5F5F8),
