@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/enterprise_gym_model.dart';
 import 'gym_detail_screen.dart';
 import '../widgets/gym_brand_logo.dart';
+import '../widgets/gym_brand_mesh.dart';
 
 /// Confirms the exact facility before entering the existing authenticated
 /// member flow. This screen never creates a membership by itself.
@@ -160,16 +161,24 @@ class _GymJoinConfirmationScreenState
                 SizedBox(
                   width: double.infinity,
                   height: 48.h,
-                  child: FilledButton(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: GymBrandMesh.forColors(gym.brandColor, gym.accentColor),
+                      borderRadius: BorderRadius.circular(24.r),
+                      boxShadow: [GymBrandMesh.shadow(gym.accentColor)],
+                    ),
+                    child: FilledButton(
                     onPressed: () => widget.onContinue(gym),
                     style: FilledButton.styleFrom(
-                      backgroundColor: gym.entryColor,
-                      foregroundColor: gym.entryTextColor,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
                       elevation: 0,
+                      shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
                     ),
                     child: Text('Continue with ${gym.name}', maxLines: 1,
                         overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                 ),
                 TextButton(
