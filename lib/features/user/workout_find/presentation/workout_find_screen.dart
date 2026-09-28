@@ -4,6 +4,8 @@ import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
@@ -626,6 +628,15 @@ class _TrainingStylesStep extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.r),
                     ),
+                  ).copyWith(
+                    backgroundBuilder: TenantBrandService.to.isWhiteLabeled
+                        ? null
+                        : (context, states, child) => states.contains(WidgetState.disabled)
+                            ? child ?? const SizedBox.shrink()
+                            : DecoratedBox(
+                                decoration: P2PAccentPill.decoration(radius: 18.r),
+                                child: child ?? const SizedBox.shrink(),
+                              ),
                   ),
                   child: Text(
                     'Next',
@@ -974,17 +985,21 @@ class _IntensityDurationStep extends StatelessWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
-                            decoration: BoxDecoration(
-                              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
-                              borderRadius: BorderRadius.circular(14.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
+                            decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                                ? P2PAccentPill.decoration(radius: 14.r)
+                                : BoxDecoration(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(14.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
                             child: Column(
                               children: [
                                 Icon(
