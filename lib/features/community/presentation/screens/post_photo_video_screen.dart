@@ -1,6 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:image_picker/image_picker.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
+import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/contents/presentation/controllers/content_controller.dart';
-import 'package:pler_to_pler_app/features/contents/presentation/screens/create_content_screen.dart';
 
 class PostPhotoVideoScreen extends StatefulWidget {
   const PostPhotoVideoScreen({super.key});
@@ -27,7 +26,6 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
   final TextEditingController _captionController = TextEditingController();
 
   File? _photo;
-  File? _extraPhoto;
   bool _posting = false;
 
   @override
@@ -36,23 +34,17 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
     super.dispose();
   }
 
-  Future<void> _pickPhoto(ImageSource source, {bool extra = false}) async {
+  Future<void> _pickPhoto(ImageSource source) async {
     final picked = await _picker.pickImage(
       source: source,
       imageQuality: 88,
       maxWidth: 1800,
     );
     if (picked == null || !mounted) return;
-    setState(() {
-      if (extra) {
-        _extraPhoto = File(picked.path);
-      } else {
-        _photo = File(picked.path);
-      }
-    });
+    setState(() => _photo = File(picked.path));
   }
 
-  void _showPhotoSource({bool extra = false}) {
+  void _showPhotoSource() {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
@@ -90,7 +82,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       label: 'Camera',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickPhoto(ImageSource.camera, extra: extra);
+                        _pickPhoto(ImageSource.camera);
                       },
                     ),
                   ),
@@ -101,7 +93,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       label: 'Library',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickPhoto(ImageSource.gallery, extra: extra);
+                        _pickPhoto(ImageSource.gallery);
                       },
                     ),
                   ),
@@ -114,78 +106,19 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
     );
   }
 
-  /// The content upload contract stores one thumbnail. Keep both selections
-  /// together in that file when a second photo is supplied.
-  Future<File> _photoForUpload() async {
-    if (_extraPhoto == null) return _photo!;
-    final first = await _decodePhoto(_photo!);
-    late final ui.Image second;
-    try {
-      second = await _decodePhoto(_extraPhoto!);
-    } catch (_) {
-      first.dispose();
-      rethrow;
-    }
-    final recorder = ui.PictureRecorder();
-    final canvas = ui.Canvas(recorder);
-    const side = 600.0;
-    _drawCover(canvas, first, const ui.Rect.fromLTWH(0, 0, side, side));
-    _drawCover(canvas, second, const ui.Rect.fromLTWH(side, 0, side, side));
-    final picture = recorder.endRecording();
-    try {
-      final image = await picture.toImage(1200, 600);
-      try {
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        if (bytes == null) throw StateError('Could not prepare photos.');
-        final output = File('${Directory.systemTemp.path}/p2p-journey-${DateTime.now().microsecondsSinceEpoch}.png');
-        await output.writeAsBytes(bytes.buffer.asUint8List());
-        return output;
-      } finally {
-        image.dispose();
-      }
-    } finally {
-      picture.dispose();
-      first.dispose();
-      second.dispose();
-    }
-  }
-
-  Future<ui.Image> _decodePhoto(File file) async {
-    final codec = await ui.instantiateImageCodec(await file.readAsBytes());
-    try {
-      final frame = await codec.getNextFrame();
-      return frame.image;
-    } finally {
-      codec.dispose();
-    }
-  }
-
-  void _drawCover(ui.Canvas canvas, ui.Image image, ui.Rect destination) {
-    final dimension = image.width < image.height ? image.width : image.height;
-    final source = ui.Rect.fromLTWH(
-      (image.width - dimension) / 2,
-      (image.height - dimension) / 2,
-      dimension.toDouble(), dimension.toDouble(),
-    );
-    canvas.drawImageRect(image, source, destination, ui.Paint()..filterQuality = ui.FilterQuality.high);
-  }
-
   Future<void> _postPhoto() async {
     if (_photo == null || _posting) return;
 
     setState(() => _posting = true);
-    File? combinedPhoto;
     try {
       final caption = _captionController.text.trim();
-      final upload = await _photoForUpload();
-      if (_extraPhoto != null) combinedPhoto = upload;
       final form = FormData.fromMap({
         'title': caption.isEmpty ? 'Community photo' : caption,
         'description': caption,
         'contentType': 'image',
         'thumbnail': await MultipartFile.fromFile(
-          upload.path,
-          filename: upload.path.split('/').last,
+          _photo!.path,
+          filename: _photo!.path.split('/').last,
         ),
       });
 
@@ -200,7 +133,9 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
         } catch (_) {}
       }
 
-      BottomNavBarController.to.goToContentsTab();
+      if (Get.isRegistered<BottomNavBarController>()) {
+        BottomNavBarController.to.goToContentsTab();
+      }
 
       if (mounted) {
         Get.back();
@@ -219,13 +154,6 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
         );
       }
     } finally {
-      try {
-        if (combinedPhoto != null && await combinedPhoto.exists()) {
-          await combinedPhoto.delete();
-        }
-      } catch (_) {
-        // A failed temporary-file cleanup must not mask the upload result.
-      }
       if (mounted) setState(() => _posting = false);
     }
   }
@@ -266,30 +194,19 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       style: TextStyle(fontSize: 13, height: 1.4,
                           color: P2PColors.secondaryText)),
                   const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _PhotoTile(
-                          label: 'Upload photo',
-                          hint: 'Tap to select',
-                          file: _photo,
-                          accent: orange,
-                          onTap: _posting ? null : () => _showPhotoSource(),
-                          onRemove: _posting ? null : () => setState(() => _photo = null),
-                        ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 240),
+                      child: _PhotoTile(
+                        label: 'Upload photo',
+                        hint: 'Tap to select',
+                        file: _photo,
+                        accent: orange,
+                        onTap: _posting ? null : _showPhotoSource,
+                        onRemove: _posting ? null : () => setState(() => _photo = null),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _PhotoTile(
-                          label: 'Add more',
-                          hint: 'Optional',
-                          file: _extraPhoto,
-                          accent: orange,
-                          onTap: _posting ? null : () => _showPhotoSource(extra: true),
-                          onRemove: _posting ? null : () => setState(() => _extraPhoto = null),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 26),
                   const Text('Caption (optional)',
@@ -356,8 +273,8 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                   ),
                   const SizedBox(height: 8),
                   TextButton.icon(
-                    onPressed: _posting ? null : () => Get.off(
-                      () => const CreateContentScreen(),
+                    onPressed: _posting ? null : () => Get.offNamed(
+                      AppRoute.createContentScreen,
                     ),
                     icon: Icon(Icons.videocam_outlined, color: orange, size: 19),
                     label: const Text('Post a video instead',
