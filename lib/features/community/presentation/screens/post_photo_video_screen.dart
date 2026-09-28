@@ -159,323 +159,188 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
   @override
   Widget build(BuildContext context) {
     final orange = BrandColors.of(context).primary;
-
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: P2PColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        backgroundColor: P2PColors.surface,
+        surfaceTintColor: P2PColors.surface,
         elevation: 0,
         leading: IconButton(
           onPressed: Get.back,
-          icon: const Icon(Icons.close_rounded),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              size: 19, color: P2PColors.charcoal),
         ),
-        title: const Text(
-          'New Post',
-          style: TextStyle(fontWeight: AppFontWeight.section),
-        ),
+        title: const Text('New Post',
+            style: TextStyle(fontSize: 16, fontWeight: AppFontWeight.section)),
         centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: _photo == null || _posting ? null : _postPhoto,
-            child: Text(
-              _posting ? 'Posting...' : 'Post',
-              style: TextStyle(
-                color: _photo == null ? Colors.black26 : orange,
-                fontWeight: AppFontWeight.section,
-              ),
-            ),
-          ),
-          SizedBox(width: 8.w),
-        ],
       ),
       body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 30.h),
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: P2PColors.border),
-                boxShadow: P2PShadows.card,
-              ),
-              child: Row(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 19.r,
-                    backgroundColor: orange.withOpacity(.12),
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: orange,
-                      size: 20.sp,
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Text(
-                      'Share a fitness moment',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
+                  const Text('Share your journey',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600,
+                          color: P2PColors.charcoal)),
+                  const SizedBox(height: 5),
+                  const Text('Share a moment from your fitness journey.',
+                      style: TextStyle(fontSize: 13, height: 1.4,
+                          color: P2PColors.secondaryText)),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    button: true,
+                    label: _photo == null ? 'Upload photo' : 'Change photo',
+                    child: Material(
+                      color: P2PColors.surface,
+                      borderRadius: BorderRadius.circular(P2PRadius.card),
+                      child: InkWell(
+                        onTap: _posting ? null : _showPhotoSource,
+                        borderRadius: BorderRadius.circular(P2PRadius.card),
+                        child: Container(
+                          width: double.infinity,
+                          height: 166,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(P2PRadius.card),
+                            border: Border.all(
+                              color: _photo == null ? P2PColors.border : orange,
+                              width: _photo == null ? 1 : 1.2,
+                            ),
+                            boxShadow: P2PShadows.card,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: _photo == null
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 46, height: 46,
+                                      decoration: BoxDecoration(
+                                        color: orange.withValues(alpha: .09),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.add_photo_alternate_outlined,
+                                          color: orange, size: 23),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text('Upload a photo',
+                                        style: TextStyle(fontWeight: FontWeight.w600,
+                                            fontSize: 13, color: P2PColors.charcoal)),
+                                    const SizedBox(height: 4),
+                                    const Text('Camera or library',
+                                        style: TextStyle(fontSize: 11,
+                                            color: P2PColors.secondaryText)),
+                                  ],
+                                )
+                              : Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.file(_photo!, fit: BoxFit.cover),
+                                    Positioned(
+                                      bottom: 8, right: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(Icons.edit_outlined,
+                                            color: Colors.white, size: 17),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       ),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 6.h,
+                  const SizedBox(height: 26),
+                  const Text('Caption (optional)',
+                      style: TextStyle(fontSize: 13,
+                          fontWeight: AppFontWeight.label,
+                          color: P2PColors.charcoal)),
+                  const SizedBox(height: 9),
+                  TextField(
+                    controller: _captionController,
+                    maxLines: 3,
+                    maxLength: 280,
+                    style: const TextStyle(fontSize: 14, height: 1.4,
+                        color: P2PColors.charcoal),
+                    decoration: InputDecoration(
+                      hintText: 'Describe your journey...',
+                      hintStyle: const TextStyle(color: P2PColors.tertiaryText,
+                          fontSize: 14),
+                      filled: true,
+                      fillColor: P2PColors.surface,
+                      contentPadding: const EdgeInsets.all(16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(P2PRadius.card),
+                        borderSide: const BorderSide(color: P2PColors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(P2PRadius.card),
+                        borderSide: const BorderSide(color: P2PColors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(P2PRadius.card),
+                        borderSide: BorderSide(color: orange, width: 1.1),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(99.r),
-                      border: Border.all(color: const Color(0xFFE7E7E7)),
+                  ),
+                  const SizedBox(height: 15),
+                  TextButton.icon(
+                    onPressed: _posting ? null : () => Get.off(
+                      () => const CreateContentScreen(),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.public_rounded, size: 14.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'Community',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    icon: Icon(Icons.videocam_outlined, color: orange, size: 19),
+                    label: const Text('Post a video instead',
+                        style: TextStyle(fontSize: 13,
+                            fontWeight: AppFontWeight.label)),
+                    style: TextButton.styleFrom(foregroundColor: P2PColors.charcoal),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: _photo == null || _posting ? null : _postPhoto,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: P2PColors.charcoal,
+                        backgroundColor: P2PColors.surface,
+                        side: BorderSide(color: orange, width: 1.2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(P2PRadius.pill),
                         ),
-                      ],
+                      ),
+                      child: _posting
+                          ? SizedBox(width: 20, height: 20,
+                              child: CircularProgressIndicator(color: orange, strokeWidth: 2))
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Post Photo',
+                                    style: TextStyle(fontWeight: FontWeight.w600,
+                                        fontSize: 14)),
+                                const SizedBox(width: 10),
+                                Icon(Icons.arrow_forward_rounded,
+                                    color: orange, size: 19),
+                              ],
+                            ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 14.h),
-            Text(
-              'Caption (optional)',
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: AppFontWeight.label,
-                color: P2PColors.charcoal,
-              ),
-            ),
-            SizedBox(height: 9.h),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(color: P2PColors.border),
-                boxShadow: P2PShadows.card,
-              ),
-              child: TextField(
-                controller: _captionController,
-                maxLines: 4,
-                minLines: 3,
-                maxLength: 280,
-                decoration: InputDecoration(
-                  hintText: 'Write a caption...',
-                  counterText: '',
-                  contentPadding: EdgeInsets.all(16.r),
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: Colors.black38,
-                    fontSize: 17.sp,
-                  ),
-                ),
-                style: TextStyle(fontSize: 17.sp),
-              ),
-            ),
-            SizedBox(height: 6.h),
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: _captionController,
-              builder: (context, value, _) => Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${value.text.length}/280',
-                  style: TextStyle(color: P2PColors.secondaryText, fontSize: 12.sp),
-                ),
-              ),
-            ),
-            SizedBox(height: 10.h),
-            GestureDetector(
-              onTap: _showPhotoSource,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                width: double.infinity,
-                height: 330.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22.r),
-                  border: Border.all(
-                    color: _photo == null
-                        ? P2PColors.border
-                        : orange.withOpacity(.45),
-                  ),
-                  boxShadow: P2PShadows.card,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: _photo != null
-                    ? Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.file(_photo!, fit: BoxFit.cover),
-                          Positioned(
-                            top: 12.h,
-                            right: 12.w,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black54,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () => setState(() => _photo = null),
-                                icon: const Icon(
-                                  Icons.close_rounded,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 12.w,
-                            bottom: 12.h,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 11.w,
-                                vertical: 7.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(.65),
-                                borderRadius: BorderRadius.circular(99.r),
-                              ),
-                              child: const Text(
-                                'Tap to change',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 70.w,
-                            height: 70.w,
-                            decoration: BoxDecoration(
-                              color: orange.withOpacity(.11),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.add_photo_alternate_outlined,
-                              color: orange,
-                              size: 34.sp,
-                            ),
-                          ),
-                          SizedBox(height: 14.h),
-                          Text(
-                            'Add a photo',
-                            style: TextStyle(
-                              fontSize: 17.sp,
-                              fontWeight: AppFontWeight.section,
-                            ),
-                          ),
-                          SizedBox(height: 5.h),
-                          Text(
-                            'Take a new photo or choose from your library',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.black45,
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-            ),
-            SizedBox(height: 14.h),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _showPhotoSource,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      side: const BorderSide(color: Color(0xFFE4E4E4)),
-                      padding: EdgeInsets.symmetric(vertical: 13.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14.r),
-                      ),
-                    ),
-                    icon: const Icon(Icons.photo_camera_outlined),
-                    label: const Text('Photo'),
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => Get.off(
-                      () => const CreateContentScreen(),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      side: const BorderSide(color: Color(0xFFE4E4E4)),
-                      padding: EdgeInsets.symmetric(vertical: 13.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14.r),
-                      ),
-                    ),
-                    icon: const Icon(Icons.videocam_outlined),
-                    label: const Text('Video'),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.h),
-            SizedBox(
-              height: 54.h,
-              child: OutlinedButton(
-                onPressed: _photo == null || _posting ? null : _postPhoto,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: P2PColors.charcoal,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: _photo == null ? P2PColors.border : orange,
-                    width: 1.2,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999.r),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _posting ? 'Posting...' : 'Post Photo',
-                      style: TextStyle(
-                        color: _photo == null ? Colors.black38 : P2PColors.charcoal,
-                        fontWeight: AppFontWeight.section,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Icon(Icons.arrow_forward_rounded,
-                        color: _photo == null ? Colors.black38 : orange, size: 19.sp),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
+
 }
 
 class _SourceButton extends StatelessWidget {
