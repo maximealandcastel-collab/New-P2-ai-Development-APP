@@ -13,6 +13,7 @@ import 'package:pler_to_pler_app/features/home/home_screen.dart';
 import 'package:pler_to_pler_app/features/home/user_home_screen.dart';
 import 'package:pler_to_pler_app/features/nav_bar/controllers/nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/nav_bar/presentation/screens/widgets/nav_fab_widget.dart';
+import 'package:pler_to_pler_app/features/community/presentation/screens/post_photo_video_screen.dart';
 import 'package:pler_to_pler_app/features/trainer/clients/data/models/client_invoice_model.dart';
 import 'package:pler_to_pler_app/features/trainer/schedule/presentation/screens/trainer_home_schedule_screen.dart';
 import 'package:pler_to_pler_app/features/user/contents/presentations/feed_screen.dart';
@@ -22,7 +23,6 @@ import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout
 import 'package:pler_to_pler_app/features/user/workout_pan/presentation/workout_plan_screen.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 import '../../../trainer/clients/presentation/screens/clients_screen.dart';
-import '../../../trainer/contentPost/presentation/screens/content_post_screen.dart';
 import '../../../trainer/contents/presentation/screens/contents_screen.dart';
 import '../../../trainer/createExercisePlan/presentation/screen/create_exercise_plan_screen.dart';
 
@@ -282,7 +282,7 @@ class _NavBarState extends State<NavBar> {
                       NavFabWidget.instance.show(
                         context,
                         onPostContent: () =>
-                            Get.to(() => const ContentPostScreen()),
+                            Get.to(() => const PostPhotoVideoScreen()),
                         onAddSchedule: () {
                           if (_isAdminView || _isTrainer) {
                             _navBarController.onChange(3);
