@@ -257,7 +257,8 @@ class _EnterpriseHeader extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Color(0x33000000),
-                    Color(0xAA000000),
+                    Color.lerp(Colors.black, gym.brandColor, .05)!
+                        .withValues(alpha: .67),
                     _dashboardBackground(gym),
                   ],
                 ),
