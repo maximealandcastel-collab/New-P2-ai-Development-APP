@@ -259,7 +259,7 @@ class _TierBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-      decoration: TenantBrandService.to.isWhiteLabeled
+      decoration: !P2PAccentPill.appliesToCurrentBrand
           ? BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r))
           : P2PAccentPill.decoration(radius: 20.r),
       child: Text(tier, style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: AppFontWeight.label)),
@@ -350,7 +350,7 @@ class _BookBanner extends StatelessWidget {
             onTap: () => _openBookingPaywall(trainerID),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-              decoration: TenantBrandService.to.isWhiteLabeled
+              decoration: !P2PAccentPill.appliesToCurrentBrand
                   ? BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20.r))
                   : P2PAccentPill.decoration(radius: 20.r),
               child: Text('Book', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.label, fontSize: 13.sp)),
