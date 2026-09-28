@@ -4,6 +4,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ContentMediaPickerTile extends StatelessWidget {
@@ -50,13 +51,14 @@ class ContentMediaPickerTile extends StatelessWidget {
         ),
         CustomContainer(
           onTap: onTap,
-          radiusAll: 14.r,
+          radiusAll: P2PRadius.card.r,
           color: Colors.white,
-          bordersColor: AppColors.secondary,
+          bordersColor: P2PColors.border,
           borderWidth: 1,
+          boxShadow: P2PShadows.card,
           width: double.infinity,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(P2PRadius.card.r),
             child: SizedBox(
               height: _previewHeight.h,
               width: double.infinity,
@@ -77,14 +79,14 @@ class ContentMediaPickerTile extends StatelessWidget {
 
   Widget _buildEmptyPreview(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.04),
+      color: Colors.white,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CustomContainer(
             radiusAll: 999,
             paddingAll: 18.r,
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
             child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 36.sp),
           ),
           SizedBox(height: 12.h),
