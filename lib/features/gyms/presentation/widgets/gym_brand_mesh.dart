@@ -16,6 +16,19 @@ class GymBrandMesh {
     stops: const [0, .62, 1],
   );
 
+  /// A small, high-contrast accent on the gym detail entry action.
+  static LinearGradient detailAction(Color brand) {
+    var end = brand;
+    while (end.computeLuminance() > .179) {
+      end = Color.lerp(end, charcoal, .12)!;
+    }
+    return LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [charcoal, Color.lerp(charcoal, end, .45)!, end],
+    );
+  }
+
   /// Barely visible surface shade: the gym's existing background remains
   /// the source color, with no replacement of its logo or brand palette.
   static LinearGradient surface(Color background, Color accent) => LinearGradient(
