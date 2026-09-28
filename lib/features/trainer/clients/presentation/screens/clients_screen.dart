@@ -522,7 +522,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOutCubic,
             alignment: Alignment.center,
-            decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+            decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
                 ? P2PAccentPill.decoration(radius: 13.r)
                 : BoxDecoration(
                     color: isSelected ? _orange : Colors.transparent,
