@@ -29,6 +29,34 @@ class GymBrandMesh {
     );
   }
 
+  /// Keep white CTA labels readable even on a franchise's bright color.
+  static Color darkBrand(Color brand) {
+    var color = brand;
+    while (color.computeLuminance() > .179) {
+      color = Color.lerp(color, charcoal, .12)!;
+    }
+    return color;
+  }
+
+  /// KMF's logo-first detail page uses a small sunny edge, with its green
+  /// still dominant and a charcoal finish. Other gyms use detailAction.
+  static LinearGradient sunnyAction(Color brand) => LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      Color.lerp(darkBrand(brand), brand, .18)!,
+      darkBrand(brand),
+      Color.lerp(darkBrand(brand), charcoal, .78)!,
+    ],
+    stops: const [0, .4, 1],
+  );
+
+  static BoxShadow sunnyShadow(Color brand) => BoxShadow(
+    color: brand.withValues(alpha: .11),
+    blurRadius: 13,
+    offset: const Offset(0, 3),
+  );
+
   /// Barely visible surface shade: the gym's existing background remains
   /// the source color, with no replacement of its logo or brand palette.
   static LinearGradient surface(Color background, Color accent) => LinearGradient(
