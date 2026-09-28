@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -271,26 +272,28 @@ class FindTrainerScreen extends StatelessWidget {
                             child: Ink(
                               height: 42.h,
                               padding: EdgeInsets.symmetric(horizontal: 14.w),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    BrandColors.of(context).primary,
-                                    BrandColors.of(context).light,
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                                borderRadius: BorderRadius.circular(22.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: BrandColors.of(context)
-                                        .primary
-                                        .withOpacity(0.12),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
+                              decoration: P2PAccentPill.appliesToCurrentBrand
+                                  ? P2PAccentPill.decoration(radius: 22.r)
+                                  : BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          BrandColors.of(context).primary,
+                                          BrandColors.of(context).light,
+                                        ],
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(22.r),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: BrandColors.of(context)
+                                              .primary
+                                              .withOpacity(0.12),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
                               child: Row(
                                 children: [
                                   Icon(Icons.adjust_rounded,
@@ -373,7 +376,14 @@ class FindTrainerScreen extends StatelessWidget {
                         onPressed: controller.refresh,
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.primary,
-                            shape: const StadiumBorder()),
+                            shape: const StadiumBorder()).copyWith(
+                          backgroundBuilder: P2PAccentPill.appliesToCurrentBrand
+                              ? (context, states, child) => DecoratedBox(
+                                    decoration: P2PAccentPill.decoration(radius: 999.r),
+                                    child: child ?? const SizedBox.shrink(),
+                                  )
+                              : null,
+                        ),
                         child: Text('Try again',
                             style: TextStyle(color: Colors.white, fontSize: 13.sp)),
                       ),
