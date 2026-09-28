@@ -44,7 +44,7 @@ class ContentsCategoryChips extends StatelessWidget {
               child: CustomContainer(
                 bordersColor: !forOverlay &&
                         isSelected &&
-                        !TenantBrandService.to.isWhiteLabeled
+                        P2PAccentPill.appliesToCurrentBrand
                     ? P2PAccentPill.borderColor
                     : forOverlay
                     ? (isSelected
@@ -62,7 +62,7 @@ class ContentsCategoryChips extends StatelessWidget {
                 paddingHorizontal: forOverlay ? 14.w : 12.r,
                 color: !forOverlay &&
                         isSelected &&
-                        !TenantBrandService.to.isWhiteLabeled
+                        P2PAccentPill.appliesToCurrentBrand
                     ? null
                     : forOverlay
                     ? (isSelected
@@ -71,14 +71,14 @@ class ContentsCategoryChips extends StatelessWidget {
                     : (isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent),
                 linearColors: !forOverlay &&
                         isSelected &&
-                        !TenantBrandService.to.isWhiteLabeled
+                        P2PAccentPill.appliesToCurrentBrand
                     ? P2PAccentPill.colors
                     : null,
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 boxShadow: !forOverlay &&
                         isSelected &&
-                        !TenantBrandService.to.isWhiteLabeled
+                        P2PAccentPill.appliesToCurrentBrand
                     ? P2PAccentPill.glow
                     : null,
                 child: CustomText(
