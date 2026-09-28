@@ -61,7 +61,7 @@ class CustomButton extends StatelessWidget {
     final useAccent = !isLoading &&
         !isDisabled &&
         onPressed != null &&
-        !TenantBrandService.to.isWhiteLabeled &&
+        P2PAccentPill.appliesToCurrentBrand &&
         (backgroundColor == null ||
             backgroundColor == primary ||
             backgroundColor == P2PColors.orange);
