@@ -67,6 +67,44 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
   bool get _hasLocation => gym.address.isNotEmpty || gym.city.isNotEmpty;
   bool get _hasHero => gym.stockPhotoAssetPath.isNotEmpty;
 
+  void _openGallery() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(sheetContext).height * .72,
+          child: Column(children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 8.w, 12.h),
+              child: Row(children: [
+                Expanded(child: Text('${gym.name} photos',
+                  style: TextStyle(fontSize: 17.sp,
+                    fontWeight: FontWeight.w600))),
+                IconButton(onPressed: () => Navigator.pop(sheetContext),
+                  icon: const Icon(Icons.close_rounded)),
+              ]),
+            ),
+            Expanded(child: GridView.builder(
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 20.h),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, crossAxisSpacing: 8.w,
+                mainAxisSpacing: 8.h, childAspectRatio: 1.15),
+              itemCount: gym.displayGalleryAssetPaths.length,
+              itemBuilder: (_, index) => ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: GymStockImage(gym: gym,
+                  source: gym.displayGalleryAssetPaths[index],
+                  width: double.infinity, height: double.infinity,
+                  showLogo: false),
+              ),
+            )),
+          ]),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final active = gym.isActivated;
@@ -78,15 +116,17 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              pinned: true,
+              pinned: !_hasHero,
+              expandedHeight: _hasHero ? 235.h : null,
               elevation: 0,
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
+              backgroundColor: _hasHero ? gym.brandColor : Colors.white,
+              surfaceTintColor: Colors.transparent,
               leading: IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: _hasHero ? Colors.white : const Color(0xFF171820)),
               ),
-              title: Text(
+              title: _hasHero ? null : Text(
                 gym.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -96,24 +136,72 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                   color: const Color(0xFF171820),
                 ),
               ),
+              flexibleSpace: _hasHero
+                  ? FlexibleSpaceBar(
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          GymStockImage(gym: gym, height: 235.h,
+                              width: double.infinity, showLogo: false),
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.black.withOpacity(.04),
+                                  Colors.black.withOpacity(.15),
+                                  Color.lerp(const Color(0xFF191A20),
+                                      gym.brandColor, .22)!.withOpacity(.92),
+                                ],
+                                stops: const [0, .4, 1],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 20.w, right: 20.w, bottom: 18.h,
+                            child: Row(children: [
+                              GymBrandLogo(gym: gym, size: 64.r,
+                                  borderRadius: 17.r),
+                              SizedBox(width: 12.w),
+                              Expanded(child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(gym.name, maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Colors.white,
+                                      fontSize: 21.sp,
+                                      fontWeight: FontWeight.w600)),
+                                  SizedBox(height: 3.h),
+                                  Text(gym.category, style: TextStyle(
+                                    color: Colors.white.withOpacity(.85),
+                                    fontSize: 11.5.sp)),
+                                  SizedBox(height: 5.h),
+                                  DefaultTextStyle(
+                                    style: TextStyle(fontSize: 10.sp,
+                                      color: Colors.white.withOpacity(.82)),
+                                    child: _MetadataRow(gym: gym,
+                                      color: Colors.white.withOpacity(.82)),
+                                  ),
+                                ],
+                              )),
+                            ]),
+                          ),
+                        ],
+                      ),
+                    )
+                  : null,
             ),
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_hasHero)
-                    GymStockImage(
-                      gym: gym,
-                      height: 205.h,
-                      width: double.infinity,
-                      showLogo: false,
-                    ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 30.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        if (!_hasHero) Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             GymBrandLogo(
@@ -190,25 +278,32 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           Wrap(
                             spacing: 7.w,
                             runSpacing: 7.h,
-                            children: gym.filterTags
+                            children: gym.filterTags.asMap().entries
                                 .map(
-                                  (tag) => Container(
+                                  (entry) => Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10.w,
                                       vertical: 6.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: entry.key == 0 ? null : Colors.white,
+                                      gradient: entry.key == 0
+                                          ? GymBrandMesh.detailAction(gym.brandColor)
+                                          : null,
                                       borderRadius: BorderRadius.circular(20.r),
                                       border: Border.all(
-                                        color: const Color(0xFFE6E7EA),
+                                        color: entry.key == 0
+                                            ? Colors.transparent
+                                            : const Color(0xFFE6E7EA),
                                       ),
                                     ),
                                     child: Text(
-                                      tag,
+                                      entry.value,
                                       style: TextStyle(
                                         fontSize: 10.sp,
-                                        color: const Color(0xFF5F616B),
+                                        color: entry.key == 0
+                                            ? Colors.white
+                                            : const Color(0xFF5F616B),
                                       ),
                                     ),
                                   ),
@@ -218,7 +313,15 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                         ],
                         if (gym.displayGalleryAssetPaths.isNotEmpty) ...[
                           SizedBox(height: 22.h),
-                          _SectionTitle('Photos'),
+                          Row(children: [
+                            const Expanded(child: _SectionTitle('Photos')),
+                            TextButton(
+                              onPressed: _openGallery,
+                              child: Text('See all photos', style: TextStyle(
+                                color: Color.lerp(Colors.black,
+                                  gym.brandColor, .75))),
+                            ),
+                          ]),
                           SizedBox(height: 10.h),
                           SizedBox(
                             height: 108.h,
@@ -284,7 +387,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               gradient: active
-                                  ? GymBrandMesh.forColors(gym.brandColor, gym.accentColor)
+                                  ? GymBrandMesh.detailAction(gym.brandColor)
                                   : null,
                               borderRadius: BorderRadius.circular(24.r),
                               boxShadow: active
@@ -299,7 +402,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                               backgroundColor:
                                   active ? Colors.transparent : Colors.white,
                               foregroundColor: active
-                                  ? gym.entryTextColor
+                                  ? Colors.white
                                   : gym.brandColor,
                               elevation: 0,
                               side: active
@@ -1009,8 +1112,9 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _MetadataRow extends StatelessWidget {
-  const _MetadataRow({required this.gym});
+  const _MetadataRow({required this.gym, this.color = const Color(0xFF747680)});
   final EnterpriseGymModel gym;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -1034,7 +1138,7 @@ class _MetadataRow extends StatelessWidget {
       items.add(Text(gym.distanceLabel));
     }
     return DefaultTextStyle(
-      style: TextStyle(fontSize: 10.sp, color: const Color(0xFF747680)),
+      style: TextStyle(fontSize: 10.sp, color: color),
       child: Row(children: items),
     );
   }
