@@ -1,5 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
@@ -40,7 +42,11 @@ class ContentsCategoryChips extends StatelessWidget {
                 isAll ? null : categories[index - 1].id,
               ),
               child: CustomContainer(
-                bordersColor: forOverlay
+                bordersColor: !forOverlay &&
+                        isSelected &&
+                        !TenantBrandService.to.isWhiteLabeled
+                    ? P2PAccentPill.borderColor
+                    : forOverlay
                     ? (isSelected
                         ? AppColors.textWhite
                         : AppColors.textWhite.withValues(alpha: 0.55))
@@ -54,11 +60,27 @@ class ContentsCategoryChips extends StatelessWidget {
                 marginRight: 8.w,
                 paddingVertical: forOverlay ? 7.h : 6.h,
                 paddingHorizontal: forOverlay ? 14.w : 12.r,
-                color: forOverlay
+                color: !forOverlay &&
+                        isSelected &&
+                        !TenantBrandService.to.isWhiteLabeled
+                    ? null
+                    : forOverlay
                     ? (isSelected
                         ? AppColors.textWhite
                         : AppColors.backgroundDark.withValues(alpha: 0.35))
                     : (isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent),
+                linearColors: !forOverlay &&
+                        isSelected &&
+                        !TenantBrandService.to.isWhiteLabeled
+                    ? P2PAccentPill.colors
+                    : null,
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                boxShadow: !forOverlay &&
+                        isSelected &&
+                        !TenantBrandService.to.isWhiteLabeled
+                    ? P2PAccentPill.glow
+                    : null,
                 child: CustomText(
                   fontWeight: AppFontWeight.label,
                   fontSize: forOverlay ? 13.sp : 16.sp,
