@@ -2,6 +2,8 @@ import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -255,10 +257,14 @@ class AdminModeService extends GetxController {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
-        decoration: BoxDecoration(
-          color: active ? BrandColors.of(context).primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: active && !TenantBrandService.to.isWhiteLabeled
+            ? P2PAccentPill.decoration(radius: 20)
+            : BoxDecoration(
+                color: active
+                    ? BrandColors.of(context).primary
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
         child: Text(
           label,
           style: TextStyle(

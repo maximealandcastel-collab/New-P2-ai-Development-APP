@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../../core/themes/app_typography.dart';
@@ -520,19 +522,21 @@ class _ClientsScreenState extends State<ClientsScreen> {
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOutCubic,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: isSelected ? _orange : Colors.transparent,
-              borderRadius: BorderRadius.circular(13.r),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: _orange.withOpacity(0.18),
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]
-                  : null,
-            ),
+            decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                ? P2PAccentPill.decoration(radius: 13.r)
+                : BoxDecoration(
+                    color: isSelected ? _orange : Colors.transparent,
+                    borderRadius: BorderRadius.circular(13.r),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: _orange.withOpacity(0.18),
+                              blurRadius: 7,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

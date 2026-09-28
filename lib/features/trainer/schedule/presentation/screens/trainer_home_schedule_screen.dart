@@ -1,5 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -246,10 +248,12 @@ class SessionDetailsScreen extends StatelessWidget {
                       child: Container(
                         width: double.infinity,
                         height: 52.h,
-                        decoration: BoxDecoration(
-                          color: BrandColors.of(context).primary,
-                          borderRadius: BorderRadius.circular(14.r),
-                        ),
+                        decoration: TenantBrandService.to.isWhiteLabeled
+                            ? BoxDecoration(
+                                color: BrandColors.of(context).primary,
+                                borderRadius: BorderRadius.circular(14.r),
+                              )
+                            : P2PAccentPill.decoration(radius: 14.r),
                         alignment: Alignment.center,
                         child: Text(
                           'Reschedule Session',

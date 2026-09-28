@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/tenant_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
     import 'package:get/get.dart';
     import 'package:flutter_screenutil/flutter_screenutil.dart';
     import 'package:pler_to_pler_app/core/routes/app_routes.dart';
@@ -227,7 +228,9 @@ import 'package:flutter/material.dart';
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: selected ? BrandColors.of(context).primary : Colors.transparent, borderRadius: BorderRadius.circular(24), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.12), blurRadius: 8, offset: const Offset(0, 3))] : const []),
+          decoration: selected && !TenantBrandService.to.isWhiteLabeled
+              ? P2PAccentPill.decoration(radius: 24)
+              : BoxDecoration(color: selected ? BrandColors.of(context).primary : Colors.transparent, borderRadius: BorderRadius.circular(24), boxShadow: selected ? [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.12), blurRadius: 8, offset: const Offset(0, 3))] : const []),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(label, style: TextStyle(color: selected ? Colors.white : _muted, fontSize: 14.sp, fontWeight: AppFontWeight.display)), if (suffix != null) ...[SizedBox(width: 5.w), Icon(Icons.local_offer_rounded, color: selected ? Colors.white : BrandColors.of(context).dark, size: 13.sp), SizedBox(width: 3.w), Text(suffix, style: TextStyle(color: selected ? Colors.white : BrandColors.of(context).dark, fontSize: 10.sp, fontWeight: AppFontWeight.display))]]),
         ),
       );
@@ -256,7 +259,7 @@ import 'package:flutter/material.dart';
                 Padding(padding: EdgeInsets.only(left: 51.w), child: Text(description, style: TextStyle(color: _muted, fontSize: 12.5.sp, height: 1.35, fontWeight: FontWeight.w500))),
                 if (benefits.isNotEmpty) ...[SizedBox(height: 12.h), Padding(padding: EdgeInsets.only(left: 51.w), child: Wrap(spacing: 6.w, runSpacing: 6.h, children: benefits.map((item) => _benefit(context, item)).toList()))],
               ]),
-              if (badge != null) Positioned(top: -27.h, left: 4.w, child: Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h), decoration: BoxDecoration(color: BrandColors.of(context).primary, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.25), blurRadius: 8, offset: const Offset(0, 3))]), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 14.sp), SizedBox(width: 4.w), Text(badge.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: AppFontWeight.display, letterSpacing: .5))]))),
+              if (badge != null) Positioned(top: -27.h, left: 4.w, child: Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h), decoration: TenantBrandService.to.isWhiteLabeled ? BoxDecoration(color: BrandColors.of(context).primary, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: BrandColors.of(context).primary.withOpacity(.25), blurRadius: 8, offset: const Offset(0, 3))]) : P2PAccentPill.decoration(radius: 14), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 14.sp), SizedBox(width: 4.w), Text(badge.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 9.sp, fontWeight: AppFontWeight.display, letterSpacing: .5))]))),
             ]),
           ),
         );
