@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:pler_to_pler_app/core/helpers/string_format.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/features/user/workout/data/models/workout_model.dart';
 import 'package:pler_to_pler_app/widgets/custom_network_image.dart';
@@ -614,12 +616,19 @@ class _ActionButton extends StatelessWidget {
       height: 39.h,
       width: double.infinity,
       child: Material(
-        color: filled ? AppColors.primary : const Color(0xFFF5F5F8),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(999.r),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999.r),
-          onTap: onPressed,
-          child: Opacity(
+        child: Ink(
+          decoration: filled && !TenantBrandService.to.isWhiteLabeled
+              ? P2PAccentPill.decoration(radius: 999.r)
+              : BoxDecoration(
+                  color: filled ? AppColors.primary : const Color(0xFFF5F5F8),
+                  borderRadius: BorderRadius.circular(999.r),
+                ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999.r),
+            onTap: onPressed,
+            child: Opacity(
             opacity: onPressed == null ? 0.55 : 1,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -645,6 +654,7 @@ class _ActionButton extends StatelessWidget {
                   Icon(trailingIcon, size: 16.sp, color: foreground),
                 ],
               ],
+            ),
             ),
           ),
         ),
