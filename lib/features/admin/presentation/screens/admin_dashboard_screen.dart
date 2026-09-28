@@ -114,13 +114,27 @@ class _DashHeader extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(18.w, 10.h, 18.w, 16.h),
       child: Row(
         children: [
-          Container(
-            width: 40.w, height: 40.w,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(13.r),
+          Semantics(
+            label: 'P2P FitTech AI logo',
+            image: true,
+            child: SizedBox(
+              width: 42.r,
+              height: 42.r,
+              child: ClipOval(
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.all(1.r),
+                    child: Image.asset(
+                      'assets/images/p2p_admin_logo.png',
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: Icon(Icons.shield_outlined, color: Theme.of(context).colorScheme.primary, size: 21.sp),
           ),
           SizedBox(width: 12.w),
           // Expanded, not a bare Column + Spacer: the title is unbounded text
