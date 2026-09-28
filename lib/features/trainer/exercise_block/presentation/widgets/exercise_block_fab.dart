@@ -1,6 +1,8 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 class ExerciseBlockFab extends StatelessWidget {
@@ -17,13 +19,19 @@ class ExerciseBlockFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final useAccent = !TenantBrandService.to.isWhiteLabeled;
     return CustomContainer(
       onTap: onPressed,
-      color: Theme.of(context).colorScheme.primary,
+      color: useAccent ? null : Theme.of(context).colorScheme.primary,
+      linearColors: useAccent ? P2PAccentPill.colors : null,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
       radiusAll: 100.r,
       paddingHorizontal: 20.w,
       paddingVertical: 14.h,
-      boxShadow: [
+      bordersColor: useAccent ? P2PAccentPill.borderColor : null,
+      borderWidth: useAccent ? 0.8 : 1,
+      boxShadow: useAccent ? P2PAccentPill.glow : [
         BoxShadow(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35),
           blurRadius: 12,
