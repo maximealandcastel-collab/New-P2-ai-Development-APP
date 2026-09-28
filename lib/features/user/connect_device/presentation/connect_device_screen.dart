@@ -282,7 +282,7 @@ class _MainContent extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 height: 52.h,
-                decoration: TenantBrandService.to.isWhiteLabeled
+                decoration: !P2PAccentPill.appliesToCurrentBrand
                     ? BoxDecoration(
                         color: BrandColors.of(context).primary,
                         borderRadius: BorderRadius.circular(14.r),
