@@ -24,6 +24,7 @@ class CreateContentFlowScreen extends StatefulWidget {
     this.onBackToStart,
     this.canSkipStep,
     this.onSkipPressed,
+    this.outlinedActions = false,
   });
 
   final List<Widget> pages;
@@ -35,6 +36,7 @@ class CreateContentFlowScreen extends StatefulWidget {
   final VoidCallback? onBackToStart;
   final bool Function(int index)? canSkipStep;
   final void Function(int index, void Function(int) navigateToPage)? onSkipPressed;
+  final bool outlinedActions;
 
   @override
   State<CreateContentFlowScreen> createState() => _CreateContentFlowScreenState();
@@ -139,7 +141,7 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                 ),
                 SizedBox(height: 12.h),
               ],
-              SizedBox(
+              if (widget.outlinedActions) SizedBox(
                 width: double.infinity,
                 height: 48.h,
                 child: OutlinedButton(
@@ -177,6 +179,19 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                     ],
                   ),
                 ),
+              ) else CustomButton(
+                onPressed: widget.isSubmitting
+                    ? null
+                    : () => widget.onNextPressed(
+                          _currentIndex,
+                          _navigateToPage,
+                          _validateFormAfterNavigation,
+                        ),
+                isDisabled: widget.isSubmitting,
+                label: _currentIndex == widget.pages.length - 1
+                    ? widget.submitLabel
+                    : 'Next',
+                width: double.infinity,
               ),
               if (widget.canSkipStep?.call(_currentIndex) == true) ...[
                 SizedBox(height: 16.h),

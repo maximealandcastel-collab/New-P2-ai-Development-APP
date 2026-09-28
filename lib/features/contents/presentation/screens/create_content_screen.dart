@@ -145,6 +145,7 @@ class _CreateContentScreenState extends State<CreateContentScreen> {
         uploadProgress: controller.uploadProgress.value,
         submitLabel:
             controller.isEditMode ? 'Update content' : 'Post content',
+        outlinedActions: true,
         onBackToStart: !controller.isEditMode ? () {
           setState(() {
             _showIntro = true;
