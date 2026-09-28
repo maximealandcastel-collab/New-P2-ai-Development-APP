@@ -257,7 +257,7 @@ class _EnterpriseHeader extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Color(0x33000000),
-                    Color.lerp(GymBrandMesh.charcoal, gym.brandColor, .32)!.withValues(alpha: .82),
+                    Color(0xAA000000),
                     _dashboardBackground(gym),
                   ],
                 ),
@@ -418,7 +418,7 @@ class _DashboardBody extends StatelessWidget {
                 onPressed: () => onOpenModule('analytics'),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.white,
+                  foregroundColor: gym.entryTextColor,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shadowColor: Colors.transparent,
                 ),
