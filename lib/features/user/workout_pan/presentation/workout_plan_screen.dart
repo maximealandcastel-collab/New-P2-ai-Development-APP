@@ -1,4 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -157,18 +159,22 @@ class _WorkoutPlansScreenState extends State<WorkoutPlansScreen> {
               duration: const Duration(milliseconds: 180),
               width: 44.w,
               height: 64.h,
-              decoration: BoxDecoration(
-                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(10.r),
-                border: isSelected
-                    ? null
-                    : Border.all(
-                        color: today
-                            ? BrandColors.of(context).primary.withOpacity(0.5)
-                            : Colors.grey.shade200,
-                        width: 1,
-                      ),
-              ),
+              decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                  ? P2PAccentPill.decoration(radius: 10.r)
+                  : BoxDecoration(
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10.r),
+                      border: isSelected
+                          ? null
+                          : Border.all(
+                              color: today
+                                  ? BrandColors.of(context).primary.withOpacity(0.5)
+                                  : Colors.grey.shade200,
+                              width: 1,
+                            ),
+                    ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

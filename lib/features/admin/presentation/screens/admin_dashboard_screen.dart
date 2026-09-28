@@ -2,6 +2,8 @@ import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
@@ -852,11 +854,19 @@ class _FilterTab extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
-        decoration: BoxDecoration(
-          color: active ? Theme.of(context).colorScheme.primary : Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: active ? Theme.of(context).colorScheme.primary : _border),
-        ),
+        decoration: active && !TenantBrandService.to.isWhiteLabeled
+            ? P2PAccentPill.decoration(radius: 16.r)
+            : BoxDecoration(
+                color: active
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(
+                  color: active
+                      ? Theme.of(context).colorScheme.primary
+                      : _border,
+                ),
+              ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Text(label, style: TextStyle(fontSize: 11.5.sp, fontWeight: AppFontWeight.label,
               color: active ? Colors.white : _tSec)),

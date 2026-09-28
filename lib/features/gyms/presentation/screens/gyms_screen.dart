@@ -1,4 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'dart:async';
 import '../../data/services/enterprise_service.dart';
@@ -731,17 +733,12 @@ class _GymsScreenState extends State<GymsScreen> {
             child: Container(
               height: 44.h,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(13.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.18),
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
+              decoration: TenantBrandService.to.isWhiteLabeled
+                  ? BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(13.r),
+                    )
+                  : P2PAccentPill.decoration(radius: 13.r),
               child: Row(
                 children: [
                   Icon(Icons.map_outlined, color: Colors.white, size: 16.sp),
@@ -791,20 +788,20 @@ class _GymsScreenState extends State<GymsScreen> {
               onTap: _showFilterSheet,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: active
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(30.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: active
-                          ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-                          : Colors.black.withOpacity(0.025),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
+                decoration: active && !TenantBrandService.to.isWhiteLabeled
+                    ? P2PAccentPill.decoration(radius: 30.r)
+                    : BoxDecoration(
+                        color: active
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(30.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.025),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
                 child: Row(
                   children: [
                     Text(
@@ -835,18 +832,20 @@ class _GymsScreenState extends State<GymsScreen> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 5.h),
-              decoration: BoxDecoration(
-                color: active ? Theme.of(context).colorScheme.primary : Colors.white,
-                borderRadius: BorderRadius.circular(30.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: active
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-                        : Colors.black.withOpacity(0.025),
-                    blurRadius: 6,
-                  ),
-                ],
-              ),
+              decoration: active && !TenantBrandService.to.isWhiteLabeled
+                  ? P2PAccentPill.decoration(radius: 30.r)
+                  : BoxDecoration(
+                      color: active
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(30.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.025),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
               child: Text(
                 label,
                 style: TextStyle(
@@ -1043,19 +1042,21 @@ class _NavPills extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h),
-          decoration: BoxDecoration(
-            color: active ? Theme.of(context).colorScheme.primary : Colors.white,
-            borderRadius: BorderRadius.circular(30.r),
-            boxShadow: [
-              BoxShadow(
-                color: active
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.16)
-                    : Colors.black.withOpacity(0.06),
-                blurRadius: active ? 10 : 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
+          decoration: active && !TenantBrandService.to.isWhiteLabeled
+              ? P2PAccentPill.decoration(radius: 30.r)
+              : BoxDecoration(
+                  color: active
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(30.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -1,6 +1,8 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 
@@ -506,10 +508,14 @@ class _ActivitySection extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(vertical: 10.h),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
+                      decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                          ? P2PAccentPill.decoration(radius: 10.r)
+                          : BoxDecoration(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
                       alignment: Alignment.center,
                       child: Text(
                         e.value,

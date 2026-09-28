@@ -1,5 +1,7 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
@@ -449,19 +451,22 @@ class _TabBar extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: i == selected
-                          ? const LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Color(0xFF38383B), Color(0xFF171719)],
-                            )
-                          : null,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: i == selected
-                          ? Border.all(color: const Color(0xFF555559), width: .5)
-                          : null,
-                    ),
+                    decoration: i == selected &&
+                            !TenantBrandService.to.isWhiteLabeled
+                        ? P2PAccentPill.decoration(radius: 12.r)
+                        : BoxDecoration(
+                            gradient: i == selected
+                                ? const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [Color(0xFF38383B), Color(0xFF171719)],
+                                  )
+                                : null,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: i == selected
+                                ? Border.all(color: const Color(0xFF555559), width: .5)
+                                : null,
+                          ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Padding(
@@ -505,7 +510,14 @@ class _Composer extends StatelessWidget {
               Expanded(child: Text("What's on your mind, $name?", maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11.sp, color: const Color(0xFF9A9AA0)))),
               Icon(Icons.add_photo_alternate_outlined, size: 20.sp, color: const Color(0xFF606066)),
               SizedBox(width: 10.w),
-              Container(width: 34.r, height: 34.r, decoration: BoxDecoration(color: orange, shape: BoxShape.circle), child: Icon(Icons.add_rounded, color: Colors.white, size: 22.sp)),
+              Container(
+                width: 34.r,
+                height: 34.r,
+                decoration: TenantBrandService.to.isWhiteLabeled
+                    ? BoxDecoration(color: orange, shape: BoxShape.circle)
+                    : P2PAccentPill.decoration(radius: 17.r, circular: true),
+                child: Icon(Icons.add_rounded, color: Colors.white, size: 22.sp),
+              ),
             ]),
           ),
         ),

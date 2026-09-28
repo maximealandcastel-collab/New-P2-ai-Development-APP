@@ -98,3 +98,36 @@ class P2PGradients {
     colors: [Color(0xFFFFA13A), Color(0xFFFF711C), Color(0xFFFF4E16)],
   );
 }
+
+/// Restrained flagship treatment for selected orange controls.
+class P2PAccentPill {
+  P2PAccentPill._();
+
+  static const colors = <Color>[
+    Color(0xFF201D1D),
+    Color(0xFF633119),
+    Color(0xFFCA5D1D),
+  ];
+  static const borderColor = Color(0xFFEC8238);
+  static const glow = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x1FEC7628),
+      blurRadius: 9,
+      offset: Offset(0, 2),
+    ),
+  ];
+
+  static BoxDecoration decoration({required double radius, bool circular = false}) {
+    return BoxDecoration(
+      shape: circular ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: circular ? null : BorderRadius.circular(radius),
+      gradient: const LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: colors,
+      ),
+      border: Border.all(color: borderColor, width: 0.8),
+      boxShadow: glow,
+    );
+  }
+}

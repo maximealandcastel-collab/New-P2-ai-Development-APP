@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/home/widgets/feed_app_bar.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/controllers/history_controller.dart';
 import 'package:pler_to_pler_app/features/user/history/presentation/screens/widgets/history_card.dart';
@@ -254,12 +256,14 @@ class HistoryScreen extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(14.r),
-          ),
+          decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+              ? P2PAccentPill.decoration(radius: 14.r)
+              : BoxDecoration(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

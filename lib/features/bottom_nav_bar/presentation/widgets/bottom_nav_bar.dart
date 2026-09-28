@@ -1,11 +1,9 @@
-import 'package:pler_to_pler_app/core/themes/brand_color_mapper.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
-import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_fab_widget.dart';
@@ -124,10 +122,18 @@ class BottomNavBar extends StatelessWidget {
                                         size: 26.sp,
                                       ),
                                     )
-                                  : Assets.icons.addButton.svg(
-                                      colorMapper: BrandColorMapper(Theme.of(context).colorScheme.primary),
+                                  : Container(
                                       height: 42.h,
                                       width: 42.w,
+                                      decoration: P2PAccentPill.decoration(
+                                        radius: 21.r,
+                                        circular: true,
+                                      ),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 26.sp,
+                                      ),
                                     ),
                         ),
                       ),
