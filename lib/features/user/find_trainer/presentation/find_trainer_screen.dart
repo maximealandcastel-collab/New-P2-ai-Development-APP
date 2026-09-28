@@ -2,6 +2,8 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -396,13 +398,17 @@ class _FilterTabs extends StatelessWidget {
               duration: const Duration(milliseconds: 180),
               margin: EdgeInsets.only(right: 8.w),
               padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 7.h),
-              decoration: BoxDecoration(
-                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-                boxShadow: isSelected
-                    ? []
-                    : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
-              ),
+              decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                  ? P2PAccentPill.decoration(radius: 20.r)
+                  : BoxDecoration(
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: isSelected
+                          ? []
+                          : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+                    ),
               child: Text(
                 tabs[i],
                 style: TextStyle(
