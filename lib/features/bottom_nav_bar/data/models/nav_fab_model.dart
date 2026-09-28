@@ -25,7 +25,9 @@ class NavFabModel {
         NavFabModel(
           label: 'Post Photo/Video',
           icon: Assets.icons.post.path,
-          onTap: () => Get.to(() => const PostPhotoVideoScreen()),
+          onTap: () => Get.to(() => const PostPhotoVideoScreen(
+                config: P2PPostComposerConfig(role: P2PPostRole.trainer),
+              )),
         ),
         NavFabModel(
           label: 'Add exercise block',

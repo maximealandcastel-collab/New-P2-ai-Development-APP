@@ -281,8 +281,11 @@ class _NavBarState extends State<NavBar> {
                     onTap: () {
                       NavFabWidget.instance.show(
                         context,
-                        onPostContent: () =>
-                            Get.to(() => const PostPhotoVideoScreen()),
+                        onPostContent: () => Get.to(() => PostPhotoVideoScreen(
+                          config: P2PPostComposerConfig(
+                            role: _isTrainer ? P2PPostRole.trainer : P2PPostRole.user,
+                          ),
+                        )),
                         onAddSchedule: () {
                           if (_isAdminView || _isTrainer) {
                             _navBarController.onChange(3);
