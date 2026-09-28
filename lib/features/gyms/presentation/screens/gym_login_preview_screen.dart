@@ -486,7 +486,11 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _pageBackground,
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: GymBrandMesh.surface(_pageBackground, widget.gym.accentColor),
+        ),
+        child: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(22.w, 12.h, 22.w, 30.h),
@@ -749,6 +753,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
             ),
           ),
         ),
+        ),
       ),
     );
   }
@@ -978,7 +983,7 @@ class _GymIdentityBanner extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: GymBrandMesh.surface(Colors.white, gym.accentColor),
           borderRadius: BorderRadius.circular(18.r),
           boxShadow: [
             BoxShadow(
