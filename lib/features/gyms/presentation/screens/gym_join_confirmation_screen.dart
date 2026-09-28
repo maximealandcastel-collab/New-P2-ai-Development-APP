@@ -171,7 +171,7 @@ class _GymJoinConfirmationScreenState
                     onPressed: () => widget.onContinue(gym),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
+                      foregroundColor: gym.entryTextColor,
                       elevation: 0,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
