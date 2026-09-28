@@ -2,6 +2,7 @@ import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import '../widgets/widgets.dart';
 
 
@@ -56,14 +57,32 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final useAccent = !isLoading &&
+        !isDisabled &&
+        onPressed != null &&
+        !TenantBrandService.to.isWhiteLabeled &&
+        (backgroundColor == null ||
+            backgroundColor == primary ||
+            backgroundColor == P2PColors.orange);
     return CustomContainer(
       elevation: elevation,
       onTap: (isLoading || isDisabled) ? null : onPressed,
-      color: (backgroundColor ?? Theme.of(context).colorScheme.primary).withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
+      color: useAccent
+          ? null
+          : (backgroundColor ?? primary)
+              .withOpacity((isLoading || isDisabled) ? 0.4 : 1.0),
+      linearColors: useAccent ? P2PAccentPill.colors : null,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
       height: height ?? 48.h,
       width: width ?? double.infinity,
       radiusAll: radius ?? P2PRadius.control.r,
-      bordersColor: bordersColor,
+      bordersColor: useAccent && bordersColor == null
+          ? P2PAccentPill.borderColor
+          : bordersColor,
+      borderWidth: useAccent && bordersColor == null ? 0.8 : 1.0,
+      boxShadow: useAccent ? P2PAccentPill.glow : null,
       child: child ?? Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
