@@ -398,7 +398,7 @@ class _FilterTabs extends StatelessWidget {
               duration: const Duration(milliseconds: 180),
               margin: EdgeInsets.only(right: 8.w),
               padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 7.h),
-              decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+              decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
                   ? P2PAccentPill.decoration(radius: 20.r)
                   : BoxDecoration(
                       color: isSelected
@@ -1080,7 +1080,7 @@ class _TrainerRequestSheetState extends State<_TrainerRequestSheet> {
                   child: Container(
                     width: double.infinity,
                     height: 52.h,
-                    decoration: TenantBrandService.to.isWhiteLabeled
+                    decoration: !P2PAccentPill.appliesToCurrentBrand
                         ? BoxDecoration(
                             color: BrandColors.of(context).primary,
                             borderRadius: BorderRadius.circular(14.r),
