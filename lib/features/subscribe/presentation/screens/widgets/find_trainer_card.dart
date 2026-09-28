@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -126,6 +127,13 @@ class FindTrainerCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.r),
                         ),
+                      ).copyWith(
+                        backgroundBuilder: P2PAccentPill.appliesToCurrentBrand
+                            ? (context, states, child) => DecoratedBox(
+                                  decoration: P2PAccentPill.decoration(radius: 16.r),
+                                  child: child ?? const SizedBox.shrink(),
+                                )
+                            : null,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
