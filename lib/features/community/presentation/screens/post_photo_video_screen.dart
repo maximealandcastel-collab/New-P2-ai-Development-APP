@@ -1,5 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
   final TextEditingController _captionController = TextEditingController();
 
   File? _photo;
+  File? _extraPhoto;
   bool _posting = false;
 
   @override
@@ -34,17 +36,23 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
     super.dispose();
   }
 
-  Future<void> _pickPhoto(ImageSource source) async {
+  Future<void> _pickPhoto(ImageSource source, {bool extra = false}) async {
     final picked = await _picker.pickImage(
       source: source,
       imageQuality: 88,
       maxWidth: 1800,
     );
     if (picked == null || !mounted) return;
-    setState(() => _photo = File(picked.path));
+    setState(() {
+      if (extra) {
+        _extraPhoto = File(picked.path);
+      } else {
+        _photo = File(picked.path);
+      }
+    });
   }
 
-  void _showPhotoSource() {
+  void _showPhotoSource({bool extra = false}) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.white,
@@ -82,7 +90,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       label: 'Camera',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickPhoto(ImageSource.camera);
+                        _pickPhoto(ImageSource.camera, extra: extra);
                       },
                     ),
                   ),
@@ -93,7 +101,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       label: 'Library',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickPhoto(ImageSource.gallery);
+                        _pickPhoto(ImageSource.gallery, extra: extra);
                       },
                     ),
                   ),
@@ -106,19 +114,78 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
     );
   }
 
+  /// The content upload contract stores one thumbnail. Keep both selections
+  /// together in that file when a second photo is supplied.
+  Future<File> _photoForUpload() async {
+    if (_extraPhoto == null) return _photo!;
+    final first = await _decodePhoto(_photo!);
+    late final ui.Image second;
+    try {
+      second = await _decodePhoto(_extraPhoto!);
+    } catch (_) {
+      first.dispose();
+      rethrow;
+    }
+    final recorder = ui.PictureRecorder();
+    final canvas = ui.Canvas(recorder);
+    const side = 600.0;
+    _drawCover(canvas, first, const ui.Rect.fromLTWH(0, 0, side, side));
+    _drawCover(canvas, second, const ui.Rect.fromLTWH(side, 0, side, side));
+    final picture = recorder.endRecording();
+    try {
+      final image = await picture.toImage(1200, 600);
+      try {
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (bytes == null) throw StateError('Could not prepare photos.');
+        final output = File('${Directory.systemTemp.path}/p2p-journey-${DateTime.now().microsecondsSinceEpoch}.png');
+        await output.writeAsBytes(bytes.buffer.asUint8List());
+        return output;
+      } finally {
+        image.dispose();
+      }
+    } finally {
+      picture.dispose();
+      first.dispose();
+      second.dispose();
+    }
+  }
+
+  Future<ui.Image> _decodePhoto(File file) async {
+    final codec = await ui.instantiateImageCodec(await file.readAsBytes());
+    try {
+      final frame = await codec.getNextFrame();
+      return frame.image;
+    } finally {
+      codec.dispose();
+    }
+  }
+
+  void _drawCover(ui.Canvas canvas, ui.Image image, ui.Rect destination) {
+    final dimension = image.width < image.height ? image.width : image.height;
+    final source = ui.Rect.fromLTWH(
+      (image.width - dimension) / 2,
+      (image.height - dimension) / 2,
+      dimension.toDouble(), dimension.toDouble(),
+    );
+    canvas.drawImageRect(image, source, destination, ui.Paint()..filterQuality = ui.FilterQuality.high);
+  }
+
   Future<void> _postPhoto() async {
     if (_photo == null || _posting) return;
 
     setState(() => _posting = true);
+    File? combinedPhoto;
     try {
       final caption = _captionController.text.trim();
+      final upload = await _photoForUpload();
+      if (_extraPhoto != null) combinedPhoto = upload;
       final form = FormData.fromMap({
         'title': caption.isEmpty ? 'Community photo' : caption,
         'description': caption,
         'contentType': 'image',
         'thumbnail': await MultipartFile.fromFile(
-          _photo!.path,
-          filename: _photo!.path.split('/').last,
+          upload.path,
+          filename: upload.path.split('/').last,
         ),
       });
 
@@ -152,6 +219,13 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
         );
       }
     } finally {
+      try {
+        if (combinedPhoto != null && await combinedPhoto.exists()) {
+          await combinedPhoto.delete();
+        }
+      } catch (_) {
+        // A failed temporary-file cleanup must not mask the upload result.
+      }
       if (mounted) setState(() => _posting = false);
     }
   }
@@ -188,75 +262,34 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600,
                           color: P2PColors.charcoal)),
                   const SizedBox(height: 5),
-                  const Text('Share a moment from your fitness journey.',
+                  const Text('Inspire the community with your progress, moments, and milestones.',
                       style: TextStyle(fontSize: 13, height: 1.4,
                           color: P2PColors.secondaryText)),
                   const SizedBox(height: 24),
-                  Semantics(
-                    button: true,
-                    label: _photo == null ? 'Upload photo' : 'Change photo',
-                    child: Material(
-                      color: P2PColors.surface,
-                      borderRadius: BorderRadius.circular(P2PRadius.card),
-                      child: InkWell(
-                        onTap: _posting ? null : _showPhotoSource,
-                        borderRadius: BorderRadius.circular(P2PRadius.card),
-                        child: Container(
-                          width: double.infinity,
-                          height: 166,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(P2PRadius.card),
-                            border: Border.all(
-                              color: _photo == null ? P2PColors.border : orange,
-                              width: _photo == null ? 1 : 1.2,
-                            ),
-                            boxShadow: P2PShadows.card,
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: _photo == null
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 46, height: 46,
-                                      decoration: BoxDecoration(
-                                        color: orange.withValues(alpha: .09),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(Icons.add_photo_alternate_outlined,
-                                          color: orange, size: 23),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text('Upload a photo',
-                                        style: TextStyle(fontWeight: FontWeight.w600,
-                                            fontSize: 13, color: P2PColors.charcoal)),
-                                    const SizedBox(height: 4),
-                                    const Text('Camera or library',
-                                        style: TextStyle(fontSize: 11,
-                                            color: P2PColors.secondaryText)),
-                                  ],
-                                )
-                              : Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Image.file(_photo!, fit: BoxFit.cover),
-                                    Positioned(
-                                      bottom: 8, right: 8,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black54,
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(Icons.edit_outlined,
-                                            color: Colors.white, size: 17),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _PhotoTile(
+                          label: 'Upload photo',
+                          hint: 'Tap to select',
+                          file: _photo,
+                          accent: orange,
+                          onTap: _posting ? null : () => _showPhotoSource(),
+                          onRemove: _posting ? null : () => setState(() => _photo = null),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _PhotoTile(
+                          label: 'Add more',
+                          hint: 'Optional',
+                          file: _extraPhoto,
+                          accent: orange,
+                          onTap: _posting ? null : () => _showPhotoSource(extra: true),
+                          onRemove: _posting ? null : () => setState(() => _extraPhoto = null),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 26),
                   const Text('Caption (optional)',
@@ -291,18 +324,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  TextButton.icon(
-                    onPressed: _posting ? null : () => Get.off(
-                      () => const CreateContentScreen(),
-                    ),
-                    icon: Icon(Icons.videocam_outlined, color: orange, size: 19),
-                    label: const Text('Post a video instead',
-                        style: TextStyle(fontSize: 13,
-                            fontWeight: AppFontWeight.label)),
-                    style: TextButton.styleFrom(foregroundColor: P2PColors.charcoal),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 23),
                   SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -322,7 +344,7 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                           : Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text('Post Photo',
+                                const Text('Post to Community',
                                     style: TextStyle(fontWeight: FontWeight.w600,
                                         fontSize: 14)),
                                 const SizedBox(width: 10),
@@ -332,6 +354,17 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
                             ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: _posting ? null : () => Get.off(
+                      () => const CreateContentScreen(),
+                    ),
+                    icon: Icon(Icons.videocam_outlined, color: orange, size: 19),
+                    label: const Text('Post a video instead',
+                        style: TextStyle(fontSize: 13,
+                            fontWeight: AppFontWeight.label)),
+                    style: TextButton.styleFrom(foregroundColor: P2PColors.charcoal),
+                  ),
                 ],
               ),
             ),
@@ -340,7 +373,6 @@ class _PostPhotoVideoScreenState extends State<PostPhotoVideoScreen> {
       ),
     );
   }
-
 }
 
 class _SourceButton extends StatelessWidget {
@@ -348,6 +380,7 @@ class _SourceButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    required this.onRemove,
   });
 
   final IconData icon;
@@ -383,4 +416,115 @@ class _SourceButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PhotoTile extends StatelessWidget {
+  const _PhotoTile({
+    required this.label,
+    required this.hint,
+    required this.file,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final String label;
+  final String hint;
+  final File? file;
+  final Color accent;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: file == null ? '$label, $hint' : 'Change $label',
+        child: Material(
+          color: P2PColors.surface,
+          borderRadius: BorderRadius.circular(P2PRadius.card),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(P2PRadius.card),
+            child: Container(
+              height: 166,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(P2PRadius.card),
+                border: Border.all(
+                  color: file == null ? P2PColors.border : accent,
+                  width: file == null ? 1 : 1.2,
+                ),
+                boxShadow: P2PShadows.card,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: file == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: accent.withValues(alpha: .09),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.add_photo_alternate_outlined,
+                              color: accent, size: 23),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(label,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: P2PColors.charcoal)),
+                        const SizedBox(height: 4),
+                        Text(hint,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: P2PColors.secondaryText)),
+                      ],
+                    )
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.file(file!, fit: BoxFit.cover),
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Semantics(
+                            button: true,
+                            label: 'Remove $label',
+                            child: Material(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(20),
+                              child: InkWell(
+                                onTap: onRemove,
+                                borderRadius: BorderRadius.circular(20),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(6),
+                                  child: Icon(Icons.close_rounded,
+                                      color: Colors.white, size: 17),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 8,
+                          bottom: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.edit_outlined,
+                                color: Colors.white, size: 17),
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      );
 }
