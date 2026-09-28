@@ -222,7 +222,7 @@ class _NavBarState extends State<NavBar> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           height: double.infinity,
-          decoration: selected && !TenantBrandService.to.isWhiteLabeled
+          decoration: selected && P2PAccentPill.appliesToCurrentBrand
               ? P2PAccentPill.decoration(radius: 20.r)
               : BoxDecoration(
                   color: selected
