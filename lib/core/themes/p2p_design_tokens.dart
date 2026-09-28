@@ -103,6 +103,20 @@ class P2PGradients {
 class P2PAccentPill {
   P2PAccentPill._();
 
+  static const colors = <Color>[
+    Color(0xFF201D1D),
+    Color(0xFF633119),
+    Color(0xFFCA5D1D),
+  ];
+  static const borderColor = Color(0xFFEC8238);
+  static const glow = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x1FEC7628),
+      blurRadius: 9,
+      offset: Offset(0, 2),
+    ),
+  ];
+
   static BoxDecoration decoration({required double radius, bool circular = false}) {
     return BoxDecoration(
       shape: circular ? BoxShape.circle : BoxShape.rectangle,
@@ -110,17 +124,10 @@ class P2PAccentPill {
       gradient: const LinearGradient(
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-        colors: [Color(0xFF201D1D), Color(0xFF633119), Color(0xFFCA5D1D)],
+        colors: colors,
       ),
-      border: Border.all(color: const Color(0xFFEC8238), width: 0.8),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x1FEC7628),
-          blurRadius: 9,
-          spreadRadius: 0,
-          offset: Offset(0, 2),
-        ),
-      ],
+      border: Border.all(color: borderColor, width: 0.8),
+      boxShadow: glow,
     );
   }
 }
