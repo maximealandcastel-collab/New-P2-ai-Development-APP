@@ -508,7 +508,7 @@ class _ActivitySection extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(vertical: 10.h),
-                      decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                      decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
                           ? P2PAccentPill.decoration(radius: 10.r)
                           : BoxDecoration(
                               color: isSelected
