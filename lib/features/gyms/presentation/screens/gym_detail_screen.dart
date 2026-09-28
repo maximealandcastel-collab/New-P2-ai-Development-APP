@@ -166,6 +166,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                 ? gym.address
                                 : gym.city,
                             actionLabel: 'Directions',
+                            accentColor: gym.brandColor,
                             onTap: () => widget.onOpenMaps(gym),
                           ),
                         ],
@@ -244,7 +245,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           padding: EdgeInsets.all(13.r),
                           decoration: BoxDecoration(
                             color: active
-                                ? const Color(0xFFEAF8EF)
+                                ? Color.lerp(Colors.white, gym.brandColor, .08)
                                 : const Color(0xFFF3F4F6),
                             borderRadius: BorderRadius.circular(13.r),
                           ),
@@ -257,7 +258,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                     : Icons.lock_outline_rounded,
                                 size: 16.sp,
                                 color: active
-                                    ? const Color(0xFF287A46)
+                                    ? Color.lerp(Colors.black, gym.brandColor, .72)
                                     : const Color(0xFF777983),
                               ),
                               SizedBox(width: 8.w),
@@ -268,7 +269,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                     fontSize: 11.sp,
                                     height: 1.35,
                                     color: active
-                                        ? const Color(0xFF287A46)
+                                        ? Color.lerp(Colors.black, gym.brandColor, .72)
                                         : const Color(0xFF696B75),
                                   ),
                                 ),
@@ -1044,17 +1045,19 @@ class _InfoCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.actionLabel,
+    required this.accentColor,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String actionLabel;
+  final Color accentColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final primary = Color.lerp(Colors.black, accentColor, .75)!;
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(13.r),
