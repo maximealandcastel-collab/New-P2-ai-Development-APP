@@ -298,7 +298,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                               backgroundColor:
                                   active ? Colors.transparent : Colors.white,
                               foregroundColor: active
-                                  ? Colors.white
+                                  ? gym.entryTextColor
                                   : gym.brandColor,
                               elevation: 0,
                               side: active
