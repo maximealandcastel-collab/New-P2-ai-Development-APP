@@ -571,18 +571,18 @@ class _AddFoodState extends State<_AddFood> {
               padding: const EdgeInsets.only(right: 6),
               child: Container(
                 decoration: filter == category &&
-                        !TenantBrandService.to.isWhiteLabeled
+                        P2PAccentPill.appliesToCurrentBrand
                     ? P2PAccentPill.decoration(radius: 999)
                     : null,
                 child: ChoiceChip(
                   label: Text(category, style: const TextStyle(fontSize: 11)),
                   selected: filter == category,
-                  selectedColor: TenantBrandService.to.isWhiteLabeled
+                  selectedColor: !P2PAccentPill.appliesToCurrentBrand
                       ? _orange
                       : Colors.transparent,
                   showCheckmark: false,
                   side: filter == category &&
-                          !TenantBrandService.to.isWhiteLabeled
+                          P2PAccentPill.appliesToCurrentBrand
                       ? BorderSide.none
                       : null,
                   labelStyle: TextStyle(
