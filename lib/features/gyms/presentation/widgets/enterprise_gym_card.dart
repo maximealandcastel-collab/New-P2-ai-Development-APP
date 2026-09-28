@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/gym_login_preview_screen.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 
 class EnterpriseGymCard extends StatelessWidget {
   final EnterpriseGymModel gym;
@@ -108,8 +109,9 @@ class EnterpriseGymCard extends StatelessWidget {
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
-                        color: gym.brandColor,
+                        gradient: GymBrandMesh.forColors(gym.brandColor, gym.accentColor),
                         borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [GymBrandMesh.shadow(gym.accentColor)],
                       ),
                       alignment: Alignment.center,
                       child: Text(
