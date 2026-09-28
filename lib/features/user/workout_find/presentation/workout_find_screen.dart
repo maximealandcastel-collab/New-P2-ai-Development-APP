@@ -732,8 +732,8 @@ class _TrainingStyleCard extends StatelessWidget {
                 top: 12.h,
                 right: 12.w,
                 child: Container(
-                  width: 30.w,
-                  height: 30.w,
+                  width: 20.w,
+                  height: 20.w,
                   decoration: BoxDecoration(
                     color: isSelected
                         ? const Color(0xFFFF7A00)
@@ -746,7 +746,7 @@ class _TrainingStyleCard extends StatelessWidget {
                     ),
                   ),
                   child: isSelected
-                      ? Icon(Icons.check, color: Colors.white, size: 19.sp)
+                      ? Icon(Icons.check, color: Colors.white, size: 13.sp)
                       : null,
                 ),
               ),
