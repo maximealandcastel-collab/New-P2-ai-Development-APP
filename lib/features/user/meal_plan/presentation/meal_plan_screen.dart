@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
@@ -565,11 +567,31 @@ class _AddFoodState extends State<_AddFood> {
         SizedBox(height: 44, child: ListView(scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 18), children: [
           for (final category in ['All', 'Favorites', 'Protein', 'Carbs', 'Fats', 'Vegetables'])
-            Padding(padding: const EdgeInsets.only(right: 6), child: ChoiceChip(
-              label: Text(category, style: const TextStyle(fontSize: 11)),
-              selected: filter == category, selectedColor: _orange,
-              labelStyle: TextStyle(color: filter == category ? Colors.white : _ink),
-              onSelected: (_) => setState(() => filter = category))),
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Container(
+                decoration: filter == category &&
+                        !TenantBrandService.to.isWhiteLabeled
+                    ? P2PAccentPill.decoration(radius: 999)
+                    : null,
+                child: ChoiceChip(
+                  label: Text(category, style: const TextStyle(fontSize: 11)),
+                  selected: filter == category,
+                  selectedColor: TenantBrandService.to.isWhiteLabeled
+                      ? _orange
+                      : Colors.transparent,
+                  showCheckmark: false,
+                  side: filter == category &&
+                          !TenantBrandService.to.isWhiteLabeled
+                      ? BorderSide.none
+                      : null,
+                  labelStyle: TextStyle(
+                    color: filter == category ? Colors.white : _ink,
+                  ),
+                  onSelected: (_) => setState(() => filter = category),
+                ),
+              ),
+            ),
         ])),
         const Padding(padding: EdgeInsets.fromLTRB(18, 9, 18, 10),
           child: Text('Examples are estimates. Enter your food label values for accuracy.',
