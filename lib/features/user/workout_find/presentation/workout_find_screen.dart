@@ -629,7 +629,7 @@ class _TrainingStylesStep extends StatelessWidget {
                       borderRadius: BorderRadius.circular(18.r),
                     ),
                   ).copyWith(
-                    backgroundBuilder: TenantBrandService.to.isWhiteLabeled
+                    backgroundBuilder: !P2PAccentPill.appliesToCurrentBrand
                         ? null
                         : (context, states, child) => states.contains(WidgetState.disabled)
                             ? child ?? const SizedBox.shrink()
@@ -985,7 +985,7 @@ class _IntensityDurationStep extends StatelessWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
-                            decoration: isSelected && !TenantBrandService.to.isWhiteLabeled
+                            decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
                                 ? P2PAccentPill.decoration(radius: 14.r)
                                 : BoxDecoration(
                                     color: isSelected
@@ -1513,7 +1513,7 @@ class _SplitSelectionStep extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14.r),
                 ),
               ).copyWith(
-                backgroundBuilder: TenantBrandService.to.isWhiteLabeled
+                backgroundBuilder: !P2PAccentPill.appliesToCurrentBrand
                     ? null
                     : (context, states, child) => states.contains(WidgetState.disabled)
                         ? child ?? const SizedBox.shrink()
@@ -2110,7 +2110,7 @@ class _NextButton extends StatelessWidget {
         child: Container(
           width: double.infinity,
           height: 52.h,
-          decoration: TenantBrandService.to.isWhiteLabeled
+          decoration: !P2PAccentPill.appliesToCurrentBrand
               ? BoxDecoration(
                   color: BrandColors.of(context).primary,
                   borderRadius: BorderRadius.circular(14.r),
