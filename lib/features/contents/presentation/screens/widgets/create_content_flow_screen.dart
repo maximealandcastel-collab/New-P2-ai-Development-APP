@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
 
 typedef CreateContentNextHandler = Future<void> Function(
@@ -138,19 +139,44 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                 ),
                 SizedBox(height: 12.h),
               ],
-              CustomButton(
-                onPressed: widget.isSubmitting
-                    ? null
-                    : () => widget.onNextPressed(
-                          _currentIndex,
-                          _navigateToPage,
-                          _validateFormAfterNavigation,
-                        ),
-                isDisabled: widget.isSubmitting,
-                label: _currentIndex == widget.pages.length - 1
-                    ? widget.submitLabel
-                    : 'Next',
+              SizedBox(
                 width: double.infinity,
+                height: 48.h,
+                child: OutlinedButton(
+                  onPressed: widget.isSubmitting
+                      ? null
+                      : () => widget.onNextPressed(
+                            _currentIndex,
+                            _navigateToPage,
+                            _validateFormAfterNavigation,
+                          ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: P2PColors.charcoal,
+                    backgroundColor: Colors.white,
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 1.2,
+                    ),
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomText(
+                        text: _currentIndex == widget.pages.length - 1
+                            ? widget.submitLabel
+                            : 'Next',
+                        fontWeight: AppFontWeight.label,
+                        fontSize: 14.sp,
+                        color: P2PColors.charcoal,
+                      ),
+                      SizedBox(width: 10.w),
+                      Icon(Icons.arrow_forward_rounded,
+                          color: Theme.of(context).colorScheme.primary, size: 19.sp),
+                    ],
+                  ),
+                ),
               ),
               if (widget.canSkipStep?.call(_currentIndex) == true) ...[
                 SizedBox(height: 16.h),
