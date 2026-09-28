@@ -1,6 +1,8 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -259,14 +261,20 @@ class _AdminUserListScreenState extends State<AdminUserListScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: active ? Theme.of(context).colorScheme.primary : Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: active ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
-                  width: 1,
-                ),
-              ),
+              decoration: active && !TenantBrandService.to.isWhiteLabeled
+                  ? P2PAccentPill.decoration(radius: 20.r)
+                  : BoxDecoration(
+                      color: active
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).scaffoldBackgroundColor,
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: active
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey.shade300,
+                        width: 1,
+                      ),
+                    ),
               child: Text(
                 f['label']!,
                 style: TextStyle(
