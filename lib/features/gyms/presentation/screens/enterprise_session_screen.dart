@@ -14,6 +14,8 @@ import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/services/enterprise_service.dart';
 import '../widgets/tenant_image.dart';
+import '../widgets/gym_brand_logo.dart';
+import '../widgets/gym_brand_mesh.dart';
 import 'enterprise_module_screen.dart';
 
 /// Owns a nested navigator: revocation or switching disposes every protected
@@ -256,21 +258,49 @@ class _EnterpriseJoinScreenState extends State<EnterpriseJoinScreen> {
   bool busy = false, requested = false;
   String? error;
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.gym.name)),
-    body: ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        TenantImage(widget.gym.logoUrl, height: 100, fit: BoxFit.contain),
-        Text(widget.gym.tagline),
-        Text(widget.gym.address),
+  Widget build(BuildContext context) {
+    final displayGym = EnterpriseGymModel.loginPresentationFor(widget.gym);
+    final isYmca = displayGym.tenantId == 'ymca-yonkers';
+    final ink = isYmca ? Colors.white : const Color(0xFF171820);
+    return Scaffold(
+      backgroundColor: isYmca ? const Color(0xFF101B2D) : Colors.white,
+      appBar: AppBar(
+        backgroundColor: isYmca ? const Color(0xFF101B2D) : Colors.white,
+        foregroundColor: ink,
+        title: Text(displayGym.name),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+        Center(child: GymBrandLogo(
+          gym: displayGym, size: 84, borderRadius: 20)),
+        const SizedBox(height: 18),
+        Text(displayGym.tagline,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: ink, fontSize: 18,
+            fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        Text(widget.gym.address, textAlign: TextAlign.center,
+          style: TextStyle(color: ink.withOpacity(.68))),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Request membership to connect this gym to your P2P account. A gym administrator reviews requests.',
+          style: TextStyle(color: ink),
         ),
-        if (error != null) Text(error!),
-        FilledButton(
-          onPressed: busy || requested
+        if (error != null) Text(error!, style: TextStyle(color: ink)),
+        const SizedBox(height: 18),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: isYmca
+                ? GymBrandMesh.detailAction(displayGym.brandColor)
+                : displayGym.tenantId == 'kmf-fitness'
+                    ? GymBrandMesh.sunnyAction(displayGym.brandColor)
+                    : GymBrandMesh.forColors(
+                        displayGym.brandColor, displayGym.accentColor),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: FilledButton(
+            onPressed: busy || requested
               ? null
               : () async {
                   setState(() {
@@ -290,11 +320,19 @@ class _EnterpriseJoinScreenState extends State<EnterpriseJoinScreen> {
                     if (mounted) setState(() => busy = false);
                   }
                 },
-          child: Text(requested ? 'Request submitted' : 'Request to join'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shadowColor: Colors.transparent,
+              elevation: 0,
+            ),
+            child: Text(requested ? 'Request submitted' : 'Request to join'),
+          ),
         ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class EnterpriseMemberHome extends StatelessWidget {
