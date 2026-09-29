@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 
 class FeaturedGymCard extends StatelessWidget {
   const FeaturedGymCard({
@@ -39,14 +40,9 @@ class FeaturedGymCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15.r),
-        border: Border.all(color: const Color(0xFFEDEEF1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: gym.brandColor.withOpacity(.10)),
+        boxShadow: [GymBrandMesh.franchiseShadow(
+          gym.brandColor, gym.accentColor)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,6 +61,7 @@ class FeaturedGymCard extends StatelessWidget {
                           ? 'Partner'
                           : 'Targeted',
                   active: isCurrent || gym.isActivated,
+                  brandColor: gym.brandColor,
                 ),
               ),
               Positioned(
@@ -246,25 +243,30 @@ class _FavoriteButton extends StatelessWidget {
 }
 
 class _PartnershipBadge extends StatelessWidget {
-  const _PartnershipBadge({required this.label, required this.active});
+  const _PartnershipBadge({
+    required this.label, required this.active, required this.brandColor,
+  });
 
   final String label;
   final bool active;
+  final Color brandColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: active ? const Color(0xFFEAF8EF) : const Color(0xFFF2F4F3),
+        color: Color.lerp(Colors.white, brandColor, active ? .12 : .07),
         borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: brandColor.withOpacity(.10)),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 8.5.sp,
           fontWeight: FontWeight.w500,
-          color: active ? const Color(0xFF287A46) : const Color(0xFF666A72),
+          color: active ? GymBrandMesh.darkBrand(brandColor)
+              : const Color(0xFF666A72),
         ),
       ),
     );
