@@ -17,13 +17,9 @@ class EnterpriseGymCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: gym.brandColor.withOpacity(.10)),
+        boxShadow: [GymBrandMesh.franchiseShadow(
+          gym.brandColor, gym.accentColor)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,16 +41,15 @@ class EnterpriseGymCard extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    color: gym.isActivated
-                        ? const Color(0xFFE8F5E9)
-                        : const Color(0xFFF1F1F1),
+                    color: Color.lerp(Colors.white, gym.brandColor,
+                        gym.isActivated ? .12 : .07),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Text(
                     gym.isActivated ? 'Active' : 'Targeted',
                     style: TextStyle(
                       color: gym.isActivated
-                          ? const Color(0xFF2E7D32)
+                          ? GymBrandMesh.darkBrand(gym.brandColor)
                           : const Color(0xFF6B7280),
                       fontSize: 9.sp,
                       fontWeight: FontWeight.w500,
@@ -129,8 +124,11 @@ class EnterpriseGymCard extends StatelessWidget {
                     padding:
                         EdgeInsets.symmetric(horizontal: 12.w, vertical: 9.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F1F1),
+                      color: Color.lerp(Colors.white, gym.brandColor, .07),
                       borderRadius: BorderRadius.circular(10.r),
+                      border: Border.all(color: gym.brandColor.withOpacity(.13)),
+                      boxShadow: [GymBrandMesh.franchiseShadow(
+                          gym.brandColor, gym.accentColor)],
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
