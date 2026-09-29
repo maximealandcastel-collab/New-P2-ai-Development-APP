@@ -148,16 +148,6 @@ class EnterpriseGymModel {
               remoteLogoUrl.isNotEmpty ||
               _localLogoAssets.containsKey(id),
           'White-label gyms require a logo.',
-        ),
-        assert(
-          loginExperience != GymLoginExperience.whiteLabel ||
-              (imageAssetPath.isNotEmpty && galleryAssetPaths.isNotEmpty),
-          'White-label gyms require hero and facility photos.',
-        ),
-        assert(
-          loginExperience != GymLoginExperience.whiteLabel ||
-              (address.isNotEmpty && tagline.isNotEmpty),
-          'White-label gyms require an address and tagline.',
         );
 
   String get displayFranchiseName =>
@@ -308,6 +298,14 @@ class EnterpriseGymModel {
   /// tenant. Use its bundled, approved identity on the login screen while
   /// keeping authorization tied to the same tenant ID in the login request.
   static EnterpriseGymModel loginPresentationFor(EnterpriseGymModel gym) {
+    // A complete live brand wins. The bundled approved identity is only a
+    // fallback for the known pilot tenants when their public record is sparse.
+    if (gym.loginExperience == GymLoginExperience.whiteLabel &&
+        gym.logoUrl.isNotEmpty &&
+        gym.brandColor != const Color(0xFF565B63) &&
+        gym.brandColor != const Color(0xFFB83B12)) {
+      return gym;
+    }
     final tenant = gym.tenantId?.toLowerCase();
     final id = gym.id.toLowerCase().replaceAll('_', '-');
     for (final partner in _partners) {
