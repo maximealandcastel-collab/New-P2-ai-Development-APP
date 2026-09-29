@@ -38,7 +38,9 @@ class FeaturedGymCard extends StatelessWidget {
       width: 158.w,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: gym.isActivated ? Colors.white : null,
+        gradient: gym.isActivated ? null : GymBrandMesh.surface(
+          Colors.white, gym.brandColor),
         borderRadius: BorderRadius.circular(15.r),
         border: Border.all(color: gym.brandColor.withOpacity(.10)),
         boxShadow: [GymBrandMesh.franchiseShadow(
