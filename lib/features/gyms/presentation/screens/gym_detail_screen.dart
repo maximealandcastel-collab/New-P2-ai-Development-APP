@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/features/gyms/data/models/tenant_configuration.
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 
 /// Opens the shared member-facing franchise location picker.
 ///
@@ -52,6 +53,9 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
   late List<EnterpriseGymModel> _locations;
 
   EnterpriseGymModel get gym => _selectedGym;
+  EnterpriseGymTheme get theme => EnterpriseGymTheme.fromColors(
+    primary: gym.brandColor, secondary: gym.accentColor,
+    accent: gym.accentColor);
 
   @override
   void initState() {
@@ -406,36 +410,19 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           height: 46.h,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: active
-                                  ? _sunnyKmf
-                                      ? GymBrandMesh.sunnyAction(gym.brandColor)
-                                      : GymBrandMesh.detailAction(gym.brandColor)
-                                  : null,
+                              gradient: theme.ctaGradient,
                               borderRadius: BorderRadius.circular(24.r),
-                              border: _sunnyKmf && active ? Border.all(
-                                color: gym.brandColor.withOpacity(.45)) : null,
-                              boxShadow: [_sunnyKmf
-                                  ? GymBrandMesh.sunnyShadow(gym.brandColor)
-                                  : GymBrandMesh.franchiseShadow(
-                                      gym.brandColor, gym.accentColor)],
+                              boxShadow: [GymBrandMesh.shadow(theme.meshEnd)],
                             ),
                             child: FilledButton(
                             onPressed: () => active
                                 ? widget.onEnter(gym)
                                 : widget.onClaim(gym),
                             style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  active ? Colors.transparent : Colors.white,
-                              foregroundColor: active
-                                  ? Colors.white
-                                  : GymBrandMesh.darkBrand(gym.brandColor),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: theme.textOnGradient,
                               elevation: 0,
-                              side: active
-                                  ? BorderSide.none
-                                  : BorderSide(
-                                      color: gym.brandColor.withOpacity(.28),
-                                      width: 1.2,
-                                    ),
+                              side: BorderSide.none,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24.r),
                               ),
@@ -449,7 +436,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   Icon(
                                     Icons.verified_outlined,
                                     size: 16.sp,
-                                    color: GymBrandMesh.darkBrand(gym.brandColor),
+                                    color: theme.textOnGradient,
                                   ),
                                   SizedBox(width: 8.w),
                                 ],
