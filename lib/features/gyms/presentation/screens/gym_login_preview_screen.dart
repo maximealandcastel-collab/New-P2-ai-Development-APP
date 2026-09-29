@@ -13,10 +13,7 @@ import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_lo
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/screens/enterprise_gym_signup_flow.dart';
 
-/// Gym-branded login screen that stays inside the P2P Fit Tech AI design system.
-///
-/// The gym's logo + color personalize the experience — they do NOT replace P2P.
-/// Background stays white. Actions stay P2P orange. Layout stays P2P standard.
+/// Gym-branded login screen for the selected enterprise tenant.
 class GymLoginPreviewScreen extends StatefulWidget {
   final EnterpriseGymModel gym;
   const GymLoginPreviewScreen({super.key, required this.gym});
@@ -72,7 +69,7 @@ class _GymLoginPreviewScreenState extends State<GymLoginPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gym = widget.gym;
+    final gym = EnterpriseGymModel.loginPresentationFor(widget.gym);
     if (gym.loginExperience == GymLoginExperience.whiteLabel) {
       return _WhiteLabelGymLoginScreen(gym: gym);
     }
@@ -450,10 +447,16 @@ class _WhiteLabelGymLoginScreen extends StatefulWidget {
 }
 
 class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
-  bool get _isKmf => widget.gym.id == 'kmf_fitness_club';
-  Color get _green => _isKmf ? const Color(0xFF22C55E) : widget.gym.accentColor;
+  bool get _isKmf => widget.gym.tenantId == 'kmf-fitness';
+  bool get _isYmca => widget.gym.tenantId == 'ymca-yonkers';
+  Color get _brandAccent => _isKmf
+      ? const Color(0xFF168B3E)
+      : _isYmca ? const Color(0xFF0072E3) : widget.gym.accentColor;
   Color get _black => const Color(0xFF090A09);
-  Color get _pageBackground => _isKmf ? Colors.white : widget.gym.brandColor;
+  Color get _pageBackground => _isKmf ? Colors.white :
+      _isYmca ? const Color(0xFF101B2D) : widget.gym.brandColor;
+  Color get _headingColor => _isKmf ? _black : Colors.white;
+  Color get _taglineColor => _isYmca ? const Color(0xFFB7E5FF) : _brandAccent;
   final LoginController _controller = LoginController.to;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _entryRole = 'Member';
@@ -488,7 +491,15 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
       backgroundColor: _pageBackground,
       body: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: GymBrandMesh.surface(_pageBackground, widget.gym.accentColor),
+          gradient: _isYmca
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF101B2D), Color(0xFF153E67),
+                    Color(0xFF075BA8)],
+                  stops: [0, .62, 1],
+                )
+              : GymBrandMesh.surface(_pageBackground, widget.gym.accentColor),
         ),
         child: SafeArea(
         child: SingleChildScrollView(
@@ -505,32 +516,31 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                     onPressed: Get.back,
                     icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: _isKmf ? _black : Colors.white,
+                      color: _headingColor,
                     ),
                   ),
                 ),
                 SizedBox(height: 10.h),
                 Center(
                   child: Container(
-                    width: 126.r,
-                    height: 126.r,
-                    padding: EdgeInsets.all(10.r),
+                    width: 104.r,
+                    height: 104.r,
+                    padding: EdgeInsets.all(7.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(28.r),
-                      border: Border.all(color: _green, width: 2),
+                      borderRadius: BorderRadius.circular(24.r),
+                      border: Border.all(color: _brandAccent.withOpacity(.35)),
                       boxShadow: [
                         BoxShadow(
-                          color: _green.withOpacity(0.18),
-                          blurRadius: 30,
-                          spreadRadius: 2,
+                          color: _brandAccent.withOpacity(0.12),
+                          blurRadius: 16,
                         ),
                       ],
                     ),
                     child: GymBrandLogo(
                       gym: widget.gym,
-                      size: 104.r,
-                      borderRadius: 20.r,
+                      size: 90.r,
+                      borderRadius: 18.r,
                     ),
                   ),
                 ),
@@ -539,8 +549,8 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   widget.gym.name,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _isKmf ? _black : Colors.white,
-                    fontSize: 29.sp,
+                    color: _headingColor,
+                    fontSize: 23.sp,
                     height: 1.05,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.5,
@@ -551,7 +561,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   widget.gym.tagline,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _green,
+                    color: _taglineColor,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.3,
@@ -596,7 +606,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   child: _EnterpriseRoleButton(
                                     label: role,
                                     selected: _entryRole == role,
-                                    selectedColor: _green,
+                                    selectedColor: _brandAccent,
                                     onTap: () => _selectRole(role),
                                   ),
                                 ),
@@ -622,7 +632,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         label: 'Email',
                         hint: 'Enter your email address',
                         icon: Icons.person_outline_rounded,
-                        focusColor: _green,
+                        focusColor: _brandAccent,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           final email = value?.trim() ?? '';
@@ -639,7 +649,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         label: 'Password',
                         hint: 'Enter your password',
                         icon: Icons.lock_outline_rounded,
-                        focusColor: _green,
+                        focusColor: _brandAccent,
                         obscureText: true,
                         onSubmitted: () => _controller.login(
                           requestedTenantId: widget.gym.tenantId,
@@ -654,10 +664,10 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () => Get.toNamed(AppRoute.forgotScreen),
-                          child: const Text(
+                          child: Text(
                             'Forgot password?',
                             style: TextStyle(
-                              color: Color(0xFF187900),
+                              color: _brandAccent,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -670,8 +680,12 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                           height: 52.h,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: GymBrandMesh.forColors(
-                                  widget.gym.brandColor, widget.gym.accentColor),
+                              gradient: _isYmca
+                                  ? GymBrandMesh.detailAction(widget.gym.brandColor)
+                                  : _isKmf
+                                      ? GymBrandMesh.sunnyAction(widget.gym.brandColor)
+                                      : GymBrandMesh.forColors(
+                                          widget.gym.brandColor, widget.gym.accentColor),
                               borderRadius: BorderRadius.circular(14.r),
                               boxShadow: [GymBrandMesh.shadow(widget.gym.accentColor)],
                             ),
@@ -684,7 +698,8 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
-                              foregroundColor: _black,
+                              foregroundColor: _isKmf || _isYmca
+                                  ? Colors.white : _black,
                               disabledBackgroundColor: Colors.transparent,
                               elevation: 0,
                               shadowColor: Colors.transparent,
@@ -698,7 +713,8 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     height: 22.r,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
-                                      color: _black,
+                                      color: _isKmf || _isYmca
+                                          ? Colors.white : _black,
                                     ),
                                   )
                                 : Text(
