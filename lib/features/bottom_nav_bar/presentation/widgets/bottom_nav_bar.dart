@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/data/models/nav_item_model.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/widgets/nav_fab_widget.dart';
@@ -54,7 +53,6 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = BottomNavBarController.to;
-    final tenant = TenantBrandService.to;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -108,33 +106,15 @@ class BottomNavBar extends StatelessWidget {
                         onTap: () =>
                             NavFabWidget.show(context, controller.fabItems),
                         child: Center(
-                          child: !P2PAccentPill.appliesToCurrentBrand
-                                  ? Container(
-                                      height: 42.h,
-                                      width: 42.w,
-                                      decoration: BoxDecoration(
-                                        color: tenant.primaryColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 26.sp,
-                                      ),
-                                    )
-                                  : Container(
-                                      height: 42.h,
-                                      width: 42.w,
-                                      decoration: P2PAccentPill.decoration(
-                                        radius: 21.r,
-                                        circular: true,
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 26.sp,
-                                      ),
-                                    ),
+                          child: Container(
+                            height: 42.h,
+                            width: 42.w,
+                            decoration: P2PAccentPill.decoration(
+                              radius: 21.r, circular: true,
+                            ),
+                            child: Icon(Icons.add,
+                              color: Colors.white, size: 26.sp),
+                          ),
                         ),
                       ),
                     ),
