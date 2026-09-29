@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_logo.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 
 class GymListTile extends StatelessWidget {
   const GymListTile({super.key, required this.gym});
@@ -36,14 +37,9 @@ class GymListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: const Color(0xFFEDEEF1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: gym.brandColor.withOpacity(.10)),
+        boxShadow: [GymBrandMesh.franchiseShadow(
+          gym.brandColor, gym.accentColor)],
       ),
       child: Row(
         children: [
@@ -128,10 +124,10 @@ class GymListTile extends StatelessWidget {
             constraints: BoxConstraints(maxWidth: 82.w),
             padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 6.h),
             decoration: BoxDecoration(
-              color: (isCurrent || gym.isActivated)
-                  ? const Color(0xFFEAF8EF)
-                  : const Color(0xFFF3F4F6),
+              color: Color.lerp(Colors.white, gym.brandColor,
+                  (isCurrent || gym.isActivated) ? .12 : .07),
               borderRadius: BorderRadius.circular(9.r),
+              border: Border.all(color: gym.brandColor.withOpacity(.10)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -142,7 +138,7 @@ class GymListTile extends StatelessWidget {
                       : Icons.lock_outline_rounded,
                   size: 10.sp,
                   color: isCurrent || gym.isActivated
-                      ? const Color(0xFF287A46)
+                      ? GymBrandMesh.darkBrand(gym.brandColor)
                       : const Color(0xFF858791),
                 ),
                 SizedBox(width: 3.w),
@@ -156,7 +152,7 @@ class GymListTile extends StatelessWidget {
                       height: 1.16,
                       fontWeight: FontWeight.w500,
                       color: isCurrent || gym.isActivated
-                          ? const Color(0xFF287A46)
+                          ? GymBrandMesh.darkBrand(gym.brandColor)
                           : const Color(0xFF777983),
                     ),
                   ),

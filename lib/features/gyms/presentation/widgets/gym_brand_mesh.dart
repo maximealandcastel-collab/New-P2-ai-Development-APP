@@ -75,4 +75,11 @@ class GymBrandMesh {
     blurRadius: 7,
     offset: const Offset(0, 2),
   );
+
+  /// Dark franchise colors can use their own secondary color for the faint
+  /// edge light. White accents fall back to the primary brand color.
+  static BoxShadow franchiseShadow(Color primary, Color accent) => shadow(
+    primary.computeLuminance() < .08 && accent.computeLuminance() < .85
+        ? accent : primary,
+  );
 }
