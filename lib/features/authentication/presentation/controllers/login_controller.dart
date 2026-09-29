@@ -290,6 +290,7 @@ class LoginController extends GetxController {
           : AppThemeData.forBrand(
               primaryColor: brand.primaryColor,
               scaffoldBackground: brand.scaffoldBackground,
+              gymTheme: brand.theme,
             ),
     );
     try {
