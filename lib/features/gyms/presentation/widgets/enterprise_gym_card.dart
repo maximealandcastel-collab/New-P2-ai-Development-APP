@@ -15,7 +15,9 @@ class EnterpriseGymCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: gym.isActivated ? Colors.white : null,
+        gradient: gym.isActivated ? null : GymBrandMesh.surface(
+          Colors.white, gym.brandColor),
         borderRadius: BorderRadius.circular(18.r),
         border: Border.all(color: gym.brandColor.withOpacity(.10)),
         boxShadow: [GymBrandMesh.franchiseShadow(
