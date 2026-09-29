@@ -107,12 +107,7 @@ class P2PAccentPill {
   /// Keep distinct tenant palettes while refining any orange action surface.
   static bool get appliesToCurrentBrand {
     final brand = TenantBrandService.to.activeBrand;
-    if (brand == null) return true;
-    final hsv = HSVColor.fromColor(brand.primaryColor);
-    return hsv.hue >= 8 &&
-        hsv.hue <= 48 &&
-        hsv.saturation >= 0.55 &&
-        hsv.value >= 0.55;
+    return brand == null;
   }
 
   static const colors = <Color>[
@@ -130,6 +125,15 @@ class P2PAccentPill {
   ];
 
   static BoxDecoration decoration({required double radius, bool circular = false}) {
+    final brand = TenantBrandService.to.activeBrand;
+    if (brand != null) {
+      return BoxDecoration(
+        shape: circular ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circular ? null : BorderRadius.circular(radius),
+        gradient: brand.theme.ctaGradient,
+        border: Border.all(color: brand.theme.borderTint, width: .8),
+      );
+    }
     return BoxDecoration(
       shape: circular ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: circular ? null : BorderRadius.circular(radius),
