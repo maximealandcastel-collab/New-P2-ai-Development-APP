@@ -41,7 +41,7 @@ class TenantConfiguration {
     Color color(String key) {
       final value = json[key];
       if (value is! String || !RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)) {
-        return const Color(0xFFB83B12);
+        return const Color(0xFF565B63);
       }
       return Color(0xff000000 | int.parse(value.substring(1), radix: 16));
     }
@@ -79,6 +79,15 @@ class TenantConfiguration {
         : locations;
     return sourceLocations.asMap().entries.map((entry) {
       final location = entry.value;
+      final rawOverride = location['brandThemeOverride'];
+      final approvedOverride = rawOverride is Map &&
+          rawOverride['approved'] == true ? rawOverride : null;
+      Color approvedColor(String key, Color fallback) {
+        final value = approvedOverride?[key];
+        return value is String && RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)
+            ? Color(0xFF000000 | int.parse(value.substring(1), radix: 16))
+            : fallback;
+      }
       final locationId = (location['id'] ?? location['_id'] ?? entry.key)
           .toString()
           .trim()
@@ -97,9 +106,7 @@ class TenantConfiguration {
                 .where((part) => part.isNotEmpty)
                 .join(', ');
 
-      final hasCompleteBranding = logoUrl.isNotEmpty &&
-          displayPhotos.isNotEmpty && resolvedAddress.isNotEmpty &&
-          slogan.isNotEmpty;
+      final hasApprovedLogo = logoUrl.isNotEmpty;
       return EnterpriseGymModel(
         id: sourceLocations.length == 1 ? id : '${id}_$locationId',
         tenantId: id,
@@ -118,15 +125,15 @@ class TenantConfiguration {
         filterTags: tags,
         rating: 0,
         memberCount: '',
-        brandColor: primary,
-        accentColor: accent,
+        brandColor: approvedColor('primaryBrandColor', primary),
+        accentColor: approvedColor('accentColor', accent),
         remoteLogoUrl: logoUrl,
         textColor:
             ThemeData.estimateBrightnessForColor(primary) == Brightness.dark
             ? Colors.white
             : Colors.black,
         isActivated: isActivated,
-        loginExperience: isActivated && hasCompleteBranding
+        loginExperience: isActivated && hasApprovedLogo
             ? GymLoginExperience.whiteLabel
             : GymLoginExperience.standard,
         imageAssetPath: displayPhotos.isEmpty ? '' : displayPhotos.first,

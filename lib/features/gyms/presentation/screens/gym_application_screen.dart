@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
@@ -82,6 +83,8 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       ? Color(0xFF000000 | int.parse(value.substring(1), radix: 16))
       : null;
   Color get brand => parseColor(primary.text) ?? orange;
+  EnterpriseGymTheme get previewTheme => EnterpriseGymTheme.fromColors(
+    primary: parseColor(primary.text), secondary: parseColor(secondary.text));
   Color get brandText =>
       ThemeData.estimateBrightnessForColor(brand) == Brightness.dark
       ? Colors.white
@@ -1115,7 +1118,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(22),
-      border: Border.all(color: brand.withValues(alpha: .2)),
+      border: Border.all(color: previewTheme.borderTint),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1130,13 +1133,13 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
           child: Column(
             children: [
               Container(
-                color: brand,
+                color: previewTheme.surfaceTint,
                 padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor: brandText.withValues(alpha: .15),
+                      backgroundColor: Colors.white,
                       child: ClipOval(
                         child: selectedLogo != null
                             ? Image.file(File(selectedLogo!.path), width: 48, height: 48, fit: BoxFit.contain)
@@ -1149,7 +1152,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                       child: Text(
                                         text('shortCode').toUpperCase(),
                                         maxLines: 1,
-                                        style: TextStyle(color: brandText, fontSize: 11, fontWeight: AppFontWeight.title),
+                                        style: TextStyle(color: ink, fontSize: 11, fontWeight: AppFontWeight.title),
                                       ),
                                     ),
                                   ),
@@ -1160,12 +1163,12 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       child: Text(
                         text('gymName').isEmpty ? 'Your Gym' : text('gymName'),
                         style: TextStyle(
-                          color: brandText,
+                          color: ink,
                           fontWeight: AppFontWeight.title,
                         ),
                       ),
                     ),
-                    Icon(Icons.notifications_none, color: brandText),
+                    Icon(Icons.notifications_none, color: ink),
                   ],
                 ),
               ),
@@ -1199,14 +1202,14 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: brand,
+                        gradient: previewTheme.ctaGradient,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         'Find My Workout ➜',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: brandText,
+                          color: previewTheme.textOnGradient,
                           fontWeight: AppFontWeight.section,
                           fontSize: 12,
                         ),

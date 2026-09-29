@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'enterprise_session_screen.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
@@ -447,16 +448,14 @@ class _WhiteLabelGymLoginScreen extends StatefulWidget {
 }
 
 class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
-  bool get _isKmf => widget.gym.tenantId == 'kmf-fitness';
-  bool get _isYmca => widget.gym.tenantId == 'ymca-yonkers';
-  Color get _brandAccent => _isKmf
-      ? const Color(0xFF168B3E)
-      : _isYmca ? const Color(0xFF0072E3) : widget.gym.accentColor;
+  EnterpriseGymTheme get _theme => EnterpriseGymTheme.fromColors(
+    primary: widget.gym.brandColor,
+    secondary: widget.gym.accentColor,
+    accent: widget.gym.accentColor,
+  );
+  Color get _brandAccent => _theme.iconAccent;
   Color get _black => const Color(0xFF090A09);
-  Color get _pageBackground => _isKmf ? Colors.white :
-      _isYmca ? const Color(0xFF101B2D) : widget.gym.brandColor;
-  Color get _headingColor => _isKmf ? _black : Colors.white;
-  Color get _taglineColor => _isYmca ? const Color(0xFFB7E5FF) : _brandAccent;
+  Color get _pageBackground => const Color(0xFFFAFAFB);
   final LoginController _controller = LoginController.to;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _entryRole = 'Member';
@@ -491,15 +490,12 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
       backgroundColor: _pageBackground,
       body: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: _isYmca
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF101B2D), Color(0xFF153E67),
-                    Color(0xFF075BA8)],
-                  stops: [0, .62, 1],
-                )
-              : GymBrandMesh.surface(_pageBackground, widget.gym.accentColor),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, _pageBackground, _theme.surfaceTint],
+            stops: const [0, .62, 1],
+          ),
         ),
         child: SafeArea(
         child: SingleChildScrollView(
@@ -516,7 +512,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                     onPressed: Get.back,
                     icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: _headingColor,
+                      color: _black,
                     ),
                   ),
                 ),
@@ -529,13 +525,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24.r),
-                      border: Border.all(color: _brandAccent.withOpacity(.35)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _brandAccent.withOpacity(0.12),
-                          blurRadius: 16,
-                        ),
-                      ],
+                      border: Border.all(color: const Color(0xFFE8E8EC)),
                     ),
                     child: GymBrandLogo(
                       gym: widget.gym,
@@ -549,7 +539,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   widget.gym.name,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _headingColor,
+                    color: _black,
                     fontSize: 23.sp,
                     height: 1.05,
                     fontWeight: FontWeight.w600,
@@ -561,7 +551,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   widget.gym.tagline,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _taglineColor,
+                    color: _brandAccent,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.3,
@@ -607,6 +597,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     label: role,
                                     selected: _entryRole == role,
                                     selectedColor: _brandAccent,
+                                    selectedGradient: _theme.activePillGradient,
                                     onTap: () => _selectRole(role),
                                   ),
                                 ),
@@ -680,12 +671,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                           height: 52.h,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: _isYmca
-                                  ? GymBrandMesh.detailAction(widget.gym.brandColor)
-                                  : _isKmf
-                                      ? GymBrandMesh.sunnyAction(widget.gym.brandColor)
-                                      : GymBrandMesh.forColors(
-                                          widget.gym.brandColor, widget.gym.accentColor),
+                              gradient: _theme.ctaGradient,
                               borderRadius: BorderRadius.circular(14.r),
                               boxShadow: [GymBrandMesh.shadow(widget.gym.accentColor)],
                             ),
@@ -698,8 +684,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                   ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
-                              foregroundColor: _isKmf || _isYmca
-                                  ? Colors.white : _black,
+                              foregroundColor: _theme.textOnGradient,
                               disabledBackgroundColor: Colors.transparent,
                               elevation: 0,
                               shadowColor: Colors.transparent,
@@ -713,8 +698,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                                     height: 22.r,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.2,
-                                      color: _isKmf || _isYmca
-                                          ? Colors.white : _black,
+                                      color: _theme.textOnGradient,
                                     ),
                                   )
                                 : Text(
@@ -760,7 +744,7 @@ class _WhiteLabelGymLoginScreenState extends State<_WhiteLabelGymLoginScreen> {
                   '${widget.gym.name} · ${widget.gym.tagline}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _isKmf ? Colors.black54 : Colors.white70,
+                    color: Colors.black54,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                   ),
@@ -779,23 +763,31 @@ class _EnterpriseRoleButton extends StatelessWidget {
   final String label;
   final bool selected;
   final Color selectedColor;
+  final Gradient? selectedGradient;
   final VoidCallback onTap;
 
   const _EnterpriseRoleButton({
     required this.label,
     required this.selected,
     required this.selectedColor,
+    this.selectedGradient,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? selectedColor : const Color(0xFFF0F2EF),
+      color: selected && selectedGradient != null ? Colors.transparent :
+          selected ? selectedColor : const Color(0xFFF0F2EF),
       borderRadius: BorderRadius.circular(11.r),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(11.r),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: selected ? selectedGradient : null,
+            borderRadius: BorderRadius.circular(11.r),
+          ),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 11.h),
           child: Text(
@@ -807,6 +799,7 @@ class _EnterpriseRoleButton extends StatelessWidget {
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
+        ),
         ),
       ),
     );

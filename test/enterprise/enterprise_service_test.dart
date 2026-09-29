@@ -81,7 +81,7 @@ void main() {
           ...config('a'),
           'accentColor': 'green',
         }).accent.toARGB32(),
-        0xFFB83B12,
+        0xFF565B63,
       );
     },
   );

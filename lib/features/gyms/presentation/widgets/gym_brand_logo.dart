@@ -28,8 +28,8 @@ class GymBrandLogo extends StatelessWidget {
         border: Border.all(color: Colors.black.withOpacity(0.06)),
         boxShadow: [
           BoxShadow(
-            color: gym.brandColor.withOpacity(0.18),
-            blurRadius: 8.r,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6.r,
             offset: Offset(0, 3.h),
           ),
         ],

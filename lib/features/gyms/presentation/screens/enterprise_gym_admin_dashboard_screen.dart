@@ -13,17 +13,19 @@ import 'enterprise_module_screen.dart';
 import 'enterprise_session_screen.dart';
 import '../widgets/tenant_image.dart';
 import '../widgets/gym_brand_mesh.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
+import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 
-const _kmfGreen = Color(0xFF22C55E);
-const _kmfBlack = Color(0xFF090A09);
-
-bool _isKmfGym(EnterpriseGymModel gym) => gym.id == 'kmf_fitness_club';
-Color _dashboardBackground(EnterpriseGymModel gym) =>
-    _isKmfGym(gym) ? Colors.white : gym.brandColor;
+EnterpriseGymTheme _dashboardTheme(EnterpriseGymModel gym) =>
+    EnterpriseGymTheme.fromColors(
+      primary: gym.brandColor, secondary: gym.accentColor,
+      accent: gym.accentColor,
+    );
+Color _dashboardBackground(EnterpriseGymModel gym) => Colors.white;
 Color _dashboardText(EnterpriseGymModel gym) =>
-    _isKmfGym(gym) ? _kmfBlack : gym.textColor;
+    EnterpriseGymTheme.signatureBlack;
 Color _dashboardAccent(EnterpriseGymModel gym) =>
-    _isKmfGym(gym) ? _kmfGreen : gym.accentColor;
+    _dashboardTheme(gym).iconAccent;
 
 /// Shared dashboard for every authorized enterprise administrator.
 class EnterpriseGymAdminDashboardScreen extends StatefulWidget {
@@ -121,28 +123,20 @@ class _EnterpriseGymAdminDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    if (_isKmfGym(_gym)) {
-      final base = Theme.of(context);
-      return Theme(
-        data: base.copyWith(
-          scaffoldBackgroundColor: Colors.white,
-          colorScheme: base.colorScheme.copyWith(
-            primary: _kmfGreen,
-            secondary: Colors.white,
-            onSecondary: _kmfBlack,
-            surface: Colors.white,
-            onSurface: _kmfBlack,
-          ),
-        ),
-        child: Builder(builder: _buildDashboard),
-      );
-    }
-    return widget.legacyKmf
-        ? Theme(
-            data: enterpriseTheme(context, legacyKmfTenant),
-            child: Builder(builder: _buildDashboard),
-          )
-        : _buildDashboard(context);
+    final active = EnterpriseService.instance.active.value?.tenant;
+    final tokens = _dashboardTheme(_gym);
+    return Theme(
+      data: widget.legacyKmf
+          ? enterpriseTheme(context, legacyKmfTenant)
+          : active != null
+              ? enterpriseTheme(context, active)
+              : AppThemeData.forBrand(
+                  primaryColor: tokens.primaryBrandColor,
+                  scaffoldBackground: Colors.white,
+                  gymTheme: tokens,
+                ),
+      child: Builder(builder: _buildDashboard),
+    );
   }
 
   Widget _buildDashboard(BuildContext context) {
@@ -259,7 +253,7 @@ class _EnterpriseHeader extends StatelessWidget {
                     Color(0x33000000),
                     Color.lerp(Colors.black, gym.brandColor, .05)!
                         .withValues(alpha: .67),
-                    _dashboardBackground(gym),
+                    Colors.white,
                   ],
                 ),
               ),
@@ -276,16 +270,9 @@ class _EnterpriseHeader extends StatelessWidget {
                       height: 72,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: _dashboardAccent(gym), width: 2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x66000000),
-                            blurRadius: 18,
-                            offset: Offset(0, 8),
-                          ),
-                        ],
+                        border: Border.all(color: _dashboardTheme(gym).borderTint),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
@@ -410,7 +397,7 @@ class _DashboardBody extends StatelessWidget {
               width: double.infinity,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: GymBrandMesh.forColors(gym.brandColor, gym.accentColor),
+                  gradient: _dashboardTheme(gym).ctaGradient,
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [GymBrandMesh.shadow(gym.accentColor)],
                 ),
@@ -419,7 +406,7 @@ class _DashboardBody extends StatelessWidget {
                 onPressed: () => onOpenModule('analytics'),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  foregroundColor: gym.entryTextColor,
+                  foregroundColor: _dashboardTheme(gym).textOnGradient,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shadowColor: Colors.transparent,
                 ),

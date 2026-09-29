@@ -80,8 +80,10 @@ class _BottomNavItemState extends State<BottomNavItem>
       // index 2 is an ordinary tab — Gyms for users, Contents for admins — and
       // white rendered it invisible against the white frosted bar when selected.
       final Color selectedColor = TenantBrandService.to.primaryColor;
-      final Color iconColor =
-          isSelected ? selectedColor : AppColors.textSecondary;
+      final Color iconColor = isSelected
+          ? TenantBrandService.to.isWhiteLabeled
+              ? Colors.white : selectedColor
+          : AppColors.textSecondary;
 
       return ScaleTransition(
         scale: _scale,
@@ -91,9 +93,10 @@ class _BottomNavItemState extends State<BottomNavItem>
           margin: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
           decoration: BoxDecoration(
-            color: isSelected
-                ? selectedColor.withOpacity(0.08)
-                : Colors.transparent,
+            color: isSelected && !TenantBrandService.to.isWhiteLabeled
+                ? selectedColor.withOpacity(0.08) : null,
+            gradient: isSelected && TenantBrandService.to.isWhiteLabeled
+                ? TenantBrandService.to.theme.activeNavGradient : null,
             borderRadius: BorderRadius.circular(P2PRadius.control.r),
           ),
           child: Column(
@@ -123,9 +126,7 @@ class _BottomNavItemState extends State<BottomNavItem>
                     fontSize: P2PResponsive.phoneFont(context, 9),
                     fontWeight:
                         isSelected ? AppFontWeight.label : AppFontWeight.body,
-                    color: isSelected
-                        ? selectedColor
-                        : AppColors.textSecondary,
+                    color: isSelected ? iconColor : AppColors.textSecondary,
                   ),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,

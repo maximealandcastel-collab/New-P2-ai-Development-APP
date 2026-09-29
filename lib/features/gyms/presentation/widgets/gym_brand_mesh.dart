@@ -1,55 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 
 /// A slight tonal shift on top of each gym's actual brand color.
 /// This affects actions only; logos, photos and page backgrounds stay native.
 class GymBrandMesh {
-  static const charcoal = Color(0xFF191A20);
+  static const charcoal = EnterpriseGymTheme.signatureBlack;
 
-  static LinearGradient forColors(Color primary, Color accent) => LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [
-      Color.lerp(primary, charcoal, .10)!,
-      primary,
-      Color.lerp(primary, accent, .14)!,
-    ],
-    stops: const [0, .62, 1],
-  );
+  static LinearGradient forColors(Color primary, Color accent) =>
+      EnterpriseGymTheme.fromColors(
+        primary: primary, secondary: accent, accent: accent,
+      ).ctaGradient;
 
   /// A small, high-contrast accent on the gym detail entry action.
-  static LinearGradient detailAction(Color brand) {
-    var end = brand;
-    while (end.computeLuminance() > .179) {
-      end = Color.lerp(end, charcoal, .12)!;
-    }
-    return LinearGradient(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      colors: [charcoal, Color.lerp(charcoal, end, .45)!, end],
-    );
-  }
+  static LinearGradient detailAction(Color brand) =>
+      EnterpriseGymTheme.fromColors(primary: brand).ctaGradient;
 
   /// Keep white CTA labels readable even on a franchise's bright color.
-  static Color darkBrand(Color brand) {
-    var color = brand;
-    while (color.computeLuminance() > .179) {
-      color = Color.lerp(color, charcoal, .12)!;
-    }
-    return color;
-  }
+  static Color darkBrand(Color brand) =>
+      EnterpriseGymTheme.fromColors(primary: brand).iconAccent;
 
   /// KMF's logo-first detail page uses a small sunny edge, with its green
   /// still dominant and a charcoal finish. Other gyms use detailAction.
-  static LinearGradient sunnyAction(Color brand) => LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: [
-      Color.lerp(darkBrand(brand), brand, .18)!,
-      darkBrand(brand),
-      Color.lerp(darkBrand(brand), charcoal, .78)!,
-    ],
-    stops: const [0, .4, 1],
-  );
+  static LinearGradient sunnyAction(Color brand) => detailAction(brand);
 
   static BoxShadow sunnyShadow(Color brand) => BoxShadow(
     color: brand.withValues(alpha: .11),

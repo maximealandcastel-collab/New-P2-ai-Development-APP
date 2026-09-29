@@ -10,12 +10,12 @@ import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import '../../data/models/enterprise_gym_model.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/services/enterprise_service.dart';
 import '../widgets/tenant_image.dart';
 import '../widgets/gym_brand_logo.dart';
-import '../widgets/gym_brand_mesh.dart';
 import 'enterprise_module_screen.dart';
 
 /// Owns a nested navigator: revocation or switching disposes every protected
@@ -260,12 +260,13 @@ class _EnterpriseJoinScreenState extends State<EnterpriseJoinScreen> {
   @override
   Widget build(BuildContext context) {
     final displayGym = EnterpriseGymModel.loginPresentationFor(widget.gym);
-    final isYmca = displayGym.tenantId == 'ymca-yonkers';
-    final ink = isYmca ? Colors.white : const Color(0xFF171820);
+    final theme = EnterpriseGymTheme.fromColors(
+      primary: displayGym.brandColor, secondary: displayGym.accentColor);
+    const ink = EnterpriseGymTheme.signatureBlack;
     return Scaffold(
-      backgroundColor: isYmca ? const Color(0xFF101B2D) : Colors.white,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: isYmca ? const Color(0xFF101B2D) : Colors.white,
+        backgroundColor: Colors.white,
         foregroundColor: ink,
         title: Text(displayGym.name),
       ),
@@ -291,12 +292,7 @@ class _EnterpriseJoinScreenState extends State<EnterpriseJoinScreen> {
         const SizedBox(height: 18),
         DecoratedBox(
           decoration: BoxDecoration(
-            gradient: isYmca
-                ? GymBrandMesh.detailAction(displayGym.brandColor)
-                : displayGym.tenantId == 'kmf-fitness'
-                    ? GymBrandMesh.sunnyAction(displayGym.brandColor)
-                    : GymBrandMesh.forColors(
-                        displayGym.brandColor, displayGym.accentColor),
+            gradient: theme.ctaGradient,
             borderRadius: BorderRadius.circular(18),
           ),
           child: FilledButton(

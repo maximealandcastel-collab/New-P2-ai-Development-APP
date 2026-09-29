@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'enterprise_gym_theme.dart';
 
 /// Derived accent colors for custom controls, illustrations, and gradients.
 /// Read during build so changing the session theme rebuilds these surfaces too.
@@ -7,7 +8,9 @@ class BrandColors {
 
   factory BrandColors.of(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return BrandColors._(scheme.primary, scheme.onPrimary);
+    final enterprise = Theme.of(context).extension<EnterpriseGymTheme>();
+    return BrandColors._(enterprise?.primaryBrandColor ?? scheme.primary,
+        enterprise?.textOnGradient ?? scheme.onPrimary);
   }
 
   final Color primary;
