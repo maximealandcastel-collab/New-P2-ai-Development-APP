@@ -275,7 +275,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                         ],
                         if (gym.tagline.isNotEmpty) ...[
                           SizedBox(height: 22.h),
-                          _SectionTitle('About', accent: _sunnyKmf ? gym.brandColor : null),
+                          _SectionTitle('About', accent: gym.brandColor),
                           SizedBox(height: 7.h),
                           Text(
                             gym.tagline,
@@ -288,53 +288,39 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                         ],
                         if (gym.filterTags.isNotEmpty) ...[
                           SizedBox(height: 22.h),
-                          _SectionTitle('Amenities & training', accent: _sunnyKmf ? gym.brandColor : null),
+                          _SectionTitle('Amenities & training', accent: gym.brandColor),
                           SizedBox(height: 9.h),
                           Wrap(
                             spacing: 7.w,
                             runSpacing: 7.h,
-                            children: gym.filterTags.asMap().entries
+                            children: gym.filterTags
                                 .map(
-                                  (entry) => Container(
+                                  (tag) => Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10.w,
                                       vertical: 6.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _sunnyKmf || entry.key != 0
-                                          ? Colors.white : null,
-                                      gradient: !_sunnyKmf && entry.key == 0
-                                          ? GymBrandMesh.detailAction(gym.brandColor)
-                                          : null,
+                                      color: Colors.white,
                                       borderRadius: BorderRadius.circular(20.r),
                                       border: Border.all(
-                                        color: _sunnyKmf
-                                            ? gym.brandColor.withOpacity(.30)
-                                            : entry.key == 0
-                                                ? Colors.transparent
-                                                : const Color(0xFFE6E7EA),
+                                        color: gym.brandColor.withOpacity(.30),
                                       ),
-                                      boxShadow: _sunnyKmf ? [
-                                        GymBrandMesh.sunnyShadow(gym.brandColor),
-                                      ] : null,
+                                      boxShadow: [_sunnyKmf
+                                          ? GymBrandMesh.sunnyShadow(gym.brandColor)
+                                          : GymBrandMesh.shadow(gym.brandColor)],
                                     ),
                                     child: Row(mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        if (_sunnyKmf) ...[
-                                          Icon(entry.value.toLowerCase().contains('box')
-                                              ? Icons.sports_mma_rounded
-                                              : Icons.fitness_center_rounded,
-                                            size: 12.sp,
-                                            color: GymBrandMesh.darkBrand(gym.brandColor)),
-                                          SizedBox(width: 5.w),
-                                        ],
-                                        Text(entry.value, style: TextStyle(
+                                        Icon(tag.toLowerCase().contains('box')
+                                            ? Icons.sports_mma_rounded
+                                            : Icons.fitness_center_rounded,
+                                          size: 12.sp,
+                                          color: GymBrandMesh.darkBrand(gym.brandColor)),
+                                        SizedBox(width: 5.w),
+                                        Text(tag, style: TextStyle(
                                           fontSize: 10.sp,
-                                          color: _sunnyKmf
-                                              ? const Color(0xFF292B33)
-                                              : entry.key == 0
-                                                  ? Colors.white
-                                                  : const Color(0xFF5F616B),
+                                          color: const Color(0xFF292B33),
                                         )),
                                       ],
                                     ),
@@ -347,7 +333,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           SizedBox(height: 22.h),
                           Row(children: [
                             Expanded(child: _SectionTitle('Photos',
-                              accent: _sunnyKmf ? gym.brandColor : null)),
+                              accent: gym.brandColor)),
                             TextButton(
                               onPressed: _openGallery,
                               child: Text('See all photos', style: TextStyle(
@@ -380,16 +366,15 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                           width: double.infinity,
                           padding: EdgeInsets.all(13.r),
                           decoration: BoxDecoration(
-                            color: active
-                                ? Color.lerp(Colors.white, gym.brandColor,
-                                    _sunnyKmf ? .12 : .08)
-                                : const Color(0xFFF3F4F6),
+                            color: Color.lerp(Colors.white, gym.brandColor,
+                                _sunnyKmf ? .12 : .075),
                             borderRadius: BorderRadius.circular(13.r),
-                            boxShadow: active ? [
+                            boxShadow: [
                               _sunnyKmf
                                   ? GymBrandMesh.sunnyShadow(gym.brandColor)
-                                  : GymBrandMesh.shadow(gym.brandColor),
-                            ] : null,
+                                  : GymBrandMesh.franchiseShadow(
+                                      gym.brandColor, gym.accentColor),
+                            ],
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,9 +384,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                     ? Icons.verified_outlined
                                     : Icons.lock_outline_rounded,
                                 size: 16.sp,
-                                color: active
-                                    ? Color.lerp(Colors.black, gym.brandColor, .72)
-                                    : const Color(0xFF777983),
+                                color: GymBrandMesh.darkBrand(gym.brandColor),
                               ),
                               SizedBox(width: 8.w),
                               Expanded(
@@ -410,9 +393,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   style: TextStyle(
                                     fontSize: 11.sp,
                                     height: 1.35,
-                                    color: active
-                                        ? Color.lerp(Colors.black, gym.brandColor, .72)
-                                        : const Color(0xFF696B75),
+                                    color: GymBrandMesh.darkBrand(gym.brandColor),
                                   ),
                                 ),
                               ),
@@ -433,11 +414,10 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                               borderRadius: BorderRadius.circular(24.r),
                               border: _sunnyKmf && active ? Border.all(
                                 color: gym.brandColor.withOpacity(.45)) : null,
-                              boxShadow: active
-                                  ? [_sunnyKmf
-                                      ? GymBrandMesh.sunnyShadow(gym.brandColor)
-                                      : GymBrandMesh.shadow(gym.accentColor)]
-                                  : null,
+                              boxShadow: [_sunnyKmf
+                                  ? GymBrandMesh.sunnyShadow(gym.brandColor)
+                                  : GymBrandMesh.franchiseShadow(
+                                      gym.brandColor, gym.accentColor)],
                             ),
                             child: FilledButton(
                             onPressed: () => active
@@ -448,7 +428,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   active ? Colors.transparent : Colors.white,
                               foregroundColor: active
                                   ? Colors.white
-                                  : gym.brandColor,
+                                  : GymBrandMesh.darkBrand(gym.brandColor),
                               elevation: 0,
                               side: active
                                   ? BorderSide.none
@@ -469,7 +449,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   Icon(
                                     Icons.verified_outlined,
                                     size: 16.sp,
-                                    color: gym.accentColor,
+                                    color: GymBrandMesh.darkBrand(gym.brandColor),
                                   ),
                                   SizedBox(width: 8.w),
                                 ],
@@ -496,7 +476,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
                                   Icon(
                                     Icons.arrow_forward_rounded,
                                     size: 16.sp,
-                                    color: gym.accentColor,
+                                    color: GymBrandMesh.darkBrand(gym.brandColor),
                                   ),
                                 ],
                               ],
@@ -566,11 +546,12 @@ class _LocationSelector extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(13.r),
-              border: Border.all(color: sunny
-                  ? gym.brandColor.withOpacity(.23) : const Color(0xFFE6E7EA)),
+              border: Border.all(color: gym.brandColor.withOpacity(
+                  sunny ? .23 : .12)),
               boxShadow: [sunny
                   ? GymBrandMesh.sunnyShadow(gym.brandColor)
-                  : GymBrandMesh.shadow(gym.brandColor)],
+                  : GymBrandMesh.franchiseShadow(
+                      gym.brandColor, gym.accentColor)],
             ),
             child: Row(
               children: [
@@ -1243,9 +1224,7 @@ class _InfoCard extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
           decoration: BoxDecoration(
-            border: Border.all(color: signatureAccent
-                ? accentColor.withOpacity(.13)
-                : const Color(0xFFEDEEF1)),
+            border: Border.all(color: accentColor.withOpacity(.13)),
             borderRadius: BorderRadius.circular(13.r),
             boxShadow: [signatureAccent
                 ? GymBrandMesh.sunnyShadow(accentColor)
