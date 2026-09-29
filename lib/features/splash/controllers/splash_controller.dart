@@ -144,6 +144,7 @@ class SplashController extends GetxController
           : AppThemeData.forBrand(
               primaryColor: activeBrand.primaryColor,
               scaffoldBackground: activeBrand.scaffoldBackground,
+              gymTheme: activeBrand.theme,
             ),
     );
 
