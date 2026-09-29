@@ -23,6 +23,26 @@ void main() {
     expect(sorted.last.id, 'kmf_fitness_club');
   });
 
+  test('sparse live YMCA and KMF records keep their branded login identity', () {
+    for (final tenantId in ['ymca-yonkers', 'kmf-fitness']) {
+      final liveGym = TenantConfiguration.fromJson({
+        'schemaVersion': 1,
+        'id': tenantId,
+        'name': tenantId == 'ymca-yonkers'
+            ? 'YMCA Yonkers' : 'KMF Fitness Club',
+        'timezone': 'America/New_York',
+        'logoUrl': '',
+        'primaryColor': '#B83B12',
+        'accentColor': '#B83B12',
+      }).toGym();
+      final loginGym = EnterpriseGymModel.loginPresentationFor(liveGym);
+      expect(loginGym.tenantId, tenantId);
+      expect(loginGym.loginExperience, GymLoginExperience.whiteLabel);
+      expect(loginGym.logoAssetPath, isNotEmpty);
+      expect(loginGym.brandColor, isNot(liveGym.brandColor));
+    }
+  });
+
   test('every catalog gym has an image registered in the Flutter bundle', () async {
     for (final gym in EnterpriseGymModel.partners) {
       final image = gym.stockPhotoAssetPath;

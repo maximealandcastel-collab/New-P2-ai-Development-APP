@@ -304,6 +304,23 @@ class EnterpriseGymModel {
   static List<EnterpriseGymModel> get activatedPartners =>
       _partners.where((g) => g.isActivated).toList();
 
+  /// The public directory can return a sparse record for an existing pilot
+  /// tenant. Use its bundled, approved identity on the login screen while
+  /// keeping authorization tied to the same tenant ID in the login request.
+  static EnterpriseGymModel loginPresentationFor(EnterpriseGymModel gym) {
+    final tenant = gym.tenantId?.toLowerCase();
+    final id = gym.id.toLowerCase().replaceAll('_', '-');
+    for (final partner in _partners) {
+      if (partner.id != 'ymca_yonkers' && partner.id != 'kmf_fitness_club') {
+        continue;
+      }
+      if (tenant == partner.tenantId || id == partner.tenantId) {
+        return partner;
+      }
+    }
+    return gym;
+  }
+
   static final List<EnterpriseGymModel> _partners = [
     // ── YMCA YONKERS — ACTIVE WHITE-LABEL TENANT ───────────────────────
     EnterpriseGymModel(
