@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 
 class TenantBrand {
   final String tenantId, displayName, tagline, logoAssetPath;
   final Color primaryColor, accentColor, scaffoldBackground;
+  final EnterpriseGymTheme theme;
   const TenantBrand({
     required this.tenantId,
     required this.displayName,
@@ -14,6 +16,7 @@ class TenantBrand {
     required this.primaryColor,
     required this.accentColor,
     required this.scaffoldBackground,
+    required this.theme,
   });
 
   factory TenantBrand.fromGym(EnterpriseGymModel gym) => TenantBrand(
@@ -26,6 +29,11 @@ class TenantBrand {
     primaryColor: gym.brandColor,
     accentColor: gym.accentColor,
     scaffoldBackground: Colors.white,
+    theme: EnterpriseGymTheme.fromColors(
+      primary: gym.brandColor,
+      secondary: gym.accentColor,
+      accent: gym.accentColor,
+    ),
   );
 }
 
@@ -36,14 +44,20 @@ class TenantBrandService {
   TenantBrand? get activeBrand {
     final config = EnterpriseService.instance.active.value?.tenant;
     if (config == null) return null;
+    final theme = EnterpriseGymTheme.fromColors(
+      primary: config.primary,
+      secondary: config.secondary,
+      accent: config.accent,
+    );
     return TenantBrand(
       tenantId: config.id,
       displayName: config.name,
       tagline: config.slogan,
       logoAssetPath: config.logoUrl,
-      primaryColor: config.primary,
+      primaryColor: theme.primaryBrandColor,
       accentColor: config.accent,
       scaffoldBackground: Colors.white,
+      theme: theme,
     );
   }
 
@@ -55,4 +69,6 @@ class TenantBrandService {
   Color get accentColor => activeBrand?.accentColor ?? AppColors.primary;
   Color get scaffoldBackground =>
       activeBrand?.scaffoldBackground ?? AppColors.backgroundLight;
+  EnterpriseGymTheme get theme => activeBrand?.theme ??
+      EnterpriseGymTheme.fromColors(primary: AppColors.primary);
 }
