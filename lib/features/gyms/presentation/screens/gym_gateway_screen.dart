@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/enums/loading_state.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 // import 'package:pler_to_pler_app/core/utils/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
@@ -293,7 +295,7 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
         child: Ink(
           padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 12.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFAF7).withValues(alpha: .94),
+            gradient: GymBrandMesh.surface(Colors.white, primary),
             borderRadius: BorderRadius.circular(14.r),
             border: Border.all(color: const Color(0xFFFFE2D2)),
           ),
@@ -339,7 +341,10 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Row(
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 7.h),
+                    decoration: P2PAccentPill.decoration(radius: 12.r),
+                    child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -347,12 +352,13 @@ class _GymGatewayScreenState extends State<GymGatewayScreen> {
                         style: TextStyle(
                           fontSize: 10.5.sp,
                           fontWeight: FontWeight.w600,
-                          color: primary,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(width: 3.w),
-                      Icon(Icons.arrow_forward_rounded, size: 14.sp, color: primary),
+                      Icon(Icons.arrow_forward_rounded, size: 14.sp, color: Colors.white),
                     ],
+                  ),
                   ),
                   SizedBox(height: 5.h),
                   Text(
