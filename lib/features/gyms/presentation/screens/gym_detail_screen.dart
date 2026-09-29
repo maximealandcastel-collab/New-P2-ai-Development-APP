@@ -120,7 +120,12 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
     return Scaffold(
       backgroundColor: _sunnyKmf ? const Color(0xFFFCFCFB) :
           const Color(0xFFF8F8F9),
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: active ? null : GymBrandMesh.surface(
+            Colors.white, theme.primaryBrandColor),
+        ),
+        child: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -479,6 +484,7 @@ class _GymDetailScreenState extends State<GymDetailScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

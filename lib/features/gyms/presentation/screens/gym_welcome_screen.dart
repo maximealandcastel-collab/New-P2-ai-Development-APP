@@ -1,6 +1,8 @@
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'staff_signup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/features/gyms/presentation/widgets/gym_brand_mesh.dart';
 import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
@@ -123,7 +125,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6833).withValues(alpha: .055),
+                  gradient: GymBrandMesh.surface(Colors.white, _orange),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: const Color(0xFFFFCABB),
@@ -165,9 +167,13 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    FilledButton(
+                    DecoratedBox(
+                      decoration: P2PAccentPill.decoration(radius: 14),
+                      child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: _orange,
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         minimumSize: const Size(0, 44),
@@ -180,6 +186,7 @@ class _GymWelcomeScreenState extends State<GymWelcomeScreen> {
                           fontWeight: AppFontWeight.title,
                         ),
                       ),
+                    ),
                     ),
                   ],
                 ),

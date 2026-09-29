@@ -35,7 +35,9 @@ class GymListTile extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: gym.isActivated ? Colors.white : null,
+        gradient: gym.isActivated ? null : GymBrandMesh.surface(
+          Colors.white, gym.brandColor),
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: gym.brandColor.withOpacity(.10)),
         boxShadow: [GymBrandMesh.franchiseShadow(
