@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 
 class AppThemeData {
@@ -310,60 +311,63 @@ class AppThemeData {
   static ThemeData forBrand({
     required Color primaryColor,
     required Color scaffoldBackground,
+    EnterpriseGymTheme? gymTheme,
   }) {
-    final onPrimary =
-        ThemeData.estimateBrightnessForColor(primaryColor) == Brightness.dark
-        ? Colors.white
-        : Colors.black;
+    final tokens = gymTheme ??
+        EnterpriseGymTheme.fromColors(primary: primaryColor);
+    final effectivePrimary = tokens.primaryBrandColor;
+    final onPrimary = tokens.textOnGradient;
     final colorScheme =
         ColorScheme.fromSeed(
-          seedColor: primaryColor,
+          seedColor: effectivePrimary,
           brightness: Brightness.light,
         ).copyWith(
-          primary: primaryColor,
+          primary: effectivePrimary,
           onPrimary: onPrimary,
-          secondary: primaryColor,
-          surface: AppColors.primaryBackground,
+          secondary: tokens.surfaceTint,
+          onSecondary: EnterpriseGymTheme.signatureBlack,
+          surface: Colors.white,
           onSurface: AppColors.textPrimary,
         );
 
     return themeData.copyWith(
       colorScheme: colorScheme,
+      extensions: [tokens],
       scaffoldBackgroundColor: scaffoldBackground,
       appBarTheme: themeData.appBarTheme.copyWith(
-        backgroundColor: scaffoldBackground,
+        backgroundColor: Colors.white,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: scaffoldBackground,
+          statusBarColor: Colors.white,
           statusBarIconBrightness: Brightness.dark,
           statusBarBrightness: Brightness.light,
         ),
       ),
-      progressIndicatorTheme: ProgressIndicatorThemeData(color: primaryColor),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: effectivePrimary),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: primaryColor,
+        backgroundColor: tokens.selectedState,
         foregroundColor: onPrimary,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: _primaryButtonStyle(primaryColor, onPrimary),
+        style: _primaryButtonStyle(tokens.selectedState, onPrimary),
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: _primaryButtonStyle(primaryColor, onPrimary),
+        style: _primaryButtonStyle(tokens.selectedState, onPrimary),
       ),
       textButtonTheme: TextButtonThemeData(
         style: themeData.textButtonTheme.style?.copyWith(
-          foregroundColor: WidgetStatePropertyAll(primaryColor),
+          foregroundColor: WidgetStatePropertyAll(tokens.iconAccent),
         ),
       ),
       inputDecorationTheme: themeData.inputDecorationTheme.copyWith(
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(P2PRadius.control),
-          borderSide: BorderSide(color: primaryColor, width: 1.1),
+          borderSide: BorderSide(color: tokens.iconAccent, width: 1.1),
         ),
       ),
       chipTheme: themeData.chipTheme.copyWith(
-        selectedColor: primaryColor.withValues(alpha: .12),
+        selectedColor: tokens.subtleHighlight,
         secondaryLabelStyle: themeData.chipTheme.secondaryLabelStyle?.copyWith(
-          color: primaryColor,
+          color: tokens.iconAccent,
         ),
       ),
     );
