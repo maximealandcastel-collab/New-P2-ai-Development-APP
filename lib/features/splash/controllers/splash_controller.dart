@@ -15,8 +15,11 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 
-String? resumedGymAdminTenantId(Object? cachedTenantIds) {
+String? resumedGymAdminTenantId(Object? cachedTenantIds, {String? preferredTenantId}) {
   if (cachedTenantIds is! List) return null;
+  if (preferredTenantId != null && cachedTenantIds.contains(preferredTenantId)) {
+    return preferredTenantId;
+  }
   for (final value in cachedTenantIds) {
     if (value is String && value.trim().isNotEmpty) return value.trim();
   }
@@ -112,6 +115,7 @@ class SplashController extends GetxController
       // If prefs fail, fall through and allow the restored session.
     }
 
+    String? resumedAdminTenantId;
     if (!isSingleMode) {
       try {
         await EnterpriseService.instance.restore();
@@ -127,14 +131,12 @@ class SplashController extends GetxController
       EnterpriseService.instance.clear();
       // Cached scope selects a screen only; the dashboard API rechecks access.
       // Resume every authorized gym-admin tenant, not only the legacy KMF tenant.
-      final tenantId = resumedGymAdminTenantId(
+      resumedAdminTenantId = resumedGymAdminTenantId(
         CacheService().get<List>('gymAdminTenantIds'),
+        preferredTenantId: CacheService().get<String>('tenantId'),
       );
-      if (tenantId != null) {
-        Get.offAll(
-          () => EnterpriseGymAdminDashboardScreen(tenantId: tenantId),
-        );
-        return;
+      if (resumedAdminTenantId != null) {
+        await CacheService().put('tenantId', resumedAdminTenantId);
       }
     }
     final activeBrand = TenantBrandService.to.activeBrand;
@@ -147,6 +149,12 @@ class SplashController extends GetxController
               gymTheme: activeBrand.theme,
             ),
     );
+    if (resumedAdminTenantId != null) {
+      Get.offAll(() => EnterpriseGymAdminDashboardScreen(
+        tenantId: resumedAdminTenantId,
+      ));
+      return;
+    }
 
     // ── Restore admin mode for the owner account ─────────────────────────
     final cachedEmail =
