@@ -16,4 +16,12 @@ void main() {
     expect(resumedGymAdminTenantId('kmf-fitness'), isNull);
     expect(resumedGymAdminTenantId([null, '', 42]), isNull);
   });
+
+  test('resumes the selected building only when its admin scope permits it', () {
+    final gyms = ['ymca-yonkers', 'kmf-fitness'];
+    expect(resumedGymAdminTenantId(gyms, preferredTenantId: 'kmf-fitness'),
+        'kmf-fitness');
+    expect(resumedGymAdminTenantId(gyms, preferredTenantId: 'other-gym'),
+        'ymca-yonkers');
+  });
 }
