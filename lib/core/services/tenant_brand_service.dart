@@ -54,6 +54,10 @@ class TenantBrandService {
       }
       final id = CacheService().get<String>('tenantId');
       if (id == null || id.isEmpty) return null;
+      final memberId = CacheService().get<String>('memberTenantId');
+      final adminIds = CacheService().get<List>('gymAdminTenantIds') ?? const [];
+      // A selected building must belong to the scope returned at sign-in.
+      if (id != memberId && !adminIds.contains(id)) return null;
       for (final gym in EnterpriseGymModel.activatedPartners) {
         if (gym.tenantId == id) return TenantBrand.fromGym(gym);
       }
