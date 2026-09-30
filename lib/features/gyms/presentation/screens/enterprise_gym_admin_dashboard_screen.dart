@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import '../widgets/enterprise_theme.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
@@ -6,7 +7,6 @@ import '../../data/models/enterprise_dashboard_data.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.dart';
 import '../../data/services/enterprise_service.dart';
 import 'enterprise_module_screen.dart';
@@ -159,7 +159,7 @@ class _EnterpriseGymAdminDashboardScreenState
                       ? snapshot.requireData.administratorName
                       : '',
                   onRefresh: () => _refresh(),
-                  onLogout: () => LoginController.to.logout(),
+                  onLogout: () => showLogoutDialog(context),
                 ),
                 if (snapshot.connectionState != ConnectionState.done)
                   SliverFillRemaining(
