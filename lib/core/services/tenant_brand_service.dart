@@ -3,6 +3,8 @@ import 'package:pler_to_pler_app/features/gyms/data/models/enterprise_gym_model.
 import 'package:pler_to_pler_app/features/gyms/data/services/enterprise_service.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
+import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
+import 'package:pler_to_pler_app/core/services/cache_service.dart';
 
 class TenantBrand {
   final String tenantId, displayName, tagline, logoAssetPath;
@@ -43,7 +45,20 @@ class TenantBrandService {
 
   TenantBrand? get activeBrand {
     final config = EnterpriseService.instance.active.value?.tenant;
-    if (config == null) return null;
+    if (config == null) {
+      // Bundled gym mode has a backend-issued tenant scope but no live
+      // enterprise context. Restore its palette for the signed-in member.
+      if (!isSingleMode ||
+          (CacheService().get<String>('accessToken')?.isNotEmpty != true)) {
+        return null;
+      }
+      final id = CacheService().get<String>('tenantId');
+      if (id == null || id.isEmpty) return null;
+      for (final gym in EnterpriseGymModel.activatedPartners) {
+        if (gym.tenantId == id) return TenantBrand.fromGym(gym);
+      }
+      return null;
+    }
     final theme = EnterpriseGymTheme.fromColors(
       primary: config.primary,
       secondary: config.secondary,
