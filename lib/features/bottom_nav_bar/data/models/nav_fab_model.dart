@@ -15,43 +15,26 @@ class NavFabModel {
     required this.onTap,
   });
 
-  // ── Trainer FAB — only shown when role=trainer AND not in viewAsUser mode ──
-  static List<NavFabModel> get trainerFabItems => [
-        NavFabModel(
-          label: 'Content category',
-          icon: Assets.icons.category.path,
-          onTap: () => Get.toNamed(AppRoute.contentCategoryScreen),
-        ),
-        NavFabModel(
-          label: 'Post Photo/Video',
-          icon: Assets.icons.post.path,
-          onTap: () => Get.to(() => const PostPhotoVideoScreen(
-                config: P2PPostComposerConfig(role: P2PPostRole.trainer),
-              )),
-        ),
-        NavFabModel(
-          label: 'Add exercise block',
-          icon: Assets.icons.exercise.path,
-          onTap: () => Get.toNamed(AppRoute.exerciseBlockScreen),
-        ),
-      ];
+  static List<NavFabModel> get trainerFabItems => _items(P2PPostRole.trainer);
+  static List<NavFabModel> get userFabItems => _items(P2PPostRole.user);
 
-  // ── User FAB — shown for subscribers, and for owner when in viewAsUser mode ──
-  static List<NavFabModel> get userFabItems => [
-        NavFabModel(
-          label: 'Find My Trainer',
-          icon: Assets.icons.person.path,
-          onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
-        ),
-        NavFabModel(
-          label: 'Generate Workout',
-          icon: Assets.icons.exercise.path,
-          onTap: () => Get.toNamed(AppRoute.workoutScreen),
-        ),
-        NavFabModel(
-          label: 'Post Photo/Video',
-          icon: Assets.icons.post.path,
-          onTap: () => Get.to(() => const PostPhotoVideoScreen()),
-        ),
-      ];
+  static List<NavFabModel> _items(P2PPostRole role) => [
+    NavFabModel(
+      label: 'Find My Trainer',
+      icon: Assets.icons.person.path,
+      onTap: () => Get.toNamed(AppRoute.findTrainerScreen),
+    ),
+    NavFabModel(
+      label: 'Generate Workout',
+      icon: Assets.icons.exercise.path,
+      onTap: () => Get.toNamed(AppRoute.workoutScreen),
+    ),
+    NavFabModel(
+      label: 'Post Photo/Video',
+      icon: Assets.icons.post.path,
+      onTap: () => Get.to(() => PostPhotoVideoScreen(
+        config: P2PPostComposerConfig(role: role),
+      )),
+    ),
+  ];
 }
