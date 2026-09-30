@@ -234,6 +234,7 @@ class LoginController extends GetxController {
       if (authorizedTenantId != null) {
         await CacheService().put('tenantId', authorizedTenantId);
       }
+      await _resetUiForAuthenticatedSession();
     }
     if (EnterpriseService.instance.active.value != null || ['expired','revoked'].contains(EnterpriseService.instance.bootstrapData.value['entitlement']?['state'])) {
       Get.offAll(() => const EnterpriseSessionScreen());
@@ -274,7 +275,7 @@ class LoginController extends GetxController {
       AppRoute.bottonNavBar,
       parameters: <String, String>{
         'tenantSession': isSingleMode
-            ? tenantScope?.tenantId ?? 'default'
+            ? authorizedTenantId ?? 'default'
             : 'default',
       },
     );
@@ -283,7 +284,7 @@ class LoginController extends GetxController {
   Future<void> _resetUiForAuthenticatedSession() async {
     // Enterprise branding is scoped to its disposable navigation boundary.
     // The root remains neutral after logout, denial, or a pending gym switch.
-    final brand = isSingleMode ? TenantBrandService.to.activeBrand : null;
+    final brand = TenantBrandService.to.activeBrand;
     Get.changeTheme(
       brand == null
           ? AppThemeData.themeData
