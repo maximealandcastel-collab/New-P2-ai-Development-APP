@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'dart:async';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/bottom_nav_bar.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
@@ -8,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/services/video_playback_manager.dart';
 import 'package:pler_to_pler_app/services/stream_chat_service.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/core/themes/app_theme_data.dart';
 import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import '../../data/models/enterprise_gym_model.dart';
@@ -83,7 +83,7 @@ class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
                   child: const Text('Retry session'),
                 ),
                 TextButton(
-                  onPressed: () => LoginController.to.logout(),
+                  onPressed: () => showLogoutDialog(context),
                   child: const Text('Sign out'),
                 ),
               ],
@@ -93,7 +93,9 @@ class _EnterpriseSessionState extends State<EnterpriseSessionScreen>
       return Theme(
         data: enterpriseTheme(context, session.tenant),
         child: Navigator(
-          key: ValueKey(session),
+          // Refreshing access creates a new context object. Keep the route stack
+          // for the same tenant and permissions instead of reloading every minute.
+          key: ValueKey('${session.tenant.id}:${session.roles.join(",")}:${session.capabilities.join(",")}'),
           onGenerateRoute: (_) => MaterialPageRoute(
             builder: (pageContext) => Scaffold(
               appBar: AppBar(
@@ -358,7 +360,7 @@ class EnterpriseMemberHome extends StatelessWidget {
           IconButton(
             tooltip: 'Sign out',
             icon: const Icon(Icons.logout),
-            onPressed: () => LoginController.to.logout(),
+            onPressed: () => showLogoutDialog(context),
           ),
         ],
       ),

@@ -1,8 +1,8 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/privacy/presentation/screens/legal_privacy_screen.dart';
 import 'package:pler_to_pler_app/features/user/user_profile/presentation/invoice_screens.dart';
 
@@ -145,7 +145,7 @@ class UserSettingsScreen extends StatelessWidget {
                             .map((e) => _SettingsTile(
                           label: e.value,
                           showDivider: true,
-                          onTap: () => LoginController.to.logout(),
+                          onTap: () => showLogoutDialog(context),
                         )),
                         _SettingsTile(
                           label: 'Delete my account',

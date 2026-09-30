@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/extensions/app_extension.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
-import 'package:pler_to_pler_app/features/authentication/presentation/controllers/login_controller.dart';
 import 'package:pler_to_pler_app/features/bottom_nav_bar/presentation/controller/bottom_nav_bar_controller.dart';
 import 'package:pler_to_pler_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
@@ -203,7 +203,7 @@ class ProfileScreen extends StatelessWidget {
           iconColor: const Color(0xFFE11D48),
           title: 'Logout',
           subtitle: 'Sign out of your account',
-          onTap: () => LoginController.to.logout(),
+          onTap: () => showLogoutDialog(context),
         ),
       ]).asSliverWithPadding(horizontal: 18.w),
       SizedBox(height: 48.h).asSliver,
