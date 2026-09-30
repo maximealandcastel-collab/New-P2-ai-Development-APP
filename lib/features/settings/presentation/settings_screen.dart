@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/services/admin_mode_service.dart';
 import 'package:flutter/material.dart';
@@ -23,24 +24,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
 
-  void _showLogoutDialog() {
-    Get.dialog(
-      ConfirmationDialog(
-        icon: Icons.logout,
-        title: "You really want to logout",
-        confirmLabel: "Logout",
-        // Confirming used to just close the dialog — the button did nothing at
-        // all. LoginController.logout() was already written and complete
-        // (disconnects chat, clears the Hive session, clears admin/affiliate
-        // mode and their prefs keys, and navigates to login); it simply was
-        // never called from here.
-        onConfirm: () {
-          Get.back();
-          LoginController.to.logout();
-        },
-      ),
-    );
-  }
+  void _showLogoutDialog() => showLogoutDialog(context);
 
   void _showDeleteAccountDialog() {
     Get.dialog(
