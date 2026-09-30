@@ -67,6 +67,7 @@ void main() {
       'ymca-yonkers': const Color(0xFF0072E3),
       'kmf-fitness': const Color(0xFF22C55E),
     }.entries) {
+      await cache.put('memberTenantId', entry.key);
       await cache.put('tenantId', entry.key);
       final brand = TenantBrandService.to.activeBrand;
       expect(brand?.tenantId, entry.key);
@@ -74,6 +75,11 @@ void main() {
           closeTo(HSVColor.fromColor(entry.value).hue, 2));
       expect(brand?.theme.meshStart, isNot(entry.value));
     }
+    await cache.put('memberTenantId', 'ymca-yonkers');
+    await cache.put('tenantId', 'kmf-fitness');
+    expect(TenantBrandService.to.activeBrand, isNull);
+    await cache.put('gymAdminTenantIds', ['kmf-fitness']);
+    expect(TenantBrandService.to.activeBrand?.tenantId, 'kmf-fitness');
     await cache.delete('accessToken');
     expect(TenantBrandService.to.activeBrand, isNull);
     await cache.clear();
