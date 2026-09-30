@@ -6,6 +6,7 @@ import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:image_picker/image_picker.dart';
 import 'package:pler_to_pler_app/core/constants/api_constants.dart';
 import 'package:pler_to_pler_app/core/helpers/image_crop_helper.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/services/api_service.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
@@ -307,6 +308,7 @@ class _P2PPostComposerState extends State<P2PPostComposer> {
   @override
   Widget build(BuildContext context) {
     final orange = BrandColors.of(context).primary;
+    final tenantTheme = TenantBrandService.to.activeBrand?.theme;
     final hasMedia = _photo != null || _video != null;
     return Scaffold(
       backgroundColor: P2PColors.surface,
@@ -425,7 +427,7 @@ class _P2PPostComposerState extends State<P2PPostComposer> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(P2PRadius.pill),
-                      gradient: const LinearGradient(
+                      gradient: tenantTheme?.ctaGradient ?? const LinearGradient(
                         colors: [Color(0xFF191A20), Color(0xFF633119), Color(0xFFD96921)],
                       ),
                       boxShadow: const [BoxShadow(color: Color(0x1BBA5A1B),
