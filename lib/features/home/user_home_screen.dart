@@ -663,7 +663,9 @@ class _DailyWorkoutCalendarState extends State<_DailyWorkoutCalendar> {
                     ),
                     decoration: BoxDecoration(
                       color: _isSameDate(_selectedDate, today)
-                          ? const Color(0xFFFFF1EC)
+                          ? TenantBrandService.to.isWhiteLabeled
+                              ? TenantBrandService.to.theme.surfaceTint
+                              : const Color(0xFFFFF1EC)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
@@ -844,7 +846,11 @@ class _CalendarDayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedColor = isSelected ? _orange : const Color(0xFF202020);
     final backgroundColor =
-        isSelected ? const Color(0xFFFFF8F5) : Colors.white;
+        isSelected
+            ? TenantBrandService.to.isWhiteLabeled
+                ? TenantBrandService.to.theme.surfaceTint
+                : const Color(0xFFFFF8F5)
+            : Colors.white;
 
     return Semantics(
       button: true,
