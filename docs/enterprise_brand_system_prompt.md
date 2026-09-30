@@ -51,3 +51,14 @@ Confirm a new claim can choose a color or review a logo suggestion and that
 the neutral fallback appears if no color can be extracted. Run Flutter analysis
 and relevant tests, then archive an iOS CodeMagic build before claiming device
 behavior is verified.
+
+
+## Universal center + menu
+All account roles and navigation shells use TenantQuickActionMenu through
+NavFabWidget. Always expose exactly Find My Trainer, Generate Workout, and
+Post Photo/Video, in that order. Inject the active EnterpriseGymTheme; retain
+the existing trainer/member composer role. Use compact 56px-minimum pills,
+14px labels, a 48px close control, a 340px maximum width, safe areas, light
+background blur/dimming, and a 200ms fade/reveal. Do not scale fonts with
+screen width. Guard duplicate opening/action taps and show progress during
+the navigation handoff. Reuse existing routes and gallery-only video flow.
