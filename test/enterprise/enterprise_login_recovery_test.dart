@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:pler_to_pler_app/core/services/cache_service.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/core/constants/enterprise_flags.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
@@ -54,6 +55,28 @@ void main() {
     await storage.delete(recursive: true);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(const MethodChannel('plugins.flutter.io/path_provider'), null);
+  });
+
+  test('bundled member scope restores YMCA and KMF colors after login', () async {
+    if (!isSingleMode) return;
+    final cache = CacheService();
+    await cache.clear();
+    EnterpriseService.instance.clear();
+    await cache.put('accessToken', 'member-session');
+    for (final entry in {
+      'ymca-yonkers': const Color(0xFF0072E3),
+      'kmf-fitness': const Color(0xFF22C55E),
+    }.entries) {
+      await cache.put('tenantId', entry.key);
+      final brand = TenantBrandService.to.activeBrand;
+      expect(brand?.tenantId, entry.key);
+      expect(HSVColor.fromColor(brand!.primaryColor).hue,
+          closeTo(HSVColor.fromColor(entry.value).hue, 2));
+      expect(brand?.theme.meshStart, isNot(entry.value));
+    }
+    await cache.delete('accessToken');
+    expect(TenantBrandService.to.activeBrand, isNull);
+    await cache.clear();
   });
 
   testWidgets(
