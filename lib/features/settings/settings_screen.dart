@@ -1,3 +1,4 @@
+import 'package:pler_to_pler_app/widgets/logout_dialog.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,27 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _releaseBuildNumber =
       String.fromEnvironment('BUILD_NUMBER', defaultValue: '1');
 
-  void _showLogoutDialog() {
-    Get.dialog(
-      ConfirmationDialog(
-        icon: Icons.logout,
-        title: 'You really want to logout',
-        confirmLabel: 'Logout',
-        onConfirm: () async {
-          Get.back();
-          try {
-            await LoginController.to.logout();
-          } catch (_) {
-            Get.snackbar(
-              'Logout failed',
-              'Please try again.',
-              snackPosition: SnackPosition.BOTTOM,
-            );
-          }
-        },
-      ),
-    );
-  }
+  void _showLogoutDialog() => showLogoutDialog(context);
 
   // --- UI Logic: Show Delete Account Dialog ---
   void _showDeleteAccountDialog() {
