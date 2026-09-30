@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
+import 'package:pler_to_pler_app/core/themes/logo_palette_suggestion.dart';
 import '../../data/services/enterprise_service.dart';
 import '../../data/models/tenant_configuration.dart';
 import '../../data/models/enterprise_gym_model.dart';
@@ -62,8 +63,10 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
     ])
       key: TextEditingController(),
   };
-  final primary = TextEditingController(text: '#FF6B35'),
-      secondary = TextEditingController(text: '#1A1A1A');
+  // A new gym has a neutral preview until its owner selects a color or its
+  // uploaded logo supplies a suggestion. P2P orange never becomes its default.
+  final primary = TextEditingController(text: '#565B63'),
+      secondary = TextEditingController(text: '#565B63');
   final addressSearch = TextEditingController();
   double? searchLat,searchLng;
   final form = GlobalKey<FormState>();
@@ -74,6 +77,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
   String? gymType, tier, tenantId, receipt, error, searchError, cursor;
   bool loading = false, sending = false, authorized = false, codeEdited = false;
   bool uploadingLogo = false;
+  bool colorManuallyEdited = false;
   XFile? selectedLogo;
   EnterpriseGymModel? selectedBranch;
   List<TenantConfiguration> matches = [];
@@ -82,7 +86,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)
       ? Color(0xFF000000 | int.parse(value.substring(1), radix: 16))
       : null;
-  Color get brand => parseColor(primary.text) ?? orange;
+  Color get brand => parseColor(primary.text) ?? EnterpriseGymTheme.neutralGraphite;
   EnterpriseGymTheme get previewTheme => EnterpriseGymTheme.fromColors(
     primary: parseColor(primary.text), secondary: parseColor(secondary.text));
   Color get brandText =>
@@ -125,6 +129,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       fields['city']!.text = gym.city;
       primary.text = '#${gym.brandColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
       secondary.text = '#${gym.accentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      colorManuallyEdited = true;
       gymType = types.contains(gym.category) ? gym.category : 'Other';
       codeEdited = true;
     }
@@ -175,6 +180,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       fields['logoUrl']!.text = gym.remoteLogoUrl;
       primary.text = hex(gym.brandColor);
       secondary.text = hex(gym.accentColor);
+      colorManuallyEdited = true;
       gymType = types.contains(gym.category) ? gym.category : 'Other';
       final code = gym.initials.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
       fields['shortCode']!.text = code.length >= 2
@@ -221,6 +227,16 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       error = null;
     });
     try {
+      // This is a local suggestion, not an alteration of the source logo.
+      // Server approval remains authoritative for the activated tenant.
+      if (!colorManuallyEdited && selectedBranch == null) {
+        final suggested = await LogoPaletteSuggestion.fromBytes(
+          await picked.readAsBytes(),
+        );
+        if (mounted && suggested != null && !colorManuallyEdited) {
+          setState(() => primary.text = hex(suggested));
+        }
+      }
       final logoUrl = await EnterpriseService.instance.uploadGymLogo(picked.path);
       if (!mounted) return;
       setState(() => fields['logoUrl']!.text = logoUrl);
@@ -605,11 +621,10 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                                       label:
                                           'Brand color ${hex(Color(palette[i + j]))}',
                                       child: InkWell(
-                                        onTap: () => setState(
-                                          () => primary.text = hex(
-                                            Color(palette[i + j]),
-                                          ),
-                                        ),
+                                        onTap: () => setState(() {
+                                          colorManuallyEdited = true;
+                                          primary.text = hex(Color(palette[i + j]));
+                                        }),
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: Color(palette[i + j]),
@@ -988,7 +1003,7 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
       TextFormField(
         key: ValueKey(label),
         controller: controller,
-        onChanged: (_) => setState(() {}),
+        onChanged: (_) => setState(() => colorManuallyEdited = true),
         validator: (value) =>
             parseColor(value ?? '') == null ? 'Use #RRGGBB' : null,
         decoration: InputDecoration(
