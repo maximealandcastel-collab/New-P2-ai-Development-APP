@@ -249,6 +249,7 @@ class LoginController extends GetxController {
           ? requestedTenantId
           : adminTenantIds.first;
       await CacheService().put('tenantId', adminTenantId);
+      await _resetUiForAuthenticatedSession();
       Get.offAll(
         () => EnterpriseGymAdminDashboardScreen(tenantId: adminTenantId),
       );
