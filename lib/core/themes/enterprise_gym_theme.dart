@@ -98,6 +98,24 @@ class EnterpriseGymTheme extends ThemeExtension<EnterpriseGymTheme> {
   LinearGradient get activeNavGradient => ctaGradient;
   LinearGradient get activePillGradient => ctaGradient;
 
+  /// Shared treatment for selected filters and priority tenant actions.
+  /// Logos are never decorated by this token.
+  BoxDecoration accentDecoration({required double radius, bool glow = true}) =>
+      BoxDecoration(
+        gradient: ctaGradient,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: primaryBrandColor.withOpacity(.56), width: .8),
+        boxShadow: glow
+            ? [
+                BoxShadow(
+                  color: primaryBrandColor.withOpacity(.12),
+                  blurRadius: 9,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
+      );
+
   @override
   EnterpriseGymTheme copyWith({
     Color? primaryBrandColor, Color? secondaryBrandColor,
