@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/widgets/tenant_flow_actions.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
@@ -292,7 +293,6 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
                 step: _step,
                 total: _totalSteps,
                 onBack: _back,
-                onSkip: _skip,
               ),
               Expanded(child: _buildStep()),
             ],
@@ -324,6 +324,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onToggle: (v) => setState(() =>
           _selectedGoals.contains(v) ? _selectedGoals.remove(v) : _selectedGoals.add(v)),
           onNext: _next,
+          onSkip: _skip,
         );
       case 2:
         return _SelectionStep(
@@ -334,6 +335,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onToggle: (v) => setState(() =>
           _selectedAreas.contains(v) ? _selectedAreas.remove(v) : _selectedAreas.add(v)),
           onNext: _next,
+          onSkip: _skip,
         );
       case 3:
         return Column(children: [
@@ -348,6 +350,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onToggle: (v) => setState(() =>
           _selectedLocations.contains(v) ? _selectedLocations.remove(v) : _selectedLocations.add(v)),
           onNext: _next,
+          onSkip: _skip,
         )),
         ]);
       case 4:
@@ -359,6 +362,7 @@ class _WorkoutFinderFlowState extends State<WorkoutFinderFlow> {
           onToggle: (v) => setState(() =>
           _selectedEquipment.contains(v) ? _selectedEquipment.remove(v) : _selectedEquipment.add(v)),
           onNext: _next,
+          onSkip: _skip,
         );
       case 5:
         return _IntensityDurationStep(
@@ -425,13 +429,11 @@ class _TopBar extends StatelessWidget {
   final int step;
   final int total;
   final VoidCallback onBack;
-  final VoidCallback onSkip;
 
   const _TopBar({
     required this.step,
     required this.total,
     required this.onBack,
-    required this.onSkip,
   });
 
   @override
@@ -480,30 +482,7 @@ class _TopBar extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 12.w),
-          // Skip
-          if (step < 5)
-            Semantics(
-              button: true,
-              label: 'Skip this question',
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onSkip,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Text(
-                    'Skip',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-            )
-          else
-            SizedBox(width: 30.w),
+
         ],
       ),
     );
@@ -616,51 +595,7 @@ class _TrainingStylesStep extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 18.h),
-          child: Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                height: 56.h,
-                child: FilledButton(
-                  onPressed: onNext,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF7A00),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.r),
-                    ),
-                  ).copyWith(
-                    backgroundBuilder: !P2PAccentPill.appliesToCurrentBrand
-                        ? null
-                        : (context, states, child) => states.contains(WidgetState.disabled)
-                            ? child ?? const SizedBox.shrink()
-                            : DecoratedBox(
-                                decoration: P2PAccentPill.decoration(radius: 18.r),
-                                child: child ?? const SizedBox.shrink(),
-                              ),
-                  ),
-                  child: Text(
-                    'Next',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: onSkip,
-                child: Text(
-                  'Skip for now',
-                  style: TextStyle(
-                    color: const Color(0xFFFF7A00),
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: TenantFlowActions(onNext: onNext, onSkip: onSkip),
         ),
       ],
     );
@@ -699,7 +634,7 @@ class _TrainingStyleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(18.r),
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFFFF7A00)
+                  ? TenantBrandService.to.theme.selectedState
                   : Colors.transparent,
               width: 2,
             ),
@@ -736,12 +671,12 @@ class _TrainingStyleCard extends StatelessWidget {
                   height: 20.w,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFFF7A00)
+                        ? TenantBrandService.to.theme.selectedState
                         : Colors.black.withOpacity(.18),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFFFF7A00)
+                          ? TenantBrandService.to.theme.selectedState
                           : Colors.white.withOpacity(.65),
                     ),
                   ),
@@ -800,6 +735,7 @@ class _SelectionStep extends StatelessWidget {
   final Set<String> selected;
   final ValueChanged<String> onToggle;
   final VoidCallback onNext;
+  final VoidCallback? onSkip;
 
   const _SelectionStep({
     required this.title,
@@ -808,6 +744,7 @@ class _SelectionStep extends StatelessWidget {
     required this.selected,
     required this.onToggle,
     required this.onNext,
+    this.onSkip,
   });
 
   @override
@@ -863,7 +800,7 @@ class _SelectionStep extends StatelessWidget {
         ),
 
         // Next button
-        _NextButton(onTap: onNext),
+        _NextButton(onTap: onNext, onSkip: onSkip),
       ],
     );
   }
@@ -985,20 +922,12 @@ class _IntensityDurationStep extends StatelessWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
-                            decoration: isSelected && P2PAccentPill.appliesToCurrentBrand
-                                ? P2PAccentPill.decoration(radius: 14.r)
+                            decoration: isSelected
+                                ? TenantBrandService.to.theme.accentDecoration(radius: 14.r, glow: false)
                                 : BoxDecoration(
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Colors.white,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(14.r),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 6,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
+                                    border: Border.all(color: const Color(0xFFE1E2E6)),
                                   ),
                             child: Column(
                               children: [
@@ -2098,35 +2027,13 @@ class _GenerationError extends StatelessWidget {
 // ─── Shared Next Button ───────────────────────────────────────────────────────
 class _NextButton extends StatelessWidget {
   final VoidCallback onTap;
+  final VoidCallback? onSkip;
 
-  const _NextButton({required this.onTap});
+  const _NextButton({required this.onTap, this.onSkip});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          height: 52.h,
-          decoration: !P2PAccentPill.appliesToCurrentBrand
-              ? BoxDecoration(
-                  color: BrandColors.of(context).primary,
-                  borderRadius: BorderRadius.circular(14.r),
-                )
-              : P2PAccentPill.decoration(radius: 14.r),
-          alignment: Alignment.center,
-          child: Text(
-            'Next',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+    child: TenantFlowActions(onNext: onTap, onSkip: onSkip),
+  );
 }

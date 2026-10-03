@@ -5,6 +5,7 @@ import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/core/utils/app_colors.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/widgets/widgets.dart';
+import 'package:pler_to_pler_app/widgets/tenant_flow_actions.dart';
 
 typedef CreateContentNextHandler = Future<void> Function(
   int currentIndex,
@@ -25,6 +26,7 @@ class CreateContentFlowScreen extends StatefulWidget {
     this.canSkipStep,
     this.onSkipPressed,
     this.outlinedActions = false,
+    this.compactActions = false,
   });
 
   final List<Widget> pages;
@@ -37,6 +39,7 @@ class CreateContentFlowScreen extends StatefulWidget {
   final bool Function(int index)? canSkipStep;
   final void Function(int index, void Function(int) navigateToPage)? onSkipPressed;
   final bool outlinedActions;
+  final bool compactActions;
 
   @override
   State<CreateContentFlowScreen> createState() => _CreateContentFlowScreenState();
@@ -141,7 +144,18 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                 ),
                 SizedBox(height: 12.h),
               ],
-              if (widget.outlinedActions) SizedBox(
+              if (widget.compactActions)
+                TenantFlowActions(
+                  enabled: !widget.isSubmitting,
+                  nextLabel: _currentIndex == widget.pages.length - 1
+                      ? widget.submitLabel : 'Next',
+                  onNext: () => widget.onNextPressed(
+                    _currentIndex, _navigateToPage, _validateFormAfterNavigation),
+                  onSkip: widget.canSkipStep?.call(_currentIndex) == true
+                      ? () => widget.onSkipPressed?.call(_currentIndex, _navigateToPage)
+                      : null,
+                )
+              else if (widget.outlinedActions) SizedBox(
                 width: double.infinity,
                 height: 48.h,
                 child: OutlinedButton(
@@ -193,7 +207,7 @@ class _CreateContentFlowScreenState extends State<CreateContentFlowScreen> {
                     : 'Next',
                 width: double.infinity,
               ),
-              if (widget.canSkipStep?.call(_currentIndex) == true) ...[
+              if (!widget.compactActions && widget.canSkipStep?.call(_currentIndex) == true) ...[
                 SizedBox(height: 16.h),
                 TextButton(
                   onPressed: widget.isSubmitting

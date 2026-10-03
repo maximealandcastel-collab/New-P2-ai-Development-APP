@@ -1,4 +1,6 @@
 import 'package:pler_to_pler_app/core/themes/brand_colors.dart';
+import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
+import 'package:pler_to_pler_app/core/themes/enterprise_gym_theme.dart';
 import 'package:pler_to_pler_app/core/themes/p2p_design_tokens.dart';
 import 'package:pler_to_pler_app/core/themes/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -272,28 +274,7 @@ class FindTrainerScreen extends StatelessWidget {
                             child: Ink(
                               height: 42.h,
                               padding: EdgeInsets.symmetric(horizontal: 14.w),
-                              decoration: P2PAccentPill.appliesToCurrentBrand
-                                  ? P2PAccentPill.decoration(radius: 22.r)
-                                  : BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          BrandColors.of(context).primary,
-                                          BrandColors.of(context).light,
-                                        ],
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(22.r),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: BrandColors.of(context)
-                                              .primary
-                                              .withOpacity(0.12),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
+                              decoration: TenantBrandService.to.theme.accentDecoration(radius: 22.r),
                               child: Row(
                                 children: [
                                   Icon(Icons.adjust_rounded,
@@ -550,21 +531,20 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final theme = TenantBrandService.to.activeBrand?.theme ?? EnterpriseGymTheme.of(context);
     return Semantics(
       button: true,
       selected: active,
       label: '${filter.label} filter',
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          color: active ? primary.withOpacity(0.075) : Colors.white,
-          borderRadius: BorderRadius.circular(30.r),
-          border: Border.all(
-            color: active ? primary.withOpacity(.72) : const Color(0xFFE1E2E6),
-            width: 1,
-          ),
-        ),
+        decoration: active
+            ? theme.accentDecoration(radius: 30.r)
+            : BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30.r),
+                border: Border.all(color: const Color(0xFFE1E2E6)),
+              ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -576,14 +556,14 @@ class _FilterChip extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(filter.icon, size: 14.sp,
-                      color: active ? primary : const Color(0xFF5F616B)),
+                      color: active ? theme.primaryBrandColor : const Color(0xFF5F616B)),
                   SizedBox(width: 6.w),
                   Text(
                     filter.label,
                     style: TextStyle(
                       fontSize: 10.5.sp,
                       fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                      color: active ? primary : const Color(0xFF363842),
+                      color: active ? Colors.white : const Color(0xFF363842),
                     ),
                   ),
                 ],

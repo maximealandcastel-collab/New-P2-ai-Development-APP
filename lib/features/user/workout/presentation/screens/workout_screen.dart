@@ -33,6 +33,7 @@ class WorkoutScreen extends StatelessWidget {
         isSubmitting: controller.submitLoadingState.isLoading,
         uploadProgress: 0,
         submitLabel: 'Create workout',
+        compactActions: true,
         canSkipStep: (index) => index == 1,
         onSkipPressed: (index, navigateToPage) {
           if (index == 1) {

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/core/utils/assets.gen.dart';
 import 'package:pler_to_pler_app/features/community/presentation/screens/post_photo_video_screen.dart';
+import 'package:pler_to_pler_app/features/user/workout_find/presentation/workout_find_screen.dart';
 
 class NavFabModel {
   final String icon;
@@ -27,7 +28,7 @@ class NavFabModel {
     NavFabModel(
       label: 'Generate Workout',
       icon: Assets.icons.exercise.path,
-      onTap: () => Get.toNamed(AppRoute.workoutScreen),
+      onTap: () => Get.to(() => const WorkoutFinderFlow()),
     ),
     NavFabModel(
       label: 'Post Photo/Video',
