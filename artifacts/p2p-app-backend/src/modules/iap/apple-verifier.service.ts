@@ -28,9 +28,14 @@ export const verifyAppleTransaction = async (
   purchaseId: string,
   expectedProductId: string,
 ): Promise<VerifiedAppleTransaction> => {
-  const clientJws = typeof verificationData === "string" ? verificationData.trim() : "";
-  if (!isJwsShape(clientJws)) {
-    throw new Error("Apple verification data is not a JWS");
+  // Flutter can supply a StoreKit 1 base64 receipt OR a StoreKit 2 JWS.
+  // Neither is decoded/trusted here: the authenticated Apple API looks up the
+  // transaction ID and validates bundle, product, expiry and revocation below.
+  if (typeof verificationData !== "string" || !verificationData.trim()) {
+    throw new Error("Apple verification data is missing");
+  }
+  if (typeof purchaseId !== "string" || !/^[0-9]+$/.test(purchaseId)) {
+    throw new Error("Apple transaction ID is invalid");
   }
 
   return verifyAppleTransactionById(purchaseId, expectedProductId);

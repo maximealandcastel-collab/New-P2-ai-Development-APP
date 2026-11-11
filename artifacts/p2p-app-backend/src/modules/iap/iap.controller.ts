@@ -14,8 +14,10 @@ export const verifyIAPController = catchAsync(async (req: Request, res: Response
   }
 
   // 1. Request Validation
-  if (!platform || !productId || !purchaseId || !verificationData) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Missing required fields");
+  if (![productId, purchaseId, verificationData].every(
+    value => typeof value === "string" && value.trim().length > 0,
+  )) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Purchase fields must be non-empty strings");
   }
 
   if (platform !== "ios" && platform !== "android") {

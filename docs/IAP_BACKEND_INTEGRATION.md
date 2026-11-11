@@ -1,5 +1,10 @@
 # IAP Backend — Minimal Guide
 
+> Historical integration guide. For the current four-product catalog, both-role
+> signup policy, sandbox isolation and launch requirements, see
+> [IAP_RELEASE_CHECKLIST.md](./IAP_RELEASE_CHECKLIST.md). The two-product table
+> below describes legacy subscriptions only, not the current sale catalog.
+
 > **Backend dev / AI-তে prompt দিতে:** [`IAP_BACKEND_AI_PROMPT.md`](./IAP_BACKEND_AI_PROMPT.md) — পুরো block copy-paste করুন।
 
 **App:** P2P Fit Tech AI  
@@ -126,7 +131,8 @@ App already reads these from:
 1. Same `purchaseId` দ twice hit করলে duplicate create করবেন না (idempotent).
 2. One purchase another user account-এ link করা যাবে না → return `409`.
 3. Verify fail হলে user subscribe mark করবেন না.
-4. Trainer role (`role: trainer`) — subscribe check লাগে না, শুধু `user` role।
+4. Both `user` and `trainer` signup use the universal paid paywall and may
+   verify purchases after OTP. Do not skip trainer purchase activation.
 
 ---
 

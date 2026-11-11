@@ -42,7 +42,7 @@ class OtpController extends GetxController {
         otp: otpController.text.trim(),
         requiredTenantId: requiredTenantId,
       );
-      if ((Get.arguments ?? '') == 'signup' && !isTrainer()) {
+      if ((Get.arguments ?? '') == 'signup') {
         final activated = await PaywallController.to.activatePendingEntitlement();
         if (!activated) {
           ToastMessageHelper.show(

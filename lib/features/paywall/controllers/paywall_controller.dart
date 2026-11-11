@@ -1,4 +1,5 @@
 import 'package:pler_to_pler_app/features/subscribe/data/models/iap_verify_result_model.dart';
+import 'package:pler_to_pler_app/features/subscribe/domain/store_subscription_products.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -11,12 +12,13 @@ import 'package:pler_to_pler_app/core/services/tenant_brand_service.dart';
 import 'package:pler_to_pler_app/services/api_urls.dart';
 import 'package:pler_to_pler_app/services/network/api_client.dart';
 
-const String _standard3mId = 'p2p_standard_3m';
-const String _standardAnnualId = 'p2p_standard_annual';
-const String _pro3mId = 'p2p_pro_3m';
-const String _proAnnualId = 'p2p_pro_annual';
+const String _standard3mId = StoreSubscriptionProducts.standardQuarterly;
+const String _standardAnnualId = StoreSubscriptionProducts.standardAnnual;
+const String _pro3mId = StoreSubscriptionProducts.proQuarterly;
+const String _proAnnualId = StoreSubscriptionProducts.proAnnual;
 
-// Aliases for default monthly/annual selection
+// Compatibility aliases: "monthly" is the existing UI selection key, but
+// this product bills every THREE months, not monthly.
 const String _monthlyId = _standard3mId;
 const String _annualId = _standardAnnualId;
 
@@ -234,6 +236,12 @@ class PaywallController extends GetxController {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
+      // Store streams are shared with gym purchases. Never finish, cache or
+      // route another module's transaction through the consumer paywall.
+      if (!StoreSubscriptionProducts.handles(
+        purchase.productID,
+        promotionalProductId: appliedPromoProductId.value,
+      )) continue;
       switch (purchase.status) {
         case PurchaseStatus.pending:
           purchaseLoading.value = true;
@@ -243,14 +251,25 @@ class PaywallController extends GetxController {
         case PurchaseStatus.restored:
           final key = '${purchase.productID}:${purchase.purchaseID}';
           if (!_verifying.add(key)) continue;
-          bool verified;
           try {
-            verified = await _verifyWithBackend(purchase);
+            final verified = await _verifyWithBackend(purchase);
+            if (verified) {
+              if (purchase.pendingCompletePurchase) {
+                await _iap.completePurchase(purchase);
+              }
+              final cached = CacheService().get<Map<String, dynamic>>(_pendingIapKey);
+              if (cached?['purchaseId'] == purchase.purchaseID) {
+                await CacheService().delete(_pendingIapKey);
+              }
+              _continueToTrainerSelection();
+            }
+          } catch (_) {
+            purchaseLoading.value = false;
+            purchaseError.value =
+                'Your plan was verified, but the store has not finished the purchase. '
+                'Use Restore Purchases to retry.';
           } finally {
             _verifying.remove(key);
-          }
-          if (verified && purchase.pendingCompletePurchase) {
-            await _iap.completePurchase(purchase);
           }
           break;
 
@@ -291,7 +310,9 @@ class PaywallController extends GetxController {
 
       final response = await ApiClient.postData(ApiUrls.iapVerify, body);
 
-      if (response.statusCode == 200 && IapVerifyResultModel.responseGrantsAccess(response.body)) {
+      if (response.statusCode == 200 && IapVerifyResultModel.responseGrantsAccess(
+        response.body, expectedProductId: purchase.productID,
+      )) {
         purchaseLoading.value = false;
         // If a promo code was applied, redeem it server-side now. The
         // backend only honors this if purchaseId matches a verified Apple
@@ -306,7 +327,6 @@ class PaywallController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           duration: const Duration(seconds: 4),
         );
-        _continueToTrainerSelection();
         return true;
       } else {
         purchaseLoading.value = false;
@@ -476,13 +496,13 @@ class PaywallController extends GetxController {
     try {
       if (pendingIap != null) {
         final response = await ApiClient.postData(ApiUrls.iapVerify, pendingIap);
-        if (response.statusCode != 200 || !IapVerifyResultModel.responseGrantsAccess(response.body)) return false;
+        if (response.statusCode != 200 || !IapVerifyResultModel.responseGrantsAccess(
+          response.body, expectedProductId: pendingIap['productId']?.toString(),
+        )) return false;
         final purchase = _pendingPurchase;
         if (purchase != null && purchase.pendingCompletePurchase) {
           await _iap.completePurchase(purchase);
         }
-        _pendingPurchase = null;
-        await cache.delete(_pendingIapKey);
       }
       if (pendingCode != null) {
         final code = (pendingCode['code'] ?? '').toString();
@@ -513,6 +533,14 @@ class PaywallController extends GetxController {
         // resolved — clear it so it isn't retried on a later login.
         await cache.delete(_pendingAccessCodeKey);
       }
+      // Do not drop purchase proof before promo redemption has succeeded:
+      // retries still need its purchaseId to redeem a purchase-bound code.
+      if (pendingIap != null && _pendingPurchase != null) {
+        await cache.delete(_pendingIapKey);
+        _pendingPurchase = null;
+      }
+      // After a restart PurchaseDetails may no longer be in memory. Retain
+      // proof until the store replays it or the customer uses Restore.
       return true;
     } catch (_) {
       return false;

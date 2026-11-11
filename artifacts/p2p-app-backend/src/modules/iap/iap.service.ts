@@ -115,7 +115,7 @@ export const verifyIAPSubscription = async (
     if (process.env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON) {
       try {
         const accessToken = await getGoogleAccessToken();
-        const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.p2pfittech.ai/purchases/subscriptionsv2/tokens/${verificationData}`;
+        const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.p2pfittech.ai/purchases/subscriptionsv2/tokens/${encodeURIComponent(verificationData)}`;
 
         const res = await axios.get(url, {
           headers: { Authorization: `Bearer ${accessToken}` },

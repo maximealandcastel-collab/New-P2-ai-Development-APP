@@ -11,11 +11,12 @@ import 'package:pler_to_pler_app/core/helpers/toast_message_helper.dart';
 import 'package:pler_to_pler_app/core/routes/app_routes.dart';
 import 'package:pler_to_pler_app/features/profile/domain/services/profile_service.dart';
 import 'package:pler_to_pler_app/features/subscribe/domain/services/subscribe_services.dart';
+import 'package:pler_to_pler_app/features/subscribe/domain/store_subscription_products.dart';
 
-const String kProductStandard3m = 'p2p_standard_3m';
-const String kProductStandardAnnual = 'p2p_standard_annual';
-const String kProductPro3m = 'p2p_pro_3m';
-const String kProductProAnnual = 'p2p_pro_annual';
+const String kProductStandard3m = StoreSubscriptionProducts.standardQuarterly;
+const String kProductStandardAnnual = StoreSubscriptionProducts.standardAnnual;
+const String kProductPro3m = StoreSubscriptionProducts.proQuarterly;
+const String kProductProAnnual = StoreSubscriptionProducts.proAnnual;
 
 // Aliases for standard user flow
 const String kProductMonthly = kProductStandard3m;
@@ -230,7 +231,7 @@ class PaymentDetailsController extends GetxController {
   // ─── IAP: Purchase Stream Handler ─────────────────────────────────────────
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
-      if ({'p2p_gym_starter_monthly', 'p2p_gym_pro_monthly'}.contains(purchase.productID)) continue;
+      if (!StoreSubscriptionProducts.handles(purchase.productID)) continue;
       switch (purchase.status) {
         case PurchaseStatus.pending:
           if (kDebugMode) debugPrint('Purchase pending: ${purchase.productID}');

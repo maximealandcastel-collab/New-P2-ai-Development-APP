@@ -131,7 +131,9 @@ class SubscribeRepository {
           'verificationData': verificationData,
         },
       );
-      if (!IapVerifyResultModel.responseGrantsAccess(response.data)) {
+      if (!IapVerifyResultModel.responseGrantsAccess(
+        response.data, expectedProductId: productId,
+      )) {
         throw ParsingException('The server has not confirmed an active subscription. Restore purchases or try again.');
       }
       final data = response.data?['data'];

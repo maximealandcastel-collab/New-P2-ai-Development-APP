@@ -18,4 +18,18 @@ void main() {
     expect(IapVerifyResultModel.responseGrantsAccess({'success': true}, now: now), isFalse);
     expect(IapVerifyResultModel.responseGrantsAccess({...response(), 'success': false}, now: now), isFalse);
   });
+  test('a verified response must match the purchased product', () {
+    final body = response();
+    (body['data'] as Map)['productId'] = 'p2p_standard_3m';
+    expect(IapVerifyResultModel.responseGrantsAccess(
+      body, now: now, expectedProductId: 'p2p_standard_3m',
+    ), isTrue);
+    expect(IapVerifyResultModel.responseGrantsAccess(
+      body, now: now, expectedProductId: 'p2p_pro_annual',
+    ), isFalse);
+    (body['data'] as Map).remove('productId');
+    expect(IapVerifyResultModel.responseGrantsAccess(
+      body, now: now, expectedProductId: 'p2p_standard_3m',
+    ), isFalse);
+  });
 }

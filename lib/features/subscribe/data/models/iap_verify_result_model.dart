@@ -24,8 +24,12 @@ class IapVerifyResultModel {
         status?.toLowerCase() == 'active';
   }
 
-  static bool responseGrantsAccess(dynamic body, {DateTime? now}) {
+  static bool responseGrantsAccess(
+    dynamic body, {DateTime? now, String? expectedProductId}
+  ) {
     if (body is! Map || body['success'] != true || body['data'] is! Map) return false;
+    if (expectedProductId != null &&
+        body['data']['productId'] != expectedProductId) return false;
     return IapVerifyResultModel.fromJson(Map<String, dynamic>.from(body['data'] as Map))
         .isActiveAt(now ?? DateTime.now());
   }
