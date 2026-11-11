@@ -244,7 +244,7 @@ class EnterpriseService {
           );
   }
 
-  Future<void> switchTenant(String? tenantId) async {
+  Future<void> switchTenant(String? tenantId, {String? locationId}) async {
     if (_switching)
       throw const EnterpriseException('A gym switch is already in progress.');
     _switching = true;
@@ -254,7 +254,7 @@ class EnterpriseService {
       final data = await request(
         '/enterprise/me/context',
         method: 'PUT',
-        body: {'tenantId': tenantId},
+        body: {'tenantId': tenantId, if (locationId != null) 'locationId': locationId},
       );
       if (generation != _generation)
         throw const EnterpriseException('Session changed.');
@@ -265,6 +265,9 @@ class EnterpriseService {
             );
       if (context?.tenant.id != tenantId)
         throw const EnterpriseException('Invalid gym context.');
+      if (locationId != null && data['locationId'] != locationId) {
+        throw const EnterpriseException('Invalid gym location.');
+      }
       bootstrapData.value = data;
       active.value = context;
     } finally {

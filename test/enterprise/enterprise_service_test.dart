@@ -249,4 +249,16 @@ void main() {
     await service.switchTenant(null);
     expect(service.active.value, isNull);
   });
+  test('a selected gym location is persisted and acknowledged', () async {
+    final service = EnterpriseService(
+      baseUrl: 'https://api.test',
+      token: () => 'token',
+      client: MockClient((r) async {
+        expect(jsonDecode(r.body), {'tenantId': 'a', 'locationId': 'location-a'});
+        return ok({'context': context('a'), 'locationId': 'location-a'});
+      }),
+    );
+    await service.switchTenant('a', locationId: 'location-a');
+    expect(service.active.value?.tenant.id, 'a');
+  });
 }
