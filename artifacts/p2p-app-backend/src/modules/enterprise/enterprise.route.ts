@@ -1,6 +1,6 @@
 import {prepareGymApplePurchase,verifyGymApplePurchase} from './gym-apple.service';
 import {TenantMembership,TenantBranding,TenantSelection,TenantAudit} from './tenant.model';
-import {authorizeTenant,bootstrap,validateBranding} from './tenant.service';
+import {authorizeTenant,bootstrap,validateBranding,brandingDefaults} from './tenant.service';
 import { Router, Request, Response, NextFunction } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { guardRole } from '../../middlewares/roleGuard';
@@ -213,7 +213,7 @@ EnterpriseRoutes.get('/tenants',route(async(req,res)=>{
     return {schemaVersion:1,id:t.tenantId,name:t.displayName,
       franchiseId:claim?.franchiseId || t.tenantId,
       franchiseName:claim?.franchiseName || t.displayName,
-      logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12',
+      ...brandingDefaults,timezone:'UTC',
       locations:claim ? [{id:claim.locationId || claim.facilityId || t.tenantId,
         name:claim.gymName,city:claim.city || '',state:claim.state || '',address:claim.locationAddress || ''}] : []};
   }),nextCursor:tenants.length>limit?page[page.length-1].tenantId:null});
@@ -221,5 +221,5 @@ EnterpriseRoutes.get('/tenants',route(async(req,res)=>{
 EnterpriseRoutes.get('/tenants/:id',route(async(req,res)=>{
  const tenant=await TenantAccessModel.findOne({tenantId:req.params.id,isLive:true,accessExpiresAt:{$gt:new Date()}}).select('tenantId displayName').lean();
  if(!tenant)return res.status(404).json({success:false,message:'Gym unavailable'});
- return send(res,{schemaVersion:1,id:tenant.tenantId,name:tenant.displayName,logoUrl:'',timezone:'UTC',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12'});
+ return send(res,{schemaVersion:1,id:tenant.tenantId,name:tenant.displayName,...brandingDefaults,timezone:'UTC'});
 }));

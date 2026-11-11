@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P2P FitTech AI — Initial Launch Stabilization Audit</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;color:#202024;background:#f5f5f7;margin:0}main{max-width:960px;margin:auto;padding:36px 24px 64px}h1{line-height:1.2}h2{margin-top:32px}.status{padding:18px;border-left:5px solid #b45309;background:#fff4df}section{background:white;padding:22px;border:1px solid #e2e2e6;border-radius:12px;margin:18px 0}code{overflow-wrap:anywhere;font-size:.88em}li{margin:8px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #ddd;padding:12px 8px}th{background:#f4f4f6}.pass{color:#166534}small{color:#52525b}@media(max-width:600px){main{padding:20px 14px}section{padding:16px}table{font-size:12px}th,td{padding:8px 4px}}
+</style></head><body><main>
+<h1>P2P FitTech AI<br>Initial launch stabilization audit</h1>
+<p>Scope: existing Flutter iOS application, Node backend, subscriptions and the shared YMCA/KMF enterprise ecosystem. This is not a rebuild or a visual redesign.</p>
+<div class="status"><strong>NOT CLEARED FOR LAUNCH.</strong> This is an initial source audit and a limited repair, not a completed production certification. Codemagic is locked, no new signed build has been verified, and live subscription/device journeys have not been tested.</div>
+
+<section><h2>1. What already exists</h2><ul>
+<li>The Elijah release branch contains shared gym models, tenant configuration, branding, session restoration, switching, gym administration screens and consumer features.</li>
+<li>YMCA Yonkers and KMF have bundled identities and images in the shared gym model. They are not separate app codebases.</li>
+<li>The mobile branch includes tenant membership, selection, branding and server authorization code. Its bootstrap checks membership and licensing before returning context.</li>
+<li>The previous subscription changes are already on the remote Elijah branch: both signup roles can activate purchases, four store products share a catalog, receipt compatibility was improved, and consumer listeners ignore gym purchases.</li>
+</ul><p><strong>Evidence limitation:</strong> these are source observations. A visible screen or a bundled gym record is not proof of an active production tenant or a working booking journey.</p></section>
+
+<section><h2>2. Release blockers and unverified connections</h2>
+<table><thead><tr><th>Priority</th><th>Finding</th><th>Required outcome</th></tr></thead><tbody>
+<tr><td>P0</td><td>The mobile branch backend snapshot imports files that are absent, including <code>src/app.ts</code>. It is not a complete standalone backend checkout.</td><td>Integrate reviewed changes into the complete backend source; compile it and verify its deployed API contract before a mobile release.</td></tr>
+<tr><td>P0</td><td>The separate <code>bazz-backend-02</code> branch has an older IAP implementation: two legacy product IDs, client-JWS decoding, and a magic mock-receipt acceptance path. No claim is made that this branch is currently deployed.</td><td>Do not deploy that source unchanged. Remove unverified receipt grants and reconcile it with the reviewed fail-closed verifier.</td></tr>
+<tr><td>P1</td><td>The running workspace backend and the mobile snapshot use different enterprise implementations. The snapshot does not contain the full scoped member/admin module API expected by its Flutter service and acceptance runner.</td><td>Choose the deployed service as the integration baseline, reconcile routes and envelopes, and verify authenticated reads/writes without duplicating APIs.</td></tr>
+<tr><td>P1</td><td>Tenant selection in the inspected snapshot persists a tenant ID but not an explicitly selected location; bootstrap chooses an active facility with <code>findOne</code>.</td><td>Verify location selection persistence and enforce that location belongs to the authorized tenant before claiming multi-location support.</td></tr>
+<tr><td>P1</td><td>The trainer repository uses the existing marketplace API. Gym-affiliated eligibility, booking permissions and location access were not established by this audit.</td><td>Trace discovery, profile, booking and session authorization end to end for YMCA, KMF and independent trainers.</td></tr>
+<tr><td>P1</td><td>The release defaults to bundled gym discovery through <code>IS_SINGLE_MODE=true</code>.</td><td>Validate live directory publication, search and failure recovery before enabling multi-gym live mode. Do not flip this flag as a substitute for backend work.</td></tr>
+<tr><td>P1</td><td>Consumer renewal/refund notifications, account restoration and store setup have not been demonstrated end to end. The production verifier intentionally rejects sandbox purchases.</td><td>Configure isolated sandbox verification, validate lifecycle handling, and run real-device tests before live sales.</td></tr>
+<tr><td>P1</td><td>The screenshots show “Live gym data unavailable,” zero statistics and a coming-soon body-analysis feature.</td><td>Investigate authenticated API responses; distinguish zero from unavailable data. Do not invent metrics or advertise an unfinished feature as live.</td></tr>
+</tbody></table></section>
+
+<section><h2>3. Repair completed in this pass</h2>
+<p>Unconfigured gyms inherited flagship P2P orange from backend schema defaults, bootstrap defaults and public directory responses. These defaults now share a neutral charcoal/graphite policy.</p>
+<ul><li>Existing stored/approved palettes and logos are not rewritten.</li><li>No database migration, ownership grant, pricing change, payment-provider change or UI redesign was performed.</li><li>The existing membership and branding architecture was reused.</li></ul>
+<p>Modified paths, relative to the Elijah checkout:</p><ul>
+<li><code>artifacts/p2p-app-backend/src/modules/enterprise/tenant-branding-policy.ts</code> — new shared neutral fallback.</li>
+<li><code>artifacts/p2p-app-backend/src/modules/enterprise/tenant.model.ts</code> — schema defaults reuse the policy.</li>
+<li><code>artifacts/p2p-app-backend/src/modules/enterprise/tenant.service.ts</code> — bootstrap fallback reuses the policy.</li>
+<li><code>artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts</code> — public directory/detail fallback reuses the policy.</li>
+<li><code>scripts/tests/tenant_stabilization.test.mjs</code> — tenant and branding regression coverage.</li>
+</ul><p>A local Git baseline tag was created before implementation. These changes remain local on Elijah’s branch; they have not been pushed or deployed.</p></section>
+
+<section><h2>4. Verification</h2>
+<p class="pass"><strong>21 checks passed; 0 failed in this pass.</strong></p><ul>
+<li>8 tenant service tests with explicit database/store doubles: personal mode, active membership, foreign/empty selection, revoked/expired access, failed store checks, cross-tenant denial, gym-admin boundaries, account status, neutral fallback and preservation of approved branding.</li>
+<li>9 existing payment/enterprise policy tests: captured payment matching, invalid payment rejection, refunds, plan validation, webhook authentication/replay checks, ownership approval, facility scope and integer money validation.</li>
+<li>4 existing gym Apple policy/source checks: product separation, matching renewal, account/chain binding, expiry rejection and no external checkout path in the checked native screens.</li>
+<li><code>git diff --check</code> passed before the report was added.</li>
+</ul>
+<p><strong>Not run:</strong> complete backend compilation, real database integration tests, Flutter analysis/tests, physical iPhone QA, live multi-tenant authorization tests, a signed archive, TestFlight upload or App Store submission. Unit doubles and policy tests do not prove deployed behavior.</p>
+<p>The prior subscription patch separately passed 10 backend regression tests; those results do not replace store/device tests.</p>
+</section>
+
+<section><h2>5. Required engineering sequence</h2><ol>
+<li>Reconcile the complete backend source and deployed routes with the Elijah client. Remove unsafe legacy verification paths from any release candidate.</li>
+<li>Complete and verify tenant/location persistence and gym-scoped trainer/booking authorization, retaining the existing YMCA/KMF UI and approved branding.</li>
+<li>Verify purchase entitlements, promo-code binding, renewals, cancellations, refunds and restoration using isolated store sandbox accounts.</li>
+<li>Run member, trainer, gym-admin and global-admin journeys, including logout/account switching, denied access, slow network and session restoration.</li>
+<li>After Codemagic access is restored, compile/sign the release, upload to TestFlight, perform device acceptance and prepare App Store submission metadata.</li>
+</ol><p>No production deployment or store submission should occur without approval. Shipping code is not the same as verifying a working production journey.</p></section>
+<small>This report records observed source behavior, a limited repair and explicit gaps. It does not certify production security, store approval or launch readiness.</small>
+</main></body></html>

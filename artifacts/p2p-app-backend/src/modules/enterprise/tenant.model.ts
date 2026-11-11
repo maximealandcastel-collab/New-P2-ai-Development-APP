@@ -1,7 +1,8 @@
 import mongoose, {Schema} from 'mongoose';
+import {DEFAULT_TENANT_BRANDING} from './tenant-branding-policy';
 const membership = new Schema({tenantId:{type:String,required:true},userId:{type:Schema.Types.ObjectId,required:true},role:{type:String,enum:['owner','admin','staff','trainer','member'],required:true},status:{type:String,enum:['active','revoked'],default:'active'},updatedBy:Schema.Types.ObjectId},{timestamps:true});
 membership.index({tenantId:1,userId:1},{unique:true});
-const branding = new Schema({tenantId:{type:String,required:true,unique:true},gymName:{type:String,required:true},logoUrl:{type:String,default:''},primaryColor:{type:String,default:'#B83B12'},secondaryColor:{type:String,default:'#202020'},accentColor:{type:String,default:'#B83B12'},brandingStatus:{type:String,enum:['default','configured'],default:'default'},updatedBy:Schema.Types.ObjectId},{timestamps:true});
+const branding = new Schema({tenantId:{type:String,required:true,unique:true},gymName:{type:String,required:true},logoUrl:{type:String,default:DEFAULT_TENANT_BRANDING.logoUrl},primaryColor:{type:String,default:DEFAULT_TENANT_BRANDING.primaryColor},secondaryColor:{type:String,default:DEFAULT_TENANT_BRANDING.secondaryColor},accentColor:{type:String,default:DEFAULT_TENANT_BRANDING.accentColor},brandingStatus:{type:String,enum:['default','configured'],default:'default'},updatedBy:Schema.Types.ObjectId},{timestamps:true});
 const selection = new Schema({userId:{type:Schema.Types.ObjectId,required:true,unique:true},tenantId:{type:String,default:null}});
 const audit = new Schema({tenantId:String,applicationId:Schema.Types.ObjectId,actorId:Schema.Types.ObjectId,action:String,reason:String},{timestamps:true});
 export const TenantMembership=mongoose.models.TenantMembership||mongoose.model('TenantMembership',membership);

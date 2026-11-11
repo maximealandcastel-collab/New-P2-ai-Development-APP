@@ -3,7 +3,8 @@ import {UserModel} from '../user/user.model';
 import {TenantAccessModel} from '../tenantAccess/tenantAccess.model';
 import {Facility,GymClaim} from './enterprise.model';
 import {TenantMembership,TenantBranding,TenantSelection} from './tenant.model';
-export const brandingDefaults={logoUrl:'',primaryColor:'#B83B12',secondaryColor:'#202020',accentColor:'#B83B12'};
+import {DEFAULT_TENANT_BRANDING} from './tenant-branding-policy';
+export const brandingDefaults=DEFAULT_TENANT_BRANDING;
 export function validateBranding(body:any) {
   const result:any={};
   for(const key of ['primaryColor','secondaryColor','accentColor']) if(body[key]!==undefined) {
