@@ -54,14 +54,10 @@ workflows:
           CERTIFICATE_KEY="$SIGNING_DIR/distribution_private_key.pem"
           mkdir -p "$SIGNING_DIR"
           chmod 700 "$SIGNING_DIR"
-
-          if [ -s "$CERTIFICATE_KEY" ]; then
-            echo "Reusing stable Apple Distribution private key"
-          else
-            echo "Creating stable Apple Distribution private key"
-            openssl genrsa -out "$CERTIFICATE_KEY" 2048 2>/dev/null
-          fi
-          chmod 600 "$CERTIFICATE_KEY"
+          CANDIDATE_DIR="$(mktemp -d "$SIGNING_DIR/candidates.XXXXXX")"
+          trap 'rm -rf "$CANDIDATE_DIR"' EXIT
+          python3 scripts/prepare_ios_signing_keys.py \
+            --cache "$CERTIFICATE_KEY" --output "$CANDIDATE_DIR"
 
           ASC_AUTH_ARGS=(
             --private-key @file:/tmp/api_key.pem
@@ -189,18 +185,27 @@ workflows:
               --private-key @file:/tmp/api_key.pem \
               --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
               --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-              --create \
               --verbose
           }
 
-          set +e
-          SIGNING_OUTPUT="$(fetch_signing_files 2>&1)"
-          SIGNING_STATUS=$?
-          set -e
-          printf '%s\n' "$SIGNING_OUTPUT"
+          SIGNING_STATUS=1
+          STABLE_CERTIFICATE_KEY="$CERTIFICATE_KEY"
+          for CERTIFICATE_KEY in "$CANDIDATE_DIR"/*.pem; do
+            echo "Checking an existing signing key against Apple (creation disabled)"
+            set +e
+            SIGNING_OUTPUT="$(fetch_signing_files 2>&1)"
+            SIGNING_STATUS=$?
+            set -e
+            printf '%s\n' "$SIGNING_OUTPUT"
+            if [ "$SIGNING_STATUS" -eq 0 ]; then
+              cp "$CERTIFICATE_KEY" "$STABLE_CERTIFICATE_KEY"
+              chmod 600 "$STABLE_CERTIFICATE_KEY"
+              break
+            fi
+          done
 
           if [ "$SIGNING_STATUS" -ne 0 ]; then
-            echo "ERROR: Unable to create or fetch iOS signing files; no Apple certificates were deleted"
+            echo "ERROR: Existing keys did not fetch matching signing files. Restore the original signing identity in Codemagic. No certificates were created or deleted."
             exit "$SIGNING_STATUS"
           fi
 
