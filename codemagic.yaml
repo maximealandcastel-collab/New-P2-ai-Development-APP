@@ -191,6 +191,7 @@ workflows:
           SIGNING_STATUS=1
           STABLE_CERTIFICATE_KEY="$CERTIFICATE_KEY"
           for CERTIFICATE_KEY in "$CANDIDATE_DIR"/*.pem; do
+            python3 scripts/diagnose_ios_signing.py --key "$CERTIFICATE_KEY"
             echo "Checking an existing signing key against Apple (creation disabled)"
             set +e
             SIGNING_OUTPUT="$(fetch_signing_files 2>&1)"
