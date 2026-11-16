@@ -1356,10 +1356,21 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             children: [
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.fitness_center, color: orange, size: 20),
-                                  SizedBox(width: 6),
-                                  Text('P2P FitTech AI', style: TextStyle(color: ink, fontWeight: AppFontWeight.title, fontSize: 12)),
+                                children: [
+                                  ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/app_logo.png',
+                                      width: 26,
+                                      height: 26,
+                                      fit: BoxFit.cover,
+                                      filterQuality: FilterQuality.high,
+                                      errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.fitness_center, color: orange, size: 26,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text('P2P FitTech AI', style: TextStyle(color: ink, fontWeight: AppFontWeight.title, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 4),
@@ -1575,10 +1586,21 @@ class _GymApplicationScreenState extends State<GymApplicationScreen> {
                             children: [
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.fitness_center, color: orange, size: 20),
-                                  SizedBox(width: 6),
-                                  Text('P2P FitTech AI', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.title, fontSize: 12)),
+                                children: [
+                                  ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/app_logo.png',
+                                      width: 26,
+                                      height: 26,
+                                      fit: BoxFit.cover,
+                                      filterQuality: FilterQuality.high,
+                                      errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.fitness_center, color: orange, size: 26,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text('P2P FitTech AI', style: TextStyle(color: Colors.white, fontWeight: AppFontWeight.title, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 4),

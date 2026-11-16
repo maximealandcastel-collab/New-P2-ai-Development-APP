@@ -1,0 +1,1134 @@
+diff --git a/artifacts/p2p-app-backend/src/__tests__/enterprise-compatibility.test.ts b/artifacts/p2p-app-backend/src/__tests__/enterprise-compatibility.test.ts
+index 21de0c16..2eaca16b 100644
+--- a/artifacts/p2p-app-backend/src/__tests__/enterprise-compatibility.test.ts
++++ b/artifacts/p2p-app-backend/src/__tests__/enterprise-compatibility.test.ts
+@@ -12,9 +12,13 @@ jest.mock("../utils/sendResponse", () =>
+     res._payload = payload;
+   }),
+ );
++jest.mock("../modules/enterprise/enterprise-session.model", () => ({
++  EnterpriseSessionModel: { findOne: jest.fn(), updateOne: jest.fn() },
++}));
+ 
+ import jwt from "jsonwebtoken";
+-import { bootstrap } from "../modules/enterprise/enterprise.controller";
++import { bootstrap, selectContext } from "../modules/enterprise/enterprise.controller";
++import { EnterpriseSessionModel } from "../modules/enterprise/enterprise-session.model";
+ import { tenantConfiguration } from "../modules/enterprise/enterprise.service";
+ import { UserModel } from "../modules/user/user.model";
+ import { findLiveTenant } from "../modules/tenantAccess/tenantAccess.service";
+@@ -35,6 +39,9 @@ const userQuery = (user: any) => ({
+ beforeEach(() => {
+   process.env.SESSION_SECRET = secret;
+   jest.clearAllMocks();
++  (EnterpriseSessionModel.findOne as jest.Mock).mockReturnValue({
++    lean: jest.fn().mockResolvedValue(null),
++  });
+   mockFindLiveTenant.mockImplementation(async (id) =>
+     id === "kmf-fitness"
+       ? ({ tenantId: id, displayName: "KMF Fitness", isLive: true } as any)
+@@ -93,4 +100,49 @@ describe("enterprise compatibility bootstrap", () => {
+       }),
+     );
+   });
++  test("personal selection stays personal across bootstrap", async () => {
++    (mockUserModel.findOne as jest.Mock).mockReturnValue(userQuery({
++      _id: "u1", role: "user", tenantId: "kmf-fitness", tenantRole: "member",
++      gymAdminTenantIds: [],
++    }));
++    (EnterpriseSessionModel.findOne as jest.Mock).mockReturnValue({
++      lean: jest.fn().mockResolvedValue({tenantId:null,locationId:null}),
++    });
++    const res = response();
++    await bootstrap(request() as any,res as any);
++    expect((res as any)._payload.data.context).toBeNull();
++  });
++  test("foreign gym or location selections are denied before persistence", async () => {
++    (mockUserModel.findOne as jest.Mock).mockReturnValue(userQuery({
++      _id:"u1",role:"user",tenantId:"kmf-fitness",tenantRole:"member",
++    }));
++    for (const body of [{tenantId:"foreign"}, {tenantId:"kmf-fitness",locationId:"foreign-location"}]) {
++      const res=response();
++      await selectContext({...request(),body} as any,res as any);
++      expect(res.statusCode).toBe(403);
++    }
++    expect(EnterpriseSessionModel.updateOne).not.toHaveBeenCalled();
++  });
++  test("a revoked selected gym does not silently fall back into another gym", async () => {
++    (mockUserModel.findOne as jest.Mock).mockReturnValue(userQuery({
++      _id:"u1",role:"user",tenantId:"kmf-fitness",tenantRole:"member",
++    }));
++    (EnterpriseSessionModel.findOne as jest.Mock).mockReturnValue({
++      lean:jest.fn().mockResolvedValue({tenantId:"no-longer-authorized"}),
++    });
++    const res=response();
++    await bootstrap(request() as any,res as any);
++    expect((res as any)._payload.data.context).toBeNull();
++  });
++  test("approved configuration overrides bundled fallback and exposes locations", () => {
++    const config=tenantConfiguration({tenantId:"kmf-fitness",displayName:"KMF Fitness",
++      branding:{primaryColor:"#123456",logoUrl:"https://example.test/original.png"},
++      locations:[{id:"location-a",name:"Approved location"}],
++    });
++    expect(config.primaryColor).toBe("#123456");
++    expect(config.logoUrl).toBe("https://example.test/original.png");
++    expect(config.locations[0].id).toBe("location-a");
++    expect(tenantConfiguration({tenantId:"future-gym",displayName:"Future Gym"}).primaryColor).toBe("#27272A");
++    expect(tenantConfiguration({tenantId:"kmf-fitness",displayName:"KMF Fitness"}).primaryColor).toBe("#22C55E");
++  });
+ });
+\ No newline at end of file
+diff --git a/artifacts/p2p-app-backend/src/__tests__/iap-security.test.ts b/artifacts/p2p-app-backend/src/__tests__/iap-security.test.ts
+index d5767785..3c7f5421 100644
+--- a/artifacts/p2p-app-backend/src/__tests__/iap-security.test.ts
++++ b/artifacts/p2p-app-backend/src/__tests__/iap-security.test.ts
+@@ -13,17 +13,17 @@ describe("Apple IAP verification boundary", () => {
+     jest.clearAllMocks();
+   });
+ 
+-  test("rejects malformed client data without contacting or granting from it", async () => {
++  test("rejects an invalid transaction ID without contacting the store", async () => {
+     await expect(
+       verifyAppleTransaction("not-a-jws", "transaction-1", "month_1"),
+-    ).rejects.toThrow("Apple verification data is not a JWS");
++    ).rejects.toThrow("Apple transaction ID is invalid");
+ 
+     expect(mockedAxios.get).not.toHaveBeenCalled();
+   });
+ 
+   test("rejects a JWS-shaped receipt when server verification is not configured", async () => {
+     await expect(
+-      verifyAppleTransaction("header.payload.signature", "transaction-1", "month_1"),
++      verifyAppleTransaction("header.payload.signature", "100000001", "month_1"),
+     ).rejects.toThrow("Apple App Store Server API verification is not configured");
+ 
+     expect(mockedAxios.get).not.toHaveBeenCalled();
+diff --git a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise-session.model.ts b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise-session.model.ts
+new file mode 100644
+index 00000000..3727e6cc
+--- /dev/null
++++ b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise-session.model.ts
+@@ -0,0 +1,11 @@
++import mongoose, { Schema } from "mongoose";
++
++// Selection is a preference, never a membership or an authorization grant.
++const schema = new Schema({
++  userId: { type: Schema.Types.ObjectId, required: true, unique: true },
++  tenantId: { type: String, default: null },
++  locationId: { type: String, default: null },
++}, { timestamps: true });
++
++export const EnterpriseSessionModel = mongoose.models.EnterpriseSession ||
++  mongoose.model("EnterpriseSession", schema);
+diff --git a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.controller.ts b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.controller.ts
+index 5663ae82..926ec210 100644
+--- a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.controller.ts
++++ b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.controller.ts
+@@ -6,6 +6,8 @@ import { UserModel } from "../user/user.model";
+ import { normalizeTenantRole } from "../tenantAccess/tenantAccess.service";
+ import { normalizeTenantScopeId } from "../../config/tenants";
+ import { liveConfigurationFor, liveTenantConfigurations } from "./enterprise.service";
++import { EnterpriseSessionModel } from "./enterprise-session.model";
++import { logger } from "../../utils/logger";
+ 
+ const unauthorized = (res: Response) =>
+   sendResponse(res, { statusCode: 401, success: false, message: "Session expired — please sign in again", data: null });
+@@ -16,13 +18,21 @@ const sessionUser = async (req: Request, res: Response) => {
+     unauthorized(res);
+     return null;
+   }
++  let userId: string;
+   try {
+     const secret = getSessionSecret();
+     if (!secret) throw new Error("SESSION_SECRET is not configured");
+-    const decoded = jwt.verify(token, secret) as { id?: string };
++    const decoded = jwt.verify(token, secret, { algorithms: ["HS256"] }) as { id?: string };
+     if (!decoded.id) throw new Error("Invalid session");
++    userId = decoded.id;
++  } catch {
++    unauthorized(res);
++    return null;
++  }
++  // Database outages are service failures, not evidence that a valid session
++  // was revoked. Let the endpoint return 503 rather than a misleading 401.
+     const user = await UserModel.findOne({
+-      _id: decoded.id,
++      _id: userId,
+       isDeleted: { $ne: true },
+       isVerified: true,
+     }).select("_id role tenantId tenantRole gymAdminTenantIds").lean();
+@@ -31,13 +41,9 @@ const sessionUser = async (req: Request, res: Response) => {
+       return null;
+     }
+     return user;
+-  } catch {
+-    unauthorized(res);
+-    return null;
+-  }
+ };
+ 
+-const membershipsFor = async (user: any) => {
++export const membershipsFor = async (user: any) => {
+   const candidates = new Map<string, string[]>();
+   const tenantId = normalizeTenantScopeId(user.tenantId);
+   const role =
+@@ -58,10 +64,19 @@ const membershipsFor = async (user: any) => {
+ };
+ 
+ export const bootstrap = async (req: Request, res: Response) => {
++  try {
+   const user = await sessionUser(req, res);
+   if (!user) return;
+   const memberships = await membershipsFor(user);
+-  const selected = memberships[0];
++  const selection = await EnterpriseSessionModel.findOne({ userId: user._id }).lean() as any;
++  // An explicit personal-mode selection must not silently re-enter a gym.
++  // A revoked selection must not silently switch the account into another gym.
++  const selected = selection
++    ? memberships.find(item => item.tenant.id === selection.tenantId)
++    : memberships[0];
++  const location = selected && selection?.locationId
++    ? selected.tenant.locations.find((item: any) => item.id === selection.locationId)
++    : null;
+   const context = selected
+     ? {
+         tenant: selected.tenant,
+@@ -69,18 +84,56 @@ export const bootstrap = async (req: Request, res: Response) => {
+         capabilities: selected.roles.some((role) => ["admin", "owner", "staff"].includes(role))
+           ? ["gym_admin"]
+           : [],
++        locationId: location?.id ?? null,
+       }
+     : null;
+   return sendResponse(res, {
+     statusCode: 200,
+     success: true,
+     message: "Enterprise access bootstrapped",
+-    data: { context, memberships: { items: memberships, nextCursor: null } },
++    data: { context, currentTenantId: selected?.tenant.id ?? null,
++      locationId: location?.id ?? null,
++      choices: memberships.map(item => ({tenantId:item.tenant.id,tenantName:item.tenant.name,roles:item.roles,status:"active"})),
++      memberships: { items: memberships, nextCursor: null } },
+   });
++  } catch {
++    logger.warn("[enterprise] Bootstrap temporarily unavailable");
++    return sendResponse(res, {statusCode:503,success:false,message:"Gym access could not be refreshed. Please retry.",data:null});
++  }
++};
++
++export const selectContext = async (req: Request, res: Response) => {
++  try {
++    const user = await sessionUser(req, res);
++    if (!user) return;
++    const { tenantId, locationId = null } = req.body ?? {};
++    if ((tenantId !== null && (typeof tenantId !== "string" || !tenantId)) ||
++        (locationId !== null && (typeof locationId !== "string" || !locationId)) ||
++        (tenantId === null && locationId !== null)) {
++      return sendResponse(res, {statusCode:400,success:false,message:"Invalid gym or location selection",data:null});
++    }
++    const memberships = await membershipsFor(user);
++    const selected = memberships.find(item => item.tenant.id === tenantId);
++    if (tenantId !== null && !selected) {
++      return sendResponse(res, {statusCode:403,success:false,message:"Gym membership required",data:null});
++    }
++    if (locationId !== null && !selected?.tenant.locations.some((item: any) => item.id === locationId)) {
++      return sendResponse(res, {statusCode:403,success:false,message:"Location is not available in this gym",data:null});
++    }
++    await EnterpriseSessionModel.updateOne({userId:user._id},
++      {$set:{tenantId,locationId}},{upsert:true,runValidators:true});
++    // Re-read current membership before returning context; the selection itself
++    // never authorizes subsequent requests.
++    return bootstrap(req,res);
++  } catch {
++    logger.warn("[enterprise] Gym selection temporarily unavailable");
++    return sendResponse(res, {statusCode:503,success:false,message:"Gym selection could not be saved. Please retry.",data:null});
++  }
+ };
+ 
+-export const directory = async (req: Request, res: Response) =>
+-  sendResponse(res, {
++export const directory = async (req: Request, res: Response) => {
++  try {
++  return sendResponse(res, {
+     statusCode: 200,
+     success: true,
+     message: "Enterprise gyms retrieved",
+@@ -89,8 +142,13 @@ export const directory = async (req: Request, res: Response) =>
+       nextCursor: null,
+     },
+   });
++  } catch {
++    return sendResponse(res,{statusCode:503,success:false,message:"Gym directory is temporarily unavailable",data:null});
++  }
++};
+ 
+ export const memberships = async (req: Request, res: Response) => {
++  try {
+   const user = await sessionUser(req, res);
+   if (!user) return;
+   const items = await membershipsFor(user);
+@@ -100,4 +158,7 @@ export const memberships = async (req: Request, res: Response) => {
+     message: "Enterprise memberships retrieved",
+     data: { items, nextCursor: null },
+   });
++  } catch {
++    return sendResponse(res,{statusCode:503,success:false,message:"Gym memberships could not be refreshed",data:null});
++  }
+ };
+\ No newline at end of file
+diff --git a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts
+index 6509e6c7..8fde466a 100644
+--- a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts
++++ b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts
+@@ -1,7 +1,7 @@
+ import { Router, Request, Response, NextFunction } from "express";
+ import { randomBytes } from "crypto";
+ import { Storage } from "@google-cloud/storage";
+-import { bootstrap, directory, memberships } from "./enterprise.controller";
++import { bootstrap, directory, memberships, selectContext } from "./enterprise.controller";
+ import { guardRole } from "../../middlewares/roleGuard";
+ import { memoryUpload } from "../../multer/multer";
+ import { searchUsGyms } from "./gym-search.service";
+@@ -76,6 +76,8 @@ const logoUploadMiddleware = (
+ 
+ router.get("/tenants", directory);
+ router.get("/me/bootstrap", bootstrap);
++router.get("/me/context", bootstrap);
++router.put("/me/context", selectContext);
+ router.get("/me/memberships", memberships);
+ 
+ const gymSearchLimits = new Map<string, { start: number; count: number }>();
+diff --git a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.service.ts b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.service.ts
+index 55242731..eb17526b 100644
+--- a/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.service.ts
++++ b/artifacts/p2p-app-backend/src/modules/enterprise/enterprise.service.ts
+@@ -1,6 +1,8 @@
+ import { findLiveTenant, listLiveTenants } from "../tenantAccess/tenantAccess.service";
+ 
+-type TenantRecord = { tenantId: string; displayName: string };
++type TenantRecord = { tenantId: string; displayName: string;
++  branding?: {logoUrl?:string|null;primaryColor?:string|null;secondaryColor?:string|null;accentColor?:string|null;slogan?:string|null;timezone?:string|null}|null;
++  locations?: {id:string;name?:string|null;address?:string|null;city?:string|null;state?:string|null;zipCode?:string|null}[]|null };
+ 
+ const profiles: Record<string, {
+   slogan: string;
+@@ -14,9 +16,9 @@ const profiles: Record<string, {
+   "kmf-fitness": {
+     slogan: "",
+     timezone: "America/New_York",
+-    primaryColor: "#B83B12",
++    primaryColor: "#22C55E",
+     secondaryColor: "#FFFFFF",
+-    accentColor: "#F97316",
++    accentColor: "#16A34A",
+     category: "Enterprise Gym",
+     tags: [],
+   },
+@@ -36,9 +38,9 @@ export const tenantConfiguration = (tenant: TenantRecord) => {
+   const profile = profiles[tenant.tenantId] || {
+     slogan: "",
+     timezone: "America/New_York",
+-    primaryColor: "#B83B12",
++    primaryColor: "#27272A",
+     secondaryColor: "#FFFFFF",
+-    accentColor: "#F97316",
++    accentColor: "#52525B",
+     category: "Enterprise Gym",
+     tags: [],
+   };
+@@ -46,14 +48,14 @@ export const tenantConfiguration = (tenant: TenantRecord) => {
+     schemaVersion: 1,
+     id: tenant.tenantId,
+     name: tenant.displayName,
+-    slogan: profile.slogan,
+-    logoUrl: "",
+-    timezone: profile.timezone,
+-    primaryColor: profile.primaryColor,
+-    secondaryColor: profile.secondaryColor,
+-    accentColor: profile.accentColor,
++    slogan: tenant.branding?.slogan ?? profile.slogan,
++    logoUrl: tenant.branding?.logoUrl ?? "",
++    timezone: tenant.branding?.timezone ?? profile.timezone,
++    primaryColor: tenant.branding?.primaryColor ?? profile.primaryColor,
++    secondaryColor: tenant.branding?.secondaryColor ?? profile.secondaryColor,
++    accentColor: tenant.branding?.accentColor ?? profile.accentColor,
+     photos: [],
+-    locations: [],
++    locations: tenant.locations ?? [],
+     contact: {},
+     category: profile.category,
+     tags: profile.tags,
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/apple-verifier.service.ts b/artifacts/p2p-app-backend/src/modules/iap/apple-verifier.service.ts
+index 8f459266..81b43584 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/apple-verifier.service.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/apple-verifier.service.ts
+@@ -27,9 +27,14 @@ export const verifyAppleTransaction = async (
+   purchaseId: string,
+   expectedProductId: string,
+ ): Promise<VerifiedAppleTransaction> => {
+-  const clientJws = typeof verificationData === "string" ? verificationData.trim() : "";
+-  if (!isJwsShape(clientJws)) {
+-    throw new Error("Apple verification data is not a JWS");
++  // StoreKit 1 supplies a base64 receipt; StoreKit 2 supplies a JWS.
++  // Neither client payload grants access: the authenticated Apple API below
++  // supplies the authoritative bundle/product/expiry/revocation information.
++  if (typeof verificationData !== "string" || !verificationData.trim()) {
++    throw new Error("Apple verification data is missing");
++  }
++  if (typeof purchaseId !== "string" || !/^[0-9]+$/.test(purchaseId)) {
++    throw new Error("Apple transaction ID is invalid");
+   }
+ 
+   const issuerId = process.env.APPLE_IAP_ISSUER_ID;
+@@ -57,6 +62,10 @@ export const verifyAppleTransaction = async (
+     },
+   );
+ 
++  if (process.env.NODE_ENV === "production" &&
++      process.env.APPLE_IAP_ENVIRONMENT?.toLowerCase() === "sandbox") {
++    throw new Error("Sandbox verification is disabled for production entitlements");
++  }
+   const baseUrl =
+     process.env.APPLE_IAP_ENVIRONMENT?.toLowerCase() === "sandbox"
+       ? APPLE_SANDBOX_API
+@@ -97,6 +106,7 @@ export const verifyAppleTransaction = async (
+     !originalTransactionId ||
+     !purchaseDate ||
+     !expiresDate ||
++    (process.env.NODE_ENV === "production" && transaction.environment !== "Production") ||
+     transaction.revocationDate !== undefined
+   ) {
+     throw new Error("Apple transaction does not match the requested purchase");
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/iap.controller.ts b/artifacts/p2p-app-backend/src/modules/iap/iap.controller.ts
+index c57bfc71..d9cd51e2 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/iap.controller.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/iap.controller.ts
+@@ -14,8 +14,10 @@ export const verifyIAPController = catchAsync(async (req: Request, res: Response
+   }
+ 
+   // 1. Request Validation
+-  if (!platform || !productId || !purchaseId || !verificationData) {
+-    throw new ApiError(httpStatus.BAD_REQUEST, "Missing required fields");
++  if (![productId, purchaseId, verificationData].every(
++    value => typeof value === "string" && value.trim().length > 0,
++  )) {
++    throw new ApiError(httpStatus.BAD_REQUEST, "Purchase fields must be non-empty strings");
+   }
+ 
+   if (platform !== "ios" && platform !== "android") {
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/iap.interface.ts b/artifacts/p2p-app-backend/src/modules/iap/iap.interface.ts
+index 6a64379f..605dd244 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/iap.interface.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/iap.interface.ts
+@@ -4,7 +4,7 @@ export interface IIAPSubscription extends Document {
+   userId: Types.ObjectId;
+   platform: "ios" | "android";
+   productId: "month_1" | "year_1" | string;
+-  subscriptionTier: "monthly" | "annual";
++  subscriptionTier: "monthly" | "quarterly" | "annual";
+   purchaseId: string; // unique index (for Google: same as purchaseId / transactionId)
+   originalTransactionId?: string; // unique index for iOS (StoreKit 2)
+   purchaseToken?: string; // Google Play purchase token
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/iap.model.ts b/artifacts/p2p-app-backend/src/modules/iap/iap.model.ts
+index a8f2f849..1393ab1f 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/iap.model.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/iap.model.ts
+@@ -20,7 +20,7 @@ const IAPSubscriptionSchema = new Schema<IIAPSubscription>(
+     },
+     subscriptionTier: {
+       type: String,
+-      enum: ["monthly", "annual"],
++      enum: ["monthly", "quarterly", "annual"],
+       required: true,
+     },
+     purchaseId: {
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/iap.route.ts b/artifacts/p2p-app-backend/src/modules/iap/iap.route.ts
+index 911aa72b..cc22ee1f 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/iap.route.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/iap.route.ts
+@@ -4,6 +4,6 @@ import { guardRole } from "../../middlewares/roleGuard";
+ 
+ const router = express.Router();
+ 
+-router.post("/verify", guardRole("user"), verifyIAPController);
++router.post("/verify", guardRole(["user", "trainer"]), verifyIAPController);
+ 
+ export const IAPRoutes = router;
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/iap.service.ts b/artifacts/p2p-app-backend/src/modules/iap/iap.service.ts
+index c64c37b7..53aabeba 100644
+--- a/artifacts/p2p-app-backend/src/modules/iap/iap.service.ts
++++ b/artifacts/p2p-app-backend/src/modules/iap/iap.service.ts
+@@ -1,5 +1,6 @@
+ import jwt from "jsonwebtoken";
+ import axios from "axios";
++import { createHash } from "node:crypto";
+ import { Types } from "mongoose";
+ import { IAPSubscriptionModel } from "./iap.model";
+ import { UserModel } from "../user/user.model";
+@@ -7,6 +8,8 @@ import { creditAffiliateForPurchase } from "../affiliate/affiliate.service";
+ import ApiError from "../../errors/ApiError";
+ import httpStatus from "http-status";
+ import { verifyAppleTransaction } from "./apple-verifier.service";
++import { resolveStoreProduct, googleSubscriptionDates } from "./store-policy";
++import { logger } from "../../utils/logger";
+ 
+ // ─────────────────────────────────────────────────────────────
+ // GOOGLE OAUTH HELPER
+@@ -48,6 +51,7 @@ async function getGoogleAccessToken(): Promise<string> {
+     }).toString(),
+     {
+       headers: { "Content-Type": "application/x-www-form-urlencoded" },
++      timeout: 10000,
+     }
+   );
+ 
+@@ -64,33 +68,31 @@ export const verifyIAPSubscription = async (
+   purchaseId: string,
+   verificationData: string
+ ) => {
+-  // 1. Check Product ID mapping
+-  if (productId !== "month_1" && productId !== "year_1") {
++  const product = resolveStoreProduct(productId);
++  if (!product) {
+     throw new ApiError(httpStatus.BAD_REQUEST, "Unknown productId");
+   }
+-  const subscriptionTier: "monthly" | "annual" =
+-    productId === "month_1" ? "monthly" : "annual";
++  if (![userId, productId, purchaseId, verificationData].every(
++    value => typeof value === "string" && value.trim().length > 0,
++  )) throw new ApiError(httpStatus.BAD_REQUEST, "Invalid purchase fields");
++  const subscriptionTier = product.tier;
+ 
+   // 2. IDEMPOTENCY CHECK
+   const existingSubscription = await IAPSubscriptionModel.findOne({ purchaseId });
+-  if (existingSubscription) {
+-    if (existingSubscription.userId.toString() !== userId) {
++  if (existingSubscription && existingSubscription.userId.toString() !== userId) {
+       // Linked to another account!
+       throw new ApiError(
+         httpStatus.CONFLICT,
+         "This purchase already linked to another user account"
+       );
+-    }
+-    // Return existing active subscription details
+-    return {
+-      isSubscribed: existingSubscription.status === "active",
+-      subscriptionTier: existingSubscription.subscriptionTier,
+-      subscriptionStartDate: existingSubscription.startDate,
+-      subscriptionEndDate: existingSubscription.endDate,
+-      status: existingSubscription.status,
+-      platform: existingSubscription.platform,
+-      productId: existingSubscription.productId,
+-    };
++  }
++  // Older Android records stored the token but did not have a hashed chain ID.
++  // Protect that ownership during the lazy upgrade to the new identity.
++  const legacyAndroid = platform === "android"
++    ? await IAPSubscriptionModel.findOne({ platform: "android", purchaseToken: verificationData })
++    : null;
++  if (legacyAndroid && legacyAndroid.userId.toString() !== userId) {
++    throw new ApiError(httpStatus.CONFLICT, "This purchase is linked to another account");
+   }
+ 
+   let startDate = new Date();
+@@ -109,7 +111,7 @@ export const verifyIAPSubscription = async (
+     } catch (err: any) {
+       // Never activate from a client-provided or malformed JWS. The details
+       // stay in server logs; clients only need a non-successful verification.
+-      console.error("[iap] Apple transaction verification failed", {
++      logger.warn("[iap] Apple transaction verification failed", {
+         purchaseId,
+         error: err?.message || "unknown error",
+       });
+@@ -124,58 +126,29 @@ export const verifyIAPSubscription = async (
+       throw new ApiError(httpStatus.PAYMENT_REQUIRED, "Purchase invalid or expired");
+     }
+ 
+-    // Additional originalTransactionId uniqueness check
+-    if (originalTransactionId) {
+-      const existingOrig = await IAPSubscriptionModel.findOne({ originalTransactionId });
+-      if (existingOrig) {
+-        if (existingOrig.userId.toString() !== userId) {
+-          throw new ApiError(
+-            httpStatus.CONFLICT,
+-            "This purchase already linked to another user account"
+-          );
+-        }
+-        // If same user, idempotent success
+-        return {
+-          isSubscribed: existingOrig.status === "active",
+-          subscriptionTier: existingOrig.subscriptionTier,
+-          subscriptionStartDate: existingOrig.startDate,
+-          subscriptionEndDate: existingOrig.endDate,
+-          status: existingOrig.status,
+-          platform: existingOrig.platform,
+-          productId: existingOrig.productId,
+-        };
+-      }
+-    }
+-
+   } else if (platform === "android") {
+     // Verify with Google Play Developer API
+     if (process.env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON) {
+       try {
+         const accessToken = await getGoogleAccessToken();
+-        const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.p2pfittech.ai/purchases/subscriptionsv2/tokens/${verificationData}`;
++        const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.p2pfittech.ai/purchases/subscriptionsv2/tokens/${encodeURIComponent(verificationData)}`;
+ 
+         const res = await axios.get(url, {
+           headers: { Authorization: `Bearer ${accessToken}` },
++          timeout: 10000,
+         });
+ 
+         const data = res.data;
+ 
+-        // Check if active
+-        if (data.subscriptionState !== "SUBSCRIPTION_STATE_ACTIVE") {
+-          throw new ApiError(httpStatus.PAYMENT_REQUIRED, "purchase invalid or expired");
+-        }
+-
+-        startDate = data.startTime ? new Date(data.startTime) : new Date();
+-        endDate = data.expireTime ? new Date(data.expireTime) : new Date();
+-
+-        if (endDate.getTime() <= Date.now()) {
+-          throw new ApiError(httpStatus.PAYMENT_REQUIRED, "purchase invalid or expired");
+-        }
++        const dates = googleSubscriptionDates(data, productId, Date.now(), process.env.NODE_ENV === "production");
++        startDate = dates.startDate;
++        endDate = dates.endDate;
++        originalTransactionId = `google:${createHash("sha256").update(verificationData).digest("hex")}`;
+       } catch (err: any) {
+-        console.error("Google Play Verification error:", err.message);
++        logger.warn("[iap] Google Play verification failed");
+         throw new ApiError(
+-          httpStatus.INTERNAL_SERVER_ERROR,
+-          "Google Play store API error: " + err.message
++          httpStatus.PAYMENT_REQUIRED,
++          "Google purchase could not be verified"
+         );
+       }
+     } else {
+@@ -187,50 +160,61 @@ export const verifyIAPSubscription = async (
+     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid platform");
+   }
+ 
+-  // 4. Create and Save IAP Subscription Record
+-  const subscription = await IAPSubscriptionModel.create({
+-    userId: new Types.ObjectId(userId),
+-    platform,
+-    productId,
+-    subscriptionTier,
+-    purchaseId,
+-    originalTransactionId,
+-    purchaseToken: platform === "android" ? verificationData : undefined,
+-    status: "active",
+-    startDate,
+-    endDate,
+-  });
+-
+-  // 5. Update User Document
+-  await UserModel.findByIdAndUpdate(userId, {
+-    $set: {
+-      subscriptionTier,
+-      subscriptionStartDate: startDate,
+-      subscriptionEndDate: endDate,
+-      subscribedTrainer: null, // Clear personal trainer selection as default AI trainer is used
+-    },
+-  });
+-
+-  // 6. Credit affiliate partner (non-blocking — 60% of purchase price)
+-  creditAffiliateForPurchase(userId, productId).catch((err) => {
+-    // Affiliate credit is intentionally non-blocking, but never silently
+-    // discarded. The log gives the existing operational retry process enough
+-    // information to reconcile the missed credit.
+-    console.error("[iap] affiliate credit failed after verified purchase", {
+-      userId,
+-      productId,
+-      purchaseId,
+-      error: err instanceof Error ? err.message : String(err),
++  // Account and entitlement writes succeed together. Every restore has already
++  // rechecked store state above; a cached "active" row is never sufficient.
++  const identity = legacyAndroid ? { _id: legacyAndroid._id } :
++    originalTransactionId ? { originalTransactionId } : { purchaseId };
++  const session = await IAPSubscriptionModel.startSession();
++  let result: any;
++  let firstActivation = false;
++  try {
++    await session.withTransaction(async () => {
++      firstActivation = false; // Mongo may retry the entire callback.
++      const existing = await IAPSubscriptionModel.findOne(identity).session(session);
++      if (existing && existing.userId.toString() !== userId) {
++        throw new ApiError(httpStatus.CONFLICT, "This purchase is linked to another account");
++      }
++      const keepLater = existing && existing.endDate > endDate && existing.status === "active";
++      const subscription = keepLater ? existing : await IAPSubscriptionModel.findOneAndUpdate(
++        { ...identity, userId: new Types.ObjectId(userId) },
++        { $set: { platform, productId, subscriptionTier, purchaseId,
++            originalTransactionId, status: "active", startDate, endDate },
++          $setOnInsert: { userId: new Types.ObjectId(userId) } },
++        { upsert: true, new: true, runValidators: true, session },
++      );
++      if (!subscription) throw new Error("Subscription update failed");
++      const effectiveProduct = resolveStoreProduct(subscription.productId);
++      if (!effectiveProduct) throw new Error("Stored product is unsupported");
++      const user = await UserModel.findByIdAndUpdate(
++        userId,
++        { $set: { subscriptionTier: effectiveProduct.accessTier,
++          subscriptionStartDate: subscription.startDate,
++          subscriptionEndDate: subscription.endDate } },
++        { session, new: true },
++      );
++      if (!user || user.isDeleted || !user.isVerified) {
++        throw new ApiError(httpStatus.FORBIDDEN, "Account unavailable");
++      }
++      firstActivation = !existing;
++      result = { isSubscribed: subscription.status === "active" && subscription.endDate > new Date(),
++        subscriptionTier: effectiveProduct.accessTier, subscriptionStartDate: subscription.startDate,
++        subscriptionEndDate: subscription.endDate, status: subscription.status,
++        platform: subscription.platform, productId: subscription.productId };
+     });
+-  });
+-
+-  return {
+-    isSubscribed: true,
+-    subscriptionTier,
+-    subscriptionStartDate: startDate,
+-    subscriptionEndDate: endDate,
+-    status: "active",
+-    platform,
+-    productId,
+-  };
++  } catch (error: any) {
++    if (error?.code === 11000) {
++      throw new ApiError(httpStatus.CONFLICT, "Purchase is already linked; restore on its original account");
++    }
++    throw error;
++  } finally {
++    await session.endSession();
++  }
++  // Preserve legacy affiliate behavior without crediting again on restore or
++  // inventing list prices for the new store products.
++  if (firstActivation && (productId === "month_1" || productId === "year_1")) {
++    creditAffiliateForPurchase(userId, productId).catch(() =>
++      logger.warn("[iap] Legacy affiliate credit requires reconciliation", { purchaseId }),
++    );
++  }
++  return result;
+ };
+diff --git a/artifacts/p2p-app-backend/src/modules/iap/store-policy.ts b/artifacts/p2p-app-backend/src/modules/iap/store-policy.ts
+new file mode 100644
+index 00000000..31c36d3c
+--- /dev/null
++++ b/artifacts/p2p-app-backend/src/modules/iap/store-policy.ts
+@@ -0,0 +1,27 @@
++export const STORE_PRODUCTS = {
++  month_1: { tier: "monthly", accessTier: "paid" },
++  year_1: { tier: "annual", accessTier: "paid" },
++  p2p_standard_3m: { tier: "quarterly", accessTier: "paid" },
++  p2p_standard_annual: { tier: "annual", accessTier: "paid" },
++  p2p_pro_3m: { tier: "quarterly", accessTier: "premium" },
++  p2p_pro_annual: { tier: "annual", accessTier: "premium" },
++} as const;
++
++export function resolveStoreProduct(id: string) {
++  return Object.prototype.hasOwnProperty.call(STORE_PRODUCTS, id)
++    ? STORE_PRODUCTS[id as keyof typeof STORE_PRODUCTS] : null;
++}
++
++export function googleSubscriptionDates(data: any, productId: string, now: number, production: boolean) {
++  if (production && data.testPurchase) throw new Error("Test purchases cannot activate production access");
++  if (!["SUBSCRIPTION_STATE_ACTIVE", "SUBSCRIPTION_STATE_IN_GRACE_PERIOD", "SUBSCRIPTION_STATE_CANCELED"].includes(data.subscriptionState)) {
++    throw new Error("Subscription is not entitled");
++  }
++  const line = data.lineItems?.find((item: any) => item.productId === productId);
++  const startDate = new Date(data.startTime);
++  const endDate = new Date(line?.expiryTime);
++  if (!Number.isFinite(startDate.getTime()) || !Number.isFinite(endDate.getTime()) || endDate.getTime() <= now) {
++    throw new Error("Subscription product is missing or expired");
++  }
++  return { startDate, endDate };
++}
+diff --git a/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.model.ts b/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.model.ts
+index fc11478d..4dc1a8ab 100644
+--- a/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.model.ts
++++ b/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.model.ts
+@@ -25,6 +25,19 @@ const tenantAccessSchema = new Schema(
+     tenantId: { type: String, required: true, unique: true, index: true },
+     displayName: { type: String, required: true },
+     isLive: { type: Boolean, default: false, index: true },
++    // Approved public configuration; only server/admin code may write this.
++    branding: {
++      logoUrl: String,
++      primaryColor: String,
++      secondaryColor: String,
++      accentColor: String,
++      slogan: String,
++      timezone: String,
++    },
++    locations: [{
++      _id: false, id: { type: String, required: true },
++      name: String, address: String, city: String, state: String, zipCode: String,
++    }],
+     roleCodes: { type: [roleCodeSchema], default: [] },
+     updatedBy: { type: Schema.Types.ObjectId, ref: "User" },
+   },
+diff --git a/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.service.ts b/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.service.ts
+index 189fb7c0..ad42aba8 100644
+--- a/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.service.ts
++++ b/artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.service.ts
+@@ -29,7 +29,7 @@ export const findLiveTenant = async (value: unknown) => {
+   if (!tenantId) return null;
+   await ensureInitialTenants();
+   return TenantAccessModel.findOne({ tenantId, isLive: true })
+-    .select("_id tenantId displayName isLive")
++    .select("_id tenantId displayName isLive branding locations")
+     .lean();
+ };
+ 
+@@ -89,7 +89,7 @@ export const listLiveTenants = async () => {
+   await ensureInitialTenants();
+   return TenantAccessModel.find(
+     { isLive: true },
+-    { _id: 0, tenantId: 1, displayName: 1 },
++    { _id: 0, tenantId: 1, displayName: 1, branding: 1, locations: 1 },
+   )
+     .sort({ displayName: 1 })
+     .lean();
+diff --git a/docs/P2P_BACKEND_RECONCILIATION.md b/docs/P2P_BACKEND_RECONCILIATION.md
+new file mode 100644
+index 00000000..c879c4c2
+--- /dev/null
++++ b/docs/P2P_BACKEND_RECONCILIATION.md
+@@ -0,0 +1,69 @@
++# P2P backend release source and verification
++
++The runnable backend in this workspace is `artifacts/p2p-app-backend`.
++Its routes, models and dependency manifest are the source for backend deployment.
++The similarly named subtree in the Flutter repository is an incomplete
++integration snapshot, not a standalone server. Do not deploy that subtree or
++the older `bazz-backend-02` checkout as a shortcut.
++
++## Reconciled contracts
++
++- `POST /api/v1/iap/verify` accepts authenticated users and trainers.
++  Standard/Pro quarterly/annual IDs and legacy monthly/annual restores share
++  a server catalog. Apple/Google are authoritative; cached active rows do not
++  bypass store verification. Purchase and profile writes are transactional.
++- Restoring a store subscription does not erase a customer's human trainer.
++  Original transaction ownership cannot move between accounts.
++- Legacy affiliate behavior is preserved for initial legacy activations only;
++  restoring does not credit twice. No prices are invented for new products.
++- `GET /api/v1/enterprise/me/context` aliases the existing bootstrap.
++  `PUT` saves a server-validated gym/location preference. Bootstrap restores it
++  and rechecks database membership. `tenantId: null` explicitly selects personal
++  mode. A revoked preference does not silently select another gym.
++- Live registry records may carry approved branding and locations. Existing
++  records remain compatible. Unknown gyms fall back to neutral colors, and
++  KMF's bundled fallback is green. Existing configured palettes override defaults.
++
++## Backend release preparation
++
++```
++node scripts/prepare-p2p-backend-release.mjs
++```
++
++This compiles the complete backend into a new generated directory and creates
++an archive containing compiled code, source, package manifest and SHA-256 source
++inventory. It excludes credentials, databases, node_modules, media and tests.
++It never deploys. Its manifest distinguishes the workspace checkpoint from the
++actual included source hashes; a checkpoint ID alone does not attest uncommitted files.
++
++## Verification
++
++```
++pnpm --filter @workspace/p2p-app-backend run build
++pnpm --filter @workspace/p2p-app-backend exec jest --runInBand \
++  src/__tests__/iap-security.test.ts \
++  src/__tests__/enterprise-compatibility.test.ts
++node --test scripts/tests/p2p_iap_persistence.cjs
++```
++
++The persistence suite starts a separate temporary Mongo replica set, uses fake
++store responses, and tears it down. It never uses the development/production
++database and never charges a card or store account.
++
++The installed Jest launcher currently points to a missing package, so those
++Jest checks cannot run in this workspace without repairing its test dependencies.
++The native Node persistence suite independently exercises the compiled service,
++real Mongo transactions, real signed test JWTs, and the gym bootstrap/selection
++controllers. Do not report the Jest suites or Flutter tests as passed.
++
++Mongo transactions require a replica set. The workspace's standalone mongod
++cannot execute transactional purchase activations; it must fail closed rather
++than granting access with partial writes. Production Atlas supports transactions.
++
++## Still required before claiming launch readiness
++
++Configure deployment store credentials; deploy the reviewed backend with approval;
++verify lifecycle notifications, refund/cancellation handling and sandbox purchases;
++complete gym-scoped trainer/booking checks; run Flutter analysis and physical-device
++QA; restore Codemagic access; build/sign/upload to TestFlight and confirm processing.
++Neither a passing compilation nor this archive is proof of those steps.
+diff --git a/scripts/prepare-p2p-backend-release.mjs b/scripts/prepare-p2p-backend-release.mjs
+new file mode 100644
+index 00000000..527f2d6b
+--- /dev/null
++++ b/scripts/prepare-p2p-backend-release.mjs
+@@ -0,0 +1,47 @@
++import { execFileSync } from 'node:child_process';
++import { createHash } from 'node:crypto';
++import { createRequire } from 'node:module';
++import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, copyFileSync, writeFileSync } from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++// Export only the complete, compiled workspace backend. Never package .env,
++// node_modules, databases, uploaded media or the mobile repo's partial snapshot.
++const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
++const backend = path.join(root, 'artifacts/p2p-app-backend');
++for (const file of ['src/app.ts', 'src/server.ts', 'src/routes/routesConfig.ts', 'tsconfig.json', 'package.json']) {
++  if (!existsSync(path.join(backend, file))) throw new Error(`Complete backend required: missing ${file}`);
++}
++const output = path.join(root, 'generated-artifacts/p2p-backend');
++mkdirSync(output, { recursive: true });
++const stage = mkdtempSync(path.join(output, 'release-'));
++const require = createRequire(path.join(backend, 'package.json'));
++const tsc = require.resolve('typescript/bin/tsc');
++execFileSync(process.execPath, [tsc, '--project', path.join(backend, 'tsconfig.json'), '--outDir', path.join(stage, 'dist')], { cwd: backend, stdio: 'inherit' });
++
++function files(dir) {
++  return readdirSync(dir, { withFileTypes: true }).flatMap(entry =>
++    entry.name === '__tests__' ? [] :
++    entry.isDirectory() ? files(path.join(dir, entry.name)) :
++    entry.isFile() ? [path.join(dir, entry.name)] : []);
++}
++const manifest = {
++  format: 1, package: '@workspace/p2p-app-backend',
++  createdAt: new Date().toISOString(),
++  workspaceHead: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
++  state: 'compiled-not-deployed', files: {},
++};
++for (const source of files(path.join(backend, 'src'))) {
++  const relative = path.relative(backend, source);
++  const target = path.join(stage, relative);
++  mkdirSync(path.dirname(target), { recursive: true });
++  copyFileSync(source, target);
++  manifest.files[relative] = createHash('sha256').update(readFileSync(source)).digest('hex');
++}
++copyFileSync(path.join(backend, 'package.json'), path.join(stage, 'package.json'));
++manifest.files['package.json'] = createHash('sha256').update(readFileSync(path.join(stage, 'package.json'))).digest('hex');
++writeFileSync(path.join(stage, 'RELEASE-MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n');
++const archive = path.join(output, path.basename(stage) + '.tar.gz');
++execFileSync('tar', ['--exclude=__tests__', '-czf', archive, '-C', stage, '.']);
++console.log(`Compiled complete backend: ${path.relative(root, archive)}`);
++console.log('No credentials included. Not deployed; install dependencies before starting dist/server.js.');
+diff --git a/scripts/tests/p2p_iap_persistence.cjs b/scripts/tests/p2p_iap_persistence.cjs
+new file mode 100644
+index 00000000..1fae6c7b
+--- /dev/null
++++ b/scripts/tests/p2p_iap_persistence.cjs
+@@ -0,0 +1,204 @@
++// Real, isolated Mongo replica-set persistence; store responses are doubles.
++// Never connects to the workspace or production database and never charges.
++const {test,before,beforeEach,after}=require('node:test');
++const assert=require('node:assert/strict');
++const {spawn}=require('node:child_process');
++const {mkdtempSync,rmSync}=require('node:fs');
++const {tmpdir}=require('node:os');
++const path=require('node:path');
++const net=require('node:net');
++const {createRequire}=require('node:module');
++const backend=path.resolve(__dirname,'../../artifacts/p2p-app-backend');
++const fromBackend=createRequire(path.join(backend,'package.json'));
++// Test-process-only signing key, never a workspace or deployment credential.
++process.env.SESSION_SECRET='isolated-p2p-persistence-test-key';
++const mongoose=fromBackend('mongoose');
++const jwt=fromBackend('jsonwebtoken');
++const {MongoClient}=mongoose.mongo;
++const {IAPSubscriptionModel}=require(path.join(backend,'dist/modules/iap/iap.model'));
++const {UserModel}=require(path.join(backend,'dist/modules/user/user.model'));
++const {EnterpriseSessionModel}=require(path.join(backend,'dist/modules/enterprise/enterprise-session.model'));
++const {TenantAccessModel}=require(path.join(backend,'dist/modules/tenantAccess/tenantAccess.model'));
++const {bootstrap,selectContext}=require(path.join(backend,'dist/modules/enterprise/enterprise.controller'));
++const apple=require(path.join(backend,'dist/modules/iap/apple-verifier.service'));
++const actualAppleVerifier=apple.verifyAppleTransaction;
++const affiliates=require(path.join(backend,'dist/modules/affiliate/affiliate.service'));
++let credits=0,storeCalls=0,expired=false;
++apple.verifyAppleTransaction=async(_proof,purchaseId)=> {
++  storeCalls++;
++  return {purchaseDate:new Date(Date.now()-1000),
++    expiresDate:new Date(Date.now()+(expired?-1000:86400000)),
++    originalTransactionId:'chain-'+purchaseId.replace(/-renewal$/,'')};
++};
++affiliates.creditAffiliateForPurchase=async()=>{credits++;};
++const {verifyIAPSubscription}=require(path.join(backend,'dist/modules/iap/iap.service'));
++let mongo,dir,userId,otherId;
++const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
++before(async()=>{
++  const port=await new Promise(resolve=>{const s=net.createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>resolve(p));});});
++  dir=mkdtempSync(path.join(tmpdir(),'p2p-iap-test-'));
++  mongo=spawn('mongod',['--dbpath',dir,'--port',String(port),'--bind_ip','127.0.0.1',
++    '--replSet','p2p-iap-tests','--quiet'],{stdio:'ignore'});
++  const direct=new MongoClient(`mongodb://127.0.0.1:${port}/?directConnection=true`,{serverSelectionTimeoutMS:500});
++  let ready=false;
++  for(let i=0;i<40;i++){try{await direct.connect();ready=true;break;}catch{await wait(250);}}
++  assert.ok(ready,'isolated mongod must start');
++  await direct.db('admin').command({replSetInitiate:{_id:'p2p-iap-tests',members:[{_id:0,host:`127.0.0.1:${port}`}]}});
++  await direct.close();
++  await mongoose.connect(`mongodb://127.0.0.1:${port}/iap_tests?replicaSet=p2p-iap-tests`,{serverSelectionTimeoutMS:20000});
++  await IAPSubscriptionModel.init();
++  await EnterpriseSessionModel.init();
++  await TenantAccessModel.init();
++});
++beforeEach(async()=>{
++  await IAPSubscriptionModel.deleteMany({});
++  await UserModel.deleteMany({});
++  await EnterpriseSessionModel.deleteMany({});
++  await TenantAccessModel.deleteMany({});
++  userId=new mongoose.Types.ObjectId();otherId=new mongoose.Types.ObjectId();
++  await UserModel.collection.insertMany([userId,otherId].map(_id=>({
++    _id,email:`${_id}@example.test`,isVerified:true,isDeleted:false,role:'user',subscriptionTier:'free',
++    subscribedTrainer:new mongoose.Types.ObjectId(),
++  })));
++  credits=0;storeCalls=0;expired=false;
++});
++after(async()=>{
++  await mongoose.disconnect();
++  if(mongo&&mongo.exitCode===null){mongo.kill('SIGTERM');await new Promise(resolve=>mongo.once('exit',resolve));}
++  if(dir)rmSync(dir,{recursive:true,force:true});
++});
++test('four store products activate correct access and preserve assigned trainer',async()=>{
++  for(const product of ['p2p_standard_3m','p2p_standard_annual','p2p_pro_3m','p2p_pro_annual']){
++    const result=await verifyIAPSubscription(String(userId),'ios',product,product,'receipt');
++    assert.equal(result.isSubscribed,true);
++    const user=await UserModel.findById(userId).lean();
++    assert.equal(user.subscriptionTier,product.includes('_pro_')?'premium':'paid');
++    assert.ok(user.subscribedTrainer,'purchase must not erase the human trainer');
++  }
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),4);
++});
++test('restore rechecks store and updates one original-chain record',async()=>{
++  await verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','first','receipt');
++  await verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','first-renewal','receipt');
++  assert.equal(storeCalls,2);
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),1);
++});
++test('expired replay cannot return cached active success',async()=>{
++  await verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','expired','receipt');
++  expired=true;
++  await assert.rejects(verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','expired','receipt'),
++    error=>error.statusCode===402);
++  assert.equal(storeCalls,2);
++});
++test('original-chain purchase cannot be moved to another account',async()=>{
++  await verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','owned','receipt');
++  await assert.rejects(verifyIAPSubscription(String(otherId),'ios','p2p_standard_3m','owned-renewal','receipt'),
++    error=>error.statusCode===409);
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),1);
++  assert.equal((await UserModel.findById(otherId).lean()).subscriptionTier,'free');
++});
++test('invalid account rolls back the purchase record atomically',async()=>{
++  await UserModel.updateOne({_id:userId},{$set:{isDeleted:true}});
++  await assert.rejects(verifyIAPSubscription(String(userId),'ios','p2p_pro_annual','deleted','receipt'));
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),0);
++});
++test('concurrent duplicate activations never create duplicate entitlements',async()=>{
++  const results=await Promise.allSettled(Array.from({length:3},()=>
++    verifyIAPSubscription(String(userId),'ios','p2p_standard_3m','concurrent','receipt')));
++  assert.ok(results.some(r=>r.status==='fulfilled'));
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),1);
++  for(const result of results)if(result.status==='rejected')assert.equal(result.reason.statusCode,409);
++});
++test('legacy affiliate handling is not credited a second time on restore',async()=>{
++  await verifyIAPSubscription(String(userId),'ios','month_1','legacy','receipt');
++  await verifyIAPSubscription(String(userId),'ios','month_1','legacy','receipt');
++  assert.equal(credits,1);
++});
++test('unknown and malformed purchases never reach the store or database',async()=>{
++  for(const [product,proof] of [['unknown','receipt'],['p2p_standard_3m',{}]]){
++    await assert.rejects(verifyIAPSubscription(String(userId),'ios',product,'bad',proof));
++  }
++  assert.equal(storeCalls,0);
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),0);
++});
++function req(body, key=process.env.SESSION_SECRET) {
++  return {headers:{authorization:'Bearer '+jwt.sign({id:String(userId),role:'user'},key)},body};
++}
++function res() {
++  return {statusCode:200,body:null,status(code){this.statusCode=code;return this;},json(body){this.body=body;return this;}};
++}
++async function gymMember(){
++  await UserModel.updateOne({_id:userId},{$set:{tenantId:'kmf-fitness',tenantRole:'member'}});
++  await TenantAccessModel.create({tenantId:'kmf-fitness',displayName:'KMF Fitness',isLive:true,
++    branding:{primaryColor:'#123456',logoUrl:'https://example.test/approved.png'},
++    locations:[{id:'location-a',name:'Test location'}]});
++}
++test('personal bootstrap works without gym membership; invalid JWT is denied',async()=>{
++  const result=res();await bootstrap(req(),result);
++  assert.equal(result.statusCode,200);assert.equal(result.body.data.context,null);
++  const denied=res();await bootstrap(req(undefined,'wrong-key'),denied);
++  assert.equal(denied.statusCode,401);
++});
++test('gym/location preference survives a fresh authenticated bootstrap',async()=>{
++  await gymMember();
++  const chosen=res();await selectContext(req({tenantId:'kmf-fitness',locationId:'location-a'}),chosen);
++  assert.equal(chosen.statusCode,200);
++  assert.equal(chosen.body.data.context.tenant.primaryColor,'#123456');
++  const restored=res();await bootstrap(req(),restored);
++  assert.equal(restored.body.data.currentTenantId,'kmf-fitness');
++  assert.equal(restored.body.data.locationId,'location-a');
++  assert.equal(await EnterpriseSessionModel.countDocuments({userId}),1);
++});
++test('foreign gym/location cannot alter the saved preference',async()=>{
++  await gymMember();
++  for(const body of [{tenantId:'foreign'},{tenantId:'kmf-fitness',locationId:'foreign'}]){
++    const result=res();await selectContext(req(body),result);
++    assert.equal(result.statusCode,403);
++  }
++  assert.equal(await EnterpriseSessionModel.countDocuments({userId}),0);
++});
++test('personal-mode selection persists, and another account does not inherit it',async()=>{
++  await gymMember();
++  const chosen=res();await selectContext(req({tenantId:null}),chosen);
++  const restored=res();await bootstrap(req(),restored);
++  assert.equal(restored.body.data.context,null);
++  assert.ok(await EnterpriseSessionModel.findOne({userId,tenantId:null}));
++  assert.equal(await EnterpriseSessionModel.findOne({userId:otherId}),null);
++});
++test('revoked gym access is rechecked rather than restored from cached preference',async()=>{
++  await gymMember();
++  const chosen=res();await selectContext(req({tenantId:'kmf-fitness'}),chosen);
++  await TenantAccessModel.updateOne({tenantId:'kmf-fitness'},{$set:{isLive:false}});
++  const restored=res();await bootstrap(req(),restored);
++  assert.equal(restored.body.data.context,null);
++});
++test('global admin role does not invent gym membership',async()=>{
++  await UserModel.updateOne({_id:userId},{$set:{role:'admin'}});
++  const result=res();await bootstrap(req(),result);
++  assert.equal(result.body.data.context,null);
++});
++test('actual Apple verifier rejects malformed input before any store request',async()=>{
++  await assert.rejects(actualAppleVerifier('', '100000001','p2p_standard_3m'),/missing/);
++  await assert.rejects(actualAppleVerifier('receipt','not-a-store-id','p2p_standard_3m'),/invalid/);
++});
++test('database outage is unavailable data, not a revoked session',async()=>{
++  const original=UserModel.findOne;
++  UserModel.findOne=()=>{throw new Error('isolated database failure');};
++  try{
++    const result=res();await bootstrap(req(),result);
++    assert.equal(result.statusCode,503);
++    assert.equal(result.body.success,false);
++    assert.equal(result.body.data,null);
++  }finally{UserModel.findOne=original;}
++});
++test('legacy Android token ownership is preserved before any store request',async()=>{
++  await IAPSubscriptionModel.create({userId,platform:'android',productId:'month_1',
++    subscriptionTier:'monthly',purchaseId:'old-google-order',purchaseToken:'legacy-token',
++    startDate:new Date(),endDate:new Date(Date.now()+86400000),status:'active'});
++  await assert.rejects(
++    verifyIAPSubscription(String(otherId),'android','month_1','changed-order','legacy-token'),
++    error=>error.statusCode===409,
++  );
++  assert.equal(await IAPSubscriptionModel.countDocuments({}),1);
++  assert.equal((await UserModel.findById(otherId).lean()).subscriptionTier,'free');
++});

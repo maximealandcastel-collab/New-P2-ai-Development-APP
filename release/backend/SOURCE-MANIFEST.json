@@ -1,0 +1,34 @@
+{
+  "baseCheckpoint": "afae98cadab21541379d1cb79727b8cfea1daaf6",
+  "files": {
+    "artifacts/p2p-app-backend/src/__tests__/enterprise-compatibility.test.ts": "5fa8fd74bca1e7f40bb978d206e54cc42347c4d9151809f51ff46f64aac42703",
+    "artifacts/p2p-app-backend/src/__tests__/iap-security.test.ts": "7ffc30ea33f4aabf60b2c54c863ff06a2058b496704a5dbdbcfea8a49c78b792",
+    "artifacts/p2p-app-backend/src/modules/enterprise/enterprise-session.model.ts": "f5d5e1be397ad191b5a2e974c50ad273a3dac53ab5edccbb59bd0fd20ef33a8b",
+    "artifacts/p2p-app-backend/src/modules/enterprise/enterprise.controller.ts": "cd952115dbbc97813654b1f15d444c6ab3ec1be2d6e1b0df9c32b9d7d440b0fd",
+    "artifacts/p2p-app-backend/src/modules/enterprise/enterprise.route.ts": "9f49f9d77adf3c6b49b4f2219d6f93862b7ea0cb5112af8db0e98becbc81974f",
+    "artifacts/p2p-app-backend/src/modules/enterprise/enterprise.service.ts": "fc0513f3bbc36a5b577a475d1f1f7b5447ca054d6c5f5cb6e0fbf21583f6c79e",
+    "artifacts/p2p-app-backend/src/modules/iap/apple-verifier.service.ts": "53818e0e3f5472ba4d15cf31f87e31bb45307d8eb9dd5220691707c35ad1d1ef",
+    "artifacts/p2p-app-backend/src/modules/iap/iap.controller.ts": "fdf7f73a31cf1f79b30ca1bb9f4632f9f9d94e7034b7d8267a78a407428d1020",
+    "artifacts/p2p-app-backend/src/modules/iap/iap.interface.ts": "59c4c637682420e99a1ba3d48fed99a0720fac8d46ebdb8063ce14c8c8c616d6",
+    "artifacts/p2p-app-backend/src/modules/iap/iap.model.ts": "d23b31b3be8e492e73a9dfdc8ba544d6193ae4b36417a12e28fbf3e2644d6cce",
+    "artifacts/p2p-app-backend/src/modules/iap/iap.route.ts": "8255cfa915a755975b2f9f42ab69634cabf123b2acea1d2a55d5c293ce95f757",
+    "artifacts/p2p-app-backend/src/modules/iap/iap.service.ts": "efee8c8959739aeef741f3fd5ec151e3c5d345ee8446c085e37e4119c6781344",
+    "artifacts/p2p-app-backend/src/modules/iap/store-policy.ts": "46e0b3b2eb055c698b5e935e4b113fe514b6634a5541554f3925da11d0a20b5d",
+    "artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.model.ts": "d99f2d43c976d5451e9c9265f38cdc22d17ff221d68b70af29ac15fab59a4e37",
+    "artifacts/p2p-app-backend/src/modules/tenantAccess/tenantAccess.service.ts": "79f14d682640394fca77e5910b25629e485317915648ce46f63a4d05abdff1fd",
+    "docs/P2P_BACKEND_RECONCILIATION.md": "ba78d439205a7f8303252ae4cc0164a473915dd4416b3710198ca1a313800e39",
+    "scripts/prepare-p2p-backend-release.mjs": "680ea141c0f6a275eaedb222795d4676c556cf69f42725e6814fb552ce0f2d1a",
+    "scripts/tests/p2p_iap_persistence.cjs": "c7cf8b182acdecfec804a3e40590064ce734eadae871a05901250c7c7bda651b"
+  },
+  "format": 1,
+  "patchSha256": "e54935ae310de24c41de25b8475a89b8dd4c588d5d87f6d044834caf98e700fb",
+  "sourceCheckpoint": "767e16e22e120d05451d3133c898636a0e3ab2ef",
+  "verification": {
+    "backendCompilation": "passed",
+    "backendDeployment": "separate approval and publish required",
+    "deviceQa": "not run",
+    "flutterAnalysis": "not run - SDK unavailable",
+    "isolatedDatabaseChecks": 17,
+    "storeResponses": "simulated"
+  }
+}
