@@ -43,7 +43,7 @@ def prepare_keys(env, cache, output):
             pem = normalize_pem(raw)
             # Validate and canonicalize without exposing input or OpenSSL errors.
             result = subprocess.run(
-                ["openssl", "pkey", "-passin", "pass:", "-outform", "PEM"],
+                ["openssl", "rsa", "-traditional", "-passin", "pass:", "-outform", "PEM"],
                 input=pem, capture_output=True, check=False,
             )
             if result.returncode != 0 or not result.stdout:

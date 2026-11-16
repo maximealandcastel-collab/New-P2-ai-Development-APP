@@ -178,10 +178,10 @@ workflows:
           fi
 
           fetch_signing_files() {
-            app-store-connect fetch-signing-files \
+            CERTIFICATE_PRIVATE_KEY="$(cat "$CERTIFICATE_KEY")" \
+              app-store-connect fetch-signing-files \
               "$BUNDLE_ID" \
               --type IOS_APP_STORE \
-              --certificate-key "@file:$CERTIFICATE_KEY" \
               --private-key @file:/tmp/api_key.pem \
               --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
               --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \

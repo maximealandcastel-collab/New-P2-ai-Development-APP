@@ -33,6 +33,10 @@ class SigningKeysTest(unittest.TestCase):
             files = list((root / "out").glob("*.pem"))
             self.assertEqual(len(files), count)
             self.assertTrue(all(p.stat().st_mode & 0o777 == 0o600 for p in files))
+            self.assertTrue(all(
+                p.read_text().startswith("-----BEGIN RSA PRIVATE KEY-----")
+                for p in files
+            ))
             return count
 
     def test_plain_pem(self):
@@ -64,6 +68,8 @@ class SigningKeysTest(unittest.TestCase):
         yaml = (SCRIPT.parents[1] / "codemagic.yaml").read_text()
         self.assertNotIn("openssl genrsa", yaml)
         self.assertNotIn("--create \\", yaml)
+        self.assertNotIn('--certificate-key "@file:', yaml)
+        self.assertIn('CERTIFICATE_PRIVATE_KEY="$(cat "$CERTIFICATE_KEY")"', yaml)
         self.assertIn("prepare_ios_signing_keys.py", yaml)
         self.assertIn("pattern: elijah-stabilization", yaml)
 
